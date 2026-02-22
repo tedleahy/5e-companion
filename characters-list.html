@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>My Characters</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --parchment: #f5e6c8;
+    --card-bg: #f0e0bc;
+    --ink: #1a0f00;
+    --ink-light: #3d2b1f;
+    --crimson: #8b1a1a;
+    --gold: #c9922a;
+    --bg: #0d0906;
+    --divider: rgba(139,90,43,0.3);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: #060403;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh;
+    font-family: 'Crimson Text', Georgia, serif;
+  }
+  .phone {
+    width: 375px; height: 812px;
+    background: var(--bg);
+    border-radius: 44px; overflow: hidden; position: relative;
+    box-shadow: 0 0 0 1px rgba(201,146,42,0.12), 0 40px 80px rgba(0,0,0,0.85);
+    display: flex; flex-direction: column;
+  }
+
+  /* Status */
+  .status-bar {
+    height: 44px; flex-shrink: 0; z-index: 10; position: relative;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px;
+  }
+  .status-time { font-family: 'Cinzel', serif; font-size: 12px; color: rgba(245,230,200,0.7); font-weight: 600; }
+  .status-icons { font-size: 11px; color: rgba(245,230,200,0.5); }
+
+  /* Header */
+  .header {
+    padding: 8px 22px 0;
+    border-bottom: 1px solid rgba(201,146,42,0.15);
+    flex-shrink: 0;
+  }
+  .header-top {
+    display: flex; align-items: flex-start; justify-content: space-between;
+  }
+  .codex-label {
+    font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--gold); opacity: 0.7;
+  }
+  .header-actions { display: flex; gap: 8px; }
+  .header-action {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(201,146,42,0.08); cursor: pointer;
+    font-size: 14px; color: rgba(201,146,42,0.6);
+    transition: background 0.15s;
+  }
+  .header-action:hover { background: rgba(201,146,42,0.14); }
+
+  .page-title {
+    font-family: 'Cinzel', serif; font-size: 28px; font-weight: 700;
+    color: var(--parchment); margin-top: 6px; line-height: 1.1;
+  }
+  .char-count {
+    font-family: 'Crimson Text', serif; font-size: 13px;
+    color: rgba(201,146,42,0.5); font-style: italic; margin-top: 2px;
+    margin-bottom: 14px;
+  }
+
+  /* Scroll area */
+  .scroll-area {
+    flex: 1; overflow-y: auto; padding: 16px 16px 100px;
+    display: flex; flex-direction: column; gap: 14px;
+    scrollbar-width: none;
+  }
+  .scroll-area::-webkit-scrollbar { display: none; }
+
+  /* Character card */
+  .char-card {
+    background: var(--card-bg);
+    border-radius: 18px; overflow: hidden;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.5);
+    cursor: pointer;
+    position: relative;
+    animation: fadeUp 0.4s ease both;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .char-card:hover { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(0,0,0,0.55); }
+  .char-card:active { transform: translateY(0); }
+  .char-card:nth-child(1) { animation-delay: 0.05s; }
+  .char-card:nth-child(2) { animation-delay: 0.12s; }
+  .char-card:nth-child(3) { animation-delay: 0.19s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Card header band with class colour */
+  .card-band {
+    height: 6px; width: 100%;
+  }
+  .band-wizard { background: linear-gradient(90deg, #4a1a6b, #8b3ab4, #c9922a); }
+  .band-fighter { background: linear-gradient(90deg, #6b1a1a, #b43a3a, #c9922a); }
+  .band-rogue { background: linear-gradient(90deg, #1a2a1a, #2a4a2a, #5a8a3a); }
+
+  .card-body { padding: 16px 18px 18px; }
+
+  .card-top {
+    display: flex; align-items: flex-start; gap: 14px;
+  }
+
+  /* Avatar silhouette */
+  .char-avatar {
+    width: 56px; height: 56px; border-radius: 12px;
+    background: rgba(0,0,0,0.12);
+    border: 1.5px solid var(--divider);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 26px;
+    position: relative; overflow: hidden;
+  }
+
+  /* Subtle inner texture */
+  .char-avatar::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 40% 35%, rgba(255,255,255,0.07), transparent 60%);
+  }
+
+  .card-identity { flex: 1; min-width: 0; }
+  .char-name {
+    font-family: 'Cinzel', serif; font-size: 18px; font-weight: 700;
+    color: var(--ink); line-height: 1.1;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .char-class {
+    font-family: 'Crimson Text', serif; font-size: 14px; font-style: italic;
+    color: var(--ink-light); opacity: 0.7; margin-top: 2px;
+  }
+
+  /* Level badge */
+  .level-badge {
+    font-family: 'Cinzel', serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    background: rgba(139,26,26,0.12); color: var(--crimson);
+    border: 1px solid rgba(139,26,26,0.2);
+    border-radius: 20px; padding: 3px 10px;
+    margin-top: 5px; display: inline-block;
+  }
+
+  /* Stats row */
+  .card-stats {
+    display: flex; gap: 0; margin-top: 14px;
+    background: rgba(0,0,0,0.06); border-radius: 10px;
+    overflow: hidden;
+  }
+  .stat-cell {
+    flex: 1; text-align: center; padding: 8px 4px;
+  }
+  .stat-cell + .stat-cell {
+    border-left: 1px solid var(--divider);
+  }
+  .stat-val {
+    font-family: 'Cinzel', serif; font-size: 16px; font-weight: 700;
+    color: var(--ink); line-height: 1;
+  }
+  .stat-val.hp { color: var(--crimson); }
+  .stat-val.ac { color: #1a4a1a; }
+  .stat-lbl {
+    font-family: 'Cinzel', serif; font-size: 6.5px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--ink-light); opacity: 0.5; margin-top: 2px;
+  }
+
+  /* HP bar inside card */
+  .hp-bar-wrap { margin-top: 12px; }
+  .hp-bar-header {
+    display: flex; justify-content: space-between; margin-bottom: 4px;
+  }
+  .hp-bar-label {
+    font-family: 'Cinzel', serif; font-size: 7px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--ink-light); opacity: 0.45;
+  }
+  .hp-bar-track {
+    height: 5px; background: rgba(139,26,26,0.12);
+    border-radius: 3px; overflow: hidden;
+  }
+  .hp-bar-fill {
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, var(--crimson), #c94040);
+  }
+
+  /* Last active label */
+  .card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 12px; padding-top: 10px;
+    border-top: 1px solid var(--divider);
+  }
+  .last-active {
+    font-family: 'Crimson Text', serif; font-size: 11px;
+    color: var(--ink-light); opacity: 0.4; font-style: italic;
+  }
+  .view-btn {
+    font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--gold); opacity: 0.8;
+  }
+
+  /* Condition chips */
+  .card-conditions { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+  .condition-chip {
+    font-family: 'Cinzel', serif; font-size: 7px; letter-spacing: 1px;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 20px;
+    border: 1px solid var(--crimson); color: var(--crimson);
+    background: rgba(139,26,26,0.07);
+  }
+
+  /* FAB */
+  .fab {
+    position: absolute; bottom: 32px; right: 22px;
+    width: 56px; height: 56px; border-radius: 16px;
+    background: var(--crimson);
+    box-shadow: 0 4px 20px rgba(139,26,26,0.5);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 20;
+    transition: transform 0.15s, background 0.15s;
+  }
+  .fab:hover { transform: translateY(-2px); background: #a82020; }
+  .fab-icon {
+    font-family: 'Cinzel', serif; font-size: 22px; color: var(--parchment);
+    line-height: 1; margin-top: -1px;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="status-bar">
+    <span class="status-time">20:07</span>
+    <span class="status-icons">▲ ⬛ 38%</span>
+  </div>
+
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="codex-label">Character Codex</div>
+      </div>
+      <div class="header-actions">
+        <div class="header-action">⌕</div>
+        <div class="header-action">⋯</div>
+      </div>
+    </div>
+    <div class="page-title">My Characters</div>
+    <div class="char-count">3 adventurers in your roster</div>
+  </div>
+
+  <div class="scroll-area">
+
+    <!-- Character 1: Wizard -->
+    <div class="char-card">
+      <div class="card-band band-wizard"></div>
+      <div class="card-body">
+        <div class="card-top">
+          <div class="char-avatar">🧙</div>
+          <div class="card-identity">
+            <div class="char-name">Vaelindra Stormveil</div>
+            <div class="char-class">High Elf · Abjuration Wizard</div>
+            <div class="level-badge">Level 12</div>
+          </div>
+        </div>
+        <div class="card-conditions">
+          <div class="condition-chip">Concentrating</div>
+        </div>
+        <div class="card-stats">
+          <div class="stat-cell">
+            <div class="stat-val hp">54<span style="font-size:10px;opacity:0.5">/76</span></div>
+            <div class="stat-lbl">HP</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val ac">17</div>
+            <div class="stat-lbl">AC</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val">+10</div>
+            <div class="stat-lbl">Spell Atk</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val">+5</div>
+            <div class="stat-lbl">Init</div>
+          </div>
+        </div>
+        <div class="hp-bar-wrap">
+          <div class="hp-bar-track">
+            <div class="hp-bar-fill" style="width:71%"></div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="last-active">Active 2 hours ago</div>
+          <div class="view-btn">View Sheet →</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Character 2: Fighter -->
+    <div class="char-card">
+      <div class="card-band band-fighter"></div>
+      <div class="card-body">
+        <div class="card-top">
+          <div class="char-avatar">⚔</div>
+          <div class="card-identity">
+            <div class="char-name">Aldric Ironforge</div>
+            <div class="char-class">Mountain Dwarf · Battle Master Fighter</div>
+            <div class="level-badge">Level 8</div>
+          </div>
+        </div>
+        <div class="card-stats">
+          <div class="stat-cell">
+            <div class="stat-val hp">72<span style="font-size:10px;opacity:0.5">/88</span></div>
+            <div class="stat-lbl">HP</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val ac">18</div>
+            <div class="stat-lbl">AC</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val">+9</div>
+            <div class="stat-lbl">Atk Bonus</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val">+1</div>
+            <div class="stat-lbl">Init</div>
+          </div>
+        </div>
+        <div class="hp-bar-wrap">
+          <div class="hp-bar-track">
+            <div class="hp-bar-fill" style="width:82%"></div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="last-active">Active yesterday</div>
+          <div class="view-btn">View Sheet →</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Character 3: Rogue -->
+    <div class="char-card">
+      <div class="card-band band-rogue"></div>
+      <div class="card-body">
+        <div class="card-top">
+          <div class="char-avatar">🗡</div>
+          <div class="card-identity">
+            <div class="char-name">Silas Nightwhisper</div>
+            <div class="char-class">Wood Elf · Arcane Trickster Rogue</div>
+            <div class="level-badge">Level 5</div>
+          </div>
+        </div>
+        <div class="card-stats">
+          <div class="stat-cell">
+            <div class="stat-val hp">28<span style="font-size:10px;opacity:0.5">/32</span></div>
+            <div class="stat-lbl">HP</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val ac">15</div>
+            <div class="stat-lbl">AC</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val">+7</div>
+            <div class="stat-lbl">Atk Bonus</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val">+4</div>
+            <div class="stat-lbl">Init</div>
+          </div>
+        </div>
+        <div class="hp-bar-wrap">
+          <div class="hp-bar-track">
+            <div class="hp-bar-fill" style="width:87%"></div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="last-active">Active 3 days ago</div>
+          <div class="view-btn">View Sheet →</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FAB: new character -->
+  <div class="fab">
+    <div class="fab-icon">+</div>
+  </div>
+
+</div>
+</body>
+</html>

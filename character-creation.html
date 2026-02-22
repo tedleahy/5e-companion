@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Create Character</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --parchment: #f5e6c8;
+    --card-bg: #f0e0bc;
+    --ink: #1a0f00;
+    --ink-light: #3d2b1f;
+    --crimson: #8b1a1a;
+    --gold: #c9922a;
+    --gold-light: #e8b84b;
+    --bg: #0d0906;
+    --divider: rgba(139,90,43,0.3);
+    --input-bg: rgba(240,224,188,0.06);
+    --input-border: rgba(201,146,42,0.2);
+    --input-focus: rgba(201,146,42,0.5);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    background: #060403;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; font-family: 'Crimson Text', Georgia, serif;
+  }
+  .phone {
+    width: 375px; height: 812px;
+    background: var(--bg);
+    border-radius: 44px; overflow: hidden; position: relative;
+    box-shadow: 0 0 0 1px rgba(201,146,42,0.12), 0 40px 80px rgba(0,0,0,0.85);
+    display: flex; flex-direction: column;
+  }
+
+  .status-bar {
+    height: 44px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; z-index: 10; position: relative;
+  }
+  .status-time { font-family:'Cinzel',serif; font-size:12px; color:rgba(245,230,200,0.7); font-weight:600; }
+  .status-icons { font-size:11px; color:rgba(245,230,200,0.5); }
+
+  /* ── Wizard chrome ── */
+  .wizard-header {
+    padding: 10px 20px 14px;
+    border-bottom: 1px solid rgba(201,146,42,0.12);
+    flex-shrink: 0;
+  }
+  .wizard-nav {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+  }
+  .back-btn {
+    font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: rgba(201,146,42,0.5); cursor: pointer; padding: 4px 0;
+  }
+  .back-btn:hover { color: var(--gold); }
+  .step-indicator {
+    font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(201,146,42,0.4);
+  }
+  .cancel-btn {
+    font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: rgba(139,26,26,0.6); cursor: pointer; padding: 4px 0;
+  }
+
+  /* Progress bar */
+  .progress-track {
+    height: 3px; background: rgba(201,146,42,0.1); border-radius:2px; overflow:hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--gold); border-radius:2px;
+    transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* Step dots */
+  .step-dots {
+    display: flex; gap: 5px; justify-content: center; margin-top: 10px;
+  }
+  .step-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(201,146,42,0.15); transition: all 0.25s;
+  }
+  .step-dot.done { background: rgba(201,146,42,0.45); }
+  .step-dot.active { background: var(--gold); width: 18px; border-radius: 3px; }
+
+  /* ── Step content ── */
+  .step-content {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    scrollbar-width: none; padding: 20px 20px 20px;
+  }
+  .step-content::-webkit-scrollbar { display: none; }
+
+  .step-heading {
+    font-family: 'Cinzel', serif; font-size: 22px; font-weight: 700;
+    color: var(--parchment); line-height: 1.2; margin-bottom: 4px;
+  }
+  .step-sub {
+    font-family: 'Crimson Text', serif; font-size: 14px; font-style: italic;
+    color: rgba(201,146,42,0.5); margin-bottom: 20px;
+  }
+
+  /* ── Form inputs ── */
+  .field { margin-bottom: 16px; }
+  .field-label {
+    font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 2.5px;
+    text-transform: uppercase; color: rgba(201,146,42,0.6);
+    margin-bottom: 6px; display: block;
+  }
+  .field-input {
+    width: 100%; background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 10px; padding: 12px 14px;
+    font-family: 'Crimson Text', serif; font-size: 16px; color: var(--parchment);
+    outline: none; transition: border-color 0.15s;
+  }
+  .field-input:focus { border-color: var(--input-focus); }
+  .field-input::placeholder { color: rgba(245,230,200,0.2); }
+
+  /* Number stepper */
+  .stepper {
+    display: flex; align-items: center; gap: 0;
+    background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 10px; overflow: hidden;
+  }
+  .stepper-btn {
+    width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-family: 'Cinzel', serif; font-size: 18px;
+    color: rgba(201,146,42,0.5); transition: background 0.15s; flex-shrink: 0;
+  }
+  .stepper-btn:hover { background: rgba(201,146,42,0.08); }
+  .stepper-val {
+    flex: 1; text-align: center; font-family: 'Cinzel', serif;
+    font-size: 20px; font-weight: 700; color: var(--parchment);
+  }
+
+  /* Option grid (race / class selection) */
+  .option-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    margin-bottom: 4px;
+  }
+  .option-card {
+    background: var(--input-bg); border: 1.5px solid var(--input-border);
+    border-radius: 12px; padding: 14px 12px; cursor: pointer;
+    transition: all 0.15s; text-align: center;
+  }
+  .option-card:hover { border-color: rgba(201,146,42,0.4); background: rgba(240,224,188,0.1); }
+  .option-card.selected {
+    border-color: var(--gold); background: rgba(201,146,42,0.1);
+    box-shadow: 0 0 0 1px rgba(201,146,42,0.2);
+  }
+  .option-icon { font-size: 24px; margin-bottom: 6px; display: block; }
+  .option-name {
+    font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1px;
+    text-transform: uppercase; color: rgba(245,230,200,0.7);
+    display: block;
+  }
+  .option-card.selected .option-name { color: var(--gold); }
+  .option-hint {
+    font-family: 'Crimson Text', serif; font-size: 11px; font-style: italic;
+    color: rgba(245,230,200,0.35); margin-top: 3px; display: block;
+  }
+
+  /* Alignment grid (3x3) */
+  .alignment-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;
+  }
+  .align-cell {
+    background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 8px; padding: 10px 4px; cursor: pointer;
+    text-align: center; transition: all 0.15s;
+  }
+  .align-cell:hover { border-color: rgba(201,146,42,0.35); }
+  .align-cell.selected { border-color: var(--gold); background: rgba(201,146,42,0.1); }
+  .align-name {
+    font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 1px; text-transform: uppercase;
+    color: rgba(245,230,200,0.55);
+  }
+  .align-cell.selected .align-name { color: var(--gold); }
+
+  /* Ability scores */
+  .ability-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .ability-block {
+    background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 10px; padding: 12px 10px;
+  }
+  .ability-label {
+    font-family: 'Cinzel', serif; font-size: 7.5px; letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(201,146,42,0.5); margin-bottom: 6px; display: block;
+  }
+  .ability-row { display: flex; align-items: center; gap: 6px; }
+  .ability-btn {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: rgba(201,146,42,0.1); border: 1px solid rgba(201,146,42,0.2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-family: 'Cinzel', serif; font-size: 14px;
+    color: rgba(201,146,42,0.6); transition: background 0.1s; flex-shrink: 0;
+  }
+  .ability-btn:hover { background: rgba(201,146,42,0.18); }
+  .ability-val {
+    flex: 1; text-align: center; font-family: 'Cinzel', serif;
+    font-size: 22px; font-weight: 700; color: var(--parchment);
+  }
+  .ability-mod {
+    font-family: 'Cinzel', serif; font-size: 11px; font-weight: 600;
+    color: var(--crimson); background: rgba(139,26,26,0.1);
+    border-radius: 12px; padding: 1px 6px; text-align: center; margin-top: 4px;
+    display: block;
+  }
+  .ability-mod.pos { color: #2a7a2a; background: rgba(42,122,42,0.1); }
+
+  /* Background / traits text areas */
+  .field-textarea {
+    width: 100%; background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 10px; padding: 12px 14px; resize: none;
+    font-family: 'Crimson Text', serif; font-size: 15px; color: var(--parchment);
+    outline: none; transition: border-color 0.15s; min-height: 80px; line-height: 1.5;
+  }
+  .field-textarea:focus { border-color: var(--input-focus); }
+  .field-textarea::placeholder { color: rgba(245,230,200,0.2); font-style: italic; }
+
+  /* Proficiency selection */
+  .prof-list { display: flex; flex-direction: column; gap: 6px; }
+  .prof-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 10px; padding: 11px 14px; cursor: pointer; transition: all 0.15s;
+  }
+  .prof-item.selected { border-color: var(--gold); background: rgba(201,146,42,0.08); }
+  .prof-check {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 1.5px solid rgba(201,146,42,0.3);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .prof-item.selected .prof-check {
+    background: var(--gold); border-color: var(--gold);
+  }
+  .prof-check-inner {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--bg); opacity: 0; transition: opacity 0.15s;
+  }
+  .prof-item.selected .prof-check-inner { opacity: 1; }
+  .prof-name {
+    font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+    color: rgba(245,230,200,0.55); flex: 1;
+  }
+  .prof-item.selected .prof-name { color: var(--gold); }
+  .prof-attr {
+    font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 1px;
+    color: rgba(201,146,42,0.3); font-style: normal;
+  }
+
+  /* Spell selection */
+  .spell-list { display: flex; flex-direction: column; gap: 6px; }
+  .spell-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 10px; padding: 11px 14px; cursor: pointer; transition: all 0.15s;
+  }
+  .spell-item.selected { border-color: var(--gold); background: rgba(201,146,42,0.08); }
+  .spell-lvl {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid rgba(201,146,42,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cinzel', serif; font-size: 9px; font-weight: 600;
+    color: rgba(201,146,42,0.5); flex-shrink: 0;
+  }
+  .spell-item.selected .spell-lvl { border-color: var(--gold); color: var(--gold); }
+  .spell-info { flex: 1; min-width: 0; }
+  .spell-name {
+    font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.5px;
+    color: rgba(245,230,200,0.65);
+  }
+  .spell-item.selected .spell-name { color: var(--parchment); }
+  .spell-school {
+    font-family: 'Crimson Text', serif; font-size: 11px; font-style: italic;
+    color: rgba(245,230,200,0.3); margin-top: 1px;
+  }
+  .spell-counter {
+    font-family: 'Cinzel', serif; font-size: 8.5px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: rgba(201,146,42,0.45); text-align: right;
+    margin-bottom: 10px;
+  }
+
+  /* Section sub-heading inside step */
+  .sub-heading {
+    font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--crimson); opacity: 0.75;
+    margin-bottom: 8px; margin-top: 4px;
+  }
+
+  /* Divider within step */
+  .step-divider {
+    height: 1px; background: rgba(201,146,42,0.12); margin: 16px 0;
+  }
+
+  /* Hint text */
+  .hint {
+    font-family: 'Crimson Text', serif; font-size: 12px; font-style: italic;
+    color: rgba(245,230,200,0.3); margin-top: 6px; line-height: 1.4;
+  }
+
+  /* Roll button */
+  .roll-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: rgba(201,146,42,0.1); border: 1px solid rgba(201,146,42,0.25);
+    border-radius: 10px; padding: 10px; cursor: pointer;
+    font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--gold); opacity: 0.8;
+    transition: all 0.15s; margin-bottom: 12px;
+  }
+  .roll-btn:hover { opacity: 1; background: rgba(201,146,42,0.15); }
+
+  /* ── Bottom footer ── */
+  .wizard-footer {
+    padding: 12px 20px 28px;
+    border-top: 1px solid rgba(201,146,42,0.12);
+    flex-shrink: 0;
+  }
+  .next-btn {
+    width: 100%; background: var(--crimson); border-radius: 14px;
+    padding: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;
+    cursor: pointer; box-shadow: 0 4px 20px rgba(139,26,26,0.35);
+    transition: background 0.15s, transform 0.1s;
+  }
+  .next-btn:hover { background: #a82020; transform: translateY(-1px); }
+  .next-btn:active { transform: translateY(0); }
+  .next-btn-text {
+    font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--parchment); font-weight: 600;
+  }
+
+  /* ── Hidden / shown steps ── */
+  .step-panel { display: none; animation: stepIn 0.3s ease both; }
+  .step-panel.active { display: block; }
+  @keyframes stepIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Review card (final step) */
+  .review-card {
+    background: var(--card-bg); border-radius: 14px;
+    padding: 16px 18px; margin-bottom: 12px;
+  }
+  .review-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 6px 0; border-bottom: 1px solid var(--divider);
+  }
+  .review-row:last-child { border-bottom: none; }
+  .review-key {
+    font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 2px;
+    text-transform: uppercase; color: rgba(61,43,31,0.5);
+  }
+  .review-val {
+    font-family: 'Crimson Text', serif; font-size: 14px; font-weight: 600;
+    color: var(--ink); text-align: right;
+  }
+  .review-section-label {
+    font-family: 'Cinzel', serif; font-size: 8.5px; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--crimson); opacity: 0.8; margin-bottom: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="status-bar">
+    <span class="status-time">20:07</span>
+    <span class="status-icons">▲ ⬛ 38%</span>
+  </div>
+
+  <!-- Wizard chrome (always visible) -->
+  <div class="wizard-header">
+    <div class="wizard-nav">
+      <div class="back-btn" id="backBtn" onclick="prevStep()">◀ Back</div>
+      <div class="step-indicator" id="stepIndicator">Step 1 of 7</div>
+      <div class="cancel-btn">Cancel</div>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:14%"></div>
+    </div>
+    <div class="step-dots" id="stepDots"></div>
+  </div>
+
+  <!-- Step content area -->
+  <div class="step-content" id="stepContent">
+
+    <!-- ── Step 1: Identity ── -->
+    <div class="step-panel active" id="step-1">
+      <div class="step-heading">Who are you?</div>
+      <div class="step-sub">Every legend begins with a name.</div>
+
+      <div class="field">
+        <label class="field-label">Character Name</label>
+        <input class="field-input" type="text" placeholder="e.g. Vaelindra Stormveil" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">Player Name</label>
+        <input class="field-input" type="text" placeholder="Your real name (optional)" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">Campaign / Game</label>
+        <input class="field-input" type="text" placeholder="e.g. Curse of Strahd" />
+      </div>
+    </div>
+
+    <!-- ── Step 2: Race ── -->
+    <div class="step-panel" id="step-2">
+      <div class="step-heading">Choose your race.</div>
+      <div class="step-sub">Your lineage shapes who you are.</div>
+
+      <div class="option-grid">
+        <div class="option-card selected" onclick="selectOption(this)">
+          <span class="option-icon">🧝</span>
+          <span class="option-name">Elf</span>
+          <span class="option-hint">+2 DEX, +1 INT</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">🧙</span>
+          <span class="option-name">Human</span>
+          <span class="option-hint">+1 all stats</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">⛏</span>
+          <span class="option-name">Dwarf</span>
+          <span class="option-hint">+2 CON</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">🌿</span>
+          <span class="option-name">Halfling</span>
+          <span class="option-hint">+2 DEX</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">🐉</span>
+          <span class="option-name">Dragonborn</span>
+          <span class="option-hint">+2 STR, +1 CHA</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">🌑</span>
+          <span class="option-name">Tiefling</span>
+          <span class="option-hint">+2 CHA, +1 INT</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">🍄</span>
+          <span class="option-name">Gnome</span>
+          <span class="option-hint">+2 INT</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">🌓</span>
+          <span class="option-name">Half-Orc</span>
+          <span class="option-hint">+2 STR, +1 CON</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Step 3: Class & Level ── -->
+    <div class="step-panel" id="step-3">
+      <div class="step-heading">Choose your class.</div>
+      <div class="step-sub">Your calling defines your path.</div>
+
+      <div class="option-grid">
+        <div class="option-card selected" onclick="selectOption(this)">
+          <span class="option-icon">📖</span>
+          <span class="option-name">Wizard</span>
+          <span class="option-hint">Intelligence</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">⚔</span>
+          <span class="option-name">Fighter</span>
+          <span class="option-hint">Strength / DEX</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">🗡</span>
+          <span class="option-name">Rogue</span>
+          <span class="option-hint">Dexterity</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">🙏</span>
+          <span class="option-name">Cleric</span>
+          <span class="option-hint">Wisdom</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">🌿</span>
+          <span class="option-name">Druid</span>
+          <span class="option-hint">Wisdom</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">🎵</span>
+          <span class="option-name">Bard</span>
+          <span class="option-hint">Charisma</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">💫</span>
+          <span class="option-name">Sorcerer</span>
+          <span class="option-hint">Charisma</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">🌑</span>
+          <span class="option-name">Warlock</span>
+          <span class="option-hint">Charisma</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">⚡</span>
+          <span class="option-name">Ranger</span>
+          <span class="option-hint">Dexterity</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">🛡</span>
+          <span class="option-name">Paladin</span>
+          <span class="option-hint">Strength</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">🌊</span>
+          <span class="option-name">Monk</span>
+          <span class="option-hint">Dexterity</span>
+        </div>
+        <div class="option-card" onclick="selectOption(this)">
+          <span class="option-icon">🔥</span>
+          <span class="option-name">Barbarian</span>
+          <span class="option-hint">Strength</span>
+        </div>
+      </div>
+
+      <div class="step-divider"></div>
+      <div class="sub-heading">Starting Level</div>
+
+      <div class="field">
+        <div class="stepper">
+          <div class="stepper-btn" onclick="changeLevel(-1)">−</div>
+          <div class="stepper-val" id="levelVal">1</div>
+          <div class="stepper-btn" onclick="changeLevel(1)">+</div>
+        </div>
+        <div class="hint">Most campaigns start at level 1. Check with your DM.</div>
+      </div>
+    </div>
+
+    <!-- ── Step 4: Ability Scores ── -->
+    <div class="step-panel" id="step-4">
+      <div class="step-heading">Set your abilities.</div>
+      <div class="step-sub">Six scores, six aspects of your soul.</div>
+
+      <div class="roll-btn" onclick="rollScores()">
+        🎲 Roll 4d6 drop lowest
+      </div>
+
+      <div class="ability-grid" id="abilityGrid">
+        <!-- STR -->
+        <div class="ability-block">
+          <span class="ability-label">Strength</span>
+          <div class="ability-row">
+            <div class="ability-btn" onclick="adjAbility('str',-1)">−</div>
+            <div class="ability-val" id="val-str">15</div>
+            <div class="ability-btn" onclick="adjAbility('str',1)">+</div>
+          </div>
+          <span class="ability-mod pos" id="mod-str">+2</span>
+        </div>
+        <!-- DEX -->
+        <div class="ability-block">
+          <span class="ability-label">Dexterity</span>
+          <div class="ability-row">
+            <div class="ability-btn" onclick="adjAbility('dex',-1)">−</div>
+            <div class="ability-val" id="val-dex">14</div>
+            <div class="ability-btn" onclick="adjAbility('dex',1)">+</div>
+          </div>
+          <span class="ability-mod pos" id="mod-dex">+2</span>
+        </div>
+        <!-- CON -->
+        <div class="ability-block">
+          <span class="ability-label">Constitution</span>
+          <div class="ability-row">
+            <div class="ability-btn" onclick="adjAbility('con',-1)">−</div>
+            <div class="ability-val" id="val-con">13</div>
+            <div class="ability-btn" onclick="adjAbility('con',1)">+</div>
+          </div>
+          <span class="ability-mod pos" id="mod-con">+1</span>
+        </div>
+        <!-- INT -->
+        <div class="ability-block">
+          <span class="ability-label">Intelligence</span>
+          <div class="ability-row">
+            <div class="ability-btn" onclick="adjAbility('int',-1)">−</div>
+            <div class="ability-val" id="val-int">18</div>
+            <div class="ability-btn" onclick="adjAbility('int',1)">+</div>
+          </div>
+          <span class="ability-mod pos" id="mod-int">+4</span>
+        </div>
+        <!-- WIS -->
+        <div class="ability-block">
+          <span class="ability-label">Wisdom</span>
+          <div class="ability-row">
+            <div class="ability-btn" onclick="adjAbility('wis',-1)">−</div>
+            <div class="ability-val" id="val-wis">12</div>
+            <div class="ability-btn" onclick="adjAbility('wis',1)">+</div>
+          </div>
+          <span class="ability-mod pos" id="mod-wis">+1</span>
+        </div>
+        <!-- CHA -->
+        <div class="ability-block">
+          <span class="ability-label">Charisma</span>
+          <div class="ability-row">
+            <div class="ability-btn" onclick="adjAbility('cha',-1)">−</div>
+            <div class="ability-val" id="val-cha">10</div>
+            <div class="ability-btn" onclick="adjAbility('cha',1)">+</div>
+          </div>
+          <span class="ability-mod" id="mod-cha">+0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Step 5: Background & Alignment ── -->
+    <div class="step-panel" id="step-5">
+      <div class="step-heading">Background &amp; alignment.</div>
+      <div class="step-sub">Your history and your moral compass.</div>
+
+      <div class="field">
+        <label class="field-label">Background</label>
+        <div class="option-grid">
+          <div class="option-card selected" onclick="selectOption(this)">
+            <span class="option-icon">📚</span>
+            <span class="option-name">Sage</span>
+          </div>
+          <div class="option-card" onclick="selectOption(this)">
+            <span class="option-icon">⚔</span>
+            <span class="option-name">Soldier</span>
+          </div>
+          <div class="option-card" onclick="selectOption(this)">
+            <span class="option-icon">🏰</span>
+            <span class="option-name">Noble</span>
+          </div>
+          <div class="option-card" onclick="selectOption(this)">
+            <span class="option-icon">🌲</span>
+            <span class="option-name">Outlander</span>
+          </div>
+          <div class="option-card" onclick="selectOption(this)">
+            <span class="option-icon">🎭</span>
+            <span class="option-name">Entertainer</span>
+          </div>
+          <div class="option-card" onclick="selectOption(this)">
+            <span class="option-icon">🔱</span>
+            <span class="option-name">Acolyte</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-divider"></div>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+        <div class="sub-heading" style="margin:0">Alignment</div>
+        <div id="alignSkipBtn" onclick="toggleAlignSkip()" style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(201,146,42,0.4);cursor:pointer;padding:2px 0">Skip</div>
+      </div>
+
+      <div id="alignmentWrap">
+        <div class="alignment-grid">
+          <div class="align-cell" onclick="selectAlign(this)"><div class="align-name">Lawful Good</div></div>
+          <div class="align-cell" onclick="selectAlign(this)"><div class="align-name">Neutral Good</div></div>
+          <div class="align-cell" onclick="selectAlign(this)"><div class="align-name">Chaotic Good</div></div>
+          <div class="align-cell" onclick="selectAlign(this)"><div class="align-name">Lawful Neutral</div></div>
+          <div class="align-cell" onclick="selectAlign(this)"><div class="align-name">True Neutral</div></div>
+          <div class="align-cell" onclick="selectAlign(this)"><div class="align-name">Chaotic Neutral</div></div>
+          <div class="align-cell" onclick="selectAlign(this)"><div class="align-name">Lawful Evil</div></div>
+          <div class="align-cell" onclick="selectAlign(this)"><div class="align-name">Neutral Evil</div></div>
+          <div class="align-cell" onclick="selectAlign(this)"><div class="align-name">Chaotic Evil</div></div>
+        </div>
+      </div>
+      <div id="alignSkippedMsg" style="display:none;background:rgba(201,146,42,0.05);border:1px solid rgba(201,146,42,0.15);border-radius:10px;padding:12px 14px;text-align:center">
+        <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,146,42,0.4)">Not using alignment</div>
+        <div style="font-family:'Crimson Text',serif;font-size:12px;font-style:italic;color:rgba(245,230,200,0.3);margin-top:3px">You can set this later in character settings</div>
+        <div onclick="toggleAlignSkip()" style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(201,146,42,0.4);cursor:pointer;margin-top:8px">Undo</div>
+      </div>
+
+      <div class="step-divider"></div>
+      <div class="sub-heading">Personality</div>
+
+      <div class="field">
+        <label class="field-label">Personality Traits</label>
+        <textarea class="field-textarea" placeholder="How does your character act and speak?"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">Ideals</label>
+        <textarea class="field-textarea" placeholder="What principles drive your character?" style="min-height:64px"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">Bonds</label>
+        <textarea class="field-textarea" placeholder="What ties your character to the world?" style="min-height:64px"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">Flaws</label>
+        <textarea class="field-textarea" placeholder="What weakness might be your downfall?" style="min-height:64px"></textarea>
+      </div>
+    </div>
+
+    <!-- ── Step 6: Skills ── -->
+    <div class="step-panel" id="step-6">
+      <div class="step-heading">Choose your skills.</div>
+      <div class="step-sub">Select the proficiencies that suit your character's background and class.</div>
+
+      <div class="sub-heading">Skill Proficiencies <span style="color:rgba(201,146,42,0.3);font-size:7.5px">(pick 2)</span></div>
+      <div class="prof-list">
+        <div class="prof-item selected" onclick="toggleProf(this)">
+          <div class="prof-check"><div class="prof-check-inner"></div></div>
+          <span class="prof-name">Arcana</span>
+          <span class="prof-attr">INT</span>
+        </div>
+        <div class="prof-item selected" onclick="toggleProf(this)">
+          <div class="prof-check"><div class="prof-check-inner"></div></div>
+          <span class="prof-name">History</span>
+          <span class="prof-attr">INT</span>
+        </div>
+        <div class="prof-item" onclick="toggleProf(this)">
+          <div class="prof-check"><div class="prof-check-inner"></div></div>
+          <span class="prof-name">Investigation</span>
+          <span class="prof-attr">INT</span>
+        </div>
+        <div class="prof-item" onclick="toggleProf(this)">
+          <div class="prof-check"><div class="prof-check-inner"></div></div>
+          <span class="prof-name">Insight</span>
+          <span class="prof-attr">WIS</span>
+        </div>
+        <div class="prof-item" onclick="toggleProf(this)">
+          <div class="prof-check"><div class="prof-check-inner"></div></div>
+          <span class="prof-name">Perception</span>
+          <span class="prof-attr">WIS</span>
+        </div>
+        <div class="prof-item" onclick="toggleProf(this)">
+          <div class="prof-check"><div class="prof-check-inner"></div></div>
+          <span class="prof-name">Persuasion</span>
+          <span class="prof-attr">CHA</span>
+        </div>
+        <div class="prof-item" onclick="toggleProf(this)">
+          <div class="prof-check"><div class="prof-check-inner"></div></div>
+          <span class="prof-name">Stealth</span>
+          <span class="prof-attr">DEX</span>
+        </div>
+        <div class="prof-item" onclick="toggleProf(this)">
+          <div class="prof-check"><div class="prof-check-inner"></div></div>
+          <span class="prof-name">Athletics</span>
+          <span class="prof-attr">STR</span>
+        </div>
+        <div class="prof-item" onclick="toggleProf(this)">
+          <div class="prof-check"><div class="prof-check-inner"></div></div>
+          <span class="prof-name">Deception</span>
+          <span class="prof-attr">CHA</span>
+        </div>
+        <div class="prof-item" onclick="toggleProf(this)">
+          <div class="prof-check"><div class="prof-check-inner"></div></div>
+          <span class="prof-name">Nature</span>
+          <span class="prof-attr">INT</span>
+        </div>
+        <div class="prof-item" onclick="toggleProf(this)">
+          <div class="prof-check"><div class="prof-check-inner"></div></div>
+          <span class="prof-name">Religion</span>
+          <span class="prof-attr">INT</span>
+        </div>
+        <div class="prof-item" onclick="toggleProf(this)">
+          <div class="prof-check"><div class="prof-check-inner"></div></div>
+          <span class="prof-name">Survival</span>
+          <span class="prof-attr">WIS</span>
+        </div>
+      </div>
+      <div class="hint" style="margin-top:10px">You can add more proficiencies later from the Skills tab on your character sheet.</div>
+    </div>
+
+    <!-- ── Step 6 (was 7): Review ── -->
+    <div class="step-panel" id="step-7">
+      <div class="step-heading">Ready to begin?</div>
+      <div class="step-sub">Review your character before entering the world.</div>
+
+      <div class="review-section-label">Identity</div>
+      <div class="review-card">
+        <div class="review-row"><span class="review-key">Name</span><span class="review-val">Vaelindra Stormveil</span></div>
+        <div class="review-row"><span class="review-key">Race</span><span class="review-val">High Elf</span></div>
+        <div class="review-row"><span class="review-key">Class</span><span class="review-val">Wizard (Abjuration)</span></div>
+        <div class="review-row"><span class="review-key">Level</span><span class="review-val">1</span></div>
+        <div class="review-row"><span class="review-key">Background</span><span class="review-val">Sage</span></div>
+        <div class="review-row"><span class="review-key">Alignment</span><span class="review-val" style="font-style:italic;opacity:0.45">Not set</span></div>
+      </div>
+
+      <div class="review-section-label" style="margin-top:4px">Ability Scores</div>
+      <div class="review-card">
+        <div class="review-row"><span class="review-key">STR / DEX / CON</span><span class="review-val">15 · 14 · 13</span></div>
+        <div class="review-row"><span class="review-key">INT / WIS / CHA</span><span class="review-val">18 · 12 · 10</span></div>
+      </div>
+
+      <div class="review-section-label" style="margin-top:4px">Skills</div>
+      <div class="review-card">
+        <div class="review-row"><span class="review-key">Proficiencies</span><span class="review-val">Arcana, History</span></div>
+      </div>
+
+      <div style="margin-top:14px;background:rgba(201,146,42,0.05);border:1px solid rgba(201,146,42,0.12);border-radius:10px;padding:12px 14px">
+        <div style="font-family:'Crimson Text',serif;font-size:13px;font-style:italic;color:rgba(245,230,200,0.4);line-height:1.5;text-align:center">Spells, equipment, features and the rest can all be filled in from your character sheet after creation.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer CTA -->
+  <div class="wizard-footer">
+    <div class="next-btn" id="nextBtn" onclick="nextStep()">
+      <span class="next-btn-text" id="nextBtnText">Next — Choose Race</span>
+      <span style="color:var(--parchment);font-size:14px;opacity:0.7">→</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentStep = 1;
+  const totalSteps = 7;
+  let level = 1;
+  let alignSkipped = false;
+
+  const stepLabels = [
+    'Next — Choose Race',
+    'Next — Choose Class',
+    'Next — Set Abilities',
+    'Next — Background & Alignment',
+    'Next — Choose Skills',
+    'Next — Review',
+    'Create Character ✦',
+  ];
+
+  const stepTitles = ['1 of 6','2 of 6','3 of 6','4 of 6','5 of 6','6 of 6','Review'];
+
+  // Build dots
+  const dotsEl = document.getElementById('stepDots');
+  for (let i = 0; i < totalSteps; i++) {
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (i === 0 ? ' active' : '');
+    d.id = 'dot-' + i;
+    dotsEl.appendChild(d);
+  }
+
+  function updateChrome() {
+    document.getElementById('progressFill').style.width = ((currentStep / totalSteps) * 100) + '%';
+    document.getElementById('stepIndicator').textContent = 'Step ' + stepTitles[currentStep - 1];
+    document.getElementById('nextBtnText').textContent = stepLabels[currentStep - 1];
+    document.getElementById('backBtn').style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+    for (let i = 0; i < totalSteps; i++) {
+      const d = document.getElementById('dot-' + i);
+      d.className = 'step-dot' + (i < currentStep - 1 ? ' done' : i === currentStep - 1 ? ' active' : '');
+    }
+  }
+
+  function nextStep() {
+    if (currentStep === totalSteps) {
+      alert('Character created! Navigating to character sheet…');
+      return;
+    }
+    document.getElementById('step-' + currentStep).classList.remove('active');
+    currentStep++;
+    document.getElementById('step-' + currentStep).classList.add('active');
+    document.getElementById('stepContent').scrollTop = 0;
+    updateChrome();
+  }
+
+  function prevStep() {
+    if (currentStep === 1) return;
+    document.getElementById('step-' + currentStep).classList.remove('active');
+    currentStep--;
+    document.getElementById('step-' + currentStep).classList.add('active');
+    document.getElementById('stepContent').scrollTop = 0;
+    updateChrome();
+  }
+
+  function selectOption(el) {
+    const grid = el.closest('.option-grid');
+    grid.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function selectAlign(el) {
+    const grid = el.closest('.alignment-grid');
+    grid.querySelectorAll('.align-cell').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function toggleProf(el) { el.classList.toggle('selected'); }
+
+  function toggleAlignSkip() {
+    alignSkipped = !alignSkipped;
+    document.getElementById('alignmentWrap').style.display = alignSkipped ? 'none' : 'block';
+    document.getElementById('alignSkippedMsg').style.display = alignSkipped ? 'block' : 'none';
+    document.getElementById('alignSkipBtn').style.display = alignSkipped ? 'none' : 'block';
+  }
+
+  function changeLevel(delta) {
+    level = Math.max(1, Math.min(20, level + delta));
+    document.getElementById('levelVal').textContent = level;
+  }
+
+  const abilities = { str: 15, dex: 14, con: 13, int: 18, wis: 12, cha: 10 };
+  function mod(v) { return Math.floor((v - 10) / 2); }
+  function fmtMod(m) { return (m >= 0 ? '+' : '') + m; }
+
+  function adjAbility(key, delta) {
+    abilities[key] = Math.max(1, Math.min(20, abilities[key] + delta));
+    const v = abilities[key];
+    const m = mod(v);
+    document.getElementById('val-' + key).textContent = v;
+    const modEl = document.getElementById('mod-' + key);
+    modEl.textContent = fmtMod(m);
+    modEl.className = 'ability-mod' + (m > 0 ? ' pos' : m < 0 ? '' : '');
+  }
+
+  function rollScores() {
+    function roll4d6() {
+      const d = [1,2,3,4].map(() => Math.ceil(Math.random() * 6));
+      return d.reduce((a,b)=>a+b,0) - Math.min(...d);
+    }
+    Object.keys(abilities).forEach(key => {
+      abilities[key] = roll4d6();
+      adjAbility(key, 0); // refresh display
+    });
+  }
+
+  updateChrome();
+</script>
+</body>
+</html>
