@@ -2,7 +2,7 @@
  * Route destinations used by the rail and expanded drawer navigation.
  */
 export const NAV_DESTINATIONS = {
-    characterSheet: '/character-sheet',
+    characters: '/characters',
     spells: '/spells',
     settings: '/settings',
 } as const;
@@ -53,7 +53,7 @@ export type NavigationItem = {
  */
 export const LIBRARY_NAV_ITEMS: NavigationItem[] = [
     {
-        destination: NAV_DESTINATIONS.characterSheet,
+        destination: NAV_DESTINATIONS.characters,
         label: 'Characters',
         icon: '👤',
         collapsedAccessibilityLabel: 'Open characters',
@@ -85,6 +85,14 @@ export function isNavigationDestinationActive(
     pathname: string,
     destination: NavigationDestination,
 ): boolean {
+    if (destination === NAV_DESTINATIONS.characters) {
+        return (
+            pathname === destination
+            || pathname.startsWith(`${destination}/`)
+            || pathname === '/character-sheet'
+        );
+    }
+
     if (destination === NAV_DESTINATIONS.spells) {
         return pathname === destination || pathname.startsWith(`${destination}/`);
     }

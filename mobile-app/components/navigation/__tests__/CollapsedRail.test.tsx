@@ -4,7 +4,7 @@ import CollapsedRail from '@/components/navigation/CollapsedRail';
 
 const mockDispatch = jest.fn();
 const mockPush = jest.fn();
-const mockUsePathname = jest.fn(() => '/character-sheet');
+const mockUsePathname = jest.fn(() => '/characters');
 
 jest.mock('expo-router', () => ({
     useRouter: () => ({
@@ -31,7 +31,7 @@ jest.mock('react-native-safe-area-context', () => ({
 describe('CollapsedRail', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        mockUsePathname.mockReturnValue('/character-sheet');
+        mockUsePathname.mockReturnValue('/characters');
     });
 
     it('opens the drawer when avatar is pressed', () => {

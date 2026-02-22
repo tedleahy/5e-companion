@@ -26,6 +26,11 @@ export default function RootLayout() {
                                 }}
                             >
                                 <Stack.Screen name="(rail)" options={{ animation: 'none' }} />
+                                <Stack.Screen name="characters" options={{ animation: 'fade' }} />
+                                <Stack.Screen
+                                    name="characters/create"
+                                    options={{ animation: 'slide_from_right', animationDuration: fantasyTokens.motion.standard }}
+                                />
                                 <Stack.Screen
                                     name="spells/[id]"
                                     options={{ animation: 'slide_from_right', animationDuration: fantasyTokens.motion.standard }}

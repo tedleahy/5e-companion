@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 
 const mockPush = jest.fn();
 const mockReplace = jest.fn();
-const mockUsePathname = jest.fn(() => '/character-sheet');
+const mockUsePathname = jest.fn(() => '/characters');
 const mockCloseDrawer = jest.fn();
 
 jest.mock('expo-router', () => ({
@@ -38,7 +38,7 @@ function buildDrawerProps(): DrawerContentComponentProps {
 describe('ExpandedDrawer', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        mockUsePathname.mockReturnValue('/character-sheet');
+        mockUsePathname.mockReturnValue('/characters');
     });
 
     it('renders expected drawer menu items', () => {
