@@ -6,12 +6,17 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
 import TextField from '@/components/TextField';
 import { styles } from '../../styles/authStyles';
 import { supabase } from '@/lib/supabase';
+import useSessionGuard from '@/hooks/useSessionGuard';
 
 export default function SignUp() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const router = useRouter();
+    const { checkSession } = useSessionGuard({
+        runOnMount: false,
+        shouldRedirectOnInvalidSession: false,
+    });
 
     const [showSignUpFailed, setShowSignUpFailed] = useState(false);
 
@@ -21,9 +26,9 @@ export default function SignUp() {
         if (!email || !passwordsMatch) return;
 
         await supabase.auth.signUp({ email, password });
-        const { data } = await supabase.auth.getSession();
+        const hasValidSession = await checkSession();
 
-        if (!data.session) {
+        if (!hasValidSession) {
             setShowSignUpFailed(true);
             return;
         }
