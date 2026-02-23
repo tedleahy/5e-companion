@@ -1,29 +1,46 @@
-import { StyleSheet, View, ScrollView } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Text } from 'react-native-paper';
-import { fantasyTokens } from '@/theme/fantasyTheme';
+import {
+    useLocalSearchParams,
+    useRouter,
+} from 'expo-router';
 import CharacterSheetHeader from '@/components/character-sheet/CharacterSheetHeader';
 import type { CharacterSheetTab } from '@/components/character-sheet/CharacterSheetHeader';
-import VitalsCard from '@/components/character-sheet/VitalsCard';
-import QuickStatsCard from '@/components/character-sheet/QuickStatsCard';
 import AbilityScoresAndSkillsCard from '@/components/character-sheet/AbilityScoresAndSkillsCard';
 import DeathSavesCard from '@/components/character-sheet/DeathSavesCard';
+import FeaturesTab from '@/components/character-sheet/FeaturesTab';
+import GearTab from '@/components/character-sheet/GearTab';
+import QuickStatsCard from '@/components/character-sheet/QuickStatsCard';
 import SkillsTab from '@/components/character-sheet/SkillsTab';
 import SpellsTab from '@/components/character-sheet/SpellsTab';
-import GearTab from '@/components/character-sheet/GearTab';
-import FeaturesTab from '@/components/character-sheet/FeaturesTab';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
+import VitalsCard from '@/components/character-sheet/VitalsCard';
+import RailScreenShell from '@/components/navigation/RailScreenShell';
 import useCharacterSheetData from '@/hooks/useCharacterSheetData';
 import { isAbilityKey } from '@/lib/characterSheetUtils';
-import RailScreenShell from '@/components/navigation/RailScreenShell';
+import { fantasyTokens } from '@/theme/fantasyTheme';
 
 /**
- * Character sheet tab screen that renders Core/Skills/Spells/Gear/Features.
+ * Normalises the dynamic route parameter into a usable character id.
  */
-export default function CharacterSheetScreen() {
+function normaliseCharacterId(rawId?: string): string | null {
+    if (typeof rawId !== 'string') return null;
+
+    const trimmedId = rawId.trim();
+    if (trimmedId.length === 0) return null;
+
+    return trimmedId;
+}
+
+/**
+ * Dynamic character-sheet route that renders the selected character id.
+ */
+export default function CharacterByIdScreen() {
     /** Currently active top-level tab in the character sheet. */
     const [activeTab, setActiveTab] = useState<CharacterSheetTab>('Core');
+    const { id } = useLocalSearchParams<{ id?: string }>();
     const router = useRouter();
+    const characterId = normaliseCharacterId(id);
     const {
         character,
         loading,
@@ -34,11 +51,20 @@ export default function CharacterSheetScreen() {
         handleUpdateSkillProficiency,
         handleToggleSpellSlot,
         handleSetSpellPrepared,
-    } = useCharacterSheetData();
+    } = useCharacterSheetData(characterId ?? '');
+
+    useEffect(() => {
+        if (characterId) return;
+        router.replace('/characters');
+    }, [characterId, router]);
 
     useEffect(() => {
         if (isUnauthenticated) router.replace('/(auth)/sign-in');
     }, [isUnauthenticated, router]);
+
+    if (!characterId) {
+        return null;
+    }
 
     if (loading) {
         return (

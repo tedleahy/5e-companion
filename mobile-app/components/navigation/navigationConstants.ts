@@ -16,7 +16,7 @@ export type NavigationDestination = (typeof NAV_DESTINATIONS)[keyof typeof NAV_D
  * Route names used by drawer screens in Expo Router.
  */
 export const DRAWER_SCREEN_NAMES = {
-    characterSheet: 'character-sheet',
+    characters: 'characters',
     spells: 'spells',
     settings: 'settings',
 } as const;
@@ -33,7 +33,7 @@ export type DrawerScreenConfig = {
  * Shared drawer screen definitions to avoid route/title duplication.
  */
 export const DRAWER_SCREENS: DrawerScreenConfig[] = [
-    { name: DRAWER_SCREEN_NAMES.characterSheet, title: 'Character Sheet' },
+    { name: DRAWER_SCREEN_NAMES.characters, title: 'My Characters' },
     { name: DRAWER_SCREEN_NAMES.spells, title: 'All Spells' },
     { name: DRAWER_SCREEN_NAMES.settings, title: 'Settings' },
 ];
@@ -89,7 +89,7 @@ export function isNavigationDestinationActive(
         return (
             pathname === destination
             || pathname.startsWith(`${destination}/`)
-            || pathname === '/character-sheet'
+            || pathname.startsWith('/character/')
         );
     }
 

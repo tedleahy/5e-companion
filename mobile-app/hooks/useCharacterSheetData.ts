@@ -228,11 +228,15 @@ type UnprepareSpellMutationData = {
 /**
  * Applies an optimistic spell slot usage value to the current character cache.
  */
-function updateSpellSlotInCache(
+type CharacterCacheUpdater = (character: CharacterWithSpells) => CharacterWithSpells;
+
+/**
+ * Updates a single character entry in the current-user cache.
+ */
+function updateCharacterInCache(
     cache: ApolloCache,
     characterId: string,
-    level: number,
-    used: number,
+    updateCharacter: CharacterCacheUpdater,
 ) {
     cache.updateQuery<CurrentUserCharactersWithSpellsQuery>(
         { query: GET_CURRENT_USER_CHARACTERS },
@@ -243,18 +247,29 @@ function updateSpellSlotInCache(
                 ...data,
                 currentUserCharacters: data.currentUserCharacters.map((currentCharacter: CharacterWithSpells) => {
                     if (currentCharacter.id !== characterId) return currentCharacter;
-
-                    return {
-                        ...currentCharacter,
-                        spellSlots: currentCharacter.spellSlots.map((slot: CharacterSpellSlot) => {
-                            if (slot.level !== level) return slot;
-                            return { ...slot, used };
-                        }),
-                    };
+                    return updateCharacter(currentCharacter);
                 }),
             };
         },
     );
+}
+
+/**
+ * Applies an optimistic spell slot usage value to the current character cache.
+ */
+function updateSpellSlotInCache(
+    cache: ApolloCache,
+    characterId: string,
+    level: number,
+    used: number,
+) {
+    updateCharacterInCache(cache, characterId, (currentCharacter: CharacterWithSpells) => ({
+        ...currentCharacter,
+        spellSlots: currentCharacter.spellSlots.map((slot: CharacterSpellSlot) => {
+            if (slot.level !== level) return slot;
+            return { ...slot, used };
+        }),
+    }));
 }
 
 /**
@@ -266,33 +281,19 @@ function updateSpellPreparedInCache(
     spellId: string,
     prepared: boolean,
 ) {
-    cache.updateQuery<CurrentUserCharactersWithSpellsQuery>(
-        { query: GET_CURRENT_USER_CHARACTERS },
-        (data: CurrentUserCharactersWithSpellsQuery | null) => {
-            if (!data) return data;
-
-            return {
-                ...data,
-                currentUserCharacters: data.currentUserCharacters.map((currentCharacter: CharacterWithSpells) => {
-                    if (currentCharacter.id !== characterId) return currentCharacter;
-
-                    return {
-                        ...currentCharacter,
-                        spellbook: currentCharacter.spellbook.map((entry: CharacterSpellbookEntry) => {
-                            if (entry.spell.id !== spellId) return entry;
-                            return { ...entry, prepared };
-                        }),
-                    };
-                }),
-            };
-        },
-    );
+    updateCharacterInCache(cache, characterId, (currentCharacter: CharacterWithSpells) => ({
+        ...currentCharacter,
+        spellbook: currentCharacter.spellbook.map((entry: CharacterSpellbookEntry) => {
+            if (entry.spell.id !== spellId) return entry;
+            return { ...entry, prepared };
+        }),
+    }));
 }
 
 /**
  * Loads character-sheet data and exposes optimistic mutation handlers.
  */
-export default function useCharacterSheetData() {
+export default function useCharacterSheetData(characterId: string) {
     const { data, loading, error } = useQuery<CurrentUserCharactersWithSpellsQuery>(
         GET_CURRENT_USER_CHARACTERS,
     );
@@ -327,7 +328,8 @@ export default function useCharacterSheetData() {
         SpellPreparedMutationVariables
     >(UNPREPARE_SPELL);
 
-    const character = data?.currentUserCharacters?.[0] ?? null;
+    const currentUserCharacters = data?.currentUserCharacters ?? [];
+    const character = currentUserCharacters.find((candidate) => candidate.id === characterId) ?? null;
 
     /**
      * Optimistically toggles inspiration for the active character.

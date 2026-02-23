@@ -14,7 +14,21 @@ import {
     UPDATE_DEATH_SAVES,
     UPDATE_SKILL_PROFICIENCIES,
 } from '@/graphql/characterSheet.operations';
-import CharacterSheetScreen from '../character-sheet';
+import CharacterByIdScreen from '../character/[id]';
+
+const mockUseLocalSearchParams = jest.fn(() => ({ id: 'char-1' }));
+
+jest.mock('expo-router', () => ({
+    useRouter: () => ({
+        push: jest.fn(),
+        replace: jest.fn(),
+        back: jest.fn(),
+    }),
+    usePathname: () => '/',
+    useLocalSearchParams: () => mockUseLocalSearchParams(),
+    Redirect: ({ href }: { href: string }) => null,
+    Stack: () => null,
+}));
 
 jest.mock('@/components/navigation/RailScreenShell', () => ({
     __esModule: true,
@@ -439,9 +453,9 @@ const PREPARE_BIGBYS_HAND_MOCK: MockLink.MockedResponse = {
 function renderScreen(mocks: MockLink.MockedResponse[] = [CHARACTERS_MOCK]) {
     return render(
         <MockedProvider mocks={mocks}>
-            <PaperProvider>
-                <CharacterSheetScreen />
-            </PaperProvider>
+                <PaperProvider>
+                    <CharacterByIdScreen />
+                </PaperProvider>
         </MockedProvider>
     );
 }
@@ -460,7 +474,7 @@ async function flushMicrotasks() {
     });
 }
 
-describe('CharacterSheetScreen', () => {
+describe('CharacterByIdScreen', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });

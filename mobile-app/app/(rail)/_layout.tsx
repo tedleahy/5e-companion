@@ -2,7 +2,7 @@ import { Drawer } from 'expo-router/drawer';
 import { useWindowDimensions } from 'react-native';
 import ExpandedDrawer from '@/components/navigation/ExpandedDrawer';
 import { fantasyTokens } from '@/theme/fantasyTheme';
-import { DRAWER_SCREENS } from '@/components/navigation/navigationConstants';
+import { DRAWER_SCREEN_NAMES, DRAWER_SCREENS } from '@/components/navigation/navigationConstants';
 
 /**
  * Drawer layout for the app's main rail navigation routes.
@@ -13,6 +13,7 @@ export default function RailLayout() {
 
     return (
         <Drawer
+            initialRouteName={DRAWER_SCREEN_NAMES.characters}
             drawerContent={(props) => <ExpandedDrawer {...props} />}
             screenOptions={{
                 headerShown: false,
@@ -36,6 +37,13 @@ export default function RailLayout() {
                     options={{ title: screen.title }}
                 />
             ))}
+            <Drawer.Screen
+                name="character/[id]"
+                options={{
+                    title: 'Character Sheet',
+                    drawerItemStyle: { display: 'none' },
+                }}
+            />
         </Drawer>
     );
 }
