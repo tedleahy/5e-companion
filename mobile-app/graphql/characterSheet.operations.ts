@@ -134,6 +134,18 @@ export const GET_CURRENT_USER_CHARACTERS = gql`
 `;
 
 /**
+ * Creates a new character with the full initial sheet data.
+ */
+export const CREATE_CHARACTER = gql`
+    mutation CreateCharacter($input: CreateCharacterInput!) {
+        createCharacter(input: $input) {
+            id
+            name
+        }
+    }
+`;
+
+/**
  * Toggles a character's inspiration flag.
  */
 export const TOGGLE_INSPIRATION = gql`
