@@ -13,39 +13,39 @@ export type OptionItem = {
 
 export const RACE_OPTIONS: OptionItem[] = [
     { value: 'Elf', label: 'Elf', icon: '\u{1F9DD}', hint: '+2 DEX, +1 INT' },
-    { value: 'Human', label: 'Human', icon: '\u{1F9D9}', hint: '+1 all stats' },
-    { value: 'Dwarf', label: 'Dwarf', icon: '\u26CF', hint: '+2 CON' },
-    { value: 'Halfling', label: 'Halfling', icon: '\u{1F33F}', hint: '+2 DEX' },
+    { value: 'Human', label: 'Human', icon: '👨‍🦱', hint: '+1 all stats' },
+    { value: 'Dwarf', label: 'Dwarf', icon: '\u{1F385}', hint: '+2 CON' },
+    { value: 'Halfling', label: 'Halfling', icon: '\u{1F466}', hint: '+2 DEX' },
     { value: 'Dragonborn', label: 'Dragonborn', icon: '\u{1F409}', hint: '+2 STR, +1 CHA' },
-    { value: 'Tiefling', label: 'Tiefling', icon: '\u{1F311}', hint: '+2 CHA, +1 INT' },
+    { value: 'Tiefling', label: 'Tiefling', icon: '\u{1F608}', hint: '+2 CHA, +1 INT' },
     { value: 'Gnome', label: 'Gnome', icon: '\u{1F344}', hint: '+2 INT' },
-    { value: 'Half-Orc', label: 'Half-Orc', icon: '\u{1F313}', hint: '+2 STR, +1 CON' },
+    { value: 'Half-Orc', label: 'Half-Orc', icon: '🧟‍♂️', hint: '+2 STR, +1 CON' },
     { value: 'Half-Elf', label: 'Half-Elf', icon: '\u2728', hint: '+2 CHA, +1 any two' },
-    { value: 'Aasimar', label: 'Aasimar', icon: '\u{1F31F}', hint: '+2 CHA' },
+    { value: 'Aasimar', label: 'Aasimar', icon: '\u{1F47C}', hint: '+2 CHA' },
 ];
 
 export const CLASS_OPTIONS: OptionItem[] = [
     { value: 'Wizard', label: 'Wizard', icon: '\u{1F4D6}', hint: 'Intelligence' },
-    { value: 'Fighter', label: 'Fighter', icon: '\u2694', hint: 'Strength / DEX' },
-    { value: 'Rogue', label: 'Rogue', icon: '\u{1F5E1}', hint: 'Dexterity' },
+    { value: 'Fighter', label: 'Fighter', icon: '\u{1F5E1}', hint: 'Strength / Dexterity' },
+    { value: 'Rogue', label: 'Rogue', icon: '\u{1F977}', hint: 'Dexterity' },
     { value: 'Cleric', label: 'Cleric', icon: '\u{1F64F}', hint: 'Wisdom' },
     { value: 'Druid', label: 'Druid', icon: '\u{1F33F}', hint: 'Wisdom' },
-    { value: 'Bard', label: 'Bard', icon: '\u{1F3B5}', hint: 'Charisma' },
+    { value: 'Bard', label: 'Bard', icon: '\u{1F3AD}', hint: 'Charisma' },
     { value: 'Sorcerer', label: 'Sorcerer', icon: '\u{1F4AB}', hint: 'Charisma' },
-    { value: 'Warlock', label: 'Warlock', icon: '\u{1F311}', hint: 'Charisma' },
-    { value: 'Ranger', label: 'Ranger', icon: '\u26A1', hint: 'Dexterity' },
+    { value: 'Warlock', label: 'Warlock', icon: '\u{1F4A5}', hint: 'Charisma' },
+    { value: 'Ranger', label: 'Ranger', icon: '\u{1F3C7}', hint: 'Dexterity' },
     { value: 'Paladin', label: 'Paladin', icon: '\u{1F6E1}', hint: 'Strength' },
     { value: 'Monk', label: 'Monk', icon: '\u{1F30A}', hint: 'Dexterity' },
-    { value: 'Barbarian', label: 'Barbarian', icon: '\u{1F525}', hint: 'Strength' },
+    { value: 'Barbarian', label: 'Barbarian', icon: '\u{1F4AA}', hint: 'Strength' },
 ];
 
 export const BACKGROUND_OPTIONS: OptionItem[] = [
     { value: 'Sage', label: 'Sage', icon: '\u{1F4DA}' },
-    { value: 'Soldier', label: 'Soldier', icon: '\u2694' },
+    { value: 'Soldier', label: 'Soldier', icon: '\u{1F5E1}' },
     { value: 'Noble', label: 'Noble', icon: '\u{1F3F0}' },
     { value: 'Outlander', label: 'Outlander', icon: '\u{1F332}' },
     { value: 'Entertainer', label: 'Entertainer', icon: '\u{1F3AD}' },
-    { value: 'Acolyte', label: 'Acolyte', icon: '\u{1F531}' },
+    { value: 'Acolyte', label: 'Acolyte', icon: '\u{1F64F}' },
 ];
 
 export const ALIGNMENT_OPTIONS: string[][] = [
