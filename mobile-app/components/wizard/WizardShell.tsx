@@ -113,7 +113,7 @@ export default function WizardShell({ children }: Props) {
         router.push(nextRoute as any);
     }
 
-    const ctaLabel = isLastStep ? 'Create Character \u2726' : 'Continue';
+    const ctaLabel = isLastStep ? '\u2726 Create Character \u2726' : 'Continue';
 
     return (
         <View style={styles.container}>
@@ -209,6 +209,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     backBtn: {
+        padding: 10,
         fontFamily: 'serif',
         fontSize: 9,
         letterSpacing: 1.5,
@@ -294,12 +295,12 @@ const styles = StyleSheet.create({
         opacity: 0.4,
     },
     ctaText: {
+        fontWeight: 'bold',
         fontFamily: 'serif',
         fontSize: 11,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.parchment,
-        fontWeight: '600',
     },
     ctaTextDisabled: {
         opacity: 0.6,

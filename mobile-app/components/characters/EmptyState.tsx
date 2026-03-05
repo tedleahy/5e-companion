@@ -250,9 +250,9 @@ export default function EmptyState() {
                         <View style={styles.ornamentLineRight} />
                     </View>
 
-                    <Text style={styles.heading}>Your legend{`\n`}has yet to begin.</Text>
+                    <Text style={styles.heading}>Your campaign{`\n`}is about to begin.</Text>
                     <Text style={styles.flavour}>
-                        Every great tale starts with a single name{`\n`}scratched into the pages of fate.
+                        Every great tale starts with a single{`\n`}character scratched into the pages of fate.
                     </Text>
 
                     <Pressable
@@ -264,6 +264,7 @@ export default function EmptyState() {
                     >
                         <Text style={styles.ctaIcon}>✦</Text>
                         <Text style={styles.ctaText}>Create your first character</Text>
+                        <Text style={styles.ctaIcon}>✦</Text>
                     </Pressable>
 
                     <Text style={styles.hint}>Character Codex · Ready when you are</Text>
@@ -421,6 +422,7 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.parchment,
         fontFamily: 'serif',
         fontSize: 12,
+        fontWeight: 'bold',
         letterSpacing: 2,
         textTransform: 'uppercase',
     },
