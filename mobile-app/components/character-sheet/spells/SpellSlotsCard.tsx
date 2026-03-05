@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import PipTrack from '../PipTrack';
@@ -67,36 +67,45 @@ export default function SpellSlotsCard({ spellSlots, onToggleSpellSlot }: SpellS
                     const isInteractive = slot.total > 0 && Boolean(onToggleSpellSlot);
 
                     return (
-                        <View key={slot.level} style={styles.slotGroup}>
-                            <Text style={styles.levelLabel}>{levelLabel(slot.level)}</Text>
-                            <View style={styles.pipsRow}>
-                                {slot.total === 0 ? (
-                                    <Text style={styles.noSlotsText}>-</Text>
-                                ) : (
-                                    <PipTrack
-                                        count={slot.total}
-                                        filledCount={available}
-                                        onPressPip={() => {
-                                            if (!onToggleSpellSlot) return;
-                                            void onToggleSpellSlot(slot.level);
-                                        }}
-                                        getAccessibilityLabel={() => `Toggle level ${slot.level} spell slot`}
-                                        getTestID={(index) => `spell-slot-pip-${slot.level}-${index + 1}`}
-                                        size={14}
-                                        gap={5}
-                                        borderWidth={1.5}
-                                        filledColor={fantasyTokens.colors.gold}
-                                        filledBorderColor={fantasyTokens.colors.gold}
-                                        emptyBorderColor={'rgba(201,146,42,0.35)'}
-                                        disabled={!isInteractive}
-                                        pipStyle={!isInteractive ? styles.pipDisabled : undefined}
-                                    />
-                                )}
+                        <Pressable
+                            key={slot.level}
+                            onPress={() => {
+                                if (onToggleSpellSlot) onToggleSpellSlot(slot.level);
+                            }}
+                        >
+                            <View style={styles.slotGroup}>
+                                <Text style={styles.levelLabel}>{levelLabel(slot.level)}</Text>
+                                <View style={styles.pipsRow}>
+                                    {slot.total === 0 ? (
+                                        <Text style={styles.noSlotsText}>-</Text>
+                                    ) : (
+                                        <PipTrack
+                                            count={slot.total}
+                                            filledCount={available}
+                                            getAccessibilityLabel={() =>
+                                                `Toggle level ${slot.level} spell slot`
+                                            }
+                                            getTestID={(index) =>
+                                                `spell-slot-pip-${slot.level}-${index + 1}`
+                                            }
+                                            size={14}
+                                            gap={5}
+                                            borderWidth={1.5}
+                                            filledColor={fantasyTokens.colors.gold}
+                                            filledBorderColor={fantasyTokens.colors.gold}
+                                            emptyBorderColor={'rgba(201,146,42,0.35)'}
+                                            disabled={!isInteractive}
+                                            pipStyle={
+                                                !isInteractive ? styles.pipDisabled : undefined
+                                            }
+                                        />
+                                    )}
+                                </View>
+                                <Text style={styles.slotCount}>
+                                    {available} / {slot.total}
+                                </Text>
                             </View>
-                            <Text style={styles.slotCount}>
-                                {available} / {slot.total}
-                            </Text>
-                        </View>
+                        </Pressable>
                     );
                 })}
             </ScrollView>
