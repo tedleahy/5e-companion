@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default function AlignmentGrid({ selected, onSelect }: Props) {
-    const [skipped, setSkipped] = useState(selected === null);
+    const [skipped, setSkipped] = useState(false);
 
     function handleSkipToggle() {
         if (skipped) {
