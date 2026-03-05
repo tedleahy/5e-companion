@@ -28,11 +28,15 @@ export default function ProficiencyDot({ level }: ProficiencyDotProps) {
     return <View style={[styles.dot, styles.none]} />;
 }
 
+const WIDTH = 16;
+const HEIGHT = 16;
+const BORDER_RADIUS = 8;
+
 const styles = StyleSheet.create({
     dot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
+        width: WIDTH,
+        height: HEIGHT,
+        borderRadius: BORDER_RADIUS,
     },
     none: {
         borderWidth: 1.5,
@@ -42,17 +46,17 @@ const styles = StyleSheet.create({
         backgroundColor: fantasyTokens.colors.crimson,
     },
     expertOuter: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
+        width: WIDTH,
+        height: WIDTH,
+        borderRadius: BORDER_RADIUS,
         backgroundColor: fantasyTokens.colors.goldLight,
         justifyContent: 'center',
         alignItems: 'center',
     },
     expertInner: {
-        width: 3,
-        height: 3,
-        borderRadius: 1.5,
+        width: 6,
+        height: 6,
+        borderRadius: 3,
         backgroundColor: fantasyTokens.colors.cardBg,
     },
 });
