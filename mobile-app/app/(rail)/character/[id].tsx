@@ -137,16 +137,16 @@ export default function CharacterByIdScreen() {
                                 spellSaveDC={character.spellSaveDC ?? null}
                                 onToggleInspiration={handleToggleInspiration}
                             />
+                            <DeathSavesCard
+                                successes={stats.deathSaves.successes}
+                                failures={stats.deathSaves.failures}
+                                onUpdate={handleUpdateDeathSaves}
+                            />
                             <AbilityScoresAndSkillsCard
                                 abilityScores={stats.abilityScores}
                                 proficiencyBonus={character.proficiencyBonus}
                                 savingThrowProficiencies={savingThrowProficiencies}
                                 skillProficiencies={stats.skillProficiencies}
-                            />
-                            <DeathSavesCard
-                                successes={stats.deathSaves.successes}
-                                failures={stats.deathSaves.failures}
-                                onUpdate={handleUpdateDeathSaves}
                             />
                         </>
                     </ScrollView>
