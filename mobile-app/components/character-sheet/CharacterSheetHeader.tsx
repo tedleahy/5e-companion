@@ -42,7 +42,7 @@ export default function CharacterSheetHeader({
     activeTab,
     onTabPress,
 }: CharacterSheetHeaderProps) {
-    const subtitle = `Level ${level} ${className}${subclass ? ` (${subclass})` : ''} · ${race} · ${alignment}`;
+    const subtitle = `Level ${level}\n${className}${subclass ? ` · ${subclass}` : ''} · ${race} · ${alignment}`;
 
     return (
         <View style={styles.header}>
@@ -118,10 +118,12 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     tabBar: {
+        justifyContent: 'center',
         flexDirection: 'row',
         marginTop: 12,
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(201,146,42,0.15)',
+        padding: 10,
     },
     tab: {
         paddingHorizontal: 12,
