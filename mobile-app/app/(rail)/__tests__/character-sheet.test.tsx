@@ -11,8 +11,13 @@ import {
     TOGGLE_INSPIRATION,
     TOGGLE_SPELL_SLOT,
     UNPREPARE_SPELL,
+    UPDATE_ABILITY_SCORES,
+    UPDATE_CHARACTER,
+    UPDATE_CURRENCY,
     UPDATE_DEATH_SAVES,
+    UPDATE_HP,
     UPDATE_SKILL_PROFICIENCIES,
+    UPDATE_TRAITS,
 } from '@/graphql/characterSheet.operations';
 import CharacterByIdScreen from '../character/[id]';
 
@@ -86,6 +91,32 @@ const MOCK_CHARACTER = {
         },
     ],
     attacks: [
+        {
+            __typename: 'Attack',
+            id: 'attack-1',
+            name: 'Dagger',
+            attackBonus: '+7',
+            damage: '1d4+3 piercing',
+            type: 'melee',
+        },
+        {
+            __typename: 'Attack',
+            id: 'attack-2',
+            name: 'Staff of Power',
+            attackBonus: '+9',
+            damage: '1d6+5 bludgeoning',
+            type: 'melee',
+        },
+        {
+            __typename: 'Attack',
+            id: 'attack-3',
+            name: 'Spell Attack',
+            attackBonus: '+10',
+            damage: 'by spell',
+            type: 'spell',
+        },
+    ],
+    weapons: [
         {
             __typename: 'Attack',
             id: 'attack-1',
@@ -295,6 +326,159 @@ const MOCK_CHARACTER = {
         },
     },
 };
+
+const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
+    {
+        request: {
+            query: UPDATE_CHARACTER,
+            variables: {
+                id: 'char-1',
+                input: {
+                    ac: 17,
+                    speed: 35,
+                    initiative: 3,
+                    conditions: [],
+                },
+            },
+        },
+        result: {
+            data: {
+                updateCharacter: {
+                    __typename: 'Character',
+                    id: 'char-1',
+                    ac: 17,
+                    speed: 35,
+                    initiative: 3,
+                    conditions: [],
+                },
+            },
+        },
+    },
+    {
+        request: {
+            query: UPDATE_HP,
+            variables: {
+                characterId: 'char-1',
+                input: {
+                    current: 54,
+                    max: 76,
+                    temp: 2,
+                },
+            },
+        },
+        result: {
+            data: {
+                updateHP: {
+                    __typename: 'CharacterStats',
+                    id: 'stats-1',
+                    hp: {
+                        __typename: 'HP',
+                        current: 54,
+                        max: 76,
+                        temp: 2,
+                    },
+                },
+            },
+        },
+    },
+    {
+        request: {
+            query: UPDATE_ABILITY_SCORES,
+            variables: {
+                characterId: 'char-1',
+                input: {
+                    strength: 8,
+                    dexterity: 16,
+                    constitution: 14,
+                    intelligence: 20,
+                    wisdom: 13,
+                    charisma: 11,
+                },
+            },
+        },
+        result: {
+            data: {
+                updateAbilityScores: {
+                    __typename: 'CharacterStats',
+                    id: 'stats-1',
+                    abilityScores: {
+                        __typename: 'AbilityScores',
+                        strength: 8,
+                        dexterity: 16,
+                        constitution: 14,
+                        intelligence: 20,
+                        wisdom: 13,
+                        charisma: 11,
+                    },
+                },
+            },
+        },
+    },
+    {
+        request: {
+            query: UPDATE_CURRENCY,
+            variables: {
+                characterId: 'char-1',
+                input: {
+                    cp: 0,
+                    sp: 14,
+                    ep: 0,
+                    gp: 847,
+                    pp: 3,
+                },
+            },
+        },
+        result: {
+            data: {
+                updateCurrency: {
+                    __typename: 'CharacterStats',
+                    id: 'stats-1',
+                    currency: {
+                        __typename: 'Currency',
+                        cp: 0,
+                        sp: 14,
+                        ep: 0,
+                        gp: 847,
+                        pp: 3,
+                    },
+                },
+            },
+        },
+    },
+    {
+        request: {
+            query: UPDATE_TRAITS,
+            variables: {
+                characterId: 'char-1',
+                input: {
+                    personality: 'Always collecting obscure magical lore.',
+                    ideals: 'Knowledge should be preserved.',
+                    bonds: 'My spellbook is my life.',
+                    flaws: 'I underestimate danger when magic is involved.',
+                },
+            },
+        },
+        result: {
+            data: {
+                updateTraits: {
+                    __typename: 'CharacterStats',
+                    id: 'stats-1',
+                    traits: {
+                        __typename: 'Traits',
+                        personality: 'Always collecting obscure magical lore.',
+                        ideals: 'Knowledge should be preserved.',
+                        bonds: 'My spellbook is my life.',
+                        flaws: 'I underestimate danger when magic is involved.',
+                        armorProficiencies: [],
+                        weaponProficiencies: ['Daggers', 'Darts', 'Slings', 'Quarterstaffs'],
+                        toolProficiencies: [],
+                        languages: ['Common', 'Elvish', 'Draconic'],
+                    },
+                },
+            },
+        },
+    },
+];
 
 const { __typename: _skillTypeName, ...INITIAL_SKILL_INPUT } = MOCK_CHARACTER.stats.skillProficiencies;
 
@@ -626,6 +810,42 @@ describe('CharacterByIdScreen', () => {
         expect(screen.getByText('Features')).toBeTruthy();
     });
 
+    it('shows edit controls and banner while editing', async () => {
+        renderScreen();
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Enable character sheet edit mode')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getByLabelText('Enable character sheet edit mode'));
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Cancel character sheet edits')).toBeTruthy();
+        });
+
+        expect(screen.getByLabelText('Save character sheet edits')).toBeTruthy();
+        expect(screen.getByText('Editing — tap any highlighted field to change it')).toBeTruthy();
+    });
+
+    it('shows saved snackbar after pressing Done', async () => {
+        renderScreen([CHARACTERS_MOCK, ...SAVE_CORE_CHARACTER_MOCKS]);
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Enable character sheet edit mode')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getByLabelText('Enable character sheet edit mode'));
+        await waitFor(() => {
+            expect(screen.getByLabelText('Save character sheet edits')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByLabelText('Save character sheet edits'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Saved')).toBeTruthy();
+        });
+    });
+
     it('switches to the Skills tab', async () => {
         renderScreen();
 
@@ -714,7 +934,7 @@ describe('CharacterByIdScreen', () => {
         });
 
         expect(screen.getByTestId('currency-gp-amount')).toHaveTextContent('847');
-        expect(screen.getByText('Attacks')).toBeTruthy();
+        expect(screen.getByText('Weapons')).toBeTruthy();
         expect(screen.getByText('Dagger')).toBeTruthy();
         expect(screen.getByTestId('attack-stats-attack-1')).toHaveStyle({ alignItems: 'flex-end' });
         expect(screen.getByText('Backpack')).toBeTruthy();
