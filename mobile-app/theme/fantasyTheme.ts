@@ -20,6 +20,7 @@ export const fantasyTokens = {
         divider: 'rgba(139,90,43,0.3)',
         greenDark: '#1a4a1a',
         blueDark: '#1a2a4a',
+        inspired: '#8b1a1a',
     },
     spacing: {
         xs: 4,
@@ -55,6 +56,30 @@ export const fantasyTokens = {
         pressed: 'rgba(201,146,42,0.07)',
         muted: 'rgba(201,146,42,0.3)',
         backdrop: 'rgba(0,0,0,0.58)',
+    },
+    editableField: {
+        borderWidth: 1,
+        borderColor: 'rgba(201,146,42,0.55)',
+        backgroundColor: 'rgba(201,146,42,0.07)',
+        borderRadius: 6,
+        shadowColor: 'rgba(201,146,42,0.18)',
+        shadowOffset: { width: 0, height: 0 },
+        shadowRadius: 4,
+        shadowOpacity: 1,
+        elevation: 0,
+    },
+    addButton: {
+        fontFamily: 'serif',
+        fontSize: 8.5,
+        letterSpacing: 1.5,
+        textTransform: 'uppercase' as const,
+        color: '#8b1a1a',
+        backgroundColor: 'rgba(139,26,26,0.08)',
+        borderWidth: 1,
+        borderColor: 'rgba(139,26,26,0.28)',
+        borderRadius: 6,
+        paddingVertical: 5,
+        paddingHorizontal: 12,
     },
 };
 
