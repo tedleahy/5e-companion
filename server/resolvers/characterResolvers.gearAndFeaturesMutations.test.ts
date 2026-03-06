@@ -38,6 +38,22 @@ describe('characterResolvers — addAttack', () => {
     });
 });
 
+describe('characterResolvers — addWeapon', () => {
+    beforeEach(clearAllCharacterResolverMocks);
+
+    test('creates a weapon through the attack persistence path', async () => {
+        characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
+        const input = { name: 'Longbow', attackBonus: '+6', damage: '1d8+2 piercing', type: 'ranged' };
+        const created = { id: 'atk-weapon-1', characterId: 'char-1', ...input };
+        attackCreateMock.mockResolvedValueOnce(created);
+
+        const result = await resolvers.addWeapon({}, { characterId: 'char-1', input }, authedCtx);
+
+        expect(attackCreateMock).toHaveBeenCalledTimes(1);
+        expect(result).toEqual(created);
+    });
+});
+
 describe('characterResolvers — removeAttack', () => {
     beforeEach(clearAllCharacterResolverMocks);
 
@@ -63,6 +79,21 @@ describe('characterResolvers — removeAttack', () => {
 
         expect(resolvers.removeAttack({}, { characterId: 'char-1', attackId: 'atk-1' }, authedCtx))
             .rejects.toThrow('Attack not found.');
+    });
+});
+
+describe('characterResolvers — removeWeapon', () => {
+    beforeEach(clearAllCharacterResolverMocks);
+
+    test('deletes a weapon through the attack delete path and returns true', async () => {
+        characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
+        attackDeleteManyMock.mockResolvedValueOnce({ count: 1 });
+
+        const result = await resolvers.removeWeapon({}, { characterId: 'char-1', weaponId: 'atk-1' }, authedCtx);
+
+        expect(result).toBe(true);
+        const args = attackDeleteManyMock.mock.calls[0]![0] as Record<string, any>;
+        expect(args.where).toEqual({ id: 'atk-1', characterId: 'char-1' });
     });
 });
 

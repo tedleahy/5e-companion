@@ -45,7 +45,8 @@ type CharacterListRow = {
     initiative: number;
     ac: number;
     conditions: string[];
-    attacks: CharacterAttack[];
+    weapons?: CharacterAttack[];
+    attacks?: CharacterAttack[];
     stats?: CharacterStats | null;
 };
 
@@ -72,7 +73,8 @@ function attackBonusLabel(character: CharacterListRow): string {
         return formatSignedValue(character.spellAttackBonus);
     }
 
-    const firstAttackWithBonus = character.attacks.find((attack) => attack.attackBonus.trim().length > 0);
+    const combatRows = character.weapons ?? character.attacks ?? [];
+    const firstAttackWithBonus = combatRows.find((attack) => attack.attackBonus.trim().length > 0);
     return firstAttackWithBonus?.attackBonus ?? '—';
 }
 

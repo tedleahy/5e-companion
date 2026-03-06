@@ -75,6 +75,7 @@ export type Character = {
   spellcastingAbility?: Maybe<Scalars['String']['output']>;
   stats?: Maybe<CharacterStats>;
   subclass?: Maybe<Scalars['String']['output']>;
+  weapons: Array<Attack>;
 };
 
 export type CharacterFeature = {
@@ -219,6 +220,7 @@ export type Mutation = {
   addAttack: Attack;
   addFeature: CharacterFeature;
   addInventoryItem: InventoryItem;
+  addWeapon: Attack;
   createCharacter: Character;
   deleteCharacter: Scalars['Boolean']['output'];
   forgetSpell: Scalars['Boolean']['output'];
@@ -228,6 +230,7 @@ export type Mutation = {
   removeAttack: Scalars['Boolean']['output'];
   removeFeature: Scalars['Boolean']['output'];
   removeInventoryItem: Scalars['Boolean']['output'];
+  removeWeapon: Scalars['Boolean']['output'];
   shortRest: Character;
   spendHitDie: CharacterStats;
   toggleInspiration: Character;
@@ -260,6 +263,12 @@ export type MutationAddFeatureArgs = {
 export type MutationAddInventoryItemArgs = {
   characterId: Scalars['ID']['input'];
   input: InventoryItemInput;
+};
+
+
+export type MutationAddWeaponArgs = {
+  characterId: Scalars['ID']['input'];
+  input: AttackInput;
 };
 
 
@@ -311,6 +320,12 @@ export type MutationRemoveFeatureArgs = {
 export type MutationRemoveInventoryItemArgs = {
   characterId: Scalars['ID']['input'];
   itemId: Scalars['ID']['input'];
+};
+
+
+export type MutationRemoveWeaponArgs = {
+  characterId: Scalars['ID']['input'];
+  weaponId: Scalars['ID']['input'];
 };
 
 

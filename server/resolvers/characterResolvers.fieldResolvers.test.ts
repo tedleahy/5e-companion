@@ -38,6 +38,18 @@ describe('characterResolvers — field resolvers', () => {
         expect(result).toEqual(fakeAttacks);
     });
 
+    test('characterWeapons calls attack.findMany with characterId', async () => {
+        const fakeWeapons = [{ id: 'atk-2', name: 'Longsword' }];
+        attackFindManyMock.mockResolvedValueOnce(fakeWeapons);
+
+        const result = await resolvers.characterWeapons(fakeCharacter as any);
+
+        expect(attackFindManyMock).toHaveBeenCalledTimes(1);
+        const args = attackFindManyMock.mock.calls[0]![0] as Record<string, any>;
+        expect(args.where).toEqual({ characterId: 'char-1' });
+        expect(result).toEqual(fakeWeapons);
+    });
+
     test('characterInventory calls inventoryItem.findMany with characterId', async () => {
         inventoryItemFindManyMock.mockResolvedValueOnce([]);
 

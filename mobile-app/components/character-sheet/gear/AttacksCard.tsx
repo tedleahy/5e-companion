@@ -22,22 +22,24 @@ function attackTypeLabel(type: string): string {
 }
 
 export default function AttacksCard({ attacks }: AttacksCardProps) {
+    const weapons = attacks.filter((attack) => attack.type.trim().toLowerCase() !== 'spell');
+
     return (
         <SheetCard index={1}>
-            <SectionLabel>Attacks</SectionLabel>
+            <SectionLabel>Weapons</SectionLabel>
 
-            {attacks.length === 0 ? (
+            {weapons.length === 0 ? (
                 <View style={styles.emptyState}>
-                    <Text style={styles.emptyStateText}>No attacks recorded.</Text>
+                    <Text style={styles.emptyStateText}>No weapons recorded.</Text>
                 </View>
             ) : (
                 <View style={styles.attackList}>
-                    {attacks.map((attack, index) => (
+                    {weapons.map((attack, index) => (
                         <View
                             key={attack.id}
                             style={[
                                 styles.attackRow,
-                                index < attacks.length - 1 && styles.attackRowBorder,
+                                index < weapons.length - 1 && styles.attackRowBorder,
                             ]}
                         >
                             <View style={styles.attackIcon}>

@@ -56,7 +56,9 @@ const resolvers: Resolvers = {
         unprepareSpell: characterResolvers.unprepareSpell,
         toggleSpellSlot: characterResolvers.toggleSpellSlot,
 
+        addWeapon: characterResolvers.addWeapon,
         addAttack: characterResolvers.addAttack,
+        removeWeapon: characterResolvers.removeWeapon,
         removeAttack: characterResolvers.removeAttack,
         addInventoryItem: characterResolvers.addInventoryItem,
         removeInventoryItem: characterResolvers.removeInventoryItem,
@@ -70,6 +72,7 @@ const resolvers: Resolvers = {
 
     Character: {
         stats: characterResolvers.characterStats,
+        weapons: characterResolvers.characterWeapons,
         attacks: characterResolvers.characterAttacks,
         inventory: characterResolvers.characterInventory,
         features: characterResolvers.characterFeatures,

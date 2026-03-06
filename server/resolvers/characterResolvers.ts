@@ -23,6 +23,7 @@ export {
 
 export {
     characterStats,
+    characterWeapons,
     characterAttacks,
     characterInventory,
     characterFeatures,
@@ -39,7 +40,9 @@ export {
 } from "./character/spellbookMutations";
 
 export {
+    addWeapon,
     addAttack,
+    removeWeapon,
     removeAttack,
     addInventoryItem,
     removeInventoryItem,

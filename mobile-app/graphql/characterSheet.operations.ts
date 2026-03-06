@@ -31,7 +31,7 @@ export const GET_CURRENT_USER_CHARACTERS = gql`
                 usesRemaining
                 recharge
             }
-            attacks {
+            weapons {
                 id
                 name
                 attackBonus
@@ -128,6 +128,95 @@ export const GET_CURRENT_USER_CHARACTERS = gql`
                     gp
                     pp
                 }
+            }
+        }
+    }
+`;
+
+/**
+ * Updates top-level character fields such as AC, speed, initiative, and conditions.
+ */
+export const UPDATE_CHARACTER = gql`
+    mutation UpdateCharacter($id: ID!, $input: UpdateCharacterInput!) {
+        updateCharacter(id: $id, input: $input) {
+            id
+            ac
+            speed
+            initiative
+            conditions
+        }
+    }
+`;
+
+/**
+ * Replaces the character HP object.
+ */
+export const UPDATE_HP = gql`
+    mutation UpdateHP($characterId: ID!, $input: HPInput!) {
+        updateHP(characterId: $characterId, input: $input) {
+            id
+            hp {
+                current
+                max
+                temp
+            }
+        }
+    }
+`;
+
+/**
+ * Replaces all six ability scores.
+ */
+export const UPDATE_ABILITY_SCORES = gql`
+    mutation UpdateAbilityScores($characterId: ID!, $input: AbilityScoresInput!) {
+        updateAbilityScores(characterId: $characterId, input: $input) {
+            id
+            abilityScores {
+                strength
+                dexterity
+                constitution
+                intelligence
+                wisdom
+                charisma
+            }
+        }
+    }
+`;
+
+/**
+ * Replaces character currency values.
+ */
+export const UPDATE_CURRENCY = gql`
+    mutation UpdateCurrency($characterId: ID!, $input: CurrencyInput!) {
+        updateCurrency(characterId: $characterId, input: $input) {
+            id
+            currency {
+                cp
+                sp
+                ep
+                gp
+                pp
+            }
+        }
+    }
+`;
+
+/**
+ * Updates editable personality trait fields.
+ */
+export const UPDATE_TRAITS = gql`
+    mutation UpdateTraits($characterId: ID!, $input: TraitsInput!) {
+        updateTraits(characterId: $characterId, input: $input) {
+            id
+            traits {
+                personality
+                ideals
+                bonds
+                flaws
+                armorProficiencies
+                weaponProficiencies
+                toolProficiencies
+                languages
             }
         }
     }

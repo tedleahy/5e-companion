@@ -12,6 +12,22 @@ import prisma from "../../prisma/prisma";
 import { findOwnedCharacter, stripNullishFields } from "./helpers";
 
 /**
+ * Mutation argument shape for adding a weapon alias.
+ */
+type AddWeaponArgs = {
+    characterId: string;
+    input: MutationAddAttackArgs['input'];
+};
+
+/**
+ * Mutation argument shape for removing a weapon alias.
+ */
+type RemoveWeaponArgs = {
+    characterId: string;
+    weaponId: string;
+};
+
+/**
  * Adds an attack row to an owned character.
  */
 export async function addAttack(
@@ -25,6 +41,17 @@ export async function addAttack(
     return await prisma.attack.create({
         data: { characterId, ...input },
     });
+}
+
+/**
+ * Adds a weapon row to an owned character.
+ */
+export async function addWeapon(
+    _parent: unknown,
+    { characterId, input }: AddWeaponArgs,
+    ctx: Context,
+) {
+    return await addAttack(_parent, { characterId, input }, ctx);
 }
 
 /**
@@ -45,6 +72,17 @@ export async function removeAttack(
     if (result.count === 0) throw new Error('Attack not found.');
 
     return true;
+}
+
+/**
+ * Removes a weapon row from an owned character.
+ */
+export async function removeWeapon(
+    _parent: unknown,
+    { characterId, weaponId }: RemoveWeaponArgs,
+    ctx: Context,
+) {
+    return await removeAttack(_parent, { characterId, attackId: weaponId }, ctx);
 }
 
 /**

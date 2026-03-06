@@ -20,6 +20,15 @@ export async function characterAttacks(parent: PrismaCharacter) {
 }
 
 /**
+ * Field resolver for Character.weapons.
+ */
+export async function characterWeapons(parent: PrismaCharacter) {
+    return await prisma.attack.findMany({
+        where: { characterId: parent.id },
+    });
+}
+
+/**
  * Field resolver for Character.inventory.
  */
 export async function characterInventory(parent: PrismaCharacter) {

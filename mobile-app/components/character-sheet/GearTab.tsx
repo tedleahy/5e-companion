@@ -7,13 +7,13 @@ import InventoryCard from './gear/InventoryCard';
 import SheetAddButton from './SheetAddButton';
 
 type GearTabProps = {
-    attacks: Attack[];
+    weapons: Attack[];
     inventory: InventoryItem[];
     currency: Currency;
 };
 
 export default function GearTab({
-    attacks,
+    weapons,
     inventory,
     currency,
 }: GearTabProps) {
@@ -25,7 +25,7 @@ export default function GearTab({
                 showsVerticalScrollIndicator={false}
             >
                 <CurrencyCard currency={currency} />
-                <AttacksCard attacks={attacks} />
+                <AttacksCard attacks={weapons} />
                 <InventoryCard inventory={inventory} />
 
                 <SheetAddButton
