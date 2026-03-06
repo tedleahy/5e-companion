@@ -15,13 +15,25 @@ import type { AbilityScores, SkillProficiencies } from '@/types/generated_graphq
 import SheetCard from './SheetCard';
 import SectionLabel from './SectionLabel';
 import ProficiencyDot from './ProficiencyDot';
+import InlineField from './edit-mode/InlineField';
 
 type AbilityScoresAndSkillsCardProps = {
     abilityScores: AbilityScores;
     proficiencyBonus: number;
     savingThrowProficiencies: AbilityKey[];
     skillProficiencies: SkillProficiencies;
+    editMode?: boolean;
+    onChangeAbilityScore?: (ability: AbilityKey, value: number) => void;
 };
+
+/**
+ * Parses an editable ability value.
+ */
+function parseAbilityScoreInput(value: string): number {
+    const parsedValue = Number.parseInt(value, 10);
+    if (Number.isNaN(parsedValue)) return 0;
+    return parsedValue;
+}
 
 /**
  * Combined ability scores + grouped saving throws/skills layout.
@@ -37,6 +49,8 @@ export default function AbilityScoresAndSkillsCard({
     proficiencyBonus,
     savingThrowProficiencies,
     skillProficiencies,
+    editMode = false,
+    onChangeAbilityScore,
 }: AbilityScoresAndSkillsCardProps) {
     return (
         <SheetCard index={2}>
@@ -61,7 +75,17 @@ export default function AbilityScoresAndSkillsCard({
                             <View style={styles.abilityColumn}>
                                 <View style={styles.abilityCard}>
                                     <Text style={styles.abilityLabel}>{label}</Text>
-                                    <Text style={styles.abilityScore}>{score}</Text>
+                                    <InlineField
+                                        value={String(score)}
+                                        onChangeText={(value: string) => {
+                                            if (!onChangeAbilityScore) return;
+                                            onChangeAbilityScore(ability, parseAbilityScoreInput(value));
+                                        }}
+                                        editMode={editMode}
+                                        style={styles.abilityScore}
+                                        keyboardType="number-pad"
+                                        align="center"
+                                    />
                                     <View style={styles.modPill}>
                                         <Text style={styles.abilityMod}>
                                             {formatSignedNumber(mod)}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Text } from 'react-native-paper';
+import { ActivityIndicator, Snackbar, Text } from 'react-native-paper';
 import {
     useLocalSearchParams,
     useRouter,
@@ -19,6 +19,57 @@ import RailScreenShell from '@/components/navigation/RailScreenShell';
 import useCharacterSheetData from '@/hooks/useCharacterSheetData';
 import { isAbilityKey } from '@/lib/characterSheetUtils';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import type { AbilityKey } from '@/lib/characterSheetUtils';
+import type { AbilityScoresInput, CurrencyInput, HpInput, TraitsInput } from '@/types/generated_graphql_types';
+
+type CoreEditDraft = {
+    hp: HpInput;
+    ac: number;
+    speed: number;
+    initiative: number;
+    abilityScores: AbilityScoresInput;
+    currency: CurrencyInput;
+    traits: TraitsInput;
+    conditions: string[];
+};
+
+/**
+ * Builds editable core-sheet draft state from character data.
+ */
+function buildCoreDraft(character: NonNullable<ReturnType<typeof useCharacterSheetData>['character']>): CoreEditDraft {
+    return {
+        hp: {
+            current: character.stats?.hp.current ?? 0,
+            max: character.stats?.hp.max ?? 0,
+            temp: character.stats?.hp.temp ?? 0,
+        },
+        ac: character.ac,
+        speed: character.speed,
+        initiative: character.initiative,
+        abilityScores: {
+            strength: character.stats?.abilityScores.strength ?? 10,
+            dexterity: character.stats?.abilityScores.dexterity ?? 10,
+            constitution: character.stats?.abilityScores.constitution ?? 10,
+            intelligence: character.stats?.abilityScores.intelligence ?? 10,
+            wisdom: character.stats?.abilityScores.wisdom ?? 10,
+            charisma: character.stats?.abilityScores.charisma ?? 10,
+        },
+        currency: {
+            cp: character.stats?.currency.cp ?? 0,
+            sp: character.stats?.currency.sp ?? 0,
+            ep: character.stats?.currency.ep ?? 0,
+            gp: character.stats?.currency.gp ?? 0,
+            pp: character.stats?.currency.pp ?? 0,
+        },
+        traits: {
+            personality: character.stats?.traits.personality ?? '',
+            ideals: character.stats?.traits.ideals ?? '',
+            bonds: character.stats?.traits.bonds ?? '',
+            flaws: character.stats?.traits.flaws ?? '',
+        },
+        conditions: character.conditions,
+    };
+}
 
 /**
  * Normalises the dynamic route parameter into a usable character id.
@@ -38,6 +89,9 @@ function normaliseCharacterId(rawId?: string): string | null {
 export default function CharacterByIdScreen() {
     /** Currently active top-level tab in the character sheet. */
     const [activeTab, setActiveTab] = useState<CharacterSheetTab>('Core');
+    const [editMode, setEditMode] = useState(false);
+    const [isSavedVisible, setIsSavedVisible] = useState(false);
+    const [coreDraft, setCoreDraft] = useState<CoreEditDraft | null>(null);
     const { id } = useLocalSearchParams<{ id?: string }>();
     const router = useRouter();
     const characterId = normaliseCharacterId(id);
@@ -51,6 +105,7 @@ export default function CharacterByIdScreen() {
         handleUpdateSkillProficiency,
         handleToggleSpellSlot,
         handleSetSpellPrepared,
+        handleSaveCharacterSheetCore,
     } = useCharacterSheetData(characterId ?? '');
 
     useEffect(() => {
@@ -103,6 +158,62 @@ export default function CharacterByIdScreen() {
     const { stats } = character;
     const savingThrowProficiencies = stats.savingThrowProficiencies.filter(isAbilityKey);
 
+    /**
+     * Enters local character-sheet edit mode.
+     */
+    function handleStartEdit() {
+        setCoreDraft(buildCoreDraft(character as NonNullable<typeof character>));
+        setEditMode(true);
+    }
+
+    /**
+     * Leaves edit mode without persisting pending changes.
+     */
+    function handleCancelEdit() {
+        setCoreDraft(null);
+        setEditMode(false);
+    }
+
+    /**
+     * Finalises edit mode and confirms save completion.
+     */
+    async function handleDoneEdit() {
+        if (coreDraft) {
+            try {
+                await handleSaveCharacterSheetCore(coreDraft);
+            } catch (error) {
+                console.error('Failed to save core character sheet edits', error);
+            }
+        }
+
+        setCoreDraft(null);
+        setEditMode(false);
+        setIsSavedVisible(true);
+    }
+
+    const displayedHp = coreDraft?.hp ?? stats.hp;
+    const displayedAc = coreDraft?.ac ?? character.ac;
+    const displayedSpeed = coreDraft?.speed ?? character.speed;
+    const displayedInitiative = coreDraft?.initiative ?? character.initiative;
+    const displayedAbilityScores = coreDraft?.abilityScores ?? stats.abilityScores;
+
+    /**
+     * Updates one draft ability score while preserving all other ability values.
+     */
+    function handleChangeAbilityScore(ability: AbilityKey, value: number) {
+        setCoreDraft((previousDraft) => {
+            if (!previousDraft) return previousDraft;
+
+            return {
+                ...previousDraft,
+                abilityScores: {
+                    ...previousDraft.abilityScores,
+                    [ability]: value,
+                },
+            };
+        });
+    }
+
     return (
         <RailScreenShell>
             <View style={styles.container}>
@@ -115,6 +226,10 @@ export default function CharacterByIdScreen() {
                     alignment={character.alignment}
                     activeTab={activeTab}
                     onTabPress={setActiveTab}
+                    editMode={editMode}
+                    onStartEdit={handleStartEdit}
+                    onCancelEdit={handleCancelEdit}
+                    onDoneEdit={handleDoneEdit}
                 />
                 {activeTab === 'Core' && (
                     // TODO: move this into a <CoreTab> component, similar to the other tabs below
@@ -125,17 +240,73 @@ export default function CharacterByIdScreen() {
                     >
                         <>
                             <VitalsCard
-                                hp={stats.hp}
-                                ac={character.ac}
-                                speed={character.speed}
+                                hp={displayedHp}
+                                ac={displayedAc}
+                                speed={displayedSpeed}
                                 conditions={character.conditions}
+                                editMode={editMode}
+                                onChangeHpCurrent={(value: number) => {
+                                    setCoreDraft((previousDraft) => {
+                                        if (!previousDraft) return previousDraft;
+                                        return {
+                                            ...previousDraft,
+                                            hp: { ...previousDraft.hp, current: value },
+                                        };
+                                    });
+                                }}
+                                onChangeHpMax={(value: number) => {
+                                    setCoreDraft((previousDraft) => {
+                                        if (!previousDraft) return previousDraft;
+                                        return {
+                                            ...previousDraft,
+                                            hp: { ...previousDraft.hp, max: value },
+                                        };
+                                    });
+                                }}
+                                onChangeHpTemp={(value: number) => {
+                                    setCoreDraft((previousDraft) => {
+                                        if (!previousDraft) return previousDraft;
+                                        return {
+                                            ...previousDraft,
+                                            hp: { ...previousDraft.hp, temp: value },
+                                        };
+                                    });
+                                }}
+                                onChangeAc={(value: number) => {
+                                    setCoreDraft((previousDraft) => {
+                                        if (!previousDraft) return previousDraft;
+                                        return {
+                                            ...previousDraft,
+                                            ac: value,
+                                        };
+                                    });
+                                }}
+                                onChangeSpeed={(value: number) => {
+                                    setCoreDraft((previousDraft) => {
+                                        if (!previousDraft) return previousDraft;
+                                        return {
+                                            ...previousDraft,
+                                            speed: value,
+                                        };
+                                    });
+                                }}
                             />
                             <QuickStatsCard
                                 proficiencyBonus={character.proficiencyBonus}
-                                initiative={character.initiative}
+                                initiative={displayedInitiative}
                                 inspiration={character.inspiration}
                                 spellSaveDC={character.spellSaveDC ?? null}
+                                editMode={editMode}
                                 onToggleInspiration={handleToggleInspiration}
+                                onChangeInitiative={(value: number) => {
+                                    setCoreDraft((previousDraft) => {
+                                        if (!previousDraft) return previousDraft;
+                                        return {
+                                            ...previousDraft,
+                                            initiative: value,
+                                        };
+                                    });
+                                }}
                             />
                             <DeathSavesCard
                                 successes={stats.deathSaves.successes}
@@ -143,10 +314,12 @@ export default function CharacterByIdScreen() {
                                 onUpdate={handleUpdateDeathSaves}
                             />
                             <AbilityScoresAndSkillsCard
-                                abilityScores={stats.abilityScores}
+                                abilityScores={displayedAbilityScores}
                                 proficiencyBonus={character.proficiencyBonus}
                                 savingThrowProficiencies={savingThrowProficiencies}
                                 skillProficiencies={stats.skillProficiencies}
+                                editMode={editMode}
+                                onChangeAbilityScore={handleChangeAbilityScore}
                             />
                         </>
                     </ScrollView>
@@ -175,7 +348,7 @@ export default function CharacterByIdScreen() {
 
                 {activeTab === 'Gear' && (
                     <GearTab
-                        attacks={character.attacks}
+                        weapons={character.weapons}
                         inventory={character.inventory}
                         currency={stats.currency}
                     />
@@ -190,6 +363,15 @@ export default function CharacterByIdScreen() {
                         traits={stats.traits}
                     />
                 )}
+
+                <Snackbar
+                    visible={isSavedVisible}
+                    onDismiss={() => setIsSavedVisible(false)}
+                    duration={1400}
+                    style={styles.savedSnackbar}
+                >
+                    Saved
+                </Snackbar>
             </View>
         </RailScreenShell>
     );
@@ -235,5 +417,8 @@ const styles = StyleSheet.create({
         fontSize: 13,
         textAlign: 'center',
         marginTop: fantasyTokens.spacing.sm,
+    },
+    savedSnackbar: {
+        backgroundColor: '#2a5c2a',
     },
 });

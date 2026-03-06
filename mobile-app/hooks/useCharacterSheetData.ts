@@ -2,14 +2,21 @@ import { useCallback } from 'react';
 import type { ApolloCache } from '@apollo/client';
 import { useMutation, useQuery } from '@apollo/client/react';
 import type {
-    CurrentUserCharactersQuery,
-    ToggleInspirationMutation,
-    ToggleInspirationMutationVariables,
-    UpdateDeathSavesMutation,
-    UpdateDeathSavesMutationVariables,
+    AbilityScoresInput,
+    CharacterSpell,
+    CurrencyInput,
+    HpInput,
+    MutationUpdateAbilityScoresArgs,
+    MutationUpdateCharacterArgs,
+    MutationUpdateCurrencyArgs,
+    MutationUpdateHpArgs,
+    MutationUpdateTraitsArgs,
+    Query,
+    TraitsInput,
     ProficiencyLevel,
     SkillProficiencies,
     SkillProficienciesInput,
+    SpellSlot,
 } from '@/types/generated_graphql_types';
 import {
     GET_CURRENT_USER_CHARACTERS,
@@ -17,8 +24,13 @@ import {
     TOGGLE_INSPIRATION,
     TOGGLE_SPELL_SLOT,
     UNPREPARE_SPELL,
+    UPDATE_ABILITY_SCORES,
+    UPDATE_CHARACTER,
+    UPDATE_CURRENCY,
     UPDATE_DEATH_SAVES,
+    UPDATE_HP,
     UPDATE_SKILL_PROFICIENCIES,
+    UPDATE_TRAITS,
 } from '@/graphql/characterSheet.operations';
 import { isUnauthenticatedError } from '@/lib/graphqlErrors';
 import type { SkillKey } from '@/lib/characterSheetUtils';
@@ -35,6 +47,64 @@ type UpdateSkillProficienciesMutationData = {
 };
 
 /**
+ * Mutation payload when toggling inspiration.
+ */
+type ToggleInspirationMutationData = {
+    toggleInspiration: {
+        __typename: 'Character';
+        id: string;
+        inspiration: boolean;
+    };
+};
+
+/**
+ * Variables for inspiration toggle mutation.
+ */
+type ToggleInspirationMutationVariables = {
+    characterId: string;
+};
+
+/**
+ * Mutation payload for death-save updates.
+ */
+type UpdateDeathSavesMutationData = {
+    updateDeathSaves: {
+        __typename: 'CharacterStats';
+        id: string;
+        deathSaves: {
+            __typename: 'DeathSaves';
+            successes: number;
+            failures: number;
+        };
+    };
+};
+
+/**
+ * Variables for updating death saves.
+ */
+type UpdateDeathSavesMutationVariables = {
+    characterId: string;
+    input: {
+        successes: number;
+        failures: number;
+    };
+};
+
+/**
+ * Persisted edit payload for core character sheet fields.
+ */
+export type SaveCharacterSheetCoreInput = {
+    ac: number;
+    speed: number;
+    initiative: number;
+    conditions: string[];
+    hp: HpInput;
+    abilityScores: AbilityScoresInput;
+    currency: CurrencyInput;
+    traits: TraitsInput;
+};
+
+/**
  * Variables for updating a character's skill proficiencies.
  */
 type UpdateSkillProficienciesMutationVariables = {
@@ -45,32 +115,12 @@ type UpdateSkillProficienciesMutationVariables = {
 /**
  * Spell slot shape used by cache update helpers.
  */
-type CharacterSpellSlot = {
-    __typename?: 'SpellSlot';
-    id: string;
-    level: number;
-    total: number;
-    used: number;
-};
+type CharacterSpellSlot = SpellSlot;
 
 /**
  * Spellbook row shape used by cache update helpers.
  */
-type CharacterSpellbookEntry = {
-    __typename?: 'CharacterSpell';
-    prepared: boolean;
-    spell: {
-        __typename?: 'Spell';
-        id: string;
-        name: string;
-        level: number;
-        schoolIndex: string;
-        castingTime: string;
-        range?: string | null;
-        concentration: boolean;
-        ritual: boolean;
-    };
-};
+type CharacterSpellbookEntry = CharacterSpell;
 
 /**
  * Attack row shape returned for the character sheet.
@@ -143,6 +193,7 @@ type CharacterCurrency = {
  * Base generated character result from the current-user query.
  */
 type BaseCharacter = CurrentUserCharactersQuery['currentUserCharacters'][number];
+type CurrentUserCharactersQuery = Pick<Query, 'currentUserCharacters'>;
 /**
  * Non-nullable stats row from the generated character result.
  */
@@ -158,7 +209,7 @@ type CharacterWithSpells = Omit<BaseCharacter, 'stats'> & {
     spellAttackBonus?: number | null;
     spellSlots: CharacterSpellSlot[];
     spellbook: CharacterSpellbookEntry[];
-    attacks: CharacterAttack[];
+    weapons: CharacterAttack[];
     inventory: CharacterInventoryItem[];
     features: CharacterFeature[];
     stats?: (BaseCharacterStats & {
@@ -299,12 +350,12 @@ export default function useCharacterSheetData(characterId: string) {
     );
 
     const [toggleInspiration] = useMutation<
-        ToggleInspirationMutation,
+        ToggleInspirationMutationData,
         ToggleInspirationMutationVariables
     >(TOGGLE_INSPIRATION);
 
     const [updateDeathSaves] = useMutation<
-        UpdateDeathSavesMutation,
+        UpdateDeathSavesMutationData,
         UpdateDeathSavesMutationVariables
     >(UPDATE_DEATH_SAVES);
 
@@ -327,6 +378,25 @@ export default function useCharacterSheetData(characterId: string) {
         UnprepareSpellMutationData,
         SpellPreparedMutationVariables
     >(UNPREPARE_SPELL);
+
+    const [updateCharacter] = useMutation<{ updateCharacter: { id: string } }, MutationUpdateCharacterArgs>(
+        UPDATE_CHARACTER,
+    );
+
+    const [updateHP] = useMutation<{ updateHP: { id: string } }, MutationUpdateHpArgs>(UPDATE_HP);
+
+    const [updateAbilityScores] = useMutation<
+        { updateAbilityScores: { id: string } },
+        MutationUpdateAbilityScoresArgs
+    >(UPDATE_ABILITY_SCORES);
+
+    const [updateCurrency] = useMutation<{ updateCurrency: { id: string } }, MutationUpdateCurrencyArgs>(
+        UPDATE_CURRENCY,
+    );
+
+    const [updateTraits] = useMutation<{ updateTraits: { id: string } }, MutationUpdateTraitsArgs>(
+        UPDATE_TRAITS,
+    );
 
     const currentUserCharacters = data?.currentUserCharacters ?? [];
     const character = currentUserCharacters.find((candidate) => candidate.id === characterId) ?? null;
@@ -500,6 +570,51 @@ export default function useCharacterSheetData(characterId: string) {
         }
     }, [character, prepareSpell, unprepareSpell]);
 
+    /**
+     * Persists the editable core sheet fields when edit mode is confirmed.
+     */
+    const handleSaveCharacterSheetCore = useCallback(async (input: SaveCharacterSheetCoreInput) => {
+        if (!character || !character.stats) return;
+
+        await Promise.all([
+            updateCharacter({
+                variables: {
+                    id: character.id,
+                    input: {
+                        ac: input.ac,
+                        speed: input.speed,
+                        initiative: input.initiative,
+                        conditions: input.conditions,
+                    },
+                },
+            }),
+            updateHP({
+                variables: {
+                    characterId: character.id,
+                    input: input.hp,
+                },
+            }),
+            updateAbilityScores({
+                variables: {
+                    characterId: character.id,
+                    input: input.abilityScores,
+                },
+            }),
+            updateCurrency({
+                variables: {
+                    characterId: character.id,
+                    input: input.currency,
+                },
+            }),
+            updateTraits({
+                variables: {
+                    characterId: character.id,
+                    input: input.traits,
+                },
+            }),
+        ]);
+    }, [character, updateAbilityScores, updateCharacter, updateCurrency, updateHP, updateTraits]);
+
     return {
         character,
         loading,
@@ -510,5 +625,6 @@ export default function useCharacterSheetData(characterId: string) {
         handleUpdateSkillProficiency,
         handleToggleSpellSlot,
         handleSetSpellPrepared,
+        handleSaveCharacterSheetCore,
     };
 }
