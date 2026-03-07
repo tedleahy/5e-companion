@@ -1,5 +1,3 @@
-jest.unmock('expo-router');
-
 import React from 'react';
 import 'react-native-gesture-handler/jestSetup';
 import { Pressable } from 'react-native';
@@ -7,6 +5,8 @@ import { Text } from 'react-native-paper';
 import { Drawer } from 'expo-router/drawer';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { fireEvent, renderRouter, screen, testRouter } from 'expo-router/testing-library';
+
+jest.unmock('expo-router');
 
 /**
  * Test-only root stack that mirrors the app-level structure relevant to this regression.

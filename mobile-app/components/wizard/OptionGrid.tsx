@@ -1,4 +1,4 @@
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { OptionItem } from '@/lib/dndHelpers';
