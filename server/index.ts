@@ -58,11 +58,14 @@ const resolvers: Resolvers = {
 
         addWeapon: characterResolvers.addWeapon,
         addAttack: characterResolvers.addAttack,
+        updateWeapon: characterResolvers.updateWeapon,
         removeWeapon: characterResolvers.removeWeapon,
         removeAttack: characterResolvers.removeAttack,
         addInventoryItem: characterResolvers.addInventoryItem,
+        updateInventoryItem: characterResolvers.updateInventoryItem,
         removeInventoryItem: characterResolvers.removeInventoryItem,
         addFeature: characterResolvers.addFeature,
+        updateFeature: characterResolvers.updateFeature,
         removeFeature: characterResolvers.removeFeature,
 
         spendHitDie: characterResolvers.spendHitDie,

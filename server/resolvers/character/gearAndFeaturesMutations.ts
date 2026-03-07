@@ -28,6 +28,33 @@ type RemoveWeaponArgs = {
 };
 
 /**
+ * Mutation argument shape for updating a weapon row.
+ */
+type UpdateWeaponArgs = {
+    characterId: string;
+    weaponId: string;
+    input: MutationAddAttackArgs['input'];
+};
+
+/**
+ * Mutation argument shape for updating an inventory item row.
+ */
+type UpdateInventoryItemArgs = {
+    characterId: string;
+    itemId: string;
+    input: MutationAddInventoryItemArgs['input'];
+};
+
+/**
+ * Mutation argument shape for updating a feature row.
+ */
+type UpdateFeatureArgs = {
+    characterId: string;
+    featureId: string;
+    input: MutationAddFeatureArgs['input'];
+};
+
+/**
  * Adds an attack row to an owned character.
  */
 export async function addAttack(
@@ -86,6 +113,27 @@ export async function removeWeapon(
 }
 
 /**
+ * Updates a weapon row for an owned character.
+ */
+export async function updateWeapon(
+    _parent: unknown,
+    { characterId, weaponId, input }: UpdateWeaponArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+    await findOwnedCharacter(characterId, userId);
+
+    const result = await prisma.attack.updateMany({
+        where: { id: weaponId, characterId },
+        data: { ...input },
+    });
+
+    if (result.count === 0) throw new Error('Weapon not found.');
+
+    return await prisma.attack.findUnique({ where: { id: weaponId } });
+}
+
+/**
  * Adds an inventory item to an owned character.
  */
 export async function addInventoryItem(
@@ -99,6 +147,27 @@ export async function addInventoryItem(
     const data = { characterId, ...stripNullishFields(input) };
 
     return await prisma.inventoryItem.create({ data: data as any });
+}
+
+/**
+ * Updates an inventory item for an owned character.
+ */
+export async function updateInventoryItem(
+    _parent: unknown,
+    { characterId, itemId, input }: UpdateInventoryItemArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+    await findOwnedCharacter(characterId, userId);
+
+    const result = await prisma.inventoryItem.updateMany({
+        where: { id: itemId, characterId },
+        data: { ...stripNullishFields(input) } as any,
+    });
+
+    if (result.count === 0) throw new Error('Inventory item not found.');
+
+    return await prisma.inventoryItem.findUnique({ where: { id: itemId } });
 }
 
 /**
@@ -135,6 +204,27 @@ export async function addFeature(
     return await prisma.characterFeature.create({
         data: { characterId, ...input },
     });
+}
+
+/**
+ * Updates a feature row for an owned character.
+ */
+export async function updateFeature(
+    _parent: unknown,
+    { characterId, featureId, input }: UpdateFeatureArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+    await findOwnedCharacter(characterId, userId);
+
+    const result = await prisma.characterFeature.updateMany({
+        where: { id: featureId, characterId },
+        data: { ...input },
+    });
+
+    if (result.count === 0) throw new Error('Feature not found.');
+
+    return await prisma.characterFeature.findUnique({ where: { id: featureId } });
 }
 
 /**

@@ -26,10 +26,19 @@ export const spellSlotFindUniqueMock: any = mock((_args: unknown) => Promise.res
 export const spellSlotUpdateMock: any = mock((_args: unknown) => Promise.resolve({}));
 export const spellSlotUpdateManyMock: any = mock((_args: unknown) => Promise.resolve({ count: 0 }));
 export const attackCreateMock: any = mock((_args: unknown) => Promise.resolve({}));
+export const attackUpdateMock: any = mock((_args: unknown) => Promise.resolve({}));
+export const attackUpdateManyMock: any = mock((_args: unknown) => Promise.resolve({ count: 1 }));
+export const attackFindUniqueMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const attackDeleteManyMock: any = mock((_args: unknown) => Promise.resolve({ count: 1 }));
 export const inventoryItemCreateMock: any = mock((_args: unknown) => Promise.resolve({}));
+export const inventoryItemUpdateMock: any = mock((_args: unknown) => Promise.resolve({}));
+export const inventoryItemUpdateManyMock: any = mock((_args: unknown) => Promise.resolve({ count: 1 }));
+export const inventoryItemFindUniqueMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const inventoryItemDeleteManyMock: any = mock((_args: unknown) => Promise.resolve({ count: 1 }));
 export const characterFeatureCreateMock: any = mock((_args: unknown) => Promise.resolve({}));
+export const characterFeatureUpdateMock: any = mock((_args: unknown) => Promise.resolve({}));
+export const characterFeatureUpdateManyMock: any = mock((_args: unknown) => Promise.resolve({ count: 1 }));
+export const characterFeatureFindUniqueMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const characterFeatureDeleteManyMock: any = mock((_args: unknown) => Promise.resolve({ count: 1 }));
 export const executeRawMock: any = mock((_args: unknown) => Promise.resolve(0));
 
@@ -54,17 +63,26 @@ mock.module('../prisma/prisma', () => ({
         },
         attack: {
             findMany: attackFindManyMock,
+            findUnique: attackFindUniqueMock,
             create: attackCreateMock,
+            update: attackUpdateMock,
+            updateMany: attackUpdateManyMock,
             deleteMany: attackDeleteManyMock,
         },
         inventoryItem: {
             findMany: inventoryItemFindManyMock,
+            findUnique: inventoryItemFindUniqueMock,
             create: inventoryItemCreateMock,
+            update: inventoryItemUpdateMock,
+            updateMany: inventoryItemUpdateManyMock,
             deleteMany: inventoryItemDeleteManyMock,
         },
         characterFeature: {
             findMany: characterFeatureFindManyMock,
+            findUnique: characterFeatureFindUniqueMock,
             create: characterFeatureCreateMock,
+            update: characterFeatureUpdateMock,
+            updateMany: characterFeatureUpdateManyMock,
             deleteMany: characterFeatureDeleteManyMock,
         },
         spellSlot: {
@@ -141,10 +159,19 @@ export function clearAllCharacterResolverMocks() {
     spellSlotUpdateMock.mockClear();
     spellSlotUpdateManyMock.mockClear();
     attackCreateMock.mockClear();
+    attackUpdateMock.mockClear();
+    attackUpdateManyMock.mockClear();
+    attackFindUniqueMock.mockClear();
     attackDeleteManyMock.mockClear();
     inventoryItemCreateMock.mockClear();
+    inventoryItemUpdateMock.mockClear();
+    inventoryItemUpdateManyMock.mockClear();
+    inventoryItemFindUniqueMock.mockClear();
     inventoryItemDeleteManyMock.mockClear();
     characterFeatureCreateMock.mockClear();
+    characterFeatureUpdateMock.mockClear();
+    characterFeatureUpdateManyMock.mockClear();
+    characterFeatureFindUniqueMock.mockClear();
     characterFeatureDeleteManyMock.mockClear();
     executeRawMock.mockClear();
 }

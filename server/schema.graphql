@@ -285,6 +285,10 @@ input TraitsInput {
     ideals: String!
     bonds: String!
     flaws: String!
+    armorProficiencies: [String!]
+    weaponProficiencies: [String!]
+    toolProficiencies: [String!]
+    languages: [String!]
 }
 
 input CurrencyInput {
@@ -362,11 +366,14 @@ type Mutation {
     # Gear / features
     addWeapon(characterId: ID!, input: AttackInput!): Attack!
     addAttack(characterId: ID!, input: AttackInput!): Attack!
+    updateWeapon(characterId: ID!, weaponId: ID!, input: AttackInput!): Attack!
     removeWeapon(characterId: ID!, weaponId: ID!): Boolean!
     removeAttack(characterId: ID!, attackId: ID!): Boolean!
     addInventoryItem(characterId: ID!, input: InventoryItemInput!): InventoryItem!
+    updateInventoryItem(characterId: ID!, itemId: ID!, input: InventoryItemInput!): InventoryItem!
     removeInventoryItem(characterId: ID!, itemId: ID!): Boolean!
     addFeature(characterId: ID!, input: FeatureInput!): CharacterFeature!
+    updateFeature(characterId: ID!, featureId: ID!, input: FeatureInput!): CharacterFeature!
     removeFeature(characterId: ID!, featureId: ID!): Boolean!
 
     # Rest / recovery

@@ -42,11 +42,14 @@ export {
 export {
     addWeapon,
     addAttack,
+    updateWeapon,
     removeWeapon,
     removeAttack,
     addInventoryItem,
+    updateInventoryItem,
     removeInventoryItem,
     addFeature,
+    updateFeature,
     removeFeature,
 } from "./character/gearAndFeaturesMutations";
 
