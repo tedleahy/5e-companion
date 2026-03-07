@@ -6,16 +6,36 @@ import CurrencyCard from './gear/CurrencyCard';
 import InventoryCard from './gear/InventoryCard';
 import SheetAddButton from './SheetAddButton';
 
+type CurrencyKey = 'cp' | 'sp' | 'ep' | 'gp' | 'pp';
+
 type GearTabProps = {
     weapons: Attack[];
     inventory: InventoryItem[];
     currency: Currency;
+    editMode: boolean;
+    onChangeCurrency: (key: CurrencyKey, value: number) => void;
+    onAddWeapon: () => void;
+    onChangeWeapon: (weaponId: string, field: 'name' | 'attackBonus' | 'damage', value: string) => void;
+    onRemoveWeapon: (weaponId: string) => void;
+    onAddInventoryItem: () => void;
+    onChangeInventoryItem: (itemId: string, changes: Partial<InventoryItem>) => void;
+    onRemoveInventoryItem: (itemId: string) => void;
+    onToggleInventoryEquip: (itemId: string) => void;
 };
 
 export default function GearTab({
     weapons,
     inventory,
     currency,
+    editMode,
+    onChangeCurrency,
+    onAddWeapon,
+    onChangeWeapon,
+    onRemoveWeapon,
+    onAddInventoryItem,
+    onChangeInventoryItem,
+    onRemoveInventoryItem,
+    onToggleInventoryEquip,
 }: GearTabProps) {
     return (
         <View style={styles.container}>
@@ -24,15 +44,29 @@ export default function GearTab({
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
-                <CurrencyCard currency={currency} />
-                <AttacksCard attacks={weapons} />
-                <InventoryCard inventory={inventory} />
-
-                <SheetAddButton
-                    label="+ Add Item"
-                    accessibilityLabel="Add item"
-                    disabled
+                <CurrencyCard currency={currency} editMode={editMode} onChangeCurrency={onChangeCurrency} />
+                <AttacksCard
+                    attacks={weapons}
+                    editMode={editMode}
+                    onAddWeapon={onAddWeapon}
+                    onChangeWeapon={onChangeWeapon}
+                    onRemoveWeapon={onRemoveWeapon}
                 />
+                <InventoryCard
+                    inventory={inventory}
+                    editMode={editMode}
+                    onAddInventoryItem={onAddInventoryItem}
+                    onChangeInventoryItem={onChangeInventoryItem}
+                    onRemoveInventoryItem={onRemoveInventoryItem}
+                    onToggleInventoryEquip={onToggleInventoryEquip}
+                />
+                {!editMode && (
+                    <SheetAddButton
+                        label="+ Add Item"
+                        accessibilityLabel="Add item"
+                        disabled
+                    />
+                )}
             </ScrollView>
         </View>
     );

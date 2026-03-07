@@ -3,8 +3,11 @@ import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { CharacterTraitsData } from '@/components/character-sheet/features/features.types';
 import CardDivider from '../CardDivider';
+import InlineField from '../edit-mode/InlineField';
 import SectionLabel from '../SectionLabel';
 import SheetCard from '../SheetCard';
+
+type TraitTextField = 'personality' | 'ideals' | 'bonds' | 'flaws';
 
 /**
  * Props for the personality/background card.
@@ -13,6 +16,8 @@ type PersonalityCardProps = {
     background: string;
     traits: CharacterTraitsData;
     index: number;
+    editMode: boolean;
+    onChangeTraitText: (field: TraitTextField, value: string) => void;
 };
 
 /**
@@ -21,20 +26,28 @@ type PersonalityCardProps = {
 type TraitBlockProps = {
     label: string;
     text: string;
+    editMode: boolean;
+    placeholder: string;
+    onChangeText: (value: string) => void;
 };
 
 /**
  * Displays one labeled personality field with an empty placeholder.
  */
-function TraitBlock({ label, text }: TraitBlockProps) {
+function TraitBlock({ label, text, editMode, placeholder, onChangeText }: TraitBlockProps) {
     const hasText = text.trim().length > 0;
 
     return (
         <View style={styles.traitBlock}>
             <Text style={styles.traitLabel}>{label}</Text>
-            <Text style={[styles.traitText, !hasText && styles.placeholderText]}>
-                {hasText ? text : 'No entry yet.'}
-            </Text>
+            <InlineField
+                value={text}
+                onChangeText={onChangeText}
+                editMode={editMode}
+                style={[styles.traitText, !hasText && styles.placeholderText]}
+                placeholder={placeholder}
+                multiline
+            />
         </View>
     );
 }
@@ -46,6 +59,8 @@ export default function PersonalityCard({
     background,
     traits,
     index,
+    editMode,
+    onChangeTraitText,
 }: PersonalityCardProps) {
     return (
         <SheetCard index={index}>
@@ -56,13 +71,37 @@ export default function PersonalityCard({
             </View>
 
             <View style={styles.content}>
-                <TraitBlock label="Personality Traits" text={traits.personality} />
+                <TraitBlock
+                    label="Personality Traits"
+                    text={traits.personality}
+                    editMode={editMode}
+                    placeholder="No entry yet."
+                    onChangeText={(value: string) => onChangeTraitText('personality', value)}
+                />
                 <CardDivider />
-                <TraitBlock label="Ideals" text={traits.ideals} />
+                <TraitBlock
+                    label="Ideals"
+                    text={traits.ideals}
+                    editMode={editMode}
+                    placeholder="No entry yet."
+                    onChangeText={(value: string) => onChangeTraitText('ideals', value)}
+                />
                 <CardDivider />
-                <TraitBlock label="Bonds" text={traits.bonds} />
+                <TraitBlock
+                    label="Bonds"
+                    text={traits.bonds}
+                    editMode={editMode}
+                    placeholder="No entry yet."
+                    onChangeText={(value: string) => onChangeTraitText('bonds', value)}
+                />
                 <CardDivider />
-                <TraitBlock label="Flaws" text={traits.flaws} />
+                <TraitBlock
+                    label="Flaws"
+                    text={traits.flaws}
+                    editMode={editMode}
+                    placeholder="No entry yet."
+                    onChangeText={(value: string) => onChangeTraitText('flaws', value)}
+                />
             </View>
         </SheetCard>
     );

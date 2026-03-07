@@ -134,6 +134,131 @@ export const GET_CURRENT_USER_CHARACTERS = gql`
 `;
 
 /**
+ * Adds a weapon row to the character sheet.
+ */
+export const ADD_WEAPON = gql`
+    mutation AddWeapon($characterId: ID!, $input: AttackInput!) {
+        addWeapon(characterId: $characterId, input: $input) {
+            id
+            name
+            attackBonus
+            damage
+            type
+        }
+    }
+`;
+
+/**
+ * Updates an existing weapon row.
+ */
+export const UPDATE_WEAPON = gql`
+    mutation UpdateWeapon($characterId: ID!, $weaponId: ID!, $input: AttackInput!) {
+        updateWeapon(characterId: $characterId, weaponId: $weaponId, input: $input) {
+            id
+            name
+            attackBonus
+            damage
+            type
+        }
+    }
+`;
+
+/**
+ * Removes a weapon row from the character sheet.
+ */
+export const REMOVE_WEAPON = gql`
+    mutation RemoveWeapon($characterId: ID!, $weaponId: ID!) {
+        removeWeapon(characterId: $characterId, weaponId: $weaponId)
+    }
+`;
+
+/**
+ * Adds an inventory item row to the character sheet.
+ */
+export const ADD_INVENTORY_ITEM = gql`
+    mutation AddInventoryItem($characterId: ID!, $input: InventoryItemInput!) {
+        addInventoryItem(characterId: $characterId, input: $input) {
+            id
+            name
+            quantity
+            weight
+            description
+            equipped
+            magical
+        }
+    }
+`;
+
+/**
+ * Updates an existing inventory item row.
+ */
+export const UPDATE_INVENTORY_ITEM = gql`
+    mutation UpdateInventoryItem($characterId: ID!, $itemId: ID!, $input: InventoryItemInput!) {
+        updateInventoryItem(characterId: $characterId, itemId: $itemId, input: $input) {
+            id
+            name
+            quantity
+            weight
+            description
+            equipped
+            magical
+        }
+    }
+`;
+
+/**
+ * Removes an inventory item row from the character sheet.
+ */
+export const REMOVE_INVENTORY_ITEM = gql`
+    mutation RemoveInventoryItem($characterId: ID!, $itemId: ID!) {
+        removeInventoryItem(characterId: $characterId, itemId: $itemId)
+    }
+`;
+
+/**
+ * Adds a feature row to the character sheet.
+ */
+export const ADD_FEATURE = gql`
+    mutation AddFeature($characterId: ID!, $input: FeatureInput!) {
+        addFeature(characterId: $characterId, input: $input) {
+            id
+            name
+            source
+            description
+            usesMax
+            usesRemaining
+            recharge
+        }
+    }
+`;
+
+/**
+ * Updates an existing feature row.
+ */
+export const UPDATE_FEATURE = gql`
+    mutation UpdateFeature($characterId: ID!, $featureId: ID!, $input: FeatureInput!) {
+        updateFeature(characterId: $characterId, featureId: $featureId, input: $input) {
+            id
+            name
+            source
+            description
+            usesMax
+            usesRemaining
+            recharge
+        }
+    }
+`;
+
+/**
+ * Removes a feature row from the character sheet.
+ */
+export const REMOVE_FEATURE = gql`
+    mutation RemoveFeature($characterId: ID!, $featureId: ID!) {
+        removeFeature(characterId: $characterId, featureId: $featureId)
+    }
+`;
+
+/**
  * Updates top-level character fields such as AC, speed, initiative, and conditions.
  */
 export const UPDATE_CHARACTER = gql`

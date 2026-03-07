@@ -1,12 +1,19 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import type { InventoryItem } from '@/types/generated_graphql_types';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import CardDivider from '../CardDivider';
+import InlineField from '../edit-mode/InlineField';
+import RemoveButton from '../edit-mode/RemoveButton';
 import SheetCard from '../SheetCard';
 
 type InventoryCardProps = {
     inventory: InventoryItem[];
+    editMode: boolean;
+    onAddInventoryItem: () => void;
+    onChangeInventoryItem: (itemId: string, changes: Partial<InventoryItem>) => void;
+    onRemoveInventoryItem: (itemId: string) => void;
+    onToggleInventoryEquip: (itemId: string) => void;
 };
 
 type InventoryGroupKey = 'equipped' | 'backpack' | 'other';
@@ -66,12 +73,29 @@ function groupInventory(inventory: InventoryItem[]): InventoryGroup[] {
 
 export default function InventoryCard({
     inventory,
+    editMode,
+    onAddInventoryItem,
+    onChangeInventoryItem,
+    onRemoveInventoryItem,
+    onToggleInventoryEquip,
 }: InventoryCardProps) {
     const groups = groupInventory(inventory);
 
+    /** Whether any visible group already has the backpack add control. */
+    const hasBackpackGroup = groups.some((group) => group.key === 'backpack');
+
     return (
         <SheetCard index={2}>
-            {groups.length === 0 ? (
+            {editMode && !hasBackpackGroup && (
+                <View style={styles.groupHeader}>
+                    <Text style={styles.groupTitle}>Inventory</Text>
+                    <View style={styles.groupLine} />
+                    <Pressable onPress={onAddInventoryItem} accessibilityRole="button" accessibilityLabel="Add backpack item">
+                        <Text style={styles.groupAddButton}>+ Add</Text>
+                    </Pressable>
+                </View>
+            )}
+            {groups.length === 0 && !editMode ? (
                 <View style={styles.emptyState}>
                     <Text style={styles.emptyStateText}>No inventory items yet.</Text>
                 </View>
@@ -81,6 +105,11 @@ export default function InventoryCard({
                         <View style={styles.groupHeader}>
                             <Text style={styles.groupTitle}>{group.label}</Text>
                             <View style={styles.groupLine} />
+                            {editMode && group.key === 'backpack' && (
+                                <Pressable onPress={onAddInventoryItem} accessibilityRole="button" accessibilityLabel="Add backpack item">
+                                    <Text style={styles.groupAddButton}>+ Add</Text>
+                                </Pressable>
+                            )}
                             <Text style={styles.groupCount}>{group.items.length}</Text>
                         </View>
 
@@ -104,27 +133,43 @@ export default function InventoryCard({
                                     </View>
 
                                     <View style={styles.inventoryInfo}>
-                                        <Text
+                                        <InlineField
+                                            value={item.name}
+                                            onChangeText={(value: string) => onChangeInventoryItem(item.id, { name: value })}
+                                            editMode={editMode && !item.equipped}
                                             style={[
                                                 styles.inventoryName,
                                                 item.equipped && styles.inventoryNameEquipped,
                                             ]}
-                                        >
-                                            {item.name}
-                                        </Text>
-                                        <Text style={styles.inventoryDescription}>
-                                            {inventoryDescription(item)}
-                                        </Text>
+                                            placeholder="Item name"
+                                        />
+                                        <InlineField
+                                            value={item.description ?? ''}
+                                            onChangeText={(value: string) => onChangeInventoryItem(item.id, { description: value })}
+                                            editMode={editMode && !item.equipped}
+                                            style={styles.inventoryDescription}
+                                            placeholder={inventoryDescription(item)}
+                                        />
                                     </View>
 
                                     <View style={styles.inventoryRight}>
-                                        {item.equipped ? (
+                                        {editMode ? (
+                                            <Pressable onPress={() => onToggleInventoryEquip(item.id)}>
+                                                <Text style={styles.equippedBadge}>{item.equipped ? 'Unequip' : 'Equip'}</Text>
+                                            </Pressable>
+                                        ) : item.equipped ? (
                                             <Text style={styles.equippedBadge}>Equipped</Text>
                                         ) : (
                                             <Text style={styles.quantityText}>x{item.quantity}</Text>
                                         )}
                                         <Text style={styles.weightText}>{formatWeight(item.weight)}</Text>
                                     </View>
+
+                                    <RemoveButton
+                                        editMode={editMode && !item.equipped}
+                                        accessibilityLabel={`Remove ${item.name || 'item'}`}
+                                        onPress={() => onRemoveInventoryItem(item.id)}
+                                    />
                                 </View>
                             ))}
                         </View>
@@ -169,6 +214,15 @@ const styles = StyleSheet.create({
         paddingHorizontal: 7,
         paddingVertical: 2,
         overflow: 'hidden',
+    },
+    groupAddButton: {
+        fontFamily: 'serif',
+        fontSize: 8,
+        letterSpacing: 1.5,
+        textTransform: 'uppercase',
+        color: fantasyTokens.colors.gold,
+        opacity: 0.75,
+        marginRight: 8,
     },
     inventoryList: {
         paddingHorizontal: 18,

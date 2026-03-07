@@ -1,11 +1,12 @@
 import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
-import { availableUses, rechargeLabel } from '@/lib/featuresTabUtils';
+import { rechargeLabel } from '@/lib/featuresTabUtils';
 import type { FeatureRow } from '@/components/character-sheet/features/features.types';
 import CardDivider from '../CardDivider';
-import PipTrack from '../PipTrack';
-import SectionLabel from '../SectionLabel';
+import InlineField from '../edit-mode/InlineField';
+import RemoveButton from '../edit-mode/RemoveButton';
+import SectionHeader from '../edit-mode/SectionHeader';
 import SheetCard from '../SheetCard';
 
 /**
@@ -17,6 +18,10 @@ type FeatureSectionCardProps = {
     emptyText: string;
     category: 'class' | 'racial' | 'feat';
     index: number;
+    editMode: boolean;
+    onAdd: () => void;
+    onChangeFeature: (featureId: string, changes: Partial<FeatureRow>) => void;
+    onRemoveFeature: (featureId: string) => void;
 };
 
 /**
@@ -43,14 +48,6 @@ function iconStyle(category: FeatureSectionCardProps['category']): IconStyle {
 }
 
 /**
- * Builds the uses summary label for tracked-use features.
- */
-function usesLabel(feature: FeatureRow): string {
-    if (!feature.usesMax || feature.usesMax <= 0) return '';
-    return `${availableUses(feature)} / ${feature.usesMax}`;
-}
-
-/**
  * Displays a titled list of class, racial, or feat features.
  */
 export default function FeatureSectionCard({
@@ -59,12 +56,16 @@ export default function FeatureSectionCard({
     emptyText,
     category,
     index,
+    editMode,
+    onAdd,
+    onChangeFeature,
+    onRemoveFeature,
 }: FeatureSectionCardProps) {
     const icon = iconStyle(category);
 
     return (
         <SheetCard index={index}>
-            <SectionLabel>{title}</SectionLabel>
+            <SectionHeader title={title} editMode={editMode} onAdd={onAdd} addLabel="+ Add" />
 
             {features.length === 0 ? (
                 <View style={styles.emptyState}>
@@ -73,7 +74,6 @@ export default function FeatureSectionCard({
             ) : (
                 <View style={styles.list}>
                     {features.map((feature, featureIndex) => {
-                        const showUseTracker = Boolean(feature.usesMax && feature.usesMax > 0);
                         const recharge = rechargeLabel(feature.recharge);
 
                         return (
@@ -84,34 +84,38 @@ export default function FeatureSectionCard({
                                     </View>
 
                                     <View style={styles.content}>
-                                        <Text style={styles.featureName}>{feature.name}</Text>
+                                        <InlineField
+                                            value={feature.name}
+                                            onChangeText={(value: string) => onChangeFeature(feature.id, { name: value })}
+                                            editMode={editMode}
+                                            style={styles.featureName}
+                                            placeholder="Feature name"
+                                        />
                                         <Text style={styles.featureSource}>{feature.source}</Text>
 
-                                        {feature.description.trim().length > 0 && (
-                                            <Text style={styles.featureDescription}>{feature.description}</Text>
-                                        )}
+                                        <InlineField
+                                            value={feature.description}
+                                            onChangeText={(value: string) => onChangeFeature(feature.id, { description: value })}
+                                            editMode={editMode}
+                                            style={styles.featureDescription}
+                                            placeholder="Describe this feature..."
+                                            multiline
+                                        />
 
-                                        {showUseTracker && (
+                                        {recharge && (
                                             <View style={styles.useRow}>
-                                                <PipTrack
-                                                    count={feature.usesMax ?? 0}
-                                                    filledCount={availableUses(feature)}
-                                                    filledColor={fantasyTokens.colors.crimson}
-                                                    emptyBorderColor="rgba(139,26,26,0.3)"
-                                                    size={11}
-                                                    gap={4}
-                                                    borderWidth={1.3}
-                                                    disabled
-                                                />
-                                                <Text style={styles.useLabel}>{usesLabel(feature)}</Text>
-                                                {recharge && (
-                                                    <View style={styles.rechargeBadge}>
-                                                        <Text style={styles.rechargeBadgeText}>{recharge}</Text>
-                                                    </View>
-                                                )}
+                                                <View style={styles.rechargeBadge}>
+                                                    <Text style={styles.rechargeBadgeText}>{recharge}</Text>
+                                                </View>
                                             </View>
                                         )}
                                     </View>
+
+                                    <RemoveButton
+                                        editMode={editMode}
+                                        accessibilityLabel={`Remove ${feature.name || 'feature'}`}
+                                        onPress={() => onRemoveFeature(feature.id)}
+                                    />
                                 </View>
                                 {featureIndex < features.length - 1 && <CardDivider />}
                             </View>

@@ -20,6 +20,7 @@ export type InlineFieldProps = {
     value: string;
     onChangeText: (value: string) => void;
     editMode: boolean;
+    testID?: string;
     style?: StyleProp<TextStyle>;
     inputStyle?: StyleProp<TextStyle>;
     keyboardType?: KeyboardTypeOptions;
@@ -35,6 +36,7 @@ export default function InlineField({
     value,
     onChangeText,
     editMode,
+    testID,
     style,
     inputStyle,
     keyboardType,
@@ -45,7 +47,7 @@ export default function InlineField({
     if (!editMode) {
         const textValue = value.length > 0 ? value : (placeholder ?? '');
         return (
-            <Text style={[style, styles[align]]}>
+            <Text testID={testID} style={[style, styles[align]]}>
                 {textValue}
             </Text>
         );
@@ -53,6 +55,7 @@ export default function InlineField({
 
     return (
         <TextInput
+            testID={testID}
             value={value}
             onChangeText={onChangeText}
             keyboardType={keyboardType}

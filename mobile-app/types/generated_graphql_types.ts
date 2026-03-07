@@ -240,11 +240,14 @@ export type Mutation = {
   updateCharacter: Character;
   updateCurrency: CharacterStats;
   updateDeathSaves: CharacterStats;
+  updateFeature: CharacterFeature;
   updateHP: CharacterStats;
   updateHitDice: CharacterStats;
+  updateInventoryItem: InventoryItem;
   updateSavingThrowProficiencies: CharacterStats;
   updateSkillProficiencies: CharacterStats;
   updateTraits: CharacterStats;
+  updateWeapon: Attack;
 };
 
 
@@ -381,6 +384,13 @@ export type MutationUpdateDeathSavesArgs = {
 };
 
 
+export type MutationUpdateFeatureArgs = {
+  characterId: Scalars['ID']['input'];
+  featureId: Scalars['ID']['input'];
+  input: FeatureInput;
+};
+
+
 export type MutationUpdateHpArgs = {
   characterId: Scalars['ID']['input'];
   input: HpInput;
@@ -390,6 +400,13 @@ export type MutationUpdateHpArgs = {
 export type MutationUpdateHitDiceArgs = {
   characterId: Scalars['ID']['input'];
   input: HitDiceInput;
+};
+
+
+export type MutationUpdateInventoryItemArgs = {
+  characterId: Scalars['ID']['input'];
+  input: InventoryItemInput;
+  itemId: Scalars['ID']['input'];
 };
 
 
@@ -408,6 +425,13 @@ export type MutationUpdateSkillProficienciesArgs = {
 export type MutationUpdateTraitsArgs = {
   characterId: Scalars['ID']['input'];
   input: TraitsInput;
+};
+
+
+export type MutationUpdateWeaponArgs = {
+  characterId: Scalars['ID']['input'];
+  input: AttackInput;
+  weaponId: Scalars['ID']['input'];
 };
 
 export enum ProficiencyLevel {
@@ -540,10 +564,14 @@ export type Traits = {
 };
 
 export type TraitsInput = {
+  armorProficiencies?: InputMaybe<Array<Scalars['String']['input']>>;
   bonds: Scalars['String']['input'];
   flaws: Scalars['String']['input'];
   ideals: Scalars['String']['input'];
+  languages?: InputMaybe<Array<Scalars['String']['input']>>;
   personality: Scalars['String']['input'];
+  toolProficiencies?: InputMaybe<Array<Scalars['String']['input']>>;
+  weaponProficiencies?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type UpdateCharacterInput = {

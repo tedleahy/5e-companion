@@ -1,6 +1,6 @@
+import { fantasyTokens } from '@/theme/fantasyTheme';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { fantasyTokens } from '@/theme/fantasyTheme';
 import EditModeBanner from './edit-mode/EditModeBanner';
 
 /**
@@ -34,7 +34,7 @@ type CharacterSheetHeaderProps = {
 /**
  * Sticky header for the character sheet, matching the HTML reference.
  *
- * Shows the "Character Codex" label, character name, and a subtitle line
+ * Shows the "Character Sheet" label, character name, and a subtitle line
  * with level/class/race/alignment.
  */
 export default function CharacterSheetHeader({
@@ -57,22 +57,12 @@ export default function CharacterSheetHeader({
         <View style={styles.header}>
             <View style={styles.topRow}>
                 <View style={styles.headerText}>
-                    <Text style={styles.codexLabel}>Character Codex</Text>
-                    <Text style={styles.charName}>{name}</Text>
-                    <Text style={styles.charSubtitle}>{subtitle}</Text>
+                    <Text style={styles.sheetTitle}>Character Sheet</Text>
                 </View>
 
                 <View style={styles.editActions}>
                     {editMode ? (
                         <>
-                            <Pressable
-                                onPress={onCancelEdit}
-                                style={styles.cancelButton}
-                                accessibilityRole="button"
-                                accessibilityLabel="Cancel character sheet edits"
-                            >
-                                <Text style={styles.cancelButtonText}>Cancel</Text>
-                            </Pressable>
                             <Pressable
                                 onPress={onDoneEdit}
                                 style={styles.editButtonActive}
@@ -80,6 +70,14 @@ export default function CharacterSheetHeader({
                                 accessibilityLabel="Save character sheet edits"
                             >
                                 <Text style={styles.editButtonText}>Done</Text>
+                            </Pressable>
+                            <Pressable
+                                onPress={onCancelEdit}
+                                style={styles.cancelButton}
+                                accessibilityRole="button"
+                                accessibilityLabel="Cancel character sheet edits"
+                            >
+                                <Text style={styles.cancelButtonText}>Cancel</Text>
                             </Pressable>
                         </>
                     ) : (
@@ -95,7 +93,12 @@ export default function CharacterSheetHeader({
                 </View>
             </View>
 
-            <EditModeBanner visible={editMode} />
+            <View style={styles.topRow}>
+                <View style={styles.headerText}>
+                    <Text style={styles.charName}>{name}</Text>
+                    <Text style={styles.charSubtitle}>{subtitle}</Text>
+                </View>
+            </View>
 
             <View style={styles.tabBar}>
                 {CHARACTER_SHEET_TABS.map((tab) => {
@@ -118,6 +121,7 @@ export default function CharacterSheetHeader({
                     );
                 })}
             </View>
+            <EditModeBanner visible={editMode} />
         </View>
     );
 }
@@ -141,9 +145,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flex: 1,
     },
-    codexLabel: {
+    sheetTitle: {
         fontFamily: 'serif',
-        fontSize: 9,
+        fontSize: 13,
         letterSpacing: 3,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.gold,
@@ -177,10 +181,12 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     editActions: {
-        flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        marginTop: 2,
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        marginBottom: 8,
     },
     editButton: {
         borderWidth: 1,

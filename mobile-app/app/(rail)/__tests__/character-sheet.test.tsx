@@ -455,6 +455,10 @@ const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
                     ideals: 'Knowledge should be preserved.',
                     bonds: 'My spellbook is my life.',
                     flaws: 'I underestimate danger when magic is involved.',
+                    armorProficiencies: [],
+                    weaponProficiencies: ['Daggers', 'Darts', 'Slings', 'Quarterstaffs'],
+                    toolProficiencies: [],
+                    languages: ['Common', 'Elvish', 'Draconic'],
                 },
             },
         },
@@ -475,6 +479,14 @@ const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
                         languages: ['Common', 'Elvish', 'Draconic'],
                     },
                 },
+            },
+        },
+    },
+    {
+        request: { query: GET_CURRENT_USER_CHARACTERS },
+        result: {
+            data: {
+                currentUserCharacters: [MOCK_CHARACTER],
             },
         },
     },
@@ -844,6 +856,87 @@ describe('CharacterByIdScreen', () => {
         await waitFor(() => {
             expect(screen.getByText('Saved')).toBeTruthy();
         });
+    });
+
+    it('preserves edit mode and shows error snackbar when save fails', async () => {
+        const failingMock: MockLink.MockedResponse = {
+            request: {
+                query: UPDATE_CHARACTER,
+                variables: {
+                    id: 'char-1',
+                    input: {
+                        ac: 17,
+                        speed: 35,
+                        initiative: 3,
+                        conditions: [],
+                    },
+                },
+            },
+            error: new Error('Network error'),
+        };
+
+        renderScreen([CHARACTERS_MOCK, failingMock]);
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Enable character sheet edit mode')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getByLabelText('Enable character sheet edit mode'));
+        await waitFor(() => {
+            expect(screen.getByLabelText('Save character sheet edits')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByLabelText('Save character sheet edits'));
+
+        await waitFor(() => {
+            expect(screen.getByText(/Failed to save/)).toBeTruthy();
+        });
+
+        expect(screen.queryByText('Saved')).toBeNull();
+        expect(screen.getByLabelText('Cancel character sheet edits')).toBeTruthy();
+        expect(screen.getByLabelText('Save character sheet edits')).toBeTruthy();
+    });
+
+    it('discards gear draft changes on Cancel', async () => {
+        renderScreen();
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Enable character sheet edit mode')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getByLabelText('Enable character sheet edit mode'));
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Open Gear tab')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getByLabelText('Open Gear tab'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('currency-gp-amount')).toBeTruthy();
+        });
+
+        fireEvent.changeText(screen.getByTestId('currency-gp-amount'), '900');
+        fireEvent.press(screen.getByLabelText('Add weapons'));
+        fireEvent.press(screen.getByLabelText('Add backpack item'));
+
+        await waitFor(() => {
+            expect(screen.getByDisplayValue('900')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getByLabelText('Cancel character sheet edits'));
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Enable character sheet edit mode')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getByLabelText('Open Gear tab'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('currency-gp-amount')).toHaveTextContent('847');
+        });
+
+        expect(screen.queryByDisplayValue('900')).toBeNull();
     });
 
     it('switches to the Skills tab', async () => {

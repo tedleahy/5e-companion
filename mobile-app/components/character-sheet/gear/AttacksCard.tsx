@@ -2,11 +2,17 @@ import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import type { Attack } from '@/types/generated_graphql_types';
 import { fantasyTokens } from '@/theme/fantasyTheme';
-import SectionLabel from '../SectionLabel';
+import InlineField from '../edit-mode/InlineField';
+import RemoveButton from '../edit-mode/RemoveButton';
+import SectionHeader from '../edit-mode/SectionHeader';
 import SheetCard from '../SheetCard';
 
 type AttacksCardProps = {
     attacks: Attack[];
+    editMode: boolean;
+    onAddWeapon: () => void;
+    onChangeWeapon: (weaponId: string, field: 'name' | 'attackBonus' | 'damage', value: string) => void;
+    onRemoveWeapon: (weaponId: string) => void;
 };
 
 function attackIcon(type: string): string {
@@ -21,12 +27,18 @@ function attackTypeLabel(type: string): string {
     return `${type.charAt(0).toUpperCase()}${type.slice(1)}`;
 }
 
-export default function AttacksCard({ attacks }: AttacksCardProps) {
+export default function AttacksCard({
+    attacks,
+    editMode,
+    onAddWeapon,
+    onChangeWeapon,
+    onRemoveWeapon,
+}: AttacksCardProps) {
     const weapons = attacks.filter((attack) => attack.type.trim().toLowerCase() !== 'spell');
 
     return (
         <SheetCard index={1}>
-            <SectionLabel>Weapons</SectionLabel>
+            <SectionHeader title="Weapons" editMode={editMode} onAdd={onAddWeapon} addLabel="+ Add" />
 
             {weapons.length === 0 ? (
                 <View style={styles.emptyState}>
@@ -47,14 +59,39 @@ export default function AttacksCard({ attacks }: AttacksCardProps) {
                             </View>
 
                             <View style={styles.attackInfo}>
-                                <Text style={styles.attackName}>{attack.name}</Text>
-                                <Text style={styles.attackType}>{attackTypeLabel(attack.type)}</Text>
+                                <InlineField
+                                    value={attack.name}
+                                    onChangeText={(value: string) => onChangeWeapon(attack.id, 'name', value)}
+                                    editMode={editMode}
+                                    style={styles.attackName}
+                                    placeholder="Weapon name"
+                                />
+                                <InlineField
+                                    value={attack.damage}
+                                    onChangeText={(value: string) => onChangeWeapon(attack.id, 'damage', value)}
+                                    editMode={editMode}
+                                    style={styles.attackType}
+                                    placeholder={attackTypeLabel(attack.type)}
+                                />
                             </View>
 
                             <View style={styles.attackStats} testID={`attack-stats-${attack.id}`}>
-                                <Text style={styles.attackBonus}>{attack.attackBonus}</Text>
-                                <Text style={styles.attackDamage}>{attack.damage}</Text>
+                                <InlineField
+                                    value={attack.attackBonus}
+                                    onChangeText={(value: string) => onChangeWeapon(attack.id, 'attackBonus', value)}
+                                    editMode={editMode}
+                                    style={styles.attackBonus}
+                                    placeholder="+0"
+                                    align="right"
+                                />
+                                <Text style={styles.attackDamage}>{attackTypeLabel(attack.type)}</Text>
                             </View>
+
+                            <RemoveButton
+                                editMode={editMode}
+                                accessibilityLabel={`Remove ${attack.name || 'weapon'}`}
+                                onPress={() => onRemoveWeapon(attack.id)}
+                            />
                         </View>
                     ))}
                 </View>

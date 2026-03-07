@@ -1,7 +1,7 @@
+import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { fantasyTokens } from '@/theme/fantasyTheme';
 
 /**
  * Props for edit mode guidance banner.
@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(201,146,42,0.08)',
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(201,146,42,0.18)',
+        marginTop: 5,
     },
     dot: {
         width: 5,
