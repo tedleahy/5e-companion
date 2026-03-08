@@ -4,7 +4,6 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
 import AttacksCard from './gear/AttacksCard';
 import CurrencyCard from './gear/CurrencyCard';
 import InventoryCard from './gear/InventoryCard';
-import SheetAddButton from './SheetAddButton';
 
 type CurrencyKey = 'cp' | 'sp' | 'ep' | 'gp' | 'pp';
 
