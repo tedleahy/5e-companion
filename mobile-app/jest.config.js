@@ -2,6 +2,11 @@
 module.exports = {
     preset: 'jest-expo',
     setupFilesAfterEnv: ['./jest-setup.ts'],
+    testMatch: ['**/?(*.)+(test).[jt]s?(x)'],
+    testPathIgnorePatterns: [
+        '/node_modules/',
+        '<rootDir>/.expo/',
+    ],
     moduleNameMapper: {
         '^@expo/vector-icons$': '<rootDir>/test-mocks/expo-vector-icons.tsx',
         '^@expo/vector-icons/(.*)$': '<rootDir>/test-mocks/expo-vector-icons.tsx',
