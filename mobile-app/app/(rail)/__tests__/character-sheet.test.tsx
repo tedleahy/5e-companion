@@ -3,23 +3,21 @@ import { render, screen, waitFor, fireEvent, act } from '@testing-library/react-
 import { PaperProvider } from 'react-native-paper';
 import { MockedProvider } from '@apollo/client/testing/react';
 import type { MockLink } from '@apollo/client/testing';
-import { ProficiencyLevel } from '@/types/generated_graphql_types';
 import { fantasyTokens } from '@/theme/fantasyTheme';
-import {
-    GET_CURRENT_USER_CHARACTERS,
-    PREPARE_SPELL,
-    TOGGLE_INSPIRATION,
-    TOGGLE_SPELL_SLOT,
-    UNPREPARE_SPELL,
-    UPDATE_ABILITY_SCORES,
-    UPDATE_CHARACTER,
-    UPDATE_CURRENCY,
-    UPDATE_DEATH_SAVES,
-    UPDATE_HP,
-    UPDATE_SKILL_PROFICIENCIES,
-    UPDATE_TRAITS,
-} from '@/graphql/characterSheet.operations';
 import CharacterByIdScreen from '../character/[id]';
+import {
+    CHARACTERS_MOCK,
+    EMPTY_MOCK,
+    ERROR_MOCK,
+    PREPARE_BIGBYS_HAND_MOCK,
+    SAVE_CORE_CHARACTER_MOCKS,
+    TOGGLE_MOCK,
+    TOGGLE_SLOT_LEVEL_1_MOCK,
+    UNPREPARE_FIREBALL_MOCK,
+    UPDATE_DEATH_SAVES_MOCK,
+    UPDATE_SKILLS_MOCK,
+} from './mocks/character-sheet.mocks';
+import { UPDATE_CHARACTER } from '@/graphql/characterSheet.operations';
 
 const mockUseLocalSearchParams = jest.fn(() => ({ id: 'char-1' }));
 
@@ -39,612 +37,6 @@ jest.mock('@/components/navigation/RailScreenShell', () => ({
     __esModule: true,
     default: ({ children }: { children: React.ReactNode }) => children,
 }));
-
-const MOCK_CHARACTER = {
-    __typename: 'Character',
-    id: 'char-1',
-    name: 'Vaelindra',
-    race: 'High Elf',
-    class: 'Wizard',
-    subclass: 'School of Evocation',
-    level: 12,
-    alignment: 'Chaotic Good',
-    proficiencyBonus: 4,
-    inspiration: false,
-    ac: 17,
-    speed: 35,
-    initiative: 3,
-    spellcastingAbility: 'intelligence',
-    spellSaveDC: 17,
-    spellAttackBonus: 9,
-    conditions: [] as string[],
-    features: [
-        {
-            __typename: 'CharacterFeature',
-            id: 'feature-1',
-            name: 'Arcane Recovery',
-            source: 'Wizard 1',
-            description: 'Recover spell slots on a long rest.',
-            usesMax: 1,
-            usesRemaining: 1,
-            recharge: 'long',
-        },
-        {
-            __typename: 'CharacterFeature',
-            id: 'feature-2',
-            name: 'Darkvision',
-            source: 'High Elf',
-            description: 'See in dim light and darkness within 60 feet.',
-            usesMax: null,
-            usesRemaining: null,
-            recharge: null,
-        },
-        {
-            __typename: 'CharacterFeature',
-            id: 'feature-3',
-            name: 'War Caster',
-            source: 'Feat',
-            description: 'Advantage on concentration checks.',
-            usesMax: null,
-            usesRemaining: null,
-            recharge: null,
-        },
-    ],
-    attacks: [
-        {
-            __typename: 'Attack',
-            id: 'attack-1',
-            name: 'Dagger',
-            attackBonus: '+7',
-            damage: '1d4+3 piercing',
-            type: 'melee',
-        },
-        {
-            __typename: 'Attack',
-            id: 'attack-2',
-            name: 'Staff of Power',
-            attackBonus: '+9',
-            damage: '1d6+5 bludgeoning',
-            type: 'melee',
-        },
-        {
-            __typename: 'Attack',
-            id: 'attack-3',
-            name: 'Spell Attack',
-            attackBonus: '+10',
-            damage: 'by spell',
-            type: 'spell',
-        },
-    ],
-    weapons: [
-        {
-            __typename: 'Attack',
-            id: 'attack-1',
-            name: 'Dagger',
-            attackBonus: '+7',
-            damage: '1d4+3 piercing',
-            type: 'melee',
-        },
-        {
-            __typename: 'Attack',
-            id: 'attack-2',
-            name: 'Staff of Power',
-            attackBonus: '+9',
-            damage: '1d6+5 bludgeoning',
-            type: 'melee',
-        },
-        {
-            __typename: 'Attack',
-            id: 'attack-3',
-            name: 'Spell Attack',
-            attackBonus: '+10',
-            damage: 'by spell',
-            type: 'spell',
-        },
-    ],
-    inventory: [
-        {
-            __typename: 'InventoryItem',
-            id: 'item-1',
-            name: 'Staff of Power',
-            quantity: 1,
-            weight: 4,
-            description: '+2 weapon, spell attack & DC bonus',
-            equipped: true,
-            magical: true,
-        },
-        {
-            __typename: 'InventoryItem',
-            id: 'item-2',
-            name: 'Ring of Protection',
-            quantity: 1,
-            weight: null,
-            description: '+1 AC and saving throws',
-            equipped: true,
-            magical: true,
-        },
-        {
-            __typename: 'InventoryItem',
-            id: 'item-3',
-            name: 'Spellbook',
-            quantity: 1,
-            weight: 3,
-            description: 'Contains 26 spells',
-            equipped: false,
-            magical: false,
-        },
-        {
-            __typename: 'InventoryItem',
-            id: 'item-4',
-            name: 'Potion of Greater Healing',
-            quantity: 3,
-            weight: 0.5,
-            description: 'Restores 4d4+4 HP',
-            equipped: false,
-            magical: true,
-        },
-    ],
-    spellSlots: [
-        {
-            __typename: 'SpellSlot',
-            id: 'slot-1',
-            level: 1,
-            total: 4,
-            used: 1,
-        },
-        {
-            __typename: 'SpellSlot',
-            id: 'slot-2',
-            level: 2,
-            total: 3,
-            used: 0,
-        },
-        {
-            __typename: 'SpellSlot',
-            id: 'slot-3',
-            level: 3,
-            total: 3,
-            used: 2,
-        },
-    ],
-    spellbook: [
-        {
-            __typename: 'CharacterSpell',
-            prepared: true,
-            spell: {
-                __typename: 'Spell',
-                id: 'spell-fireball',
-                name: 'Fireball',
-                level: 3,
-                schoolIndex: 'evocation',
-                castingTime: '1 action',
-                range: '150 feet',
-                concentration: false,
-                ritual: false,
-            },
-        },
-        {
-            __typename: 'CharacterSpell',
-            prepared: true,
-            spell: {
-                __typename: 'Spell',
-                id: 'spell-detect-magic',
-                name: 'Detect Magic',
-                level: 1,
-                schoolIndex: 'divination',
-                castingTime: '1 action',
-                range: 'Self',
-                concentration: true,
-                ritual: true,
-            },
-        },
-        {
-            __typename: 'CharacterSpell',
-            prepared: false,
-            spell: {
-                __typename: 'Spell',
-                id: 'spell-bigbys-hand',
-                name: "Bigby's Hand",
-                level: 5,
-                schoolIndex: 'evocation',
-                castingTime: '1 action',
-                range: '120 feet',
-                concentration: true,
-                ritual: false,
-            },
-        },
-    ],
-    stats: {
-        __typename: 'CharacterStats',
-        id: 'stats-1',
-        abilityScores: {
-            __typename: 'AbilityScores',
-            strength: 8,
-            dexterity: 16,
-            constitution: 14,
-            intelligence: 20,
-            wisdom: 13,
-            charisma: 11,
-        },
-        hp: {
-            __typename: 'HP',
-            current: 54,
-            max: 76,
-            temp: 2,
-        },
-        deathSaves: {
-            __typename: 'DeathSaves',
-            successes: 1,
-            failures: 0,
-        },
-        hitDice: {
-            __typename: 'HitDice',
-            total: 12,
-            remaining: 12,
-            die: 'd6',
-        },
-        traits: {
-            __typename: 'Traits',
-            personality: 'Always collecting obscure magical lore.',
-            ideals: 'Knowledge should be preserved.',
-            bonds: 'My spellbook is my life.',
-            flaws: 'I underestimate danger when magic is involved.',
-            armorProficiencies: [],
-            weaponProficiencies: ['Daggers', 'Darts', 'Slings', 'Quarterstaffs'],
-            toolProficiencies: [],
-            languages: ['Common', 'Elvish', 'Draconic'],
-        },
-        savingThrowProficiencies: ['intelligence', 'wisdom'],
-        skillProficiencies: {
-            __typename: 'SkillProficiencies',
-            acrobatics: ProficiencyLevel.None,
-            animalHandling: ProficiencyLevel.None,
-            arcana: ProficiencyLevel.Expert,
-            athletics: ProficiencyLevel.None,
-            deception: ProficiencyLevel.None,
-            history: ProficiencyLevel.Expert,
-            insight: ProficiencyLevel.Proficient,
-            intimidation: ProficiencyLevel.None,
-            investigation: ProficiencyLevel.Expert,
-            medicine: ProficiencyLevel.None,
-            nature: ProficiencyLevel.Proficient,
-            perception: ProficiencyLevel.Proficient,
-            performance: ProficiencyLevel.None,
-            persuasion: ProficiencyLevel.None,
-            religion: ProficiencyLevel.Proficient,
-            sleightOfHand: ProficiencyLevel.None,
-            stealth: ProficiencyLevel.Proficient,
-            survival: ProficiencyLevel.None,
-        },
-        currency: {
-            __typename: 'Currency',
-            cp: 0,
-            sp: 14,
-            ep: 0,
-            gp: 847,
-            pp: 3,
-        },
-    },
-};
-
-const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
-    {
-        request: {
-            query: UPDATE_CHARACTER,
-            variables: {
-                id: 'char-1',
-                input: {
-                    ac: 17,
-                    speed: 35,
-                    initiative: 3,
-                    conditions: [],
-                },
-            },
-        },
-        result: {
-            data: {
-                updateCharacter: {
-                    __typename: 'Character',
-                    id: 'char-1',
-                    ac: 17,
-                    speed: 35,
-                    initiative: 3,
-                    conditions: [],
-                },
-            },
-        },
-    },
-    {
-        request: {
-            query: UPDATE_HP,
-            variables: {
-                characterId: 'char-1',
-                input: {
-                    current: 54,
-                    max: 76,
-                    temp: 2,
-                },
-            },
-        },
-        result: {
-            data: {
-                updateHP: {
-                    __typename: 'CharacterStats',
-                    id: 'stats-1',
-                    hp: {
-                        __typename: 'HP',
-                        current: 54,
-                        max: 76,
-                        temp: 2,
-                    },
-                },
-            },
-        },
-    },
-    {
-        request: {
-            query: UPDATE_ABILITY_SCORES,
-            variables: {
-                characterId: 'char-1',
-                input: {
-                    strength: 8,
-                    dexterity: 16,
-                    constitution: 14,
-                    intelligence: 20,
-                    wisdom: 13,
-                    charisma: 11,
-                },
-            },
-        },
-        result: {
-            data: {
-                updateAbilityScores: {
-                    __typename: 'CharacterStats',
-                    id: 'stats-1',
-                    abilityScores: {
-                        __typename: 'AbilityScores',
-                        strength: 8,
-                        dexterity: 16,
-                        constitution: 14,
-                        intelligence: 20,
-                        wisdom: 13,
-                        charisma: 11,
-                    },
-                },
-            },
-        },
-    },
-    {
-        request: {
-            query: UPDATE_CURRENCY,
-            variables: {
-                characterId: 'char-1',
-                input: {
-                    cp: 0,
-                    sp: 14,
-                    ep: 0,
-                    gp: 847,
-                    pp: 3,
-                },
-            },
-        },
-        result: {
-            data: {
-                updateCurrency: {
-                    __typename: 'CharacterStats',
-                    id: 'stats-1',
-                    currency: {
-                        __typename: 'Currency',
-                        cp: 0,
-                        sp: 14,
-                        ep: 0,
-                        gp: 847,
-                        pp: 3,
-                    },
-                },
-            },
-        },
-    },
-    {
-        request: {
-            query: UPDATE_TRAITS,
-            variables: {
-                characterId: 'char-1',
-                input: {
-                    personality: 'Always collecting obscure magical lore.',
-                    ideals: 'Knowledge should be preserved.',
-                    bonds: 'My spellbook is my life.',
-                    flaws: 'I underestimate danger when magic is involved.',
-                    armorProficiencies: [],
-                    weaponProficiencies: ['Daggers', 'Darts', 'Slings', 'Quarterstaffs'],
-                    toolProficiencies: [],
-                    languages: ['Common', 'Elvish', 'Draconic'],
-                },
-            },
-        },
-        result: {
-            data: {
-                updateTraits: {
-                    __typename: 'CharacterStats',
-                    id: 'stats-1',
-                    traits: {
-                        __typename: 'Traits',
-                        personality: 'Always collecting obscure magical lore.',
-                        ideals: 'Knowledge should be preserved.',
-                        bonds: 'My spellbook is my life.',
-                        flaws: 'I underestimate danger when magic is involved.',
-                        armorProficiencies: [],
-                        weaponProficiencies: ['Daggers', 'Darts', 'Slings', 'Quarterstaffs'],
-                        toolProficiencies: [],
-                        languages: ['Common', 'Elvish', 'Draconic'],
-                    },
-                },
-            },
-        },
-    },
-    {
-        request: { query: GET_CURRENT_USER_CHARACTERS },
-        result: {
-            data: {
-                currentUserCharacters: [MOCK_CHARACTER],
-            },
-        },
-    },
-];
-
-const { __typename: _skillTypeName, ...INITIAL_SKILL_INPUT } = MOCK_CHARACTER.stats.skillProficiencies;
-
-const CHARACTERS_MOCK: MockLink.MockedResponse = {
-    request: { query: GET_CURRENT_USER_CHARACTERS },
-    result: {
-        data: {
-            currentUserCharacters: [MOCK_CHARACTER],
-        },
-    },
-};
-
-const EMPTY_MOCK: MockLink.MockedResponse = {
-    request: { query: GET_CURRENT_USER_CHARACTERS },
-    result: {
-        data: {
-            currentUserCharacters: [],
-        },
-    },
-};
-
-const ERROR_MOCK: MockLink.MockedResponse = {
-    request: { query: GET_CURRENT_USER_CHARACTERS },
-    error: new Error('Network error'),
-};
-
-const TOGGLE_MOCK: MockLink.MockedResponse = {
-    request: {
-        query: TOGGLE_INSPIRATION,
-        variables: { characterId: 'char-1' },
-    },
-    result: {
-        data: {
-            toggleInspiration: {
-                __typename: 'Character',
-                id: 'char-1',
-                inspiration: true,
-            },
-        },
-    },
-};
-
-const UPDATE_DEATH_SAVES_MOCK: MockLink.MockedResponse = {
-    request: {
-        query: UPDATE_DEATH_SAVES,
-        variables: {
-            characterId: 'char-1',
-            input: { successes: 2, failures: 0 },
-        },
-    },
-    result: {
-        data: {
-            updateDeathSaves: {
-                __typename: 'CharacterStats',
-                id: 'stats-1',
-                deathSaves: {
-                    __typename: 'DeathSaves',
-                    successes: 2,
-                    failures: 0,
-                },
-            },
-        },
-    },
-};
-
-const UPDATE_SKILLS_MOCK: MockLink.MockedResponse = {
-    request: {
-        query: UPDATE_SKILL_PROFICIENCIES,
-        variables: {
-            characterId: 'char-1',
-            input: {
-                ...INITIAL_SKILL_INPUT,
-                perception: ProficiencyLevel.Expert,
-            },
-        },
-    },
-    result: {
-        data: {
-            updateSkillProficiencies: {
-                __typename: 'CharacterStats',
-                id: 'stats-1',
-                skillProficiencies: {
-                    ...MOCK_CHARACTER.stats.skillProficiencies,
-                    perception: ProficiencyLevel.Expert,
-                },
-            },
-        },
-    },
-};
-
-const TOGGLE_SLOT_LEVEL_1_MOCK: MockLink.MockedResponse = {
-    request: {
-        query: TOGGLE_SPELL_SLOT,
-        variables: {
-            characterId: 'char-1',
-            level: 1,
-        },
-    },
-    result: {
-        data: {
-            toggleSpellSlot: {
-                __typename: 'SpellSlot',
-                id: 'slot-1',
-                level: 1,
-                total: 4,
-                used: 2,
-            },
-        },
-    },
-};
-
-const UNPREPARE_FIREBALL_MOCK: MockLink.MockedResponse = {
-    request: {
-        query: UNPREPARE_SPELL,
-        variables: {
-            characterId: 'char-1',
-            spellId: 'spell-fireball',
-        },
-    },
-    result: {
-        data: {
-            unprepareSpell: {
-                __typename: 'CharacterSpell',
-                prepared: false,
-                spell: {
-                    __typename: 'Spell',
-                    id: 'spell-fireball',
-                },
-            },
-        },
-    },
-};
-
-const PREPARE_BIGBYS_HAND_MOCK: MockLink.MockedResponse = {
-    request: {
-        query: PREPARE_SPELL,
-        variables: {
-            characterId: 'char-1',
-            spellId: 'spell-bigbys-hand',
-        },
-    },
-    result: {
-        data: {
-            prepareSpell: {
-                __typename: 'CharacterSpell',
-                prepared: true,
-                spell: {
-                    __typename: 'Spell',
-                    id: 'spell-bigbys-hand',
-                },
-            },
-        },
-    },
-};
 
 function renderScreen(mocks: MockLink.MockedResponse[] = [CHARACTERS_MOCK]) {
     return render(
@@ -839,26 +231,8 @@ describe('CharacterByIdScreen', () => {
         expect(screen.getByText('Editing — tap any highlighted field to change it')).toBeTruthy();
     });
 
-    it('shows saved snackbar after pressing Done', async () => {
-        renderScreen([CHARACTERS_MOCK, ...SAVE_CORE_CHARACTER_MOCKS]);
-
-        await waitFor(() => {
-            expect(screen.getByLabelText('Enable character sheet edit mode')).toBeTruthy();
-        });
-
-        fireEvent.press(screen.getByLabelText('Enable character sheet edit mode'));
-        await waitFor(() => {
-            expect(screen.getByLabelText('Save character sheet edits')).toBeTruthy();
-        });
-
-        await pressAndFlush(screen.getByLabelText('Save character sheet edits'));
-
-        await waitFor(() => {
-            expect(screen.getByText('Saved')).toBeTruthy();
-        });
-    });
-
     it('preserves edit mode and shows error snackbar when save fails', async () => {
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
         const failingMock: MockLink.MockedResponse = {
             request: {
                 query: UPDATE_CHARACTER,
@@ -875,7 +249,11 @@ describe('CharacterByIdScreen', () => {
             error: new Error('Network error'),
         };
 
-        renderScreen([CHARACTERS_MOCK, failingMock]);
+        renderScreen([
+            CHARACTERS_MOCK,
+            failingMock,
+            ...SAVE_CORE_CHARACTER_MOCKS.filter(mock => mock.request.query !== UPDATE_CHARACTER),
+        ]);
 
         await waitFor(() => {
             expect(screen.getByLabelText('Enable character sheet edit mode')).toBeTruthy();
@@ -892,9 +270,15 @@ describe('CharacterByIdScreen', () => {
             expect(screen.getByText(/Failed to save/)).toBeTruthy();
         });
 
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+            'Failed to save core character sheet edits',
+            expect.any(Error),
+        );
         expect(screen.queryByText('Saved')).toBeNull();
         expect(screen.getByLabelText('Cancel character sheet edits')).toBeTruthy();
         expect(screen.getByLabelText('Save character sheet edits')).toBeTruthy();
+
+        consoleErrorSpy.mockRestore();
     });
 
     it('discards gear draft changes on Cancel', async () => {
@@ -918,7 +302,7 @@ describe('CharacterByIdScreen', () => {
 
         fireEvent.changeText(screen.getByTestId('currency-gp-amount'), '900');
         fireEvent.press(screen.getByLabelText('Add weapons'));
-        fireEvent.press(screen.getByLabelText('Add backpack item'));
+        fireEvent.press(screen.getByLabelText('Add backpack'));
 
         await waitFor(() => {
             expect(screen.getByDisplayValue('900')).toBeTruthy();
@@ -1031,7 +415,6 @@ describe('CharacterByIdScreen', () => {
         expect(screen.getByText('Dagger')).toBeTruthy();
         expect(screen.getByTestId('attack-stats-attack-1')).toHaveStyle({ alignItems: 'flex-end' });
         expect(screen.getByText('Backpack')).toBeTruthy();
-        expect(screen.getByText('+ Add Item')).toBeTruthy();
         expect(screen.queryByText('Encumbrance')).toBeNull();
     });
 
