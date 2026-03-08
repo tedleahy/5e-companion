@@ -22,13 +22,13 @@ import SkillAbilityFilters from './skills/SkillAbilityFilters';
 import SkillGroupHeader from './skills/SkillGroupHeader';
 import SkillRow from './skills/SkillRow';
 import SkillsLegend from './skills/SkillsLegend';
-import SkillsSearch from './skills/SkillsSearch';
 import {
     initSkillsTabState,
     nextProficiencyLevel,
     skillsTabReducer,
 } from './skills/skills-tab-reducer';
 import SheetCard from './SheetCard';
+import SearchBarInput from '../SearchBarInput';
 
 type SkillsTabProps = {
     abilityScores: AbilityScores;
@@ -202,10 +202,13 @@ export default function SkillsTab({
                 />
 
                 <SheetCard index={1} style={styles.skillsCard}>
-                    <SkillsSearch
-                        searchText={state.searchText}
-                        onChangeSearchText={handleSearchChange}
-                    />
+                    <View style={styles.searchBarWrapper}>
+                        <SearchBarInput
+                            placeholder="Search skills"
+                            searchText={state.searchText}
+                            onChangeSearchText={handleSearchChange}
+                        />
+                    </View>
 
                     <SkillAbilityFilters
                         activeFilter={state.abilityFilter}
@@ -233,7 +236,8 @@ export default function SkillsTab({
                                     />
 
                                     {section.data.map((item) => {
-                                        const proficiencyLevel = state.localSkillProficiencies[item.key];
+                                        const proficiencyLevel =
+                                            state.localSkillProficiencies[item.key];
                                         const modifier = skillModifier(
                                             abilityScores[item.ability],
                                             proficiencyLevel,
@@ -266,6 +270,10 @@ export default function SkillsTab({
 }
 
 const styles = StyleSheet.create({
+    searchBarWrapper: {
+        paddingHorizontal: 16,
+        paddingTop: 12,
+    },
     container: {
         flex: 1,
         backgroundColor: fantasyTokens.colors.night,
