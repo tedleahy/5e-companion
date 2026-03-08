@@ -57,7 +57,21 @@ describe('spellsResolver', () => {
             name: { contains: 'fire', mode: 'insensitive' },
             level: { in: [3] },
         });
-        expect(callArgs.orderBy).toEqual({ name: 'asc' });
+        expect(callArgs.orderBy).toEqual([
+            { level: 'asc' },
+            { name: 'asc' },
+            { id: 'asc' },
+        ]);
+        expect(callArgs.select).toEqual({
+            id: true,
+            name: true,
+            level: true,
+            schoolIndex: true,
+            castingTime: true,
+            range: true,
+            concentration: true,
+            ritual: true,
+        });
     });
 
     test('passes empty where when no filter is provided', async () => {
@@ -68,6 +82,25 @@ describe('spellsResolver', () => {
         expect(findManyMock).toHaveBeenCalledTimes(1);
         const callArgs = findManyMock.mock.calls[0]![0] as Record<string, unknown>;
         expect(callArgs.where).toEqual({});
+    });
+
+    test('applies pagination limit and offset when provided', async () => {
+        const ctx = { userId: 'user-abc' };
+
+        await spellsResolver({}, { pagination: { limit: 50, offset: 100 } }, ctx);
+
+        const callArgs = findManyMock.mock.calls[0]![0] as Record<string, unknown>;
+        expect(callArgs.take).toBe(50);
+        expect(callArgs.skip).toBe(100);
+    });
+
+    test('caps pagination limit to the maximum page size', async () => {
+        const ctx = { userId: 'user-abc' };
+
+        await spellsResolver({}, { pagination: { limit: 9999 } }, ctx);
+
+        const callArgs = findManyMock.mock.calls[0]![0] as Record<string, unknown>;
+        expect(callArgs.take).toBe(200);
     });
 
     test('returns whatever prisma returns', async () => {

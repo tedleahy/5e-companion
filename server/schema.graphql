@@ -30,6 +30,11 @@ input SpellFilter {
     castingTimeCategories: [String]
 }
 
+input SpellPagination {
+    limit: Int
+    offset: Int
+}
+
 # ---------------------------------------------------------------------------
 # Character Sheet
 # ---------------------------------------------------------------------------
@@ -333,7 +338,7 @@ input FeatureInput {
 # ---------------------------------------------------------------------------
 
 type Query {
-    spells(filter: SpellFilter): [Spell!]!
+    spells(filter: SpellFilter, pagination: SpellPagination): [Spell!]!
     spell(id: ID!): Spell
     character(id: ID!): Character
     currentUserCharacters: [Character!]!

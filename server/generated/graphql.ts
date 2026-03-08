@@ -465,6 +465,7 @@ export type QuerySpellArgs = {
 
 export type QuerySpellsArgs = {
   filter?: InputMaybe<SpellFilter>;
+  pagination?: InputMaybe<SpellPagination>;
 };
 
 export type SavingThrowProficienciesInput = {
@@ -545,6 +546,11 @@ export type SpellFilter = {
   name?: InputMaybe<Scalars['String']['input']>;
   rangeCategories?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   ritual?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type SpellPagination = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type SpellSlot = {
@@ -700,6 +706,7 @@ export type ResolversTypes = {
   SkillProficienciesInput: SkillProficienciesInput;
   Spell: ResolverTypeWrapper<Spell>;
   SpellFilter: SpellFilter;
+  SpellPagination: SpellPagination;
   SpellSlot: ResolverTypeWrapper<SpellSlot>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Traits: ResolverTypeWrapper<Traits>;
@@ -740,6 +747,7 @@ export type ResolversParentTypes = {
   SkillProficienciesInput: SkillProficienciesInput;
   Spell: Spell;
   SpellFilter: SpellFilter;
+  SpellPagination: SpellPagination;
   SpellSlot: SpellSlot;
   String: Scalars['String']['output'];
   Traits: Traits;
