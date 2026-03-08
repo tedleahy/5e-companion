@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontFamily: 'serif',
-        fontSize: 9,
+        fontSize: 12.5,
         letterSpacing: 2.5,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.crimson,

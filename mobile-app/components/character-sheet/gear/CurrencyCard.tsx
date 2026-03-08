@@ -43,10 +43,7 @@ export default function CurrencyCard({ currency, editMode, onChangeCurrency }: C
                             onChangeText={(value: string) => onChangeCurrency(field.key, parseCurrencyValue(value))}
                             editMode={editMode}
                             testID={`currency-${field.key}-amount`}
-                            style={[
-                                styles.currencyAmount,
-                                field.key === 'gp' && styles.currencyAmountGold,
-                            ]}
+                            style={styles.currencyAmount}
                             keyboardType="number-pad"
                             align="center"
                         />
@@ -82,15 +79,12 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.inkDark,
         lineHeight: 20,
     },
-    currencyAmountGold: {
-        color: fantasyTokens.colors.gold,
-    },
     currencyLabel: {
         fontFamily: 'serif',
         fontSize: 8,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
-        color: fantasyTokens.colors.gold,
+        color: fantasyTokens.colors.inkLight,
         opacity: 0.8,
         marginTop: 2,
     },
