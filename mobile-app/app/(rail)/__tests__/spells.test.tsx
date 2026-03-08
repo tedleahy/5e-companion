@@ -27,8 +27,8 @@ jest.mock('@/lib/supabase', () => ({
 }));
 
 const SEARCH_SPELLS = gql`
-    query Spells($filter: SpellFilter) {
-        spells(filter: $filter) {
+    query Spells($filter: SpellFilter, $pagination: SpellPagination) {
+        spells(filter: $filter, pagination: $pagination) {
             id
             name
             level
@@ -41,8 +41,15 @@ const SEARCH_SPELLS = gql`
     }
 `;
 
+const FIRST_PAGE_VARIABLES = {
+    pagination: {
+        limit: 50,
+        offset: 0,
+    },
+};
+
 const SPELLS_MOCK: MockLink.MockedResponse = {
-    request: { query: SEARCH_SPELLS },
+    request: { query: SEARCH_SPELLS, variables: FIRST_PAGE_VARIABLES },
     result: {
         data: {
             spells: [
@@ -103,11 +110,11 @@ describe('SpellSearch screen', () => {
 
     it('renders the search bar', () => {
         renderScreen();
-        expect(screen.getByPlaceholderText('Search spells...')).toBeTruthy();
+        expect(screen.getByPlaceholderText('Search spells')).toBeTruthy();
     });
 
     it('renders the filter button', () => {
         renderScreen();
-        expect(screen.getByText('Filter')).toBeTruthy();
+        expect(screen.getByText('filter')).toBeTruthy();
     });
 });

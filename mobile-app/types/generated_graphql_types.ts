@@ -461,6 +461,7 @@ export type QuerySpellArgs = {
 
 export type QuerySpellsArgs = {
   filter?: InputMaybe<SpellFilter>;
+  pagination?: InputMaybe<SpellPagination>;
 };
 
 export type SavingThrowProficienciesInput = {
@@ -543,6 +544,11 @@ export type SpellFilter = {
   ritual?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+export type SpellPagination = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type SpellSlot = {
   __typename?: 'SpellSlot';
   id: Scalars['ID']['output'];
@@ -595,6 +601,7 @@ export type UpdateCharacterInput = {
 
 export type SpellsQueryVariables = Exact<{
   filter?: InputMaybe<SpellFilter>;
+  pagination?: InputMaybe<SpellPagination>;
 }>;
 
 

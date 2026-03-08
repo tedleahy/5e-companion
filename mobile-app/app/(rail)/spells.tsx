@@ -1,21 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Button, IconButton, Searchbar } from 'react-native-paper';
+import { Button, IconButton, Searchbar, Text } from 'react-native-paper';
 import { useQuery } from '@apollo/client/react';
 import SpellList, { type SpellListItem } from '@/components/SpellList';
 import SpellFilterDrawer, { EMPTY_FILTERS, type SpellFilters } from '@/components/SpellFilterDrawer';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { gql } from '@apollo/client';
-import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
 import { isUnauthenticatedError } from '@/lib/graphqlErrors';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import SearchBarInput from '@/components/SearchBarInput';
 
 /** Parameters driving the spell search: optional name substring and structured filters. */
 type SearchParams = {
     name?: string;
     filters: SpellFilters;
 };
+
+/** Number of spells requested per page for the main spell list. */
+const SPELLS_PAGE_SIZE = 50;
 
 type SearchSpellsQueryData = {
     spells: {
@@ -32,8 +36,8 @@ type SearchSpellsQueryData = {
 
 /** GraphQL query that fetches a list of spell ids/names, optionally filtered. */
 const SEARCH_SPELLS = gql`
-    query Spells($filter: SpellFilter) {
-        spells(filter: $filter) {
+    query Spells($filter: SpellFilter, $pagination: SpellPagination) {
+        spells(filter: $filter, pagination: $pagination) {
             id
             name
             level
@@ -58,6 +62,8 @@ export default function SpellSearch() {
     });
     const [pendingSearchName, setPendingSearchName] = useState('');
     const [drawerVisible, setDrawerVisible] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -75,8 +81,8 @@ export default function SpellSearch() {
      * Converts the current {@link SearchParams} into the GraphQL `SpellFilter`
      * input object, omitting empty/unset fields so the API applies no constraint.
      */
-    function buildFilterVariable() {
-        const { name, filters } = searchParams;
+    function buildFilterVariable(currentParams: SearchParams) {
+        const { name, filters } = currentParams;
         const filter: Record<string, unknown> = {};
 
         if (name) filter.name = name;
@@ -94,12 +100,30 @@ export default function SpellSearch() {
         return Object.keys(filter).length > 0 ? filter : undefined;
     }
 
-    const { data, loading, error } = useQuery<SearchSpellsQueryData>(SEARCH_SPELLS, {
-        variables: { filter: buildFilterVariable() },
+    const filterVariable = useMemo(() => buildFilterVariable(searchParams), [searchParams]);
+
+    const queryVariables = useMemo(() => ({
+        pagination: { limit: SPELLS_PAGE_SIZE, offset: 0 },
+        ...(filterVariable ? { filter: filterVariable } : {}),
+    }), [filterVariable]);
+
+    const { data, loading, error, fetchMore } = useQuery<SearchSpellsQueryData>(SEARCH_SPELLS, {
+        variables: queryVariables,
         notifyOnNetworkStatusChange: true,
         returnPartialData: true,
     });
     const isUnauthenticated = isUnauthenticatedError(error);
+
+    useEffect(() => {
+        setHasMore(true);
+    }, [queryVariables]);
+
+    useEffect(() => {
+        if (!data?.spells || isLoadingMore) return;
+        if (data.spells.length <= SPELLS_PAGE_SIZE) {
+            setHasMore(data.spells.length === SPELLS_PAGE_SIZE);
+        }
+    }, [data, isLoadingMore]);
 
     useEffect(() => {
         if (isUnauthenticated) router.replace('/(auth)/sign-in');
@@ -131,43 +155,78 @@ export default function SpellSearch() {
         searchParams.filters.durationCategories.length +
         searchParams.filters.castingTimeCategories.length;
 
-    /** Signs the user out via Supabase and redirects to the sign-in screen. */
-    async function signOut() {
-        const { error } = await supabase.auth.signOut();
-        if (error) console.error(error);
-        router.replace('/(auth)/sign-in');
+    /**
+     * Fetches the next page of spells and merges it into the current list.
+     */
+    async function loadMoreSpells() {
+        if (loading || isLoadingMore || !hasMore) return;
+
+        const currentCount = data?.spells?.length ?? 0;
+        let fetchedCount = 0;
+
+        try {
+            setIsLoadingMore(true);
+
+            await fetchMore({
+                variables: {
+                    pagination: { limit: SPELLS_PAGE_SIZE, offset: currentCount },
+                    ...(filterVariable ? { filter: filterVariable } : {}),
+                },
+                updateQuery(previousResult, { fetchMoreResult }) {
+                    const nextSpells = fetchMoreResult?.spells ?? [];
+                    fetchedCount = nextSpells.length;
+
+                    if (nextSpells.length === 0) return previousResult;
+
+                    const existingSpellIds = new Set(previousResult.spells.map((spell) => spell.id));
+                    const deduplicatedNextSpells = nextSpells.filter(
+                        (spell) => !existingSpellIds.has(spell.id),
+                    );
+
+                    return {
+                        spells: [...previousResult.spells, ...deduplicatedNextSpells],
+                    };
+                },
+            });
+
+            setHasMore(fetchedCount === SPELLS_PAGE_SIZE);
+        } catch (fetchError) {
+            console.error(fetchError);
+        } finally {
+            setIsLoadingMore(false);
+        }
     }
 
     return (
         <RailScreenShell>
             <View style={styles.container}>
-                <View style={styles.topRow}>
-                    <Searchbar
-                        style={styles.searchBar}
-                        inputStyle={{ color: fantasyTokens.colors.inkDark, fontFamily: 'serif' }}
-                        iconColor={fantasyTokens.colors.ember}
-                        placeholderTextColor={fantasyTokens.colors.inkSoft}
-                        placeholder="Search spells..."
-                        onChangeText={setPendingSearchName}
-                        value={pendingSearchName}
-                    />
-                    <IconButton
-                        icon="logout"
-                        iconColor={fantasyTokens.colors.inkSoft}
-                        size={20}
-                        onPress={signOut}
-                    />
+                <View style={styles.header}>
+                    <Text style={styles.codexLabel}>Spell Codex</Text>
+                    <Text style={styles.pageTitle}>All Spells</Text>
                 </View>
-                <Button
-                    icon="filter"
-                    mode="outlined"
-                    onPress={() => setDrawerVisible(true)}
-                    style={styles.filterButton}
-                    textColor={fantasyTokens.colors.parchment}
-                >
-                    {activeFilterCount > 0 ? `Filter (${activeFilterCount})` : 'Filter'}
-                </Button>
-                <SpellList spells={spells} loading={loading || isUnauthenticated} />
+                <View style={styles.topRow}>
+                    <View style={styles.searchBarWrapper}>
+                        <SearchBarInput
+                            placeholder="Search spells"
+                            searchText={pendingSearchName}
+                            onChangeSearchText={setPendingSearchName}
+                        />
+                    </View>
+                    <Button
+                        mode="outlined"
+                        onPress={() => setDrawerVisible(true)}
+                        style={styles.filterButton}
+                        textColor={fantasyTokens.colors.parchment}
+                    >
+                        <Ionicons name="filter" size={17} color={fantasyTokens.colors.parchment} />
+                        {activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+                    </Button>
+                </View>
+                <SpellList
+                    spells={spells}
+                    loading={loading || isUnauthenticated || isLoadingMore}
+                    onEndReached={loadMoreSpells}
+                />
                 <SpellFilterDrawer
                     visible={drawerVisible}
                     filters={searchParams.filters}
@@ -185,20 +244,45 @@ const styles = StyleSheet.create({
         backgroundColor: fantasyTokens.colors.night,
     },
     topRow: {
+        gap: 5,
         flexDirection: 'row',
         alignItems: 'center',
         paddingRight: fantasyTokens.spacing.xs,
+        marginBottom: fantasyTokens.spacing.sm,
     },
-    searchBar: {
+    searchBarWrapper: {
         flex: 1,
-        margin: fantasyTokens.spacing.md,
-        marginBottom: 0,
-        backgroundColor: fantasyTokens.colors.parchment,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.gold,
+        marginLeft: fantasyTokens.spacing.sm
     },
     filterButton: {
-        margin: fantasyTokens.spacing.md,
         borderColor: fantasyTokens.colors.gold,
+        borderRadius: 5,
+        paddingHorizontal: 0,
+    },
+    pageTitle: {
+        color: fantasyTokens.colors.parchment,
+        fontFamily: 'serif',
+        fontSize: 28,
+        lineHeight: 32,
+        marginTop: 6,
+        fontWeight: '700',
+        textAlign: 'center',
+    },
+    header: {
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(201,146,42,0.15)',
+        paddingHorizontal: 22,
+        paddingTop: 8,
+        paddingBottom: 14,
+        marginBottom: 16,
+    },
+    codexLabel: {
+        color: fantasyTokens.colors.gold,
+        opacity: 0.7,
+        fontFamily: 'serif',
+        fontSize: 9,
+        letterSpacing: 3,
+        textTransform: 'uppercase',
+        textAlign: 'center',
     },
 });

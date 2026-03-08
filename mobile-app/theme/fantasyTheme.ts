@@ -28,6 +28,7 @@ export const fantasyTokens = {
         md: 16,
         lg: 20,
         xl: 24,
+        xxl: 40,
     },
     radii: {
         sm: 12,

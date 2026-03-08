@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, SectionList, StyleSheet, View } from 'react-native';
 import { ProgressBar, Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { fantasyTokens } from '../theme/fantasyTheme';
@@ -24,7 +24,7 @@ type SpellTag = {
 type SpellGroup = {
     level: number | null;
     title: string;
-    spells: SpellListItem[];
+    data: SpellListItem[];
 };
 
 type SpellListProps = {
@@ -33,6 +33,7 @@ type SpellListProps = {
     emptyText?: string;
     onSpellPress?: (spellId: string) => void;
     onTogglePrepared?: (spellId: string, prepared: boolean) => Promise<void> | void;
+    onEndReached?: () => void;
     showPreparedState?: boolean;
     variant?: 'screen' | 'embedded';
     rowTestIdPrefix?: string;
@@ -124,7 +125,7 @@ function buildSpellGroups(spells: SpellListItem[]): SpellGroup[] {
         .map(([level, grouped]) => ({
             level,
             title: levelTitle(level),
-            spells: grouped.sort((leftSpell, rightSpell) => {
+            data: grouped.sort((leftSpell, rightSpell) => {
                 return leftSpell.name.localeCompare(rightSpell.name);
             }),
         }));
@@ -142,6 +143,7 @@ export default function SpellList({
     emptyText = 'No spells match this search yet.',
     onSpellPress,
     onTogglePrepared,
+    onEndReached,
     showPreparedState = false,
     variant = 'screen',
     rowTestIdPrefix = 'spell-list',
@@ -170,130 +172,140 @@ export default function SpellList({
         void onTogglePrepared(spell.id, !spell.prepared);
     }
 
-    function renderListBody() {
-        if (groups.length === 0) {
-            return (
-                <View style={styles.emptyState}>
-                    <Text style={styles.emptyText}>{emptyText}</Text>
+    function renderGroupHeader(group: SpellGroup) {
+        return (
+            <View style={styles.groupHeader}>
+                <Text style={styles.groupTitle}>{group.title}</Text>
+                <View style={styles.groupHeaderLine} />
+                <View style={styles.groupCountBadge}>
+                    <Text style={styles.groupCountText}>{group.data.length}</Text>
                 </View>
-            );
-        }
+            </View>
+        );
+    }
+
+    function renderSpellRow(spell: SpellListItem, index: number, groupSize: number) {
+        const tags = buildSpellTags(spell);
+        const meta = spellMeta(spell);
+        const canTogglePrepared = showPreparedState && spell.prepared != null;
+        const isPrepared = spell.prepared ?? false;
+        const level = normalizeLevel(spell.level);
+
+        return (
+            <Pressable
+                style={[
+                    styles.spellRow,
+                    index < groupSize - 1 && styles.spellRowDivider,
+                ]}
+                onPress={() => handleSpellPress(spell.id)}
+                onLongPress={() => handleTogglePrepared(spell)}
+                delayLongPress={250}
+                accessibilityRole="button"
+                accessibilityLabel={`Open ${spell.name}`}
+                testID={`${rowTestIdPrefix}-row-${spell.id}`}
+            >
+                <View
+                    style={[
+                        styles.levelBadge,
+                        level === 0 && styles.levelBadgeCantrip,
+                        level == null && styles.levelBadgeUnknown,
+                    ]}
+                >
+                    <Text
+                        style={[
+                            styles.levelBadgeText,
+                            level === 0 && styles.levelBadgeTextCantrip,
+                            level == null && styles.levelBadgeTextUnknown,
+                        ]}
+                    >
+                        {spellLevelBadgeLabel(level)}
+                    </Text>
+                </View>
+
+                {showPreparedState && (
+                    <Pressable
+                        style={[
+                            styles.preparedDot,
+                            !isPrepared && styles.preparedDotUnprepared,
+                        ]}
+                        onPress={() => handleTogglePrepared(spell)}
+                        disabled={!canTogglePrepared}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Toggle prepared for ${spell.name}`}
+                        testID={`${rowTestIdPrefix}-prepared-${spell.id}`}
+                    />
+                )}
+
+                <View style={styles.spellInfo}>
+                    <Text
+                        style={[
+                            styles.spellName,
+                            showPreparedState &&
+                            !isPrepared &&
+                            styles.spellNameUnprepared,
+                        ]}
+                        numberOfLines={1}
+                    >
+                        {spell.name}
+                    </Text>
+                    {meta.length > 0 && (
+                        <Text style={styles.spellMeta} numberOfLines={1}>
+                            {meta}
+                        </Text>
+                    )}
+                </View>
+
+                {tags.length > 0 && (
+                    <View style={styles.tagsRow}>
+                        {tags.map((tag) => (
+                            <View
+                                key={tag.label}
+                                style={[
+                                    styles.tag,
+                                    tag.style === 'concentration'
+                                        ? styles.concentrationTag
+                                        : styles.ritualTag,
+                                ]}
+                            >
+                                <Text
+                                    style={[
+                                        styles.tagText,
+                                        tag.style === 'concentration'
+                                            ? styles.concentrationTagText
+                                            : styles.ritualTagText,
+                                    ]}
+                                >
+                                    {tag.label}
+                                </Text>
+                            </View>
+                        ))}
+                    </View>
+                )}
+            </Pressable>
+        );
+    }
+
+    function renderEmptyState() {
+        return (
+            <View style={styles.emptyState}>
+                <Text style={styles.emptyText}>{emptyText}</Text>
+            </View>
+        );
+    }
+
+    function renderEmbeddedListBody() {
+        if (groups.length === 0) return renderEmptyState();
 
         return (
             <View style={styles.groups}>
                 {groups.map((group) => (
                     <View key={group.title} style={styles.group}>
-                        <View style={styles.groupHeader}>
-                            <Text style={styles.groupTitle}>{group.title}</Text>
-                            <View style={styles.groupHeaderLine} />
-                            <View style={styles.groupCountBadge}>
-                                <Text style={styles.groupCountText}>{group.spells.length}</Text>
+                        {renderGroupHeader(group)}
+                        {group.data.map((spell, index) => (
+                            <View key={spell.id} style={styles.spellRowContainer}>
+                                {renderSpellRow(spell, index, group.data.length)}
                             </View>
-                        </View>
-
-                        <View style={styles.spellEntries}>
-                            {group.spells.map((spell, index) => {
-                                const tags = buildSpellTags(spell);
-                                const meta = spellMeta(spell);
-                                const canTogglePrepared = showPreparedState && spell.prepared != null;
-                                const isPrepared = spell.prepared ?? false;
-                                const level = normalizeLevel(spell.level);
-
-                                return (
-                                    <Pressable
-                                        key={spell.id}
-                                        style={[
-                                            styles.spellRow,
-                                            index < group.spells.length - 1 && styles.spellRowDivider,
-                                        ]}
-                                        onPress={() => handleSpellPress(spell.id)}
-                                        onLongPress={() => handleTogglePrepared(spell)}
-                                        delayLongPress={250}
-                                        accessibilityRole="button"
-                                        accessibilityLabel={`Open ${spell.name}`}
-                                        testID={`${rowTestIdPrefix}-row-${spell.id}`}
-                                    >
-                                        <View
-                                            style={[
-                                                styles.levelBadge,
-                                                level === 0 && styles.levelBadgeCantrip,
-                                                level == null && styles.levelBadgeUnknown,
-                                            ]}
-                                        >
-                                            <Text
-                                                style={[
-                                                    styles.levelBadgeText,
-                                                    level === 0 && styles.levelBadgeTextCantrip,
-                                                    level == null && styles.levelBadgeTextUnknown,
-                                                ]}
-                                            >
-                                                {spellLevelBadgeLabel(level)}
-                                            </Text>
-                                        </View>
-
-                                        {showPreparedState && (
-                                            <Pressable
-                                                style={[
-                                                    styles.preparedDot,
-                                                    !isPrepared && styles.preparedDotUnprepared,
-                                                ]}
-                                                onPress={() => handleTogglePrepared(spell)}
-                                                disabled={!canTogglePrepared}
-                                                accessibilityRole="button"
-                                                accessibilityLabel={`Toggle prepared for ${spell.name}`}
-                                                testID={`${rowTestIdPrefix}-prepared-${spell.id}`}
-                                            />
-                                        )}
-
-                                        <View style={styles.spellInfo}>
-                                            <Text
-                                                style={[
-                                                    styles.spellName,
-                                                    showPreparedState &&
-                                                    !isPrepared &&
-                                                    styles.spellNameUnprepared,
-                                                ]}
-                                                numberOfLines={1}
-                                            >
-                                                {spell.name}
-                                            </Text>
-                                            {meta.length > 0 && (
-                                                <Text style={styles.spellMeta} numberOfLines={1}>
-                                                    {meta}
-                                                </Text>
-                                            )}
-                                        </View>
-
-                                        {tags.length > 0 && (
-                                            <View style={styles.tagsRow}>
-                                                {tags.map((tag) => (
-                                                    <View
-                                                        key={tag.label}
-                                                        style={[
-                                                            styles.tag,
-                                                            tag.style === 'concentration'
-                                                                ? styles.concentrationTag
-                                                                : styles.ritualTag,
-                                                        ]}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.tagText,
-                                                                tag.style === 'concentration'
-                                                                    ? styles.concentrationTagText
-                                                                    : styles.ritualTagText,
-                                                            ]}
-                                                        >
-                                                            {tag.label}
-                                                        </Text>
-                                                    </View>
-                                                ))}
-                                            </View>
-                                        )}
-                                    </Pressable>
-                                );
-                            })}
-                        </View>
+                        ))}
                     </View>
                 ))}
             </View>
@@ -310,14 +322,24 @@ export default function SpellList({
                 />
             )}
             {isEmbedded ? (
-                renderListBody()
+                renderEmbeddedListBody()
             ) : (
-                <ScrollView
+                <SectionList
+                    sections={groups}
+                    keyExtractor={(spell) => spell.id}
+                    renderSectionHeader={({ section }) => renderGroupHeader(section)}
+                    renderItem={({ item, index, section }) => renderSpellRow(item, index, section.data.length)}
+                    ListEmptyComponent={renderEmptyState}
+                    stickySectionHeadersEnabled={false}
+                    contentInsetAdjustmentBehavior="automatic"
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={styles.scrollContent}
-                >
-                    {renderListBody()}
-                </ScrollView>
+                    contentContainerStyle={styles.sectionListContent}
+                    initialNumToRender={18}
+                    maxToRenderPerBatch={24}
+                    windowSize={8}
+                    onEndReached={onEndReached}
+                    onEndReachedThreshold={0.35}
+                />
             )}
         </View>
     );
@@ -329,11 +351,11 @@ const styles = StyleSheet.create({
         backgroundColor: fantasyTokens.colors.parchmentDeep,
     },
     embeddedListWrapper: {
-        flex: undefined,
         backgroundColor: 'transparent',
     },
-    scrollContent: {
+    sectionListContent: {
         paddingBottom: fantasyTokens.spacing.lg,
+        paddingHorizontal: fantasyTokens.spacing.lg,
     },
     progressBar: {
         height: 3,
@@ -349,7 +371,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 10,
-        paddingHorizontal: 18,
         paddingTop: 10,
         paddingBottom: 4,
     },
@@ -378,7 +399,7 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.gold,
         opacity: 0.8,
     },
-    spellEntries: {
+    spellRowContainer: {
         paddingHorizontal: 18,
     },
     spellRow: {
