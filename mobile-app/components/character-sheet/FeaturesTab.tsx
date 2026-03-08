@@ -1,6 +1,8 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { deriveProficienciesAndLanguages, groupFeatures } from '@/lib/featuresTabUtils';
+import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 import type {
     CharacterTraitsData,
     FeatureRow,
@@ -64,7 +66,9 @@ export default function FeaturesTab({
 
     return (
         <View style={styles.container}>
-            <ScrollView
+            <KeyboardAwareScrollView
+                {...keyboardAwareScrollProps}
+                bottomOffset={keyboardAwareBottomOffset}
                 style={styles.scrollView}
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
@@ -119,7 +123,7 @@ export default function FeaturesTab({
                         onRemoveTag={onRemoveTraitTag}
                     />
                 )}
-            </ScrollView>
+            </KeyboardAwareScrollView>
         </View>
     );
 }

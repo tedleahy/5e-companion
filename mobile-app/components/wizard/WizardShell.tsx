@@ -1,5 +1,11 @@
 import { type ReactNode, useMemo } from 'react';
-import { Alert, Animated, Pressable, StyleSheet, View } from 'react-native';
+import {
+    Alert,
+    Animated,
+    Pressable,
+    StyleSheet,
+    View,
+} from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { usePathname, useRouter } from 'expo-router';
 import { useMutation } from '@apollo/client/react';

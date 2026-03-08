@@ -31,3 +31,17 @@ jest.mock('@/lib/supabase', () => ({
         },
     },
 }));
+
+jest.mock('react-native-keyboard-controller', () => {
+    const React = require('react');
+    const { ScrollView } = require('react-native');
+
+    return {
+        KeyboardProvider: ({ children }: any) => children,
+        KeyboardAwareScrollView: React.forwardRef((props: any, ref: any) => {
+            const { bottomOffset, ...restProps } = props;
+            void bottomOffset;
+            return React.createElement(ScrollView, { ...restProps, ref }, props.children);
+        }),
+    };
+});

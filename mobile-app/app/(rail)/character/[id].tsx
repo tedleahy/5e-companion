@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { ActivityIndicator, Snackbar, Text } from 'react-native-paper';
 import {
     useLocalSearchParams,
@@ -20,6 +21,7 @@ import useCharacterSheetData, { type SaveCharacterSheetCoreInput } from '@/hooks
 import { isAbilityKey } from '@/lib/characterSheetUtils';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { AbilityKey } from '@/lib/characterSheetUtils';
+import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 
 type CharacterSheetEditDraft = SaveCharacterSheetCoreInput;
 type ProficiencyDraftKey = 'armorProficiencies' | 'weaponProficiencies' | 'toolProficiencies' | 'languages';
@@ -439,7 +441,9 @@ export default function CharacterByIdScreen() {
                 />
                 {activeTab === 'Core' && (
                     // TODO: move this into a <CoreTab> component, similar to the other tabs below
-                    <ScrollView
+                    <KeyboardAwareScrollView
+                        {...keyboardAwareScrollProps}
+                        bottomOffset={keyboardAwareBottomOffset}
                         style={styles.scrollView}
                         contentContainerStyle={styles.scrollContent}
                         showsVerticalScrollIndicator={false}
@@ -510,7 +514,7 @@ export default function CharacterByIdScreen() {
                                 onChangeAbilityScore={handleChangeAbilityScore}
                             />
                         </>
-                    </ScrollView>
+                    </KeyboardAwareScrollView>
                 )}
 
                 {activeTab === 'Skills' && (

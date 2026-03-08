@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
+import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 
 export default function StepIdentity() {
     const { draft, updateDraft } = useCharacterDraft();
@@ -10,7 +12,12 @@ export default function StepIdentity() {
     const showError = blurred && draft.name.trim() === '';
 
     return (
-        <ScrollView style={styles.scroll} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <KeyboardAwareScrollView
+            {...keyboardAwareScrollProps}
+            bottomOffset={keyboardAwareBottomOffset}
+            style={styles.scroll}
+            contentContainerStyle={styles.container}
+        >
             <Text style={styles.heading}>Who are you?</Text>
             <Text style={styles.sub}>Every legend begins with a name.</Text>
 
@@ -29,7 +36,7 @@ export default function StepIdentity() {
                     <Text style={styles.errorHint}>Your character needs a name</Text>
                 )}
             </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
     );
 }
 

@@ -1,8 +1,10 @@
-import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { BACKGROUND_OPTIONS } from '@/lib/dndHelpers';
+import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 import OptionGrid from '@/components/wizard/OptionGrid';
 import AlignmentGrid from '@/components/wizard/AlignmentGrid';
 
@@ -10,10 +12,11 @@ export default function StepBackground() {
     const { draft, updateDraft } = useCharacterDraft();
 
     return (
-        <ScrollView
+        <KeyboardAwareScrollView
+            {...keyboardAwareScrollProps}
+            bottomOffset={keyboardAwareBottomOffset}
             style={styles.scroll}
             contentContainerStyle={styles.container}
-            keyboardShouldPersistTaps="handled"
         >
             <Text style={styles.heading}>Background &amp; alignment.</Text>
             <Text style={styles.sub}>Your history and your moral compass.</Text>
@@ -90,7 +93,7 @@ export default function StepBackground() {
                     textAlignVertical="top"
                 />
             </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
     );
 }
 

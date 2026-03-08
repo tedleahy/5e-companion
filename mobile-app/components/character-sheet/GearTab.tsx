@@ -1,6 +1,8 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import type { Attack, Currency, InventoryItem } from '@/types/generated_graphql_types';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 import AttacksCard from './gear/AttacksCard';
 import CurrencyCard from './gear/CurrencyCard';
 import InventoryCard from './gear/InventoryCard';
@@ -38,7 +40,9 @@ export default function GearTab({
 }: GearTabProps) {
     return (
         <View style={styles.container}>
-            <ScrollView
+            <KeyboardAwareScrollView
+                {...keyboardAwareScrollProps}
+                bottomOffset={keyboardAwareBottomOffset}
                 style={styles.scrollView}
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
@@ -59,7 +63,7 @@ export default function GearTab({
                     onRemoveInventoryItem={onRemoveInventoryItem}
                     onToggleInventoryEquip={onToggleInventoryEquip}
                 />
-            </ScrollView>
+            </KeyboardAwareScrollView>
         </View>
     );
 }
