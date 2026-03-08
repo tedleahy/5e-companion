@@ -95,7 +95,6 @@ export default function CharacterByIdScreen() {
     /** Currently active top-level tab in the character sheet. */
     const [activeTab, setActiveTab] = useState<CharacterSheetTab>('Core');
     const [editMode, setEditMode] = useState(false);
-    const [isSavedVisible, setIsSavedVisible] = useState(false);
     const [saveErrorVisible, setSaveErrorVisible] = useState(false);
     const [sheetDraft, setSheetDraft] = useState<CharacterSheetEditDraft | null>(null);
     const { id } = useLocalSearchParams<{ id?: string }>();
@@ -196,7 +195,6 @@ export default function CharacterByIdScreen() {
 
         setSheetDraft(null);
         setEditMode(false);
-        setIsSavedVisible(true);
     }
 
     const displayedHp = sheetDraft?.hp ?? stats.hp;
@@ -584,14 +582,6 @@ export default function CharacterByIdScreen() {
                 )}
 
                 <Snackbar
-                    visible={isSavedVisible}
-                    onDismiss={() => setIsSavedVisible(false)}
-                    duration={1400}
-                    style={styles.savedSnackbar}
-                >
-                    Saved
-                </Snackbar>
-                <Snackbar
                     visible={saveErrorVisible}
                     onDismiss={() => setSaveErrorVisible(false)}
                     duration={3000}
@@ -644,9 +634,6 @@ const styles = StyleSheet.create({
         fontSize: 13,
         textAlign: 'center',
         marginTop: fantasyTokens.spacing.sm,
-    },
-    savedSnackbar: {
-        backgroundColor: '#2a5c2a',
     },
     errorSnackbar: {
         backgroundColor: '#8b1a1a',
