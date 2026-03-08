@@ -1,34 +1,12 @@
-import { useState } from 'react';
-import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Button, Chip, Dialog, Divider, List, Portal, Snackbar, Text } from 'react-native-paper';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Chip, Divider, Text } from 'react-native-paper';
 import { useLocalSearchParams } from 'expo-router';
 import { fantasyTokens } from '../../theme/fantasyTheme';
 import { gql } from '@apollo/client';
-import { useMutation, useQuery } from '@apollo/client/react';
-import { DetailRow, ParchmentPanel, RuneDivider } from '../../components/FantasyPrimitives';
+import { useQuery } from '@apollo/client/react';
+import { DetailRow, ParchmentPanel } from '../../components/FantasyPrimitives';
 import { Spell } from '../../types/generated_graphql_types';
 import { schoolAndLevelLabel } from '../../lib/spellUtils';
-
-const GET_SPELL_LISTS = gql`
-    query SpellDetailLists {
-        currentUserSpellLists {
-            id
-            name
-        }
-    }
-`;
-
-const ADD_SPELL_TO_LIST = gql`
-    mutation AddSpellToList($spellListId: ID!, $spellId: ID!) {
-        addSpellToList(spellListId: $spellListId, spellId: $spellId) {
-            id
-            spells {
-                id
-                name
-            }
-        }
-    }
-`;
 
 const GET_SPELL = gql`
     query Spell($id: ID!) {
@@ -57,29 +35,12 @@ type SpellDetailsQueryData = {
 
 export default function SpellDetails() {
     const { id } = useLocalSearchParams<{ id?: string }>();
-    const [listDialogVisible, setListDialogVisible] = useState(false);
-    const [snackbar, setSnackbar] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
 
     const { data, loading, error } = useQuery<SpellDetailsQueryData>(GET_SPELL, {
         variables: { id: id ?? '' },
         skip: !id,
     });
     if (error) console.error(`Error loading spell details: ${error}`);
-
-    const { data: listsData } = useQuery<{ currentUserSpellLists: { id: string; name: string }[] }>(GET_SPELL_LISTS);
-    const [addSpellToList] = useMutation(ADD_SPELL_TO_LIST);
-
-    async function handleAddToList(spellListId: string, listName: string) {
-        if (!id) return;
-
-        try {
-            await addSpellToList({ variables: { spellListId, spellId: id } });
-            setListDialogVisible(false);
-            setSnackbar({ visible: true, message: `Added to ${listName}` });
-        } catch (err) {
-            console.error('Failed to add spell to list:', err);
-        }
-    }
 
     if (loading) {
         return (
@@ -153,63 +114,6 @@ export default function SpellDetails() {
                     </>
                 )}
             </ParchmentPanel>
-
-            <Button
-                icon="bookmark-plus-outline"
-                mode="outlined"
-                style={styles.addToListButton}
-                textColor={fantasyTokens.colors.parchment}
-                onPress={() => setListDialogVisible(true)}
-            >
-                Add to Spell List
-            </Button>
-
-            <RuneDivider />
-
-            <Portal>
-                <Dialog
-                    visible={listDialogVisible}
-                    onDismiss={() => setListDialogVisible(false)}
-                    style={styles.dialog}
-                >
-                    <Dialog.Title style={styles.dialogTitle}>Add to Spell List</Dialog.Title>
-                    <Dialog.ScrollArea style={{ maxHeight: 300 }}>
-                        <FlatList
-                            data={listsData?.currentUserSpellLists ?? []}
-                            keyExtractor={(item) => item.id}
-                            renderItem={({ item }) => (
-                                <List.Item
-                                    title={item.name}
-                                    titleStyle={styles.dialogListItemTitle}
-                                    onPress={() => handleAddToList(item.id, item.name)}
-                                />
-                            )}
-                            ListEmptyComponent={
-                                <Text style={styles.dialogEmptyText}>
-                                    No spell lists yet. Create one from the Spell Lists tab.
-                                </Text>
-                            }
-                        />
-                    </Dialog.ScrollArea>
-                    <Dialog.Actions>
-                        <Button
-                            textColor={fantasyTokens.colors.inkSoft}
-                            onPress={() => setListDialogVisible(false)}
-                        >
-                            Cancel
-                        </Button>
-                    </Dialog.Actions>
-                </Dialog>
-            </Portal>
-
-            <Snackbar
-                visible={snackbar.visible}
-                onDismiss={() => setSnackbar({ visible: false, message: '' })}
-                duration={2000}
-                style={styles.snackbar}
-            >
-                {snackbar.message}
-            </Snackbar>
         </ScrollView>
     );
 }
@@ -261,19 +165,6 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.inkSoft,
         fontFamily: 'serif',
     },
-    badgeRow: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-        marginTop: 12,
-    },
-    chip: {
-        backgroundColor: fantasyTokens.colors.inkDark,
-    },
-    chipText: {
-        color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
-    },
     detailPanel: {
         padding: fantasyTokens.spacing.md,
     },
@@ -307,28 +198,5 @@ const styles = StyleSheet.create({
     divider: {
         marginVertical: fantasyTokens.spacing.sm,
         backgroundColor: fantasyTokens.colors.gold,
-    },
-    addToListButton: {
-        borderColor: fantasyTokens.colors.gold,
-    },
-    dialog: {
-        backgroundColor: fantasyTokens.colors.parchment,
-    },
-    dialogTitle: {
-        fontFamily: 'serif',
-        color: fantasyTokens.colors.inkDark,
-    },
-    dialogListItemTitle: {
-        fontFamily: 'serif',
-        color: fantasyTokens.colors.inkDark,
-    },
-    dialogEmptyText: {
-        fontFamily: 'serif',
-        color: fantasyTokens.colors.inkSoft,
-        textAlign: 'center',
-        padding: fantasyTokens.spacing.md,
-    },
-    snackbar: {
-        backgroundColor: fantasyTokens.colors.inkDark,
     },
 });

@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import TextField from '@/components/TextField';
 import { supabase } from '@/lib/supabase';
+import useSessionGuard from '@/hooks/useSessionGuard';
 import { styles } from '../../styles/authStyles';
 
 export default function SignIn() {
@@ -13,14 +14,18 @@ export default function SignIn() {
     const [password, setPassword] = useState('');
     const [invalidLogin, setInvalidLogin] = useState(false);
     const router = useRouter();
+    const { checkSession } = useSessionGuard({
+        runOnMount: false,
+        shouldRedirectOnInvalidSession: false,
+    });
 
     async function handleSignIn() {
         if (!email || !password) return;
 
         await supabase.auth.signInWithPassword({ email, password });
-        const { data } = await supabase.auth.getSession();
+        const hasValidSession = await checkSession();
 
-        if (!data.session) {
+        if (!hasValidSession) {
             setInvalidLogin(true);
             return;
         }

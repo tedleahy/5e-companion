@@ -33,15 +33,6 @@ const GET_SPELL = gql`
     }
 `;
 
-const GET_SPELL_LISTS = gql`
-    query SpellDetailLists {
-        currentUserSpellLists {
-            id
-            name
-        }
-    }
-`;
-
 const SPELL_MOCK: MockLink.MockedResponse = {
     request: { query: GET_SPELL, variables: { id: 'spell-1' } },
     result: {
@@ -72,18 +63,7 @@ const SPELL_NOT_FOUND_MOCK: MockLink.MockedResponse = {
     result: { data: { spell: null } },
 };
 
-const LISTS_MOCK: MockLink.MockedResponse = {
-    request: { query: GET_SPELL_LISTS },
-    result: {
-        data: {
-            currentUserSpellLists: [
-                { __typename: 'SpellList', id: 'list-1', name: 'My Spells' },
-            ],
-        },
-    },
-};
-
-function renderScreen(mocks: MockLink.MockedResponse[] = [SPELL_MOCK, LISTS_MOCK]) {
+function renderScreen(mocks: MockLink.MockedResponse[] = [SPELL_MOCK]) {
     return render(
         <MockedProvider mocks={mocks}>
             <PaperProvider>
@@ -148,16 +128,9 @@ describe('SpellDetails screen', () => {
     });
 
     it('shows "Spell not found" when spell is null', async () => {
-        renderScreen([SPELL_NOT_FOUND_MOCK, LISTS_MOCK]);
+        renderScreen([SPELL_NOT_FOUND_MOCK]);
         await waitFor(() => {
             expect(screen.getByText('Spell not found.')).toBeTruthy();
-        });
-    });
-
-    it('renders the "Add to Spell List" button', async () => {
-        renderScreen();
-        await waitFor(() => {
-            expect(screen.getByText('Add to Spell List')).toBeTruthy();
         });
     });
 });

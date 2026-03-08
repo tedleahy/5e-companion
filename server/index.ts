@@ -9,7 +9,7 @@ import { getUserIdFromAuthHeader } from './lib/auth';
 import type { Resolvers } from './generated/graphql';
 import spellsResolver from './resolvers/spellsResolver';
 import spellResolver from './resolvers/spellResolver';
-import * as spellListResolvers from './resolvers/spellListResolvers';
+import * as characterResolvers from './resolvers/characterResolvers';
 
 const typeDefs = loadFilesSync('schema.graphql');
 
@@ -31,19 +31,56 @@ const resolvers: Resolvers = {
     Query: {
         spells: spellsResolver,
         spell: spellResolver,
-        currentUserSpellLists: spellListResolvers.currentUserLists,
+        character: characterResolvers.character,
+        currentUserCharacters: characterResolvers.currentUserCharacters,
     },
 
     Mutation: {
-        createSpellList: spellListResolvers.create,
-        renameSpellList: spellListResolvers.rename,
-        deleteSpellList: spellListResolvers.destroy,
-        addSpellToList: spellListResolvers.addSpellToList,
-        removeSpellFromList: spellListResolvers.removeSpellFromList,
+        createCharacter: characterResolvers.createCharacter,
+        updateCharacter: characterResolvers.updateCharacter,
+        deleteCharacter: characterResolvers.deleteCharacter,
+        toggleInspiration: characterResolvers.toggleInspiration,
+
+        updateAbilityScores: characterResolvers.updateAbilityScores,
+        updateHP: characterResolvers.updateHP,
+        updateDeathSaves: characterResolvers.updateDeathSaves,
+        updateHitDice: characterResolvers.updateHitDice,
+        updateSkillProficiencies: characterResolvers.updateSkillProficiencies,
+        updateTraits: characterResolvers.updateTraits,
+        updateCurrency: characterResolvers.updateCurrency,
+        updateSavingThrowProficiencies: characterResolvers.updateSavingThrowProficiencies,
+
+        learnSpell: characterResolvers.learnSpell,
+        forgetSpell: characterResolvers.forgetSpell,
+        prepareSpell: characterResolvers.prepareSpell,
+        unprepareSpell: characterResolvers.unprepareSpell,
+        toggleSpellSlot: characterResolvers.toggleSpellSlot,
+
+        addWeapon: characterResolvers.addWeapon,
+        addAttack: characterResolvers.addAttack,
+        updateWeapon: characterResolvers.updateWeapon,
+        removeWeapon: characterResolvers.removeWeapon,
+        removeAttack: characterResolvers.removeAttack,
+        addInventoryItem: characterResolvers.addInventoryItem,
+        updateInventoryItem: characterResolvers.updateInventoryItem,
+        removeInventoryItem: characterResolvers.removeInventoryItem,
+        addFeature: characterResolvers.addFeature,
+        updateFeature: characterResolvers.updateFeature,
+        removeFeature: characterResolvers.removeFeature,
+
+        spendHitDie: characterResolvers.spendHitDie,
+        shortRest: characterResolvers.shortRest,
+        longRest: characterResolvers.longRest,
     },
 
-    SpellList: {
-        spells: spellListResolvers.spellListSpells,
+    Character: {
+        stats: characterResolvers.characterStats,
+        weapons: characterResolvers.characterWeapons,
+        attacks: characterResolvers.characterAttacks,
+        inventory: characterResolvers.characterInventory,
+        features: characterResolvers.characterFeatures,
+        spellSlots: characterResolvers.characterSpellSlots,
+        spellbook: characterResolvers.characterSpellbook,
     },
 };
 

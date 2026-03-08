@@ -30,22 +30,354 @@ input SpellFilter {
     castingTimeCategories: [String]
 }
 
-type SpellList {
+# ---------------------------------------------------------------------------
+# Character Sheet
+# ---------------------------------------------------------------------------
+
+type Character {
     id: ID!
     name: String!
-    spells: [Spell!]!
+    race: String!
+    class: String!
+    subclass: String
+    level: Int!
+    alignment: String!
+    background: String!
+    proficiencyBonus: Int!
+    inspiration: Boolean!
+    ac: Int!
+    speed: Int!
+    initiative: Int!
+    spellcastingAbility: String
+    spellSaveDC: Int
+    spellAttackBonus: Int
+    conditions: [String!]!
+    notes: String!
+    stats: CharacterStats
+    weapons: [Attack!]!
+    attacks: [Attack!]!
+    inventory: [InventoryItem!]!
+    features: [CharacterFeature!]!
+    spellSlots: [SpellSlot!]!
+    spellbook: [CharacterSpell!]!
 }
+
+type CharacterStats {
+    id: ID!
+    abilityScores: AbilityScores!
+    hp: HP!
+    deathSaves: DeathSaves!
+    hitDice: HitDice!
+    savingThrowProficiencies: [String!]!
+    skillProficiencies: SkillProficiencies!
+    traits: Traits!
+    currency: Currency!
+}
+
+type AbilityScores {
+    strength: Int!
+    dexterity: Int!
+    constitution: Int!
+    intelligence: Int!
+    wisdom: Int!
+    charisma: Int!
+}
+
+type HP {
+    current: Int!
+    max: Int!
+    temp: Int!
+}
+
+type DeathSaves {
+    successes: Int!
+    failures: Int!
+}
+
+type HitDice {
+    total: Int!
+    remaining: Int!
+    die: String!
+}
+
+enum ProficiencyLevel {
+    none
+    proficient
+    expert
+}
+
+type SkillProficiencies {
+    acrobatics: ProficiencyLevel!
+    animalHandling: ProficiencyLevel!
+    arcana: ProficiencyLevel!
+    athletics: ProficiencyLevel!
+    deception: ProficiencyLevel!
+    history: ProficiencyLevel!
+    insight: ProficiencyLevel!
+    intimidation: ProficiencyLevel!
+    investigation: ProficiencyLevel!
+    medicine: ProficiencyLevel!
+    nature: ProficiencyLevel!
+    perception: ProficiencyLevel!
+    performance: ProficiencyLevel!
+    persuasion: ProficiencyLevel!
+    religion: ProficiencyLevel!
+    sleightOfHand: ProficiencyLevel!
+    stealth: ProficiencyLevel!
+    survival: ProficiencyLevel!
+}
+
+type Traits {
+    personality: String!
+    ideals: String!
+    bonds: String!
+    flaws: String!
+    armorProficiencies: [String!]
+    weaponProficiencies: [String!]
+    toolProficiencies: [String!]
+    languages: [String!]
+}
+
+type Currency {
+    cp: Int!
+    sp: Int!
+    ep: Int!
+    gp: Int!
+    pp: Int!
+}
+
+type Attack {
+    id: ID!
+    name: String!
+    attackBonus: String!
+    damage: String!
+    type: String!
+}
+
+type InventoryItem {
+    id: ID!
+    name: String!
+    quantity: Int!
+    weight: Float
+    description: String
+    equipped: Boolean!
+    magical: Boolean!
+}
+
+type CharacterFeature {
+    id: ID!
+    name: String!
+    source: String!
+    description: String!
+    usesMax: Int
+    usesRemaining: Int
+    recharge: String
+}
+
+type SpellSlot {
+    id: ID!
+    level: Int!
+    total: Int!
+    used: Int!
+}
+
+type CharacterSpell {
+    spell: Spell!
+    prepared: Boolean!
+}
+
+# ---------------------------------------------------------------------------
+# Character Inputs
+# ---------------------------------------------------------------------------
+
+input CreateCharacterInput {
+    name: String!
+    race: String!
+    class: String!
+    subclass: String
+    level: Int!
+    alignment: String!
+    background: String!
+    proficiencyBonus: Int!
+    ac: Int!
+    speed: Int!
+    initiative: Int!
+    spellcastingAbility: String
+    spellSaveDC: Int
+    spellAttackBonus: Int
+    abilityScores: AbilityScoresInput!
+    hp: HPInput!
+    hitDice: HitDiceInput!
+    savingThrowProficiencies: [String!]
+    skillProficiencies: SkillProficienciesInput!
+    traits: TraitsInput
+    currency: CurrencyInput
+}
+
+input UpdateCharacterInput {
+    name: String
+    race: String
+    class: String
+    subclass: String
+    level: Int
+    alignment: String
+    background: String
+    proficiencyBonus: Int
+    ac: Int
+    speed: Int
+    initiative: Int
+    spellcastingAbility: String
+    spellSaveDC: Int
+    spellAttackBonus: Int
+    conditions: [String!]
+    notes: String
+}
+
+input AbilityScoresInput {
+    strength: Int!
+    dexterity: Int!
+    constitution: Int!
+    intelligence: Int!
+    wisdom: Int!
+    charisma: Int!
+}
+
+input HPInput {
+    current: Int!
+    max: Int!
+    temp: Int!
+}
+
+input DeathSavesInput {
+    successes: Int!
+    failures: Int!
+}
+
+input HitDiceInput {
+    total: Int!
+    remaining: Int!
+    die: String!
+}
+
+input SkillProficienciesInput {
+    acrobatics: ProficiencyLevel
+    animalHandling: ProficiencyLevel
+    arcana: ProficiencyLevel
+    athletics: ProficiencyLevel
+    deception: ProficiencyLevel
+    history: ProficiencyLevel
+    insight: ProficiencyLevel
+    intimidation: ProficiencyLevel
+    investigation: ProficiencyLevel
+    medicine: ProficiencyLevel
+    nature: ProficiencyLevel
+    perception: ProficiencyLevel
+    performance: ProficiencyLevel
+    persuasion: ProficiencyLevel
+    religion: ProficiencyLevel
+    sleightOfHand: ProficiencyLevel
+    stealth: ProficiencyLevel
+    survival: ProficiencyLevel
+}
+
+input TraitsInput {
+    personality: String!
+    ideals: String!
+    bonds: String!
+    flaws: String!
+    armorProficiencies: [String!]
+    weaponProficiencies: [String!]
+    toolProficiencies: [String!]
+    languages: [String!]
+}
+
+input CurrencyInput {
+    cp: Int!
+    sp: Int!
+    ep: Int!
+    gp: Int!
+    pp: Int!
+}
+
+input SavingThrowProficienciesInput {
+    proficiencies: [String!]!
+}
+
+input AttackInput {
+    name: String!
+    attackBonus: String!
+    damage: String!
+    type: String!
+}
+
+input InventoryItemInput {
+    name: String!
+    quantity: Int
+    weight: Float
+    description: String
+    equipped: Boolean
+    magical: Boolean
+}
+
+input FeatureInput {
+    name: String!
+    source: String!
+    description: String!
+    usesMax: Int
+    usesRemaining: Int
+    recharge: String
+}
+
+# ---------------------------------------------------------------------------
+# Queries & Mutations
+# ---------------------------------------------------------------------------
 
 type Query {
     spells(filter: SpellFilter): [Spell!]!
     spell(id: ID!): Spell
-    currentUserSpellLists: [SpellList!]!
+    character(id: ID!): Character
+    currentUserCharacters: [Character!]!
 }
 
 type Mutation {
-    createSpellList(name: String!): SpellList!
-    renameSpellList(id: ID!, name: String!): Boolean!
-    deleteSpellList(id: ID!): Boolean!
-    addSpellToList(spellListId: ID!, spellId: ID!): SpellList!
-    removeSpellFromList(spellListId: ID!, spellId: ID!): SpellList!
+    # Character lifecycle
+    createCharacter(input: CreateCharacterInput!): Character!
+    updateCharacter(id: ID!, input: UpdateCharacterInput!): Character!
+    deleteCharacter(id: ID!): Boolean!
+    toggleInspiration(characterId: ID!): Character!
+
+    # Per-domain stats updates
+    updateAbilityScores(characterId: ID!, input: AbilityScoresInput!): CharacterStats!
+    updateHP(characterId: ID!, input: HPInput!): CharacterStats!
+    updateDeathSaves(characterId: ID!, input: DeathSavesInput!): CharacterStats!
+    updateHitDice(characterId: ID!, input: HitDiceInput!): CharacterStats!
+    updateSkillProficiencies(characterId: ID!, input: SkillProficienciesInput!): CharacterStats!
+    updateTraits(characterId: ID!, input: TraitsInput!): CharacterStats!
+    updateCurrency(characterId: ID!, input: CurrencyInput!): CharacterStats!
+    updateSavingThrowProficiencies(characterId: ID!, input: SavingThrowProficienciesInput!): CharacterStats!
+
+    # Spellbook / spell slots
+    learnSpell(characterId: ID!, spellId: ID!): CharacterSpell!
+    forgetSpell(characterId: ID!, spellId: ID!): Boolean!
+    prepareSpell(characterId: ID!, spellId: ID!): CharacterSpell!
+    unprepareSpell(characterId: ID!, spellId: ID!): CharacterSpell!
+    toggleSpellSlot(characterId: ID!, level: Int!): SpellSlot!
+
+    # Gear / features
+    addWeapon(characterId: ID!, input: AttackInput!): Attack!
+    addAttack(characterId: ID!, input: AttackInput!): Attack!
+    updateWeapon(characterId: ID!, weaponId: ID!, input: AttackInput!): Attack!
+    removeWeapon(characterId: ID!, weaponId: ID!): Boolean!
+    removeAttack(characterId: ID!, attackId: ID!): Boolean!
+    addInventoryItem(characterId: ID!, input: InventoryItemInput!): InventoryItem!
+    updateInventoryItem(characterId: ID!, itemId: ID!, input: InventoryItemInput!): InventoryItem!
+    removeInventoryItem(characterId: ID!, itemId: ID!): Boolean!
+    addFeature(characterId: ID!, input: FeatureInput!): CharacterFeature!
+    updateFeature(characterId: ID!, featureId: ID!, input: FeatureInput!): CharacterFeature!
+    removeFeature(characterId: ID!, featureId: ID!): Boolean!
+
+    # Rest / recovery
+    spendHitDie(characterId: ID!, amount: Int! = 1): CharacterStats!
+    shortRest(characterId: ID!): Character!
+    longRest(characterId: ID!): Character!
 }

@@ -1,4 +1,4 @@
-import { Prisma, SpellSource } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import prisma from '../prisma';
 
 type AbilityBonus = {
@@ -23,7 +23,6 @@ type Race = {
 
 function toRecord(race: Race) {
     return {
-        source: SpellSource.SRD,
         srdIndex: race.index,
         name: race.name,
         speed: race.speed,
@@ -68,7 +67,7 @@ export default async function seedRaces() {
             if (result.id) totalInserts++;
         }
 
-        console.log(`Seeded ${totalInserts} ability scores (skipDuplicates=true).`);
+        console.log(`Seeded/updated ${totalInserts} races from SRD JSON.`);
     } catch (error) {
         console.error(error);
         process.exit(1);
@@ -76,4 +75,3 @@ export default async function seedRaces() {
         await prisma.$disconnect();
     }
 }
-

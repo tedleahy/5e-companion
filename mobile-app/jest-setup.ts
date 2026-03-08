@@ -7,12 +7,9 @@ jest.mock('expo-router', () => ({
         replace: jest.fn(),
         back: jest.fn(),
     }),
+    usePathname: () => '/',
     useLocalSearchParams: () => ({}),
     Redirect: ({ href }: { href: string }) => null,
-    Tabs: Object.assign(
-        ({ children }: { children: React.ReactNode }) => children,
-        { Screen: () => null },
-    ),
     Stack: () => null,
 }));
 

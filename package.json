@@ -5,12 +5,14 @@
         "db:reset": "cd server && bun run reset-db",
         "db:migrate": "cd server && bunx prisma migrate dev --name",
         "db:generate": "cd server && bunx prisma generate",
-        "server:dev": "cd server && bun run dev",
+        "server:start": "cd server && bun run dev",
         "server:i": "cd server && bun i",
         "server:codegen": "cd server && bun run codegen",
+        "server:test": "cd server && bun test",
         "app:start": "cd mobile-app && yarn run start",
         "app:i": "cd mobile-app && yarn add",
         "app:codegen": "cd mobile-app && yarn run codegen",
+        "app:test": "cd mobile-app && yarn run test",
         "app:lint": "cd mobile-app && yarn expo lint"
     }
 }

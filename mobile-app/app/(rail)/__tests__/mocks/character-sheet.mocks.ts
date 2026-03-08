@@ -1,0 +1,617 @@
+import { GET_CURRENT_USER_CHARACTERS, PREPARE_SPELL, TOGGLE_INSPIRATION, TOGGLE_SPELL_SLOT, UNPREPARE_SPELL, UPDATE_ABILITY_SCORES, UPDATE_CHARACTER, UPDATE_CURRENCY, UPDATE_DEATH_SAVES, UPDATE_HP, UPDATE_SKILL_PROFICIENCIES, UPDATE_TRAITS } from "@/graphql/characterSheet.operations";
+import { ProficiencyLevel } from "@/types/generated_graphql_types";
+import { MockLink } from "@apollo/client/testing";
+
+export const MOCK_CHARACTER = {
+    __typename: 'Character',
+    id: 'char-1',
+    name: 'Vaelindra',
+    race: 'High Elf',
+    class: 'Wizard',
+    subclass: 'School of Evocation',
+    level: 12,
+    alignment: 'Chaotic Good',
+    proficiencyBonus: 4,
+    inspiration: false,
+    ac: 17,
+    speed: 35,
+    initiative: 3,
+    spellcastingAbility: 'intelligence',
+    spellSaveDC: 17,
+    spellAttackBonus: 9,
+    conditions: [] as string[],
+    features: [
+        {
+            __typename: 'CharacterFeature',
+            id: 'feature-1',
+            name: 'Arcane Recovery',
+            source: 'Wizard 1',
+            description: 'Recover spell slots on a long rest.',
+            usesMax: 1,
+            usesRemaining: 1,
+            recharge: 'long',
+        },
+        {
+            __typename: 'CharacterFeature',
+            id: 'feature-2',
+            name: 'Darkvision',
+            source: 'High Elf',
+            description: 'See in dim light and darkness within 60 feet.',
+            usesMax: null,
+            usesRemaining: null,
+            recharge: null,
+        },
+        {
+            __typename: 'CharacterFeature',
+            id: 'feature-3',
+            name: 'War Caster',
+            source: 'Feat',
+            description: 'Advantage on concentration checks.',
+            usesMax: null,
+            usesRemaining: null,
+            recharge: null,
+        },
+    ],
+    attacks: [
+        {
+            __typename: 'Attack',
+            id: 'attack-1',
+            name: 'Dagger',
+            attackBonus: '+7',
+            damage: '1d4+3 piercing',
+            type: 'melee',
+        },
+        {
+            __typename: 'Attack',
+            id: 'attack-2',
+            name: 'Staff of Power',
+            attackBonus: '+9',
+            damage: '1d6+5 bludgeoning',
+            type: 'melee',
+        },
+        {
+            __typename: 'Attack',
+            id: 'attack-3',
+            name: 'Spell Attack',
+            attackBonus: '+10',
+            damage: 'by spell',
+            type: 'spell',
+        },
+    ],
+    weapons: [
+        {
+            __typename: 'Attack',
+            id: 'attack-1',
+            name: 'Dagger',
+            attackBonus: '+7',
+            damage: '1d4+3 piercing',
+            type: 'melee',
+        },
+        {
+            __typename: 'Attack',
+            id: 'attack-2',
+            name: 'Staff of Power',
+            attackBonus: '+9',
+            damage: '1d6+5 bludgeoning',
+            type: 'melee',
+        },
+        {
+            __typename: 'Attack',
+            id: 'attack-3',
+            name: 'Spell Attack',
+            attackBonus: '+10',
+            damage: 'by spell',
+            type: 'spell',
+        },
+    ],
+    inventory: [
+        {
+            __typename: 'InventoryItem',
+            id: 'item-1',
+            name: 'Staff of Power',
+            quantity: 1,
+            weight: 4,
+            description: '+2 weapon, spell attack & DC bonus',
+            equipped: true,
+            magical: true,
+        },
+        {
+            __typename: 'InventoryItem',
+            id: 'item-2',
+            name: 'Ring of Protection',
+            quantity: 1,
+            weight: null,
+            description: '+1 AC and saving throws',
+            equipped: true,
+            magical: true,
+        },
+        {
+            __typename: 'InventoryItem',
+            id: 'item-3',
+            name: 'Spellbook',
+            quantity: 1,
+            weight: 3,
+            description: 'Contains 26 spells',
+            equipped: false,
+            magical: false,
+        },
+        {
+            __typename: 'InventoryItem',
+            id: 'item-4',
+            name: 'Potion of Greater Healing',
+            quantity: 3,
+            weight: 0.5,
+            description: 'Restores 4d4+4 HP',
+            equipped: false,
+            magical: true,
+        },
+    ],
+    spellSlots: [
+        {
+            __typename: 'SpellSlot',
+            id: 'slot-1',
+            level: 1,
+            total: 4,
+            used: 1,
+        },
+        {
+            __typename: 'SpellSlot',
+            id: 'slot-2',
+            level: 2,
+            total: 3,
+            used: 0,
+        },
+        {
+            __typename: 'SpellSlot',
+            id: 'slot-3',
+            level: 3,
+            total: 3,
+            used: 2,
+        },
+    ],
+    spellbook: [
+        {
+            __typename: 'CharacterSpell',
+            prepared: true,
+            spell: {
+                __typename: 'Spell',
+                id: 'spell-fireball',
+                name: 'Fireball',
+                level: 3,
+                schoolIndex: 'evocation',
+                castingTime: '1 action',
+                range: '150 feet',
+                concentration: false,
+                ritual: false,
+            },
+        },
+        {
+            __typename: 'CharacterSpell',
+            prepared: true,
+            spell: {
+                __typename: 'Spell',
+                id: 'spell-detect-magic',
+                name: 'Detect Magic',
+                level: 1,
+                schoolIndex: 'divination',
+                castingTime: '1 action',
+                range: 'Self',
+                concentration: true,
+                ritual: true,
+            },
+        },
+        {
+            __typename: 'CharacterSpell',
+            prepared: false,
+            spell: {
+                __typename: 'Spell',
+                id: 'spell-bigbys-hand',
+                name: "Bigby's Hand",
+                level: 5,
+                schoolIndex: 'evocation',
+                castingTime: '1 action',
+                range: '120 feet',
+                concentration: true,
+                ritual: false,
+            },
+        },
+    ],
+    stats: {
+        __typename: 'CharacterStats',
+        id: 'stats-1',
+        abilityScores: {
+            __typename: 'AbilityScores',
+            strength: 8,
+            dexterity: 16,
+            constitution: 14,
+            intelligence: 20,
+            wisdom: 13,
+            charisma: 11,
+        },
+        hp: {
+            __typename: 'HP',
+            current: 54,
+            max: 76,
+            temp: 2,
+        },
+        deathSaves: {
+            __typename: 'DeathSaves',
+            successes: 1,
+            failures: 0,
+        },
+        hitDice: {
+            __typename: 'HitDice',
+            total: 12,
+            remaining: 12,
+            die: 'd6',
+        },
+        traits: {
+            __typename: 'Traits',
+            personality: 'Always collecting obscure magical lore.',
+            ideals: 'Knowledge should be preserved.',
+            bonds: 'My spellbook is my life.',
+            flaws: 'I underestimate danger when magic is involved.',
+            armorProficiencies: [],
+            weaponProficiencies: ['Daggers', 'Darts', 'Slings', 'Quarterstaffs'],
+            toolProficiencies: [],
+            languages: ['Common', 'Elvish', 'Draconic'],
+        },
+        savingThrowProficiencies: ['intelligence', 'wisdom'],
+        skillProficiencies: {
+            __typename: 'SkillProficiencies',
+            acrobatics: ProficiencyLevel.None,
+            animalHandling: ProficiencyLevel.None,
+            arcana: ProficiencyLevel.Expert,
+            athletics: ProficiencyLevel.None,
+            deception: ProficiencyLevel.None,
+            history: ProficiencyLevel.Expert,
+            insight: ProficiencyLevel.Proficient,
+            intimidation: ProficiencyLevel.None,
+            investigation: ProficiencyLevel.Expert,
+            medicine: ProficiencyLevel.None,
+            nature: ProficiencyLevel.Proficient,
+            perception: ProficiencyLevel.Proficient,
+            performance: ProficiencyLevel.None,
+            persuasion: ProficiencyLevel.None,
+            religion: ProficiencyLevel.Proficient,
+            sleightOfHand: ProficiencyLevel.None,
+            stealth: ProficiencyLevel.Proficient,
+            survival: ProficiencyLevel.None,
+        },
+        currency: {
+            __typename: 'Currency',
+            cp: 0,
+            sp: 14,
+            ep: 0,
+            gp: 847,
+            pp: 3,
+        },
+    },
+};
+
+export const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
+    {
+        request: {
+            query: UPDATE_CHARACTER,
+            variables: {
+                id: 'char-1',
+                input: {
+                    ac: 17,
+                    speed: 35,
+                    initiative: 3,
+                    conditions: [],
+                },
+            },
+        },
+        result: {
+            data: {
+                updateCharacter: {
+                    __typename: 'Character',
+                    id: 'char-1',
+                    ac: 17,
+                    speed: 35,
+                    initiative: 3,
+                    conditions: [],
+                },
+            },
+        },
+    },
+    {
+        request: {
+            query: UPDATE_HP,
+            variables: {
+                characterId: 'char-1',
+                input: {
+                    current: 54,
+                    max: 76,
+                    temp: 2,
+                },
+            },
+        },
+        result: {
+            data: {
+                updateHP: {
+                    __typename: 'CharacterStats',
+                    id: 'stats-1',
+                    hp: {
+                        __typename: 'HP',
+                        current: 54,
+                        max: 76,
+                        temp: 2,
+                    },
+                },
+            },
+        },
+    },
+    {
+        request: {
+            query: UPDATE_ABILITY_SCORES,
+            variables: {
+                characterId: 'char-1',
+                input: {
+                    strength: 8,
+                    dexterity: 16,
+                    constitution: 14,
+                    intelligence: 20,
+                    wisdom: 13,
+                    charisma: 11,
+                },
+            },
+        },
+        result: {
+            data: {
+                updateAbilityScores: {
+                    __typename: 'CharacterStats',
+                    id: 'stats-1',
+                    abilityScores: {
+                        __typename: 'AbilityScores',
+                        strength: 8,
+                        dexterity: 16,
+                        constitution: 14,
+                        intelligence: 20,
+                        wisdom: 13,
+                        charisma: 11,
+                    },
+                },
+            },
+        },
+    },
+    {
+        request: {
+            query: UPDATE_CURRENCY,
+            variables: {
+                characterId: 'char-1',
+                input: {
+                    cp: 0,
+                    sp: 14,
+                    ep: 0,
+                    gp: 847,
+                    pp: 3,
+                },
+            },
+        },
+        result: {
+            data: {
+                updateCurrency: {
+                    __typename: 'CharacterStats',
+                    id: 'stats-1',
+                    currency: {
+                        __typename: 'Currency',
+                        cp: 0,
+                        sp: 14,
+                        ep: 0,
+                        gp: 847,
+                        pp: 3,
+                    },
+                },
+            },
+        },
+    },
+    {
+        request: {
+            query: UPDATE_TRAITS,
+            variables: {
+                characterId: 'char-1',
+                input: {
+                    personality: 'Always collecting obscure magical lore.',
+                    ideals: 'Knowledge should be preserved.',
+                    bonds: 'My spellbook is my life.',
+                    flaws: 'I underestimate danger when magic is involved.',
+                    armorProficiencies: [],
+                    weaponProficiencies: ['Daggers', 'Darts', 'Slings', 'Quarterstaffs'],
+                    toolProficiencies: [],
+                    languages: ['Common', 'Elvish', 'Draconic'],
+                },
+            },
+        },
+        result: {
+            data: {
+                updateTraits: {
+                    __typename: 'CharacterStats',
+                    id: 'stats-1',
+                    traits: {
+                        __typename: 'Traits',
+                        personality: 'Always collecting obscure magical lore.',
+                        ideals: 'Knowledge should be preserved.',
+                        bonds: 'My spellbook is my life.',
+                        flaws: 'I underestimate danger when magic is involved.',
+                        armorProficiencies: [],
+                        weaponProficiencies: ['Daggers', 'Darts', 'Slings', 'Quarterstaffs'],
+                        toolProficiencies: [],
+                        languages: ['Common', 'Elvish', 'Draconic'],
+                    },
+                },
+            },
+        },
+    },
+    {
+        request: { query: GET_CURRENT_USER_CHARACTERS },
+        result: {
+            data: {
+                currentUserCharacters: [MOCK_CHARACTER],
+            },
+        },
+    },
+    {
+        request: { query: GET_CURRENT_USER_CHARACTERS },
+        result: {
+            data: {
+                currentUserCharacters: [MOCK_CHARACTER],
+            },
+        },
+    },
+];
+
+const { __typename: _skillTypeName, ...INITIAL_SKILL_INPUT } = MOCK_CHARACTER.stats.skillProficiencies;
+
+export const CHARACTERS_MOCK: MockLink.MockedResponse = {
+    request: { query: GET_CURRENT_USER_CHARACTERS },
+    result: {
+        data: {
+            currentUserCharacters: [MOCK_CHARACTER],
+        },
+    },
+};
+
+export const EMPTY_MOCK: MockLink.MockedResponse = {
+    request: { query: GET_CURRENT_USER_CHARACTERS },
+    result: {
+        data: {
+            currentUserCharacters: [],
+        },
+    },
+};
+
+export const ERROR_MOCK: MockLink.MockedResponse = {
+    request: { query: GET_CURRENT_USER_CHARACTERS },
+    error: new Error('Network error'),
+};
+
+export const TOGGLE_MOCK: MockLink.MockedResponse = {
+    request: {
+        query: TOGGLE_INSPIRATION,
+        variables: { characterId: 'char-1' },
+    },
+    result: {
+        data: {
+            toggleInspiration: {
+                __typename: 'Character',
+                id: 'char-1',
+                inspiration: true,
+            },
+        },
+    },
+};
+
+export const UPDATE_DEATH_SAVES_MOCK: MockLink.MockedResponse = {
+    request: {
+        query: UPDATE_DEATH_SAVES,
+        variables: {
+            characterId: 'char-1',
+            input: { successes: 2, failures: 0 },
+        },
+    },
+    result: {
+        data: {
+            updateDeathSaves: {
+                __typename: 'CharacterStats',
+                id: 'stats-1',
+                deathSaves: {
+                    __typename: 'DeathSaves',
+                    successes: 2,
+                    failures: 0,
+                },
+            },
+        },
+    },
+};
+
+export const UPDATE_SKILLS_MOCK: MockLink.MockedResponse = {
+    request: {
+        query: UPDATE_SKILL_PROFICIENCIES,
+        variables: {
+            characterId: 'char-1',
+            input: {
+                ...INITIAL_SKILL_INPUT,
+                perception: ProficiencyLevel.Expert,
+            },
+        },
+    },
+    result: {
+        data: {
+            updateSkillProficiencies: {
+                __typename: 'CharacterStats',
+                id: 'stats-1',
+                skillProficiencies: {
+                    ...MOCK_CHARACTER.stats.skillProficiencies,
+                    perception: ProficiencyLevel.Expert,
+                },
+            },
+        },
+    },
+};
+
+export const TOGGLE_SLOT_LEVEL_1_MOCK: MockLink.MockedResponse = {
+    request: {
+        query: TOGGLE_SPELL_SLOT,
+        variables: {
+            characterId: 'char-1',
+            level: 1,
+        },
+    },
+    result: {
+        data: {
+            toggleSpellSlot: {
+                __typename: 'SpellSlot',
+                id: 'slot-1',
+                level: 1,
+                total: 4,
+                used: 2,
+            },
+        },
+    },
+};
+
+export const UNPREPARE_FIREBALL_MOCK: MockLink.MockedResponse = {
+    request: {
+        query: UNPREPARE_SPELL,
+        variables: {
+            characterId: 'char-1',
+            spellId: 'spell-fireball',
+        },
+    },
+    result: {
+        data: {
+            unprepareSpell: {
+                __typename: 'CharacterSpell',
+                prepared: false,
+                spell: {
+                    __typename: 'Spell',
+                    id: 'spell-fireball',
+                },
+            },
+        },
+    },
+};
+
+export const PREPARE_BIGBYS_HAND_MOCK: MockLink.MockedResponse = {
+    request: {
+        query: PREPARE_SPELL,
+        variables: {
+            characterId: 'char-1',
+            spellId: 'spell-bigbys-hand',
+        },
+    },
+    result: {
+        data: {
+            prepareSpell: {
+                __typename: 'CharacterSpell',
+                prepared: true,
+                spell: {
+                    __typename: 'Spell',
+                    id: 'spell-bigbys-hand',
+                },
+            },
+        },
+    },
+};

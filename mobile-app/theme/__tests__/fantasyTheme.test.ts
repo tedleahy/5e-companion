@@ -45,4 +45,8 @@ describe('fantasyTokens', () => {
         expect(fantasyTokens.spacing.sm).toBe(8);
         expect(fantasyTokens.spacing.md).toBe(16);
     });
+
+    it('has responsive breakpoints', () => {
+        expect(fantasyTokens.breakpoints.tablet).toBe(768);
+    });
 });
