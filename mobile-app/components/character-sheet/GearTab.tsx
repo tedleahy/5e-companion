@@ -60,13 +60,6 @@ export default function GearTab({
                     onRemoveInventoryItem={onRemoveInventoryItem}
                     onToggleInventoryEquip={onToggleInventoryEquip}
                 />
-                {!editMode && (
-                    <SheetAddButton
-                        label="+ Add Item"
-                        accessibilityLabel="Add item"
-                        disabled
-                    />
-                )}
             </ScrollView>
         </View>
     );

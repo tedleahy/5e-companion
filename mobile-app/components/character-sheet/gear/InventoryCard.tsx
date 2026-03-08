@@ -6,6 +6,7 @@ import CardDivider from '../CardDivider';
 import InlineField from '../edit-mode/InlineField';
 import RemoveButton from '../edit-mode/RemoveButton';
 import SheetCard from '../SheetCard';
+import SectionHeader from '../edit-mode/SectionHeader';
 
 type InventoryCardProps = {
     inventory: InventoryItem[];
@@ -60,15 +61,11 @@ function inventoryDescription(item: InventoryItem): string {
 function groupInventory(inventory: InventoryItem[]): InventoryGroup[] {
     const equipped = inventory.filter((item) => item.equipped);
     const backpack = inventory.filter((item) => !item.equipped && item.quantity > 0);
-    const other = inventory.filter((item) => !item.equipped && item.quantity <= 0);
 
-    const groups: InventoryGroup[] = [
+    return  [
         { key: 'equipped', label: 'Equipped', items: equipped },
         { key: 'backpack', label: 'Backpack', items: backpack },
-        { key: 'other', label: 'Other', items: other },
     ];
-
-    return groups.filter((group) => group.items.length > 0);
 }
 
 export default function InventoryCard({
@@ -81,20 +78,8 @@ export default function InventoryCard({
 }: InventoryCardProps) {
     const groups = groupInventory(inventory);
 
-    /** Whether any visible group already has the backpack add control. */
-    const hasBackpackGroup = groups.some((group) => group.key === 'backpack');
-
     return (
         <SheetCard index={2}>
-            {editMode && !hasBackpackGroup && (
-                <View style={styles.groupHeader}>
-                    <Text style={styles.groupTitle}>Inventory</Text>
-                    <View style={styles.groupLine} />
-                    <Pressable onPress={onAddInventoryItem} accessibilityRole="button" accessibilityLabel="Add backpack item">
-                        <Text style={styles.groupAddButton}>+ Add</Text>
-                    </Pressable>
-                </View>
-            )}
             {groups.length === 0 && !editMode ? (
                 <View style={styles.emptyState}>
                     <Text style={styles.emptyStateText}>No inventory items yet.</Text>
@@ -102,16 +87,11 @@ export default function InventoryCard({
             ) : (
                 groups.map((group, groupIndex) => (
                     <View key={group.key} testID={`inventory-group-${group.key}`}>
-                        <View style={styles.groupHeader}>
-                            <Text style={styles.groupTitle}>{group.label}</Text>
-                            <View style={styles.groupLine} />
-                            {editMode && group.key === 'backpack' && (
-                                <Pressable onPress={onAddInventoryItem} accessibilityRole="button" accessibilityLabel="Add backpack item">
-                                    <Text style={styles.groupAddButton}>+ Add</Text>
-                                </Pressable>
-                            )}
-                            <Text style={styles.groupCount}>{group.items.length}</Text>
-                        </View>
+                        <SectionHeader
+                            editMode={editMode}
+                            title={group.label}
+                            onAdd={group.key === 'backpack' ? onAddInventoryItem : undefined}
+                        />
 
                         <View style={styles.inventoryList}>
                             {group.items.map((item, itemIndex) => (
@@ -193,7 +173,7 @@ const styles = StyleSheet.create({
     },
     groupTitle: {
         fontFamily: 'serif',
-        fontSize: 8.5,
+        fontSize: 11,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.inkLight,
@@ -214,15 +194,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 7,
         paddingVertical: 2,
         overflow: 'hidden',
-    },
-    groupAddButton: {
-        fontFamily: 'serif',
-        fontSize: 8,
-        letterSpacing: 1.5,
-        textTransform: 'uppercase',
-        color: fantasyTokens.colors.gold,
-        opacity: 0.75,
-        marginRight: 8,
     },
     inventoryList: {
         paddingHorizontal: 18,
