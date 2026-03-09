@@ -10,7 +10,9 @@ import type {
     HpInput,
     InventoryItemInput,
     MutationAddFeatureArgs,
+    MutationForgetSpellArgs,
     MutationAddInventoryItemArgs,
+    MutationLearnSpellArgs,
     MutationAddWeaponArgs,
     MutationRemoveFeatureArgs,
     MutationRemoveInventoryItemArgs,
@@ -32,9 +34,11 @@ import type {
 } from '@/types/generated_graphql_types';
 import {
     ADD_FEATURE,
+    FORGET_SPELL,
     ADD_INVENTORY_ITEM,
     ADD_WEAPON,
     GET_CURRENT_USER_CHARACTERS,
+    LEARN_SPELL,
     PREPARE_SPELL,
     REMOVE_FEATURE,
     REMOVE_INVENTORY_ITEM,
@@ -53,6 +57,11 @@ import {
     UPDATE_TRAITS,
     UPDATE_WEAPON,
 } from '@/graphql/characterSheet.operations';
+import {
+    addSpellToSpellbookInCache,
+    removeSpellFromSpellbookInCache,
+    updateSpellPreparedInCache,
+} from '@/hooks/cache/spellbookCache';
 import { isUnauthenticatedError } from '@/lib/graphqlErrors';
 import type { SkillKey } from '@/lib/characterSheetUtils';
 
@@ -346,6 +355,34 @@ type ToggleSpellSlotMutationVariables = {
 };
 
 /**
+ * Mutation payload when learning a new spell.
+ */
+type LearnSpellMutationData = {
+    learnSpell: {
+        __typename: 'CharacterSpell';
+        prepared: boolean;
+        spell: {
+            __typename: 'Spell';
+            id: string;
+            name: string;
+            level: number;
+            schoolIndex: string;
+            castingTime: string;
+            range?: string | null;
+            concentration: boolean;
+            ritual: boolean;
+        };
+    };
+};
+
+/**
+ * Mutation payload when forgetting an existing spell.
+ */
+type ForgetSpellMutationData = {
+    forgetSpell: boolean;
+};
+
+/**
  * Shared variables for prepare/unprepare spell mutations.
  */
 type SpellPreparedMutationVariables = {
@@ -429,24 +466,6 @@ function updateSpellSlotInCache(
 }
 
 /**
- * Applies an optimistic prepared flag to one spellbook entry in cache.
- */
-function updateSpellPreparedInCache(
-    cache: ApolloCache,
-    characterId: string,
-    spellId: string,
-    prepared: boolean,
-) {
-    updateCharacterInCache(cache, characterId, (currentCharacter: CharacterWithSpells) => ({
-        ...currentCharacter,
-        spellbook: currentCharacter.spellbook.map((entry: CharacterSpellbookEntry) => {
-            if (entry.spell.id !== spellId) return entry;
-            return { ...entry, prepared };
-        }),
-    }));
-}
-
-/**
  * Loads character-sheet data and exposes optimistic mutation handlers.
  */
 export default function useCharacterSheetData(characterId: string) {
@@ -473,6 +492,16 @@ export default function useCharacterSheetData(characterId: string) {
         ToggleSpellSlotMutationData,
         ToggleSpellSlotMutationVariables
     >(TOGGLE_SPELL_SLOT);
+
+    const [learnSpell] = useMutation<
+        LearnSpellMutationData,
+        MutationLearnSpellArgs
+    >(LEARN_SPELL);
+
+    const [forgetSpell] = useMutation<
+        ForgetSpellMutationData,
+        MutationForgetSpellArgs
+    >(FORGET_SPELL);
 
     const [prepareSpell] = useMutation<
         PrepareSpellMutationData,
@@ -696,6 +725,63 @@ export default function useCharacterSheetData(characterId: string) {
     }, [character, prepareSpell, unprepareSpell]);
 
     /**
+     * Adds a spell to the character spellbook by mutating and updating cache.
+     */
+    const handleLearnSpell = useCallback(async (spellId: string) => {
+        if (!character) return;
+
+        const isAlreadyKnown = character.spellbook.some((entry) => entry.spell.id === spellId);
+        if (isAlreadyKnown) return;
+
+        try {
+            await learnSpell({
+                variables: {
+                    characterId: character.id,
+                    spellId,
+                },
+                update(cache, result) {
+                    if (!result.data?.learnSpell) return;
+
+                    addSpellToSpellbookInCache(cache, character.id, result.data.learnSpell);
+                },
+            });
+        } catch (error) {
+            console.error('Failed to learn spell', { spellId, error });
+            throw error;
+        }
+    }, [character, learnSpell]);
+
+    /**
+     * Removes a spell from the character spellbook by mutating and updating cache.
+     */
+    const handleForgetSpell = useCallback(async (spellId: string) => {
+        if (!character) return;
+
+        const isKnown = character.spellbook.some((entry) => entry.spell.id === spellId);
+        if (!isKnown) return;
+
+        try {
+            const mutationResult = await forgetSpell({
+                variables: {
+                    characterId: character.id,
+                    spellId,
+                },
+                update(cache, result) {
+                    if (!result.data?.forgetSpell) return;
+                    removeSpellFromSpellbookInCache(cache, character.id, spellId);
+                },
+            });
+
+            if (!mutationResult.data?.forgetSpell) {
+                throw new Error('Server rejected spell removal');
+            }
+        } catch (error) {
+            console.error('Failed to forget spell', { spellId, error });
+            throw error;
+        }
+    }, [character, forgetSpell]);
+
+    /**
      * Persists the editable core sheet fields when edit mode is confirmed.
      */
     const handleSaveCharacterSheetCore = useCallback(async (input: SaveCharacterSheetCoreInput) => {
@@ -868,6 +954,8 @@ export default function useCharacterSheetData(characterId: string) {
         handleUpdateDeathSaves,
         handleUpdateSkillProficiency,
         handleToggleSpellSlot,
+        handleLearnSpell,
+        handleForgetSpell,
         handleSetSpellPrepared,
         handleSaveCharacterSheetCore,
     };

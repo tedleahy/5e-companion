@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client';
+import { CHARACTER_SPELLBOOK_ENTRY_FIELDS_FRAGMENT } from './spell.fragments';
 
 /**
  * Fetches the full character-sheet payload for the signed-in user.
@@ -54,17 +55,7 @@ export const GET_CURRENT_USER_CHARACTERS = gql`
                 used
             }
             spellbook {
-                prepared
-                spell {
-                    id
-                    name
-                    level
-                    schoolIndex
-                    castingTime
-                    range
-                    concentration
-                    ritual
-                }
+                ...CharacterSpellbookEntryFields
             }
             stats {
                 id
@@ -131,6 +122,7 @@ export const GET_CURRENT_USER_CHARACTERS = gql`
             }
         }
     }
+    ${CHARACTER_SPELLBOOK_ENTRY_FIELDS_FRAGMENT}
 `;
 
 /**
@@ -428,6 +420,27 @@ export const TOGGLE_SPELL_SLOT = gql`
             total
             used
         }
+    }
+`;
+
+/**
+ * Adds a spell to the character spellbook if it is not already known.
+ */
+export const LEARN_SPELL = gql`
+    mutation LearnSpell($characterId: ID!, $spellId: ID!) {
+        learnSpell(characterId: $characterId, spellId: $spellId) {
+            ...CharacterSpellbookEntryFields
+        }
+    }
+    ${CHARACTER_SPELLBOOK_ENTRY_FIELDS_FRAGMENT}
+`;
+
+/**
+ * Removes a spell from the character spellbook.
+ */
+export const FORGET_SPELL = gql`
+    mutation ForgetSpell($characterId: ID!, $spellId: ID!) {
+        forgetSpell(characterId: $characterId, spellId: $spellId)
     }
 `;
 
