@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -6,6 +6,7 @@ import SpellbookCard from './spells/SpellbookCard';
 import SpellcastingStatsCard from './spells/SpellcastingStatsCard';
 import SpellSlotsCard from './spells/SpellSlotsCard';
 import SheetAddButton from './SheetAddButton';
+import AddSpellSheet from './spells/AddSpellSheet';
 
 type CharacterSpellSlot = {
     id: string;
@@ -29,6 +30,7 @@ type CharacterSpellbookEntry = {
 };
 
 type SpellsTabProps = {
+    characterClass: string;
     spellcastingAbility?: string | null;
     spellSaveDC?: number | null;
     spellAttackBonus?: number | null;
@@ -36,9 +38,12 @@ type SpellsTabProps = {
     spellbook: CharacterSpellbookEntry[];
     onToggleSpellSlot?: (level: number) => Promise<void>;
     onSetSpellPrepared?: (spellId: string, prepared: boolean) => Promise<void>;
+    onLearnSpell?: (spellId: string) => Promise<void>;
+    onForgetSpell?: (spellId: string) => Promise<void>;
 };
 
 export default function SpellsTab({
+    characterClass,
     spellcastingAbility,
     spellSaveDC,
     spellAttackBonus,
@@ -46,7 +51,10 @@ export default function SpellsTab({
     spellbook,
     onToggleSpellSlot,
     onSetSpellPrepared,
+    onLearnSpell,
+    onForgetSpell,
 }: SpellsTabProps) {
+    const [addSheetVisible, setAddSheetVisible] = useState(false);
     const router = useRouter();
 
     const preparedCount = useMemo(() => {
@@ -58,8 +66,22 @@ export default function SpellsTab({
     }, [router]);
 
     const handleAddSpell = useCallback(() => {
-        router.push('/spells');
-    }, [router]);
+        setAddSheetVisible(true);
+    }, []);
+
+    const knownSpellIds = useMemo(() => {
+        return spellbook.map((entry) => entry.spell.id);
+    }, [spellbook]);
+
+    const handleSpellAdded = useCallback(async (spellId: string) => {
+        if (!onLearnSpell) return;
+        await onLearnSpell(spellId);
+    }, [onLearnSpell]);
+
+    const handleSpellRemoved = useCallback(async (spellId: string) => {
+        if (!onForgetSpell) return;
+        await onForgetSpell(spellId);
+    }, [onForgetSpell]);
 
     return (
         <View style={styles.container}>
@@ -84,6 +106,7 @@ export default function SpellsTab({
                     spellbook={spellbook}
                     onOpenSpell={handleOpenSpell}
                     onSetPrepared={onSetSpellPrepared}
+                    onRemoveSpell={onForgetSpell}
                 />
 
                 <SheetAddButton
@@ -92,6 +115,15 @@ export default function SpellsTab({
                     onPress={handleAddSpell}
                 />
             </ScrollView>
+
+            <AddSpellSheet
+                visible={addSheetVisible}
+                onClose={() => setAddSheetVisible(false)}
+                characterClass={characterClass}
+                knownSpellIds={knownSpellIds}
+                onSpellAdded={handleSpellAdded}
+                onSpellRemoved={handleSpellRemoved}
+            />
         </View>
     );
 }

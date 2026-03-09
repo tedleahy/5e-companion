@@ -111,6 +111,8 @@ export default function CharacterByIdScreen() {
         handleUpdateDeathSaves,
         handleUpdateSkillProficiency,
         handleToggleSpellSlot,
+        handleLearnSpell,
+        handleForgetSpell,
         handleSetSpellPrepared,
         handleSaveCharacterSheetCore,
     } = useCharacterSheetData(characterId ?? '');
@@ -528,12 +530,15 @@ export default function CharacterByIdScreen() {
 
                 {activeTab === 'Spells' && (
                     <SpellsTab
+                        characterClass={character.class}
                         spellcastingAbility={character.spellcastingAbility}
                         spellSaveDC={character.spellSaveDC}
                         spellAttackBonus={character.spellAttackBonus}
                         spellSlots={character.spellSlots}
                         spellbook={character.spellbook}
                         onToggleSpellSlot={handleToggleSpellSlot}
+                        onLearnSpell={handleLearnSpell}
+                        onForgetSpell={handleForgetSpell}
                         onSetSpellPrepared={handleSetSpellPrepared}
                     />
                 )}
