@@ -3,68 +3,18 @@ import { Button, Modal, Portal, Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import FilterChipGroup from '@/components/FilterChipGroup';
 import FilterSwitch from '@/components/FilterSwitch';
-
-const ALL_CLASSES: { key: string; label: string }[] = [
-    { key: 'bard', label: 'Bard' },
-    { key: 'cleric', label: 'Cleric' },
-    { key: 'druid', label: 'Druid' },
-    { key: 'paladin', label: 'Paladin' },
-    { key: 'ranger', label: 'Ranger' },
-    { key: 'sorcerer', label: 'Sorcerer' },
-    { key: 'warlock', label: 'Warlock' },
-    { key: 'wizard', label: 'Wizard' },
-];
-
-const ALL_LEVELS: { key: string; label: string }[] = [
-    { key: '0', label: 'Cantrip' },
-    { key: '1', label: '1' },
-    { key: '2', label: '2' },
-    { key: '3', label: '3' },
-    { key: '4', label: '4' },
-    { key: '5', label: '5' },
-    { key: '6', label: '6' },
-    { key: '7', label: '7' },
-    { key: '8', label: '8' },
-    { key: '9', label: '9' },
-];
-
-const ALL_COMPONENTS: { key: string; label: string }[] = [
-    { key: 'V', label: 'Verbal' },
-    { key: 'S', label: 'Somatic' },
-    { key: 'M', label: 'Material' },
-];
-
-const RANGE_CATEGORIES: { key: string; label: string }[] = [
-    { key: 'self', label: 'Self' },
-    { key: 'touch', label: 'Touch' },
-    { key: 'short', label: 'Short (≤30 ft)' },
-    { key: 'medium', label: 'Medium (31–120 ft)' },
-    { key: 'long', label: 'Long (>120 ft)' },
-    { key: 'sight', label: 'Sight' },
-    { key: 'special', label: 'Special' },
-];
-
-const DURATION_CATEGORIES: { key: string; label: string }[] = [
-    { key: 'instantaneous', label: 'Instantaneous' },
-    { key: '1_round', label: '1 Round' },
-    { key: 'up_to_1_minute', label: '≤1 Minute' },
-    { key: 'up_to_10_minutes', label: '≤10 Minutes' },
-    { key: 'up_to_1_hour', label: '≤1 Hour' },
-    { key: 'up_to_8_hours', label: '≤8 Hours' },
-    { key: 'up_to_24_hours', label: '≤24 Hours' },
-    { key: 'days_plus', label: 'Days+' },
-    { key: 'until_dispelled', label: 'Until Dispelled' },
-    { key: 'special', label: 'Special' },
-];
-
-const CASTING_TIME_CATEGORIES: { key: string; label: string }[] = [
-    { key: '1_action', label: '1 Action' },
-    { key: '1_bonus_action', label: '1 Bonus Action' },
-    { key: '1_reaction', label: '1 Reaction' },
-    { key: '1_minute', label: '1 Minute' },
-    { key: '10_minutes', label: '10 Minutes' },
-    { key: '1_hour_plus', label: '1 Hour+' },
-];
+import {
+    CASTING_TIME_CATEGORY_OPTIONS,
+    CLASS_OPTIONS,
+    COMPONENT_OPTIONS,
+    DURATION_CATEGORY_OPTIONS,
+    EMPTY_SPELL_FILTERS,
+    LEVEL_OPTIONS,
+    RANGE_CATEGORY_OPTIONS,
+    toggleBooleanFilter,
+    toggleFilterValue,
+    type SpellFilterState,
+} from '@/lib/spellFilters';
 
 /**
  * Active filter criteria for the spell list.
@@ -73,32 +23,10 @@ const CASTING_TIME_CATEGORIES: { key: string; label: string }[] = [
  * @property levels - Selected spell levels (0 = cantrip). Empty means no level filter.
  * @property ritual - `true` to show only ritual spells; `undefined` for no ritual filter.
  */
-export type SpellFilters = {
-    classes: string[];
-    levels: number[];
-    ritual: boolean | undefined;
-    concentration: boolean | undefined;
-    hasHigherLevel: boolean | undefined;
-    hasMaterial: boolean | undefined;
-    components: string[];
-    rangeCategories: string[];
-    durationCategories: string[];
-    castingTimeCategories: string[];
-};
+export type SpellFilters = SpellFilterState;
 
 /** Default filter state with nothing selected. */
-export const EMPTY_FILTERS: SpellFilters = {
-    classes: [],
-    levels: [],
-    ritual: undefined,
-    concentration: undefined,
-    hasHigherLevel: undefined,
-    hasMaterial: undefined,
-    components: [],
-    rangeCategories: [],
-    durationCategories: [],
-    castingTimeCategories: [],
-};
+export const EMPTY_FILTERS: SpellFilters = EMPTY_SPELL_FILTERS;
 
 /**
  * Props for {@link SpellFilterDrawer}.
@@ -122,9 +50,7 @@ type SpellFilterDrawerProps = {
 export default function SpellFilterDrawer({ visible, filters, onClose, onChange }: SpellFilterDrawerProps) {
     /** Toggles an element in/out of an array, returning a new array. */
     function toggle<T>(array: T[], item: T): T[] {
-        return array.includes(item)
-            ? array.filter((x) => x !== item)
-            : [...array, item];
+        return toggleFilterValue(array, item);
     }
 
     /** Toggles a string-keyed array filter field. */
@@ -141,7 +67,8 @@ export default function SpellFilterDrawer({ visible, filters, onClose, onChange 
 
     /** Toggles a boolean | undefined filter between `true` and `undefined`. */
     function toggleBoolFilter(field: keyof SpellFilters) {
-        onChange({ ...filters, [field]: filters[field] ? undefined : true });
+        const currentValue = filters[field] as boolean | undefined;
+        onChange({ ...filters, [field]: toggleBooleanFilter(currentValue) });
     }
 
     /** Resets all filters to {@link EMPTY_FILTERS}. */
@@ -161,14 +88,14 @@ export default function SpellFilterDrawer({ visible, filters, onClose, onChange 
 
                     <FilterChipGroup
                         label="Class"
-                        options={ALL_CLASSES}
+                        options={CLASS_OPTIONS}
                         selected={filters.classes}
                         onToggle={(key) => toggleArrayFilter('classes', key)}
                     />
 
                     <FilterChipGroup
                         label="Level"
-                        options={ALL_LEVELS}
+                        options={LEVEL_OPTIONS}
                         selected={filters.levels.map(String)}
                         onToggle={toggleLevel}
                     />
@@ -180,28 +107,28 @@ export default function SpellFilterDrawer({ visible, filters, onClose, onChange 
 
                     <FilterChipGroup
                         label="Components"
-                        options={ALL_COMPONENTS}
+                        options={COMPONENT_OPTIONS}
                         selected={filters.components}
                         onToggle={(key) => toggleArrayFilter('components', key)}
                     />
 
                     <FilterChipGroup
                         label="Range"
-                        options={RANGE_CATEGORIES}
+                        options={RANGE_CATEGORY_OPTIONS}
                         selected={filters.rangeCategories}
                         onToggle={(key) => toggleArrayFilter('rangeCategories', key)}
                     />
 
                     <FilterChipGroup
                         label="Duration"
-                        options={DURATION_CATEGORIES}
+                        options={DURATION_CATEGORY_OPTIONS}
                         selected={filters.durationCategories}
                         onToggle={(key) => toggleArrayFilter('durationCategories', key)}
                     />
 
                     <FilterChipGroup
                         label="Casting Time"
-                        options={CASTING_TIME_CATEGORIES}
+                        options={CASTING_TIME_CATEGORY_OPTIONS}
                         selected={filters.castingTimeCategories}
                         onToggle={(key) => toggleArrayFilter('castingTimeCategories', key)}
                     />

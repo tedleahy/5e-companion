@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Button, IconButton, Searchbar, Text } from 'react-native-paper';
+import { Button, Text } from 'react-native-paper';
 import { useQuery } from '@apollo/client/react';
 import SpellList, { type SpellListItem } from '@/components/SpellList';
-import SpellFilterDrawer, { EMPTY_FILTERS, type SpellFilters } from '@/components/SpellFilterDrawer';
+import SpellFilterDrawer from '@/components/SpellFilterDrawer';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { gql } from '@apollo/client';
 import { useRouter } from 'expo-router';
@@ -11,11 +11,18 @@ import { isUnauthenticatedError } from '@/lib/graphqlErrors';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import SearchBarInput from '@/components/SearchBarInput';
+import {
+    buildSpellFilterInput,
+    countActiveSpellFilters,
+    EMPTY_SPELL_FILTERS,
+    type SpellFilterState,
+} from '@/lib/spellFilters';
+import { SPELL_LIST_FIELDS_FRAGMENT } from '@/graphql/spell.fragments';
 
 /** Parameters driving the spell search: optional name substring and structured filters. */
 type SearchParams = {
     name?: string;
-    filters: SpellFilters;
+    filters: SpellFilterState;
 };
 
 /** Number of spells requested per page for the main spell list. */
@@ -38,16 +45,10 @@ type SearchSpellsQueryData = {
 const SEARCH_SPELLS = gql`
     query Spells($filter: SpellFilter, $pagination: SpellPagination) {
         spells(filter: $filter, pagination: $pagination) {
-            id
-            name
-            level
-            schoolIndex
-            castingTime
-            range
-            concentration
-            ritual
+            ...SpellListFields
         }
     }
+    ${SPELL_LIST_FIELDS_FRAGMENT}
 `;
 
 /**
@@ -58,7 +59,7 @@ const SEARCH_SPELLS = gql`
  */
 export default function SpellSearch() {
     const [searchParams, setSearchParams] = useState<SearchParams>({
-        filters: EMPTY_FILTERS,
+        filters: EMPTY_SPELL_FILTERS,
     });
     const [pendingSearchName, setPendingSearchName] = useState('');
     const [drawerVisible, setDrawerVisible] = useState(false);
@@ -77,30 +78,9 @@ export default function SpellSearch() {
         return () => clearTimeout(timeoutId);
     }, [pendingSearchName]);
 
-    /**
-     * Converts the current {@link SearchParams} into the GraphQL `SpellFilter`
-     * input object, omitting empty/unset fields so the API applies no constraint.
-     */
-    function buildFilterVariable(currentParams: SearchParams) {
-        const { name, filters } = currentParams;
-        const filter: Record<string, unknown> = {};
-
-        if (name) filter.name = name;
-        if (filters.levels.length > 0) filter.levels = filters.levels;
-        if (filters.classes.length > 0) filter.classes = filters.classes;
-        if (filters.ritual != null) filter.ritual = filters.ritual;
-        if (filters.concentration != null) filter.concentration = filters.concentration;
-        if (filters.hasHigherLevel != null) filter.hasHigherLevel = filters.hasHigherLevel;
-        if (filters.hasMaterial != null) filter.hasMaterial = filters.hasMaterial;
-        if (filters.components.length > 0) filter.components = filters.components;
-        if (filters.rangeCategories.length > 0) filter.rangeCategories = filters.rangeCategories;
-        if (filters.durationCategories.length > 0) filter.durationCategories = filters.durationCategories;
-        if (filters.castingTimeCategories.length > 0) filter.castingTimeCategories = filters.castingTimeCategories;
-
-        return Object.keys(filter).length > 0 ? filter : undefined;
-    }
-
-    const filterVariable = useMemo(() => buildFilterVariable(searchParams), [searchParams]);
+    const filterVariable = useMemo(() => {
+        return buildSpellFilterInput(searchParams.filters, searchParams.name);
+    }, [searchParams.filters, searchParams.name]);
 
     const queryVariables = useMemo(() => ({
         pagination: { limit: SPELLS_PAGE_SIZE, offset: 0 },
@@ -143,17 +123,7 @@ export default function SpellSearch() {
         }];
     });
 
-    const activeFilterCount =
-        searchParams.filters.classes.length +
-        searchParams.filters.levels.length +
-        (searchParams.filters.ritual != null ? 1 : 0) +
-        (searchParams.filters.concentration != null ? 1 : 0) +
-        (searchParams.filters.hasHigherLevel != null ? 1 : 0) +
-        (searchParams.filters.hasMaterial != null ? 1 : 0) +
-        searchParams.filters.components.length +
-        searchParams.filters.rangeCategories.length +
-        searchParams.filters.durationCategories.length +
-        searchParams.filters.castingTimeCategories.length;
+    const activeFilterCount = countActiveSpellFilters(searchParams.filters);
 
     /**
      * Fetches the next page of spells and merges it into the current list.

@@ -1,86 +1,108 @@
-import { Pressable, SectionList, StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { SectionList, StyleSheet, View } from 'react-native';
 import { ProgressBar, Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
-import { fantasyTokens } from '../theme/fantasyTheme';
+import SpellRow, { SPELL_ROW_REMOVE_DURATION_MS } from '@/components/spell-list/SpellRow';
+import { fantasyTokens } from '@/theme/fantasyTheme';
 import ListSkeletonRows from './ListSkeletonRows';
+import { spellLevelSectionTitle, spellSchoolLabel } from '@/lib/spellPresentation';
+import type {
+    SpellAccordionActionContext,
+    SpellListItem,
+} from './spell-list/spellList.types';
 
-export type SpellListItem = {
-    id: string;
-    name: string;
-    level?: number | null;
-    schoolIndex?: string | null;
-    castingTime?: string | null;
-    range?: string | null;
-    concentration?: boolean | null;
-    ritual?: boolean | null;
-    prepared?: boolean | null;
-};
+/**
+ * Re-export spell-list row item shape for consumers.
+ */
+export type { SpellAccordionActionContext, SpellListItem };
 
+/**
+ * Tag metadata displayed beside a spell row.
+ */
 type SpellTag = {
     label: string;
     style: 'concentration' | 'ritual';
 };
 
+/**
+ * Grouped list section for one spell level.
+ */
 type SpellGroup = {
     level: number | null;
     title: string;
     data: SpellListItem[];
 };
 
+/**
+ * Props for the reusable spell-list component.
+ */
 type SpellListProps = {
     spells?: SpellListItem[];
     loading?: boolean;
     emptyText?: string;
     onSpellPress?: (spellId: string) => void;
     onTogglePrepared?: (spellId: string, prepared: boolean) => Promise<void> | void;
+    onRemoveSpell?: (spellId: string) => Promise<void> | void;
     onEndReached?: () => void;
     showPreparedState?: boolean;
     variant?: 'screen' | 'embedded';
     rowTestIdPrefix?: string;
+    renderAccordionActions?: (context: SpellAccordionActionContext) => ReactNode;
 };
 
-function capitalize(value: string): string {
-    return value.charAt(0).toUpperCase() + value.slice(1);
+/**
+ * Delay before starting row-collapse animation after an accordion closes.
+ */
+const REMOVE_CLOSE_DELAY_MS = 100;
+
+/**
+ * Utility delay for sequenced row animations.
+ */
+function delay(milliseconds: number): Promise<void> {
+    return new Promise((resolve) => {
+        setTimeout(resolve, milliseconds);
+    });
 }
 
-function schoolLabel(schoolIndex: string): string {
-    return schoolIndex
-        .split('-')
-        .map((chunk) => capitalize(chunk))
-        .join(' ');
+/**
+ * Adds one spell id to an id list when missing.
+ */
+function addId(ids: string[], spellId: string): string[] {
+    if (ids.includes(spellId)) return ids;
+    return [...ids, spellId];
 }
 
-function ordinal(level: number): string {
-    const suffixMap: Record<number, string> = {
-        1: 'st',
-        2: 'nd',
-        3: 'rd',
-    };
-    const suffix = suffixMap[level] ?? 'th';
-    return `${level}${suffix}`;
+/**
+ * Removes one spell id from an id list.
+ */
+function removeId(ids: string[], spellId: string): string[] {
+    return ids.filter((id) => id !== spellId);
 }
 
-function levelTitle(level: number | null): string {
-    if (level == null) return 'Spells';
-    if (level === 0) return 'Cantrips';
-    return `${ordinal(level)} Level`;
-}
-
+/**
+ * Normalises invalid level values to null.
+ */
 function normalizeLevel(level: number | null | undefined): number | null {
     if (typeof level !== 'number' || Number.isNaN(level) || level < 0) return null;
     return level;
 }
 
+/**
+ * Builds compact meta text for one spell row.
+ */
 function spellMeta(spell: SpellListItem): string {
     const fields: string[] = [];
 
-    if (spell.schoolIndex) fields.push(schoolLabel(spell.schoolIndex));
+    if (spell.schoolIndex) fields.push(spellSchoolLabel(spell.schoolIndex));
     if (spell.castingTime) fields.push(spell.castingTime);
     if (spell.range) fields.push(spell.range);
 
     return fields.join(' · ');
 }
 
+/**
+ * Builds secondary tags for ritual and concentration flags.
+ */
 function buildSpellTags(spell: SpellListItem): SpellTag[] {
     const tags: SpellTag[] = [];
 
@@ -101,6 +123,9 @@ function buildSpellTags(spell: SpellListItem): SpellTag[] {
     return tags;
 }
 
+/**
+ * Groups flat spells by level and alphabetises rows.
+ */
 function buildSpellGroups(spells: SpellListItem[]): SpellGroup[] {
     const groupedSpells = new Map<number | null, SpellListItem[]>();
 
@@ -124,41 +149,94 @@ function buildSpellGroups(spells: SpellListItem[]): SpellGroup[] {
         })
         .map(([level, grouped]) => ({
             level,
-            title: levelTitle(level),
-            data: grouped.sort((leftSpell, rightSpell) => {
-                return leftSpell.name.localeCompare(rightSpell.name);
-            }),
+            title: spellLevelSectionTitle(level),
+            data: grouped.sort((leftSpell, rightSpell) => leftSpell.name.localeCompare(rightSpell.name)),
         }));
 }
 
-function spellLevelBadgeLabel(level: number | null): string {
-    if (level == null) return '\u2022';
-    if (level === 0) return 'C';
-    return String(level);
-}
-
+/**
+ * Renders a grouped list of spells for screen and embedded contexts.
+ */
 export default function SpellList({
     spells,
     loading = false,
     emptyText = 'No spells match this search yet.',
     onSpellPress,
     onTogglePrepared,
+    onRemoveSpell,
     onEndReached,
     showPreparedState = false,
     variant = 'screen',
     rowTestIdPrefix = 'spell-list',
+    renderAccordionActions,
 }: SpellListProps) {
     const router = useRouter();
-    const items = spells ?? [];
+    const items = useMemo(() => spells ?? [], [spells]);
+    const [openSpellIdByGroup, setOpenSpellIdByGroup] = useState<Record<string, string | null>>({});
+    const [pendingRemovalSpellIds, setPendingRemovalSpellIds] = useState<string[]>([]);
+    const [collapsingSpellIds, setCollapsingSpellIds] = useState<string[]>([]);
+    const [hiddenSpellIds, setHiddenSpellIds] = useState<string[]>([]);
     const isInitialLoading = loading && items.length === 0;
-    const groups = buildSpellGroups(items);
     const isEmbedded = variant === 'embedded';
+    const hasAccordionActions = typeof renderAccordionActions === 'function';
+
+    const hiddenSpellIdSet = useMemo(() => new Set(hiddenSpellIds), [hiddenSpellIds]);
+    const pendingRemovalSpellIdSet = useMemo(() => new Set(pendingRemovalSpellIds), [pendingRemovalSpellIds]);
+    const collapsingSpellIdSet = useMemo(() => new Set(collapsingSpellIds), [collapsingSpellIds]);
+
+    const visibleItems = useMemo(() => {
+        if (hiddenSpellIds.length === 0) return items;
+        return items.filter((spell) => !hiddenSpellIdSet.has(spell.id));
+    }, [hiddenSpellIdSet, hiddenSpellIds.length, items]);
+
+    const groups = useMemo(() => buildSpellGroups(visibleItems), [visibleItems]);
+    const itemIdFingerprint = useMemo(() => items.map((spell) => spell.id).join('|'), [items]);
+
+    useEffect(() => {
+        const sourceIds = new Set(items.map((spell) => spell.id));
+
+        setHiddenSpellIds((currentIds) => {
+            const nextIds = currentIds.filter((spellId) => sourceIds.has(spellId));
+            if (nextIds.length === currentIds.length) return currentIds;
+            return nextIds;
+        });
+        setCollapsingSpellIds((currentIds) => {
+            const nextIds = currentIds.filter((spellId) => sourceIds.has(spellId));
+            if (nextIds.length === currentIds.length) return currentIds;
+            return nextIds;
+        });
+        setPendingRemovalSpellIds((currentIds) => {
+            const nextIds = currentIds.filter((spellId) => sourceIds.has(spellId));
+            if (nextIds.length === currentIds.length) return currentIds;
+            return nextIds;
+        });
+        setOpenSpellIdByGroup((currentState) => {
+            let hasChanges = false;
+            const nextState: Record<string, string | null> = {};
+
+            for (const [groupTitle, openSpellId] of Object.entries(currentState)) {
+                if (!openSpellId || sourceIds.has(openSpellId)) {
+                    nextState[groupTitle] = openSpellId;
+                    continue;
+                }
+
+                hasChanges = true;
+                nextState[groupTitle] = null;
+            }
+
+            if (!hasChanges) return currentState;
+            return nextState;
+        });
+    }, [itemIdFingerprint, items]);
 
     if (isInitialLoading) {
         return <ListSkeletonRows rowCount={7} />;
     }
 
-    function handleSpellPress(spellId: string) {
+    /**
+     * Opens one spell detail route.
+     */
+    function openSpell(spellId: string) {
         if (onSpellPress) {
             onSpellPress(spellId);
             return;
@@ -167,11 +245,66 @@ export default function SpellList({
         router.push(`/spells/${spellId}`);
     }
 
-    function handleTogglePrepared(spell: SpellListItem) {
+    /**
+     * Toggles prepared state when the callback and data are available.
+     */
+    function togglePrepared(spell: SpellListItem) {
         if (!onTogglePrepared || spell.prepared == null) return;
         void onTogglePrepared(spell.id, !spell.prepared);
     }
 
+    /**
+     * Opens or closes one accordion row within a specific level section.
+     */
+    function toggleOpenSpell(groupTitle: string, spellId: string) {
+        setOpenSpellIdByGroup((currentState) => ({
+            ...currentState,
+            [groupTitle]: currentState[groupTitle] === spellId ? null : spellId,
+        }));
+    }
+
+    /**
+     * Closes the currently open accordion row within one level section.
+     */
+    function closeOpenSpell(groupTitle: string) {
+        setOpenSpellIdByGroup((currentState) => {
+            if (!currentState[groupTitle]) return currentState;
+            return {
+                ...currentState,
+                [groupTitle]: null,
+            };
+        });
+    }
+
+    /**
+     * Optimistically removes one spell row with close-then-collapse animation.
+     */
+    async function removeSpellOptimistically(spellId: string, groupTitle: string): Promise<void> {
+        if (!onRemoveSpell || pendingRemovalSpellIdSet.has(spellId)) return;
+
+        setPendingRemovalSpellIds((currentIds) => addId(currentIds, spellId));
+        closeOpenSpell(groupTitle);
+
+        await delay(REMOVE_CLOSE_DELAY_MS);
+        setCollapsingSpellIds((currentIds) => addId(currentIds, spellId));
+
+        await delay(SPELL_ROW_REMOVE_DURATION_MS);
+        setHiddenSpellIds((currentIds) => addId(currentIds, spellId));
+
+        try {
+            await onRemoveSpell(spellId);
+        } catch (error) {
+            console.error('Failed to remove spell', { spellId, error });
+            setHiddenSpellIds((currentIds) => removeId(currentIds, spellId));
+        } finally {
+            setCollapsingSpellIds((currentIds) => removeId(currentIds, spellId));
+            setPendingRemovalSpellIds((currentIds) => removeId(currentIds, spellId));
+        }
+    }
+
+    /**
+     * Renders one section header row for grouped spells.
+     */
     function renderGroupHeader(group: SpellGroup) {
         return (
             <View style={styles.groupHeader}>
@@ -184,107 +317,61 @@ export default function SpellList({
         );
     }
 
-    function renderSpellRow(spell: SpellListItem, index: number, groupSize: number) {
+    /**
+     * Renders one spell row in the grouped list.
+     */
+    function renderSpellRow(spell: SpellListItem, index: number, group: SpellGroup) {
         const tags = buildSpellTags(spell);
         const meta = spellMeta(spell);
-        const canTogglePrepared = showPreparedState && spell.prepared != null;
         const isPrepared = spell.prepared ?? false;
-        const level = normalizeLevel(spell.level);
+        const isRemovalPending = pendingRemovalSpellIdSet.has(spell.id);
+        const isRemoving = collapsingSpellIdSet.has(spell.id);
+        const isOpen = hasAccordionActions && openSpellIdByGroup[group.title] === spell.id;
+
+        const actionContext: SpellAccordionActionContext = {
+            spell,
+            isPrepared,
+            isRemoving: isRemovalPending || isRemoving,
+            openSpellDetails: () => openSpell(spell.id),
+            closeAccordion: () => closeOpenSpell(group.title),
+            togglePrepared: onTogglePrepared && spell.prepared != null && !isRemovalPending && !isRemoving
+                ? () => togglePrepared(spell)
+                : undefined,
+            removeSpell: onRemoveSpell && !isRemovalPending && !isRemoving
+                ? () => removeSpellOptimistically(spell.id, group.title)
+                : undefined,
+        };
 
         return (
-            <Pressable
-                style={[
-                    styles.spellRow,
-                    index < groupSize - 1 && styles.spellRowDivider,
-                ]}
-                onPress={() => handleSpellPress(spell.id)}
-                onLongPress={() => handleTogglePrepared(spell)}
-                delayLongPress={250}
-                accessibilityRole="button"
-                accessibilityLabel={`Open ${spell.name}`}
-                testID={`${rowTestIdPrefix}-row-${spell.id}`}
-            >
-                <View
-                    style={[
-                        styles.levelBadge,
-                        level === 0 && styles.levelBadgeCantrip,
-                        level == null && styles.levelBadgeUnknown,
-                    ]}
-                >
-                    <Text
-                        style={[
-                            styles.levelBadgeText,
-                            level === 0 && styles.levelBadgeTextCantrip,
-                            level == null && styles.levelBadgeTextUnknown,
-                        ]}
-                    >
-                        {spellLevelBadgeLabel(level)}
-                    </Text>
-                </View>
-
-                {showPreparedState && (
-                    <Pressable
-                        style={[
-                            styles.preparedDot,
-                            !isPrepared && styles.preparedDotUnprepared,
-                        ]}
-                        onPress={() => handleTogglePrepared(spell)}
-                        disabled={!canTogglePrepared}
-                        accessibilityRole="button"
-                        accessibilityLabel={`Toggle prepared for ${spell.name}`}
-                        testID={`${rowTestIdPrefix}-prepared-${spell.id}`}
-                    />
-                )}
-
-                <View style={styles.spellInfo}>
-                    <Text
-                        style={[
-                            styles.spellName,
-                            showPreparedState &&
-                            !isPrepared &&
-                            styles.spellNameUnprepared,
-                        ]}
-                        numberOfLines={1}
-                    >
-                        {spell.name}
-                    </Text>
-                    {meta.length > 0 && (
-                        <Text style={styles.spellMeta} numberOfLines={1}>
-                            {meta}
-                        </Text>
-                    )}
-                </View>
-
-                {tags.length > 0 && (
-                    <View style={styles.tagsRow}>
-                        {tags.map((tag) => (
-                            <View
-                                key={tag.label}
-                                style={[
-                                    styles.tag,
-                                    tag.style === 'concentration'
-                                        ? styles.concentrationTag
-                                        : styles.ritualTag,
-                                ]}
-                            >
-                                <Text
-                                    style={[
-                                        styles.tagText,
-                                        tag.style === 'concentration'
-                                            ? styles.concentrationTagText
-                                            : styles.ritualTagText,
-                                    ]}
-                                >
-                                    {tag.label}
-                                </Text>
-                            </View>
-                        ))}
-                    </View>
-                )}
-            </Pressable>
+            <View key={spell.id} style={styles.spellRowContainer}>
+                <SpellRow
+                    spell={spell}
+                    spellMeta={meta}
+                    tags={tags}
+                    showPreparedState={showPreparedState}
+                    isOpen={isOpen}
+                    hasAccordionActions={hasAccordionActions}
+                    isPrepared={isPrepared}
+                    isRemoving={isRemoving}
+                    showBottomDivider={index < group.data.length - 1}
+                    onPressRow={hasAccordionActions ? () => toggleOpenSpell(group.title, spell.id) : () => openSpell(spell.id)}
+                    onTogglePrepared={onTogglePrepared && spell.prepared != null && !hasAccordionActions
+                        ? () => togglePrepared(spell)
+                        : undefined}
+                    accordionActions={
+                        hasAccordionActions
+                            ? renderAccordionActions?.(actionContext)
+                            : undefined
+                    }
+                    rowTestIdPrefix={rowTestIdPrefix}
+                />
+            </View>
         );
     }
 
+    /**
+     * Renders empty-state copy when no rows match.
+     */
     function renderEmptyState() {
         return (
             <View style={styles.emptyState}>
@@ -293,6 +380,9 @@ export default function SpellList({
         );
     }
 
+    /**
+     * Renders the non-virtualised embedded list body.
+     */
     function renderEmbeddedListBody() {
         if (groups.length === 0) return renderEmptyState();
 
@@ -301,11 +391,7 @@ export default function SpellList({
                 {groups.map((group) => (
                     <View key={group.title} style={styles.group}>
                         {renderGroupHeader(group)}
-                        {group.data.map((spell, index) => (
-                            <View key={spell.id} style={styles.spellRowContainer}>
-                                {renderSpellRow(spell, index, group.data.length)}
-                            </View>
-                        ))}
+                        {group.data.map((spell, index) => renderSpellRow(spell, index, group))}
                     </View>
                 ))}
             </View>
@@ -328,12 +414,11 @@ export default function SpellList({
                     sections={groups}
                     keyExtractor={(spell) => spell.id}
                     renderSectionHeader={({ section }) => renderGroupHeader(section)}
-                    renderItem={({ item, index, section }) => renderSpellRow(item, index, section.data.length)}
+                    renderItem={({ item, index, section }) => renderSpellRow(item, index, section)}
                     ListEmptyComponent={renderEmptyState}
                     stickySectionHeadersEnabled={false}
                     contentInsetAdjustmentBehavior="automatic"
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={styles.sectionListContent}
                     initialNumToRender={18}
                     maxToRenderPerBatch={24}
                     windowSize={8}
@@ -353,10 +438,6 @@ const styles = StyleSheet.create({
     embeddedListWrapper: {
         backgroundColor: 'transparent',
     },
-    sectionListContent: {
-        paddingBottom: fantasyTokens.spacing.lg,
-        paddingHorizontal: fantasyTokens.spacing.lg,
-    },
     progressBar: {
         height: 3,
         backgroundColor: 'rgba(196, 164, 112, 0.2)',
@@ -373,6 +454,7 @@ const styles = StyleSheet.create({
         gap: 10,
         paddingTop: 10,
         paddingBottom: 4,
+        paddingHorizontal: 10,
     },
     groupTitle: {
         fontFamily: 'serif',
@@ -400,109 +482,7 @@ const styles = StyleSheet.create({
         opacity: 0.8,
     },
     spellRowContainer: {
-        paddingHorizontal: 18,
-    },
-    spellRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        paddingVertical: 10,
-    },
-    spellRowDivider: {
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(139,90,43,0.12)',
-    },
-    levelBadge: {
-        width: 26,
-        height: 26,
-        borderRadius: 13,
-        borderWidth: 1.5,
-        borderColor: fantasyTokens.colors.gold,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-    },
-    levelBadgeCantrip: {
-        borderColor: fantasyTokens.colors.divider,
-    },
-    levelBadgeUnknown: {
-        borderColor: fantasyTokens.colors.divider,
-    },
-    levelBadgeText: {
-        fontFamily: 'serif',
-        fontSize: 10,
-        fontWeight: '600',
-        color: fantasyTokens.colors.gold,
-    },
-    levelBadgeTextCantrip: {
-        fontSize: 8,
-        color: 'rgba(61,43,31,0.45)',
-    },
-    levelBadgeTextUnknown: {
-        fontSize: 9,
-        color: 'rgba(61,43,31,0.45)',
-    },
-    preparedDot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-        backgroundColor: fantasyTokens.colors.crimson,
-        flexShrink: 0,
-    },
-    preparedDotUnprepared: {
-        backgroundColor: 'transparent',
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.divider,
-    },
-    spellInfo: {
-        flex: 1,
-        minWidth: 0,
-    },
-    spellName: {
-        fontFamily: 'serif',
-        fontSize: 14,
-        fontWeight: '600',
-        color: fantasyTokens.colors.inkDark,
-        lineHeight: 17,
-    },
-    spellNameUnprepared: {
-        opacity: 0.5,
-    },
-    spellMeta: {
-        fontFamily: 'serif',
-        fontSize: 11,
-        color: fantasyTokens.colors.inkLight,
-        opacity: 0.55,
-        fontStyle: 'italic',
-        marginTop: 1,
-    },
-    tagsRow: {
-        flexDirection: 'row',
-        gap: 4,
-        flexShrink: 0,
-    },
-    tag: {
-        borderRadius: 10,
-        paddingHorizontal: 7,
-        paddingVertical: 2,
-    },
-    tagText: {
-        fontFamily: 'serif',
-        fontSize: 7.5,
-        letterSpacing: 1,
-        textTransform: 'uppercase',
-    },
-    concentrationTag: {
-        backgroundColor: 'rgba(26,42,74,0.1)',
-    },
-    concentrationTagText: {
-        color: fantasyTokens.colors.blueDark,
-    },
-    ritualTag: {
-        backgroundColor: 'rgba(30,80,30,0.1)',
-    },
-    ritualTagText: {
-        color: fantasyTokens.colors.greenDark,
+        paddingHorizontal: 10,
     },
     emptyState: {
         alignItems: 'center',
