@@ -82,6 +82,17 @@ export const RACE_SPEED_MAP: Record<string, number> = {
     Aasimar: 30,
 };
 
+const CLASS_SPELLCASTING_ABILITY_MAP: Record<string, AbilityKey> = {
+    Artificer: 'intelligence',
+    Bard: 'charisma',
+    Cleric: 'wisdom',
+    Druid: 'wisdom',
+    Sorcerer: 'charisma',
+    Warlock: 'charisma',
+    Wizard: 'intelligence',
+    Paladin: 'charisma',
+}
+
 export function proficiencyBonusForLevel(level: number): number {
     if (level <= 4) return 2;
     if (level <= 8) return 3;
@@ -125,6 +136,11 @@ export function buildCreateCharacterInput(draft: CharacterDraft): CreateCharacte
     const hasTraits =
         draft.personalityTraits || draft.ideals || draft.bonds || draft.flaws;
 
+    const spellcastingAbility = CLASS_SPELLCASTING_ABILITY_MAP[draft.class];
+    const spellcastAbilityScore = draft.abilityScores[spellcastingAbility]
+    const spellAttackBonus = profBonus + abilityModifier(spellcastAbilityScore);
+    const spellSaveDC = 8 + spellAttackBonus;
+
     return {
         name: draft.name.trim(),
         race: draft.race,
@@ -140,6 +156,9 @@ export function buildCreateCharacterInput(draft: CharacterDraft): CreateCharacte
         hp: { max: maxHp, current: maxHp, temp: 0 },
         hitDice: { total: draft.level, remaining: draft.level, die: `d${hitDie}` },
         skillProficiencies: skillProficiencies as CreateCharacterInput['skillProficiencies'],
+        spellcastingAbility,
+        spellAttackBonus,
+        spellSaveDC,
         ...(hasTraits
             ? {
                   traits: {
