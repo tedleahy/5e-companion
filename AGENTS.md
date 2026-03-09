@@ -39,6 +39,7 @@ Coding conventions
 - When creating components, check existing components to see if there is anything similar that could be reused/extended to reduce duplication.
 - Avoid creating functions/variables that are only used once, unless doing so improves readability.
 - Use british english for spellings in functions, docs, etc., e.g. "initialise" instead of "initialize"
+- Keep code DRY wherever possible, provided that doing so does not make the code less readable.
 
 UI style
 - Give the app a fantasy-style look and feel to it.
