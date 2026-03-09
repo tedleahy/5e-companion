@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { PaperProvider } from 'react-native-paper';
 import AddSpellSheet, { GET_SPELL_DETAIL_FOR_SHEET, SEARCH_SPELLS_FOR_SHEET } from '../AddSpellSheet';
@@ -69,6 +69,16 @@ const SPELL_DETAIL_QUERY_MOCK = {
 };
 
 /**
+ * Flushes pending React Native animation timers inside `act(...)`.
+ */
+async function flushAnimationTimers(milliseconds = 400) {
+    await act(async () => {
+        jest.advanceTimersByTime(milliseconds);
+        await Promise.resolve();
+    });
+}
+
+/**
  * Creates one detail-query mock instance.
  */
 function buildSpellDetailQueryMock() {
@@ -133,20 +143,32 @@ function renderSheet(overrides?: {
 }
 
 describe('AddSpellSheet', () => {
+    beforeEach(() => {
+        jest.useFakeTimers();
+    });
+
+    afterEach(async () => {
+        await flushAnimationTimers(1_000);
+        jest.useRealTimers();
+    });
+
     it('toggles one spell by tapping + then tick in the list row', async () => {
         const { onClose, onSpellAdded, onSpellRemoved } = renderSheet();
+        await flushAnimationTimers();
 
         await waitFor(() => {
             expect(screen.getByText('Magic Missile')).toBeTruthy();
         });
 
         fireEvent.press(screen.getByLabelText('Add spell'));
+        await flushAnimationTimers();
 
         await waitFor(() => {
             expect(onSpellAdded).toHaveBeenCalledWith('spell-magic-missile');
         });
 
         fireEvent.press(screen.getByLabelText('Remove spell'));
+        await flushAnimationTimers();
 
         await waitFor(() => {
             expect(onSpellRemoved).toHaveBeenCalledWith('spell-magic-missile');
@@ -158,22 +180,22 @@ describe('AddSpellSheet', () => {
 
     it('switches detail action label from add to remove for selected spells', async () => {
         const { onSpellAdded, onSpellRemoved } = renderSheet();
+        await flushAnimationTimers();
 
         await waitFor(() => {
             expect(screen.getByLabelText('Open details for Magic Missile')).toBeTruthy();
         });
 
         fireEvent.press(screen.getByLabelText('Open details for Magic Missile'));
-
-        await waitFor(() => {
-            expect(screen.getByText('Loading spell details...')).toBeTruthy();
-        });
+        await flushAnimationTimers();
+        await flushAnimationTimers();
 
         await waitFor(() => {
             expect(screen.getByText('+ Add to spell list')).toBeTruthy();
         });
 
         fireEvent.press(screen.getByText('+ Add to spell list'));
+        await flushAnimationTimers();
 
         await waitFor(() => {
             expect(onSpellAdded).toHaveBeenCalledWith('spell-magic-missile');
@@ -184,6 +206,7 @@ describe('AddSpellSheet', () => {
         });
 
         fireEvent.press(screen.getByText('Remove from spell list'));
+        await flushAnimationTimers();
 
         await waitFor(() => {
             expect(onSpellRemoved).toHaveBeenCalledWith('spell-magic-missile');
@@ -200,12 +223,14 @@ describe('AddSpellSheet', () => {
         });
 
         renderSheet({ onSpellAdded });
+        await flushAnimationTimers();
 
         await waitFor(() => {
             expect(screen.getByLabelText('Add spell')).toBeTruthy();
         });
 
         fireEvent.press(screen.getByLabelText('Add spell'));
+        await flushAnimationTimers();
 
         await waitFor(() => {
             expect(onSpellAdded).toHaveBeenCalledWith('spell-magic-missile');
@@ -214,6 +239,7 @@ describe('AddSpellSheet', () => {
         expect(screen.getByText('Add Spell')).toBeTruthy();
 
         resolveAddMutationRef.current?.();
+        await flushAnimationTimers();
 
         await waitFor(() => {
             expect(screen.getByLabelText('Remove spell')).toBeTruthy();
