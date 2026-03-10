@@ -42,7 +42,7 @@ type SearchSpellsQueryData = {
 };
 
 /** GraphQL query that fetches a list of spell ids/names, optionally filtered. */
-const SEARCH_SPELLS = gql`
+export const SEARCH_SPELLS = gql`
     query Spells($filter: SpellFilter, $pagination: SpellPagination) {
         spells(filter: $filter, pagination: $pagination) {
             ...SpellListFields

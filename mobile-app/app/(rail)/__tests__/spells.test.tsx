@@ -3,8 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react-native';
 import { PaperProvider } from 'react-native-paper';
 import { MockedProvider } from '@apollo/client/testing/react';
 import type { MockLink } from '@apollo/client/testing';
-import { gql } from '@apollo/client';
-import SpellSearch from '../spells';
+import SpellSearch, { SEARCH_SPELLS } from '../spells';
 
 jest.mock('@/components/navigation/RailScreenShell', () => ({
     __esModule: true,
@@ -25,21 +24,6 @@ jest.mock('@/lib/supabase', () => ({
         },
     },
 }));
-
-const SEARCH_SPELLS = gql`
-    query Spells($filter: SpellFilter, $pagination: SpellPagination) {
-        spells(filter: $filter, pagination: $pagination) {
-            id
-            name
-            level
-            schoolIndex
-            castingTime
-            range
-            concentration
-            ritual
-        }
-    }
-`;
 
 const FIRST_PAGE_VARIABLES = {
     pagination: {
