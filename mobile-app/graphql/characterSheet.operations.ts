@@ -410,6 +410,18 @@ export const UPDATE_SKILL_PROFICIENCIES = gql`
 `;
 
 /**
+ * Replaces the set of proficient saving throws.
+ */
+export const UPDATE_SAVING_THROW_PROFICIENCIES = gql`
+    mutation UpdateSavingThrowProficiencies($characterId: ID!, $input: SavingThrowProficienciesInput!) {
+        updateSavingThrowProficiencies(characterId: $characterId, input: $input) {
+            id
+            savingThrowProficiencies
+        }
+    }
+`;
+
+/**
  * Cycles used spell slots at a given spell level.
  */
 export const TOGGLE_SPELL_SLOT = gql`

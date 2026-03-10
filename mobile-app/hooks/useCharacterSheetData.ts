@@ -31,6 +31,7 @@ import type {
     SkillProficiencies,
     SkillProficienciesInput,
     SpellSlot,
+    SavingThrowProficienciesInput,
 } from '@/types/generated_graphql_types';
 import {
     ADD_FEATURE,
@@ -53,6 +54,7 @@ import {
     UPDATE_FEATURE,
     UPDATE_HP,
     UPDATE_INVENTORY_ITEM,
+    UPDATE_SAVING_THROW_PROFICIENCIES,
     UPDATE_SKILL_PROFICIENCIES,
     UPDATE_TRAITS,
     UPDATE_WEAPON,
@@ -63,7 +65,7 @@ import {
     updateSpellPreparedInCache,
 } from '@/hooks/cache/spellbookCache';
 import { isUnauthenticatedError } from '@/lib/graphqlErrors';
-import type { SkillKey } from '@/lib/characterSheetUtils';
+import type { AbilityKey, SkillKey } from '@/lib/characterSheetUtils';
 
 /**
  * Mutation payload for optimistic skill proficiency updates.
@@ -73,6 +75,17 @@ type UpdateSkillProficienciesMutationData = {
         __typename: 'CharacterStats';
         id: string;
         skillProficiencies: SkillProficiencies;
+    };
+};
+
+/**
+ * Mutation payload for optimistic saving throw proficiency updates.
+ */
+type UpdateSavingThrowProficienciesMutationData = {
+    updateSavingThrowProficiencies: {
+        __typename: 'CharacterStats';
+        id: string;
+        savingThrowProficiencies: string[];
     };
 };
 
@@ -224,6 +237,14 @@ function hasFeatureChanged(previousFeature: CharacterFeature, nextFeature: Chara
 type UpdateSkillProficienciesMutationVariables = {
     characterId: string;
     input: SkillProficienciesInput;
+};
+
+/**
+ * Variables for updating saving throw proficiencies.
+ */
+type UpdateSavingThrowProficienciesMutationVariables = {
+    characterId: string;
+    input: SavingThrowProficienciesInput;
 };
 
 /**
@@ -488,6 +509,11 @@ export default function useCharacterSheetData(characterId: string) {
         UpdateSkillProficienciesMutationVariables
     >(UPDATE_SKILL_PROFICIENCIES);
 
+    const [updateSavingThrowProficiencies] = useMutation<
+        UpdateSavingThrowProficienciesMutationData,
+        UpdateSavingThrowProficienciesMutationVariables
+    >(UPDATE_SAVING_THROW_PROFICIENCIES);
+
     const [toggleSpellSlot] = useMutation<
         ToggleSpellSlotMutationData,
         ToggleSpellSlotMutationVariables
@@ -631,6 +657,35 @@ export default function useCharacterSheetData(characterId: string) {
             throw error;
         }
     }, [character, updateSkillProficiencies]);
+
+    /**
+     * Optimistically updates saving throw proficiency selections.
+     */
+    const handleUpdateSavingThrowProficiencies = useCallback(async (
+        ability: AbilityKey,
+        proficiencies: AbilityKey[],
+    ) => {
+        if (!character || !character.stats) return;
+
+        try {
+            await updateSavingThrowProficiencies({
+                variables: {
+                    characterId: character.id,
+                    input: { proficiencies },
+                },
+                optimisticResponse: {
+                    updateSavingThrowProficiencies: {
+                        __typename: 'CharacterStats',
+                        id: character.stats.id,
+                        savingThrowProficiencies: proficiencies,
+                    },
+                },
+            });
+        } catch (error) {
+            console.error('Failed to update saving throw proficiencies', { ability, error });
+            throw error;
+        }
+    }, [character, updateSavingThrowProficiencies]);
 
     /**
      * Cycles a spell slot level from used->used+1->reset.
@@ -953,6 +1008,7 @@ export default function useCharacterSheetData(characterId: string) {
         handleToggleInspiration,
         handleUpdateDeathSaves,
         handleUpdateSkillProficiency,
+        handleUpdateSavingThrowProficiencies,
         handleToggleSpellSlot,
         handleLearnSpell,
         handleForgetSpell,

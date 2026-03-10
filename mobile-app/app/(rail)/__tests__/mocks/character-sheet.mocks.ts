@@ -1,4 +1,4 @@
-import { GET_CURRENT_USER_CHARACTERS, PREPARE_SPELL, TOGGLE_INSPIRATION, TOGGLE_SPELL_SLOT, UNPREPARE_SPELL, UPDATE_ABILITY_SCORES, UPDATE_CHARACTER, UPDATE_CURRENCY, UPDATE_DEATH_SAVES, UPDATE_HP, UPDATE_SKILL_PROFICIENCIES, UPDATE_TRAITS } from "@/graphql/characterSheet.operations";
+import { GET_CURRENT_USER_CHARACTERS, PREPARE_SPELL, TOGGLE_INSPIRATION, TOGGLE_SPELL_SLOT, UNPREPARE_SPELL, UPDATE_ABILITY_SCORES, UPDATE_CHARACTER, UPDATE_CURRENCY, UPDATE_DEATH_SAVES, UPDATE_HP, UPDATE_SAVING_THROW_PROFICIENCIES, UPDATE_SKILL_PROFICIENCIES, UPDATE_TRAITS } from "@/graphql/characterSheet.operations";
 import { ProficiencyLevel } from "@/types/generated_graphql_types";
 import { MockLink } from "@apollo/client/testing";
 
@@ -546,6 +546,27 @@ export const UPDATE_SKILLS_MOCK: MockLink.MockedResponse = {
                     ...MOCK_CHARACTER.stats.skillProficiencies,
                     perception: ProficiencyLevel.Expert,
                 },
+            },
+        },
+    },
+};
+
+export const UPDATE_SAVING_THROW_PROFICIENCIES_MOCK: MockLink.MockedResponse = {
+    request: {
+        query: UPDATE_SAVING_THROW_PROFICIENCIES,
+        variables: {
+            characterId: 'char-1',
+            input: {
+                proficiencies: ['strength', 'intelligence', 'wisdom'],
+            },
+        },
+    },
+    result: {
+        data: {
+            updateSavingThrowProficiencies: {
+                __typename: 'CharacterStats',
+                id: 'stats-1',
+                savingThrowProficiencies: ['strength', 'intelligence', 'wisdom'],
             },
         },
     },

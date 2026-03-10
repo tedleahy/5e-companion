@@ -8,15 +8,17 @@ type PassiveSensesCardProps = {
     passivePerception: number;
     passiveInvestigation: number;
     passiveInsight: number;
+    cardIndex?: number;
 };
 
 export default function PassiveSensesCard({
     passivePerception,
     passiveInvestigation,
     passiveInsight,
+    cardIndex = 0,
 }: PassiveSensesCardProps) {
     return (
-        <SheetCard index={0}>
+        <SheetCard index={cardIndex}>
             <SectionLabel>Passive Senses</SectionLabel>
             <View style={styles.passiveRow}>
                 <PassiveBlock label="Perception" value={passivePerception} testID="passive-perception-value" />

@@ -8,17 +8,17 @@ import {
 } from 'expo-router';
 import CharacterSheetHeader from '@/components/character-sheet/CharacterSheetHeader';
 import type { CharacterSheetTab } from '@/components/character-sheet/CharacterSheetHeader';
-import AbilityScoresAndSkillsCard from '@/components/character-sheet/AbilityScoresAndSkillsCard';
 import DeathSavesCard from '@/components/character-sheet/DeathSavesCard';
 import FeaturesTab from '@/components/character-sheet/FeaturesTab';
 import GearTab from '@/components/character-sheet/GearTab';
 import QuickStatsCard from '@/components/character-sheet/QuickStatsCard';
-import SkillsTab from '@/components/character-sheet/SkillsTab';
+import AbilitiesTab from '@/components/character-sheet/AbilitiesTab';
+import PassiveSensesCard from '@/components/character-sheet/skills/PassiveSensesCard';
 import SpellsTab from '@/components/character-sheet/SpellsTab';
 import VitalsCard from '@/components/character-sheet/VitalsCard';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
 import useCharacterSheetData, { type SaveCharacterSheetCoreInput } from '@/hooks/useCharacterSheetData';
-import { isAbilityKey } from '@/lib/characterSheetUtils';
+import { isAbilityKey, skillModifier } from '@/lib/characterSheetUtils';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { AbilityKey } from '@/lib/characterSheetUtils';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
@@ -110,6 +110,7 @@ export default function CharacterByIdScreen() {
         handleToggleInspiration,
         handleUpdateDeathSaves,
         handleUpdateSkillProficiency,
+        handleUpdateSavingThrowProficiencies,
         handleToggleSpellSlot,
         handleLearnSpell,
         handleForgetSpell,
@@ -211,6 +212,24 @@ export default function CharacterByIdScreen() {
     const displayedWeapons = sheetDraft?.weapons ?? character.weapons;
     const displayedInventory = sheetDraft?.inventory ?? character.inventory;
     const displayedFeatures = sheetDraft?.features ?? character.features;
+    const passivePerception =
+        10 + skillModifier(
+            displayedAbilityScores.wisdom,
+            stats.skillProficiencies.perception,
+            character.proficiencyBonus,
+        );
+    const passiveInvestigation =
+        10 + skillModifier(
+            displayedAbilityScores.intelligence,
+            stats.skillProficiencies.investigation,
+            character.proficiencyBonus,
+        );
+    const passiveInsight =
+        10 + skillModifier(
+            displayedAbilityScores.wisdom,
+            stats.skillProficiencies.insight,
+            character.proficiencyBonus,
+        );
 
     /**
      * Applies a functional update to the current sheet draft when edit mode is active.
@@ -502,29 +521,31 @@ export default function CharacterByIdScreen() {
                                         }));
                                 }}
                             />
+                            <PassiveSensesCard
+                                passivePerception={passivePerception}
+                                passiveInvestigation={passiveInvestigation}
+                                passiveInsight={passiveInsight}
+                                cardIndex={2}
+                            />
                             <DeathSavesCard
                                 successes={stats.deathSaves.successes}
                                 failures={stats.deathSaves.failures}
                                 onUpdate={handleUpdateDeathSaves}
                             />
-                            <AbilityScoresAndSkillsCard
-                                abilityScores={displayedAbilityScores}
-                                proficiencyBonus={character.proficiencyBonus}
-                                savingThrowProficiencies={savingThrowProficiencies}
-                                skillProficiencies={stats.skillProficiencies}
-                                editMode={editMode}
-                                onChangeAbilityScore={handleChangeAbilityScore}
-                            />
                         </>
                     </KeyboardAwareScrollView>
                 )}
 
-                {activeTab === 'Skills' && (
-                    <SkillsTab
-                        abilityScores={stats.abilityScores}
+                {activeTab === 'Abilities' && (
+                    <AbilitiesTab
+                        abilityScores={displayedAbilityScores}
                         proficiencyBonus={character.proficiencyBonus}
+                        savingThrowProficiencies={savingThrowProficiencies}
                         skillProficiencies={stats.skillProficiencies}
+                        editMode={editMode}
+                        onChangeAbilityScore={handleChangeAbilityScore}
                         onUpdateSkillProficiency={handleUpdateSkillProficiency}
+                        onUpdateSavingThrowProficiencies={handleUpdateSavingThrowProficiencies}
                     />
                 )}
 

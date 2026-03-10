@@ -6,7 +6,7 @@ import EditModeBanner from './edit-mode/EditModeBanner';
 /**
  * Available top-level character sheet tabs in display order.
  */
-export const CHARACTER_SHEET_TABS = ['Core', 'Skills', 'Spells', 'Gear', 'Features'] as const;
+export const CHARACTER_SHEET_TABS = ['Core', 'Abilities', 'Spells', 'Gear', 'Features'] as const;
 
 /**
  * Union type of valid character sheet tab labels.

@@ -1,4 +1,4 @@
-import type { AbilityKey, SkillKey } from '@/lib/characterSheetUtils';
+import { ABILITY_KEYS, type AbilityKey, type SkillKey } from '@/lib/characterSheetUtils';
 import {
     ProficiencyLevel,
     type SkillProficiencies,
@@ -6,11 +6,16 @@ import {
 
 export type AbilityFilter = AbilityKey | 'all';
 export type LocalSkillProficiencies = Record<SkillKey, ProficiencyLevel>;
+type AbilitiesTabInitialState = {
+    skillProficiencies: SkillProficiencies;
+    savingThrowProficiencies: AbilityKey[];
+};
 
-export type SkillsTabState = {
+export type AbilitiesTabState = {
     searchText: string;
     abilityFilter: AbilityFilter;
     localSkillProficiencies: LocalSkillProficiencies;
+    localSavingThrowProficiencies: AbilityKey[];
 };
 
 type SetSearchTextAction = {
@@ -33,12 +38,35 @@ type ResetSkillProficienciesAction = {
     skillProficiencies: SkillProficiencies;
 };
 
-export type SkillsTabAction =
+type ToggleSavingThrowAction = {
+    type: 'toggleSavingThrow';
+    ability: AbilityKey;
+};
+
+type ResetSavingThrowProficienciesAction = {
+    type: 'resetSavingThrowProficiencies';
+    savingThrowProficiencies: AbilityKey[];
+};
+
+export type AbilitiesTabAction =
     | SetSearchTextAction
     | SetAbilityFilterAction
     | CycleSkillAction
-    | ResetSkillProficienciesAction;
+    | ResetSkillProficienciesAction
+    | ToggleSavingThrowAction
+    | ResetSavingThrowProficienciesAction;
 
+/**
+ * Canonicalises saving throw proficiencies to unique, ability-order values.
+ */
+function normaliseSavingThrowProficiencies(savingThrowProficiencies: AbilityKey[]): AbilityKey[] {
+    const proficiencySet = new Set(savingThrowProficiencies);
+    return ABILITY_KEYS.filter((ability) => proficiencySet.has(ability));
+}
+
+/**
+ * Converts generated GraphQL skill proficiencies to mutable local state.
+ */
 export function createLocalSkillProficiencies(
     skillProficiencies: SkillProficiencies,
 ): LocalSkillProficiencies {
@@ -46,15 +74,24 @@ export function createLocalSkillProficiencies(
     return levels;
 }
 
-export function initSkillsTabState(skillProficiencies: SkillProficiencies): SkillsTabState {
+/**
+ * Builds initial state for the Abilities tab reducer.
+ */
+export function initAbilitiesTabState(initialState: AbilitiesTabInitialState): AbilitiesTabState {
     return {
         searchText: '',
         abilityFilter: 'all',
-        localSkillProficiencies: createLocalSkillProficiencies(skillProficiencies),
+        localSkillProficiencies: createLocalSkillProficiencies(initialState.skillProficiencies),
+        localSavingThrowProficiencies: normaliseSavingThrowProficiencies(
+            initialState.savingThrowProficiencies,
+        ),
     };
 }
 
-export function skillsTabReducer(state: SkillsTabState, action: SkillsTabAction): SkillsTabState {
+/**
+ * Reducer for local filters and optimistic proficiency state in Abilities tab.
+ */
+export function skillsTabReducer(state: AbilitiesTabState, action: AbilitiesTabAction): AbilitiesTabState {
     switch (action.type) {
         case 'setSearchText':
             return {
@@ -85,11 +122,36 @@ export function skillsTabReducer(state: SkillsTabState, action: SkillsTabAction)
                 localSkillProficiencies: createLocalSkillProficiencies(action.skillProficiencies),
             };
 
+        case 'toggleSavingThrow': {
+            const hasProficiency = state.localSavingThrowProficiencies.includes(action.ability);
+            const nextSavingThrowProficiencies = hasProficiency
+                ? state.localSavingThrowProficiencies.filter((ability) => ability !== action.ability)
+                : [...state.localSavingThrowProficiencies, action.ability];
+
+            return {
+                ...state,
+                localSavingThrowProficiencies: normaliseSavingThrowProficiencies(
+                    nextSavingThrowProficiencies,
+                ),
+            };
+        }
+
+        case 'resetSavingThrowProficiencies':
+            return {
+                ...state,
+                localSavingThrowProficiencies: normaliseSavingThrowProficiencies(
+                    action.savingThrowProficiencies,
+                ),
+            };
+
         default:
             return state;
     }
 }
 
+/**
+ * Cycles a skill's proficiency state: none -> proficient -> expert -> none.
+ */
 export function nextProficiencyLevel(level: ProficiencyLevel): ProficiencyLevel {
     if (level === ProficiencyLevel.None) return ProficiencyLevel.Proficient;
     if (level === ProficiencyLevel.Proficient) return ProficiencyLevel.Expert;

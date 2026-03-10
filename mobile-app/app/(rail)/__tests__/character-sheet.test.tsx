@@ -15,6 +15,7 @@ import {
     TOGGLE_SLOT_LEVEL_1_MOCK,
     UNPREPARE_FIREBALL_MOCK,
     UPDATE_DEATH_SAVES_MOCK,
+    UPDATE_SAVING_THROW_PROFICIENCIES_MOCK,
     UPDATE_SKILLS_MOCK,
 } from './mocks/character-sheet.mocks';
 import { UPDATE_CHARACTER } from '@/graphql/characterSheet.operations';
@@ -99,22 +100,37 @@ describe('CharacterByIdScreen', () => {
         expect(screen.getByText('Speed')).toBeTruthy();
     });
 
-    it('renders abilities and skills section', async () => {
+    it('renders abilities and skills section on the Abilities tab', async () => {
         renderScreen();
+        await waitFor(() => {
+            expect(screen.getByLabelText('Open Abilities tab')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByLabelText('Open Abilities tab'));
+
         await waitFor(() => {
             expect(screen.getByText('Abilities & Skills')).toBeTruthy();
         });
     });
 
-    it('renders saving throws rows', async () => {
+    it('renders saving throw rows on the Abilities tab', async () => {
         renderScreen();
+        await waitFor(() => {
+            expect(screen.getByLabelText('Open Abilities tab')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByLabelText('Open Abilities tab'));
+
         await waitFor(() => {
             expect(screen.getAllByText('Saving Throw').length).toBe(6);
         });
     });
 
-    it('renders skill rows', async () => {
+    it('renders skill rows on the Abilities tab', async () => {
         renderScreen();
+        await waitFor(() => {
+            expect(screen.getByLabelText('Open Abilities tab')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByLabelText('Open Abilities tab'));
+
         await waitFor(() => {
             expect(screen.getByText('Arcana')).toBeTruthy();
         });
@@ -125,6 +141,14 @@ describe('CharacterByIdScreen', () => {
         await waitFor(() => {
             expect(screen.getByText('Death Saves')).toBeTruthy();
         });
+    });
+
+    it('renders passive senses section on the core tab', async () => {
+        renderScreen();
+        await waitFor(() => {
+            expect(screen.getByText('Passive Senses')).toBeTruthy();
+        });
+        expect(screen.queryByText('Abilities & Skills')).toBeNull();
     });
 
     it('shows empty state when no characters exist', async () => {
@@ -208,7 +232,7 @@ describe('CharacterByIdScreen', () => {
         await waitFor(() => {
             expect(screen.getByText('Core')).toBeTruthy();
         });
-        expect(screen.getByText('Skills')).toBeTruthy();
+        expect(screen.getByText('Abilities')).toBeTruthy();
         expect(screen.getByText('Spells')).toBeTruthy();
         expect(screen.getByText('Gear')).toBeTruthy();
         expect(screen.getByText('Features')).toBeTruthy();
@@ -323,31 +347,31 @@ describe('CharacterByIdScreen', () => {
         expect(screen.queryByDisplayValue('900')).toBeNull();
     });
 
-    it('switches to the Skills tab', async () => {
+    it('switches to the Abilities tab', async () => {
         renderScreen();
 
         await waitFor(() => {
-            expect(screen.getByLabelText('Open Skills tab')).toBeTruthy();
+            expect(screen.getByLabelText('Open Abilities tab')).toBeTruthy();
         });
 
-        fireEvent.press(screen.getByLabelText('Open Skills tab'));
+        fireEvent.press(screen.getByLabelText('Open Abilities tab'));
 
         await waitFor(() => {
-            expect(screen.getByText('Passive Senses')).toBeTruthy();
+            expect(screen.getByText('Abilities & Skills')).toBeTruthy();
         });
-        expect(screen.queryByText('Abilities & Skills')).toBeNull();
+        expect(screen.queryByText('Passive Senses')).toBeNull();
     });
 
-    it('cycles skill proficiency and recalculates passive score', async () => {
+    it('cycles skill proficiency and updates skill modifier', async () => {
         renderScreen([CHARACTERS_MOCK, UPDATE_SKILLS_MOCK]);
 
         await waitFor(() => {
-            expect(screen.getByLabelText('Open Skills tab')).toBeTruthy();
+            expect(screen.getByLabelText('Open Abilities tab')).toBeTruthy();
         });
-        fireEvent.press(screen.getByLabelText('Open Skills tab'));
+        fireEvent.press(screen.getByLabelText('Open Abilities tab'));
 
         await waitFor(() => {
-            expect(screen.getByTestId('passive-perception-value')).toHaveTextContent('15');
+            expect(screen.getByTestId('ability-skills-mod-perception')).toHaveTextContent('+5');
         });
 
         fireEvent.changeText(screen.getByLabelText('Search skills'), 'Perception');
@@ -359,7 +383,47 @@ describe('CharacterByIdScreen', () => {
         await pressAndFlush(screen.getByLabelText('Cycle proficiency for Perception'));
 
         await waitFor(() => {
-            expect(screen.getByTestId('passive-perception-value')).toHaveTextContent('19');
+            expect(screen.getByTestId('ability-skills-mod-perception')).toHaveTextContent('+9');
+        });
+    });
+
+    it('toggles saving throw proficiency and updates saving throw modifier', async () => {
+        renderScreen([CHARACTERS_MOCK, UPDATE_SAVING_THROW_PROFICIENCIES_MOCK]);
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Open Abilities tab')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByLabelText('Open Abilities tab'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('ability-saves-mod-strength')).toHaveTextContent('−1');
+        });
+
+        await pressAndFlush(screen.getByLabelText('Toggle saving throw proficiency for Strength'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('ability-saves-mod-strength')).toHaveTextContent('+3');
+        });
+    });
+
+    it('allows editing ability scores from the Abilities tab in edit mode', async () => {
+        renderScreen();
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Enable character sheet edit mode')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getByLabelText('Enable character sheet edit mode'));
+        fireEvent.press(screen.getByLabelText('Open Abilities tab'));
+
+        await waitFor(() => {
+            expect(screen.getByDisplayValue('20')).toBeTruthy();
+        });
+
+        fireEvent.changeText(screen.getByDisplayValue('20'), '18');
+
+        await waitFor(() => {
+            expect(screen.getByDisplayValue('18')).toBeTruthy();
         });
     });
 
@@ -367,9 +431,9 @@ describe('CharacterByIdScreen', () => {
         renderScreen();
 
         await waitFor(() => {
-            expect(screen.getByLabelText('Open Skills tab')).toBeTruthy();
+            expect(screen.getByLabelText('Open Abilities tab')).toBeTruthy();
         });
-        fireEvent.press(screen.getByLabelText('Open Skills tab'));
+        fireEvent.press(screen.getByLabelText('Open Abilities tab'));
 
         await waitFor(() => {
             expect(screen.getByLabelText('Search skills')).toBeTruthy();
@@ -380,6 +444,8 @@ describe('CharacterByIdScreen', () => {
             expect(screen.getByText('Arcana')).toBeTruthy();
         });
         expect(screen.queryByText('Athletics')).toBeNull();
+        expect(screen.getAllByText('Saving Throw').length).toBe(1);
+        expect(screen.queryByTestId('ability-saves-mod-strength')).toBeNull();
     });
 
     it('switches to the Spells tab and shows spellbook content', async () => {
@@ -469,16 +535,19 @@ describe('CharacterByIdScreen', () => {
 
         await waitFor(() => {
             expect(screen.getByTestId('character-spell-prepared-spell-fireball')).toHaveStyle({
-                backgroundColor: fantasyTokens.colors.crimson,
+                opacity: 1,
             });
         });
 
-        await pressAndFlush(screen.getByTestId('character-spell-prepared-spell-fireball'));
+        fireEvent.press(screen.getByTestId('character-spell-row-spell-fireball'));
+        await waitFor(() => {
+            expect(screen.getByTestId('character-spell-prepare-spell-fireball')).toBeTruthy();
+        });
+        await pressAndFlush(screen.getByTestId('character-spell-prepare-spell-fireball'));
 
         await waitFor(() => {
             expect(screen.getByTestId('character-spell-prepared-spell-fireball')).toHaveStyle({
-                backgroundColor: 'transparent',
-                borderWidth: 1,
+                opacity: 0,
             });
         });
     });
@@ -493,15 +562,19 @@ describe('CharacterByIdScreen', () => {
 
         await waitFor(() => {
             expect(screen.getByTestId('character-spell-prepared-spell-bigbys-hand')).toHaveStyle({
-                backgroundColor: 'transparent',
+                opacity: 0,
             });
         });
 
-        await pressAndFlush(screen.getByTestId('character-spell-prepared-spell-bigbys-hand'));
+        fireEvent.press(screen.getByTestId('character-spell-row-spell-bigbys-hand'));
+        await waitFor(() => {
+            expect(screen.getByTestId('character-spell-prepare-spell-bigbys-hand')).toBeTruthy();
+        });
+        await pressAndFlush(screen.getByTestId('character-spell-prepare-spell-bigbys-hand'));
 
         await waitFor(() => {
             expect(screen.getByTestId('character-spell-prepared-spell-bigbys-hand')).toHaveStyle({
-                backgroundColor: fantasyTokens.colors.crimson,
+                opacity: 1,
             });
         });
     });
