@@ -46,12 +46,14 @@ export const DEFAULT_CURRENCY = { cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 };
 /**
  * Returns a shallow copy with null/undefined properties removed.
  */
-export function stripNullishFields<T extends Record<string, unknown>>(input: T): Partial<T> {
-    const data: Partial<T> = {};
+export function stripNullishFields<T extends Record<string, unknown>>(
+    input: T,
+): { [K in keyof T]?: Exclude<T[K], null | undefined> } {
+    const data: { [K in keyof T]?: Exclude<T[K], null | undefined> } = {};
 
     for (const [key, value] of Object.entries(input)) {
         if (value !== undefined && value !== null) {
-            data[key as keyof T] = value as T[keyof T];
+            data[key as keyof T] = value as Exclude<T[keyof T], null | undefined>;
         }
     }
 
