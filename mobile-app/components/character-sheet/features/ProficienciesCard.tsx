@@ -106,6 +106,9 @@ export default function ProficienciesCard({
     return (
         <SheetCard index={index}>
             <SectionHeader title="Proficiencies & Languages" editMode={false} />
+            {!editMode && (
+                <Text style={styles.readOnlyHint}>Tap Edit to modify</Text>
+            )}
             <View style={styles.block}>
                 <ProficiencyRow
                     field="armorProficiencies"
@@ -165,7 +168,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     rowLabel: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8,
         letterSpacing: 2,
         textTransform: 'uppercase',
@@ -173,7 +176,7 @@ const styles = StyleSheet.create({
         opacity: 0.45,
     },
     addTagButton: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
@@ -195,7 +198,7 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     tagText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12,
         color: fantasyTokens.colors.inkLight,
     },
@@ -215,5 +218,14 @@ const styles = StyleSheet.create({
         fontSize: 11,
         lineHeight: 11,
         fontWeight: '700',
+    },
+    readOnlyHint: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: 9,
+        letterSpacing: 1,
+        color: fantasyTokens.colors.inkSoft,
+        textAlign: 'center',
+        marginTop: -2,
+        marginBottom: 2,
     },
 });

@@ -183,8 +183,8 @@ export default function AbilitiesTab({
                     editMode={editMode}
                     onChangeAbilityScore={onChangeAbilityScore}
                     skillsByAbility={filteredSkillsByAbility}
-                    onPressSkill={handleSkillPress}
-                    onPressSavingThrow={handleSavingThrowPress}
+                    onPressSkill={editMode ? handleSkillPress : undefined}
+                    onPressSavingThrow={editMode ? handleSavingThrowPress : undefined}
                     hideAbilitiesWithoutSkills={hasSkillSearch}
                     searchText={state.searchText}
                     onChangeSearchText={handleSearchChange}

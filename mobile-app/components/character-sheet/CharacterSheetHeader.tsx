@@ -6,7 +6,7 @@ import EditModeBanner from './edit-mode/EditModeBanner';
 /**
  * Available top-level character sheet tabs in display order.
  */
-export const CHARACTER_SHEET_TABS = ['Core', 'Abilities', 'Spells', 'Gear', 'Features'] as const;
+export const CHARACTER_SHEET_TABS = ['Core', 'Abilities', 'Spells', 'Gear', 'Traits', 'Features'] as const;
 
 /**
  * Union type of valid character sheet tab labels.
@@ -23,12 +23,14 @@ type CharacterSheetHeaderProps = {
     subclass?: string;
     race: string;
     alignment: string;
+    tabs?: readonly CharacterSheetTab[];
     activeTab: CharacterSheetTab;
     onTabPress: (tab: CharacterSheetTab) => void;
     editMode: boolean;
     onStartEdit: () => void;
     onCancelEdit: () => void;
     onDoneEdit: () => void;
+    onLevelUp?: () => void;
 };
 
 /**
@@ -50,6 +52,8 @@ export default function CharacterSheetHeader({
     onStartEdit,
     onCancelEdit,
     onDoneEdit,
+    onLevelUp,
+    tabs = CHARACTER_SHEET_TABS,
 }: CharacterSheetHeaderProps) {
     const subtitle = `Level ${level}\n${className}${subclass ? ` · ${subclass}` : ''} · ${race} · ${alignment}`;
 
@@ -97,11 +101,21 @@ export default function CharacterSheetHeader({
                 <View style={styles.headerText}>
                     <Text style={styles.charName}>{name}</Text>
                     <Text style={styles.charSubtitle}>{subtitle}</Text>
+                    {onLevelUp && !editMode && (
+                        <Pressable
+                            onPress={onLevelUp}
+                            style={styles.levelUpButton}
+                            accessibilityRole="button"
+                            accessibilityLabel="Level up character"
+                        >
+                            <Text style={styles.levelUpText}>Level Up ↑</Text>
+                        </Pressable>
+                    )}
                 </View>
             </View>
 
             <View style={styles.tabBar}>
-                {CHARACTER_SHEET_TABS.map((tab) => {
+                {tabs.map((tab) => {
                     const isActive = tab === activeTab;
 
                     return (
@@ -146,7 +160,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     sheetTitle: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 13,
         letterSpacing: 3,
         textTransform: 'uppercase',
@@ -155,7 +169,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     charName: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 28,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
@@ -165,7 +179,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     charSubtitle: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 14,
         color: fantasyTokens.colors.gold,
         marginTop: 2,
@@ -213,7 +227,7 @@ const styles = StyleSheet.create({
         paddingVertical: 6,
     },
     editButtonText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8.5,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
@@ -221,7 +235,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     cancelButtonText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8.5,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
@@ -235,7 +249,7 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     tabText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 9.5,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
@@ -253,5 +267,22 @@ const styles = StyleSheet.create({
         backgroundColor: fantasyTokens.colors.gold,
         borderTopLeftRadius: 2,
         borderTopRightRadius: 2,
+    },
+    levelUpButton: {
+        marginTop: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(42,122,42,0.4)',
+        backgroundColor: 'rgba(42,122,42,0.12)',
+        borderRadius: 8,
+        paddingHorizontal: 14,
+        paddingVertical: 5,
+    },
+    levelUpText: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: 9,
+        letterSpacing: 1.5,
+        textTransform: 'uppercase',
+        color: '#4caf50',
+        fontWeight: '600',
     },
 });
