@@ -5,7 +5,8 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { ParchmentPanel, DetailRow } from '@/components/FantasyPrimitives';
 import { ABILITY_ABBREVIATIONS, ABILITY_KEYS, abilityModifier, SKILL_DEFINITIONS } from '@/lib/characterSheetUtils';
-import { applyRacialBonuses, BACKGROUND_SKILL_PROFICIENCIES, CLASS_SAVING_THROWS } from '@/lib/dndHelpers';
+import { BACKGROUND_SKILL_PROFICIENCIES, CLASS_SAVING_THROWS } from '@/lib/characterCreation/classRules';
+import { applyRacialBonuses } from '@/lib/characterCreation/raceRules';
 
 export default function StepReview() {
     const { draft } = useCharacterDraft();

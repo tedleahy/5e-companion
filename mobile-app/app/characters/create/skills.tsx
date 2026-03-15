@@ -9,7 +9,7 @@ import {
     CLASS_SAVING_THROWS,
     CLASS_SKILL_OPTIONS,
     CLASS_WEAPON_PROFICIENCIES,
-} from '@/lib/dndHelpers';
+} from '@/lib/characterCreation/classRules';
 import ProficiencyItem from '@/components/wizard/ProficiencyItem';
 
 export default function StepSkills() {
