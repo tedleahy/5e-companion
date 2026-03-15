@@ -1,12 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import PagerView from 'react-native-pager-view';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { ActivityIndicator, Snackbar, Text } from 'react-native-paper';
 import {
     useLocalSearchParams,
     useRouter,
 } from 'expo-router';
-import CharacterSheetHeader from '@/components/character-sheet/CharacterSheetHeader';
+import CharacterSheetHeader, { CHARACTER_SHEET_TABS } from '@/components/character-sheet/CharacterSheetHeader';
 import type { CharacterSheetTab } from '@/components/character-sheet/CharacterSheetHeader';
 import DeathSavesCard from '@/components/character-sheet/DeathSavesCard';
 import FeaturesTab from '@/components/character-sheet/FeaturesTab';
@@ -15,10 +16,11 @@ import QuickStatsCard from '@/components/character-sheet/QuickStatsCard';
 import AbilitiesTab from '@/components/character-sheet/AbilitiesTab';
 import PassiveSensesCard from '@/components/character-sheet/skills/PassiveSensesCard';
 import SpellsTab from '@/components/character-sheet/SpellsTab';
+import TraitsTab from '@/components/character-sheet/TraitsTab';
 import VitalsCard from '@/components/character-sheet/VitalsCard';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
 import useCharacterSheetData, { type SaveCharacterSheetCoreInput } from '@/hooks/useCharacterSheetData';
-import { isAbilityKey, skillModifier } from '@/lib/characterSheetUtils';
+import { deriveSpellcastingStats, isAbilityKey, skillModifier } from '@/lib/characterSheetUtils';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { AbilityKey } from '@/lib/characterSheetUtils';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
@@ -96,6 +98,7 @@ function normaliseCharacterId(rawId?: string): string | null {
 export default function CharacterByIdScreen() {
     /** Currently active top-level tab in the character sheet. */
     const [activeTab, setActiveTab] = useState<CharacterSheetTab>('Core');
+    const pagerRef = useRef<PagerView>(null);
     const [editMode, setEditMode] = useState(false);
     const [saveErrorVisible, setSaveErrorVisible] = useState(false);
     const [sheetDraft, setSheetDraft] = useState<CharacterSheetEditDraft | null>(null);
@@ -116,6 +119,8 @@ export default function CharacterByIdScreen() {
         handleForgetSpell,
         handleSetSpellPrepared,
         handleSaveCharacterSheetCore,
+        handleLevelUp,
+        handleToggleEquip,
     } = useCharacterSheetData(characterId ?? '');
 
     useEffect(() => {
@@ -126,6 +131,32 @@ export default function CharacterByIdScreen() {
     useEffect(() => {
         if (isUnauthenticated) router.replace('/(auth)/sign-in');
     }, [isUnauthenticated, router]);
+
+    /** Tabs visible for this character — hides Spells for non-casters. */
+    const visibleTabs: readonly CharacterSheetTab[] = useMemo(() => {
+        if (!character?.spellcastingAbility) {
+            return CHARACTER_SHEET_TABS.filter((tab) => tab !== 'Spells');
+        }
+        return [...CHARACTER_SHEET_TABS];
+    }, [character?.spellcastingAbility]);
+
+    /**
+     * Called when a tab header button is pressed — syncs PagerView to that page.
+     */
+    const handleTabPress = useCallback((tab: CharacterSheetTab) => {
+        setActiveTab(tab);
+        const pageIndex = visibleTabs.indexOf(tab);
+        pagerRef.current?.setPage(pageIndex);
+    }, [visibleTabs]);
+
+    /**
+     * Called when the user swipes to a new page — syncs activeTab state.
+     */
+    const handlePageSelected = useCallback((event: { nativeEvent: { position: number } }) => {
+        const pageIndex = event.nativeEvent.position;
+        const tab = visibleTabs[pageIndex];
+        if (tab) setActiveTab(tab);
+    }, [visibleTabs]);
 
     if (!characterId) {
         return null;
@@ -190,7 +221,16 @@ export default function CharacterByIdScreen() {
     async function handleDoneEdit() {
         if (sheetDraft) {
             try {
-                await handleSaveCharacterSheetCore(sheetDraft);
+                const { spellAttackBonus, spellSaveDC } = deriveSpellcastingStats(
+                    character?.spellcastingAbility,
+                    sheetDraft.abilityScores as Record<AbilityKey, number>,
+                    character?.proficiencyBonus ?? 2,
+                );
+                await handleSaveCharacterSheetCore({
+                    ...sheetDraft,
+                    spellSaveDC,
+                    spellAttackBonus,
+                });
             } catch (saveError) {
                 console.error('Failed to save core character sheet edits', saveError);
                 setSaveErrorVisible(true);
@@ -212,6 +252,8 @@ export default function CharacterByIdScreen() {
     const displayedWeapons = sheetDraft?.weapons ?? character.weapons;
     const displayedInventory = sheetDraft?.inventory ?? character.inventory;
     const displayedFeatures = sheetDraft?.features ?? character.features;
+    const { spellAttackBonus: derivedSpellAttack, spellSaveDC: derivedSpellSaveDC } =
+        deriveSpellcastingStats(character.spellcastingAbility, displayedAbilityScores, character.proficiencyBonus);
     const passivePerception =
         10 + skillModifier(
             displayedAbilityScores.wisdom,
@@ -398,14 +440,20 @@ export default function CharacterByIdScreen() {
 
     /**
      * Toggles equipped state for one inventory row.
+     * In edit mode, mutates the local draft. Outside edit mode, calls the
+     * server mutation directly so equip/unequip works without editing.
      */
     function handleToggleInventoryEquip(itemId: string) {
-        updateSheetDraft((previousDraft) => ({
-            ...previousDraft,
-            inventory: previousDraft.inventory.map((item) => (
-                item.id === itemId ? { ...item, equipped: !item.equipped } : item
-            )),
-        }));
+        if (editMode) {
+            updateSheetDraft((previousDraft) => ({
+                ...previousDraft,
+                inventory: previousDraft.inventory.map((item) => (
+                    item.id === itemId ? { ...item, equipped: !item.equipped } : item
+                )),
+            }));
+        } else {
+            void handleToggleEquip(itemId);
+        }
     }
 
     /**
@@ -453,23 +501,30 @@ export default function CharacterByIdScreen() {
                     subclass={character.subclass ?? undefined}
                     race={character.race}
                     alignment={character.alignment}
+                    tabs={visibleTabs}
                     activeTab={activeTab}
-                    onTabPress={setActiveTab}
+                    onTabPress={handleTabPress}
                     editMode={editMode}
                     onStartEdit={handleStartEdit}
                     onCancelEdit={handleCancelEdit}
                     onDoneEdit={handleDoneEdit}
+                    onLevelUp={handleLevelUp}
                 />
-                {activeTab === 'Core' && (
-                    // TODO: move this into a <CoreTab> component, similar to the other tabs below
-                    <KeyboardAwareScrollView
-                        {...keyboardAwareScrollProps}
-                        bottomOffset={keyboardAwareBottomOffset}
-                        style={styles.scrollView}
-                        contentContainerStyle={styles.scrollContent}
-                        showsVerticalScrollIndicator={false}
-                    >
-                        <>
+                <PagerView
+                    ref={pagerRef}
+                    style={styles.pager}
+                    initialPage={0}
+                    onPageSelected={handlePageSelected}
+                >
+                    {/* Page 0 — Core */}
+                    <View key="Core" style={styles.page}>
+                        <KeyboardAwareScrollView
+                            {...keyboardAwareScrollProps}
+                            bottomOffset={keyboardAwareBottomOffset}
+                            style={styles.scrollView}
+                            contentContainerStyle={styles.scrollContent}
+                            showsVerticalScrollIndicator={false}
+                        >
                             <VitalsCard
                                 hp={displayedHp}
                                 ac={displayedAc}
@@ -511,7 +566,7 @@ export default function CharacterByIdScreen() {
                                 proficiencyBonus={character.proficiencyBonus}
                                 initiative={displayedInitiative}
                                 inspiration={character.inspiration}
-                                spellSaveDC={character.spellSaveDC ?? null}
+                                spellSaveDC={derivedSpellSaveDC}
                                 editMode={editMode}
                                 onToggleInspiration={handleToggleInspiration}
                                 onChangeInitiative={(value: number) => {
@@ -532,84 +587,97 @@ export default function CharacterByIdScreen() {
                                 failures={stats.deathSaves.failures}
                                 onUpdate={handleUpdateDeathSaves}
                             />
-                        </>
-                    </KeyboardAwareScrollView>
-                )}
+                        </KeyboardAwareScrollView>
+                    </View>
 
-                {activeTab === 'Abilities' && (
-                    <AbilitiesTab
-                        abilityScores={displayedAbilityScores}
-                        proficiencyBonus={character.proficiencyBonus}
-                        savingThrowProficiencies={savingThrowProficiencies}
-                        skillProficiencies={stats.skillProficiencies}
-                        editMode={editMode}
-                        onChangeAbilityScore={handleChangeAbilityScore}
-                        onUpdateSkillProficiency={handleUpdateSkillProficiency}
-                        onUpdateSavingThrowProficiencies={handleUpdateSavingThrowProficiencies}
-                    />
-                )}
+                    {/* Page 1 — Abilities */}
+                    <View key="Abilities" style={styles.page}>
+                        <AbilitiesTab
+                            abilityScores={displayedAbilityScores}
+                            proficiencyBonus={character.proficiencyBonus}
+                            savingThrowProficiencies={savingThrowProficiencies}
+                            skillProficiencies={stats.skillProficiencies}
+                            editMode={editMode}
+                            onChangeAbilityScore={handleChangeAbilityScore}
+                            onUpdateSkillProficiency={handleUpdateSkillProficiency}
+                            onUpdateSavingThrowProficiencies={handleUpdateSavingThrowProficiencies}
+                        />
+                    </View>
 
-                {activeTab === 'Spells' && (
-                    <SpellsTab
-                        characterClass={character.class}
-                        spellcastingAbility={character.spellcastingAbility}
-                        spellSaveDC={character.spellSaveDC}
-                        spellAttackBonus={character.spellAttackBonus}
-                        spellSlots={character.spellSlots}
-                        spellbook={character.spellbook}
-                        onToggleSpellSlot={handleToggleSpellSlot}
-                        onLearnSpell={handleLearnSpell}
-                        onForgetSpell={handleForgetSpell}
-                        onSetSpellPrepared={handleSetSpellPrepared}
-                    />
-                )}
+                    {/* Spells — only for caster characters */}
+                    {character.spellcastingAbility ? (
+                        <View key="Spells" style={styles.page}>
+                            <SpellsTab
+                                characterClass={character.class}
+                                spellcastingAbility={character.spellcastingAbility}
+                                spellSaveDC={derivedSpellSaveDC}
+                                spellAttackBonus={derivedSpellAttack}
+                                spellSlots={character.spellSlots}
+                                spellbook={character.spellbook}
+                                onToggleSpellSlot={handleToggleSpellSlot}
+                                onLearnSpell={handleLearnSpell}
+                                onForgetSpell={handleForgetSpell}
+                                onSetSpellPrepared={handleSetSpellPrepared}
+                            />
+                        </View>
+                    ) : null}
 
-                {activeTab === 'Gear' && (
-                    <GearTab
-                        weapons={displayedWeapons}
-                        inventory={displayedInventory}
-                        currency={displayedCurrency}
-                        editMode={editMode}
-                        onChangeCurrency={(key: 'cp' | 'sp' | 'ep' | 'gp' | 'pp', value: number) => {
-                            updateSheetDraft((previousDraft) => ({
-                                ...previousDraft,
-                                currency: {
-                                    ...previousDraft.currency,
-                                    [key]: value,
-                                },
-                            }));
-                        }}
-                        onAddWeapon={handleAddWeapon}
-                        onChangeWeapon={handleChangeWeapon}
-                        onRemoveWeapon={handleRemoveWeapon}
-                        onAddInventoryItem={handleAddInventoryItem}
-                        onChangeInventoryItem={handleChangeInventoryItem}
-                        onRemoveInventoryItem={handleRemoveInventoryItem}
-                        onToggleInventoryEquip={handleToggleInventoryEquip}
-                    />
-                )}
+                    {/* Gear */}
+                    <View key="Gear" style={styles.page}>
+                        <GearTab
+                            weapons={displayedWeapons}
+                            inventory={displayedInventory}
+                            currency={displayedCurrency}
+                            editMode={editMode}
+                            onChangeCurrency={(key: 'cp' | 'sp' | 'ep' | 'gp' | 'pp', value: number) => {
+                                updateSheetDraft((previousDraft) => ({
+                                    ...previousDraft,
+                                    currency: {
+                                        ...previousDraft.currency,
+                                        [key]: value,
+                                    },
+                                }));
+                            }}
+                            onAddWeapon={handleAddWeapon}
+                            onChangeWeapon={handleChangeWeapon}
+                            onRemoveWeapon={handleRemoveWeapon}
+                            onAddInventoryItem={handleAddInventoryItem}
+                            onChangeInventoryItem={handleChangeInventoryItem}
+                            onRemoveInventoryItem={handleRemoveInventoryItem}
+                            onToggleInventoryEquip={handleToggleInventoryEquip}
+                        />
+                    </View>
 
-                {activeTab === 'Features' && (
-                    <FeaturesTab
-                        className={character.class}
-                        race={character.race}
-                        background={character.background}
-                        features={displayedFeatures}
-                        traits={displayedTraits}
-                        editMode={editMode}
-                        onAddClassFeature={() => handleAddFeature(character.class)}
-                        onAddRacialTrait={() => handleAddFeature(character.race)}
-                        onAddFeat={() => handleAddFeature('Feat')}
-                        onChangeFeature={handleChangeFeature}
-                        onRemoveFeature={handleRemoveFeature}
-                        onChangeTraitText={(field: 'personality' | 'ideals' | 'bonds' | 'flaws', value: string) => {
-                            handleChangeTrait(field, value);
-                        }}
-                        onAddTraitTag={handleAddTraitTag}
-                        onChangeTraitTag={handleChangeTraitTag}
-                        onRemoveTraitTag={handleRemoveTraitTag}
-                    />
-                )}
+                    {/* Page 4 — Traits */}
+                    <View key="Traits" style={styles.page}>
+                        <TraitsTab
+                            background={character.background}
+                            traits={displayedTraits}
+                            editMode={editMode}
+                            onChangeTraitText={(field: 'personality' | 'ideals' | 'bonds' | 'flaws', value: string) => {
+                                handleChangeTrait(field, value);
+                            }}
+                            onAddTraitTag={handleAddTraitTag}
+                            onChangeTraitTag={handleChangeTraitTag}
+                            onRemoveTraitTag={handleRemoveTraitTag}
+                        />
+                    </View>
+
+                    {/* Page 5 — Features */}
+                    <View key="Features" style={styles.page}>
+                        <FeaturesTab
+                            className={character.class}
+                            race={character.race}
+                            features={displayedFeatures}
+                            editMode={editMode}
+                            onAddClassFeature={() => handleAddFeature(character.class)}
+                            onAddRacialTrait={() => handleAddFeature(character.race)}
+                            onAddFeat={() => handleAddFeature('Feat')}
+                            onChangeFeature={handleChangeFeature}
+                            onRemoveFeature={handleRemoveFeature}
+                        />
+                    </View>
+                </PagerView>
 
                 <Snackbar
                     visible={saveErrorVisible}
@@ -630,6 +698,12 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: fantasyTokens.colors.night,
     },
+    pager: {
+        flex: 1,
+    },
+    page: {
+        flex: 1,
+    },
     scrollView: {
         flex: 1,
     },
@@ -647,20 +721,20 @@ const styles = StyleSheet.create({
     },
     stateText: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 18,
         textAlign: 'center',
     },
     stateSubtext: {
         color: fantasyTokens.colors.inkSoft,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 14,
         textAlign: 'center',
         marginTop: fantasyTokens.spacing.sm,
     },
     errorDetail: {
         color: fantasyTokens.colors.crimson,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 13,
         textAlign: 'center',
         marginTop: fantasyTokens.spacing.sm,
