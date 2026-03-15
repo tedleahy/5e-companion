@@ -14,23 +14,32 @@ import { useCharacterDraft } from '@/store/characterDraft';
 import { buildCreateCharacterInput } from '@/lib/dndHelpers';
 import { CREATE_CHARACTER, GET_CURRENT_USER_CHARACTERS } from '@/graphql/characterSheet.operations';
 
-const STEP_ROUTES = [
-    '/characters/create',
-    '/characters/create/race',
-    '/characters/create/class',
-    '/characters/create/abilities',
-    '/characters/create/background',
-    '/characters/create/skills',
-    '/characters/create/review',
-];
+function getStepRoutes(level: number) {
+    const routes = [
+        '/characters/create',
+        '/characters/create/race',
+        '/characters/create/class',
+        '/characters/create/abilities',
+        '/characters/create/background',
+        '/characters/create/skills',
+        '/characters/create/review',
+    ];
+    // Subclass step only available for level > 1
+    if (level > 1) {
+        routes.splice(3, 0, '/characters/create/subclass');
+    }
+    return routes;
+}
 
-const TOTAL_STEPS = STEP_ROUTES.length;
-
-function deriveStepIndex(pathname: string): number {
+function deriveStepIndex(pathname: string, stepRoutes: string[]): number {
     // Normalize: remove trailing slash
     const normalized = pathname.replace(/\/$/, '');
-    const idx = STEP_ROUTES.indexOf(normalized);
+    const idx = stepRoutes.indexOf(normalized);
     return idx >= 0 ? idx : 0;
+}
+
+function getSubclassStepIndex(level: number): number {
+    return level > 1 ? 3 : -1; // -1 means step doesn't exist
 }
 
 type Props = { children: ReactNode };
@@ -40,9 +49,13 @@ export default function WizardShell({ children }: Props) {
     const router = useRouter();
     const { draft, resetDraft, hasDraftData } = useCharacterDraft();
 
-    const currentStep = deriveStepIndex(pathname);
+    const stepRoutes = useMemo(() => getStepRoutes(draft.level), [draft.level]);
+    const totalSteps = stepRoutes.length;
+    const subclassStepIndex = getSubclassStepIndex(draft.level);
+
+    const currentStep = deriveStepIndex(pathname, stepRoutes);
     const isFirstStep = currentStep === 0;
-    const isLastStep = currentStep === TOTAL_STEPS - 1;
+    const isLastStep = currentStep === totalSteps - 1;
 
     const [createCharacter, { loading: creating, error: createError }] = useMutation<{
         createCharacter: { id: string; name: string };
@@ -59,14 +72,19 @@ export default function WizardShell({ children }: Props) {
                 return draft.race !== '';
             case 2:
                 return draft.class !== '';
+            case 3:
+                if (subclassStepIndex === 3) {
+                    return draft.subclass !== '';
+                }
+                return true; // abilities step
             case 4:
                 return draft.background !== '';
             default:
                 return true;
         }
-    }, [currentStep, draft.name, draft.race, draft.class, draft.background]);
+    }, [currentStep, draft.name, draft.race, draft.class, draft.subclass, draft.background, subclassStepIndex]);
 
-    const progressWidth = ((currentStep + 1) / TOTAL_STEPS) * 100;
+    const progressWidth = ((currentStep + 1) / totalSteps) * 100;
 
     function handleBack() {
         if (isFirstStep) return;
@@ -115,7 +133,7 @@ export default function WizardShell({ children }: Props) {
             return;
         }
 
-        const nextRoute = STEP_ROUTES[currentStep + 1];
+        const nextRoute = stepRoutes[currentStep + 1];
         router.push(nextRoute as any);
     }
 
@@ -134,7 +152,7 @@ export default function WizardShell({ children }: Props) {
                     >
                         <Text style={styles.backBtn}>{'\u25C0'} Back</Text>
                     </Pressable>
-                    <Text style={styles.stepIndicator}>Step {currentStep + 1} of {TOTAL_STEPS}</Text>
+                    <Text style={styles.stepIndicator}>Step {currentStep + 1} of {totalSteps}</Text>
                     <Pressable onPress={handleCancel} hitSlop={8}>
                         <Text style={styles.cancelBtn}>Cancel</Text>
                     </Pressable>
@@ -147,7 +165,7 @@ export default function WizardShell({ children }: Props) {
 
                 {/* Step dots */}
                 <View style={styles.stepDots}>
-                    {Array.from({ length: TOTAL_STEPS }, (_, i) => (
+                    {Array.from({ length: totalSteps }, (_, i) => (
                         <View
                             key={i}
                             style={[
@@ -216,21 +234,21 @@ const styles = StyleSheet.create({
     },
     backBtn: {
         padding: 10,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 9,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
         color: 'rgba(201,146,42,0.5)',
     },
     stepIndicator: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 9,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: 'rgba(201,146,42,0.4)',
     },
     cancelBtn: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 9,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
@@ -276,7 +294,7 @@ const styles = StyleSheet.create({
     },
     errorText: {
         color: fantasyTokens.colors.crimson,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 13,
         textAlign: 'center',
     },
@@ -302,7 +320,7 @@ const styles = StyleSheet.create({
     },
     ctaText: {
         fontWeight: 'bold',
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         letterSpacing: 2,
         textTransform: 'uppercase',
