@@ -1,9 +1,31 @@
 import { MD3DarkTheme, MD3LightTheme, MD3Theme } from 'react-native-paper';
 
 /**
+ * Font family names loaded via expo-font / @expo-google-fonts/cinzel.
+ * We use Regular for body text and Bold for headings.
+ */
+export const fantasyFonts = {
+    /** Standard body text weight. */
+    regular: 'Cinzel_400Regular',
+    /** Medium weight for emphasis. */
+    medium: 'Cinzel_500Medium',
+    /** Semi-bold for sub-headings. */
+    semiBold: 'Cinzel_600SemiBold',
+    /** Bold for headings and prominent labels. */
+    bold: 'Cinzel_700Bold',
+} as const;
+
+/**
  * Shared design tokens used across the mobile UI.
  */
 export const fantasyTokens = {
+    fonts: fantasyFonts,
+    fontSizes: {
+        xs: 9,
+        sm: 13,
+        md: 18,
+        lg: 20,
+    },
     colors: {
         parchment: '#f6e9cf',
         parchmentDeep: '#f0e0c0',
@@ -14,6 +36,7 @@ export const fantasyTokens = {
         ember: '#5f4325',
         gold: '#c4a470',
         goldLight: '#e8b84b',
+        goldDark: '#9e845b',
         crimson: '#7b1e1e',
         crimsonSoft: 'rgba(123, 30, 30, 0.2)',
         night: '#1f1711',
@@ -73,7 +96,7 @@ export const fantasyTokens = {
         elevation: 0,
     },
     addButton: {
-        fontFamily: 'serif',
+        fontFamily: fantasyFonts.regular,
         fontSize: 8.5,
         letterSpacing: 1.5,
         textTransform: 'uppercase' as const,
@@ -84,6 +107,16 @@ export const fantasyTokens = {
         borderRadius: 6,
         paddingVertical: 5,
         paddingHorizontal: 12,
+    },
+    text: {
+        formLabel: {
+            fontFamily: fantasyFonts.regular,
+            fontSize: 11,
+            letterSpacing: 2,
+            textTransform: 'uppercase' as 'uppercase',
+            color: 'rgba(201,146,42,0.6)',
+            marginBottom: 6,
+        }
     },
 };
 

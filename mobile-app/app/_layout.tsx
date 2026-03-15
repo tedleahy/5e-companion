@@ -1,16 +1,37 @@
 import { Stack } from 'expo-router';
-import { StyleSheet, useColorScheme } from 'react-native';
+import { ActivityIndicator, StyleSheet, useColorScheme, View } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 import { ApolloProvider } from '@apollo/client/react';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
+import { useFonts } from 'expo-font';
+import {
+    Cinzel_400Regular,
+    Cinzel_500Medium,
+    Cinzel_600SemiBold,
+    Cinzel_700Bold,
+} from '@expo-google-fonts/cinzel';
 import apolloClient from './apolloClient';
 import { buildFantasyTheme, fantasyTokens } from '../theme/fantasyTheme';
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
     const theme = buildFantasyTheme(colorScheme);
+    const [fontsLoaded] = useFonts({
+        Cinzel_400Regular,
+        Cinzel_500Medium,
+        Cinzel_600SemiBold,
+        Cinzel_700Bold,
+    });
+
+    if (!fontsLoaded) {
+        return (
+            <View style={styles.loadingScreen}>
+                <ActivityIndicator size="large" color={fantasyTokens.colors.gold} />
+            </View>
+        );
+    }
 
     return (
         <GestureHandlerRootView style={styles.gestureRoot}>
@@ -53,5 +74,11 @@ const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: fantasyTokens.colors.night,
+    },
+    loadingScreen: {
+        flex: 1,
+        backgroundColor: fantasyTokens.colors.night,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
