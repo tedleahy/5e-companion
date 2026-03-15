@@ -1,109 +1,111 @@
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
-import { ABILITY_KEYS, type AbilityKey } from '@/lib/characterSheetUtils';
-import { rollAllAbilityScores } from '@/lib/dndHelpers';
-import AbilityBlock from '@/components/wizard/AbilityBlock';
+import { ABILITY_ABBREVIATIONS, ABILITY_KEYS, type AbilityKey } from '@/lib/characterSheetUtils';
+import { asiPointsForLevel } from '@/lib/dndHelpers';
+import { sharedStyles } from '@/components/wizard/abilitiesShared';
+import RollAbilityMode from '@/components/wizard/RollAbilityMode';
+import PointBuyAbilityMode from '@/components/wizard/PointBuyAbilityMode';
 
 export default function StepAbilities() {
-    const { draft, setAbilityScore, setAllAbilityScores } = useCharacterDraft();
+    const { draft, updateDraft, setAllAbilityScores } = useCharacterDraft();
 
-    function handleRoll() {
-        setAllAbilityScores(rollAllAbilityScores());
+    const isPointBuy = draft.abilityMode === 'pointBuy';
+    const totalAsiPoints = asiPointsForLevel(draft.level);
+    const usedAsiPoints = ABILITY_KEYS.reduce((sum, k) => sum + (draft.asiAllocations[k] ?? 0), 0);
+    const remainingAsi = totalAsiPoints - usedAsiPoints;
+
+    function handleModeSwitch(mode: 'roll' | 'pointBuy') {
+        if (mode === draft.abilityMode) return;
+        const newScores = mode === 'pointBuy'
+            ? { strength: 8, dexterity: 8, constitution: 8, intelligence: 8, wisdom: 8, charisma: 8 }
+            : { strength: 10, dexterity: 10, constitution: 10, intelligence: 10, wisdom: 10, charisma: 10 };
+        updateDraft({ abilityMode: mode });
+        setAllAbilityScores(newScores);
     }
 
-    // Render abilities in a 2-column grid
-    const rows: AbilityKey[][] = [];
-    for (let i = 0; i < ABILITY_KEYS.length; i += 2) {
-        rows.push(ABILITY_KEYS.slice(i, i + 2) as AbilityKey[]);
+    function handleAsiIncrement(ability: AbilityKey) {
+        if (remainingAsi <= 0) return;
+        updateDraft({
+            asiAllocations: { ...draft.asiAllocations, [ability]: (draft.asiAllocations[ability] ?? 0) + 1 },
+        });
+    }
+
+    function handleAsiDecrement(ability: AbilityKey) {
+        if ((draft.asiAllocations[ability] ?? 0) <= 0) return;
+        updateDraft({
+            asiAllocations: { ...draft.asiAllocations, [ability]: draft.asiAllocations[ability] - 1 },
+        });
     }
 
     return (
-        <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
-            <Text style={styles.heading}>Set your abilities.</Text>
-            <Text style={styles.sub}>Six scores, six aspects of your soul.</Text>
+        <ScrollView style={sharedStyles.scroll} contentContainerStyle={sharedStyles.container}>
+            <Text style={sharedStyles.heading}>Set your abilities.</Text>
+            <Text style={sharedStyles.sub}>Six scores, six aspects of your soul.</Text>
 
-            <Pressable
-                onPress={handleRoll}
-                style={({ pressed }) => [styles.rollBtn, pressed && styles.rollBtnPressed]}
-            >
-                <Text style={styles.rollBtnText}>{'\u{1F3B2}'} Roll 4d6 drop lowest</Text>
-            </Pressable>
-
-            <View style={styles.grid}>
-                {rows.map((row, rowIdx) => (
-                    <View key={rowIdx} style={styles.gridRow}>
-                        {row.map((ability) => (
-                            <View key={ability} style={styles.gridItem}>
-                                <AbilityBlock
-                                    ability={ability}
-                                    score={draft.abilityScores[ability]}
-                                    onIncrement={() => setAbilityScore(ability, draft.abilityScores[ability] + 1)}
-                                    onDecrement={() => setAbilityScore(ability, draft.abilityScores[ability] - 1)}
-                                />
-                            </View>
-                        ))}
-                    </View>
-                ))}
+            {/* Mode toggle */}
+            <View style={sharedStyles.modeToggle}>
+                <Pressable
+                    onPress={() => handleModeSwitch('roll')}
+                    style={[sharedStyles.modeTab, !isPointBuy && sharedStyles.modeTabActive]}
+                >
+                    <Text style={[sharedStyles.modeTabText, !isPointBuy && sharedStyles.modeTabTextActive]}>Roll</Text>
+                </Pressable>
+                <Pressable
+                    onPress={() => handleModeSwitch('pointBuy')}
+                    style={[sharedStyles.modeTab, isPointBuy && sharedStyles.modeTabActive]}
+                >
+                    <Text style={[sharedStyles.modeTabText, isPointBuy && sharedStyles.modeTabTextActive]}>Point Buy</Text>
+                </Pressable>
             </View>
+
+            {/* Mode-specific content */}
+            {isPointBuy ? <PointBuyAbilityMode /> : <RollAbilityMode />}
+
+            {/* ASI Section */}
+            {totalAsiPoints > 0 && (
+                <View style={sharedStyles.asiSection}>
+                    <Text style={sharedStyles.asiHeading}>Ability Score Increases</Text>
+                    <Text style={sharedStyles.asiSub}>
+                        Your level grants {totalAsiPoints} points to distribute. {remainingAsi} remaining.
+                    </Text>
+                    <View style={sharedStyles.asiGrid}>
+                        {ABILITY_KEYS.map((ability) => {
+                            const allocated = draft.asiAllocations[ability] ?? 0;
+                            return (
+                                <View key={ability} style={sharedStyles.asiRow}>
+                                    <Text style={sharedStyles.asiLabel}>{ABILITY_ABBREVIATIONS[ability]}</Text>
+                                    <View style={sharedStyles.asiControls}>
+                                        <Pressable
+                                            onPress={() => handleAsiDecrement(ability)}
+                                            disabled={allocated <= 0}
+                                            style={({ pressed }) => [
+                                                sharedStyles.asiBtn,
+                                                allocated <= 0 && sharedStyles.asiBtnDisabled,
+                                                pressed && allocated > 0 && sharedStyles.asiBtnPressed,
+                                            ]}
+                                        >
+                                            <Text style={sharedStyles.asiBtnText}>{'\u2212'}</Text>
+                                        </Pressable>
+                                        <Text style={sharedStyles.asiValue}>{allocated > 0 ? `+${allocated}` : '0'}</Text>
+                                        <Pressable
+                                            onPress={() => handleAsiIncrement(ability)}
+                                            disabled={remainingAsi <= 0}
+                                            style={({ pressed }) => [
+                                                sharedStyles.asiBtn,
+                                                remainingAsi <= 0 && sharedStyles.asiBtnDisabled,
+                                                pressed && remainingAsi > 0 && sharedStyles.asiBtnPressed,
+                                            ]}
+                                        >
+                                            <Text style={sharedStyles.asiBtnText}>+</Text>
+                                        </Pressable>
+                                    </View>
+                                </View>
+                            );
+                        })}
+                    </View>
+                </View>
+            )}
         </ScrollView>
     );
 }
-
-const styles = StyleSheet.create({
-    scroll: {
-        flex: 1,
-    },
-    container: {
-        padding: 20,
-    },
-    heading: {
-        fontFamily: 'serif',
-        fontSize: 22,
-        fontWeight: '700',
-        color: fantasyTokens.colors.parchment,
-        lineHeight: 26,
-        marginBottom: 4,
-    },
-    sub: {
-        fontFamily: 'serif',
-        fontSize: 14,
-        fontStyle: 'italic',
-        color: 'rgba(201,146,42,0.5)',
-        marginBottom: 20,
-    },
-    rollBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-        backgroundColor: 'rgba(201,146,42,0.1)',
-        borderWidth: 1,
-        borderColor: 'rgba(201,146,42,0.25)',
-        borderRadius: 10,
-        paddingVertical: 10,
-        marginBottom: 12,
-    },
-    rollBtnPressed: {
-        backgroundColor: 'rgba(201,146,42,0.15)',
-    },
-    rollBtnText: {
-        fontFamily: 'serif',
-        fontSize: 9,
-        letterSpacing: 2,
-        textTransform: 'uppercase',
-        color: fantasyTokens.colors.gold,
-        opacity: 0.8,
-    },
-    grid: {
-        gap: 8,
-    },
-    gridRow: {
-        flexDirection: 'row',
-        gap: 8,
-    },
-    gridItem: {
-        flex: 1,
-    },
-});

@@ -8,9 +8,11 @@ type Props = {
     score: number;
     onIncrement: () => void;
     onDecrement: () => void;
+    /** Racial ability bonus to display (e.g. +2). */
+    racialBonus?: number;
 };
 
-export default function AbilityBlock({ ability, score, onIncrement, onDecrement }: Props) {
+export default function AbilityBlock({ ability, score, onIncrement, onDecrement, racialBonus }: Props) {
     const mod = abilityModifier(score);
     const modStr = formatSignedNumber(mod);
     const isPositive = mod > 0;
@@ -28,6 +30,9 @@ export default function AbilityBlock({ ability, score, onIncrement, onDecrement 
                     <Text style={styles.btnText}>{'\u2212'}</Text>
                 </Pressable>
                 <Text style={styles.value}>{score}</Text>
+                {racialBonus != null && racialBonus !== 0 && (
+                    <Text style={styles.bonusTag}>+{racialBonus}</Text>
+                )}
                 <Pressable
                     onPress={onIncrement}
                     style={({ pressed }) => [styles.btn, pressed && styles.btnPressed]}
@@ -61,7 +66,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
     label: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8,
         letterSpacing: 2,
         textTransform: 'uppercase',
@@ -87,14 +92,14 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(201,146,42,0.18)',
     },
     btnText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 14,
         color: 'rgba(201,146,42,0.6)',
     },
     value: {
         flex: 1,
         textAlign: 'center',
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 22,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
@@ -114,7 +119,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(139,26,26,0.1)',
     },
     modText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         fontWeight: '600',
         color: fantasyTokens.colors.crimson,
@@ -125,5 +130,14 @@ const styles = StyleSheet.create({
     },
     modTextNegative: {
         color: fantasyTokens.colors.crimson,
+    },
+    bonusTag: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: 10,
+        fontWeight: '600',
+        color: '#2a7a2a',
+        position: 'absolute',
+        right: 6,
+        top: 4,
     },
 });
