@@ -265,6 +265,8 @@ describe('CharacterByIdScreen', () => {
                         ac: 17,
                         speed: 35,
                         initiative: 3,
+                        spellSaveDC: 17,
+                        spellAttackBonus: 9,
                         conditions: [],
                     },
                 },
