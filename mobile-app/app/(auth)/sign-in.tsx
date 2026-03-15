@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Button, Card, Divider, HelperText, Text } from 'react-native-paper';
@@ -40,7 +39,7 @@ export default function SignIn() {
                     Sign in
                 </Text>
                 <Text variant="bodyMedium" style={styles.subtitle}>
-                    Forge a new account to track spells, characters, and party loot.
+                    Welcome back, adventurer.
                 </Text>
             </View>
 
@@ -92,10 +91,10 @@ export default function SignIn() {
                     <Button
                         mode="outlined"
                         style={styles.secondaryButton}
-                        textColor={fantasyTokens.colors.crimson}
+                        textColor={fantasyTokens.colors.goldDark}
                         onPress={() => router.push('/(auth)/sign-up')}
                     >
-                       I don't have an account yet
+                        Forge a new account
                     </Button>
                 </Card.Content>
             </Card>

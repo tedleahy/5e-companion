@@ -105,7 +105,7 @@ export default function SignUp() {
                     <Button
                         mode="outlined"
                         style={styles.secondaryButton}
-                        textColor={fantasyTokens.colors.crimson}
+                        textColor={fantasyTokens.colors.goldDark}
                         onPress={() => router.back()}
                     >
                         I already have an account
