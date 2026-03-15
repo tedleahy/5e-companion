@@ -1,4 +1,6 @@
 import '@testing-library/jest-native/extend-expect';
+import React from 'react';
+import { View, ScrollView } from 'react-native';
 
 // Mock expo-router
 jest.mock('expo-router', () => ({
@@ -32,16 +34,25 @@ jest.mock('@/lib/supabase', () => ({
     },
 }));
 
-jest.mock('react-native-keyboard-controller', () => {
-    const React = require('react');
-    const { ScrollView } = require('react-native');
+jest.mock('react-native-pager-view', () => ({
+    __esModule: true,
+    default: React.forwardRef(function MockPagerView(props: any, ref: any) {
+        const { children, initialPage, onPageSelected, style, ...rest } = props;
+        void initialPage;
+        void onPageSelected;
+        React.useImperativeHandle(ref, () => ({
+            setPage: jest.fn(),
+            setPageWithoutAnimation: jest.fn(),
+        }));
+        return React.createElement(View, { ...rest, style }, children);
+    }),
+}));
 
-    return {
-        KeyboardProvider: ({ children }: any) => children,
-        KeyboardAwareScrollView: React.forwardRef((props: any, ref: any) => {
-            const { bottomOffset, ...restProps } = props;
-            void bottomOffset;
-            return React.createElement(ScrollView, { ...restProps, ref }, props.children);
-        }),
-    };
-});
+jest.mock('react-native-keyboard-controller', () => ({
+    KeyboardProvider: ({ children }: any) => children,
+    KeyboardAwareScrollView: React.forwardRef(function MockKeyboardAwareScrollView(props: any, ref: any) {
+        const { bottomOffset, ...restProps } = props;
+        void bottomOffset;
+        return React.createElement(ScrollView, { ...restProps, ref }, props.children);
+    }),
+}));

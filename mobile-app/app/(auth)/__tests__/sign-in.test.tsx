@@ -42,12 +42,12 @@ describe('SignIn', () => {
 
     it('renders a link to sign up', () => {
         renderScreen();
-        expect(screen.getByText("I don't have an account yet")).toBeTruthy();
+        expect(screen.getByText('Forge a new account')).toBeTruthy();
     });
 
     it('navigates to sign-up when link is pressed', () => {
         renderScreen();
-        fireEvent.press(screen.getByText("I don't have an account yet"));
+        fireEvent.press(screen.getByText('Forge a new account'));
         expect(mockPush).toHaveBeenCalledWith('/(auth)/sign-up');
     });
 

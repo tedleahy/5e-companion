@@ -148,7 +148,6 @@ describe('CharacterByIdScreen', () => {
         await waitFor(() => {
             expect(screen.getByText('Passive Senses')).toBeTruthy();
         });
-        expect(screen.queryByText('Abilities & Skills')).toBeNull();
     });
 
     it('shows empty state when no characters exist', async () => {
@@ -359,15 +358,15 @@ describe('CharacterByIdScreen', () => {
         await waitFor(() => {
             expect(screen.getByText('Abilities & Skills')).toBeTruthy();
         });
-        expect(screen.queryByText('Passive Senses')).toBeNull();
     });
 
     it('cycles skill proficiency and updates skill modifier', async () => {
         renderScreen([CHARACTERS_MOCK, UPDATE_SKILLS_MOCK]);
 
         await waitFor(() => {
-            expect(screen.getByLabelText('Open Abilities tab')).toBeTruthy();
+            expect(screen.getByLabelText('Enable character sheet edit mode')).toBeTruthy();
         });
+        fireEvent.press(screen.getByLabelText('Enable character sheet edit mode'));
         fireEvent.press(screen.getByLabelText('Open Abilities tab'));
 
         await waitFor(() => {
@@ -391,8 +390,9 @@ describe('CharacterByIdScreen', () => {
         renderScreen([CHARACTERS_MOCK, UPDATE_SAVING_THROW_PROFICIENCIES_MOCK]);
 
         await waitFor(() => {
-            expect(screen.getByLabelText('Open Abilities tab')).toBeTruthy();
+            expect(screen.getByLabelText('Enable character sheet edit mode')).toBeTruthy();
         });
+        fireEvent.press(screen.getByLabelText('Enable character sheet edit mode'));
         fireEvent.press(screen.getByLabelText('Open Abilities tab'));
 
         await waitFor(() => {
@@ -461,7 +461,7 @@ describe('CharacterByIdScreen', () => {
         });
         expect(screen.getByText('Fireball')).toBeTruthy();
         expect(screen.getByText('Detect Magic')).toBeTruthy();
-        expect(screen.getByText('+9')).toBeTruthy();
+        expect(screen.getAllByText('+9').length).toBeGreaterThanOrEqual(1);
     });
 
     it('switches to the Gear tab and shows currency, attacks, and inventory', async () => {
@@ -477,7 +477,7 @@ describe('CharacterByIdScreen', () => {
         });
 
         expect(screen.getByTestId('currency-gp-amount')).toHaveTextContent('847');
-        expect(screen.getByText('Weapons')).toBeTruthy();
+        expect(screen.getAllByText('Weapons').length).toBeGreaterThanOrEqual(1);
         expect(screen.getByText('Dagger')).toBeTruthy();
         expect(screen.getByTestId('attack-stats-attack-1')).toHaveStyle({ alignItems: 'flex-end' });
         expect(screen.getByText('Backpack')).toBeTruthy();
@@ -501,7 +501,19 @@ describe('CharacterByIdScreen', () => {
         expect(screen.getByText('Darkvision')).toBeTruthy();
         expect(screen.getByText('Feats')).toBeTruthy();
         expect(screen.getByText('War Caster')).toBeTruthy();
-        expect(screen.getByText('Personality & Background')).toBeTruthy();
+    });
+
+    it('switches to the Traits tab and shows personality and proficiencies', async () => {
+        renderScreen();
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Open Traits tab')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByLabelText('Open Traits tab'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Personality & Background')).toBeTruthy();
+        });
         expect(screen.getByText('Proficiencies & Languages')).toBeTruthy();
         expect(screen.getByText('Common')).toBeTruthy();
     });
