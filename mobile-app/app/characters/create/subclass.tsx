@@ -2,7 +2,7 @@ import { ScrollView, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
-import { SUBCLASS_OPTIONS } from '@/lib/dndHelpers';
+import { SUBCLASS_OPTIONS } from '@/lib/characterCreation/options';
 import OptionGrid from '@/components/wizard/OptionGrid';
 
 export default function StepSubclass() {

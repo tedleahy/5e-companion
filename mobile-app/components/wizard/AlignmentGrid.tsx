@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
-import { ALIGNMENT_OPTIONS } from '@/lib/dndHelpers';
+import { ALIGNMENT_OPTIONS } from '@/lib/characterCreation/options';
 
 type Props = {
     selected: string | null;

@@ -3,7 +3,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
-import { BACKGROUND_OPTIONS } from '@/lib/dndHelpers';
+import { BACKGROUND_OPTIONS } from '@/lib/characterCreation/options';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 import OptionGrid from '@/components/wizard/OptionGrid';
 import AlignmentGrid from '@/components/wizard/AlignmentGrid';
