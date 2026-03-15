@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import SheetCard from './SheetCard';
@@ -21,6 +21,8 @@ type DeathSavesCardProps = {
  * (decrements). This gives a natural toggle feel matching the HTML prototype.
  */
 export default function DeathSavesCard({ successes, failures, onUpdate }: DeathSavesCardProps) {
+    const hasAnyMarks = successes > 0 || failures > 0;
+
     function handleSuccessTap(index: number) {
         const newSuccesses = index < successes ? index : index + 1;
         onUpdate(Math.min(newSuccesses, 3), failures);
@@ -43,9 +45,9 @@ export default function DeathSavesCard({ successes, failures, onUpdate }: DeathS
                         onPressPip={handleSuccessTap}
                         getAccessibilityLabel={(index) => `Death save success ${index + 1}`}
                         getTestID={(index) => `death-save-success-circle-${index + 1}`}
-                        size={16}
-                        gap={6}
-                        borderWidth={1.5}
+                        size={26}
+                        gap={10}
+                        borderWidth={2}
                         filledColor={fantasyTokens.colors.greenDark}
                         filledBorderColor={fantasyTokens.colors.greenDark}
                         emptyBorderColor={fantasyTokens.colors.divider}
@@ -60,15 +62,26 @@ export default function DeathSavesCard({ successes, failures, onUpdate }: DeathS
                         onPressPip={handleFailureTap}
                         getAccessibilityLabel={(index) => `Death save failure ${index + 1}`}
                         getTestID={(index) => `death-save-failure-circle-${index + 1}`}
-                        size={16}
-                        gap={6}
-                        borderWidth={1.5}
+                        size={26}
+                        gap={10}
+                        borderWidth={2}
                         filledColor={fantasyTokens.colors.crimson}
                         filledBorderColor={fantasyTokens.colors.crimson}
                         emptyBorderColor={fantasyTokens.colors.divider}
                     />
                 </View>
             </View>
+            {hasAnyMarks && (
+                <Pressable
+                    onPress={() => onUpdate(0, 0)}
+                    style={styles.resetButton}
+                    accessibilityRole="button"
+                    accessibilityLabel="Reset death saves"
+                    testID="death-saves-reset"
+                >
+                    <Text style={styles.resetText}>Reset</Text>
+                </Pressable>
+            )}
         </SheetCard>
     );
 }
@@ -85,11 +98,28 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     columnLabel: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 9,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: 'rgba(61,43,31,0.45)',
         marginBottom: 8,
+    },
+    resetButton: {
+        alignSelf: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 6,
+        marginBottom: 12,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: fantasyTokens.colors.divider,
+        backgroundColor: 'rgba(0,0,0,0.04)',
+    },
+    resetText: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: 9,
+        letterSpacing: 1.5,
+        textTransform: 'uppercase',
+        color: 'rgba(61,43,31,0.5)',
     },
 });
