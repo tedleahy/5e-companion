@@ -11,7 +11,7 @@ import { usePathname, useRouter } from 'expo-router';
 import { useMutation } from '@apollo/client/react';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
-import { buildCreateCharacterInput } from '@/lib/dndHelpers';
+import { buildCreateCharacterInput } from '@/lib/characterCreation/buildCreateCharacterInput';
 import { CREATE_CHARACTER, GET_CURRENT_USER_CHARACTERS } from '@/graphql/characterSheet.operations';
 
 function getStepRoutes(level: number) {
