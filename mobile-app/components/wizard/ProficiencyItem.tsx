@@ -7,16 +7,48 @@ type Props = {
     abilityAbbr: string;
     selected: boolean;
     onToggle: () => void;
+    /** If true, the item is locked (auto-selected, not toggleable). */
+    locked?: boolean;
+    /** If true, the item is greyed out and not toggleable. */
+    disabled?: boolean;
+    /** Whether this skill has expertise (double proficiency). */
+    expertise?: boolean;
+    /** Called on long-press to toggle expertise. */
+    onToggleExpertise?: () => void;
 };
 
-export default function ProficiencyItem({ name, abilityAbbr, selected, onToggle }: Props) {
+export default function ProficiencyItem({
+    name, abilityAbbr, selected, onToggle, locked, disabled, expertise, onToggleExpertise,
+}: Props) {
+    const isInteractive = !locked && !disabled;
+
     return (
-        <Pressable onPress={onToggle} style={[styles.item, selected && styles.itemSelected]}>
-            <View style={[styles.check, selected && styles.checkSelected]}>
+        <Pressable
+            onPress={isInteractive ? onToggle : undefined}
+            onLongPress={isInteractive && selected && onToggleExpertise ? onToggleExpertise : undefined}
+            style={[
+                styles.item,
+                selected && styles.itemSelected,
+                expertise && styles.itemExpertise,
+                locked && styles.itemLocked,
+                disabled && styles.itemDisabled,
+            ]}
+        >
+            <View style={[
+                styles.check,
+                selected && styles.checkSelected,
+                expertise && styles.checkExpertise,
+                locked && styles.checkLocked,
+            ]}>
                 {selected && <View style={styles.checkInner} />}
+                {expertise && <View style={styles.checkExpertiseRing} />}
             </View>
-            <Text style={[styles.name, selected && styles.nameSelected]}>{name}</Text>
+            <Text style={[styles.name, selected && styles.nameSelected, locked && styles.nameLocked]}>
+                {name}
+            </Text>
             <Text style={styles.attr}>{abilityAbbr}</Text>
+            {locked && <Text style={styles.lockedTag}>BG</Text>}
+            {expertise && <Text style={styles.expertiseTag}>EXP</Text>}
         </Pressable>
     );
 }
@@ -58,7 +90,7 @@ const styles = StyleSheet.create({
     },
     name: {
         flex: 1,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 10,
         letterSpacing: 1,
         textTransform: 'uppercase',
@@ -68,9 +100,53 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.gold,
     },
     attr: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 9,
         letterSpacing: 1,
         color: 'rgba(201,146,42,0.3)',
+    },
+    itemLocked: {
+        borderColor: 'rgba(42,122,42,0.25)',
+        backgroundColor: 'rgba(42,122,42,0.06)',
+    },
+    itemDisabled: {
+        opacity: 0.35,
+    },
+    checkLocked: {
+        backgroundColor: '#2a7a2a',
+        borderColor: '#2a7a2a',
+    },
+    nameLocked: {
+        color: '#2a7a2a',
+    },
+    lockedTag: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: 8,
+        letterSpacing: 1,
+        color: 'rgba(42,122,42,0.6)',
+        textTransform: 'uppercase',
+    },
+    itemExpertise: {
+        borderColor: '#6a4fd4',
+        backgroundColor: 'rgba(106,79,212,0.08)',
+    },
+    checkExpertise: {
+        backgroundColor: '#6a4fd4',
+        borderColor: '#6a4fd4',
+    },
+    checkExpertiseRing: {
+        position: 'absolute',
+        width: 22,
+        height: 22,
+        borderRadius: 11,
+        borderWidth: 1.5,
+        borderColor: '#6a4fd4',
+    },
+    expertiseTag: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: 8,
+        letterSpacing: 1,
+        color: 'rgba(106,79,212,0.7)',
+        textTransform: 'uppercase',
     },
 });
