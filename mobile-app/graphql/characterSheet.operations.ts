@@ -257,10 +257,14 @@ export const UPDATE_CHARACTER = gql`
     mutation UpdateCharacter($id: ID!, $input: UpdateCharacterInput!) {
         updateCharacter(id: $id, input: $input) {
             id
+            level
+            proficiencyBonus
             ac
             speed
             initiative
             conditions
+            spellSaveDC
+            spellAttackBonus
         }
     }
 `;

@@ -128,3 +128,28 @@ export const SKILLS_BY_ABILITY: Record<AbilityKey, SkillDefinition[]> = ABILITY_
 export function isAbilityKey(value: string): value is AbilityKey {
     return ABILITY_KEYS.includes(value as AbilityKey);
 }
+
+/**
+ * Derives spell attack bonus and spell save DC from the character's
+ * spellcasting ability score and proficiency bonus.
+ *
+ * In 5e:
+ * - Spell Attack Bonus = proficiency bonus + spellcasting ability modifier
+ * - Spell Save DC = 8 + spell attack bonus
+ *
+ * Returns `null` values when the character has no spellcasting ability
+ * (i.e. non-caster classes like Fighter or Barbarian).
+ */
+export function deriveSpellcastingStats(
+    spellcastingAbility: string | null | undefined,
+    abilityScores: Record<AbilityKey, number>,
+    proficiencyBonus: number,
+): { spellAttackBonus: number | null; spellSaveDC: number | null } {
+    if (!spellcastingAbility || !isAbilityKey(spellcastingAbility)) {
+        return { spellAttackBonus: null, spellSaveDC: null };
+    }
+    const score = abilityScores[spellcastingAbility];
+    const spellAttackBonus = proficiencyBonus + abilityModifier(score);
+    const spellSaveDC = 8 + spellAttackBonus;
+    return { spellAttackBonus, spellSaveDC };
+}

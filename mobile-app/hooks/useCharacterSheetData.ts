@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { deriveSpellcastingStats } from '@/lib/characterSheetUtils';
 import type { ApolloCache } from '@apollo/client';
 import { useMutation, useQuery } from '@apollo/client/react';
 import type {
@@ -148,6 +149,8 @@ export type SaveCharacterSheetCoreInput = {
     weapons: CharacterAttack[];
     inventory: CharacterInventoryItem[];
     features: CharacterFeature[];
+    spellSaveDC?: number | null;
+    spellAttackBonus?: number | null;
 };
 
 /**
@@ -858,6 +861,8 @@ export default function useCharacterSheetData(characterId: string) {
                         speed: input.speed,
                         initiative: input.initiative,
                         conditions: input.conditions,
+                        ...(input.spellSaveDC != null && { spellSaveDC: input.spellSaveDC }),
+                        ...(input.spellAttackBonus != null && { spellAttackBonus: input.spellAttackBonus }),
                     },
                 },
             }),
@@ -1000,6 +1005,57 @@ export default function useCharacterSheetData(characterId: string) {
         updateWeapon,
     ]);
 
+    /**
+     * Increments the character's level by 1 and recalculates proficiency bonus.
+     * Proficiency bonus follows the 5e rule: 2 + floor((level - 1) / 4).
+     */
+    const handleLevelUp = useCallback(async () => {
+        if (!character) return;
+        const nextLevel = character.level + 1;
+        const nextProficiencyBonus = 2 + Math.floor((nextLevel - 1) / 4);
+
+        const abilityScores = character.stats?.abilityScores ?? {} as Record<AbilityKey, number>;
+        const { spellAttackBonus, spellSaveDC } = deriveSpellcastingStats(
+            character.spellcastingAbility,
+            abilityScores as Record<AbilityKey, number>,
+            nextProficiencyBonus,
+        );
+
+        await updateCharacter({
+            variables: {
+                id: character.id,
+                input: {
+                    level: nextLevel,
+                    proficiencyBonus: nextProficiencyBonus,
+                    ...(spellSaveDC != null && { spellSaveDC }),
+                    ...(spellAttackBonus != null && { spellAttackBonus }),
+                },
+            },
+        });
+
+        await refetch();
+    }, [character, refetch, updateCharacter]);
+
+    /**
+     * Toggles the equipped state of an inventory item directly via mutation.
+     * Works outside edit mode — no draft required.
+     */
+    const handleToggleEquip = useCallback(async (itemId: string) => {
+        if (!character) return;
+        const item = character.inventory.find((inventoryItem) => inventoryItem.id === itemId);
+        if (!item) return;
+
+        await updateInventoryItem({
+            variables: {
+                characterId: character.id,
+                itemId,
+                input: inventoryItemInput({ ...item, equipped: !item.equipped }),
+            },
+        });
+
+        await refetch();
+    }, [character, refetch, updateInventoryItem]);
+
     return {
         character,
         loading,
@@ -1014,5 +1070,7 @@ export default function useCharacterSheetData(characterId: string) {
         handleForgetSpell,
         handleSetSpellPrepared,
         handleSaveCharacterSheetCore,
+        handleLevelUp,
+        handleToggleEquip,
     };
 }
