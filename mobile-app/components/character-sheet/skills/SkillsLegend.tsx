@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
         gap: 7,
     },
     legendText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.55,

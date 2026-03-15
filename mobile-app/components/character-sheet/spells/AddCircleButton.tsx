@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     icon: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 16,
         lineHeight: 18,
         includeFontPadding: false,

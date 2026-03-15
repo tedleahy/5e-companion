@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     codexLabel: {
         color: fantasyTokens.colors.gold,
         opacity: 0.7,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 9,
         letterSpacing: 3,
         textTransform: 'uppercase',
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     },
     pageTitle: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 28,
         lineHeight: 32,
         marginTop: 6,
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
     },
     countText: {
         color: 'rgba(201,146,42,0.5)',
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 13,
         lineHeight: 17,
         marginTop: 2,
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
     },
     fabIcon: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 22,
         lineHeight: 24,
         marginTop: -1,
@@ -313,19 +313,19 @@ const styles = StyleSheet.create({
     },
     loadingText: {
         color: fantasyTokens.colors.parchmentDeep,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 14,
         textAlign: 'center',
     },
     errorTitle: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 18,
         textAlign: 'center',
     },
     errorText: {
         color: fantasyTokens.colors.crimson,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 13,
         textAlign: 'center',
         marginTop: fantasyTokens.spacing.xs,

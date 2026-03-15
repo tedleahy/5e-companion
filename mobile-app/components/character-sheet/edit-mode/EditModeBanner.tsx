@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
         backgroundColor: fantasyTokens.colors.gold,
     },
     text: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8,
         letterSpacing: 1.8,
         textTransform: 'uppercase',

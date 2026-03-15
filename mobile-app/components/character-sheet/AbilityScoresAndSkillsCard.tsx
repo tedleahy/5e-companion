@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     abilityLabel: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 9,
         fontWeight: 'bold',
         letterSpacing: 0.3,
@@ -288,14 +288,14 @@ const styles = StyleSheet.create({
         opacity: 0.6,
     },
     abilityScore: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 22,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
         lineHeight: 24,
     },
     abilityMod: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 16,
         fontWeight: '700',
         color: fantasyTokens.colors.crimson,
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
         paddingVertical: fantasyTokens.spacing.lg,
     },
     emptyText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 13,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.6,
@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
     },
     skillName: {
         flex: 1,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 13,
         color: fantasyTokens.colors.inkLight,
     },
@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     skillMod: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12,
         fontWeight: '600',
         color: fantasyTokens.colors.inkDark,
@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
         paddingBottom: 14,
     },
     legendText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.5,

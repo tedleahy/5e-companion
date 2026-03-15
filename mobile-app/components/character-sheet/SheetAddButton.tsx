@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
         opacity: 0.65,
     },
     buttonText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 10,
         letterSpacing: 2,
         textTransform: 'uppercase',

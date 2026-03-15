@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     },
     skillName: {
         flex: 1,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 14,
         color: fantasyTokens.colors.inkLight,
     },
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     skillAttribute: {
         width: 24,
         textAlign: 'center',
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8,
         letterSpacing: 1,
         color: fantasyTokens.colors.inkLight,
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     skillModifier: {
         minWidth: 34,
         textAlign: 'right',
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 13,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,

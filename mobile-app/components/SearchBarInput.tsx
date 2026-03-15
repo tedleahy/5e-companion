@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     },
     searchInput: {
         color: fantasyTokens.colors.inkDark,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 16,
         minHeight: SEARCH_BAR_HEIGHT,
         paddingVertical: 0,

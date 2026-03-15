@@ -49,13 +49,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     pillValue: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 20,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
     },
     pillLabel: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 9,
         letterSpacing: 0.5,
         textTransform: 'uppercase',

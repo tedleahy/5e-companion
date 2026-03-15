@@ -73,14 +73,14 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
     },
     currencyAmount: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 18,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
         lineHeight: 20,
     },
     currencyLabel: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8,
         letterSpacing: 1.5,
         textTransform: 'uppercase',

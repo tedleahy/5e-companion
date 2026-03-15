@@ -64,14 +64,14 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
     },
     passiveValue: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 24,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
         lineHeight: 24,
     },
     passiveLabel: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8,
         letterSpacing: 1.2,
         textTransform: 'uppercase',

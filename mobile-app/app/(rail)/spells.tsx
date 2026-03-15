@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     },
     pageTitle: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 28,
         lineHeight: 32,
         marginTop: 6,
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     codexLabel: {
         color: fantasyTokens.colors.gold,
         opacity: 0.7,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 9,
         letterSpacing: 3,
         textTransform: 'uppercase',

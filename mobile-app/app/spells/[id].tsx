@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     },
     stateText: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 16,
     },
     page: {
@@ -151,19 +151,19 @@ const styles = StyleSheet.create({
         letterSpacing: 3,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.ember,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         marginBottom: fantasyTokens.spacing.sm,
     },
     title: {
         fontSize: 30,
         color: fantasyTokens.colors.inkDark,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         marginBottom: fantasyTokens.spacing.xs,
     },
     subtitle: {
         fontSize: 16,
         color: fantasyTokens.colors.inkSoft,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
     },
     detailPanel: {
         padding: fantasyTokens.spacing.md,
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     },
     tagText: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
     },
     sectionTitle: {
         fontSize: 14,
@@ -187,13 +187,13 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
         color: fantasyTokens.colors.ember,
         marginBottom: fantasyTokens.spacing.sm,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
     },
     body: {
         fontSize: 16,
         lineHeight: 24,
         color: fantasyTokens.colors.inkDark,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
     },
     divider: {
         marginVertical: fantasyTokens.spacing.sm,

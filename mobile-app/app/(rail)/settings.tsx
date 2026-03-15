@@ -24,13 +24,13 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.sm,
     },
     title: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         color: fantasyTokens.colors.parchment,
         fontSize: 24,
         letterSpacing: 0.3,
     },
     message: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         color: fantasyTokens.colors.gold,
         fontSize: 14,
         textTransform: 'uppercase',

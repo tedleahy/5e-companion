@@ -39,7 +39,7 @@ export default function FilterChipGroup({ label, options, selected, onToggle }: 
 const styles = StyleSheet.create({
     sectionLabel: {
         fontSize: 14,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         letterSpacing: 1.2,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.gold,
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     },
     chipText: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
     },
     chipTextSelected: {
         color: fantasyTokens.colors.parchment,

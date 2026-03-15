@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     },
     drawerTitle: {
         fontSize: 22,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         color: fantasyTokens.colors.parchment,
         marginBottom: fantasyTokens.spacing.md,
     },

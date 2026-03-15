@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     addedCountText: {
         color: fantasyTokens.colors.gold,
         opacity: 0.62,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 13,
         fontStyle: 'italic',
     },
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     },
     doneButtonText: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 10,
         textTransform: 'uppercase',
         letterSpacing: 2,

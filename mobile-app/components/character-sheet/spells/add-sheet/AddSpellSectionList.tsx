@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     loadingText: {
         color: fantasyTokens.colors.parchment,
         opacity: 0.72,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 13,
     },
     emptyState: {
@@ -164,12 +164,12 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 15,
     },
     emptySubtext: {
         color: fantasyTokens.colors.crimson,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12,
         marginTop: 6,
     },
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     levelHeaderText: {
         color: fantasyTokens.colors.gold,
         opacity: 0.52,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8,
         textTransform: 'uppercase',
         letterSpacing: 2.4,
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     },
     levelCountText: {
         color: 'rgba(201,146,42,0.42)',
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8,
     },
     spellRow: {
@@ -233,13 +233,13 @@ const styles = StyleSheet.create({
     },
     spellName: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12,
         fontWeight: '700',
     },
     spellMeta: {
         color: 'rgba(245,230,200,0.4)',
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12,
         fontStyle: 'italic',
         marginTop: 1,
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
     },
     tagPillText: {
         color: 'rgba(201,146,42,0.55)',
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 7,
         textTransform: 'uppercase',
         letterSpacing: 0.8,

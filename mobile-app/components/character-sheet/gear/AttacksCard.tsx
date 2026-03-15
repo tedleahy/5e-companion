@@ -134,13 +134,13 @@ const styles = StyleSheet.create({
         minWidth: 0,
     },
     attackName: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 14,
         fontWeight: '600',
         color: fantasyTokens.colors.inkDark,
     },
     attackType: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.5,
@@ -153,13 +153,13 @@ const styles = StyleSheet.create({
         flexShrink: 0,
     },
     attackBonus: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 13,
         fontWeight: '700',
         color: fantasyTokens.colors.crimson,
     },
     attackDamage: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.6,
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
         paddingBottom: 16,
     },
     emptyStateText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.6,

@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
         borderLeftColor: fantasyTokens.colors.divider,
     },
     vitalValue: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 32,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
@@ -180,21 +180,21 @@ const styles = StyleSheet.create({
         gap: 2,
     },
     hpMain: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 32,
         fontWeight: '700',
         lineHeight: 34,
         minWidth: 28,
     },
     hpSeparator: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 14,
         color: fantasyTokens.colors.crimson,
         opacity: 0.45,
         marginHorizontal: 1,
     },
     hpMaxValue: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 16,
         fontWeight: '700',
         lineHeight: 18,
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.blueDark,
     },
     vitalLabel: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 10,
         letterSpacing: 2,
         textTransform: 'uppercase',
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
         textAlignVertical: 'bottom',
     },
     vitalSub: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.5,
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
         paddingBottom: 12,
     },
     tempHpLabel: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8,
         letterSpacing: 2,
         textTransform: 'uppercase',
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.05)',
         paddingHorizontal: 8,
         paddingVertical: 4,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 13,
         fontWeight: '700',
         color: fantasyTokens.colors.inkLight,
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(139,26,26,0.08)',
     },
     conditionText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     conditionTextNone: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8,
         letterSpacing: 1.5,
         textTransform: 'uppercase',

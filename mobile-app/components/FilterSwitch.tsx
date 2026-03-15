@@ -25,7 +25,7 @@ export default function FilterSwitch({ label, value, onToggle }: FilterSwitchPro
 const styles = StyleSheet.create({
     sectionLabel: {
         fontSize: 14,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         letterSpacing: 1.2,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.gold,

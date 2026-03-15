@@ -232,14 +232,14 @@ const styles = StyleSheet.create({
     school: {
         color: fantasyTokens.colors.gold,
         opacity: 0.55,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         textTransform: 'uppercase',
         letterSpacing: 2,
     },
     title: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 23,
         marginTop: 4,
     },
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     },
     levelChipText: {
         color: fantasyTokens.colors.gold,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 9,
         textTransform: 'uppercase',
         letterSpacing: 1,
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
     tagChipText: {
         color: fantasyTokens.colors.parchment,
         opacity: 0.7,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 9,
         textTransform: 'uppercase',
         letterSpacing: 1,
@@ -299,14 +299,14 @@ const styles = StyleSheet.create({
     statLabel: {
         color: fantasyTokens.colors.gold,
         opacity: 0.6,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 9,
         textTransform: 'uppercase',
         letterSpacing: 1.6,
     },
     statValue: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12,
         lineHeight: 15,
         marginTop: 3,
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     bodyHeading: {
         color: fantasyTokens.colors.gold,
         opacity: 0.65,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 10,
         textTransform: 'uppercase',
         letterSpacing: 2,
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
     bodyText: {
         color: fantasyTokens.colors.parchment,
         opacity: 0.82,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 16,
         lineHeight: 22,
     },
@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
     loadingText: {
         color: fantasyTokens.colors.parchment,
         opacity: 0.72,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 13,
     },
     skeletonBody: {
@@ -377,13 +377,13 @@ const styles = StyleSheet.create({
     },
     errorHeading: {
         color: fantasyTokens.colors.crimson,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 16,
     },
     errorText: {
         color: fantasyTokens.colors.parchment,
         opacity: 0.74,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12,
     },
     bottomBar: {
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
     },
     loadingButtonText: {
         color: fantasyTokens.colors.gold,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         letterSpacing: 1.2,
         textTransform: 'uppercase',
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
     },
     addButtonText: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         letterSpacing: 1.8,
         textTransform: 'uppercase',
@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
     },
     addedButtonText: {
         color: '#e3a8a8',
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         letterSpacing: 1.6,
         textTransform: 'uppercase',

@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     levelBadgeText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 10,
         fontWeight: '700',
         color: fantasyTokens.colors.crimson,
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
         minWidth: 0,
     },
     spellName: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11.5,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
         opacity: 0.5,
     },
     spellMeta: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.6,
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
         paddingVertical: 2,
     },
     tagText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 7.5,
         letterSpacing: 1,
         textTransform: 'uppercase',

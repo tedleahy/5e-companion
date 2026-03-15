@@ -241,14 +241,14 @@ const styles = StyleSheet.create({
     },
     name: {
         color: fantasyTokens.colors.inkDark,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 18,
         lineHeight: 21,
         fontWeight: '700',
     },
     identityClass: {
         color: 'rgba(61,43,31,0.74)',
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 14,
         lineHeight: 18,
         fontStyle: 'italic',
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     },
     levelBadgeText: {
         color: fantasyTokens.colors.crimson,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         textTransform: 'uppercase',
         letterSpacing: 1,
         fontSize: 10,
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
     },
     conditionChipText: {
         color: fantasyTokens.colors.crimson,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 7,
         lineHeight: 10,
         letterSpacing: 1,
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     },
     statValue: {
         color: fantasyTokens.colors.inkDark,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 16,
         lineHeight: 16,
         fontWeight: '700',
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
     },
     statLabel: {
         color: 'rgba(61,43,31,0.53)',
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 7,
         lineHeight: 10,
         letterSpacing: 1.5,
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     },
     viewSheetText: {
         color: fantasyTokens.colors.gold,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         textTransform: 'uppercase',
         letterSpacing: 1.5,
         fontSize: 8,

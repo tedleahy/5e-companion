@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
         borderBottomColor: fantasyTokens.colors.divider,
     },
     title: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12.5,
         letterSpacing: 2.5,
         textTransform: 'uppercase',

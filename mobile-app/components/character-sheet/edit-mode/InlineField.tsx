@@ -93,11 +93,11 @@ const styles = StyleSheet.create({
         paddingVertical: 4,
         minHeight: 30,
         color: fantasyTokens.colors.inkDark,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
     },
     input: {
         color: fantasyTokens.colors.inkDark,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
     },
     multilineField: {
         minHeight: 64,

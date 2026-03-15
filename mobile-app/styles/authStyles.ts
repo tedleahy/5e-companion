@@ -12,15 +12,17 @@ export const styles = StyleSheet.create({
     },
     title: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         marginBottom: fantasyTokens.spacing.sm,
         textAlign: 'center',
     },
     subtitle: {
-        color: fantasyTokens.colors.inkSoft,
-        fontFamily: 'serif',
-        lineHeight: 22,
+        color: fantasyTokens.colors.gold,
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: 16,
+        lineHeight: 24,
         textAlign: 'center',
+        opacity: 0.85,
     },
     card: {
         backgroundColor: fantasyTokens.colors.parchmentDeep,
@@ -29,7 +31,8 @@ export const styles = StyleSheet.create({
     },
     sectionTitle: {
         color: fantasyTokens.colors.crimson,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: fantasyTokens.fontSizes.md,
         marginBottom: fantasyTokens.spacing.sm,
         textAlign: 'center',
     },

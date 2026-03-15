@@ -181,14 +181,14 @@ const styles = StyleSheet.create({
     },
     characterName: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12,
         fontWeight: '700',
         letterSpacing: 0.3,
     },
     characterSubline: {
         color: fantasyTokens.colors.gold,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12,
         fontStyle: 'italic',
         marginTop: 1,
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
         paddingTop: fantasyTokens.spacing.sm,
     },
     sectionLabel: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8,
         textTransform: 'uppercase',
         letterSpacing: 2.5,
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     },
     itemLabel: {
         color: fantasyTokens.rail.label,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         textTransform: 'uppercase',
         letterSpacing: 1.5,
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     },
     collapseLabel: {
         color: fantasyTokens.rail.muted,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 10,
         textTransform: 'uppercase',
         letterSpacing: 1.5,

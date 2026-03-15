@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
         paddingBottom: 2,
     },
     backgroundText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         color: fantasyTokens.colors.gold,
         opacity: 0.7,
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     traitLabel: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8,
         letterSpacing: 2,
         textTransform: 'uppercase',
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
         opacity: 0.45,
     },
     traitText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 14,
         lineHeight: 19,
         color: fantasyTokens.colors.inkLight,

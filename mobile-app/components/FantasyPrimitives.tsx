@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.crimson,
         fontSize: 18,
         letterSpacing: 6,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
     },
     detailRow: {
         paddingVertical: fantasyTokens.spacing.sm,
@@ -86,11 +86,11 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
         color: fantasyTokens.colors.inkSoft,
         marginBottom: fantasyTokens.spacing.xs,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
     },
     detailValue: {
         fontSize: 16,
         color: fantasyTokens.colors.inkDark,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
     },
 });

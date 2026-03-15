@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
         flexShrink: 0,
     },
     iconLabel: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 13,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
@@ -159,14 +159,14 @@ const styles = StyleSheet.create({
         minWidth: 0,
     },
     featureName: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 13,
         fontWeight: '600',
         color: fantasyTokens.colors.inkDark,
         lineHeight: 17,
     },
     featureSource: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.45,
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
         marginTop: 2,
     },
     featureDescription: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12.5,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.75,
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     useLabel: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 10,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.5,
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
         paddingVertical: 2,
     },
     rechargeBadgeText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8,
         letterSpacing: 1,
         textTransform: 'uppercase',
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
         paddingBottom: 16,
     },
     emptyStateText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.6,

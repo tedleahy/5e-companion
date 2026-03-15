@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { formatSignedNumber } from '@/lib/characterSheetUtils';
+import { fantasyTokens } from '@/theme/fantasyTheme';
 import SheetCard from './SheetCard';
 import StatPill from './StatPill';
 import InlineField from './edit-mode/InlineField';
@@ -88,13 +89,13 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
     },
     initiativeValue: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 20,
         fontWeight: '700',
         color: '#2b1c11',
     },
     initiativeLabel: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 9,
         letterSpacing: 0.5,
         textTransform: 'uppercase',
