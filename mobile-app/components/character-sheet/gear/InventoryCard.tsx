@@ -133,13 +133,12 @@ export default function InventoryCard({
                                     </View>
 
                                     <View style={styles.inventoryRight}>
-                                        {editMode ? (
-                                            <Pressable onPress={() => onToggleInventoryEquip(item.id)}>
-                                                <Text style={styles.equippedBadge}>{item.equipped ? 'Unequip' : 'Equip'}</Text>
-                                            </Pressable>
-                                        ) : item.equipped ? (
-                                            <Text style={styles.equippedBadge}>Equipped</Text>
-                                        ) : (
+                                        <Pressable onPress={() => onToggleInventoryEquip(item.id)}>
+                                            <Text style={styles.equippedBadge}>
+                                                {item.equipped ? 'Unequip' : 'Equip'}
+                                            </Text>
+                                        </Pressable>
+                                        {!item.equipped && (
                                             <Text style={styles.quantityText}>x{item.quantity}</Text>
                                         )}
                                         <Text style={styles.weightText}>{formatWeight(item.weight)}</Text>
@@ -172,7 +171,7 @@ const styles = StyleSheet.create({
         paddingBottom: 4,
     },
     groupTitle: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         letterSpacing: 2,
         textTransform: 'uppercase',
@@ -185,7 +184,7 @@ const styles = StyleSheet.create({
         backgroundColor: fantasyTokens.colors.divider,
     },
     groupCount: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8,
         color: fantasyTokens.colors.gold,
         opacity: 0.6,
@@ -240,7 +239,7 @@ const styles = StyleSheet.create({
         minWidth: 0,
     },
     inventoryName: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 14,
         color: fantasyTokens.colors.inkDark,
         lineHeight: 17,
@@ -249,7 +248,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     inventoryDescription: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.5,
@@ -262,19 +261,19 @@ const styles = StyleSheet.create({
         flexShrink: 0,
     },
     quantityText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.5,
     },
     weightText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 10,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.4,
     },
     equippedBadge: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 7,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
@@ -290,7 +289,7 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
     },
     emptyStateText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.6,
