@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import ActionButton from '@/components/ActionButton';
 import SpellList, { type SpellAccordionActionContext, type SpellListItem } from '@/components/SpellList';
 import { fantasyTokens } from '@/theme/fantasyTheme';
-import { spellSchoolLabel } from '@/lib/spellPresentation';
 import CardDivider from '../CardDivider';
 import SheetCard from '../SheetCard';
 
@@ -29,47 +28,23 @@ type SpellbookCardProps = {
     onRemoveSpell?: (spellId: string) => Promise<void>;
 };
 
-type PreparedFilter = 'all' | 'prepared';
+/** Available spellbook filter modes. */
+type SpellbookFilter = 'all' | 'prepared' | 'unprepared';
 
-function filterSpellbook(spellbook: CharacterSpell[], schoolFilter: string): CharacterSpell[] {
-    if (schoolFilter === 'all') return spellbook;
-
-    return spellbook.filter((entry) => entry.spell.schoolIndex === schoolFilter);
-}
-
-/**
- * Filters spellbook entries by quick prepared/all selection.
- */
-function filterPrepared(spellbook: CharacterSpell[], preparedFilter: PreparedFilter): CharacterSpell[] {
-    if (preparedFilter === 'all') return spellbook;
-    return spellbook.filter((entry) => entry.prepared);
-}
-
-function schoolFilters(spellbook: CharacterSpell[]): string[] {
-    const schools = new Set<string>();
-
-    for (const spell of spellbook) {
-        schools.add(spell.spell.schoolIndex);
-    }
-
-    const sortedSchools = Array.from(schools).sort((leftSchool, rightSchool) => {
-        return spellSchoolLabel(leftSchool).localeCompare(spellSchoolLabel(rightSchool));
-    });
-
-    return ['all', ...sortedSchools];
-}
-
-function filterLabel(schoolFilter: string): string {
-    if (schoolFilter === 'all') return 'All';
-    return spellSchoolLabel(schoolFilter);
-}
+/** Spellbook filter options in display order. */
+const SPELLBOOK_FILTERS: { key: SpellbookFilter; label: string }[] = [
+    { key: 'all', label: 'All' },
+    { key: 'prepared', label: 'Prepared' },
+    { key: 'unprepared', label: 'Unprepared' },
+];
 
 /**
- * Returns a user-facing label for prepared quick filters.
+ * Filters spellbook entries by the active filter mode.
  */
-function preparedFilterLabel(preparedFilter: PreparedFilter): string {
-    if (preparedFilter === 'all') return 'All Known';
-    return 'Prepared';
+function filterSpellbook(spellbook: CharacterSpell[], filter: SpellbookFilter): CharacterSpell[] {
+    if (filter === 'all') return spellbook;
+    if (filter === 'prepared') return spellbook.filter((entry) => entry.prepared);
+    return spellbook.filter((entry) => !entry.prepared);
 }
 
 function toSpellListItems(spellbook: CharacterSpell[]): SpellListItem[] {
@@ -92,23 +67,10 @@ export default function SpellbookCard({
     onSetPrepared,
     onRemoveSpell,
 }: SpellbookCardProps) {
-    const [activePreparedFilter, setActivePreparedFilter] = useState<PreparedFilter>('all');
-    const [activeSchoolFilter, setActiveSchoolFilter] = useState('all');
+    const [activeFilter, setActiveFilter] = useState<SpellbookFilter>('all');
 
-    const preparedFilteredSpellbook = useMemo(() => {
-        return filterPrepared(spellbook, activePreparedFilter);
-    }, [spellbook, activePreparedFilter]);
-    const availableSchoolFilters = useMemo(() => schoolFilters(preparedFilteredSpellbook), [preparedFilteredSpellbook]);
-    const filteredSpellbook = useMemo(() => {
-        return filterSpellbook(preparedFilteredSpellbook, activeSchoolFilter);
-    }, [preparedFilteredSpellbook, activeSchoolFilter]);
+    const filteredSpellbook = useMemo(() => filterSpellbook(spellbook, activeFilter), [spellbook, activeFilter]);
     const spellListItems = useMemo(() => toSpellListItems(filteredSpellbook), [filteredSpellbook]);
-
-    useEffect(() => {
-        if (!availableSchoolFilters.includes(activeSchoolFilter)) {
-            setActiveSchoolFilter('all');
-        }
-    }, [activeSchoolFilter, availableSchoolFilters]);
 
     /**
      * Builds the inline accordion actions for one spell row.
@@ -158,53 +120,34 @@ export default function SpellbookCard({
         );
     }
 
+    const emptyTextMap: Record<SpellbookFilter, string> = {
+        all: 'No spells learned yet.',
+        prepared: 'No prepared spells.',
+        unprepared: 'No unprepared spells.',
+    };
+
     return (
         <SheetCard index={2}>
-            <View style={styles.preparedTabsRow}>
-                {(['all', 'prepared'] as PreparedFilter[]).map((preparedFilter) => {
-                    const isActive = activePreparedFilter === preparedFilter;
+            <View style={styles.filterRow}>
+                {SPELLBOOK_FILTERS.map(({ key, label }) => {
+                    const isActive = activeFilter === key;
 
                     return (
                         <Pressable
-                            key={preparedFilter}
-                            style={[styles.preparedTab, isActive && styles.preparedTabActive]}
-                            onPress={() => setActivePreparedFilter(preparedFilter)}
+                            key={key}
+                            style={[styles.filterPill, isActive && styles.filterPillActive]}
+                            onPress={() => setActiveFilter(key)}
                             accessibilityRole="button"
-                            accessibilityLabel={`Show ${preparedFilterLabel(preparedFilter)} spells`}
+                            accessibilityLabel={`Show ${label} spells`}
                             accessibilityState={{ selected: isActive }}
                         >
-                            <Text style={[styles.preparedTabText, isActive && styles.preparedTabTextActive]}>
-                                {preparedFilterLabel(preparedFilter)}
+                            <Text style={[styles.filterText, isActive && styles.filterTextActive]}>
+                                {label}
                             </Text>
                         </Pressable>
                     );
                 })}
             </View>
-
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.filterRow}
-            >
-                {availableSchoolFilters.map((schoolFilter) => {
-                    const isActive = activeSchoolFilter === schoolFilter;
-
-                    return (
-                        <Pressable
-                            key={schoolFilter}
-                            style={[styles.filterPill, isActive && styles.filterPillActive]}
-                            onPress={() => setActiveSchoolFilter(schoolFilter)}
-                            accessibilityRole="button"
-                            accessibilityLabel={`Filter by ${filterLabel(schoolFilter)}`}
-                            accessibilityState={{ selected: isActive }}
-                        >
-                            <Text style={[styles.filterText, isActive && styles.filterTextActive]}>
-                                {filterLabel(schoolFilter)}
-                            </Text>
-                        </Pressable>
-                    );
-                })}
-            </ScrollView>
 
             <CardDivider />
 
@@ -218,61 +161,17 @@ export default function SpellbookCard({
                 onRemoveSpell={onRemoveSpell}
                 renderAccordionActions={renderSpellAccordionActions}
                 rowTestIdPrefix="character-spell"
-                emptyText={activePreparedFilter === 'prepared'
-                    ? 'No prepared spells match this school.'
-                    : 'No spells match this school.'}
+                emptyText={emptyTextMap[activeFilter]}
             />
-
-            <CardDivider />
-
-            <View style={styles.legendRow}>
-                <View style={styles.legendItem}>
-                    <View style={styles.preparedDot} />
-                    <Text style={styles.legendText}>Prepared</Text>
-                </View>
-                <View style={styles.legendItem}>
-                    <View style={[styles.preparedDot, styles.preparedDotUnprepared]} />
-                    <Text style={styles.legendText}>Unprepared</Text>
-                </View>
-            </View>
         </SheetCard>
     );
 }
 
 const styles = StyleSheet.create({
-    preparedTabsRow: {
+    filterRow: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        paddingHorizontal: 18,
-        paddingTop: 14,
-    },
-    preparedTab: {
-        borderRadius: 9,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.divider,
-        backgroundColor: 'transparent',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-    },
-    preparedTabActive: {
-        borderColor: fantasyTokens.colors.crimson,
-        backgroundColor: 'rgba(139,26,26,0.1)',
-    },
-    preparedTabText: {
-        fontFamily: 'serif',
-        fontSize: 9,
-        letterSpacing: 1.3,
-        textTransform: 'uppercase',
-        color: fantasyTokens.colors.inkLight,
-        opacity: 0.6,
-    },
-    preparedTabTextActive: {
-        color: fantasyTokens.colors.crimson,
-        opacity: 1,
-    },
-    filterRow: {
-        gap: 6,
         paddingHorizontal: 18,
         paddingTop: 14,
         paddingBottom: 10,
@@ -290,9 +189,9 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(201,146,42,0.1)',
     },
     filterText: {
-        fontFamily: 'serif',
-        fontSize: 8,
-        letterSpacing: 1.5,
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: 9,
+        letterSpacing: 1.3,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.inkLight,
         opacity: 0.6,
@@ -300,36 +199,6 @@ const styles = StyleSheet.create({
     filterTextActive: {
         color: fantasyTokens.colors.gold,
         opacity: 1,
-    },
-    legendRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 14,
-        paddingHorizontal: 18,
-        paddingTop: 10,
-        paddingBottom: 12,
-    },
-    legendItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-    },
-    preparedDot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-        backgroundColor: fantasyTokens.colors.crimson,
-        flexShrink: 0,
-    },
-    preparedDotUnprepared: {
-        opacity: 0,
-    },
-    legendText: {
-        fontFamily: 'serif',
-        fontSize: 11,
-        color: fantasyTokens.colors.inkLight,
-        opacity: 0.55,
-        fontStyle: 'italic',
     },
     viewButton: {
         minWidth: 74,
