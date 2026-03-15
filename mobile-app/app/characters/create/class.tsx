@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
@@ -8,6 +8,12 @@ import OptionGrid from '@/components/wizard/OptionGrid';
 export default function StepClass() {
     const { draft, updateDraft } = useCharacterDraft();
 
+    function handleClassSelect(value: string) {
+        if (value !== draft.class) {
+            updateDraft({ class: value, subclass: '' });
+        }
+    }
+
     return (
         <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
             <Text style={styles.heading}>Choose your class.</Text>
@@ -16,7 +22,7 @@ export default function StepClass() {
             <OptionGrid
                 options={CLASS_OPTIONS}
                 selected={draft.class}
-                onSelect={(value) => updateDraft({ class: value })}
+                onSelect={handleClassSelect}
             />
         </ScrollView>
     );
@@ -30,7 +36,7 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     heading: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 22,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
@@ -38,7 +44,7 @@ const styles = StyleSheet.create({
         marginBottom: 4,
     },
     sub: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 14,
         fontStyle: 'italic',
         color: 'rgba(201,146,42,0.5)',

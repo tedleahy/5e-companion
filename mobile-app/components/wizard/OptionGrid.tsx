@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
         marginBottom: 6,
     },
     name: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 10,
         letterSpacing: 1,
         textTransform: 'uppercase',
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.gold,
     },
     hint: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 11,
         fontStyle: 'italic',
         color: 'rgba(245,230,200,0.35)',

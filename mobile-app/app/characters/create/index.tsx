@@ -27,7 +27,9 @@ export default function StepIdentity() {
             <Text style={styles.sub}>Every legend begins with a name.</Text>
 
             <View style={styles.field}>
-                <Text style={styles.label}>Character Name</Text>
+                <Text style={fantasyTokens.text.formLabel}>
+                    Character Name
+                </Text>
                 <TextInput
                     style={[styles.input, showError && styles.inputError]}
                     value={draft.name}
@@ -43,7 +45,7 @@ export default function StepIdentity() {
             </View>
 
             <View style={styles.divider} />
-            <Text style={styles.label}>Starting Level</Text>
+            <Text style={fantasyTokens.text.formLabel}>Starting Level</Text>
 
             <View style={styles.stepper}>
                 <Pressable
@@ -78,7 +80,7 @@ const styles = StyleSheet.create({
         marginVertical: 16,
     },
     heading: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 22,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
@@ -86,7 +88,7 @@ const styles = StyleSheet.create({
         marginBottom: 4,
     },
     sub: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 14,
         fontStyle: 'italic',
         color: 'rgba(201,146,42,0.5)',
@@ -95,14 +97,6 @@ const styles = StyleSheet.create({
     field: {
         marginBottom: 16,
     },
-    label: {
-        fontFamily: 'serif',
-        fontSize: 8,
-        letterSpacing: 2.5,
-        textTransform: 'uppercase',
-        color: 'rgba(201,146,42,0.6)',
-        marginBottom: 6,
-    },
     input: {
         backgroundColor: 'rgba(240,224,188,0.06)',
         borderWidth: 1,
@@ -110,7 +104,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingVertical: 12,
         paddingHorizontal: 14,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 16,
         color: fantasyTokens.colors.parchment,
     },
@@ -118,7 +112,7 @@ const styles = StyleSheet.create({
         borderColor: fantasyTokens.colors.crimson,
     },
     errorHint: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12,
         fontStyle: 'italic',
         color: fantasyTokens.colors.crimson,
@@ -143,20 +137,20 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(201,146,42,0.08)',
     },
     stepperBtnText: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 18,
         color: 'rgba(201,146,42,0.5)',
     },
     stepperVal: {
         flex: 1,
         textAlign: 'center',
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 20,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
     },
     hint: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 12,
         fontStyle: 'italic',
         color: 'rgba(245,230,200,0.3)',

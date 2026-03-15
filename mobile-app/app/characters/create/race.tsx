@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     heading: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 22,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
         marginBottom: 4,
     },
     sub: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 14,
         fontStyle: 'italic',
         color: 'rgba(201,146,42,0.5)',

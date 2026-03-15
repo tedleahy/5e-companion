@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
         paddingBottom: 40,
     },
     heading: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 22,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
         marginBottom: 4,
     },
     sub: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 14,
         fontStyle: 'italic',
         color: 'rgba(201,146,42,0.5)',
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
         marginVertical: 16,
     },
     sectionLabel: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 9,
         letterSpacing: 2.5,
         textTransform: 'uppercase',
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     fieldLabel: {
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 8,
         letterSpacing: 2.5,
         textTransform: 'uppercase',
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingVertical: 12,
         paddingHorizontal: 14,
-        fontFamily: 'serif',
+        fontFamily: fantasyTokens.fonts.regular,
         fontSize: 15,
         color: fantasyTokens.colors.parchment,
         minHeight: 80,
