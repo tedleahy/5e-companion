@@ -3,7 +3,8 @@ import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { ABILITY_KEYS, type AbilityKey } from '@/lib/characterSheetUtils';
-import { RACE_ABILITY_BONUSES, rollAllAbilityScores, suggestAbilityScores } from '@/lib/dndHelpers';
+import { rollAllAbilityScores, suggestAbilityScores } from '@/lib/characterCreation/abilityRules';
+import { RACE_ABILITY_BONUSES } from '@/lib/characterCreation/raceRules';
 import AbilityBlock from '@/components/wizard/AbilityBlock';
 import { sharedStyles } from './abilitiesShared';
 

@@ -3,7 +3,8 @@ import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { ABILITY_KEYS, type AbilityKey } from '@/lib/characterSheetUtils';
-import { POINT_BUY_COSTS, POINT_BUY_MAX, POINT_BUY_MIN, POINT_BUY_TOTAL, RACE_ABILITY_BONUSES, pointBuySpent } from '@/lib/dndHelpers';
+import { POINT_BUY_COSTS, POINT_BUY_MAX, POINT_BUY_MIN, POINT_BUY_TOTAL, pointBuySpent } from '@/lib/characterCreation/abilityRules';
+import { RACE_ABILITY_BONUSES } from '@/lib/characterCreation/raceRules';
 import AbilityBlock from '@/components/wizard/AbilityBlock';
 import { sharedStyles } from './abilitiesShared';
 

@@ -2,7 +2,7 @@ import { Pressable, ScrollView, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { ABILITY_ABBREVIATIONS, ABILITY_KEYS, type AbilityKey } from '@/lib/characterSheetUtils';
-import { asiPointsForLevel } from '@/lib/dndHelpers';
+import { asiPointsForLevel } from '@/lib/characterCreation/abilityRules';
 import { sharedStyles } from '@/components/wizard/abilitiesShared';
 import RollAbilityMode from '@/components/wizard/RollAbilityMode';
 import PointBuyAbilityMode from '@/components/wizard/PointBuyAbilityMode';
