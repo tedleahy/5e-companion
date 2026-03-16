@@ -82,8 +82,17 @@ const MAX_SHEET_RESULTS = 500;
 const SHEET_DISMISS_DRAG_DISTANCE = 88;
 const DETAIL_DISMISS_DRAG_DISTANCE = 84;
 const DISMISS_DRAG_VELOCITY = 800;
+const SCROLL_TOP_TOLERANCE = 12;
 const SHEET_HIDDEN_OFFSET = 48;
 const DETAIL_HIDDEN_OFFSET = 48;
+
+/**
+ * Treats tiny initial scroll offsets as "still at the top" for dismiss gestures.
+ */
+function normaliseTopOffset(offsetY: number): number {
+    if (offsetY <= SCROLL_TOP_TOLERANCE) return 0;
+    return offsetY;
+}
 
 /**
  * GraphQL query used by the Add Spell sheet list.
@@ -274,6 +283,10 @@ export default function AddSpellSheet({
 
     useEffect(() => {
         if (visible) {
+            sheetCloseInFlightRef.current = false;
+            detailCloseInFlightRef.current = false;
+            spellListScrollOffsetYRef.current = 0;
+            detailBodyScrollOffsetYRef.current = 0;
             setIsRendered(true);
             sheetTranslateY.setValue(sheetHiddenTranslateYRef.current);
             backdropOpacity.setValue(0);
@@ -588,7 +601,7 @@ export default function AddSpellSheet({
         .failOffsetX([-24, 24])
         .onUpdate((event) => {
             if (sheetCloseInFlightRef.current) return;
-            if (spellListScrollOffsetYRef.current > 0) return;
+            if (spellListScrollOffsetYRef.current > SCROLL_TOP_TOLERANCE) return;
             if (event.translationY <= 0) return;
 
             updateSheetDragPosition(event.translationY);
@@ -597,7 +610,7 @@ export default function AddSpellSheet({
             if (sheetCloseInFlightRef.current) return;
 
             const shouldDismiss =
-                spellListScrollOffsetYRef.current <= 0
+                spellListScrollOffsetYRef.current <= SCROLL_TOP_TOLERANCE
                 && event.translationY > 0
                 && (event.translationY > SHEET_DISMISS_DRAG_DISTANCE || event.velocityY > DISMISS_DRAG_VELOCITY);
 
@@ -622,7 +635,7 @@ export default function AddSpellSheet({
         .failOffsetX([-24, 24])
         .onUpdate((event) => {
             if (detailCloseInFlightRef.current) return;
-            if (detailBodyScrollOffsetYRef.current > 0) return;
+            if (detailBodyScrollOffsetYRef.current > SCROLL_TOP_TOLERANCE) return;
             if (event.translationY <= 0) return;
 
             updateDetailDragPosition(event.translationY);
@@ -631,7 +644,7 @@ export default function AddSpellSheet({
             if (detailCloseInFlightRef.current) return;
 
             const shouldDismiss =
-                detailBodyScrollOffsetYRef.current <= 0
+                detailBodyScrollOffsetYRef.current <= SCROLL_TOP_TOLERANCE
                 && event.translationY > 0
                 && (event.translationY > DETAIL_DISMISS_DRAG_DISTANCE || event.velocityY > DISMISS_DRAG_VELOCITY);
 
@@ -648,11 +661,11 @@ export default function AddSpellSheet({
         }), [animateDetailBack, closeSpellDetail, updateDetailDragPosition]);
 
     const handleSpellListScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
-        spellListScrollOffsetYRef.current = event.nativeEvent.contentOffset.y;
+        spellListScrollOffsetYRef.current = normaliseTopOffset(event.nativeEvent.contentOffset.y);
     }, []);
 
     const handleDetailBodyScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
-        detailBodyScrollOffsetYRef.current = event.nativeEvent.contentOffset.y;
+        detailBodyScrollOffsetYRef.current = normaliseTopOffset(event.nativeEvent.contentOffset.y);
     }, []);
 
 
