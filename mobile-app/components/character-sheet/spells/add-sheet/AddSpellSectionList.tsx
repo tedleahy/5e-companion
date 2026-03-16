@@ -1,4 +1,12 @@
-import { Keyboard, Pressable, SectionList, StyleSheet, View } from 'react-native';
+import {
+    Keyboard,
+    Pressable,
+    SectionList,
+    StyleSheet,
+    type NativeScrollEvent,
+    type NativeSyntheticEvent,
+    View,
+} from 'react-native';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -15,6 +23,7 @@ type AddSpellSectionListProps = {
     onToggleSpellSelection: (spell: AddSpellListItem) => void;
     onOpenSpellDetail: (spell: AddSpellListItem) => void;
     onPrefetchSpellDetail?: (spellId: string) => void;
+    onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
 };
 
 /**
@@ -41,6 +50,7 @@ export default function AddSpellSectionList({
     onToggleSpellSelection,
     onOpenSpellDetail,
     onPrefetchSpellDetail,
+    onScroll,
 }: AddSpellSectionListProps) {
     const isEmpty = !loading && !errorMessage && sections.length === 0;
 
@@ -71,6 +81,8 @@ export default function AddSpellSectionList({
                 keyExtractor={(spell) => spell.id}
                 stickySectionHeadersEnabled
                 keyboardShouldPersistTaps="handled"
+                onScroll={onScroll}
+                scrollEventThrottle={16}
                 renderSectionHeader={({ section }) => (
                     <View style={styles.levelHeader}>
                         <Text style={styles.levelHeaderText}>{section.title}</Text>

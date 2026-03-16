@@ -1,4 +1,11 @@
-import { Pressable, ScrollView, StyleSheet, type GestureResponderHandlers, View } from 'react-native';
+import {
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    type NativeScrollEvent,
+    type NativeSyntheticEvent,
+    View,
+} from 'react-native';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { spellLevelLabel, spellSchoolLabel } from '@/lib/spellPresentation';
@@ -12,7 +19,7 @@ type SpellDetailModalProps = {
     errorMessage?: string;
     onRetry: () => void;
     onToggleSelection: () => void;
-    dragHandlers?: GestureResponderHandlers;
+    onBodyScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
 };
 
 type DetailStat = {
@@ -64,7 +71,7 @@ export default function SpellDetailModal({
     errorMessage,
     onRetry,
     onToggleSelection,
-    dragHandlers,
+    onBodyScroll,
 }: SpellDetailModalProps) {
     const stats = spell ? buildDetailStats(spell) : [];
     const showLoadingState = loading && !spell;
@@ -72,7 +79,7 @@ export default function SpellDetailModal({
 
     return (
         <View style={styles.container}>
-            <View style={styles.topBar} {...dragHandlers}>
+            <View style={styles.topBar}>
                 <View style={styles.handle} />
             </View>
 
@@ -107,7 +114,12 @@ export default function SpellDetailModal({
                         ))}
                     </View>
 
-                    <ScrollView style={styles.bodyScroll} contentContainerStyle={styles.bodyContent}>
+                    <ScrollView
+                        style={styles.bodyScroll}
+                        contentContainerStyle={styles.bodyContent}
+                        onScroll={onBodyScroll}
+                        scrollEventThrottle={16}
+                    >
                         <Text style={styles.bodyHeading}>Description</Text>
                         <Text style={styles.bodyText}>{spell.description.join('\n\n')}</Text>
 

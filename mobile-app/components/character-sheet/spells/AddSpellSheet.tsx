@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     Animated,
     Easing,
-    PanResponder,
+    type NativeScrollEvent,
+    type NativeSyntheticEvent,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -15,6 +16,7 @@ import { Snackbar, Text } from 'react-native-paper';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { gql } from '@apollo/client';
 import { useApolloClient, useQuery } from '@apollo/client/react';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import FilterChipGroup from '@/components/FilterChipGroup';
 import FilterSwitch from '@/components/FilterSwitch';
 import { SPELL_LIST_FIELDS_FRAGMENT } from '@/graphql/spell.fragments';
@@ -77,8 +79,9 @@ type AddSpellDetailQueryVariables = {
 const SHEET_HEIGHT_PERCENTAGE = '92%';
 const SEARCH_DEBOUNCE_MS = 300;
 const MAX_SHEET_RESULTS = 500;
-const SHEET_DISMISS_DRAG_DISTANCE = 140;
-const DETAIL_DISMISS_DRAG_DISTANCE = 120;
+const SHEET_DISMISS_DRAG_DISTANCE = 88;
+const DETAIL_DISMISS_DRAG_DISTANCE = 84;
+const DISMISS_DRAG_VELOCITY = 800;
 const SHEET_HIDDEN_OFFSET = 48;
 const DETAIL_HIDDEN_OFFSET = 48;
 
@@ -238,6 +241,10 @@ export default function AddSpellSheet({
     const detailOverlayOpacity = useRef(new Animated.Value(0)).current;
     const detailModalTranslateY = useRef(new Animated.Value(detailHiddenTranslateY)).current;
     const detailHiddenTranslateYRef = useRef(detailHiddenTranslateY);
+    const spellListScrollOffsetYRef = useRef(0);
+    const detailBodyScrollOffsetYRef = useRef(0);
+    const sheetCloseInFlightRef = useRef(false);
+    const detailCloseInFlightRef = useRef(false);
 
     const activeFilterCount = useMemo(() => countActiveFilters(appliedFilters), [appliedFilters]);
     const currentFilterChips = useMemo(() => activeFilterChips(appliedFilters), [appliedFilters]);
@@ -261,6 +268,8 @@ export default function AddSpellSheet({
     useEffect(() => {
         if (visible) return;
         prefetchedSpellDetailIdsRef.current.clear();
+        spellListScrollOffsetYRef.current = 0;
+        detailBodyScrollOffsetYRef.current = 0;
     }, [visible]);
 
     useEffect(() => {
@@ -418,8 +427,10 @@ export default function AddSpellSheet({
     }, [apolloClient]);
 
     const openSpellDetail = useCallback((spell: AddSpellListItem) => {
+        detailCloseInFlightRef.current = false;
         detailOverlayOpacity.setValue(0);
         detailModalTranslateY.setValue(detailHiddenTranslateY);
+        detailBodyScrollOffsetYRef.current = 0;
         setSelectedSpell(spell);
     }, [detailHiddenTranslateY, detailModalTranslateY, detailOverlayOpacity]);
 
@@ -431,7 +442,60 @@ export default function AddSpellSheet({
         void refetchSelectedSpellDetail({ id: selectedSpell.id });
     }, [refetchSelectedSpellDetail, selectedSpell]);
 
+    const animateSheetBack = useCallback(() => {
+        Animated.parallel([
+            Animated.timing(sheetTranslateY, {
+                toValue: 0,
+                duration: 200,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: true,
+            }),
+            Animated.timing(backdropOpacity, {
+                toValue: 1,
+                duration: 180,
+                useNativeDriver: true,
+            }),
+        ]).start();
+    }, [backdropOpacity, sheetTranslateY]);
+
+    const animateDetailBack = useCallback(() => {
+        Animated.parallel([
+            Animated.timing(detailModalTranslateY, {
+                toValue: 0,
+                duration: 180,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: true,
+            }),
+            Animated.timing(detailOverlayOpacity, {
+                toValue: 0.55,
+                duration: 180,
+                useNativeDriver: true,
+            }),
+        ]).start();
+    }, [detailModalTranslateY, detailOverlayOpacity]);
+
+    /**
+     * Applies live drag positioning to the main sheet.
+     */
+    const updateSheetDragPosition = useCallback((translationY: number) => {
+        sheetTranslateY.setValue(translationY);
+        const nextBackdropOpacity = Math.max(0, 1 - (translationY / 420));
+        backdropOpacity.setValue(nextBackdropOpacity);
+    }, [backdropOpacity, sheetTranslateY]);
+
+    /**
+     * Applies live drag positioning to the nested spell-detail sheet.
+     */
+    const updateDetailDragPosition = useCallback((translationY: number) => {
+        detailModalTranslateY.setValue(translationY);
+        const nextOverlayOpacity = Math.max(0, 0.55 - (translationY / 560));
+        detailOverlayOpacity.setValue(nextOverlayOpacity);
+    }, [detailModalTranslateY, detailOverlayOpacity]);
+
     const closeSpellDetail = useCallback(() => {
+        if (detailCloseInFlightRef.current) return;
+
+        detailCloseInFlightRef.current = true;
         Animated.parallel([
             Animated.timing(detailOverlayOpacity, {
                 toValue: 0,
@@ -446,9 +510,48 @@ export default function AddSpellSheet({
                 useNativeDriver: true,
             }),
         ]).start(() => {
+            detailCloseInFlightRef.current = false;
+            detailBodyScrollOffsetYRef.current = 0;
             setSelectedSpell(null);
         });
     }, [detailHiddenTranslateY, detailModalTranslateY, detailOverlayOpacity]);
+
+    const requestSheetClose = useCallback(() => {
+        if (sheetCloseInFlightRef.current || !isRendered) return;
+
+        sheetCloseInFlightRef.current = true;
+        setFilterPanelOpen(false);
+        setSelectedSpell(null);
+        detailOverlayOpacity.setValue(0);
+        detailModalTranslateY.setValue(detailHiddenTranslateYRef.current);
+        spellListScrollOffsetYRef.current = 0;
+        detailBodyScrollOffsetYRef.current = 0;
+
+        Animated.parallel([
+            Animated.timing(backdropOpacity, {
+                toValue: 0,
+                duration: 220,
+                useNativeDriver: true,
+            }),
+            Animated.timing(sheetTranslateY, {
+                toValue: sheetHiddenTranslateYRef.current,
+                duration: 260,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: true,
+            }),
+        ]).start(() => {
+            sheetCloseInFlightRef.current = false;
+            setIsRendered(false);
+            onClose();
+        });
+    }, [
+        backdropOpacity,
+        detailModalTranslateY,
+        detailOverlayOpacity,
+        isRendered,
+        onClose,
+        sheetTranslateY,
+    ]);
 
     useEffect(() => {
         if (!selectedSpell) return;
@@ -476,80 +579,81 @@ export default function AddSpellSheet({
     }, [detailModalTranslateY, detailOverlayOpacity, selectedSpell]);
 
     /**
-     * Handles drag-to-dismiss for the main add-spell sheet.
+     * Native pan gesture for dismissing the main add-spell sheet.
+     * This lives in the same native gesture system as ScrollView/SectionList.
      */
-    const sheetPanResponder = useMemo(() => PanResponder.create({
-        onMoveShouldSetPanResponder: (_, gestureState) => {
-            return gestureState.dy > 6 && Math.abs(gestureState.dx) < 18;
-        },
-        onPanResponderMove: (_, gestureState) => {
-            if (gestureState.dy <= 0) return;
+    const sheetDismissGesture = useMemo(() => Gesture.Pan()
+        .runOnJS(true)
+        .activeOffsetY(6)
+        .failOffsetX([-24, 24])
+        .onUpdate((event) => {
+            if (sheetCloseInFlightRef.current) return;
+            if (spellListScrollOffsetYRef.current > 0) return;
+            if (event.translationY <= 0) return;
 
-            sheetTranslateY.setValue(gestureState.dy);
-            const nextBackdropOpacity = Math.max(0, 1 - (gestureState.dy / 420));
-            backdropOpacity.setValue(nextBackdropOpacity);
-        },
-        onPanResponderRelease: (_, gestureState) => {
-            const shouldDismiss = gestureState.dy > SHEET_DISMISS_DRAG_DISTANCE || gestureState.vy > 1;
+            updateSheetDragPosition(event.translationY);
+        })
+        .onEnd((event) => {
+            if (sheetCloseInFlightRef.current) return;
+
+            const shouldDismiss =
+                spellListScrollOffsetYRef.current <= 0
+                && event.translationY > 0
+                && (event.translationY > SHEET_DISMISS_DRAG_DISTANCE || event.velocityY > DISMISS_DRAG_VELOCITY);
 
             if (shouldDismiss) {
-                onClose();
+                requestSheetClose();
                 return;
             }
 
-            Animated.parallel([
-                Animated.timing(sheetTranslateY, {
-                    toValue: 0,
-                    duration: 200,
-                    easing: Easing.out(Easing.cubic),
-                    useNativeDriver: true,
-                }),
-                Animated.timing(backdropOpacity, {
-                    toValue: 1,
-                    duration: 180,
-                    useNativeDriver: true,
-                }),
-            ]).start();
-        },
-    }), [backdropOpacity, onClose, sheetTranslateY]);
+            animateSheetBack();
+        })
+        .onFinalize(() => {
+            if (sheetCloseInFlightRef.current) return;
+            animateSheetBack();
+        }), [animateSheetBack, requestSheetClose, updateSheetDragPosition]);
 
     /**
-     * Handles drag-to-dismiss for the nested spell-detail sheet.
+     * Native pan gesture for dismissing the nested spell-detail sheet.
      */
-    const detailPanResponder = useMemo(() => PanResponder.create({
-        onMoveShouldSetPanResponder: (_, gestureState) => {
-            return gestureState.dy > 5 && Math.abs(gestureState.dx) < 18;
-        },
-        onPanResponderMove: (_, gestureState) => {
-            if (gestureState.dy <= 0) return;
+    const detailDismissGesture = useMemo(() => Gesture.Pan()
+        .runOnJS(true)
+        .activeOffsetY(6)
+        .failOffsetX([-24, 24])
+        .onUpdate((event) => {
+            if (detailCloseInFlightRef.current) return;
+            if (detailBodyScrollOffsetYRef.current > 0) return;
+            if (event.translationY <= 0) return;
 
-            detailModalTranslateY.setValue(gestureState.dy);
-            const nextOverlayOpacity = Math.max(0, 0.55 - (gestureState.dy / 560));
-            detailOverlayOpacity.setValue(nextOverlayOpacity);
-        },
-        onPanResponderRelease: (_, gestureState) => {
-            const shouldDismiss = gestureState.dy > DETAIL_DISMISS_DRAG_DISTANCE || gestureState.vy > 1;
+            updateDetailDragPosition(event.translationY);
+        })
+        .onEnd((event) => {
+            if (detailCloseInFlightRef.current) return;
+
+            const shouldDismiss =
+                detailBodyScrollOffsetYRef.current <= 0
+                && event.translationY > 0
+                && (event.translationY > DETAIL_DISMISS_DRAG_DISTANCE || event.velocityY > DISMISS_DRAG_VELOCITY);
 
             if (shouldDismiss) {
                 closeSpellDetail();
                 return;
             }
 
-            Animated.parallel([
-                Animated.timing(detailModalTranslateY, {
-                    toValue: 0,
-                    duration: 180,
-                    easing: Easing.out(Easing.cubic),
-                    useNativeDriver: true,
-                }),
-                Animated.timing(detailOverlayOpacity, {
-                    toValue: 0.55,
-                    duration: 180,
-                    useNativeDriver: true,
-                }),
-            ]).start();
-        },
-    }), [closeSpellDetail, detailModalTranslateY, detailOverlayOpacity]);
+            animateDetailBack();
+        })
+        .onFinalize(() => {
+            if (detailCloseInFlightRef.current) return;
+            animateDetailBack();
+        }), [animateDetailBack, closeSpellDetail, updateDetailDragPosition]);
+
+    const handleSpellListScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+        spellListScrollOffsetYRef.current = event.nativeEvent.contentOffset.y;
+    }, []);
+
+    const handleDetailBodyScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+        detailBodyScrollOffsetYRef.current = event.nativeEvent.contentOffset.y;
+    }, []);
 
 
     const handleRemoveActiveFilterChip = useCallback((chip: ActiveFilterChip) => {
@@ -603,65 +707,68 @@ export default function AddSpellSheet({
     return (
         <View style={styles.overlayContainer} pointerEvents="box-none">
             <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
-                <Pressable style={styles.backdropPressable} onPress={onClose} accessibilityLabel="Close add spell sheet" />
+                <Pressable style={styles.backdropPressable} onPress={requestSheetClose} accessibilityLabel="Close add spell sheet" />
             </Animated.View>
 
-            <Animated.View
-                style={[styles.sheet, { transform: [{ translateY: sheetTranslateY }] }]}
-                onStartShouldSetResponderCapture={() => {
-                    Keyboard.dismiss();
-                    return false;
-                }}
-            >
-                <View style={styles.handleRow} {...sheetPanResponder.panHandlers}>
-                    <View style={styles.handle} />
-                </View>
-
-                <View style={styles.titleRow}>
-                    <View>
-                        <Text style={styles.title}>Add Spell</Text>
-                        <Text style={styles.subtitle}>Choose spells to add to your spellbook</Text>
+            <GestureDetector gesture={sheetDismissGesture}>
+                <Animated.View
+                    style={[styles.sheet, { transform: [{ translateY: sheetTranslateY }] }]}
+                    onStartShouldSetResponderCapture={() => {
+                        Keyboard.dismiss();
+                        return false;
+                    }}
+                >
+                <View style={styles.headerDragZone}>
+                    <View style={styles.handleRow}>
+                        <View style={styles.handle} />
                     </View>
-                </View>
 
-                <View style={styles.searchFilterRow}>
-                    <View style={styles.searchWrapper}>
-                        <Ionicons name="search" size={14} color="rgba(245,230,200,0.35)" />
-                        <TextInput
-                            value={searchQuery}
-                            onChangeText={setSearchQuery}
-                            placeholder="Search spells..."
-                            placeholderTextColor="rgba(245,230,200,0.28)"
-                            style={styles.searchInput}
-                            accessibilityLabel="Search spells"
-                        />
-                        <Pressable
-                            onPress={() => setSearchQuery('')}
-                            accessibilityRole="button"
-                            accessibilityLabel="Clear spell search"
-                            style={styles.clearSearchButton}
-                        >
-                            <Ionicons
-                                name="close-circle"
-                                size={16}
-                                color={searchQuery.length > 0 ? 'rgba(245,230,200,0.58)' : 'rgba(245,230,200,0.2)'}
+                    <View style={styles.titleRow}>
+                        <View>
+                            <Text style={styles.title}>Add Spell</Text>
+                            <Text style={styles.subtitle}>Choose spells to add to your spellbook</Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.searchFilterRow}>
+                        <View style={styles.searchWrapper}>
+                            <Ionicons name="search" size={14} color="rgba(245,230,200,0.35)" />
+                            <TextInput
+                                value={searchQuery}
+                                onChangeText={setSearchQuery}
+                                placeholder="Search spells..."
+                                placeholderTextColor="rgba(245,230,200,0.28)"
+                                style={styles.searchInput}
+                                accessibilityLabel="Search spells"
                             />
+                            <Pressable
+                                onPress={() => setSearchQuery('')}
+                                accessibilityRole="button"
+                                accessibilityLabel="Clear spell search"
+                                style={styles.clearSearchButton}
+                            >
+                                <Ionicons
+                                    name="close-circle"
+                                    size={16}
+                                    color={searchQuery.length > 0 ? 'rgba(245,230,200,0.58)' : 'rgba(245,230,200,0.2)'}
+                                />
+                            </Pressable>
+                        </View>
+
+                        <Pressable
+                            onPress={handleOpenFilterPanel}
+                            style={[styles.filterButton, activeFilterCount > 0 && styles.filterButtonActive]}
+                            accessibilityLabel="Open spell filters"
+                        >
+                            <Ionicons name="filter" size={14} color="rgba(245,230,200,0.45)" />
+                            <Text style={styles.filterButtonText}>Filter</Text>
+                            {activeFilterCount > 0 && (
+                                <View style={styles.filterCountBadge}>
+                                    <Text style={styles.filterCountText}>{activeFilterCount}</Text>
+                                </View>
+                            )}
                         </Pressable>
                     </View>
-
-                    <Pressable
-                        onPress={handleOpenFilterPanel}
-                        style={[styles.filterButton, activeFilterCount > 0 && styles.filterButtonActive]}
-                        accessibilityLabel="Open spell filters"
-                    >
-                        <Ionicons name="filter" size={14} color="rgba(245,230,200,0.45)" />
-                        <Text style={styles.filterButtonText}>Filter</Text>
-                        {activeFilterCount > 0 && (
-                            <View style={styles.filterCountBadge}>
-                                <Text style={styles.filterCountText}>{activeFilterCount}</Text>
-                            </View>
-                        )}
-                    </Pressable>
                 </View>
 
                 {currentFilterChips.length > 0 && (
@@ -695,9 +802,10 @@ export default function AddSpellSheet({
                     }}
                     onPrefetchSpellDetail={handlePrefetchSpellDetail}
                     onOpenSpellDetail={openSpellDetail}
+                    onScroll={handleSpellListScroll}
                 />
 
-                <AddSpellBottomBar sessionChangesCount={sessionChangesCount} onDone={onClose} />
+                <AddSpellBottomBar sessionChangesCount={sessionChangesCount} onDone={requestSheetClose} />
 
                 <Animated.View style={[styles.filterPanel, { transform: [{ translateX: filterPanelTranslateX }] }]}>
                     <View style={styles.filterPanelHeader}>
@@ -819,20 +927,22 @@ export default function AddSpellSheet({
                             <Pressable style={styles.backdropPressable} onPress={closeSpellDetail} accessibilityLabel="Close spell details" />
                         </Animated.View>
 
-                        <Animated.View style={[styles.detailModalWrap, { transform: [{ translateY: detailModalTranslateY }] }]}>
-                            <SpellDetailModal
-                                spell={selectedSpellDetail}
-                                spellName={selectedSpell.name}
-                                known={isKnownSpell(selectedSpell.id)}
-                                loading={selectedSpellDetailLoading && selectedSpellDetail == null}
-                                errorMessage={selectedSpellDetailError?.message}
-                                onRetry={handleRetrySpellDetail}
-                                onToggleSelection={() => {
-                                    void toggleSpellSelection(selectedSpell);
-                                }}
-                                dragHandlers={detailPanResponder.panHandlers}
-                            />
-                        </Animated.View>
+                        <GestureDetector gesture={detailDismissGesture}>
+                            <Animated.View style={[styles.detailModalWrap, { transform: [{ translateY: detailModalTranslateY }] }]}>
+                                <SpellDetailModal
+                                    spell={selectedSpellDetail}
+                                    spellName={selectedSpell.name}
+                                    known={isKnownSpell(selectedSpell.id)}
+                                    loading={selectedSpellDetailLoading && selectedSpellDetail == null}
+                                    errorMessage={selectedSpellDetailError?.message}
+                                    onRetry={handleRetrySpellDetail}
+                                    onToggleSelection={() => {
+                                        void toggleSpellSelection(selectedSpell);
+                                    }}
+                                    onBodyScroll={handleDetailBodyScroll}
+                                />
+                            </Animated.View>
+                        </GestureDetector>
                     </>
                 )}
 
@@ -844,7 +954,8 @@ export default function AddSpellSheet({
                 >
                     {actionErrorMessage ?? ''}
                 </Snackbar>
-            </Animated.View>
+                </Animated.View>
+            </GestureDetector>
         </View>
     );
 }
@@ -876,6 +987,9 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.5,
         shadowRadius: 12,
         elevation: 20,
+    },
+    headerDragZone: {
+        flexShrink: 0,
     },
     handleRow: {
         paddingTop: 16,
