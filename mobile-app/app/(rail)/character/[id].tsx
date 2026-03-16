@@ -99,6 +99,7 @@ export default function CharacterByIdScreen() {
     /** Currently active top-level tab in the character sheet. */
     const [activeTab, setActiveTab] = useState<CharacterSheetTab>('Core');
     const pagerRef = useRef<PagerView>(null);
+    const [spellSheetVisible, setSpellSheetVisible] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [saveErrorVisible, setSaveErrorVisible] = useState(false);
     const [sheetDraft, setSheetDraft] = useState<CharacterSheetEditDraft | null>(null);
@@ -512,8 +513,10 @@ export default function CharacterByIdScreen() {
                 />
                 <PagerView
                     ref={pagerRef}
+                    testID="character-sheet-pager"
                     style={styles.pager}
                     initialPage={0}
+                    scrollEnabled={!spellSheetVisible}
                     onPageSelected={handlePageSelected}
                 >
                     {/* Page 0 — Core */}
@@ -618,6 +621,7 @@ export default function CharacterByIdScreen() {
                                 onLearnSpell={handleLearnSpell}
                                 onForgetSpell={handleForgetSpell}
                                 onSetSpellPrepared={handleSetSpellPrepared}
+                                onAddSpellSheetVisibilityChange={setSpellSheetVisible}
                             />
                         </View>
                     ) : null}

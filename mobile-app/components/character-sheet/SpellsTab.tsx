@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -40,6 +40,7 @@ type SpellsTabProps = {
     onSetSpellPrepared?: (spellId: string, prepared: boolean) => Promise<void>;
     onLearnSpell?: (spellId: string) => Promise<void>;
     onForgetSpell?: (spellId: string) => Promise<void>;
+    onAddSpellSheetVisibilityChange?: (visible: boolean) => void;
 };
 
 export default function SpellsTab({
@@ -53,9 +54,20 @@ export default function SpellsTab({
     onSetSpellPrepared,
     onLearnSpell,
     onForgetSpell,
+    onAddSpellSheetVisibilityChange,
 }: SpellsTabProps) {
     const [addSheetVisible, setAddSheetVisible] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        onAddSpellSheetVisibilityChange?.(addSheetVisible);
+    }, [addSheetVisible, onAddSpellSheetVisibilityChange]);
+
+    useEffect(() => {
+        return () => {
+            onAddSpellSheetVisibilityChange?.(false);
+        };
+    }, [onAddSpellSheetVisibilityChange]);
 
     const preparedCount = useMemo(() => {
         return spellbook.filter((entry) => entry.prepared).length;

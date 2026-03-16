@@ -5,6 +5,7 @@ import { MockedProvider } from '@apollo/client/testing/react';
 import type { MockLink } from '@apollo/client/testing';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import CharacterByIdScreen from '../character/[id]';
+import { SEARCH_SPELLS_FOR_SHEET } from '@/components/character-sheet/spells/AddSpellSheet';
 import {
     CHARACTERS_MOCK,
     EMPTY_MOCK,
@@ -19,6 +20,26 @@ import {
     UPDATE_SKILLS_MOCK,
 } from './mocks/character-sheet.mocks';
 import { UPDATE_CHARACTER } from '@/graphql/characterSheet.operations';
+
+const ADD_SPELL_LIST_MOCK: MockLink.MockedResponse = {
+    request: {
+        query: SEARCH_SPELLS_FOR_SHEET,
+        variables: {
+            filter: {
+                classes: ['wizard'],
+            },
+            pagination: {
+                limit: 500,
+                offset: 0,
+            },
+        },
+    },
+    result: {
+        data: {
+            spells: [],
+        },
+    },
+};
 
 const mockUseLocalSearchParams = jest.fn(() => ({ id: 'char-1' }));
 
@@ -591,5 +612,28 @@ describe('CharacterByIdScreen', () => {
                 opacity: 1,
             });
         });
+    });
+
+    it('disables pager swiping while the add spell sheet is open', async () => {
+        renderScreen([CHARACTERS_MOCK, ADD_SPELL_LIST_MOCK]);
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Open Spells tab')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByLabelText('Open Spells tab'));
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Add spell')).toBeTruthy();
+        });
+
+        expect(screen.getByTestId('character-sheet-pager').props.scrollEnabled).toBe(true);
+
+        fireEvent.press(screen.getByLabelText('Add spell'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Add Spell')).toBeTruthy();
+        });
+
+        expect(screen.getByTestId('character-sheet-pager').props.scrollEnabled).toBe(false);
     });
 });
