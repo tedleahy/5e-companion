@@ -34,14 +34,10 @@ export default function QuickStatsCard({
     onToggleInspiration,
     onChangeInitiative,
 }: QuickStatsCardProps) {
-    const basePills = [{ label: 'Proficiency', value: formatSignedNumber(proficiencyBonus) }];
-
     return (
         <SheetCard index={1}>
             <View style={styles.row}>
-                {basePills.map((pill) => (
-                    <StatPill key={pill.label} label={pill.label} value={pill.value} />
-                ))}
+                <StatPill key="Proficiency" label="Proficiency" value={formatSignedNumber(proficiencyBonus)} />
                 <View style={[styles.initiativePill, editMode && styles.initiativePillEditable]}>
                     <InlineField
                         value={formatSignedNumber(initiative)}
