@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import PagerView from 'react-native-pager-view';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { ActivityIndicator, Snackbar, Text } from 'react-native-paper';
 import {
@@ -13,6 +12,11 @@ import DeathSavesCard from '@/components/character-sheet/DeathSavesCard';
 import FeaturesTab from '@/components/character-sheet/FeaturesTab';
 import GearTab from '@/components/character-sheet/GearTab';
 import QuickStatsCard from '@/components/character-sheet/QuickStatsCard';
+import CharacterSheetPager from '@/components/character-sheet/CharacterSheetPager';
+import type {
+    CharacterSheetPagerHandle,
+    CharacterSheetPagerPageSelectedEvent,
+} from '@/components/character-sheet/CharacterSheetPager.types';
 import AbilitiesTab from '@/components/character-sheet/AbilitiesTab';
 import PassiveSensesCard from '@/components/character-sheet/skills/PassiveSensesCard';
 import SpellsTab from '@/components/character-sheet/SpellsTab';
@@ -98,7 +102,7 @@ function normaliseCharacterId(rawId?: string): string | null {
 export default function CharacterByIdScreen() {
     /** Currently active top-level tab in the character sheet. */
     const [activeTab, setActiveTab] = useState<CharacterSheetTab>('Core');
-    const pagerRef = useRef<PagerView>(null);
+    const pagerRef = useRef<CharacterSheetPagerHandle>(null);
     const [spellSheetVisible, setSpellSheetVisible] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [saveErrorVisible, setSaveErrorVisible] = useState(false);
@@ -153,7 +157,7 @@ export default function CharacterByIdScreen() {
     /**
      * Called when the user swipes to a new page — syncs activeTab state.
      */
-    const handlePageSelected = useCallback((event: { nativeEvent: { position: number } }) => {
+    const handlePageSelected = useCallback((event: CharacterSheetPagerPageSelectedEvent) => {
         const pageIndex = event.nativeEvent.position;
         const tab = visibleTabs[pageIndex];
         if (tab) setActiveTab(tab);
@@ -511,7 +515,7 @@ export default function CharacterByIdScreen() {
                     onDoneEdit={handleDoneEdit}
                     onLevelUp={handleLevelUp}
                 />
-                <PagerView
+                <CharacterSheetPager
                     ref={pagerRef}
                     testID="character-sheet-pager"
                     style={styles.pager}
@@ -681,7 +685,7 @@ export default function CharacterByIdScreen() {
                             onRemoveFeature={handleRemoveFeature}
                         />
                     </View>
-                </PagerView>
+                </CharacterSheetPager>
 
                 <Snackbar
                     visible={saveErrorVisible}
