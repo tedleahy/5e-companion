@@ -1,6 +1,7 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import CharactersScreen from '../characters';
+import { GET_CURRENT_USER_CHARACTER_ROSTER } from '@/graphql/characterSheet.operations';
 import { supabase } from '@/lib/supabase';
 
 const mockPush = jest.fn();
@@ -80,7 +81,7 @@ const LIST_CHARACTER = {
     initiative: 5,
     ac: 17,
     conditions: ['Concentrating'],
-    attacks: [] as { attackBonus: string }[],
+    weapons: [] as { attackBonus: string }[],
     stats: {
         hp: {
             current: 54,
@@ -156,6 +157,13 @@ describe('CharactersScreen', () => {
         await waitFor(() => {
             expect(screen.getByText('Empty state rendered')).toBeTruthy();
         });
+        expect(mockUseQuery).toHaveBeenCalledWith(
+            GET_CURRENT_USER_CHARACTER_ROSTER,
+            expect.objectContaining({
+                fetchPolicy: 'cache-and-network',
+                notifyOnNetworkStatusChange: true,
+            }),
+        );
         expect(mockReplace).not.toHaveBeenCalled();
     });
 

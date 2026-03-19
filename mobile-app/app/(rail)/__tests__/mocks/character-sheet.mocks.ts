@@ -1,4 +1,4 @@
-import { GET_CURRENT_USER_CHARACTERS, PREPARE_SPELL, SAVE_CHARACTER_SHEET, TOGGLE_INSPIRATION, TOGGLE_SPELL_SLOT, UNPREPARE_SPELL, UPDATE_DEATH_SAVES, UPDATE_SAVING_THROW_PROFICIENCIES, UPDATE_SKILL_PROFICIENCIES } from "@/graphql/characterSheet.operations";
+import { GET_CURRENT_USER_CHARACTER_SHEETS, PREPARE_SPELL, SAVE_CHARACTER_SHEET, TOGGLE_INSPIRATION, TOGGLE_SPELL_SLOT, UNPREPARE_SPELL, UPDATE_DEATH_SAVES, UPDATE_SAVING_THROW_PROFICIENCIES, UPDATE_SKILL_PROFICIENCIES } from "@/graphql/characterSheet.operations";
 import { ProficiencyLevel } from "@/types/generated_graphql_types";
 import { MockLink } from "@apollo/client/testing";
 
@@ -437,7 +437,7 @@ export const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
 const { __typename: _skillTypeName, ...INITIAL_SKILL_INPUT } = MOCK_CHARACTER.stats.skillProficiencies;
 
 export const CHARACTERS_MOCK: MockLink.MockedResponse = {
-    request: { query: GET_CURRENT_USER_CHARACTERS },
+    request: { query: GET_CURRENT_USER_CHARACTER_SHEETS },
     result: {
         data: {
             currentUserCharacters: [MOCK_CHARACTER],
@@ -446,7 +446,7 @@ export const CHARACTERS_MOCK: MockLink.MockedResponse = {
 };
 
 export const EMPTY_MOCK: MockLink.MockedResponse = {
-    request: { query: GET_CURRENT_USER_CHARACTERS },
+    request: { query: GET_CURRENT_USER_CHARACTER_SHEETS },
     result: {
         data: {
             currentUserCharacters: [],
@@ -455,7 +455,7 @@ export const EMPTY_MOCK: MockLink.MockedResponse = {
 };
 
 export const ERROR_MOCK: MockLink.MockedResponse = {
-    request: { query: GET_CURRENT_USER_CHARACTERS },
+    request: { query: GET_CURRENT_USER_CHARACTER_SHEETS },
     error: new Error('Network error'),
 };
 
