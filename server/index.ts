@@ -40,6 +40,7 @@ const resolvers: Resolvers = {
         updateCharacter: characterResolvers.updateCharacter,
         deleteCharacter: characterResolvers.deleteCharacter,
         toggleInspiration: characterResolvers.toggleInspiration,
+        saveCharacterSheet: characterResolvers.saveCharacterSheet,
 
         updateAbilityScores: characterResolvers.updateAbilityScores,
         updateHP: characterResolvers.updateHP,

@@ -235,6 +235,7 @@ export type Mutation = {
   removeFeature: Scalars['Boolean']['output'];
   removeInventoryItem: Scalars['Boolean']['output'];
   removeWeapon: Scalars['Boolean']['output'];
+  saveCharacterSheet: Character;
   shortRest: Character;
   spendHitDie: CharacterStats;
   toggleInspiration: Character;
@@ -333,6 +334,12 @@ export type MutationRemoveInventoryItemArgs = {
 export type MutationRemoveWeaponArgs = {
   characterId: Scalars['ID']['input'];
   weaponId: Scalars['ID']['input'];
+};
+
+
+export type MutationSaveCharacterSheetArgs = {
+  characterId: Scalars['ID']['input'];
+  input: SaveCharacterSheetInput;
 };
 
 
@@ -466,6 +473,50 @@ export type QuerySpellArgs = {
 export type QuerySpellsArgs = {
   filter?: InputMaybe<SpellFilter>;
   pagination?: InputMaybe<SpellPagination>;
+};
+
+export type SaveCharacterSheetAttackInput = {
+  attackBonus: Scalars['String']['input'];
+  damage: Scalars['String']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  name: Scalars['String']['input'];
+  type: Scalars['String']['input'];
+};
+
+export type SaveCharacterSheetFeatureInput = {
+  description: Scalars['String']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  name: Scalars['String']['input'];
+  recharge?: InputMaybe<Scalars['String']['input']>;
+  source: Scalars['String']['input'];
+  usesMax?: InputMaybe<Scalars['Int']['input']>;
+  usesRemaining?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type SaveCharacterSheetInput = {
+  abilityScores: AbilityScoresInput;
+  ac: Scalars['Int']['input'];
+  conditions: Array<Scalars['String']['input']>;
+  currency: CurrencyInput;
+  features: Array<SaveCharacterSheetFeatureInput>;
+  hp: HpInput;
+  initiative: Scalars['Int']['input'];
+  inventory: Array<SaveCharacterSheetInventoryItemInput>;
+  speed: Scalars['Int']['input'];
+  spellAttackBonus?: InputMaybe<Scalars['Int']['input']>;
+  spellSaveDC?: InputMaybe<Scalars['Int']['input']>;
+  traits: TraitsInput;
+  weapons: Array<SaveCharacterSheetAttackInput>;
+};
+
+export type SaveCharacterSheetInventoryItemInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  equipped: Scalars['Boolean']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  magical: Scalars['Boolean']['input'];
+  name: Scalars['String']['input'];
+  quantity: Scalars['Int']['input'];
+  weight?: InputMaybe<Scalars['Float']['input']>;
 };
 
 export type SavingThrowProficienciesInput = {
@@ -701,6 +752,10 @@ export type ResolversTypes = {
   Mutation: ResolverTypeWrapper<{}>;
   ProficiencyLevel: ProficiencyLevel;
   Query: ResolverTypeWrapper<{}>;
+  SaveCharacterSheetAttackInput: SaveCharacterSheetAttackInput;
+  SaveCharacterSheetFeatureInput: SaveCharacterSheetFeatureInput;
+  SaveCharacterSheetInput: SaveCharacterSheetInput;
+  SaveCharacterSheetInventoryItemInput: SaveCharacterSheetInventoryItemInput;
   SavingThrowProficienciesInput: SavingThrowProficienciesInput;
   SkillProficiencies: ResolverTypeWrapper<SkillProficiencies>;
   SkillProficienciesInput: SkillProficienciesInput;
@@ -742,6 +797,10 @@ export type ResolversParentTypes = {
   InventoryItemInput: InventoryItemInput;
   Mutation: {};
   Query: {};
+  SaveCharacterSheetAttackInput: SaveCharacterSheetAttackInput;
+  SaveCharacterSheetFeatureInput: SaveCharacterSheetFeatureInput;
+  SaveCharacterSheetInput: SaveCharacterSheetInput;
+  SaveCharacterSheetInventoryItemInput: SaveCharacterSheetInventoryItemInput;
   SavingThrowProficienciesInput: SavingThrowProficienciesInput;
   SkillProficiencies: SkillProficiencies;
   SkillProficienciesInput: SkillProficienciesInput;
@@ -888,6 +947,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   removeFeature?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveFeatureArgs, 'characterId' | 'featureId'>>;
   removeInventoryItem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveInventoryItemArgs, 'characterId' | 'itemId'>>;
   removeWeapon?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveWeaponArgs, 'characterId' | 'weaponId'>>;
+  saveCharacterSheet?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationSaveCharacterSheetArgs, 'characterId' | 'input'>>;
   shortRest?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationShortRestArgs, 'characterId'>>;
   spendHitDie?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationSpendHitDieArgs, 'amount' | 'characterId'>>;
   toggleInspiration?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationToggleInspirationArgs, 'characterId'>>;

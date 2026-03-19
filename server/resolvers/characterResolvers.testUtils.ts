@@ -41,6 +41,43 @@ export const characterFeatureUpdateManyMock: any = mock((_args: unknown) => Prom
 export const characterFeatureFindUniqueMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const characterFeatureDeleteManyMock: any = mock((_args: unknown) => Promise.resolve({ count: 1 }));
 export const executeRawMock: any = mock((_args: unknown) => Promise.resolve(0));
+export const transactionMock: any = mock((callback: (tx: any) => Promise<unknown>) => callback({
+    character: {
+        findFirst: characterFindFirstMock,
+        findMany: characterFindManyMock,
+        create: characterCreateMock,
+        update: characterUpdateMock,
+        deleteMany: characterDeleteManyMock,
+    },
+    characterStats: {
+        findUnique: statsFindUniqueMock,
+        update: statsUpdateMock,
+    },
+    attack: {
+        findMany: attackFindManyMock,
+        findUnique: attackFindUniqueMock,
+        create: attackCreateMock,
+        update: attackUpdateMock,
+        updateMany: attackUpdateManyMock,
+        deleteMany: attackDeleteManyMock,
+    },
+    inventoryItem: {
+        findMany: inventoryItemFindManyMock,
+        findUnique: inventoryItemFindUniqueMock,
+        create: inventoryItemCreateMock,
+        update: inventoryItemUpdateMock,
+        updateMany: inventoryItemUpdateManyMock,
+        deleteMany: inventoryItemDeleteManyMock,
+    },
+    characterFeature: {
+        findMany: characterFeatureFindManyMock,
+        findUnique: characterFeatureFindUniqueMock,
+        create: characterFeatureCreateMock,
+        update: characterFeatureUpdateMock,
+        updateMany: characterFeatureUpdateManyMock,
+        deleteMany: characterFeatureDeleteManyMock,
+    },
+}));
 
 mock.module('../prisma/prisma', () => ({
     default: {
@@ -92,6 +129,7 @@ mock.module('../prisma/prisma', () => ({
             updateMany: spellSlotUpdateManyMock,
         },
         $executeRaw: executeRawMock,
+        $transaction: transactionMock,
     },
 }));
 
@@ -174,4 +212,5 @@ export function clearAllCharacterResolverMocks() {
     characterFeatureFindUniqueMock.mockClear();
     characterFeatureDeleteManyMock.mockClear();
     executeRawMock.mockClear();
+    transactionMock.mockClear();
 }

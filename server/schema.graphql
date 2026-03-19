@@ -333,6 +333,50 @@ input FeatureInput {
     recharge: String
 }
 
+input SaveCharacterSheetAttackInput {
+    id: ID
+    name: String!
+    attackBonus: String!
+    damage: String!
+    type: String!
+}
+
+input SaveCharacterSheetInventoryItemInput {
+    id: ID
+    name: String!
+    quantity: Int!
+    weight: Float
+    description: String
+    equipped: Boolean!
+    magical: Boolean!
+}
+
+input SaveCharacterSheetFeatureInput {
+    id: ID
+    name: String!
+    source: String!
+    description: String!
+    usesMax: Int
+    usesRemaining: Int
+    recharge: String
+}
+
+input SaveCharacterSheetInput {
+    ac: Int!
+    speed: Int!
+    initiative: Int!
+    conditions: [String!]!
+    hp: HPInput!
+    abilityScores: AbilityScoresInput!
+    currency: CurrencyInput!
+    traits: TraitsInput!
+    weapons: [SaveCharacterSheetAttackInput!]!
+    inventory: [SaveCharacterSheetInventoryItemInput!]!
+    features: [SaveCharacterSheetFeatureInput!]!
+    spellSaveDC: Int
+    spellAttackBonus: Int
+}
+
 # ---------------------------------------------------------------------------
 # Queries & Mutations
 # ---------------------------------------------------------------------------
@@ -350,6 +394,7 @@ type Mutation {
     updateCharacter(id: ID!, input: UpdateCharacterInput!): Character!
     deleteCharacter(id: ID!): Boolean!
     toggleInspiration(characterId: ID!): Character!
+    saveCharacterSheet(characterId: ID!, input: SaveCharacterSheetInput!): Character!
 
     # Per-domain stats updates
     updateAbilityScores(characterId: ID!, input: AbilityScoresInput!): CharacterStats!
