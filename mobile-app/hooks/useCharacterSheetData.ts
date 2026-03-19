@@ -4,21 +4,42 @@ import type { ApolloCache } from '@apollo/client';
 import { useMutation, useQuery } from '@apollo/client/react';
 import type {
     AbilityScoresInput,
-    CharacterSpell,
+    Attack,
+    CharacterFeature,
+    CurrentUserCharacterSheetsQuery,
     CurrencyInput,
+    ForgetSpellMutation,
+    ForgetSpellMutationVariables,
     HpInput,
+    InventoryItem,
     InventoryItemInput,
-    MutationForgetSpellArgs,
-    MutationLearnSpellArgs,
+    LearnSpellMutation,
+    LearnSpellMutationVariables,
     MutationUpdateCharacterArgs,
     MutationUpdateInventoryItemArgs,
-    Query,
-    TraitsInput,
+    PrepareSpellMutation,
+    PrepareSpellMutationVariables,
     ProficiencyLevel,
-    SkillProficiencies,
+    SaveCharacterSheetAttackInput,
+    SaveCharacterSheetFeatureInput,
+    SaveCharacterSheetInventoryItemInput,
+    SaveCharacterSheetMutation,
+    SaveCharacterSheetMutationVariables,
     SkillProficienciesInput,
     SpellSlot,
-    SavingThrowProficienciesInput,
+    ToggleInspirationMutation,
+    ToggleInspirationMutationVariables,
+    ToggleSpellSlotMutation,
+    ToggleSpellSlotMutationVariables,
+    TraitsInput,
+    UnprepareSpellMutation,
+    UnprepareSpellMutationVariables,
+    UpdateDeathSavesMutation,
+    UpdateDeathSavesMutationVariables,
+    UpdateSavingThrowProficienciesMutation,
+    UpdateSavingThrowProficienciesMutationVariables,
+    UpdateSkillProficienciesMutation,
+    UpdateSkillProficienciesMutationVariables,
 } from '@/types/generated_graphql_types';
 import {
     FORGET_SPELL,
@@ -44,70 +65,14 @@ import { isUnauthenticatedError } from '@/lib/graphqlErrors';
 import type { AbilityKey, SkillKey } from '@/lib/characterSheetUtils';
 
 /**
- * Mutation payload for optimistic skill proficiency updates.
+ * Character shape returned by the full character-sheet query.
  */
-type UpdateSkillProficienciesMutationData = {
-    updateSkillProficiencies: {
-        __typename: 'CharacterStats';
-        id: string;
-        skillProficiencies: SkillProficiencies;
-    };
-};
+type CharacterWithSpells = CurrentUserCharacterSheetsQuery['currentUserCharacters'][number];
 
 /**
- * Mutation payload for optimistic saving throw proficiency updates.
+ * Callback for cache-level character updates.
  */
-type UpdateSavingThrowProficienciesMutationData = {
-    updateSavingThrowProficiencies: {
-        __typename: 'CharacterStats';
-        id: string;
-        savingThrowProficiencies: string[];
-    };
-};
-
-/**
- * Mutation payload when toggling inspiration.
- */
-type ToggleInspirationMutationData = {
-    toggleInspiration: {
-        __typename: 'Character';
-        id: string;
-        inspiration: boolean;
-    };
-};
-
-/**
- * Variables for inspiration toggle mutation.
- */
-type ToggleInspirationMutationVariables = {
-    characterId: string;
-};
-
-/**
- * Mutation payload for death-save updates.
- */
-type UpdateDeathSavesMutationData = {
-    updateDeathSaves: {
-        __typename: 'CharacterStats';
-        id: string;
-        deathSaves: {
-            __typename: 'DeathSaves';
-            successes: number;
-            failures: number;
-        };
-    };
-};
-
-/**
- * Variables for updating death saves.
- */
-type UpdateDeathSavesMutationVariables = {
-    characterId: string;
-    input: {
-        successes: number;
-        failures: number;
-    };
-};
+type CharacterCacheUpdater = (character: CharacterWithSpells) => CharacterWithSpells;
 
 /**
  * Persisted edit payload for core character sheet fields.
@@ -121,71 +86,13 @@ export type SaveCharacterSheetCoreInput = {
     abilityScores: AbilityScoresInput;
     currency: CurrencyInput;
     traits: TraitsInput;
-    weapons: CharacterAttack[];
-    inventory: CharacterInventoryItem[];
+    weapons: Attack[];
+    inventory: InventoryItem[];
     features: CharacterFeature[];
     spellSaveDC?: number | null;
     spellAttackBonus?: number | null;
 };
 
-/**
- * Input shape for one weapon row in the atomic save mutation.
- */
-type SaveCharacterSheetAttackMutationInput = {
-    id?: string;
-    name: string;
-    attackBonus: string;
-    damage: string;
-    type: string;
-};
-
-/**
- * Input shape for one inventory row in the atomic save mutation.
- */
-type SaveCharacterSheetInventoryItemMutationInput = {
-    id?: string;
-    name: string;
-    quantity: number;
-    weight?: number | null;
-    description?: string | null;
-    equipped: boolean;
-    magical: boolean;
-};
-
-/**
- * Input shape for one feature row in the atomic save mutation.
- */
-type SaveCharacterSheetFeatureMutationInput = {
-    id?: string;
-    name: string;
-    source: string;
-    description: string;
-    usesMax?: number | null;
-    usesRemaining?: number | null;
-    recharge?: string | null;
-};
-
-/**
- * Variables for the atomic character-sheet save mutation.
- */
-type SaveCharacterSheetMutationVariables = {
-    characterId: string;
-    input: {
-        ac: number;
-        speed: number;
-        initiative: number;
-        conditions: string[];
-        hp: HpInput;
-        abilityScores: AbilityScoresInput;
-        currency: CurrencyInput;
-        traits: TraitsInput;
-        weapons: SaveCharacterSheetAttackMutationInput[];
-        inventory: SaveCharacterSheetInventoryItemMutationInput[];
-        features: SaveCharacterSheetFeatureMutationInput[];
-        spellSaveDC?: number | null;
-        spellAttackBonus?: number | null;
-    };
-};
 
 /**
  * Returns true when a local edit-mode row has not yet been persisted.
@@ -197,7 +104,7 @@ function isDraftEntityId(id: string): boolean {
 /**
  * Maps a weapon row into the atomic save mutation input shape.
  */
-function saveWeaponInput(weapon: CharacterAttack): SaveCharacterSheetAttackMutationInput {
+function saveWeaponInput(weapon: Attack): SaveCharacterSheetAttackInput {
     return {
         id: isDraftEntityId(weapon.id) ? undefined : weapon.id,
         name: weapon.name,
@@ -210,7 +117,7 @@ function saveWeaponInput(weapon: CharacterAttack): SaveCharacterSheetAttackMutat
 /**
  * Maps an inventory row into the atomic save mutation input shape.
  */
-function saveInventoryItemInput(item: CharacterInventoryItem): SaveCharacterSheetInventoryItemMutationInput {
+function saveInventoryItemInput(item: InventoryItem): SaveCharacterSheetInventoryItemInput {
     return {
         id: isDraftEntityId(item.id) ? undefined : item.id,
         name: item.name,
@@ -225,7 +132,7 @@ function saveInventoryItemInput(item: CharacterInventoryItem): SaveCharacterShee
 /**
  * Maps a feature row into the atomic save mutation input shape.
  */
-function saveFeatureInput(feature: CharacterFeature): SaveCharacterSheetFeatureMutationInput {
+function saveFeatureInput(feature: CharacterFeature): SaveCharacterSheetFeatureInput {
     return {
         id: isDraftEntityId(feature.id) ? undefined : feature.id,
         name: feature.name,
@@ -240,7 +147,7 @@ function saveFeatureInput(feature: CharacterFeature): SaveCharacterSheetFeatureM
 /**
  * Maps an inventory row into the GraphQL input shape.
  */
-function inventoryItemInput(item: CharacterInventoryItem): InventoryItemInput {
+function inventoryItemInput(item: InventoryItem): InventoryItemInput {
     return {
         name: item.name,
         quantity: item.quantity,
@@ -251,225 +158,6 @@ function inventoryItemInput(item: CharacterInventoryItem): InventoryItemInput {
     };
 }
 
-/**
- * Variables for updating a character's skill proficiencies.
- */
-type UpdateSkillProficienciesMutationVariables = {
-    characterId: string;
-    input: SkillProficienciesInput;
-};
-
-/**
- * Variables for updating saving throw proficiencies.
- */
-type UpdateSavingThrowProficienciesMutationVariables = {
-    characterId: string;
-    input: SavingThrowProficienciesInput;
-};
-
-/**
- * Spell slot shape used by cache update helpers.
- */
-type CharacterSpellSlot = SpellSlot;
-
-/**
- * Spellbook row shape used by cache update helpers.
- */
-type CharacterSpellbookEntry = CharacterSpell;
-
-/**
- * Attack row shape returned for the character sheet.
- */
-type CharacterAttack = {
-    __typename?: 'Attack';
-    id: string;
-    name: string;
-    attackBonus: string;
-    damage: string;
-    type: string;
-};
-
-/**
- * Inventory row shape returned for the character sheet.
- */
-type CharacterInventoryItem = {
-    __typename?: 'InventoryItem';
-    id: string;
-    name: string;
-    quantity: number;
-    weight?: number | null;
-    description?: string | null;
-    equipped: boolean;
-    magical: boolean;
-};
-
-/**
- * Feature row shape returned for the character sheet.
- */
-type CharacterFeature = {
-    __typename?: 'CharacterFeature';
-    id: string;
-    name: string;
-    source: string;
-    description: string;
-    usesMax?: number | null;
-    usesRemaining?: number | null;
-    recharge?: string | null;
-};
-
-/**
- * Traits metadata shape used by the Features tab.
- */
-type CharacterTraits = {
-    __typename?: 'Traits';
-    personality: string;
-    ideals: string;
-    bonds: string;
-    flaws: string;
-    armorProficiencies?: string[] | null;
-    weaponProficiencies?: string[] | null;
-    toolProficiencies?: string[] | null;
-    languages?: string[] | null;
-};
-
-/**
- * Currency shape used by the Gear tab.
- */
-type CharacterCurrency = {
-    __typename?: 'Currency';
-    cp: number;
-    sp: number;
-    ep: number;
-    gp: number;
-    pp: number;
-};
-
-/**
- * Base generated character result from the current-user query.
- */
-type BaseCharacter = CurrentUserCharacterSheetsQuery['currentUserCharacters'][number];
-type CurrentUserCharacterSheetsQuery = Pick<Query, 'currentUserCharacters'>;
-/**
- * Non-nullable stats row from the generated character result.
- */
-type BaseCharacterStats = NonNullable<BaseCharacter['stats']>;
-
-/**
- * Character query shape with explicit fields used by the character sheet UI.
- */
-type CharacterWithSpells = Omit<BaseCharacter, 'stats'> & {
-    background: string;
-    spellcastingAbility?: string | null;
-    spellSaveDC?: number | null;
-    spellAttackBonus?: number | null;
-    spellSlots: CharacterSpellSlot[];
-    spellbook: CharacterSpellbookEntry[];
-    weapons: CharacterAttack[];
-    inventory: CharacterInventoryItem[];
-    features: CharacterFeature[];
-    stats?: (BaseCharacterStats & {
-        traits: CharacterTraits;
-        currency: CharacterCurrency;
-    }) | null;
-};
-
-/**
- * Query result shape for current user characters with nested sheet data.
- */
-type CurrentUserCharactersWithSpellsQuery = {
-    currentUserCharacters: CharacterWithSpells[];
-};
-
-/**
- * Mutation payload for toggling a spell slot.
- */
-type ToggleSpellSlotMutationData = {
-    toggleSpellSlot: CharacterSpellSlot;
-};
-
-/**
- * Variables for toggling one spell-slot level.
- */
-type ToggleSpellSlotMutationVariables = {
-    characterId: string;
-    level: number;
-};
-
-/**
- * Mutation payload when learning a new spell.
- */
-type LearnSpellMutationData = {
-    learnSpell: {
-        __typename: 'CharacterSpell';
-        prepared: boolean;
-        spell: {
-            __typename: 'Spell';
-            id: string;
-            name: string;
-            level: number;
-            schoolIndex: string;
-            castingTime: string;
-            range?: string | null;
-            concentration: boolean;
-            ritual: boolean;
-        };
-    };
-};
-
-/**
- * Mutation payload when forgetting an existing spell.
- */
-type ForgetSpellMutationData = {
-    forgetSpell: boolean;
-};
-
-/**
- * Shared variables for prepare/unprepare spell mutations.
- */
-type SpellPreparedMutationVariables = {
-    characterId: string;
-    spellId: string;
-};
-
-/**
- * Mutation payload when marking a spell as prepared.
- */
-type PrepareSpellMutationData = {
-    prepareSpell: {
-        __typename: 'CharacterSpell';
-        prepared: boolean;
-        spell: {
-            __typename: 'Spell';
-            id: string;
-        };
-    };
-};
-
-/**
- * Mutation payload when marking a spell as unprepared.
- */
-type UnprepareSpellMutationData = {
-    unprepareSpell: {
-        __typename: 'CharacterSpell';
-        prepared: boolean;
-        spell: {
-            __typename: 'Spell';
-            id: string;
-        };
-    };
-};
-
-/**
- * Applies an optimistic spell slot usage value to the current character cache.
- */
-type CharacterCacheUpdater = (character: CharacterWithSpells) => CharacterWithSpells;
-
-/**
- * Mutation payload when saving the full character sheet.
- */
-type SaveCharacterSheetMutationData = {
-    saveCharacterSheet: CharacterWithSpells;
-};
 
 /**
  * Updates a single character entry in the current-user cache.
@@ -479,9 +167,9 @@ function updateCharacterInCache(
     characterId: string,
     updateCharacter: CharacterCacheUpdater,
 ) {
-    cache.updateQuery<CurrentUserCharactersWithSpellsQuery>(
+    cache.updateQuery<CurrentUserCharacterSheetsQuery>(
         { query: GET_CURRENT_USER_CHARACTER_SHEETS },
-        (data: CurrentUserCharactersWithSpellsQuery | null) => {
+        (data: CurrentUserCharacterSheetsQuery | null) => {
             if (!data) return data;
 
             return {
@@ -506,7 +194,7 @@ function updateSpellSlotInCache(
 ) {
     updateCharacterInCache(cache, characterId, (currentCharacter: CharacterWithSpells) => ({
         ...currentCharacter,
-        spellSlots: currentCharacter.spellSlots.map((slot: CharacterSpellSlot) => {
+        spellSlots: currentCharacter.spellSlots.map((slot: SpellSlot) => {
             if (slot.level !== level) return slot;
             return { ...slot, used };
         }),
@@ -517,57 +205,57 @@ function updateSpellSlotInCache(
  * Loads character-sheet data and exposes optimistic mutation handlers.
  */
 export default function useCharacterSheetData(characterId: string) {
-    const { data, loading, error, refetch } = useQuery<CurrentUserCharactersWithSpellsQuery>(
+    const { data, loading, error, refetch } = useQuery<CurrentUserCharacterSheetsQuery>(
         GET_CURRENT_USER_CHARACTER_SHEETS,
     );
 
     const [toggleInspiration] = useMutation<
-        ToggleInspirationMutationData,
+        ToggleInspirationMutation,
         ToggleInspirationMutationVariables
     >(TOGGLE_INSPIRATION);
 
     const [updateDeathSaves] = useMutation<
-        UpdateDeathSavesMutationData,
+        UpdateDeathSavesMutation,
         UpdateDeathSavesMutationVariables
     >(UPDATE_DEATH_SAVES);
 
     const [updateSkillProficiencies] = useMutation<
-        UpdateSkillProficienciesMutationData,
+        UpdateSkillProficienciesMutation,
         UpdateSkillProficienciesMutationVariables
     >(UPDATE_SKILL_PROFICIENCIES);
 
     const [updateSavingThrowProficiencies] = useMutation<
-        UpdateSavingThrowProficienciesMutationData,
+        UpdateSavingThrowProficienciesMutation,
         UpdateSavingThrowProficienciesMutationVariables
     >(UPDATE_SAVING_THROW_PROFICIENCIES);
 
     const [toggleSpellSlot] = useMutation<
-        ToggleSpellSlotMutationData,
+        ToggleSpellSlotMutation,
         ToggleSpellSlotMutationVariables
     >(TOGGLE_SPELL_SLOT);
 
     const [learnSpell] = useMutation<
-        LearnSpellMutationData,
-        MutationLearnSpellArgs
+        LearnSpellMutation,
+        LearnSpellMutationVariables
     >(LEARN_SPELL);
 
     const [forgetSpell] = useMutation<
-        ForgetSpellMutationData,
-        MutationForgetSpellArgs
+        ForgetSpellMutation,
+        ForgetSpellMutationVariables
     >(FORGET_SPELL);
 
     const [prepareSpell] = useMutation<
-        PrepareSpellMutationData,
-        SpellPreparedMutationVariables
+        PrepareSpellMutation,
+        PrepareSpellMutationVariables
     >(PREPARE_SPELL);
 
     const [unprepareSpell] = useMutation<
-        UnprepareSpellMutationData,
-        SpellPreparedMutationVariables
+        UnprepareSpellMutation,
+        UnprepareSpellMutationVariables
     >(UNPREPARE_SPELL);
 
     const [saveCharacterSheet] = useMutation<
-        SaveCharacterSheetMutationData,
+        SaveCharacterSheetMutation,
         SaveCharacterSheetMutationVariables
     >(SAVE_CHARACTER_SHEET);
 
@@ -865,7 +553,7 @@ export default function useCharacterSheetData(characterId: string) {
             update(cache, result) {
                 if (!result.data?.saveCharacterSheet) return;
 
-                updateCharacterInCache(cache, character.id, () => result.data.saveCharacterSheet);
+                updateCharacterInCache(cache, character.id, () => result.data!.saveCharacterSheet);
             },
         });
     }, [
