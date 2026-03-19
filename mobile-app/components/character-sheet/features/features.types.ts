@@ -1,29 +1,14 @@
+import type { CharacterFeature, Traits } from '@/types/generated_graphql_types';
+
 /**
  * Render-ready feature row shown in Features tab cards.
  */
-export type FeatureRow = {
-    id: string;
-    name: string;
-    source: string;
-    description: string;
-    usesMax?: number | null;
-    usesRemaining?: number | null;
-    recharge?: string | null;
-};
+export type FeatureRow = CharacterFeature;
 
 /**
  * Character trait metadata consumed by Features tab helpers/cards.
  */
-export type CharacterTraitsData = {
-    personality: string;
-    ideals: string;
-    bonds: string;
-    flaws: string;
-    armorProficiencies?: string[] | null;
-    weaponProficiencies?: string[] | null;
-    toolProficiencies?: string[] | null;
-    languages?: string[] | null;
-};
+export type CharacterTraitsData = Traits;
 
 /**
  * Proficiency/language groups rendered in the Proficiencies card.

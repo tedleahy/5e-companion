@@ -4,25 +4,12 @@ import { Text } from 'react-native-paper';
 import ActionButton from '@/components/ActionButton';
 import SpellList, { type SpellAccordionActionContext, type SpellListItem } from '@/components/SpellList';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import type { CharacterSpellbookEntryFieldsFragment } from '@/types/generated_graphql_types';
 import CardDivider from '../CardDivider';
 import SheetCard from '../SheetCard';
 
-type CharacterSpell = {
-    prepared: boolean;
-    spell: {
-        id: string;
-        name: string;
-        level: number;
-        schoolIndex: string;
-        castingTime: string;
-        range?: string | null;
-        concentration: boolean;
-        ritual: boolean;
-    };
-};
-
 type SpellbookCardProps = {
-    spellbook: CharacterSpell[];
+    spellbook: CharacterSpellbookEntryFieldsFragment[];
     onOpenSpell?: (spellId: string) => void;
     onSetPrepared?: (spellId: string, prepared: boolean) => Promise<void>;
     onRemoveSpell?: (spellId: string) => Promise<void>;
@@ -41,13 +28,13 @@ const SPELLBOOK_FILTERS: { key: SpellbookFilter; label: string }[] = [
 /**
  * Filters spellbook entries by the active filter mode.
  */
-function filterSpellbook(spellbook: CharacterSpell[], filter: SpellbookFilter): CharacterSpell[] {
+function filterSpellbook(spellbook: CharacterSpellbookEntryFieldsFragment[], filter: SpellbookFilter): CharacterSpellbookEntryFieldsFragment[] {
     if (filter === 'all') return spellbook;
     if (filter === 'prepared') return spellbook.filter((entry) => entry.prepared);
     return spellbook.filter((entry) => !entry.prepared);
 }
 
-function toSpellListItems(spellbook: CharacterSpell[]): SpellListItem[] {
+function toSpellListItems(spellbook: CharacterSpellbookEntryFieldsFragment[]): SpellListItem[] {
     return spellbook.map((entry) => ({
         id: entry.spell.id,
         name: entry.spell.name,

@@ -38,6 +38,12 @@ import {
     spellLevelLabel,
     type AddSpellFilterState,
 } from './SpellFilterState';
+import type {
+    AddSpellSheetSpellDetailQuery,
+    AddSpellSheetSpellDetailQueryVariables,
+    AddSpellSheetSpellsQuery,
+    AddSpellSheetSpellsQueryVariables,
+} from '@/types/generated_graphql_types';
 import type { AddSpellDetail, AddSpellListItem, AddSpellSection } from './addSpell.types';
 
 type AddSpellSheetProps = {
@@ -54,26 +60,6 @@ type ActiveFilterChip = {
     label: string;
     type: 'class' | 'level' | 'school' | 'component' | 'boolean';
     value: string;
-};
-
-type AddSpellSheetQueryData = {
-    spells: AddSpellListItem[];
-};
-
-type AddSpellSheetQueryVariables = {
-    filter?: Record<string, unknown>;
-    pagination: {
-        limit: number;
-        offset: number;
-    };
-};
-
-type AddSpellDetailQueryData = {
-    spell: AddSpellDetail | null;
-};
-
-type AddSpellDetailQueryVariables = {
-    id: string;
 };
 
 const SHEET_HEIGHT_PERCENTAGE = '92%';
@@ -353,7 +339,7 @@ export default function AddSpellSheet({
         return buildAddSpellFilterInput(appliedFilters, debouncedSearchQuery);
     }, [appliedFilters, debouncedSearchQuery]);
 
-    const queryVariables = useMemo<AddSpellSheetQueryVariables>(() => ({
+    const queryVariables = useMemo<AddSpellSheetSpellsQueryVariables>(() => ({
         pagination: {
             limit: MAX_SHEET_RESULTS,
             offset: 0,
@@ -361,7 +347,7 @@ export default function AddSpellSheet({
         ...(filterInput ? { filter: filterInput } : {}),
     }), [filterInput]);
 
-    const { data, loading, error } = useQuery<AddSpellSheetQueryData, AddSpellSheetQueryVariables>(SEARCH_SPELLS_FOR_SHEET, {
+    const { data, loading, error } = useQuery<AddSpellSheetSpellsQuery, AddSpellSheetSpellsQueryVariables>(SEARCH_SPELLS_FOR_SHEET, {
         variables: queryVariables,
         skip: !visible,
         notifyOnNetworkStatusChange: true,
@@ -372,7 +358,7 @@ export default function AddSpellSheet({
         loading: selectedSpellDetailLoading,
         error: selectedSpellDetailError,
         refetch: refetchSelectedSpellDetail,
-    } = useQuery<AddSpellDetailQueryData, AddSpellDetailQueryVariables>(GET_SPELL_DETAIL_FOR_SHEET, {
+    } = useQuery<AddSpellSheetSpellDetailQuery, AddSpellSheetSpellDetailQueryVariables>(GET_SPELL_DETAIL_FOR_SHEET, {
         variables: {
             id: selectedSpell?.id ?? '',
         },
@@ -430,7 +416,7 @@ export default function AddSpellSheet({
 
         prefetchedSpellDetailIdsRef.current.add(spellId);
 
-        void apolloClient.query<AddSpellDetailQueryData, AddSpellDetailQueryVariables>({
+        void apolloClient.query<AddSpellSheetSpellDetailQuery, AddSpellSheetSpellDetailQueryVariables>({
             query: GET_SPELL_DETAIL_FOR_SHEET,
             variables: { id: spellId },
             fetchPolicy: 'cache-first',

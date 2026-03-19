@@ -6,36 +6,16 @@ import SpellbookCard from './spells/SpellbookCard';
 import SpellcastingStatsCard from './spells/SpellcastingStatsCard';
 import SpellSlotsCard from './spells/SpellSlotsCard';
 import SheetAddButton from './SheetAddButton';
+import type { CharacterSpellbookEntryFieldsFragment, SpellSlot } from '@/types/generated_graphql_types';
 import AddSpellSheet from './spells/AddSpellSheet';
-
-type CharacterSpellSlot = {
-    id: string;
-    level: number;
-    total: number;
-    used: number;
-};
-
-type CharacterSpellbookEntry = {
-    prepared: boolean;
-    spell: {
-        id: string;
-        name: string;
-        level: number;
-        schoolIndex: string;
-        castingTime: string;
-        range?: string | null;
-        concentration: boolean;
-        ritual: boolean;
-    };
-};
 
 type SpellsTabProps = {
     characterClass: string;
     spellcastingAbility?: string | null;
     spellSaveDC?: number | null;
     spellAttackBonus?: number | null;
-    spellSlots: CharacterSpellSlot[];
-    spellbook: CharacterSpellbookEntry[];
+    spellSlots: SpellSlot[];
+    spellbook: CharacterSpellbookEntryFieldsFragment[];
     onToggleSpellSlot?: (level: number) => Promise<void>;
     onSetSpellPrepared?: (spellId: string, prepared: boolean) => Promise<void>;
     onLearnSpell?: (spellId: string) => Promise<void>;
