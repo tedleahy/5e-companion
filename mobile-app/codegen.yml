@@ -1,5 +1,8 @@
 schema: ../server/schema.graphql
-documents: app/**/*.tsx
+documents:
+  - app/**/*.tsx
+  - graphql/**/*.ts
+  - components/**/*.tsx
 generates:
   types/generated_graphql_types.ts:
     plugins:

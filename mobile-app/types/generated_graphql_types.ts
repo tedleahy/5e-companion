@@ -231,6 +231,7 @@ export type Mutation = {
   removeFeature: Scalars['Boolean']['output'];
   removeInventoryItem: Scalars['Boolean']['output'];
   removeWeapon: Scalars['Boolean']['output'];
+  saveCharacterSheet: Character;
   shortRest: Character;
   spendHitDie: CharacterStats;
   toggleInspiration: Character;
@@ -329,6 +330,12 @@ export type MutationRemoveInventoryItemArgs = {
 export type MutationRemoveWeaponArgs = {
   characterId: Scalars['ID']['input'];
   weaponId: Scalars['ID']['input'];
+};
+
+
+export type MutationSaveCharacterSheetArgs = {
+  characterId: Scalars['ID']['input'];
+  input: SaveCharacterSheetInput;
 };
 
 
@@ -462,6 +469,50 @@ export type QuerySpellArgs = {
 export type QuerySpellsArgs = {
   filter?: InputMaybe<SpellFilter>;
   pagination?: InputMaybe<SpellPagination>;
+};
+
+export type SaveCharacterSheetAttackInput = {
+  attackBonus: Scalars['String']['input'];
+  damage: Scalars['String']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  name: Scalars['String']['input'];
+  type: Scalars['String']['input'];
+};
+
+export type SaveCharacterSheetFeatureInput = {
+  description: Scalars['String']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  name: Scalars['String']['input'];
+  recharge?: InputMaybe<Scalars['String']['input']>;
+  source: Scalars['String']['input'];
+  usesMax?: InputMaybe<Scalars['Int']['input']>;
+  usesRemaining?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type SaveCharacterSheetInput = {
+  abilityScores: AbilityScoresInput;
+  ac: Scalars['Int']['input'];
+  conditions: Array<Scalars['String']['input']>;
+  currency: CurrencyInput;
+  features: Array<SaveCharacterSheetFeatureInput>;
+  hp: HpInput;
+  initiative: Scalars['Int']['input'];
+  inventory: Array<SaveCharacterSheetInventoryItemInput>;
+  speed: Scalars['Int']['input'];
+  spellAttackBonus?: InputMaybe<Scalars['Int']['input']>;
+  spellSaveDC?: InputMaybe<Scalars['Int']['input']>;
+  traits: TraitsInput;
+  weapons: Array<SaveCharacterSheetAttackInput>;
+};
+
+export type SaveCharacterSheetInventoryItemInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  equipped: Scalars['Boolean']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  magical: Scalars['Boolean']['input'];
+  name: Scalars['String']['input'];
+  quantity: Scalars['Int']['input'];
+  weight?: InputMaybe<Scalars['Float']['input']>;
 };
 
 export type SavingThrowProficienciesInput = {
@@ -613,3 +664,237 @@ export type SpellQueryVariables = Exact<{
 
 
 export type SpellQuery = { __typename?: 'Query', spell?: { __typename?: 'Spell', id: string, name: string, level: number, schoolIndex: string, classIndexes: Array<string>, description: Array<string>, higherLevel: Array<string>, range?: string | null, components: Array<string>, material?: string | null, ritual: boolean, duration?: string | null, concentration: boolean, castingTime: string } | null };
+
+export type AddSpellSheetSpellsQueryVariables = Exact<{
+  filter?: InputMaybe<SpellFilter>;
+  pagination?: InputMaybe<SpellPagination>;
+}>;
+
+
+export type AddSpellSheetSpellsQuery = { __typename?: 'Query', spells: Array<{ __typename?: 'Spell', classIndexes: Array<string>, id: string, name: string, level: number, schoolIndex: string, castingTime: string, range?: string | null, concentration: boolean, ritual: boolean }> };
+
+export type AddSpellSheetSpellDetailQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type AddSpellSheetSpellDetailQuery = { __typename?: 'Query', spell?: { __typename?: 'Spell', classIndexes: Array<string>, description: Array<string>, higherLevel: Array<string>, components: Array<string>, material?: string | null, duration?: string | null, id: string, name: string, level: number, schoolIndex: string, castingTime: string, range?: string | null, concentration: boolean, ritual: boolean } | null };
+
+export type CharacterRosterFieldsFragment = { __typename?: 'Character', id: string, name: string, race: string, class: string, subclass?: string | null, level: number, spellAttackBonus?: number | null, initiative: number, ac: number, conditions: Array<string>, weapons: Array<{ __typename?: 'Attack', attackBonus: string }>, stats?: { __typename?: 'CharacterStats', hp: { __typename?: 'HP', current: number, max: number } } | null };
+
+export type CharacterSheetFieldsFragment = { __typename?: 'Character', id: string, name: string, race: string, class: string, subclass?: string | null, level: number, alignment: string, background: string, proficiencyBonus: number, inspiration: boolean, ac: number, speed: number, initiative: number, spellcastingAbility?: string | null, spellSaveDC?: number | null, spellAttackBonus?: number | null, conditions: Array<string>, features: Array<{ __typename?: 'CharacterFeature', id: string, name: string, source: string, description: string, usesMax?: number | null, usesRemaining?: number | null, recharge?: string | null }>, weapons: Array<{ __typename?: 'Attack', id: string, name: string, attackBonus: string, damage: string, type: string }>, inventory: Array<{ __typename?: 'InventoryItem', id: string, name: string, quantity: number, weight?: number | null, description?: string | null, equipped: boolean, magical: boolean }>, spellSlots: Array<{ __typename?: 'SpellSlot', id: string, level: number, total: number, used: number }>, spellbook: Array<{ __typename?: 'CharacterSpell', prepared: boolean, spell: { __typename?: 'Spell', id: string, name: string, level: number, schoolIndex: string, castingTime: string, range?: string | null, concentration: boolean, ritual: boolean } }>, stats?: { __typename?: 'CharacterStats', id: string, savingThrowProficiencies: Array<string>, abilityScores: { __typename?: 'AbilityScores', strength: number, dexterity: number, constitution: number, intelligence: number, wisdom: number, charisma: number }, hp: { __typename?: 'HP', current: number, max: number, temp: number }, deathSaves: { __typename?: 'DeathSaves', successes: number, failures: number }, hitDice: { __typename?: 'HitDice', total: number, remaining: number, die: string }, traits: { __typename?: 'Traits', personality: string, ideals: string, bonds: string, flaws: string, armorProficiencies?: Array<string> | null, weaponProficiencies?: Array<string> | null, toolProficiencies?: Array<string> | null, languages?: Array<string> | null }, skillProficiencies: { __typename?: 'SkillProficiencies', acrobatics: ProficiencyLevel, animalHandling: ProficiencyLevel, arcana: ProficiencyLevel, athletics: ProficiencyLevel, deception: ProficiencyLevel, history: ProficiencyLevel, insight: ProficiencyLevel, intimidation: ProficiencyLevel, investigation: ProficiencyLevel, medicine: ProficiencyLevel, nature: ProficiencyLevel, perception: ProficiencyLevel, performance: ProficiencyLevel, persuasion: ProficiencyLevel, religion: ProficiencyLevel, sleightOfHand: ProficiencyLevel, stealth: ProficiencyLevel, survival: ProficiencyLevel }, currency: { __typename?: 'Currency', cp: number, sp: number, ep: number, gp: number, pp: number } } | null };
+
+export type CurrentUserCharacterRosterQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CurrentUserCharacterRosterQuery = { __typename?: 'Query', currentUserCharacters: Array<{ __typename?: 'Character', id: string, name: string, race: string, class: string, subclass?: string | null, level: number, spellAttackBonus?: number | null, initiative: number, ac: number, conditions: Array<string>, weapons: Array<{ __typename?: 'Attack', attackBonus: string }>, stats?: { __typename?: 'CharacterStats', hp: { __typename?: 'HP', current: number, max: number } } | null }> };
+
+export type CurrentUserCharacterSheetsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CurrentUserCharacterSheetsQuery = { __typename?: 'Query', currentUserCharacters: Array<{ __typename?: 'Character', id: string, name: string, race: string, class: string, subclass?: string | null, level: number, alignment: string, background: string, proficiencyBonus: number, inspiration: boolean, ac: number, speed: number, initiative: number, spellcastingAbility?: string | null, spellSaveDC?: number | null, spellAttackBonus?: number | null, conditions: Array<string>, features: Array<{ __typename?: 'CharacterFeature', id: string, name: string, source: string, description: string, usesMax?: number | null, usesRemaining?: number | null, recharge?: string | null }>, weapons: Array<{ __typename?: 'Attack', id: string, name: string, attackBonus: string, damage: string, type: string }>, inventory: Array<{ __typename?: 'InventoryItem', id: string, name: string, quantity: number, weight?: number | null, description?: string | null, equipped: boolean, magical: boolean }>, spellSlots: Array<{ __typename?: 'SpellSlot', id: string, level: number, total: number, used: number }>, spellbook: Array<{ __typename?: 'CharacterSpell', prepared: boolean, spell: { __typename?: 'Spell', id: string, name: string, level: number, schoolIndex: string, castingTime: string, range?: string | null, concentration: boolean, ritual: boolean } }>, stats?: { __typename?: 'CharacterStats', id: string, savingThrowProficiencies: Array<string>, abilityScores: { __typename?: 'AbilityScores', strength: number, dexterity: number, constitution: number, intelligence: number, wisdom: number, charisma: number }, hp: { __typename?: 'HP', current: number, max: number, temp: number }, deathSaves: { __typename?: 'DeathSaves', successes: number, failures: number }, hitDice: { __typename?: 'HitDice', total: number, remaining: number, die: string }, traits: { __typename?: 'Traits', personality: string, ideals: string, bonds: string, flaws: string, armorProficiencies?: Array<string> | null, weaponProficiencies?: Array<string> | null, toolProficiencies?: Array<string> | null, languages?: Array<string> | null }, skillProficiencies: { __typename?: 'SkillProficiencies', acrobatics: ProficiencyLevel, animalHandling: ProficiencyLevel, arcana: ProficiencyLevel, athletics: ProficiencyLevel, deception: ProficiencyLevel, history: ProficiencyLevel, insight: ProficiencyLevel, intimidation: ProficiencyLevel, investigation: ProficiencyLevel, medicine: ProficiencyLevel, nature: ProficiencyLevel, perception: ProficiencyLevel, performance: ProficiencyLevel, persuasion: ProficiencyLevel, religion: ProficiencyLevel, sleightOfHand: ProficiencyLevel, stealth: ProficiencyLevel, survival: ProficiencyLevel }, currency: { __typename?: 'Currency', cp: number, sp: number, ep: number, gp: number, pp: number } } | null }> };
+
+export type SaveCharacterSheetMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  input: SaveCharacterSheetInput;
+}>;
+
+
+export type SaveCharacterSheetMutation = { __typename?: 'Mutation', saveCharacterSheet: { __typename?: 'Character', id: string, name: string, race: string, class: string, subclass?: string | null, level: number, alignment: string, background: string, proficiencyBonus: number, inspiration: boolean, ac: number, speed: number, initiative: number, spellcastingAbility?: string | null, spellSaveDC?: number | null, spellAttackBonus?: number | null, conditions: Array<string>, features: Array<{ __typename?: 'CharacterFeature', id: string, name: string, source: string, description: string, usesMax?: number | null, usesRemaining?: number | null, recharge?: string | null }>, weapons: Array<{ __typename?: 'Attack', id: string, name: string, attackBonus: string, damage: string, type: string }>, inventory: Array<{ __typename?: 'InventoryItem', id: string, name: string, quantity: number, weight?: number | null, description?: string | null, equipped: boolean, magical: boolean }>, spellSlots: Array<{ __typename?: 'SpellSlot', id: string, level: number, total: number, used: number }>, spellbook: Array<{ __typename?: 'CharacterSpell', prepared: boolean, spell: { __typename?: 'Spell', id: string, name: string, level: number, schoolIndex: string, castingTime: string, range?: string | null, concentration: boolean, ritual: boolean } }>, stats?: { __typename?: 'CharacterStats', id: string, savingThrowProficiencies: Array<string>, abilityScores: { __typename?: 'AbilityScores', strength: number, dexterity: number, constitution: number, intelligence: number, wisdom: number, charisma: number }, hp: { __typename?: 'HP', current: number, max: number, temp: number }, deathSaves: { __typename?: 'DeathSaves', successes: number, failures: number }, hitDice: { __typename?: 'HitDice', total: number, remaining: number, die: string }, traits: { __typename?: 'Traits', personality: string, ideals: string, bonds: string, flaws: string, armorProficiencies?: Array<string> | null, weaponProficiencies?: Array<string> | null, toolProficiencies?: Array<string> | null, languages?: Array<string> | null }, skillProficiencies: { __typename?: 'SkillProficiencies', acrobatics: ProficiencyLevel, animalHandling: ProficiencyLevel, arcana: ProficiencyLevel, athletics: ProficiencyLevel, deception: ProficiencyLevel, history: ProficiencyLevel, insight: ProficiencyLevel, intimidation: ProficiencyLevel, investigation: ProficiencyLevel, medicine: ProficiencyLevel, nature: ProficiencyLevel, perception: ProficiencyLevel, performance: ProficiencyLevel, persuasion: ProficiencyLevel, religion: ProficiencyLevel, sleightOfHand: ProficiencyLevel, stealth: ProficiencyLevel, survival: ProficiencyLevel }, currency: { __typename?: 'Currency', cp: number, sp: number, ep: number, gp: number, pp: number } } | null } };
+
+export type AddWeaponMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  input: AttackInput;
+}>;
+
+
+export type AddWeaponMutation = { __typename?: 'Mutation', addWeapon: { __typename?: 'Attack', id: string, name: string, attackBonus: string, damage: string, type: string } };
+
+export type UpdateWeaponMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  weaponId: Scalars['ID']['input'];
+  input: AttackInput;
+}>;
+
+
+export type UpdateWeaponMutation = { __typename?: 'Mutation', updateWeapon: { __typename?: 'Attack', id: string, name: string, attackBonus: string, damage: string, type: string } };
+
+export type RemoveWeaponMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  weaponId: Scalars['ID']['input'];
+}>;
+
+
+export type RemoveWeaponMutation = { __typename?: 'Mutation', removeWeapon: boolean };
+
+export type AddInventoryItemMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  input: InventoryItemInput;
+}>;
+
+
+export type AddInventoryItemMutation = { __typename?: 'Mutation', addInventoryItem: { __typename?: 'InventoryItem', id: string, name: string, quantity: number, weight?: number | null, description?: string | null, equipped: boolean, magical: boolean } };
+
+export type UpdateInventoryItemMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  itemId: Scalars['ID']['input'];
+  input: InventoryItemInput;
+}>;
+
+
+export type UpdateInventoryItemMutation = { __typename?: 'Mutation', updateInventoryItem: { __typename?: 'InventoryItem', id: string, name: string, quantity: number, weight?: number | null, description?: string | null, equipped: boolean, magical: boolean } };
+
+export type RemoveInventoryItemMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  itemId: Scalars['ID']['input'];
+}>;
+
+
+export type RemoveInventoryItemMutation = { __typename?: 'Mutation', removeInventoryItem: boolean };
+
+export type AddFeatureMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  input: FeatureInput;
+}>;
+
+
+export type AddFeatureMutation = { __typename?: 'Mutation', addFeature: { __typename?: 'CharacterFeature', id: string, name: string, source: string, description: string, usesMax?: number | null, usesRemaining?: number | null, recharge?: string | null } };
+
+export type UpdateFeatureMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  featureId: Scalars['ID']['input'];
+  input: FeatureInput;
+}>;
+
+
+export type UpdateFeatureMutation = { __typename?: 'Mutation', updateFeature: { __typename?: 'CharacterFeature', id: string, name: string, source: string, description: string, usesMax?: number | null, usesRemaining?: number | null, recharge?: string | null } };
+
+export type RemoveFeatureMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  featureId: Scalars['ID']['input'];
+}>;
+
+
+export type RemoveFeatureMutation = { __typename?: 'Mutation', removeFeature: boolean };
+
+export type UpdateCharacterMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: UpdateCharacterInput;
+}>;
+
+
+export type UpdateCharacterMutation = { __typename?: 'Mutation', updateCharacter: { __typename?: 'Character', id: string, level: number, proficiencyBonus: number, ac: number, speed: number, initiative: number, conditions: Array<string>, spellSaveDC?: number | null, spellAttackBonus?: number | null } };
+
+export type UpdateHpMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  input: HpInput;
+}>;
+
+
+export type UpdateHpMutation = { __typename?: 'Mutation', updateHP: { __typename?: 'CharacterStats', id: string, hp: { __typename?: 'HP', current: number, max: number, temp: number } } };
+
+export type UpdateAbilityScoresMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  input: AbilityScoresInput;
+}>;
+
+
+export type UpdateAbilityScoresMutation = { __typename?: 'Mutation', updateAbilityScores: { __typename?: 'CharacterStats', id: string, abilityScores: { __typename?: 'AbilityScores', strength: number, dexterity: number, constitution: number, intelligence: number, wisdom: number, charisma: number } } };
+
+export type UpdateCurrencyMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  input: CurrencyInput;
+}>;
+
+
+export type UpdateCurrencyMutation = { __typename?: 'Mutation', updateCurrency: { __typename?: 'CharacterStats', id: string, currency: { __typename?: 'Currency', cp: number, sp: number, ep: number, gp: number, pp: number } } };
+
+export type UpdateTraitsMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  input: TraitsInput;
+}>;
+
+
+export type UpdateTraitsMutation = { __typename?: 'Mutation', updateTraits: { __typename?: 'CharacterStats', id: string, traits: { __typename?: 'Traits', personality: string, ideals: string, bonds: string, flaws: string, armorProficiencies?: Array<string> | null, weaponProficiencies?: Array<string> | null, toolProficiencies?: Array<string> | null, languages?: Array<string> | null } } };
+
+export type CreateCharacterMutationVariables = Exact<{
+  input: CreateCharacterInput;
+}>;
+
+
+export type CreateCharacterMutation = { __typename?: 'Mutation', createCharacter: { __typename?: 'Character', id: string, name: string } };
+
+export type ToggleInspirationMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+}>;
+
+
+export type ToggleInspirationMutation = { __typename?: 'Mutation', toggleInspiration: { __typename?: 'Character', id: string, inspiration: boolean } };
+
+export type UpdateDeathSavesMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  input: DeathSavesInput;
+}>;
+
+
+export type UpdateDeathSavesMutation = { __typename?: 'Mutation', updateDeathSaves: { __typename?: 'CharacterStats', id: string, deathSaves: { __typename?: 'DeathSaves', successes: number, failures: number } } };
+
+export type UpdateSkillProficienciesMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  input: SkillProficienciesInput;
+}>;
+
+
+export type UpdateSkillProficienciesMutation = { __typename?: 'Mutation', updateSkillProficiencies: { __typename?: 'CharacterStats', id: string, skillProficiencies: { __typename?: 'SkillProficiencies', acrobatics: ProficiencyLevel, animalHandling: ProficiencyLevel, arcana: ProficiencyLevel, athletics: ProficiencyLevel, deception: ProficiencyLevel, history: ProficiencyLevel, insight: ProficiencyLevel, intimidation: ProficiencyLevel, investigation: ProficiencyLevel, medicine: ProficiencyLevel, nature: ProficiencyLevel, perception: ProficiencyLevel, performance: ProficiencyLevel, persuasion: ProficiencyLevel, religion: ProficiencyLevel, sleightOfHand: ProficiencyLevel, stealth: ProficiencyLevel, survival: ProficiencyLevel } } };
+
+export type UpdateSavingThrowProficienciesMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  input: SavingThrowProficienciesInput;
+}>;
+
+
+export type UpdateSavingThrowProficienciesMutation = { __typename?: 'Mutation', updateSavingThrowProficiencies: { __typename?: 'CharacterStats', id: string, savingThrowProficiencies: Array<string> } };
+
+export type ToggleSpellSlotMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  level: Scalars['Int']['input'];
+}>;
+
+
+export type ToggleSpellSlotMutation = { __typename?: 'Mutation', toggleSpellSlot: { __typename?: 'SpellSlot', id: string, level: number, total: number, used: number } };
+
+export type LearnSpellMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  spellId: Scalars['ID']['input'];
+}>;
+
+
+export type LearnSpellMutation = { __typename?: 'Mutation', learnSpell: { __typename?: 'CharacterSpell', prepared: boolean, spell: { __typename?: 'Spell', id: string, name: string, level: number, schoolIndex: string, castingTime: string, range?: string | null, concentration: boolean, ritual: boolean } } };
+
+export type ForgetSpellMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  spellId: Scalars['ID']['input'];
+}>;
+
+
+export type ForgetSpellMutation = { __typename?: 'Mutation', forgetSpell: boolean };
+
+export type PrepareSpellMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  spellId: Scalars['ID']['input'];
+}>;
+
+
+export type PrepareSpellMutation = { __typename?: 'Mutation', prepareSpell: { __typename?: 'CharacterSpell', prepared: boolean, spell: { __typename?: 'Spell', id: string } } };
+
+export type UnprepareSpellMutationVariables = Exact<{
+  characterId: Scalars['ID']['input'];
+  spellId: Scalars['ID']['input'];
+}>;
+
+
+export type UnprepareSpellMutation = { __typename?: 'Mutation', unprepareSpell: { __typename?: 'CharacterSpell', prepared: boolean, spell: { __typename?: 'Spell', id: string } } };
+
+export type SpellListFieldsFragment = { __typename?: 'Spell', id: string, name: string, level: number, schoolIndex: string, castingTime: string, range?: string | null, concentration: boolean, ritual: boolean };
+
+export type CharacterSpellbookEntryFieldsFragment = { __typename?: 'CharacterSpell', prepared: boolean, spell: { __typename?: 'Spell', id: string, name: string, level: number, schoolIndex: string, castingTime: string, range?: string | null, concentration: boolean, ritual: boolean } };
