@@ -4,28 +4,14 @@ import type { ApolloCache } from '@apollo/client';
 import { useMutation, useQuery } from '@apollo/client/react';
 import type {
     AbilityScoresInput,
-    AttackInput,
     CharacterSpell,
     CurrencyInput,
-    FeatureInput,
     HpInput,
     InventoryItemInput,
-    MutationAddFeatureArgs,
     MutationForgetSpellArgs,
-    MutationAddInventoryItemArgs,
     MutationLearnSpellArgs,
-    MutationAddWeaponArgs,
-    MutationRemoveFeatureArgs,
-    MutationRemoveInventoryItemArgs,
-    MutationRemoveWeaponArgs,
-    MutationUpdateAbilityScoresArgs,
     MutationUpdateCharacterArgs,
-    MutationUpdateCurrencyArgs,
-    MutationUpdateFeatureArgs,
-    MutationUpdateHpArgs,
     MutationUpdateInventoryItemArgs,
-    MutationUpdateTraitsArgs,
-    MutationUpdateWeaponArgs,
     Query,
     TraitsInput,
     ProficiencyLevel,
@@ -35,30 +21,19 @@ import type {
     SavingThrowProficienciesInput,
 } from '@/types/generated_graphql_types';
 import {
-    ADD_FEATURE,
     FORGET_SPELL,
-    ADD_INVENTORY_ITEM,
-    ADD_WEAPON,
     GET_CURRENT_USER_CHARACTERS,
     LEARN_SPELL,
     PREPARE_SPELL,
-    REMOVE_FEATURE,
-    REMOVE_INVENTORY_ITEM,
-    REMOVE_WEAPON,
+    SAVE_CHARACTER_SHEET,
     TOGGLE_INSPIRATION,
     TOGGLE_SPELL_SLOT,
     UNPREPARE_SPELL,
-    UPDATE_ABILITY_SCORES,
     UPDATE_CHARACTER,
-    UPDATE_CURRENCY,
     UPDATE_DEATH_SAVES,
-    UPDATE_FEATURE,
-    UPDATE_HP,
     UPDATE_INVENTORY_ITEM,
     UPDATE_SAVING_THROW_PROFICIENCIES,
     UPDATE_SKILL_PROFICIENCIES,
-    UPDATE_TRAITS,
-    UPDATE_WEAPON,
 } from '@/graphql/characterSheet.operations';
 import {
     addSpellToSpellbookInCache,
@@ -154,6 +129,65 @@ export type SaveCharacterSheetCoreInput = {
 };
 
 /**
+ * Input shape for one weapon row in the atomic save mutation.
+ */
+type SaveCharacterSheetAttackMutationInput = {
+    id?: string;
+    name: string;
+    attackBonus: string;
+    damage: string;
+    type: string;
+};
+
+/**
+ * Input shape for one inventory row in the atomic save mutation.
+ */
+type SaveCharacterSheetInventoryItemMutationInput = {
+    id?: string;
+    name: string;
+    quantity: number;
+    weight?: number | null;
+    description?: string | null;
+    equipped: boolean;
+    magical: boolean;
+};
+
+/**
+ * Input shape for one feature row in the atomic save mutation.
+ */
+type SaveCharacterSheetFeatureMutationInput = {
+    id?: string;
+    name: string;
+    source: string;
+    description: string;
+    usesMax?: number | null;
+    usesRemaining?: number | null;
+    recharge?: string | null;
+};
+
+/**
+ * Variables for the atomic character-sheet save mutation.
+ */
+type SaveCharacterSheetMutationVariables = {
+    characterId: string;
+    input: {
+        ac: number;
+        speed: number;
+        initiative: number;
+        conditions: string[];
+        hp: HpInput;
+        abilityScores: AbilityScoresInput;
+        currency: CurrencyInput;
+        traits: TraitsInput;
+        weapons: SaveCharacterSheetAttackMutationInput[];
+        inventory: SaveCharacterSheetInventoryItemMutationInput[];
+        features: SaveCharacterSheetFeatureMutationInput[];
+        spellSaveDC?: number | null;
+        spellAttackBonus?: number | null;
+    };
+};
+
+/**
  * Returns true when a local edit-mode row has not yet been persisted.
  */
 function isDraftEntityId(id: string): boolean {
@@ -161,14 +195,45 @@ function isDraftEntityId(id: string): boolean {
 }
 
 /**
- * Maps a weapon row into the GraphQL attack input shape.
+ * Maps a weapon row into the atomic save mutation input shape.
  */
-function weaponInput(weapon: CharacterAttack): AttackInput {
+function saveWeaponInput(weapon: CharacterAttack): SaveCharacterSheetAttackMutationInput {
     return {
+        id: isDraftEntityId(weapon.id) ? undefined : weapon.id,
         name: weapon.name,
         attackBonus: weapon.attackBonus,
         damage: weapon.damage,
         type: weapon.type,
+    };
+}
+
+/**
+ * Maps an inventory row into the atomic save mutation input shape.
+ */
+function saveInventoryItemInput(item: CharacterInventoryItem): SaveCharacterSheetInventoryItemMutationInput {
+    return {
+        id: isDraftEntityId(item.id) ? undefined : item.id,
+        name: item.name,
+        quantity: item.quantity,
+        weight: item.weight ?? null,
+        description: item.description ?? null,
+        equipped: item.equipped,
+        magical: item.magical,
+    };
+}
+
+/**
+ * Maps a feature row into the atomic save mutation input shape.
+ */
+function saveFeatureInput(feature: CharacterFeature): SaveCharacterSheetFeatureMutationInput {
+    return {
+        id: isDraftEntityId(feature.id) ? undefined : feature.id,
+        name: feature.name,
+        source: feature.source,
+        description: feature.description,
+        recharge: feature.recharge ?? null,
+        usesMax: feature.usesMax ?? null,
+        usesRemaining: feature.usesRemaining ?? null,
     };
 }
 
@@ -184,54 +249,6 @@ function inventoryItemInput(item: CharacterInventoryItem): InventoryItemInput {
         equipped: item.equipped,
         magical: item.magical,
     };
-}
-
-/**
- * Maps a feature row into the GraphQL input shape.
- */
-function featureInput(feature: CharacterFeature): FeatureInput {
-    return {
-        name: feature.name,
-        source: feature.source,
-        description: feature.description,
-        recharge: feature.recharge ?? undefined,
-        usesMax: feature.usesMax ?? undefined,
-        usesRemaining: feature.usesRemaining ?? undefined,
-    };
-}
-
-/**
- * Compares two weapon rows for persisted-field changes.
- */
-function hasWeaponChanged(previousWeapon: CharacterAttack, nextWeapon: CharacterAttack): boolean {
-    return previousWeapon.name !== nextWeapon.name
-        || previousWeapon.attackBonus !== nextWeapon.attackBonus
-        || previousWeapon.damage !== nextWeapon.damage
-        || previousWeapon.type !== nextWeapon.type;
-}
-
-/**
- * Compares two inventory rows for persisted-field changes.
- */
-function hasInventoryItemChanged(previousItem: CharacterInventoryItem, nextItem: CharacterInventoryItem): boolean {
-    return previousItem.name !== nextItem.name
-        || previousItem.quantity !== nextItem.quantity
-        || previousItem.weight !== nextItem.weight
-        || previousItem.description !== nextItem.description
-        || previousItem.equipped !== nextItem.equipped
-        || previousItem.magical !== nextItem.magical;
-}
-
-/**
- * Compares two feature rows for persisted-field changes.
- */
-function hasFeatureChanged(previousFeature: CharacterFeature, nextFeature: CharacterFeature): boolean {
-    return previousFeature.name !== nextFeature.name
-        || previousFeature.source !== nextFeature.source
-        || previousFeature.description !== nextFeature.description
-        || previousFeature.recharge !== nextFeature.recharge
-        || previousFeature.usesMax !== nextFeature.usesMax
-        || previousFeature.usesRemaining !== nextFeature.usesRemaining;
 }
 
 /**
@@ -448,6 +465,13 @@ type UnprepareSpellMutationData = {
 type CharacterCacheUpdater = (character: CharacterWithSpells) => CharacterWithSpells;
 
 /**
+ * Mutation payload when saving the full character sheet.
+ */
+type SaveCharacterSheetMutationData = {
+    saveCharacterSheet: CharacterWithSpells;
+};
+
+/**
  * Updates a single character entry in the current-user cache.
  */
 function updateCharacterInCache(
@@ -542,44 +566,18 @@ export default function useCharacterSheetData(characterId: string) {
         SpellPreparedMutationVariables
     >(UNPREPARE_SPELL);
 
+    const [saveCharacterSheet] = useMutation<
+        SaveCharacterSheetMutationData,
+        SaveCharacterSheetMutationVariables
+    >(SAVE_CHARACTER_SHEET);
+
     const [updateCharacter] = useMutation<{ updateCharacter: { id: string } }, MutationUpdateCharacterArgs>(
         UPDATE_CHARACTER,
-    );
-
-    const [updateHP] = useMutation<{ updateHP: { id: string } }, MutationUpdateHpArgs>(UPDATE_HP);
-
-    const [updateAbilityScores] = useMutation<
-        { updateAbilityScores: { id: string } },
-        MutationUpdateAbilityScoresArgs
-    >(UPDATE_ABILITY_SCORES);
-
-    const [updateCurrency] = useMutation<{ updateCurrency: { id: string } }, MutationUpdateCurrencyArgs>(
-        UPDATE_CURRENCY,
-    );
-
-    const [updateTraits] = useMutation<{ updateTraits: { id: string } }, MutationUpdateTraitsArgs>(
-        UPDATE_TRAITS,
-    );
-
-    const [addWeapon] = useMutation<{ addWeapon: { id: string } }, MutationAddWeaponArgs>(ADD_WEAPON);
-    const [updateWeapon] = useMutation<{ updateWeapon: { id: string } }, MutationUpdateWeaponArgs>(UPDATE_WEAPON);
-    const [removeWeapon] = useMutation<{ removeWeapon: boolean }, MutationRemoveWeaponArgs>(REMOVE_WEAPON);
-
-    const [addInventoryItem] = useMutation<{ addInventoryItem: { id: string } }, MutationAddInventoryItemArgs>(
-        ADD_INVENTORY_ITEM,
     );
     const [updateInventoryItem] = useMutation<
         { updateInventoryItem: { id: string } },
         MutationUpdateInventoryItemArgs
     >(UPDATE_INVENTORY_ITEM);
-    const [removeInventoryItem] = useMutation<
-        { removeInventoryItem: boolean },
-        MutationRemoveInventoryItemArgs
-    >(REMOVE_INVENTORY_ITEM);
-
-    const [addFeature] = useMutation<{ addFeature: { id: string } }, MutationAddFeatureArgs>(ADD_FEATURE);
-    const [updateFeature] = useMutation<{ updateFeature: { id: string } }, MutationUpdateFeatureArgs>(UPDATE_FEATURE);
-    const [removeFeature] = useMutation<{ removeFeature: boolean }, MutationRemoveFeatureArgs>(REMOVE_FEATURE);
 
     const currentUserCharacters = data?.currentUserCharacters ?? [];
     const character = currentUserCharacters.find((candidate) => candidate.id === characterId) ?? null;
@@ -843,166 +841,36 @@ export default function useCharacterSheetData(characterId: string) {
      * Persists the editable core sheet fields when edit mode is confirmed.
      */
     const handleSaveCharacterSheetCore = useCallback(async (input: SaveCharacterSheetCoreInput) => {
-        if (!character || !character.stats) return;
+        if (!character) return;
 
-        const originalWeaponsById = new Map(character.weapons.map((weapon) => [weapon.id, weapon]));
-        const originalInventoryById = new Map(character.inventory.map((item) => [item.id, item]));
-        const originalFeaturesById = new Map(character.features.map((feature) => [feature.id, feature]));
-        const nextWeaponIds = new Set(input.weapons.filter((weapon) => !isDraftEntityId(weapon.id)).map((weapon) => weapon.id));
-        const nextInventoryIds = new Set(input.inventory.filter((item) => !isDraftEntityId(item.id)).map((item) => item.id));
-        const nextFeatureIds = new Set(input.features.filter((feature) => !isDraftEntityId(feature.id)).map((feature) => feature.id));
-
-        await Promise.all([
-            updateCharacter({
-                variables: {
-                    id: character.id,
-                    input: {
-                        ac: input.ac,
-                        speed: input.speed,
-                        initiative: input.initiative,
-                        conditions: input.conditions,
-                        ...(input.spellSaveDC != null && { spellSaveDC: input.spellSaveDC }),
-                        ...(input.spellAttackBonus != null && { spellAttackBonus: input.spellAttackBonus }),
-                    },
+        await saveCharacterSheet({
+            variables: {
+                characterId: character.id,
+                input: {
+                    ac: input.ac,
+                    speed: input.speed,
+                    initiative: input.initiative,
+                    conditions: input.conditions,
+                    hp: input.hp,
+                    abilityScores: input.abilityScores,
+                    currency: input.currency,
+                    traits: input.traits,
+                    weapons: input.weapons.map(saveWeaponInput),
+                    inventory: input.inventory.map(saveInventoryItemInput),
+                    features: input.features.map(saveFeatureInput),
+                    spellSaveDC: input.spellSaveDC ?? null,
+                    spellAttackBonus: input.spellAttackBonus ?? null,
                 },
-            }),
-            updateHP({
-                variables: {
-                    characterId: character.id,
-                    input: input.hp,
-                },
-            }),
-            updateAbilityScores({
-                variables: {
-                    characterId: character.id,
-                    input: input.abilityScores,
-                },
-            }),
-            updateCurrency({
-                variables: {
-                    characterId: character.id,
-                    input: input.currency,
-                },
-            }),
-            updateTraits({
-                variables: {
-                    characterId: character.id,
-                    input: input.traits,
-                },
-            }),
-            ...character.weapons
-                .filter((weapon) => !nextWeaponIds.has(weapon.id))
-                .map((weapon) => removeWeapon({
-                    variables: {
-                        characterId: character.id,
-                        weaponId: weapon.id,
-                    },
-                })),
-            ...input.weapons.map((weapon) => {
-                if (isDraftEntityId(weapon.id)) {
-                    return addWeapon({
-                        variables: {
-                            characterId: character.id,
-                            input: weaponInput(weapon),
-                        },
-                    });
-                }
+            },
+            update(cache, result) {
+                if (!result.data?.saveCharacterSheet) return;
 
-                const existingWeapon = originalWeaponsById.get(weapon.id);
-                if (!existingWeapon || !hasWeaponChanged(existingWeapon, weapon)) {
-                    return Promise.resolve();
-                }
-
-                return updateWeapon({
-                    variables: {
-                        characterId: character.id,
-                        weaponId: weapon.id,
-                        input: weaponInput(weapon),
-                    },
-                });
-            }),
-            ...character.inventory
-                .filter((item) => !nextInventoryIds.has(item.id))
-                .map((item) => removeInventoryItem({
-                    variables: {
-                        characterId: character.id,
-                        itemId: item.id,
-                    },
-                })),
-            ...input.inventory.map((item) => {
-                if (isDraftEntityId(item.id)) {
-                    return addInventoryItem({
-                        variables: {
-                            characterId: character.id,
-                            input: inventoryItemInput(item),
-                        },
-                    });
-                }
-
-                const existingItem = originalInventoryById.get(item.id);
-                if (!existingItem || !hasInventoryItemChanged(existingItem, item)) {
-                    return Promise.resolve();
-                }
-
-                return updateInventoryItem({
-                    variables: {
-                        characterId: character.id,
-                        itemId: item.id,
-                        input: inventoryItemInput(item),
-                    },
-                });
-            }),
-            ...character.features
-                .filter((feature) => !nextFeatureIds.has(feature.id))
-                .map((feature) => removeFeature({
-                    variables: {
-                        characterId: character.id,
-                        featureId: feature.id,
-                    },
-                })),
-            ...input.features.map((feature) => {
-                if (isDraftEntityId(feature.id)) {
-                    return addFeature({
-                        variables: {
-                            characterId: character.id,
-                            input: featureInput(feature),
-                        },
-                    });
-                }
-
-                const existingFeature = originalFeaturesById.get(feature.id);
-                if (!existingFeature || !hasFeatureChanged(existingFeature, feature)) {
-                    return Promise.resolve();
-                }
-
-                return updateFeature({
-                    variables: {
-                        characterId: character.id,
-                        featureId: feature.id,
-                        input: featureInput(feature),
-                    },
-                });
-            }),
-        ]);
-
-        await refetch();
+                updateCharacterInCache(cache, character.id, () => result.data.saveCharacterSheet);
+            },
+        });
     }, [
-        addFeature,
-        addInventoryItem,
-        addWeapon,
         character,
-        refetch,
-        removeFeature,
-        removeInventoryItem,
-        removeWeapon,
-        updateAbilityScores,
-        updateCharacter,
-        updateCurrency,
-        updateFeature,
-        updateHP,
-        updateInventoryItem,
-        updateTraits,
-        updateWeapon,
+        saveCharacterSheet,
     ]);
 
     /**

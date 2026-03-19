@@ -1,4 +1,4 @@
-import { GET_CURRENT_USER_CHARACTERS, PREPARE_SPELL, TOGGLE_INSPIRATION, TOGGLE_SPELL_SLOT, UNPREPARE_SPELL, UPDATE_ABILITY_SCORES, UPDATE_CHARACTER, UPDATE_CURRENCY, UPDATE_DEATH_SAVES, UPDATE_HP, UPDATE_SAVING_THROW_PROFICIENCIES, UPDATE_SKILL_PROFICIENCIES, UPDATE_TRAITS } from "@/graphql/characterSheet.operations";
+import { GET_CURRENT_USER_CHARACTERS, PREPARE_SPELL, SAVE_CHARACTER_SHEET, TOGGLE_INSPIRATION, TOGGLE_SPELL_SLOT, UNPREPARE_SPELL, UPDATE_DEATH_SAVES, UPDATE_SAVING_THROW_PROFICIENCIES, UPDATE_SKILL_PROFICIENCIES } from "@/graphql/characterSheet.operations";
 import { ProficiencyLevel } from "@/types/generated_graphql_types";
 import { MockLink } from "@apollo/client/testing";
 
@@ -11,6 +11,7 @@ export const MOCK_CHARACTER = {
     subclass: 'School of Evocation',
     level: 12,
     alignment: 'Chaotic Good',
+    background: 'Sage',
     proficiencyBonus: 4,
     inspiration: false,
     ac: 17,
@@ -292,83 +293,20 @@ export const MOCK_CHARACTER = {
 export const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
     {
         request: {
-            query: UPDATE_CHARACTER,
-            variables: {
-                id: 'char-1',
-                input: {
-                    ac: 17,
-                    speed: 35,
-                    initiative: 3,
-                    spellSaveDC: 17,
-                    spellAttackBonus: 9,
-                    conditions: [],
-                },
-            },
-        },
-        result: {
-            data: {
-                updateCharacter: {
-                    __typename: 'Character',
-                    id: 'char-1',
-                    ac: 17,
-                    speed: 35,
-                    initiative: 3,
-                    spellSaveDC: 17,
-                    spellAttackBonus: 9,
-                    conditions: [],
-                },
-            },
-        },
-    },
-    {
-        request: {
-            query: UPDATE_HP,
+            query: SAVE_CHARACTER_SHEET,
             variables: {
                 characterId: 'char-1',
                 input: {
-                    current: 54,
-                    max: 76,
-                    temp: 2,
-                },
-            },
-        },
-        result: {
-            data: {
-                updateHP: {
-                    __typename: 'CharacterStats',
-                    id: 'stats-1',
+                    ac: 17,
+                    speed: 35,
+                    initiative: 3,
+                    conditions: [],
                     hp: {
-                        __typename: 'HP',
                         current: 54,
                         max: 76,
                         temp: 2,
                     },
-                },
-            },
-        },
-    },
-    {
-        request: {
-            query: UPDATE_ABILITY_SCORES,
-            variables: {
-                characterId: 'char-1',
-                input: {
-                    strength: 8,
-                    dexterity: 16,
-                    constitution: 14,
-                    intelligence: 20,
-                    wisdom: 13,
-                    charisma: 11,
-                },
-            },
-        },
-        result: {
-            data: {
-                updateAbilityScores: {
-                    __typename: 'CharacterStats',
-                    id: 'stats-1',
                     abilityScores: {
-                        __typename: 'AbilityScores',
                         strength: 8,
                         dexterity: 16,
                         constitution: 14,
@@ -376,65 +314,14 @@ export const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
                         wisdom: 13,
                         charisma: 11,
                     },
-                },
-            },
-        },
-    },
-    {
-        request: {
-            query: UPDATE_CURRENCY,
-            variables: {
-                characterId: 'char-1',
-                input: {
-                    cp: 0,
-                    sp: 14,
-                    ep: 0,
-                    gp: 847,
-                    pp: 3,
-                },
-            },
-        },
-        result: {
-            data: {
-                updateCurrency: {
-                    __typename: 'CharacterStats',
-                    id: 'stats-1',
                     currency: {
-                        __typename: 'Currency',
                         cp: 0,
                         sp: 14,
                         ep: 0,
                         gp: 847,
                         pp: 3,
                     },
-                },
-            },
-        },
-    },
-    {
-        request: {
-            query: UPDATE_TRAITS,
-            variables: {
-                characterId: 'char-1',
-                input: {
-                    personality: 'Always collecting obscure magical lore.',
-                    ideals: 'Knowledge should be preserved.',
-                    bonds: 'My spellbook is my life.',
-                    flaws: 'I underestimate danger when magic is involved.',
-                    armorProficiencies: [],
-                    weaponProficiencies: ['Daggers', 'Darts', 'Slings', 'Quarterstaffs'],
-                    toolProficiencies: [],
-                    languages: ['Common', 'Elvish', 'Draconic'],
-                },
-            },
-        },
-        result: {
-            data: {
-                updateTraits: {
-                    __typename: 'CharacterStats',
-                    id: 'stats-1',
                     traits: {
-                        __typename: 'Traits',
                         personality: 'Always collecting obscure magical lore.',
                         ideals: 'Knowledge should be preserved.',
                         bonds: 'My spellbook is my life.',
@@ -444,23 +331,104 @@ export const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
                         toolProficiencies: [],
                         languages: ['Common', 'Elvish', 'Draconic'],
                     },
+                    weapons: [
+                        {
+                            id: 'attack-1',
+                            name: 'Dagger',
+                            attackBonus: '+7',
+                            damage: '1d4+3 piercing',
+                            type: 'melee',
+                        },
+                        {
+                            id: 'attack-2',
+                            name: 'Staff of Power',
+                            attackBonus: '+9',
+                            damage: '1d6+5 bludgeoning',
+                            type: 'melee',
+                        },
+                        {
+                            id: 'attack-3',
+                            name: 'Spell Attack',
+                            attackBonus: '+10',
+                            damage: 'by spell',
+                            type: 'spell',
+                        },
+                    ],
+                    inventory: [
+                        {
+                            id: 'item-1',
+                            name: 'Staff of Power',
+                            quantity: 1,
+                            weight: 4,
+                            description: '+2 weapon, spell attack & DC bonus',
+                            equipped: true,
+                            magical: true,
+                        },
+                        {
+                            id: 'item-2',
+                            name: 'Ring of Protection',
+                            quantity: 1,
+                            weight: null,
+                            description: '+1 AC and saving throws',
+                            equipped: true,
+                            magical: true,
+                        },
+                        {
+                            id: 'item-3',
+                            name: 'Spellbook',
+                            quantity: 1,
+                            weight: 3,
+                            description: 'Contains 26 spells',
+                            equipped: false,
+                            magical: false,
+                        },
+                        {
+                            id: 'item-4',
+                            name: 'Potion of Greater Healing',
+                            quantity: 3,
+                            weight: 0.5,
+                            description: 'Restores 4d4+4 HP',
+                            equipped: false,
+                            magical: true,
+                        },
+                    ],
+                    features: [
+                        {
+                            id: 'feature-1',
+                            name: 'Arcane Recovery',
+                            source: 'Wizard 1',
+                            description: 'Recover spell slots on a long rest.',
+                            usesMax: 1,
+                            usesRemaining: 1,
+                            recharge: 'long',
+                        },
+                        {
+                            id: 'feature-2',
+                            name: 'Darkvision',
+                            source: 'High Elf',
+                            description: 'See in dim light and darkness within 60 feet.',
+                            usesMax: null,
+                            usesRemaining: null,
+                            recharge: null,
+                        },
+                        {
+                            id: 'feature-3',
+                            name: 'War Caster',
+                            source: 'Feat',
+                            description: 'Advantage on concentration checks.',
+                            usesMax: null,
+                            usesRemaining: null,
+                            recharge: null,
+                        },
+                    ],
+                    spellSaveDC: 17,
+                    spellAttackBonus: 9,
                 },
             },
         },
-    },
-    {
-        request: { query: GET_CURRENT_USER_CHARACTERS },
         result: {
             data: {
-                currentUserCharacters: [MOCK_CHARACTER],
-            },
-        },
-    },
-    {
-        request: { query: GET_CURRENT_USER_CHARACTERS },
-        result: {
-            data: {
-                currentUserCharacters: [MOCK_CHARACTER],
+                saveCharacterSheet: MOCK_CHARACTER,
             },
         },
     },

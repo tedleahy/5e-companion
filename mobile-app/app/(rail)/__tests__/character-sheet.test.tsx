@@ -19,7 +19,7 @@ import {
     UPDATE_SAVING_THROW_PROFICIENCIES_MOCK,
     UPDATE_SKILLS_MOCK,
 } from './mocks/character-sheet.mocks';
-import { UPDATE_CHARACTER } from '@/graphql/characterSheet.operations';
+import { SAVE_CHARACTER_SHEET } from '@/graphql/characterSheet.operations';
 
 const ADD_SPELL_LIST_MOCK: MockLink.MockedResponse = {
     request: {
@@ -279,16 +279,136 @@ describe('CharacterByIdScreen', () => {
         const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
         const failingMock: MockLink.MockedResponse = {
             request: {
-                query: UPDATE_CHARACTER,
+                query: SAVE_CHARACTER_SHEET,
                 variables: {
-                    id: 'char-1',
+                    characterId: 'char-1',
                     input: {
                         ac: 17,
                         speed: 35,
                         initiative: 3,
+                        conditions: [],
+                        hp: {
+                            current: 54,
+                            max: 76,
+                            temp: 2,
+                        },
+                        abilityScores: {
+                            strength: 8,
+                            dexterity: 16,
+                            constitution: 14,
+                            intelligence: 20,
+                            wisdom: 13,
+                            charisma: 11,
+                        },
+                        currency: {
+                            cp: 0,
+                            sp: 14,
+                            ep: 0,
+                            gp: 847,
+                            pp: 3,
+                        },
+                        traits: {
+                            personality: 'Always collecting obscure magical lore.',
+                            ideals: 'Knowledge should be preserved.',
+                            bonds: 'My spellbook is my life.',
+                            flaws: 'I underestimate danger when magic is involved.',
+                            armorProficiencies: [],
+                            weaponProficiencies: ['Daggers', 'Darts', 'Slings', 'Quarterstaffs'],
+                            toolProficiencies: [],
+                            languages: ['Common', 'Elvish', 'Draconic'],
+                        },
+                        weapons: [
+                            {
+                                id: 'attack-1',
+                                name: 'Dagger',
+                                attackBonus: '+7',
+                                damage: '1d4+3 piercing',
+                                type: 'melee',
+                            },
+                            {
+                                id: 'attack-2',
+                                name: 'Staff of Power',
+                                attackBonus: '+9',
+                                damage: '1d6+5 bludgeoning',
+                                type: 'melee',
+                            },
+                            {
+                                id: 'attack-3',
+                                name: 'Spell Attack',
+                                attackBonus: '+10',
+                                damage: 'by spell',
+                                type: 'spell',
+                            },
+                        ],
+                        inventory: [
+                            {
+                                id: 'item-1',
+                                name: 'Staff of Power',
+                                quantity: 1,
+                                weight: 4,
+                                description: '+2 weapon, spell attack & DC bonus',
+                                equipped: true,
+                                magical: true,
+                            },
+                            {
+                                id: 'item-2',
+                                name: 'Ring of Protection',
+                                quantity: 1,
+                                weight: null,
+                                description: '+1 AC and saving throws',
+                                equipped: true,
+                                magical: true,
+                            },
+                            {
+                                id: 'item-3',
+                                name: 'Spellbook',
+                                quantity: 1,
+                                weight: 3,
+                                description: 'Contains 26 spells',
+                                equipped: false,
+                                magical: false,
+                            },
+                            {
+                                id: 'item-4',
+                                name: 'Potion of Greater Healing',
+                                quantity: 3,
+                                weight: 0.5,
+                                description: 'Restores 4d4+4 HP',
+                                equipped: false,
+                                magical: true,
+                            },
+                        ],
+                        features: [
+                            {
+                                id: 'feature-1',
+                                name: 'Arcane Recovery',
+                                source: 'Wizard 1',
+                                description: 'Recover spell slots on a long rest.',
+                                usesMax: 1,
+                                usesRemaining: 1,
+                                recharge: 'long',
+                            },
+                            {
+                                id: 'feature-2',
+                                name: 'Darkvision',
+                                source: 'High Elf',
+                                description: 'See in dim light and darkness within 60 feet.',
+                                usesMax: null,
+                                usesRemaining: null,
+                                recharge: null,
+                            },
+                            {
+                                id: 'feature-3',
+                                name: 'War Caster',
+                                source: 'Feat',
+                                description: 'Advantage on concentration checks.',
+                                usesMax: null,
+                                usesRemaining: null,
+                                recharge: null,
+                            },
+                        ],
                         spellSaveDC: 17,
                         spellAttackBonus: 9,
-                        conditions: [],
                     },
                 },
             },
@@ -298,7 +418,7 @@ describe('CharacterByIdScreen', () => {
         renderScreen([
             CHARACTERS_MOCK,
             failingMock,
-            ...SAVE_CORE_CHARACTER_MOCKS.filter(mock => mock.request.query !== UPDATE_CHARACTER),
+            ...SAVE_CORE_CHARACTER_MOCKS.filter(mock => mock.request.query !== SAVE_CHARACTER_SHEET),
         ]);
 
         await waitFor(() => {

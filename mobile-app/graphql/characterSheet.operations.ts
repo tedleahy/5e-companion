@@ -2,127 +2,150 @@ import { gql } from '@apollo/client';
 import { CHARACTER_SPELLBOOK_ENTRY_FIELDS_FRAGMENT } from './spell.fragments';
 
 /**
+ * Shared character-sheet fields used by the detail query and save mutation.
+ */
+const CHARACTER_SHEET_FIELDS_FRAGMENT = gql`
+    fragment CharacterSheetFields on Character {
+        id
+        name
+        race
+        class
+        subclass
+        level
+        alignment
+        background
+        proficiencyBonus
+        inspiration
+        ac
+        speed
+        initiative
+        spellcastingAbility
+        spellSaveDC
+        spellAttackBonus
+        conditions
+        features {
+            id
+            name
+            source
+            description
+            usesMax
+            usesRemaining
+            recharge
+        }
+        weapons {
+            id
+            name
+            attackBonus
+            damage
+            type
+        }
+        inventory {
+            id
+            name
+            quantity
+            weight
+            description
+            equipped
+            magical
+        }
+        spellSlots {
+            id
+            level
+            total
+            used
+        }
+        spellbook {
+            ...CharacterSpellbookEntryFields
+        }
+        stats {
+            id
+            abilityScores {
+                strength
+                dexterity
+                constitution
+                intelligence
+                wisdom
+                charisma
+            }
+            hp {
+                current
+                max
+                temp
+            }
+            deathSaves {
+                successes
+                failures
+            }
+            hitDice {
+                total
+                remaining
+                die
+            }
+            savingThrowProficiencies
+            traits {
+                personality
+                ideals
+                bonds
+                flaws
+                armorProficiencies
+                weaponProficiencies
+                toolProficiencies
+                languages
+            }
+            skillProficiencies {
+                acrobatics
+                animalHandling
+                arcana
+                athletics
+                deception
+                history
+                insight
+                intimidation
+                investigation
+                medicine
+                nature
+                perception
+                performance
+                persuasion
+                religion
+                sleightOfHand
+                stealth
+                survival
+            }
+            currency {
+                cp
+                sp
+                ep
+                gp
+                pp
+            }
+        }
+    }
+    ${CHARACTER_SPELLBOOK_ENTRY_FIELDS_FRAGMENT}
+`;
+
+/**
  * Fetches the full character-sheet payload for the signed-in user.
  */
 export const GET_CURRENT_USER_CHARACTERS = gql`
     query CurrentUserCharacters {
         currentUserCharacters {
-            id
-            name
-            race
-            class
-            subclass
-            level
-            alignment
-            proficiencyBonus
-            inspiration
-            ac
-            speed
-            initiative
-            spellcastingAbility
-            spellSaveDC
-            spellAttackBonus
-            conditions
-            features {
-                id
-                name
-                source
-                description
-                usesMax
-                usesRemaining
-                recharge
-            }
-            weapons {
-                id
-                name
-                attackBonus
-                damage
-                type
-            }
-            inventory {
-                id
-                name
-                quantity
-                weight
-                description
-                equipped
-                magical
-            }
-            spellSlots {
-                id
-                level
-                total
-                used
-            }
-            spellbook {
-                ...CharacterSpellbookEntryFields
-            }
-            stats {
-                id
-                abilityScores {
-                    strength
-                    dexterity
-                    constitution
-                    intelligence
-                    wisdom
-                    charisma
-                }
-                hp {
-                    current
-                    max
-                    temp
-                }
-                deathSaves {
-                    successes
-                    failures
-                }
-                hitDice {
-                    total
-                    remaining
-                    die
-                }
-                savingThrowProficiencies
-                traits {
-                    personality
-                    ideals
-                    bonds
-                    flaws
-                    armorProficiencies
-                    weaponProficiencies
-                    toolProficiencies
-                    languages
-                }
-                skillProficiencies {
-                    acrobatics
-                    animalHandling
-                    arcana
-                    athletics
-                    deception
-                    history
-                    insight
-                    intimidation
-                    investigation
-                    medicine
-                    nature
-                    perception
-                    performance
-                    persuasion
-                    religion
-                    sleightOfHand
-                    stealth
-                    survival
-                }
-                currency {
-                    cp
-                    sp
-                    ep
-                    gp
-                    pp
-                }
-            }
+            ...CharacterSheetFields
         }
     }
-    ${CHARACTER_SPELLBOOK_ENTRY_FIELDS_FRAGMENT}
+    ${CHARACTER_SHEET_FIELDS_FRAGMENT}
+`;
+
+/**
+ * Saves the full editable character-sheet payload atomically.
+ */
+export const SAVE_CHARACTER_SHEET = gql`
+    mutation SaveCharacterSheet($characterId: ID!, $input: SaveCharacterSheetInput!) {
+        saveCharacterSheet(characterId: $characterId, input: $input) {
+            ...CharacterSheetFields
+        }
+    }
+    ${CHARACTER_SHEET_FIELDS_FRAGMENT}
 `;
 
 /**
