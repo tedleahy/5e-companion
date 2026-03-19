@@ -12,7 +12,7 @@ import { useMutation } from '@apollo/client/react';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { buildCreateCharacterInput } from '@/lib/characterCreation/buildCreateCharacterInput';
-import { CREATE_CHARACTER, GET_CURRENT_USER_CHARACTERS } from '@/graphql/characterSheet.operations';
+import { CREATE_CHARACTER, GET_CURRENT_USER_CHARACTER_ROSTER } from '@/graphql/characterSheet.operations';
 
 function getStepRoutes(level: number) {
     const routes = [
@@ -60,7 +60,7 @@ export default function WizardShell({ children }: Props) {
     const [createCharacter, { loading: creating, error: createError }] = useMutation<{
         createCharacter: { id: string; name: string };
     }>(CREATE_CHARACTER, {
-        refetchQueries: [{ query: GET_CURRENT_USER_CHARACTERS }],
+        refetchQueries: [{ query: GET_CURRENT_USER_CHARACTER_ROSTER }],
     });
 
     // Validation: is the current step complete enough to proceed?

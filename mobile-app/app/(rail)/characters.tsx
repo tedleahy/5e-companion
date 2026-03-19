@@ -6,7 +6,7 @@ import { ActivityIndicator, Text } from 'react-native-paper';
 import CharacterCard, { type CharacterCardData } from '@/components/characters/CharacterCard';
 import EmptyState from '@/components/characters/EmptyState';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
-import { GET_CURRENT_USER_CHARACTERS } from '@/graphql/characterSheet.operations';
+import { GET_CURRENT_USER_CHARACTER_ROSTER } from '@/graphql/characterSheet.operations';
 import { isUnauthenticatedError } from '@/lib/graphqlErrors';
 import useSessionGuard from '@/hooks/useSessionGuard';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -51,9 +51,9 @@ type CharacterListRow = {
 };
 
 /**
- * Characters query result shape for the current user.
+ * Character roster query result shape for the current user.
  */
-type CurrentUserCharactersQueryData = {
+type CurrentUserCharacterRosterQueryData = {
     currentUserCharacters: CharacterListRow[];
 };
 
@@ -121,7 +121,7 @@ export default function CharactersScreen() {
         data,
         loading,
         error,
-    } = useQuery<CurrentUserCharactersQueryData>(GET_CURRENT_USER_CHARACTERS, {
+    } = useQuery<CurrentUserCharacterRosterQueryData>(GET_CURRENT_USER_CHARACTER_ROSTER, {
         skip: !hasValidSession,
         notifyOnNetworkStatusChange: true,
         fetchPolicy: 'cache-and-network',

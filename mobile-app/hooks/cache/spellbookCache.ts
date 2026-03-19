@@ -1,5 +1,5 @@
 import type { ApolloCache } from '@apollo/client';
-import { GET_CURRENT_USER_CHARACTERS } from '@/graphql/characterSheet.operations';
+import { GET_CURRENT_USER_CHARACTER_SHEETS } from '@/graphql/characterSheet.operations';
 
 /**
  * Minimal spellbook row shape required for cache updates.
@@ -29,7 +29,7 @@ function updateCharacterSpellbookInCache(
     updateSpellbook: (spellbook: CachedSpellbookEntry[]) => CachedSpellbookEntry[],
 ) {
     cache.updateQuery<CurrentUserCharactersCache>(
-        { query: GET_CURRENT_USER_CHARACTERS },
+        { query: GET_CURRENT_USER_CHARACTER_SHEETS },
         (data: CurrentUserCharactersCache | null) => {
             if (!data) return data;
 

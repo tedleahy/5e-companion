@@ -22,7 +22,7 @@ import type {
 } from '@/types/generated_graphql_types';
 import {
     FORGET_SPELL,
-    GET_CURRENT_USER_CHARACTERS,
+    GET_CURRENT_USER_CHARACTER_SHEETS,
     LEARN_SPELL,
     PREPARE_SPELL,
     SAVE_CHARACTER_SHEET,
@@ -347,8 +347,8 @@ type CharacterCurrency = {
 /**
  * Base generated character result from the current-user query.
  */
-type BaseCharacter = CurrentUserCharactersQuery['currentUserCharacters'][number];
-type CurrentUserCharactersQuery = Pick<Query, 'currentUserCharacters'>;
+type BaseCharacter = CurrentUserCharacterSheetsQuery['currentUserCharacters'][number];
+type CurrentUserCharacterSheetsQuery = Pick<Query, 'currentUserCharacters'>;
 /**
  * Non-nullable stats row from the generated character result.
  */
@@ -480,7 +480,7 @@ function updateCharacterInCache(
     updateCharacter: CharacterCacheUpdater,
 ) {
     cache.updateQuery<CurrentUserCharactersWithSpellsQuery>(
-        { query: GET_CURRENT_USER_CHARACTERS },
+        { query: GET_CURRENT_USER_CHARACTER_SHEETS },
         (data: CurrentUserCharactersWithSpellsQuery | null) => {
             if (!data) return data;
 
@@ -518,7 +518,7 @@ function updateSpellSlotInCache(
  */
 export default function useCharacterSheetData(characterId: string) {
     const { data, loading, error, refetch } = useQuery<CurrentUserCharactersWithSpellsQuery>(
-        GET_CURRENT_USER_CHARACTERS,
+        GET_CURRENT_USER_CHARACTER_SHEETS,
     );
 
     const [toggleInspiration] = useMutation<

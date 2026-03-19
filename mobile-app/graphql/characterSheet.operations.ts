@@ -2,6 +2,33 @@ import { gql } from '@apollo/client';
 import { CHARACTER_SPELLBOOK_ENTRY_FIELDS_FRAGMENT } from './spell.fragments';
 
 /**
+ * Fields needed to render one character card in the roster screen.
+ */
+const CHARACTER_ROSTER_FIELDS_FRAGMENT = gql`
+    fragment CharacterRosterFields on Character {
+        id
+        name
+        race
+        class
+        subclass
+        level
+        spellAttackBonus
+        initiative
+        ac
+        conditions
+        weapons {
+            attackBonus
+        }
+        stats {
+            hp {
+                current
+                max
+            }
+        }
+    }
+`;
+
+/**
  * Shared character-sheet fields used by the detail query and save mutation.
  */
 const CHARACTER_SHEET_FIELDS_FRAGMENT = gql`
@@ -125,10 +152,22 @@ const CHARACTER_SHEET_FIELDS_FRAGMENT = gql`
 `;
 
 /**
+ * Fetches the smaller roster payload for the signed-in user.
+ */
+export const GET_CURRENT_USER_CHARACTER_ROSTER = gql`
+    query CurrentUserCharacterRoster {
+        currentUserCharacters {
+            ...CharacterRosterFields
+        }
+    }
+    ${CHARACTER_ROSTER_FIELDS_FRAGMENT}
+`;
+
+/**
  * Fetches the full character-sheet payload for the signed-in user.
  */
-export const GET_CURRENT_USER_CHARACTERS = gql`
-    query CurrentUserCharacters {
+export const GET_CURRENT_USER_CHARACTER_SHEETS = gql`
+    query CurrentUserCharacterSheets {
         currentUserCharacters {
             ...CharacterSheetFields
         }
