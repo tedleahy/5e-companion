@@ -60,6 +60,7 @@ Git Commits
 - You don't have to stick to those exact prefixes, but do that sort of thing - type of commit followed
   by (mobile) or (api) if applicable
 - Add bullet points on separate lines where it would be useful to add extra detail.
+- Don't commit any markdown or txt files, other than AGENTS.md.
 
 General instructions
 - The main goal in making this app is learning React Native and GraphQL. Explain new concepts relating to these technologies. You can assume React web knowledge and REST API knowledge, but assume no knowledge of graphql or native-specific things. So when you tell me how to do something graphql or react native specific, use it as a teaching opportunity.
@@ -68,3 +69,4 @@ General instructions
 - React Native testing note: `SectionList` virtualizes rows, so off-screen items may not exist in the test tree. In tests, filter/search first or scroll before asserting/pressing deep list rows.
 - Spellbook testing note: prepared/unprepared toggles are in the spell row accordion actions (`character-spell-prepare-*`), so tests should open the row (`character-spell-row-*`) before pressing prepare/unprepare.
 - GraphQL codegen note: `mobile-app/codegen.yml` currently scans `app/**/*.tsx` documents only. GraphQL operations in `mobile-app/graphql/*.ts` will not auto-refresh operation result/variables types unless moved into scanned files or the config is expanded.
+- Expo TypeScript note: if you add platform-specific files such as `Component.native.tsx` and `Component.web.tsx`, keep `mobile-app/tsconfig.json` `compilerOptions.moduleSuffixes` aligned so TypeScript resolves the same module variants that Expo/Metro does.
