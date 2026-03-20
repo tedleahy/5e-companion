@@ -1,5 +1,6 @@
 export {
     character,
+    hasCurrentUserCharacters,
     currentUserCharacters,
 } from "./character/queries";
 

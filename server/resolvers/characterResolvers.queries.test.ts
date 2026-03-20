@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import {
     authedCtx,
+    characterCountMock,
     characterFindFirstMock,
     characterFindManyMock,
     clearAllCharacterResolverMocks,
@@ -32,6 +33,23 @@ describe('characterResolvers — queries', () => {
     test('currentUserCharacters throws UNAUTHENTICATED when userId is null', () => {
         expect(resolvers.currentUserCharacters({}, {}, unauthedCtx))
             .rejects.toThrow('UNAUTHENTICATED');
+    });
+
+    test('hasCurrentUserCharacters throws UNAUTHENTICATED when userId is null', () => {
+        expect(resolvers.hasCurrentUserCharacters({}, {}, unauthedCtx))
+            .rejects.toThrow('UNAUTHENTICATED');
+        expect(characterCountMock).not.toHaveBeenCalled();
+    });
+
+    test('hasCurrentUserCharacters returns true when the user has at least one character', async () => {
+        characterCountMock.mockResolvedValueOnce(1);
+
+        const result = await resolvers.hasCurrentUserCharacters({}, {}, authedCtx);
+
+        expect(characterCountMock).toHaveBeenCalledTimes(1);
+        const args = characterCountMock.mock.calls[0]![0] as Record<string, unknown>;
+        expect(args.where).toEqual({ ownerUserId: 'user-abc' });
+        expect(result).toBe(true);
     });
 
     test('currentUserCharacters calls findMany with ownerUserId', async () => {

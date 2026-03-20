@@ -3,6 +3,7 @@ import { mock } from 'bun:test';
 // character model mocks
 export const characterFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const characterFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
+export const characterCountMock: any = mock((_args: unknown) => Promise.resolve(0));
 export const characterCreateMock: any = mock((_args: unknown) => Promise.resolve({}));
 export const characterUpdateMock: any = mock((_args: unknown) => Promise.resolve({}));
 export const characterDeleteManyMock: any = mock((_args: unknown) => Promise.resolve({ count: 1 }));
@@ -45,6 +46,7 @@ export const transactionMock: any = mock((callback: (tx: any) => Promise<unknown
     character: {
         findFirst: characterFindFirstMock,
         findMany: characterFindManyMock,
+        count: characterCountMock,
         create: characterCreateMock,
         update: characterUpdateMock,
         deleteMany: characterDeleteManyMock,
@@ -84,6 +86,7 @@ mock.module('../prisma/prisma', () => ({
         character: {
             findFirst: characterFindFirstMock,
             findMany: characterFindManyMock,
+            count: characterCountMock,
             create: characterCreateMock,
             update: characterUpdateMock,
             deleteMany: characterDeleteManyMock,
@@ -180,6 +183,7 @@ export const fakeStats: any = {
 export function clearAllCharacterResolverMocks() {
     characterFindFirstMock.mockClear();
     characterFindManyMock.mockClear();
+    characterCountMock.mockClear();
     characterCreateMock.mockClear();
     characterUpdateMock.mockClear();
     characterDeleteManyMock.mockClear();

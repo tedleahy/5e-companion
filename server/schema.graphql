@@ -385,6 +385,7 @@ type Query {
     spells(filter: SpellFilter, pagination: SpellPagination): [Spell!]!
     spell(id: ID!): Spell
     character(id: ID!): Character
+    hasCurrentUserCharacters: Boolean!
     currentUserCharacters: [Character!]!
 }
 

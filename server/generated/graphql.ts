@@ -338,6 +338,7 @@ export type Query = {
   __typename?: 'Query';
   character?: Maybe<Character>;
   currentUserCharacters: Array<Character>;
+  hasCurrentUserCharacters: Scalars['Boolean']['output'];
   spell?: Maybe<Spell>;
   spells: Array<Spell>;
 };
@@ -846,6 +847,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   character?: Resolver<Maybe<ResolversTypes['Character']>, ParentType, ContextType, RequireFields<QueryCharacterArgs, 'id'>>;
   currentUserCharacters?: Resolver<Array<ResolversTypes['Character']>, ParentType, ContextType>;
+  hasCurrentUserCharacters?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   spell?: Resolver<Maybe<ResolversTypes['Spell']>, ParentType, ContextType, RequireFields<QuerySpellArgs, 'id'>>;
   spells?: Resolver<Array<ResolversTypes['Spell']>, ParentType, ContextType, Partial<QuerySpellsArgs>>;
 };

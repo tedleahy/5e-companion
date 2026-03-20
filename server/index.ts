@@ -32,6 +32,7 @@ const resolvers: Resolvers = {
         spells: spellsResolver,
         spell: spellResolver,
         character: characterResolvers.character,
+        hasCurrentUserCharacters: characterResolvers.hasCurrentUserCharacters,
         currentUserCharacters: characterResolvers.currentUserCharacters,
     },
 

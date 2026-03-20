@@ -19,6 +19,23 @@ export async function character(
 }
 
 /**
+ * Query resolver that reports whether the current user owns any characters.
+ */
+export async function hasCurrentUserCharacters(
+    _parent: unknown,
+    _args: unknown,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+
+    const characterCount = await prisma.character.count({
+        where: { ownerUserId: userId },
+    });
+
+    return characterCount > 0;
+}
+
+/**
  * Query resolver for all characters owned by the current user.
  */
 export async function currentUserCharacters(
