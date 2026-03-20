@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
+import type { Href } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 
 /**
  * Configuration for {@link useSessionGuard}.
  */
 type UseSessionGuardOptions = {
-    redirectTo?: string;
+    redirectTo?: Href;
     shouldRedirectOnInvalidSession?: boolean;
     runOnMount?: boolean;
 };

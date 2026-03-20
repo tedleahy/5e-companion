@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { deriveSpellcastingStats } from '@/lib/characterSheetUtils';
 import type { ApolloCache } from '@apollo/client';
-import { useMutation, useQuery } from '@apollo/client/react';
+import { skipToken, useMutation, useQuery } from '@apollo/client/react';
 import type {
     CharacterSheetDetailQuery,
     CharacterSheetDetailQueryVariables,
@@ -68,6 +68,34 @@ type CharacterWithSpells = NonNullable<CharacterSheetDetailQuery['character']>;
 type CharacterCacheUpdater = (character: CharacterWithSpells) => CharacterWithSpells;
 
 /**
+ * Returns true when Apollo has delivered a usable full character-sheet payload.
+ */
+function isCharacterWithSpells(value: unknown): value is CharacterWithSpells {
+    if (!value || typeof value !== 'object') return false;
+
+    const character = value as Partial<CharacterWithSpells>;
+
+    return typeof character.id === 'string'
+        && typeof character.name === 'string'
+        && typeof character.race === 'string'
+        && typeof character.class === 'string'
+        && typeof character.level === 'number'
+        && typeof character.alignment === 'string'
+        && typeof character.background === 'string'
+        && typeof character.proficiencyBonus === 'number'
+        && typeof character.inspiration === 'boolean'
+        && typeof character.ac === 'number'
+        && typeof character.speed === 'number'
+        && typeof character.initiative === 'number'
+        && Array.isArray(character.conditions)
+        && Array.isArray(character.features)
+        && Array.isArray(character.weapons)
+        && Array.isArray(character.inventory)
+        && Array.isArray(character.spellSlots)
+        && Array.isArray(character.spellbook);
+}
+
+/**
  * Maps an inventory row into the GraphQL input shape.
  */
 function inventoryItemInput(item: InventoryItem): InventoryItemInput {
@@ -128,13 +156,13 @@ function updateSpellSlotInCache(
  * Loads character-sheet data and exposes optimistic mutation handlers.
  */
 export default function useCharacterSheetData(characterId: string | null) {
-    const { data, loading, error, refetch } = useQuery<
+    const { data, dataState, loading, error, refetch } = useQuery<
         CharacterSheetDetailQuery,
         CharacterSheetDetailQueryVariables
-    >(GET_CHARACTER_SHEET_DETAIL, {
-        skip: !characterId,
-        variables: characterId ? { id: characterId } : undefined,
-    });
+    >(
+        GET_CHARACTER_SHEET_DETAIL,
+        characterId ? { variables: { id: characterId } } : skipToken,
+    );
 
     const [toggleInspiration] = useMutation<
         ToggleInspirationMutation,
@@ -194,8 +222,12 @@ export default function useCharacterSheetData(characterId: string | null) {
         MutationUpdateInventoryItemArgs
     >(UPDATE_INVENTORY_ITEM);
 
-    const character = data?.character ?? null;
-    const hasCurrentUserCharacters = data?.hasCurrentUserCharacters ?? false;
+    const character = dataState === 'complete' && isCharacterWithSpells(data?.character)
+        ? data.character
+        : null;
+    const hasCurrentUserCharacters = dataState === 'complete'
+        ? data.hasCurrentUserCharacters
+        : false;
 
     /**
      * Optimistically toggles inspiration for the active character.
@@ -464,9 +496,10 @@ export default function useCharacterSheetData(characterId: string | null) {
                 input,
             },
             update(cache, result) {
-                if (!result.data?.saveCharacterSheet) return;
+                const savedCharacter = result.data?.saveCharacterSheet;
+                if (!isCharacterWithSpells(savedCharacter)) return;
 
-                updateCharacterInCache(cache, character.id, () => result.data!.saveCharacterSheet);
+                updateCharacterInCache(cache, character.id, () => savedCharacter);
             },
         });
     }, [

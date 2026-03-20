@@ -1,4 +1,5 @@
 import React from 'react';
+import type { MockedResponse } from '@apollo/client/testing';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { PaperProvider } from 'react-native-paper';
@@ -141,7 +142,7 @@ function buildSpellDetailQueryMock() {
  * Renders AddSpellSheet with shared providers and default props.
  */
 function renderSheetWithMocks(
-    mocks: unknown[],
+    mocks: ReadonlyArray<MockedResponse>,
     overrides?: {
         onClose?: () => void;
         onSpellAdded?: (spellId: string) => Promise<void>;
