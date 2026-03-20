@@ -7,6 +7,7 @@ import { ParchmentPanel, DetailRow } from '@/components/FantasyPrimitives';
 import { ABILITY_ABBREVIATIONS, ABILITY_KEYS, abilityModifier, SKILL_DEFINITIONS } from '@/lib/characterSheetUtils';
 import { BACKGROUND_SKILL_PROFICIENCIES, CLASS_SAVING_THROWS } from '@/lib/characterCreation/classRules';
 import { applyRacialBonuses } from '@/lib/characterCreation/raceRules';
+import { CREATE_CHARACTER_ROUTES } from '@/lib/characterCreation/routes';
 
 export default function StepReview() {
     const { draft } = useCharacterDraft();
@@ -25,7 +26,7 @@ export default function StepReview() {
             <Text style={styles.sub}>Review your character before entering the world.</Text>
 
             {/* Identity — tap to edit */}
-            <Pressable onPress={() => router.push('/characters/create' as any)}>
+            <Pressable onPress={() => router.push(CREATE_CHARACTER_ROUTES.identity)}>
                 <View style={styles.sectionHeader}>
                     <Text style={styles.sectionLabel}>Identity</Text>
                     <Text style={styles.editHint}>Edit {'\u203A'}</Text>
@@ -41,7 +42,7 @@ export default function StepReview() {
             </ParchmentPanel>
 
             {/* Ability Scores — tap to edit */}
-            <Pressable onPress={() => router.push('/characters/create/abilities' as any)}>
+            <Pressable onPress={() => router.push(CREATE_CHARACTER_ROUTES.abilities)}>
                 <View style={[styles.sectionHeader, styles.sectionGap]}>
                     <Text style={styles.sectionLabel}>Ability Scores</Text>
                     <Text style={styles.editHint}>Edit {'\u203A'}</Text>
@@ -63,7 +64,7 @@ export default function StepReview() {
             </View>
 
             {/* Skills & Proficiencies — tap to edit */}
-            <Pressable onPress={() => router.push('/characters/create/skills' as any)}>
+            <Pressable onPress={() => router.push(CREATE_CHARACTER_ROUTES.skills)}>
                 <View style={[styles.sectionHeader, styles.sectionGap]}>
                     <Text style={styles.sectionLabel}>Proficiencies</Text>
                     <Text style={styles.editHint}>Edit {'\u203A'}</Text>
