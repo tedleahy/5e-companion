@@ -13,10 +13,10 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { buildCreateCharacterInput } from '@/lib/characterCreation/buildCreateCharacterInput';
 import {
-    CREATE_CHARACTER_ROUTES,
     deriveCreateCharacterStepIndex,
     getCreateCharacterStepRoutes,
 } from '@/lib/characterCreation/routes';
+import { isCreateCharacterStepComplete } from '@/lib/characterCreation/stepCompletion';
 import { CREATE_CHARACTER, GET_CURRENT_USER_CHARACTER_ROSTER } from '@/graphql/characterSheet.operations';
 
 type Props = { children: ReactNode };
@@ -28,8 +28,8 @@ export default function WizardShell({ children }: Props) {
 
     const stepRoutes = useMemo(() => getCreateCharacterStepRoutes(draft.level), [draft.level]);
     const totalSteps = stepRoutes.length;
-    const hasSubclassStep = stepRoutes.includes(CREATE_CHARACTER_ROUTES.subclass);
     const currentStep = deriveCreateCharacterStepIndex(pathname, stepRoutes);
+    const currentRoute = stepRoutes[currentStep];
     const isFirstStep = currentStep === 0;
     const isLastStep = currentStep === totalSteps - 1;
 
@@ -40,25 +40,7 @@ export default function WizardShell({ children }: Props) {
     });
 
     // Validation: is the current step complete enough to proceed?
-    const canContinue = useMemo(() => {
-        switch (currentStep) {
-            case 0:
-                return draft.name.trim().length > 0;
-            case 1:
-                return draft.race !== '';
-            case 2:
-                return draft.class !== '';
-            case 3:
-                if (hasSubclassStep) {
-                    return draft.subclass !== '';
-                }
-                return true; // abilities step
-            case 4:
-                return draft.background !== '';
-            default:
-                return true;
-        }
-    }, [currentStep, draft.name, draft.race, draft.class, draft.subclass, draft.background, hasSubclassStep]);
+    const canContinue = useMemo(() => isCreateCharacterStepComplete(currentRoute, draft), [currentRoute, draft]);
 
     const progressWidth = ((currentStep + 1) / totalSteps) * 100;
 
