@@ -188,62 +188,6 @@ export const SAVE_CHARACTER_SHEET = gql`
 `;
 
 /**
- * Adds a weapon row to the character sheet.
- */
-export const ADD_WEAPON = gql`
-    mutation AddWeapon($characterId: ID!, $input: WeaponInput!) {
-        addWeapon(characterId: $characterId, input: $input) {
-            id
-            name
-            attackBonus
-            damage
-            type
-        }
-    }
-`;
-
-/**
- * Updates an existing weapon row.
- */
-export const UPDATE_WEAPON = gql`
-    mutation UpdateWeapon($characterId: ID!, $weaponId: ID!, $input: WeaponInput!) {
-        updateWeapon(characterId: $characterId, weaponId: $weaponId, input: $input) {
-            id
-            name
-            attackBonus
-            damage
-            type
-        }
-    }
-`;
-
-/**
- * Removes a weapon row from the character sheet.
- */
-export const REMOVE_WEAPON = gql`
-    mutation RemoveWeapon($characterId: ID!, $weaponId: ID!) {
-        removeWeapon(characterId: $characterId, weaponId: $weaponId)
-    }
-`;
-
-/**
- * Adds an inventory item row to the character sheet.
- */
-export const ADD_INVENTORY_ITEM = gql`
-    mutation AddInventoryItem($characterId: ID!, $input: InventoryItemInput!) {
-        addInventoryItem(characterId: $characterId, input: $input) {
-            id
-            name
-            quantity
-            weight
-            description
-            equipped
-            magical
-        }
-    }
-`;
-
-/**
  * Updates an existing inventory item row.
  */
 export const UPDATE_INVENTORY_ITEM = gql`
@@ -257,58 +201,6 @@ export const UPDATE_INVENTORY_ITEM = gql`
             equipped
             magical
         }
-    }
-`;
-
-/**
- * Removes an inventory item row from the character sheet.
- */
-export const REMOVE_INVENTORY_ITEM = gql`
-    mutation RemoveInventoryItem($characterId: ID!, $itemId: ID!) {
-        removeInventoryItem(characterId: $characterId, itemId: $itemId)
-    }
-`;
-
-/**
- * Adds a feature row to the character sheet.
- */
-export const ADD_FEATURE = gql`
-    mutation AddFeature($characterId: ID!, $input: FeatureInput!) {
-        addFeature(characterId: $characterId, input: $input) {
-            id
-            name
-            source
-            description
-            usesMax
-            usesRemaining
-            recharge
-        }
-    }
-`;
-
-/**
- * Updates an existing feature row.
- */
-export const UPDATE_FEATURE = gql`
-    mutation UpdateFeature($characterId: ID!, $featureId: ID!, $input: FeatureInput!) {
-        updateFeature(characterId: $characterId, featureId: $featureId, input: $input) {
-            id
-            name
-            source
-            description
-            usesMax
-            usesRemaining
-            recharge
-        }
-    }
-`;
-
-/**
- * Removes a feature row from the character sheet.
- */
-export const REMOVE_FEATURE = gql`
-    mutation RemoveFeature($characterId: ID!, $featureId: ID!) {
-        removeFeature(characterId: $characterId, featureId: $featureId)
     }
 `;
 
@@ -327,80 +219,6 @@ export const UPDATE_CHARACTER = gql`
             conditions
             spellSaveDC
             spellAttackBonus
-        }
-    }
-`;
-
-/**
- * Replaces the character HP object.
- */
-export const UPDATE_HP = gql`
-    mutation UpdateHP($characterId: ID!, $input: HPInput!) {
-        updateHP(characterId: $characterId, input: $input) {
-            id
-            hp {
-                current
-                max
-                temp
-            }
-        }
-    }
-`;
-
-/**
- * Replaces all six ability scores.
- */
-export const UPDATE_ABILITY_SCORES = gql`
-    mutation UpdateAbilityScores($characterId: ID!, $input: AbilityScoresInput!) {
-        updateAbilityScores(characterId: $characterId, input: $input) {
-            id
-            abilityScores {
-                strength
-                dexterity
-                constitution
-                intelligence
-                wisdom
-                charisma
-            }
-        }
-    }
-`;
-
-/**
- * Replaces character currency values.
- */
-export const UPDATE_CURRENCY = gql`
-    mutation UpdateCurrency($characterId: ID!, $input: CurrencyInput!) {
-        updateCurrency(characterId: $characterId, input: $input) {
-            id
-            currency {
-                cp
-                sp
-                ep
-                gp
-                pp
-            }
-        }
-    }
-`;
-
-/**
- * Updates editable personality trait fields.
- */
-export const UPDATE_TRAITS = gql`
-    mutation UpdateTraits($characterId: ID!, $input: TraitsInput!) {
-        updateTraits(characterId: $characterId, input: $input) {
-            id
-            traits {
-                personality
-                ideals
-                bonds
-                flaws
-                armorProficiencies
-                weaponProficiencies
-                toolProficiencies
-                languages
-            }
         }
     }
 `;
