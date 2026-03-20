@@ -408,6 +408,19 @@ export const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
     },
 ];
 
+/**
+ * Builds a failing save mock while reusing the standard save request payload.
+ */
+export const SAVE_CHARACTER_SHEET_FAILURE_MOCK: MockLink.MockedResponse = {
+    request: {
+        ...SAVE_CORE_CHARACTER_MOCKS[0].request,
+        variables: {
+            ...SAVE_CORE_CHARACTER_MOCKS[0].request.variables,
+        },
+    },
+    error: new Error('Network error'),
+};
+
 const { __typename: _skillTypeName, ...INITIAL_SKILL_INPUT } = MOCK_CHARACTER.stats.skillProficiencies;
 
 export const CHARACTERS_MOCK: MockLink.MockedResponse = {
