@@ -6,34 +6,19 @@ import {
     defaultSpellFiltersForClass,
     LEVEL_OPTIONS,
     optionLabel,
+    SCHOOL_OPTIONS,
     spellLevelLabel,
     type SpellFilterOption,
     type SpellFilterState,
 } from '@/lib/spellFilters';
-import type { SpellFilter } from '@/types/generated_graphql_types';
 
 /**
- * Add-sheet filter state extends shared spell filters with school selection.
+ * Add-sheet filter state reuses the shared spell-filter model.
  */
-export type AddSpellFilterState = SpellFilterState & {
-    schools: string[];
-};
-
-/**
- * Allowed spell school options for add-sheet local filtering.
- */
-export const ADD_SPELL_SCHOOL_OPTIONS: SpellFilterOption[] = [
-    { key: 'abjuration', label: 'Abjuration' },
-    { key: 'conjuration', label: 'Conjuration' },
-    { key: 'divination', label: 'Divination' },
-    { key: 'enchantment', label: 'Enchantment' },
-    { key: 'evocation', label: 'Evocation' },
-    { key: 'illusion', label: 'Illusion' },
-    { key: 'necromancy', label: 'Necromancy' },
-    { key: 'transmutation', label: 'Transmutation' },
-];
+export type AddSpellFilterState = SpellFilterState;
 
 export {
+    SCHOOL_OPTIONS as ADD_SPELL_SCHOOL_OPTIONS,
     CLASS_OPTIONS,
     COMPONENT_OPTIONS,
     LEVEL_OPTIONS,
@@ -46,22 +31,19 @@ export {
  * Builds add-sheet default filters pre-selected to the character class.
  */
 export function defaultFilterForClass(characterClass: string): AddSpellFilterState {
-    return {
-        ...defaultSpellFiltersForClass(characterClass),
-        schools: [],
-    };
+    return defaultSpellFiltersForClass(characterClass);
 }
 
 /**
  * Counts active add-sheet filters including school filters.
  */
 export function countActiveFilters(filters: AddSpellFilterState): number {
-    return countActiveSpellFilters(filters) + filters.schools.length;
+    return countActiveSpellFilters(filters);
 }
 
 /**
  * Builds GraphQL spell filter input from add-sheet filter state.
  */
-export function buildAddSpellFilterInput(filters: AddSpellFilterState, searchQuery: string): SpellFilter | undefined {
+export function buildAddSpellFilterInput(filters: AddSpellFilterState, searchQuery: string) {
     return buildSpellFilterInput(filters, searchQuery);
 }

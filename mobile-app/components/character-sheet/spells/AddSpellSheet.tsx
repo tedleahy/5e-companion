@@ -14,37 +14,14 @@ import {
 } from 'react-native';
 import { Snackbar, Text } from 'react-native-paper';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { gql } from '@apollo/client';
-import { useApolloClient, useQuery } from '@apollo/client/react';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import FilterChipGroup from '@/components/FilterChipGroup';
-import FilterSwitch from '@/components/FilterSwitch';
-import { SPELL_LIST_FIELDS_FRAGMENT } from '@/graphql/spell.fragments';
-import { toggleBooleanFilter, toggleFilterValue } from '@/lib/spellFilters';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import AddSpellFilterPanel from './add-sheet/AddSpellFilterPanel';
 import AddSpellBottomBar from './add-sheet/AddSpellBottomBar';
 import AddSpellSectionList from './add-sheet/AddSpellSectionList';
-import useAddSpellSelection from './add-sheet/useAddSpellSelection';
+import { GET_SPELL_DETAIL_FOR_SHEET, SEARCH_SPELLS_FOR_SHEET } from './add-sheet/addSpellSheetQueries';
+import useAddSpellSheetController from './add-sheet/useAddSpellSheetController';
 import SpellDetailModal from './SpellDetailModal';
-import {
-    ADD_SPELL_SCHOOL_OPTIONS,
-    buildAddSpellFilterInput,
-    CLASS_OPTIONS,
-    COMPONENT_OPTIONS,
-    countActiveFilters,
-    defaultFilterForClass,
-    LEVEL_OPTIONS,
-    optionLabel,
-    spellLevelLabel,
-    type AddSpellFilterState,
-} from './SpellFilterState';
-import type {
-    AddSpellSheetSpellDetailQuery,
-    AddSpellSheetSpellDetailQueryVariables,
-    AddSpellSheetSpellsQuery,
-    AddSpellSheetSpellsQueryVariables,
-} from '@/types/generated_graphql_types';
-import type { AddSpellDetail, AddSpellListItem, AddSpellSection } from './addSpell.types';
 
 type AddSpellSheetProps = {
     visible: boolean;
@@ -55,16 +32,7 @@ type AddSpellSheetProps = {
     onSpellRemoved: (spellId: string) => Promise<void>;
 };
 
-type ActiveFilterChip = {
-    id: string;
-    label: string;
-    type: 'class' | 'level' | 'school' | 'component' | 'boolean';
-    value: string;
-};
-
 const SHEET_HEIGHT_PERCENTAGE = '92%';
-const SEARCH_DEBOUNCE_MS = 300;
-const MAX_SHEET_RESULTS = 500;
 const SHEET_DISMISS_DRAG_DISTANCE = 88;
 const DETAIL_DISMISS_DRAG_DISTANCE = 84;
 const DISMISS_DRAG_VELOCITY = 800;
@@ -80,118 +48,7 @@ function normaliseTopOffset(offsetY: number): number {
     return offsetY;
 }
 
-/**
- * GraphQL query used by the Add Spell sheet list.
- */
-export const SEARCH_SPELLS_FOR_SHEET = gql`
-    query AddSpellSheetSpells($filter: SpellFilter, $pagination: SpellPagination) {
-        spells(filter: $filter, pagination: $pagination) {
-            ...SpellListFields
-            classIndexes
-        }
-    }
-    ${SPELL_LIST_FIELDS_FRAGMENT}
-`;
-
-/**
- * GraphQL query for loading one spell's full details in the add-sheet modal.
- */
-export const GET_SPELL_DETAIL_FOR_SHEET = gql`
-    query AddSpellSheetSpellDetail($id: ID!) {
-        spell(id: $id) {
-            ...SpellListFields
-            classIndexes
-            description
-            higherLevel
-            components
-            material
-            duration
-        }
-    }
-    ${SPELL_LIST_FIELDS_FRAGMENT}
-`;
-
-/**
- * Creates level-grouped sections for the add-sheet spell list.
- */
-function groupSpellsByLevel(spells: AddSpellListItem[]): AddSpellSection[] {
-    const grouped = new Map<number, AddSpellListItem[]>();
-
-    for (const spell of spells) {
-        const list = grouped.get(spell.level);
-        if (list) {
-            list.push(spell);
-            continue;
-        }
-
-        grouped.set(spell.level, [spell]);
-    }
-
-    return Array.from(grouped.entries())
-        .sort(([leftLevel], [rightLevel]) => leftLevel - rightLevel)
-        .map(([level, levelSpells]) => ({
-            title: spellLevelLabel(level),
-            data: [...levelSpells].sort((leftSpell, rightSpell) => leftSpell.name.localeCompare(rightSpell.name)),
-        }));
-}
-
-/**
- * Converts active filter state to removable filter-chip descriptors.
- */
-function activeFilterChips(filters: AddSpellFilterState): ActiveFilterChip[] {
-    const chips: ActiveFilterChip[] = [];
-
-    for (const classKey of filters.classes) {
-        chips.push({
-            id: `class-${classKey}`,
-            label: optionLabel(CLASS_OPTIONS, classKey),
-            type: 'class',
-            value: classKey,
-        });
-    }
-
-    for (const level of filters.levels) {
-        chips.push({
-            id: `level-${level}`,
-            label: spellLevelLabel(level),
-            type: 'level',
-            value: String(level),
-        });
-    }
-
-    for (const school of filters.schools) {
-        chips.push({
-            id: `school-${school}`,
-            label: optionLabel(ADD_SPELL_SCHOOL_OPTIONS, school),
-            type: 'school',
-            value: school,
-        });
-    }
-
-    for (const component of filters.components) {
-        chips.push({
-            id: `component-${component}`,
-            label: optionLabel(COMPONENT_OPTIONS, component),
-            type: 'component',
-            value: component,
-        });
-    }
-
-    if (filters.ritual) {
-        chips.push({ id: 'flag-ritual', label: 'Ritual', type: 'boolean', value: 'ritual' });
-    }
-    if (filters.concentration) {
-        chips.push({ id: 'flag-concentration', label: 'Concentration', type: 'boolean', value: 'concentration' });
-    }
-    if (filters.hasHigherLevel) {
-        chips.push({ id: 'flag-higher', label: 'Has Higher Level', type: 'boolean', value: 'hasHigherLevel' });
-    }
-    if (filters.hasMaterial) {
-        chips.push({ id: 'flag-material', label: 'Requires Material', type: 'boolean', value: 'hasMaterial' });
-    }
-
-    return chips;
-}
+export { GET_SPELL_DETAIL_FOR_SHEET, SEARCH_SPELLS_FOR_SHEET };
 
 /**
  * Add Spell bottom sheet rendered over the character Spells tab.
@@ -204,26 +61,43 @@ export default function AddSpellSheet({
     onSpellAdded,
     onSpellRemoved,
 }: AddSpellSheetProps) {
-    const apolloClient = useApolloClient();
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const sheetHiddenTranslateY = windowHeight + SHEET_HIDDEN_OFFSET;
     const detailHiddenTranslateY = windowHeight + DETAIL_HIDDEN_OFFSET;
     const [isRendered, setIsRendered] = useState(visible);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
-    const [appliedFilters, setAppliedFilters] = useState<AddSpellFilterState>(() => defaultFilterForClass(characterClass));
-    const [draftFilters, setDraftFilters] = useState<AddSpellFilterState>(() => defaultFilterForClass(characterClass));
-    const [filterPanelOpen, setFilterPanelOpen] = useState(false);
-    const [selectedSpell, setSelectedSpell] = useState<AddSpellListItem | null>(null);
-    const prefetchedSpellDetailIdsRef = useRef<Set<string>>(new Set());
     const {
-        pendingSpellIds,
-        sessionChangesCount,
         actionErrorMessage,
-        isKnownSpell,
+        activeFilterChips,
+        activeFilterCount,
+        applyFilters,
         clearActionErrorMessage,
+        clearDraftFilters,
+        clearSelectedSpell,
+        closeFilterPanel,
+        draftFilters,
+        errorMessage,
+        filterPanelOpen,
+        isKnownSpell,
+        loading,
+        openFilterPanel,
+        openSpellDetail,
+        pendingSpellIds,
+        prefetchSpellDetail,
+        removeAppliedFilterChip,
+        retrySelectedSpellDetail,
+        searchQuery,
+        sections,
+        selectedSpell,
+        selectedSpellDetail,
+        selectedSpellDetailErrorMessage,
+        selectedSpellDetailLoading,
+        sessionChangesCount,
+        setDraftFilters,
+        setSearchQuery,
         toggleSpellSelection,
-    } = useAddSpellSelection({
+    } = useAddSpellSheetController({
+        visible,
+        characterClass,
         knownSpellIds,
         onSpellAdded,
         onSpellRemoved,
@@ -241,17 +115,6 @@ export default function AddSpellSheet({
     const sheetCloseInFlightRef = useRef(false);
     const detailCloseInFlightRef = useRef(false);
 
-    const activeFilterCount = useMemo(() => countActiveFilters(appliedFilters), [appliedFilters]);
-    const currentFilterChips = useMemo(() => activeFilterChips(appliedFilters), [appliedFilters]);
-
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            setDebouncedSearchQuery(searchQuery.trim());
-        }, SEARCH_DEBOUNCE_MS);
-
-        return () => clearTimeout(timeout);
-    }, [searchQuery]);
-
     useEffect(() => {
         sheetHiddenTranslateYRef.current = sheetHiddenTranslateY;
     }, [sheetHiddenTranslateY]);
@@ -262,7 +125,6 @@ export default function AddSpellSheet({
 
     useEffect(() => {
         if (visible) return;
-        prefetchedSpellDetailIdsRef.current.clear();
         spellListScrollOffsetYRef.current = 0;
         detailBodyScrollOffsetYRef.current = 0;
     }, [visible]);
@@ -296,8 +158,8 @@ export default function AddSpellSheet({
 
         if (!isRendered) return;
 
-        setFilterPanelOpen(false);
-        setSelectedSpell(null);
+        closeFilterPanel();
+        clearSelectedSpell();
         detailOverlayOpacity.setValue(0);
         detailModalTranslateY.setValue(detailHiddenTranslateYRef.current);
 
@@ -320,6 +182,8 @@ export default function AddSpellSheet({
         backdropOpacity,
         detailModalTranslateY,
         detailOverlayOpacity,
+        clearSelectedSpell,
+        closeFilterPanel,
         isRendered,
         sheetTranslateY,
         visible,
@@ -334,112 +198,6 @@ export default function AddSpellSheet({
             useNativeDriver: true,
         }).start();
     }, [filterPanelOpen, filterPanelTranslateX, windowWidth]);
-
-    const filterInput = useMemo(() => {
-        return buildAddSpellFilterInput(appliedFilters, debouncedSearchQuery);
-    }, [appliedFilters, debouncedSearchQuery]);
-
-    const queryVariables = useMemo<AddSpellSheetSpellsQueryVariables>(() => ({
-        pagination: {
-            limit: MAX_SHEET_RESULTS,
-            offset: 0,
-        },
-        ...(filterInput ? { filter: filterInput } : {}),
-    }), [filterInput]);
-
-    const { data, loading, error } = useQuery<AddSpellSheetSpellsQuery, AddSpellSheetSpellsQueryVariables>(SEARCH_SPELLS_FOR_SHEET, {
-        variables: queryVariables,
-        skip: !visible,
-        notifyOnNetworkStatusChange: true,
-    });
-
-    const {
-        data: selectedSpellDetailData,
-        loading: selectedSpellDetailLoading,
-        error: selectedSpellDetailError,
-        refetch: refetchSelectedSpellDetail,
-    } = useQuery<AddSpellSheetSpellDetailQuery, AddSpellSheetSpellDetailQueryVariables>(GET_SPELL_DETAIL_FOR_SHEET, {
-        variables: {
-            id: selectedSpell?.id ?? '',
-        },
-        skip: selectedSpell == null,
-        fetchPolicy: 'cache-first',
-        nextFetchPolicy: 'cache-first',
-    });
-
-    const selectedSpellDetail = useMemo(() => {
-        if (!selectedSpell) return null;
-
-        const detailSpell = selectedSpellDetailData?.spell;
-        if (!detailSpell) return null;
-        if (detailSpell.id !== selectedSpell.id) return null;
-
-        return detailSpell;
-    }, [selectedSpell, selectedSpellDetailData?.spell]);
-
-    const spells = useMemo(() => {
-        const allSpells = data?.spells ?? [];
-
-        if (appliedFilters.schools.length === 0) {
-            return allSpells;
-        }
-
-        const selectedSchools = new Set(appliedFilters.schools);
-        return allSpells.filter((spell) => selectedSchools.has(spell.schoolIndex));
-    }, [appliedFilters.schools, data?.spells]);
-
-    const sections = useMemo(() => groupSpellsByLevel(spells), [spells]);
-
-    const handleOpenFilterPanel = useCallback(() => {
-        setDraftFilters(appliedFilters);
-        setFilterPanelOpen(true);
-    }, [appliedFilters]);
-
-    const handleCloseFilterPanel = useCallback(() => {
-        setFilterPanelOpen(false);
-    }, []);
-
-    const handleApplyFilters = useCallback(() => {
-        setAppliedFilters(draftFilters);
-        setFilterPanelOpen(false);
-    }, [draftFilters]);
-
-    const handleClearDraftFilters = useCallback(() => {
-        setDraftFilters(defaultFilterForClass(characterClass));
-    }, [characterClass]);
-
-    /**
-     * Warms Apollo cache for spell details before the full press completes.
-     */
-    const handlePrefetchSpellDetail = useCallback((spellId: string) => {
-        if (prefetchedSpellDetailIdsRef.current.has(spellId)) return;
-
-        prefetchedSpellDetailIdsRef.current.add(spellId);
-
-        void apolloClient.query<AddSpellSheetSpellDetailQuery, AddSpellSheetSpellDetailQueryVariables>({
-            query: GET_SPELL_DETAIL_FOR_SHEET,
-            variables: { id: spellId },
-            fetchPolicy: 'cache-first',
-        }).catch(() => {
-            prefetchedSpellDetailIdsRef.current.delete(spellId);
-        });
-    }, [apolloClient]);
-
-    const openSpellDetail = useCallback((spell: AddSpellListItem) => {
-        detailCloseInFlightRef.current = false;
-        detailOverlayOpacity.setValue(0);
-        detailModalTranslateY.setValue(detailHiddenTranslateY);
-        detailBodyScrollOffsetYRef.current = 0;
-        setSelectedSpell(spell);
-    }, [detailHiddenTranslateY, detailModalTranslateY, detailOverlayOpacity]);
-
-    /**
-     * Retries the currently open spell detail query.
-     */
-    const handleRetrySpellDetail = useCallback(() => {
-        if (!selectedSpell) return;
-        void refetchSelectedSpellDetail({ id: selectedSpell.id });
-    }, [refetchSelectedSpellDetail, selectedSpell]);
 
     const animateSheetBack = useCallback(() => {
         Animated.parallel([
@@ -491,7 +249,7 @@ export default function AddSpellSheet({
         detailOverlayOpacity.setValue(nextOverlayOpacity);
     }, [detailModalTranslateY, detailOverlayOpacity]);
 
-    const closeSpellDetail = useCallback(() => {
+    const animateCloseSpellDetail = useCallback(() => {
         if (detailCloseInFlightRef.current) return;
 
         detailCloseInFlightRef.current = true;
@@ -511,16 +269,16 @@ export default function AddSpellSheet({
         ]).start(() => {
             detailCloseInFlightRef.current = false;
             detailBodyScrollOffsetYRef.current = 0;
-            setSelectedSpell(null);
+            clearSelectedSpell();
         });
-    }, [detailHiddenTranslateY, detailModalTranslateY, detailOverlayOpacity]);
+    }, [clearSelectedSpell, detailHiddenTranslateY, detailModalTranslateY, detailOverlayOpacity]);
 
     const requestSheetClose = useCallback(() => {
         if (sheetCloseInFlightRef.current || !isRendered) return;
 
         sheetCloseInFlightRef.current = true;
-        setFilterPanelOpen(false);
-        setSelectedSpell(null);
+        closeFilterPanel();
+        clearSelectedSpell();
         detailOverlayOpacity.setValue(0);
         detailModalTranslateY.setValue(detailHiddenTranslateYRef.current);
         spellListScrollOffsetYRef.current = 0;
@@ -545,6 +303,8 @@ export default function AddSpellSheet({
         });
     }, [
         backdropOpacity,
+        clearSelectedSpell,
+        closeFilterPanel,
         detailModalTranslateY,
         detailOverlayOpacity,
         isRendered,
@@ -635,7 +395,7 @@ export default function AddSpellSheet({
                 && (event.translationY > DETAIL_DISMISS_DRAG_DISTANCE || event.velocityY > DISMISS_DRAG_VELOCITY);
 
             if (shouldDismiss) {
-                closeSpellDetail();
+                animateCloseSpellDetail();
                 return;
             }
 
@@ -644,7 +404,7 @@ export default function AddSpellSheet({
         .onFinalize(() => {
             if (detailCloseInFlightRef.current) return;
             animateDetailBack();
-        }), [animateDetailBack, closeSpellDetail, updateDetailDragPosition]);
+        }), [animateCloseSpellDetail, animateDetailBack, updateDetailDragPosition]);
 
     const handleSpellListScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
         spellListScrollOffsetYRef.current = normaliseTopOffset(event.nativeEvent.contentOffset.y);
@@ -653,52 +413,6 @@ export default function AddSpellSheet({
     const handleDetailBodyScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
         detailBodyScrollOffsetYRef.current = normaliseTopOffset(event.nativeEvent.contentOffset.y);
     }, []);
-
-
-    const handleRemoveActiveFilterChip = useCallback((chip: ActiveFilterChip) => {
-        setAppliedFilters((previousFilters) => {
-            if (chip.type === 'class') {
-                return {
-                    ...previousFilters,
-                    classes: previousFilters.classes.filter((classValue) => classValue !== chip.value),
-                };
-            }
-
-            if (chip.type === 'level') {
-                return {
-                    ...previousFilters,
-                    levels: previousFilters.levels.filter((level) => String(level) !== chip.value),
-                };
-            }
-
-            if (chip.type === 'school') {
-                return {
-                    ...previousFilters,
-                    schools: previousFilters.schools.filter((school) => school !== chip.value),
-                };
-            }
-
-            if (chip.type === 'component') {
-                return {
-                    ...previousFilters,
-                    components: previousFilters.components.filter((component) => component !== chip.value),
-                };
-            }
-
-            if (chip.value === 'ritual') {
-                return { ...previousFilters, ritual: undefined };
-            }
-            if (chip.value === 'concentration') {
-                return { ...previousFilters, concentration: undefined };
-            }
-            if (chip.value === 'hasHigherLevel') {
-                return { ...previousFilters, hasHigherLevel: undefined };
-            }
-
-            return { ...previousFilters, hasMaterial: undefined };
-        });
-    }, []);
-
     if (!isRendered) {
         return null;
     }
@@ -755,7 +469,7 @@ export default function AddSpellSheet({
                         </View>
 
                         <Pressable
-                            onPress={handleOpenFilterPanel}
+                            onPress={openFilterPanel}
                             style={[styles.filterButton, activeFilterCount > 0 && styles.filterButtonActive]}
                             accessibilityLabel="Open spell filters"
                         >
@@ -770,17 +484,17 @@ export default function AddSpellSheet({
                     </View>
                 </View>
 
-                {currentFilterChips.length > 0 && (
+                {activeFilterChips.length > 0 && (
                     <ScrollView
                         horizontal
                         showsHorizontalScrollIndicator={false}
                         style={styles.activeChipsScroll}
                         contentContainerStyle={styles.activeChipsRow}
                     >
-                        {currentFilterChips.map((chip) => (
+                        {activeFilterChips.map((chip) => (
                             <View key={chip.id} style={styles.activeChip}>
                                 <Text style={styles.activeChipText}>{chip.label}</Text>
-                                <Pressable onPress={() => handleRemoveActiveFilterChip(chip)} accessibilityLabel={`Remove ${chip.label} filter`}>
+                                <Pressable onPress={() => removeAppliedFilterChip(chip)} accessibilityLabel={`Remove ${chip.label} filter`}>
                                     <Text style={styles.activeChipRemove}>x</Text>
                                 </Pressable>
                             </View>
@@ -793,13 +507,13 @@ export default function AddSpellSheet({
                 <AddSpellSectionList
                     sections={sections}
                     loading={loading}
-                    errorMessage={error?.message}
+                    errorMessage={errorMessage}
                     isKnownSpell={isKnownSpell}
                     pendingSpellIds={pendingSpellIds}
                     onToggleSpellSelection={(spell) => {
                         void toggleSpellSelection(spell);
                     }}
-                    onPrefetchSpellDetail={handlePrefetchSpellDetail}
+                    onPrefetchSpellDetail={prefetchSpellDetail}
                     onOpenSpellDetail={openSpellDetail}
                     onScroll={handleSpellListScroll}
                 />
@@ -807,123 +521,19 @@ export default function AddSpellSheet({
                 <AddSpellBottomBar sessionChangesCount={sessionChangesCount} onDone={requestSheetClose} />
 
                 <Animated.View style={[styles.filterPanel, { transform: [{ translateX: filterPanelTranslateX }] }]}>
-                    <View style={styles.filterPanelHeader}>
-                        <Pressable onPress={handleCloseFilterPanel} accessibilityLabel="Back to spell list">
-                            <Text style={styles.filterBackText}>Back</Text>
-                        </Pressable>
-                        <Text style={styles.filterPanelTitle}>Filters</Text>
-                        <Pressable onPress={handleClearDraftFilters} accessibilityLabel="Clear all filters">
-                            <Text style={styles.filterClearText}>Clear</Text>
-                        </Pressable>
-                    </View>
-
-                    <ScrollView style={styles.filterScroll} contentContainerStyle={styles.filterScrollContent}>
-                        <FilterChipGroup
-                            label="Class"
-                            options={CLASS_OPTIONS}
-                            selected={draftFilters.classes}
-                            onToggle={(classKey) => {
-                                setDraftFilters((previousFilters) => ({
-                                    ...previousFilters,
-                                    classes: toggleFilterValue(previousFilters.classes, classKey),
-                                }));
-                            }}
-                        />
-
-                        <FilterChipGroup
-                            label="Level"
-                            options={LEVEL_OPTIONS}
-                            selected={draftFilters.levels.map(String)}
-                            onToggle={(levelKey) => {
-                                const level = Number(levelKey);
-
-                                setDraftFilters((previousFilters) => ({
-                                    ...previousFilters,
-                                    levels: toggleFilterValue(previousFilters.levels, level),
-                                }));
-                            }}
-                        />
-
-                        <FilterSwitch
-                            label="Ritual only"
-                            value={draftFilters.ritual === true}
-                            onToggle={() => {
-                                setDraftFilters((previousFilters) => ({
-                                    ...previousFilters,
-                                    ritual: toggleBooleanFilter(previousFilters.ritual),
-                                }));
-                            }}
-                        />
-
-                        <FilterSwitch
-                            label="Concentration"
-                            value={draftFilters.concentration === true}
-                            onToggle={() => {
-                                setDraftFilters((previousFilters) => ({
-                                    ...previousFilters,
-                                    concentration: toggleBooleanFilter(previousFilters.concentration),
-                                }));
-                            }}
-                        />
-
-                        <FilterSwitch
-                            label="Has higher level"
-                            value={draftFilters.hasHigherLevel === true}
-                            onToggle={() => {
-                                setDraftFilters((previousFilters) => ({
-                                    ...previousFilters,
-                                    hasHigherLevel: toggleBooleanFilter(previousFilters.hasHigherLevel),
-                                }));
-                            }}
-                        />
-
-                        <FilterSwitch
-                            label="Requires material"
-                            value={draftFilters.hasMaterial === true}
-                            onToggle={() => {
-                                setDraftFilters((previousFilters) => ({
-                                    ...previousFilters,
-                                    hasMaterial: toggleBooleanFilter(previousFilters.hasMaterial),
-                                }));
-                            }}
-                        />
-
-                        <FilterChipGroup
-                            label="Components"
-                            options={COMPONENT_OPTIONS}
-                            selected={draftFilters.components}
-                            onToggle={(component) => {
-                                setDraftFilters((previousFilters) => ({
-                                    ...previousFilters,
-                                    components: toggleFilterValue(previousFilters.components, component),
-                                }));
-                            }}
-                        />
-
-                        <FilterChipGroup
-                            label="School"
-                            options={ADD_SPELL_SCHOOL_OPTIONS}
-                            selected={draftFilters.schools}
-                            onToggle={(school) => {
-                                setDraftFilters((previousFilters) => ({
-                                    ...previousFilters,
-                                    schools: toggleFilterValue(previousFilters.schools, school),
-                                }));
-                            }}
-                        />
-                    </ScrollView>
-
-                    <View style={styles.filterApplyWrap}>
-                        <Pressable onPress={handleApplyFilters} style={styles.filterApplyButton} accessibilityLabel="Show filtered spell results">
-                            <Text style={styles.filterApplyButtonText}>Show Results</Text>
-                        </Pressable>
-                    </View>
+                    <AddSpellFilterPanel
+                        draftFilters={draftFilters}
+                        setDraftFilters={setDraftFilters}
+                        onBack={closeFilterPanel}
+                        onClear={clearDraftFilters}
+                        onApply={applyFilters}
+                    />
                 </Animated.View>
 
                 {selectedSpell && (
                     <>
                         <Animated.View style={[styles.detailBackdrop, { opacity: detailOverlayOpacity }]}>
-                            <Pressable style={styles.backdropPressable} onPress={closeSpellDetail} accessibilityLabel="Close spell details" />
+                            <Pressable style={styles.backdropPressable} onPress={animateCloseSpellDetail} accessibilityLabel="Close spell details" />
                         </Animated.View>
 
                         <GestureDetector gesture={detailDismissGesture}>
@@ -933,8 +543,8 @@ export default function AddSpellSheet({
                                     spellName={selectedSpell.name}
                                     known={isKnownSpell(selectedSpell.id)}
                                     loading={selectedSpellDetailLoading && selectedSpellDetail == null}
-                                    errorMessage={selectedSpellDetailError?.message}
-                                    onRetry={handleRetrySpellDetail}
+                                    errorMessage={selectedSpellDetailErrorMessage}
+                                    onRetry={retrySelectedSpellDetail}
                                     onToggleSelection={() => {
                                         void toggleSpellSelection(selectedSpell);
                                     }}
@@ -1137,72 +747,6 @@ const styles = StyleSheet.create({
         borderLeftWidth: 1,
         borderLeftColor: 'rgba(201,146,42,0.12)',
         zIndex: 10,
-    },
-    filterPanelHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: fantasyTokens.spacing.md,
-        paddingTop: 16,
-        paddingBottom: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(201,146,42,0.1)',
-    },
-    filterBackText: {
-        color: fantasyTokens.colors.gold,
-        opacity: 0.6,
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
-        textTransform: 'uppercase',
-        letterSpacing: 1.5,
-    },
-    filterPanelTitle: {
-        color: fantasyTokens.colors.parchment,
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 16,
-        fontWeight: '700',
-    },
-    filterClearText: {
-        color: fantasyTokens.colors.crimson,
-        opacity: 0.85,
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
-        textTransform: 'uppercase',
-        letterSpacing: 1.2,
-    },
-    filterScroll: {
-        flex: 1,
-        paddingHorizontal: fantasyTokens.spacing.md,
-    },
-    filterScrollContent: {
-        paddingBottom: 120,
-    },
-    filterApplyWrap: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        paddingHorizontal: fantasyTokens.spacing.md,
-        paddingTop: 12,
-        paddingBottom: 20,
-        backgroundColor: '#140e06',
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(201,146,42,0.08)',
-    },
-    filterApplyButton: {
-        borderRadius: 12,
-        backgroundColor: fantasyTokens.colors.crimson,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 13,
-    },
-    filterApplyButtonText: {
-        color: fantasyTokens.colors.parchment,
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
-        textTransform: 'uppercase',
-        letterSpacing: 2,
-        fontWeight: '700',
     },
     detailBackdrop: {
         ...StyleSheet.absoluteFillObject,

@@ -68,6 +68,40 @@ const SPELL_DETAIL_QUERY_MOCK = {
     },
 };
 
+const SCHOOL_FILTERED_SPELLS_QUERY_MOCK = {
+    request: {
+        query: SEARCH_SPELLS_FOR_SHEET,
+        variables: {
+            filter: {
+                classes: ['wizard'],
+                schools: ['abjuration'],
+            },
+            pagination: {
+                limit: 500,
+                offset: 0,
+            },
+        },
+    },
+    result: {
+        data: {
+            spells: [
+                {
+                    __typename: 'Spell',
+                    id: 'spell-shield',
+                    name: 'Shield',
+                    level: 1,
+                    schoolIndex: 'abjuration',
+                    castingTime: '1 reaction',
+                    range: 'Self',
+                    concentration: false,
+                    ritual: false,
+                    classIndexes: ['wizard', 'sorcerer'],
+                },
+            ],
+        },
+    },
+};
+
 /**
  * Flushes pending React Native animation timers inside `act(...)`.
  */
@@ -106,19 +140,17 @@ function buildSpellDetailQueryMock() {
 /**
  * Renders AddSpellSheet with shared providers and default props.
  */
-function renderSheet(overrides?: {
-    onClose?: () => void;
-    onSpellAdded?: (spellId: string) => Promise<void>;
-    onSpellRemoved?: (spellId: string) => Promise<void>;
-}) {
+function renderSheetWithMocks(
+    mocks: unknown[],
+    overrides?: {
+        onClose?: () => void;
+        onSpellAdded?: (spellId: string) => Promise<void>;
+        onSpellRemoved?: (spellId: string) => Promise<void>;
+    },
+) {
     const onClose = overrides?.onClose ?? jest.fn();
     const onSpellAdded = overrides?.onSpellAdded ?? jest.fn().mockResolvedValue(undefined);
     const onSpellRemoved = overrides?.onSpellRemoved ?? jest.fn().mockResolvedValue(undefined);
-    const mocks = [
-        SPELLS_QUERY_MOCK,
-        buildSpellDetailQueryMock(),
-        buildSpellDetailQueryMock(),
-    ];
 
     render(
         <MockedProvider mocks={mocks}>
@@ -140,6 +172,21 @@ function renderSheet(overrides?: {
         onSpellAdded,
         onSpellRemoved,
     };
+}
+
+/**
+ * Renders AddSpellSheet with shared providers and default props.
+ */
+function renderSheet(overrides?: {
+    onClose?: () => void;
+    onSpellAdded?: (spellId: string) => Promise<void>;
+    onSpellRemoved?: (spellId: string) => Promise<void>;
+}) {
+    return renderSheetWithMocks([
+        SPELLS_QUERY_MOCK,
+        buildSpellDetailQueryMock(),
+        buildSpellDetailQueryMock(),
+    ], overrides);
 }
 
 describe('AddSpellSheet', () => {
@@ -243,6 +290,37 @@ describe('AddSpellSheet', () => {
 
         await waitFor(() => {
             expect(screen.getByLabelText('Remove spell')).toBeTruthy();
+        });
+    });
+
+    it('applies school filters through the query instead of client-side post-filtering', async () => {
+        renderSheetWithMocks([
+            SPELLS_QUERY_MOCK,
+            SCHOOL_FILTERED_SPELLS_QUERY_MOCK,
+            buildSpellDetailQueryMock(),
+            buildSpellDetailQueryMock(),
+        ]);
+        await flushAnimationTimers();
+
+        await waitFor(() => {
+            expect(screen.getByText('Magic Missile')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getByLabelText('Open spell filters'));
+        await flushAnimationTimers();
+
+        fireEvent.press(screen.getByText('Abjuration'));
+        await flushAnimationTimers();
+
+        fireEvent.press(screen.getByLabelText('Show filtered spell results'));
+        await flushAnimationTimers();
+
+        await waitFor(() => {
+            expect(screen.getByText('Shield')).toBeTruthy();
+        });
+
+        await waitFor(() => {
+            expect(screen.queryByText('Magic Missile')).toBeNull();
         });
     });
 });

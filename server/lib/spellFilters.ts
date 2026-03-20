@@ -127,6 +127,9 @@ export function buildWhere(filter: QuerySpellsArgs['filter']): WhereClause {
     if (filter.classes && filter.classes.length > 0) {
         where.classIndexes = { hasSome: filter.classes };
     }
+    if (filter.schools && filter.schools.length > 0) {
+        where.schoolIndex = { in: filter.schools };
+    }
     if (filter.ritual != null) {
         where.ritual = filter.ritual;
     }

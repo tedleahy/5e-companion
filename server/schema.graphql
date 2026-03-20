@@ -20,6 +20,7 @@ input SpellFilter {
     name: String
     levels: [Int]
     classes: [String]
+    schools: [String]
     ritual: Boolean
     hasHigherLevel: Boolean
     rangeCategories: [String]

@@ -562,6 +562,7 @@ export type SpellFilter = {
   name?: InputMaybe<Scalars['String']['input']>;
   rangeCategories?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   ritual?: InputMaybe<Scalars['Boolean']['input']>;
+  schools?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
 export type SpellPagination = {

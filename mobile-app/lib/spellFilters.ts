@@ -15,6 +15,7 @@ export type SpellFilterOption = {
 export type SpellFilterState = {
     classes: string[];
     levels: number[];
+    schools: string[];
     ritual: boolean | undefined;
     concentration: boolean | undefined;
     hasHigherLevel: boolean | undefined;
@@ -65,6 +66,20 @@ export const COMPONENT_OPTIONS: SpellFilterOption[] = [
 ];
 
 /**
+ * School filter options.
+ */
+export const SCHOOL_OPTIONS: SpellFilterOption[] = [
+    { key: 'abjuration', label: 'Abjuration' },
+    { key: 'conjuration', label: 'Conjuration' },
+    { key: 'divination', label: 'Divination' },
+    { key: 'enchantment', label: 'Enchantment' },
+    { key: 'evocation', label: 'Evocation' },
+    { key: 'illusion', label: 'Illusion' },
+    { key: 'necromancy', label: 'Necromancy' },
+    { key: 'transmutation', label: 'Transmutation' },
+];
+
+/**
  * Range-category filter options.
  */
 export const RANGE_CATEGORY_OPTIONS: SpellFilterOption[] = [
@@ -111,6 +126,7 @@ export const CASTING_TIME_CATEGORY_OPTIONS: SpellFilterOption[] = [
 export const EMPTY_SPELL_FILTERS: SpellFilterState = {
     classes: [],
     levels: [],
+    schools: [],
     ritual: undefined,
     concentration: undefined,
     hasHigherLevel: undefined,
@@ -177,6 +193,7 @@ export function buildSpellFilterInput(
     if (trimmedName) filter.name = trimmedName;
     if (filters.levels.length > 0) filter.levels = filters.levels;
     if (filters.classes.length > 0) filter.classes = filters.classes;
+    if (filters.schools.length > 0) filter.schools = filters.schools;
     if (filters.ritual != null) filter.ritual = filters.ritual;
     if (filters.concentration != null) filter.concentration = filters.concentration;
     if (filters.hasHigherLevel != null) filter.hasHigherLevel = filters.hasHigherLevel;
@@ -193,8 +210,9 @@ export function buildSpellFilterInput(
  * Counts active shared spell filters for filter-badge display.
  */
 export function countActiveSpellFilters(filters: SpellFilterState): number {
-    return filters.classes.length
+        return filters.classes.length
         + filters.levels.length
+        + filters.schools.length
         + (filters.ritual != null ? 1 : 0)
         + (filters.concentration != null ? 1 : 0)
         + (filters.hasHigherLevel != null ? 1 : 0)
