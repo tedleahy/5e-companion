@@ -339,7 +339,7 @@ model Character {
     subraceRef          Subrace?             @relation("CharacterSubraceRelation", fields: [subraceId], references: [id], onDelete: SetNull)
     backgroundRef       Background?          @relation("CharacterBackgroundRelation", fields: [backgroundId], references: [id], onDelete: SetNull)
     stats               CharacterStats?
-    attacks             Attack[]
+    weapons             Weapon[]
     inventory           InventoryItem[]
     features            CharacterFeature[]
     feats               CharacterFeat[]
@@ -372,7 +372,7 @@ model CharacterStats {
     currency                  Json     // { cp, sp, ep, gp, pp }
 }
 
-model Attack {
+model Weapon {
     id            String    @id @default(cuid())
     character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
     characterId   String
@@ -382,6 +382,7 @@ model Attack {
     type          String    // 'melee' | 'ranged' | 'spell'
 
     @@index([characterId])
+    @@map("Attack")
 }
 
 model InventoryItem {

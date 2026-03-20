@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import {
-    attackCreateMock,
-    attackDeleteManyMock,
-    attackFindUniqueMock,
-    attackUpdateManyMock,
     authedCtx,
     characterFeatureCreateMock,
     characterFeatureDeleteManyMock,
@@ -18,26 +14,30 @@ import {
     inventoryItemUpdateManyMock,
     resolvers,
     unauthedCtx,
+    weaponCreateMock,
+    weaponDeleteManyMock,
+    weaponFindUniqueMock,
+    weaponUpdateManyMock,
 } from './characterResolvers.testUtils';
 
-describe('characterResolvers — addAttack', () => {
+describe('characterResolvers — addWeapon', () => {
     beforeEach(clearAllCharacterResolverMocks);
 
     test('throws UNAUTHENTICATED when userId is null', () => {
-        expect(resolvers.addAttack({}, { characterId: 'char-1', input: {} as any }, unauthedCtx))
+        expect(resolvers.addWeapon({}, { characterId: 'char-1', input: {} as any }, unauthedCtx))
             .rejects.toThrow('UNAUTHENTICATED');
     });
 
-    test('creates an attack for the character', async () => {
+    test('creates a weapon for the character', async () => {
         characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
         const input = { name: 'Dagger', attackBonus: '+7', damage: '1d4+3 P', type: 'melee' };
         const created = { id: 'atk-1', characterId: 'char-1', ...input };
-        attackCreateMock.mockResolvedValueOnce(created);
+        weaponCreateMock.mockResolvedValueOnce(created);
 
-        const result = await resolvers.addAttack({}, { characterId: 'char-1', input }, authedCtx);
+        const result = await resolvers.addWeapon({}, { characterId: 'char-1', input }, authedCtx);
 
-        expect(attackCreateMock).toHaveBeenCalledTimes(1);
-        const args = attackCreateMock.mock.calls[0]![0] as Record<string, any>;
+        expect(weaponCreateMock).toHaveBeenCalledTimes(1);
+        const args = weaponCreateMock.mock.calls[0]![0] as Record<string, any>;
         expect(args.data.characterId).toBe('char-1');
         expect(args.data.name).toBe('Dagger');
         expect(result).toEqual(created);
@@ -56,13 +56,13 @@ describe('characterResolvers — updateWeapon', () => {
         characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
         const input = { name: 'Longsword', attackBonus: '+8', damage: '1d8+4 slashing', type: 'melee' };
         const updated = { id: 'atk-1', characterId: 'char-1', ...input };
-        attackUpdateManyMock.mockResolvedValueOnce({ count: 1 });
-        attackFindUniqueMock.mockResolvedValueOnce(updated);
+        weaponUpdateManyMock.mockResolvedValueOnce({ count: 1 });
+        weaponFindUniqueMock.mockResolvedValueOnce(updated);
 
         const result = await resolvers.updateWeapon({}, { characterId: 'char-1', weaponId: 'atk-1', input }, authedCtx);
 
-        expect(attackUpdateManyMock).toHaveBeenCalledTimes(1);
-        const args = attackUpdateManyMock.mock.calls[0]![0] as Record<string, any>;
+        expect(weaponUpdateManyMock).toHaveBeenCalledTimes(1);
+        const args = weaponUpdateManyMock.mock.calls[0]![0] as Record<string, any>;
         expect(args.where).toEqual({ id: 'atk-1', characterId: 'char-1' });
         expect(args.data).toEqual({ ...input });
         expect(result).toEqual(updated);
@@ -70,69 +70,38 @@ describe('characterResolvers — updateWeapon', () => {
 
     test('throws when weapon does not belong to character', async () => {
         characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
-        attackUpdateManyMock.mockResolvedValueOnce({ count: 0 });
+        weaponUpdateManyMock.mockResolvedValueOnce({ count: 0 });
 
         expect(resolvers.updateWeapon({}, { characterId: 'char-1', weaponId: 'atk-other', input: { name: 'X' } as any }, authedCtx))
             .rejects.toThrow('Weapon not found.');
     });
 });
 
-describe('characterResolvers — addWeapon', () => {
-    beforeEach(clearAllCharacterResolverMocks);
-
-    test('creates a weapon through the attack persistence path', async () => {
-        characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
-        const input = { name: 'Longbow', attackBonus: '+6', damage: '1d8+2 piercing', type: 'ranged' };
-        const created = { id: 'atk-weapon-1', characterId: 'char-1', ...input };
-        attackCreateMock.mockResolvedValueOnce(created);
-
-        const result = await resolvers.addWeapon({}, { characterId: 'char-1', input }, authedCtx);
-
-        expect(attackCreateMock).toHaveBeenCalledTimes(1);
-        expect(result).toEqual(created);
-    });
-});
-
-describe('characterResolvers — removeAttack', () => {
-    beforeEach(clearAllCharacterResolverMocks);
-
-    test('throws UNAUTHENTICATED when userId is null', () => {
-        expect(resolvers.removeAttack({}, { characterId: 'char-1', attackId: 'atk-1' }, unauthedCtx))
-            .rejects.toThrow('UNAUTHENTICATED');
-    });
-
-    test('deletes the attack and returns true', async () => {
-        characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
-        attackDeleteManyMock.mockResolvedValueOnce({ count: 1 });
-
-        const result = await resolvers.removeAttack({}, { characterId: 'char-1', attackId: 'atk-1' }, authedCtx);
-
-        expect(result).toBe(true);
-        const args = attackDeleteManyMock.mock.calls[0]![0] as Record<string, any>;
-        expect(args.where).toEqual({ id: 'atk-1', characterId: 'char-1' });
-    });
-
-    test('throws when attack not found', async () => {
-        characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
-        attackDeleteManyMock.mockResolvedValueOnce({ count: 0 });
-
-        expect(resolvers.removeAttack({}, { characterId: 'char-1', attackId: 'atk-1' }, authedCtx))
-            .rejects.toThrow('Attack not found.');
-    });
-});
-
 describe('characterResolvers — removeWeapon', () => {
     beforeEach(clearAllCharacterResolverMocks);
 
-    test('deletes a weapon through the attack delete path and returns true', async () => {
+    test('throws UNAUTHENTICATED when userId is null', () => {
+        expect(resolvers.removeWeapon({}, { characterId: 'char-1', weaponId: 'atk-1' }, unauthedCtx))
+            .rejects.toThrow('UNAUTHENTICATED');
+    });
+
+    test('deletes the weapon and returns true', async () => {
         characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
-        attackDeleteManyMock.mockResolvedValueOnce({ count: 1 });
+        weaponDeleteManyMock.mockResolvedValueOnce({ count: 1 });
 
         const result = await resolvers.removeWeapon({}, { characterId: 'char-1', weaponId: 'atk-1' }, authedCtx);
 
         expect(result).toBe(true);
-        const args = attackDeleteManyMock.mock.calls[0]![0] as Record<string, any>;
+        const args = weaponDeleteManyMock.mock.calls[0]![0] as Record<string, any>;
         expect(args.where).toEqual({ id: 'atk-1', characterId: 'char-1' });
+    });
+
+    test('throws when weapon not found', async () => {
+        characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
+        weaponDeleteManyMock.mockResolvedValueOnce({ count: 0 });
+
+        expect(resolvers.removeWeapon({}, { characterId: 'char-1', weaponId: 'atk-1' }, authedCtx))
+            .rejects.toThrow('Weapon not found.');
     });
 });
 

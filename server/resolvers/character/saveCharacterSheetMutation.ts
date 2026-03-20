@@ -2,9 +2,9 @@ import type { Prisma } from "@prisma/client";
 import type { Context } from "../..";
 import type {
     MutationSaveCharacterSheetArgs,
-    SaveCharacterSheetAttackInput,
     SaveCharacterSheetFeatureInput,
     SaveCharacterSheetInventoryItemInput,
+    SaveCharacterSheetWeaponInput,
 } from "../../generated/graphql";
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
@@ -64,9 +64,9 @@ export async function saveCharacterSheet(
 async function reconcileWeapons(
     tx: Prisma.TransactionClient,
     characterId: string,
-    nextWeapons: SaveCharacterSheetAttackInput[],
+    nextWeapons: SaveCharacterSheetWeaponInput[],
 ) {
-    const existingWeapons = await tx.attack.findMany({
+    const existingWeapons = await tx.weapon.findMany({
         where: { characterId },
     });
     const existingWeaponIds = new Set(existingWeapons.map((weapon) => weapon.id));
@@ -81,7 +81,7 @@ async function reconcileWeapons(
         .map((weapon) => weapon.id);
 
     if (removedWeaponIds.length > 0) {
-        await tx.attack.deleteMany({
+        await tx.weapon.deleteMany({
             where: {
                 characterId,
                 id: { in: removedWeaponIds },
@@ -102,14 +102,14 @@ async function reconcileWeapons(
                 throw new Error('Weapon not found.');
             }
 
-            await tx.attack.update({
+            await tx.weapon.update({
                 where: { id: weapon.id },
                 data,
             });
             continue;
         }
 
-        await tx.attack.create({
+        await tx.weapon.create({
             data: {
                 characterId,
                 ...data,

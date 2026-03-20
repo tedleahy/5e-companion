@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import {
-    attackFindManyMock,
     characterFeatureFindManyMock,
     characterSpellFindManyMock,
     clearAllCharacterResolverMocks,
@@ -10,6 +9,7 @@ import {
     resolvers,
     spellSlotFindManyMock,
     statsFindUniqueMock,
+    weaponFindManyMock,
 } from './characterResolvers.testUtils';
 
 describe('characterResolvers — field resolvers', () => {
@@ -26,26 +26,14 @@ describe('characterResolvers — field resolvers', () => {
         expect(result).toEqual(fakeStats);
     });
 
-    test('characterAttacks calls attack.findMany with characterId', async () => {
-        const fakeAttacks = [{ id: 'atk-1', name: 'Dagger' }];
-        attackFindManyMock.mockResolvedValueOnce(fakeAttacks);
-
-        const result = await resolvers.characterAttacks(fakeCharacter as any);
-
-        expect(attackFindManyMock).toHaveBeenCalledTimes(1);
-        const args = attackFindManyMock.mock.calls[0]![0] as Record<string, any>;
-        expect(args.where).toEqual({ characterId: 'char-1' });
-        expect(result).toEqual(fakeAttacks);
-    });
-
-    test('characterWeapons calls attack.findMany with characterId', async () => {
+    test('characterWeapons calls weapon.findMany with characterId', async () => {
         const fakeWeapons = [{ id: 'atk-2', name: 'Longsword' }];
-        attackFindManyMock.mockResolvedValueOnce(fakeWeapons);
+        weaponFindManyMock.mockResolvedValueOnce(fakeWeapons);
 
         const result = await resolvers.characterWeapons(fakeCharacter as any);
 
-        expect(attackFindManyMock).toHaveBeenCalledTimes(1);
-        const args = attackFindManyMock.mock.calls[0]![0] as Record<string, any>;
+        expect(weaponFindManyMock).toHaveBeenCalledTimes(1);
+        const args = weaponFindManyMock.mock.calls[0]![0] as Record<string, any>;
         expect(args.where).toEqual({ characterId: 'char-1' });
         expect(result).toEqual(fakeWeapons);
     });

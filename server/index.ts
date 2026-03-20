@@ -58,10 +58,8 @@ const resolvers: Resolvers = {
         toggleSpellSlot: characterResolvers.toggleSpellSlot,
 
         addWeapon: characterResolvers.addWeapon,
-        addAttack: characterResolvers.addAttack,
         updateWeapon: characterResolvers.updateWeapon,
         removeWeapon: characterResolvers.removeWeapon,
-        removeAttack: characterResolvers.removeAttack,
         addInventoryItem: characterResolvers.addInventoryItem,
         updateInventoryItem: characterResolvers.updateInventoryItem,
         removeInventoryItem: characterResolvers.removeInventoryItem,
@@ -77,7 +75,6 @@ const resolvers: Resolvers = {
     Character: {
         stats: characterResolvers.characterStats,
         weapons: characterResolvers.characterWeapons,
-        attacks: characterResolvers.characterAttacks,
         inventory: characterResolvers.characterInventory,
         features: characterResolvers.characterFeatures,
         spellSlots: characterResolvers.characterSpellSlots,

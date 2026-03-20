@@ -59,8 +59,7 @@ type Character {
     conditions: [String!]!
     notes: String!
     stats: CharacterStats
-    weapons: [Attack!]!
-    attacks: [Attack!]!
+    weapons: [Weapon!]!
     inventory: [InventoryItem!]!
     features: [CharacterFeature!]!
     spellSlots: [SpellSlot!]!
@@ -151,7 +150,7 @@ type Currency {
     pp: Int!
 }
 
-type Attack {
+type Weapon {
     id: ID!
     name: String!
     attackBonus: String!
@@ -308,7 +307,7 @@ input SavingThrowProficienciesInput {
     proficiencies: [String!]!
 }
 
-input AttackInput {
+input WeaponInput {
     name: String!
     attackBonus: String!
     damage: String!
@@ -333,7 +332,7 @@ input FeatureInput {
     recharge: String
 }
 
-input SaveCharacterSheetAttackInput {
+input SaveCharacterSheetWeaponInput {
     id: ID
     name: String!
     attackBonus: String!
@@ -370,7 +369,7 @@ input SaveCharacterSheetInput {
     abilityScores: AbilityScoresInput!
     currency: CurrencyInput!
     traits: TraitsInput!
-    weapons: [SaveCharacterSheetAttackInput!]!
+    weapons: [SaveCharacterSheetWeaponInput!]!
     inventory: [SaveCharacterSheetInventoryItemInput!]!
     features: [SaveCharacterSheetFeatureInput!]!
     spellSaveDC: Int
@@ -414,11 +413,9 @@ type Mutation {
     toggleSpellSlot(characterId: ID!, level: Int!): SpellSlot!
 
     # Gear / features
-    addWeapon(characterId: ID!, input: AttackInput!): Attack!
-    addAttack(characterId: ID!, input: AttackInput!): Attack!
-    updateWeapon(characterId: ID!, weaponId: ID!, input: AttackInput!): Attack!
+    addWeapon(characterId: ID!, input: WeaponInput!): Weapon!
+    updateWeapon(characterId: ID!, weaponId: ID!, input: WeaponInput!): Weapon!
     removeWeapon(characterId: ID!, weaponId: ID!): Boolean!
-    removeAttack(characterId: ID!, attackId: ID!): Boolean!
     addInventoryItem(characterId: ID!, input: InventoryItemInput!): InventoryItem!
     updateInventoryItem(characterId: ID!, itemId: ID!, input: InventoryItemInput!): InventoryItem!
     removeInventoryItem(characterId: ID!, itemId: ID!): Boolean!

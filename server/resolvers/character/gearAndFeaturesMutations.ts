@@ -1,40 +1,16 @@
 import type { Context } from "../..";
 import type {
-    MutationAddAttackArgs,
+    MutationAddWeaponArgs,
     MutationAddFeatureArgs,
     MutationAddInventoryItemArgs,
-    MutationRemoveAttackArgs,
     MutationRemoveFeatureArgs,
     MutationRemoveInventoryItemArgs,
+    MutationRemoveWeaponArgs,
+    MutationUpdateWeaponArgs,
 } from "../../generated/graphql";
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
 import { findOwnedCharacter, stripNullishFields } from "./helpers";
-
-/**
- * Mutation argument shape for adding a weapon alias.
- */
-type AddWeaponArgs = {
-    characterId: string;
-    input: MutationAddAttackArgs['input'];
-};
-
-/**
- * Mutation argument shape for removing a weapon alias.
- */
-type RemoveWeaponArgs = {
-    characterId: string;
-    weaponId: string;
-};
-
-/**
- * Mutation argument shape for updating a weapon row.
- */
-type UpdateWeaponArgs = {
-    characterId: string;
-    weaponId: string;
-    input: MutationAddAttackArgs['input'];
-};
 
 /**
  * Mutation argument shape for updating an inventory item row.
@@ -55,50 +31,19 @@ type UpdateFeatureArgs = {
 };
 
 /**
- * Adds an attack row to an owned character.
- */
-export async function addAttack(
-    _parent: unknown,
-    { characterId, input }: MutationAddAttackArgs,
-    ctx: Context,
-) {
-    const userId = requireUser(ctx);
-    await findOwnedCharacter(characterId, userId);
-
-    return await prisma.attack.create({
-        data: { characterId, ...input },
-    });
-}
-
-/**
  * Adds a weapon row to an owned character.
  */
 export async function addWeapon(
     _parent: unknown,
-    { characterId, input }: AddWeaponArgs,
-    ctx: Context,
-) {
-    return await addAttack(_parent, { characterId, input }, ctx);
-}
-
-/**
- * Removes an attack row from an owned character.
- */
-export async function removeAttack(
-    _parent: unknown,
-    { characterId, attackId }: MutationRemoveAttackArgs,
+    { characterId, input }: MutationAddWeaponArgs,
     ctx: Context,
 ) {
     const userId = requireUser(ctx);
     await findOwnedCharacter(characterId, userId);
 
-    const result = await prisma.attack.deleteMany({
-        where: { id: attackId, characterId },
+    return await prisma.weapon.create({
+        data: { characterId, ...input },
     });
-
-    if (result.count === 0) throw new Error('Attack not found.');
-
-    return true;
 }
 
 /**
@@ -106,10 +51,19 @@ export async function removeAttack(
  */
 export async function removeWeapon(
     _parent: unknown,
-    { characterId, weaponId }: RemoveWeaponArgs,
+    { characterId, weaponId }: MutationRemoveWeaponArgs,
     ctx: Context,
 ) {
-    return await removeAttack(_parent, { characterId, attackId: weaponId }, ctx);
+    const userId = requireUser(ctx);
+    await findOwnedCharacter(characterId, userId);
+
+    const result = await prisma.weapon.deleteMany({
+        where: { id: weaponId, characterId },
+    });
+
+    if (result.count === 0) throw new Error('Weapon not found.');
+
+    return true;
 }
 
 /**
@@ -117,20 +71,20 @@ export async function removeWeapon(
  */
 export async function updateWeapon(
     _parent: unknown,
-    { characterId, weaponId, input }: UpdateWeaponArgs,
+    { characterId, weaponId, input }: MutationUpdateWeaponArgs,
     ctx: Context,
 ) {
     const userId = requireUser(ctx);
     await findOwnedCharacter(characterId, userId);
 
-    const result = await prisma.attack.updateMany({
+    const result = await prisma.weapon.updateMany({
         where: { id: weaponId, characterId },
         data: { ...input },
     });
 
     if (result.count === 0) throw new Error('Weapon not found.');
 
-    return await prisma.attack.findUnique({ where: { id: weaponId } });
+    return await prisma.weapon.findUnique({ where: { id: weaponId } });
 }
 
 /**

@@ -37,27 +37,10 @@ export type AbilityScoresInput = {
   wisdom: Scalars['Int']['input'];
 };
 
-export type Attack = {
-  __typename?: 'Attack';
-  attackBonus: Scalars['String']['output'];
-  damage: Scalars['String']['output'];
-  id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
-  type: Scalars['String']['output'];
-};
-
-export type AttackInput = {
-  attackBonus: Scalars['String']['input'];
-  damage: Scalars['String']['input'];
-  name: Scalars['String']['input'];
-  type: Scalars['String']['input'];
-};
-
 export type Character = {
   __typename?: 'Character';
   ac: Scalars['Int']['output'];
   alignment: Scalars['String']['output'];
-  attacks: Array<Attack>;
   background: Scalars['String']['output'];
   class: Scalars['String']['output'];
   conditions: Array<Scalars['String']['output']>;
@@ -79,7 +62,7 @@ export type Character = {
   spellcastingAbility?: Maybe<Scalars['String']['output']>;
   stats?: Maybe<CharacterStats>;
   subclass?: Maybe<Scalars['String']['output']>;
-  weapons: Array<Attack>;
+  weapons: Array<Weapon>;
 };
 
 export type CharacterFeature = {
@@ -221,17 +204,15 @@ export type InventoryItemInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  addAttack: Attack;
   addFeature: CharacterFeature;
   addInventoryItem: InventoryItem;
-  addWeapon: Attack;
+  addWeapon: Weapon;
   createCharacter: Character;
   deleteCharacter: Scalars['Boolean']['output'];
   forgetSpell: Scalars['Boolean']['output'];
   learnSpell: CharacterSpell;
   longRest: Character;
   prepareSpell: CharacterSpell;
-  removeAttack: Scalars['Boolean']['output'];
   removeFeature: Scalars['Boolean']['output'];
   removeInventoryItem: Scalars['Boolean']['output'];
   removeWeapon: Scalars['Boolean']['output'];
@@ -252,13 +233,7 @@ export type Mutation = {
   updateSavingThrowProficiencies: CharacterStats;
   updateSkillProficiencies: CharacterStats;
   updateTraits: CharacterStats;
-  updateWeapon: Attack;
-};
-
-
-export type MutationAddAttackArgs = {
-  characterId: Scalars['ID']['input'];
-  input: AttackInput;
+  updateWeapon: Weapon;
 };
 
 
@@ -276,7 +251,7 @@ export type MutationAddInventoryItemArgs = {
 
 export type MutationAddWeaponArgs = {
   characterId: Scalars['ID']['input'];
-  input: AttackInput;
+  input: WeaponInput;
 };
 
 
@@ -310,12 +285,6 @@ export type MutationLongRestArgs = {
 export type MutationPrepareSpellArgs = {
   characterId: Scalars['ID']['input'];
   spellId: Scalars['ID']['input'];
-};
-
-
-export type MutationRemoveAttackArgs = {
-  attackId: Scalars['ID']['input'];
-  characterId: Scalars['ID']['input'];
 };
 
 
@@ -441,7 +410,7 @@ export type MutationUpdateTraitsArgs = {
 
 export type MutationUpdateWeaponArgs = {
   characterId: Scalars['ID']['input'];
-  input: AttackInput;
+  input: WeaponInput;
   weaponId: Scalars['ID']['input'];
 };
 
@@ -475,14 +444,6 @@ export type QuerySpellsArgs = {
   pagination?: InputMaybe<SpellPagination>;
 };
 
-export type SaveCharacterSheetAttackInput = {
-  attackBonus: Scalars['String']['input'];
-  damage: Scalars['String']['input'];
-  id?: InputMaybe<Scalars['ID']['input']>;
-  name: Scalars['String']['input'];
-  type: Scalars['String']['input'];
-};
-
 export type SaveCharacterSheetFeatureInput = {
   description: Scalars['String']['input'];
   id?: InputMaybe<Scalars['ID']['input']>;
@@ -506,7 +467,7 @@ export type SaveCharacterSheetInput = {
   spellAttackBonus?: InputMaybe<Scalars['Int']['input']>;
   spellSaveDC?: InputMaybe<Scalars['Int']['input']>;
   traits: TraitsInput;
-  weapons: Array<SaveCharacterSheetAttackInput>;
+  weapons: Array<SaveCharacterSheetWeaponInput>;
 };
 
 export type SaveCharacterSheetInventoryItemInput = {
@@ -517,6 +478,14 @@ export type SaveCharacterSheetInventoryItemInput = {
   name: Scalars['String']['input'];
   quantity: Scalars['Int']['input'];
   weight?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type SaveCharacterSheetWeaponInput = {
+  attackBonus: Scalars['String']['input'];
+  damage: Scalars['String']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  name: Scalars['String']['input'];
+  type: Scalars['String']['input'];
 };
 
 export type SavingThrowProficienciesInput = {
@@ -654,6 +623,22 @@ export type UpdateCharacterInput = {
   subclass?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type Weapon = {
+  __typename?: 'Weapon';
+  attackBonus: Scalars['String']['output'];
+  damage: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+};
+
+export type WeaponInput = {
+  attackBonus: Scalars['String']['input'];
+  damage: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  type: Scalars['String']['input'];
+};
+
 
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -727,8 +712,6 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   AbilityScores: ResolverTypeWrapper<AbilityScores>;
   AbilityScoresInput: AbilityScoresInput;
-  Attack: ResolverTypeWrapper<Attack>;
-  AttackInput: AttackInput;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Character: ResolverTypeWrapper<PrismaCharacter>;
   CharacterFeature: ResolverTypeWrapper<CharacterFeature>;
@@ -752,10 +735,10 @@ export type ResolversTypes = {
   Mutation: ResolverTypeWrapper<{}>;
   ProficiencyLevel: ProficiencyLevel;
   Query: ResolverTypeWrapper<{}>;
-  SaveCharacterSheetAttackInput: SaveCharacterSheetAttackInput;
   SaveCharacterSheetFeatureInput: SaveCharacterSheetFeatureInput;
   SaveCharacterSheetInput: SaveCharacterSheetInput;
   SaveCharacterSheetInventoryItemInput: SaveCharacterSheetInventoryItemInput;
+  SaveCharacterSheetWeaponInput: SaveCharacterSheetWeaponInput;
   SavingThrowProficienciesInput: SavingThrowProficienciesInput;
   SkillProficiencies: ResolverTypeWrapper<SkillProficiencies>;
   SkillProficienciesInput: SkillProficienciesInput;
@@ -767,14 +750,14 @@ export type ResolversTypes = {
   Traits: ResolverTypeWrapper<Traits>;
   TraitsInput: TraitsInput;
   UpdateCharacterInput: UpdateCharacterInput;
+  Weapon: ResolverTypeWrapper<Weapon>;
+  WeaponInput: WeaponInput;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   AbilityScores: AbilityScores;
   AbilityScoresInput: AbilityScoresInput;
-  Attack: Attack;
-  AttackInput: AttackInput;
   Boolean: Scalars['Boolean']['output'];
   Character: PrismaCharacter;
   CharacterFeature: CharacterFeature;
@@ -797,10 +780,10 @@ export type ResolversParentTypes = {
   InventoryItemInput: InventoryItemInput;
   Mutation: {};
   Query: {};
-  SaveCharacterSheetAttackInput: SaveCharacterSheetAttackInput;
   SaveCharacterSheetFeatureInput: SaveCharacterSheetFeatureInput;
   SaveCharacterSheetInput: SaveCharacterSheetInput;
   SaveCharacterSheetInventoryItemInput: SaveCharacterSheetInventoryItemInput;
+  SaveCharacterSheetWeaponInput: SaveCharacterSheetWeaponInput;
   SavingThrowProficienciesInput: SavingThrowProficienciesInput;
   SkillProficiencies: SkillProficiencies;
   SkillProficienciesInput: SkillProficienciesInput;
@@ -812,6 +795,8 @@ export type ResolversParentTypes = {
   Traits: Traits;
   TraitsInput: TraitsInput;
   UpdateCharacterInput: UpdateCharacterInput;
+  Weapon: Weapon;
+  WeaponInput: WeaponInput;
 };
 
 export type AbilityScoresResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AbilityScores'] = ResolversParentTypes['AbilityScores']> = {
@@ -824,19 +809,9 @@ export type AbilityScoresResolvers<ContextType = Context, ParentType extends Res
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type AttackResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Attack'] = ResolversParentTypes['Attack']> = {
-  attackBonus?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  damage?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type CharacterResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Character'] = ResolversParentTypes['Character']> = {
   ac?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   alignment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  attacks?: Resolver<Array<ResolversTypes['Attack']>, ParentType, ContextType>;
   background?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   class?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   conditions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
@@ -858,7 +833,7 @@ export type CharacterResolvers<ContextType = Context, ParentType extends Resolve
   spellcastingAbility?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   stats?: Resolver<Maybe<ResolversTypes['CharacterStats']>, ParentType, ContextType>;
   subclass?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  weapons?: Resolver<Array<ResolversTypes['Attack']>, ParentType, ContextType>;
+  weapons?: Resolver<Array<ResolversTypes['Weapon']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -933,17 +908,15 @@ export type InventoryItemResolvers<ContextType = Context, ParentType extends Res
 };
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  addAttack?: Resolver<ResolversTypes['Attack'], ParentType, ContextType, RequireFields<MutationAddAttackArgs, 'characterId' | 'input'>>;
   addFeature?: Resolver<ResolversTypes['CharacterFeature'], ParentType, ContextType, RequireFields<MutationAddFeatureArgs, 'characterId' | 'input'>>;
   addInventoryItem?: Resolver<ResolversTypes['InventoryItem'], ParentType, ContextType, RequireFields<MutationAddInventoryItemArgs, 'characterId' | 'input'>>;
-  addWeapon?: Resolver<ResolversTypes['Attack'], ParentType, ContextType, RequireFields<MutationAddWeaponArgs, 'characterId' | 'input'>>;
+  addWeapon?: Resolver<ResolversTypes['Weapon'], ParentType, ContextType, RequireFields<MutationAddWeaponArgs, 'characterId' | 'input'>>;
   createCharacter?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationCreateCharacterArgs, 'input'>>;
   deleteCharacter?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCharacterArgs, 'id'>>;
   forgetSpell?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationForgetSpellArgs, 'characterId' | 'spellId'>>;
   learnSpell?: Resolver<ResolversTypes['CharacterSpell'], ParentType, ContextType, RequireFields<MutationLearnSpellArgs, 'characterId' | 'spellId'>>;
   longRest?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationLongRestArgs, 'characterId'>>;
   prepareSpell?: Resolver<ResolversTypes['CharacterSpell'], ParentType, ContextType, RequireFields<MutationPrepareSpellArgs, 'characterId' | 'spellId'>>;
-  removeAttack?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveAttackArgs, 'attackId' | 'characterId'>>;
   removeFeature?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveFeatureArgs, 'characterId' | 'featureId'>>;
   removeInventoryItem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveInventoryItemArgs, 'characterId' | 'itemId'>>;
   removeWeapon?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveWeaponArgs, 'characterId' | 'weaponId'>>;
@@ -964,7 +937,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateSavingThrowProficiencies?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateSavingThrowProficienciesArgs, 'characterId' | 'input'>>;
   updateSkillProficiencies?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateSkillProficienciesArgs, 'characterId' | 'input'>>;
   updateTraits?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateTraitsArgs, 'characterId' | 'input'>>;
-  updateWeapon?: Resolver<ResolversTypes['Attack'], ParentType, ContextType, RequireFields<MutationUpdateWeaponArgs, 'characterId' | 'input' | 'weaponId'>>;
+  updateWeapon?: Resolver<ResolversTypes['Weapon'], ParentType, ContextType, RequireFields<MutationUpdateWeaponArgs, 'characterId' | 'input' | 'weaponId'>>;
 };
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
@@ -1035,9 +1008,17 @@ export type TraitsResolvers<ContextType = Context, ParentType extends ResolversP
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type WeaponResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Weapon'] = ResolversParentTypes['Weapon']> = {
+  attackBonus?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  damage?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type Resolvers<ContextType = Context> = {
   AbilityScores?: AbilityScoresResolvers<ContextType>;
-  Attack?: AttackResolvers<ContextType>;
   Character?: CharacterResolvers<ContextType>;
   CharacterFeature?: CharacterFeatureResolvers<ContextType>;
   CharacterSpell?: CharacterSpellResolvers<ContextType>;
@@ -1053,5 +1034,6 @@ export type Resolvers<ContextType = Context> = {
   Spell?: SpellResolvers<ContextType>;
   SpellSlot?: SpellSlotResolvers<ContextType>;
   Traits?: TraitsResolvers<ContextType>;
+  Weapon?: WeaponResolvers<ContextType>;
 };
 

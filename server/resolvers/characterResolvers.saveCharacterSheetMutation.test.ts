@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import {
-    attackCreateMock,
-    attackDeleteManyMock,
-    attackFindManyMock,
-    attackUpdateMock,
     authedCtx,
     characterFeatureCreateMock,
     characterFeatureDeleteManyMock,
@@ -23,6 +19,10 @@ import {
     statsUpdateMock,
     transactionMock,
     unauthedCtx,
+    weaponCreateMock,
+    weaponDeleteManyMock,
+    weaponFindManyMock,
+    weaponUpdateMock,
 } from './characterResolvers.testUtils';
 
 describe('characterResolvers — saveCharacterSheet', () => {
@@ -46,7 +46,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
         });
         statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
         statsUpdateMock.mockResolvedValueOnce({ ...fakeStats });
-        attackFindManyMock.mockResolvedValueOnce([
+        weaponFindManyMock.mockResolvedValueOnce([
             { id: 'attack-1', characterId: 'char-1' },
             { id: 'attack-2', characterId: 'char-1' },
         ]);
@@ -58,8 +58,8 @@ describe('characterResolvers — saveCharacterSheet', () => {
             { id: 'feature-1', characterId: 'char-1' },
             { id: 'feature-2', characterId: 'char-1' },
         ]);
-        attackUpdateMock.mockResolvedValue({ id: 'attack-1' });
-        attackCreateMock.mockResolvedValue({ id: 'attack-3' });
+        weaponUpdateMock.mockResolvedValue({ id: 'attack-1' });
+        weaponCreateMock.mockResolvedValue({ id: 'attack-3' });
         inventoryItemUpdateMock.mockResolvedValue({ id: 'item-1' });
         inventoryItemCreateMock.mockResolvedValue({ id: 'item-3' });
         characterFeatureUpdateMock.mockResolvedValue({ id: 'feature-1' });
@@ -112,10 +112,10 @@ describe('characterResolvers — saveCharacterSheet', () => {
         expect(transactionMock).toHaveBeenCalledTimes(1);
         expect(characterUpdateMock).toHaveBeenCalledTimes(1);
         expect(statsUpdateMock).toHaveBeenCalledTimes(1);
-        expect(attackDeleteManyMock).toHaveBeenCalledWith({
+        expect(weaponDeleteManyMock).toHaveBeenCalledWith({
             where: { characterId: 'char-1', id: { in: ['attack-2'] } },
         });
-        expect(attackUpdateMock).toHaveBeenCalledWith({
+        expect(weaponUpdateMock).toHaveBeenCalledWith({
             where: { id: 'attack-1' },
             data: {
                 name: 'Dagger',
@@ -124,7 +124,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                 type: 'melee',
             },
         });
-        expect(attackCreateMock).toHaveBeenCalledWith({
+        expect(weaponCreateMock).toHaveBeenCalledWith({
             data: {
                 characterId: 'char-1',
                 name: 'Quarterstaff',
@@ -155,10 +155,10 @@ describe('characterResolvers — saveCharacterSheet', () => {
         characterUpdateMock.mockResolvedValueOnce(fakeCharacter);
         statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
         statsUpdateMock.mockResolvedValueOnce(fakeStats);
-        attackFindManyMock.mockResolvedValueOnce([{ id: 'attack-1', characterId: 'char-1' }]);
+        weaponFindManyMock.mockResolvedValueOnce([{ id: 'attack-1', characterId: 'char-1' }]);
         inventoryItemFindManyMock.mockResolvedValueOnce([]);
         characterFeatureFindManyMock.mockResolvedValueOnce([]);
-        attackUpdateMock.mockRejectedValueOnce(new Error('Database write failed'));
+        weaponUpdateMock.mockRejectedValueOnce(new Error('Database write failed'));
 
         expect(resolvers.saveCharacterSheet({}, {
             characterId: 'char-1',
