@@ -382,7 +382,6 @@ model Weapon {
     type          String    // 'melee' | 'ranged' | 'spell'
 
     @@index([characterId])
-    @@map("Attack")
 }
 
 model InventoryItem {
