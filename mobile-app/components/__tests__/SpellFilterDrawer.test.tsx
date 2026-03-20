@@ -34,6 +34,19 @@ describe('SpellFilterDrawer', () => {
         expect(screen.getByText('Bard')).toBeTruthy();
     });
 
+    it('renders school chip labels', () => {
+        renderWithPaper(
+            <SpellFilterDrawer
+                visible={true}
+                filters={EMPTY_FILTERS}
+                onClose={jest.fn()}
+                onChange={jest.fn()}
+            />
+        );
+        expect(screen.getByText('Abjuration')).toBeTruthy();
+        expect(screen.getByText('Evocation')).toBeTruthy();
+    });
+
     it('renders level chips including Cantrip', () => {
         renderWithPaper(
             <SpellFilterDrawer
@@ -79,6 +92,22 @@ describe('SpellFilterDrawer', () => {
         );
     });
 
+    it('calls onChange with toggled school when a school chip is pressed', () => {
+        const onChange = jest.fn();
+        renderWithPaper(
+            <SpellFilterDrawer
+                visible={true}
+                filters={EMPTY_FILTERS}
+                onClose={jest.fn()}
+                onChange={onChange}
+            />
+        );
+        fireEvent.press(screen.getByText('Abjuration'));
+        expect(onChange).toHaveBeenCalledWith(
+            expect.objectContaining({ schools: ['abjuration'] })
+        );
+    });
+
     it('toggles ritual switch', () => {
         const onChange = jest.fn();
         renderWithPaper(
@@ -103,6 +132,7 @@ describe('SpellFilterDrawer', () => {
             ...EMPTY_FILTERS,
             classes: ['wizard'],
             levels: [3],
+            schools: ['evocation'],
             ritual: true,
         };
         renderWithPaper(
