@@ -17,7 +17,7 @@ type InventoryCardProps = {
     onToggleInventoryEquip: (itemId: string) => void;
 };
 
-type InventoryGroupKey = 'equipped' | 'backpack' | 'other';
+type InventoryGroupKey = 'equipped' | 'backpack';
 
 type InventoryGroup = {
     key: InventoryGroupKey;
@@ -25,6 +25,9 @@ type InventoryGroup = {
     items: InventoryItem[];
 };
 
+/**
+ * Chooses a small fantasy-themed icon based on the item name.
+ */
 function inventoryIcon(name: string): string {
     const normalizedName = name.toLowerCase();
 
@@ -40,6 +43,9 @@ function inventoryIcon(name: string): string {
     return '🎒';
 }
 
+/**
+ * Formats item weight for compact row display.
+ */
 function formatWeight(weight: number | null | undefined): string {
     if (weight === null || weight === undefined) return '—';
 
@@ -51,6 +57,9 @@ function formatWeight(weight: number | null | undefined): string {
     return `${weight} lbs`;
 }
 
+/**
+ * Builds a fallback inventory description when the item has no custom copy.
+ */
 function inventoryDescription(item: InventoryItem): string {
     if (item.description && item.description.trim().length > 0) return item.description;
     if (item.magical) return 'Magical item';
@@ -58,16 +67,28 @@ function inventoryDescription(item: InventoryItem): string {
     return 'Stored in backpack';
 }
 
-function groupInventory(inventory: InventoryItem[]): InventoryGroup[] {
+/**
+ * Returns only the inventory groups that should be rendered for the current mode.
+ */
+function visibleInventoryGroups(inventory: InventoryItem[], editMode: boolean): InventoryGroup[] {
     const equipped = inventory.filter((item) => item.equipped);
     const backpack = inventory.filter((item) => !item.equipped && item.quantity > 0);
+    const groups: InventoryGroup[] = [];
 
-    return  [
-        { key: 'equipped', label: 'Equipped', items: equipped },
-        { key: 'backpack', label: 'Backpack', items: backpack },
-    ];
+    if (equipped.length > 0) {
+        groups.push({ key: 'equipped', label: 'Equipped', items: equipped });
+    }
+
+    if (backpack.length > 0 || editMode) {
+        groups.push({ key: 'backpack', label: 'Backpack', items: backpack });
+    }
+
+    return groups;
 }
 
+/**
+ * Renders the character inventory card with equipped and backpack groupings.
+ */
 export default function InventoryCard({
     inventory,
     editMode,
@@ -76,11 +97,11 @@ export default function InventoryCard({
     onRemoveInventoryItem,
     onToggleInventoryEquip,
 }: InventoryCardProps) {
-    const groups = groupInventory(inventory);
+    const groups = visibleInventoryGroups(inventory, editMode);
 
     return (
         <SheetCard index={2}>
-            {groups.length === 0 && !editMode ? (
+            {inventory.length === 0 && !editMode ? (
                 <View style={styles.emptyState}>
                     <Text style={styles.emptyStateText}>No inventory items yet.</Text>
                 </View>
@@ -162,38 +183,6 @@ export default function InventoryCard({
 }
 
 const styles = StyleSheet.create({
-    groupHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        paddingHorizontal: 18,
-        paddingTop: 12,
-        paddingBottom: 4,
-    },
-    groupTitle: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
-        letterSpacing: 2,
-        textTransform: 'uppercase',
-        color: fantasyTokens.colors.inkLight,
-        opacity: 0.45,
-    },
-    groupLine: {
-        flex: 1,
-        height: 1,
-        backgroundColor: fantasyTokens.colors.divider,
-    },
-    groupCount: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
-        color: fantasyTokens.colors.gold,
-        opacity: 0.6,
-        backgroundColor: 'rgba(201,146,42,0.12)',
-        borderRadius: 8,
-        paddingHorizontal: 7,
-        paddingVertical: 2,
-        overflow: 'hidden',
-    },
     inventoryList: {
         paddingHorizontal: 18,
     },
