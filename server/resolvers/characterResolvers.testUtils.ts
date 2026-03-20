@@ -178,6 +178,40 @@ export const fakeStats: any = {
 };
 
 /**
+ * Rich character detail payload for resolver tests that exercise parent-loaded relations.
+ */
+export const fakeCharacterDetail: any = {
+    ...fakeCharacter,
+    stats: fakeStats,
+    weapons: [{ id: 'weapon-1', characterId: 'char-1', name: 'Longsword', attackBonus: '+7', damage: '1d8+4 S', type: 'melee' }],
+    inventory: [{ id: 'item-1', characterId: 'char-1', name: 'Potion of Healing', quantity: 2, weight: 0.5, description: 'Restores hit points', equipped: false, magical: true }],
+    features: [{ id: 'feature-1', characterId: 'char-1', name: 'Arcane Recovery', source: 'Wizard 1', description: 'Recover spell slots on a short rest.', usesMax: 1, usesRemaining: 1, recharge: 'long' }],
+    spellSlots: [{ id: 'slot-1', characterId: 'char-1', level: 1, total: 4, used: 1 }],
+    spellbook: [{
+        characterId: 'char-1',
+        spellId: 'spell-1',
+        prepared: true,
+        spell: {
+            id: 'spell-1',
+            name: 'Mage Armour',
+            level: 1,
+            schoolIndex: 'abjuration',
+            classIndexes: ['wizard'],
+            components: ['V', 'S', 'M'],
+            concentration: false,
+            description: ['Protective magical force.'],
+            duration: '8 hours',
+            higherLevel: [],
+            material: 'A piece of cured leather',
+            range: 'Touch',
+            ritual: false,
+            sourceBook: 'PHB',
+            castingTime: '1 action',
+        },
+    }],
+};
+
+/**
  * Clears all mock call history between tests.
  */
 export function clearAllCharacterResolverMocks() {

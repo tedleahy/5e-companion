@@ -2,6 +2,7 @@ import type { Context } from "../..";
 import type { QueryCharacterArgs } from "../../generated/graphql";
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
+import { CHARACTER_DETAIL_INCLUDE } from "./detailLoad";
 
 /**
  * Query resolver for a single owned character by id.
@@ -14,6 +15,7 @@ export async function character(
     const userId = requireUser(ctx);
 
     return await prisma.character.findFirst({
+        include: CHARACTER_DETAIL_INCLUDE,
         where: { id, ownerUserId: userId },
     });
 }
