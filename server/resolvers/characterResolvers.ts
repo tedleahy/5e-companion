@@ -15,13 +15,9 @@ export {
 } from "./character/saveCharacterSheetMutation";
 
 export {
-    updateAbilityScores,
-    updateHP,
     updateDeathSaves,
     updateHitDice,
     updateSkillProficiencies,
-    updateTraits,
-    updateCurrency,
     updateSavingThrowProficiencies,
 } from "./character/statsMutations";
 
@@ -43,15 +39,7 @@ export {
 } from "./character/spellbookMutations";
 
 export {
-    addWeapon,
-    updateWeapon,
-    removeWeapon,
-    addInventoryItem,
     updateInventoryItem,
-    removeInventoryItem,
-    addFeature,
-    updateFeature,
-    removeFeature,
 } from "./character/gearAndFeaturesMutations";
 
 export {

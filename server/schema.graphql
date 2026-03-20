@@ -396,14 +396,10 @@ type Mutation {
     toggleInspiration(characterId: ID!): Character!
     saveCharacterSheet(characterId: ID!, input: SaveCharacterSheetInput!): Character!
 
-    # Per-domain stats updates
-    updateAbilityScores(characterId: ID!, input: AbilityScoresInput!): CharacterStats!
-    updateHP(characterId: ID!, input: HPInput!): CharacterStats!
+    # Live stats updates
     updateDeathSaves(characterId: ID!, input: DeathSavesInput!): CharacterStats!
     updateHitDice(characterId: ID!, input: HitDiceInput!): CharacterStats!
     updateSkillProficiencies(characterId: ID!, input: SkillProficienciesInput!): CharacterStats!
-    updateTraits(characterId: ID!, input: TraitsInput!): CharacterStats!
-    updateCurrency(characterId: ID!, input: CurrencyInput!): CharacterStats!
     updateSavingThrowProficiencies(characterId: ID!, input: SavingThrowProficienciesInput!): CharacterStats!
 
     # Spellbook / spell slots
@@ -413,16 +409,8 @@ type Mutation {
     unprepareSpell(characterId: ID!, spellId: ID!): CharacterSpell!
     toggleSpellSlot(characterId: ID!, level: Int!): SpellSlot!
 
-    # Gear / features
-    addWeapon(characterId: ID!, input: WeaponInput!): Weapon!
-    updateWeapon(characterId: ID!, weaponId: ID!, input: WeaponInput!): Weapon!
-    removeWeapon(characterId: ID!, weaponId: ID!): Boolean!
-    addInventoryItem(characterId: ID!, input: InventoryItemInput!): InventoryItem!
+    # Live gear updates
     updateInventoryItem(characterId: ID!, itemId: ID!, input: InventoryItemInput!): InventoryItem!
-    removeInventoryItem(characterId: ID!, itemId: ID!): Boolean!
-    addFeature(characterId: ID!, input: FeatureInput!): CharacterFeature!
-    updateFeature(characterId: ID!, featureId: ID!, input: FeatureInput!): CharacterFeature!
-    removeFeature(characterId: ID!, featureId: ID!): Boolean!
 
     # Rest / recovery
     spendHitDie(characterId: ID!, amount: Int! = 1): CharacterStats!

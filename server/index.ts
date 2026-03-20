@@ -42,13 +42,9 @@ const resolvers: Resolvers = {
         toggleInspiration: characterResolvers.toggleInspiration,
         saveCharacterSheet: characterResolvers.saveCharacterSheet,
 
-        updateAbilityScores: characterResolvers.updateAbilityScores,
-        updateHP: characterResolvers.updateHP,
         updateDeathSaves: characterResolvers.updateDeathSaves,
         updateHitDice: characterResolvers.updateHitDice,
         updateSkillProficiencies: characterResolvers.updateSkillProficiencies,
-        updateTraits: characterResolvers.updateTraits,
-        updateCurrency: characterResolvers.updateCurrency,
         updateSavingThrowProficiencies: characterResolvers.updateSavingThrowProficiencies,
 
         learnSpell: characterResolvers.learnSpell,
@@ -57,15 +53,7 @@ const resolvers: Resolvers = {
         unprepareSpell: characterResolvers.unprepareSpell,
         toggleSpellSlot: characterResolvers.toggleSpellSlot,
 
-        addWeapon: characterResolvers.addWeapon,
-        updateWeapon: characterResolvers.updateWeapon,
-        removeWeapon: characterResolvers.removeWeapon,
-        addInventoryItem: characterResolvers.addInventoryItem,
         updateInventoryItem: characterResolvers.updateInventoryItem,
-        removeInventoryItem: characterResolvers.removeInventoryItem,
-        addFeature: characterResolvers.addFeature,
-        updateFeature: characterResolvers.updateFeature,
-        removeFeature: characterResolvers.removeFeature,
 
         spendHitDie: characterResolvers.spendHitDie,
         shortRest: characterResolvers.shortRest,

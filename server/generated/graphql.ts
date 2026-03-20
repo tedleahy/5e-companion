@@ -204,54 +204,24 @@ export type InventoryItemInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  addFeature: CharacterFeature;
-  addInventoryItem: InventoryItem;
-  addWeapon: Weapon;
   createCharacter: Character;
   deleteCharacter: Scalars['Boolean']['output'];
   forgetSpell: Scalars['Boolean']['output'];
   learnSpell: CharacterSpell;
   longRest: Character;
   prepareSpell: CharacterSpell;
-  removeFeature: Scalars['Boolean']['output'];
-  removeInventoryItem: Scalars['Boolean']['output'];
-  removeWeapon: Scalars['Boolean']['output'];
   saveCharacterSheet: Character;
   shortRest: Character;
   spendHitDie: CharacterStats;
   toggleInspiration: Character;
   toggleSpellSlot: SpellSlot;
   unprepareSpell: CharacterSpell;
-  updateAbilityScores: CharacterStats;
   updateCharacter: Character;
-  updateCurrency: CharacterStats;
   updateDeathSaves: CharacterStats;
-  updateFeature: CharacterFeature;
-  updateHP: CharacterStats;
   updateHitDice: CharacterStats;
   updateInventoryItem: InventoryItem;
   updateSavingThrowProficiencies: CharacterStats;
   updateSkillProficiencies: CharacterStats;
-  updateTraits: CharacterStats;
-  updateWeapon: Weapon;
-};
-
-
-export type MutationAddFeatureArgs = {
-  characterId: Scalars['ID']['input'];
-  input: FeatureInput;
-};
-
-
-export type MutationAddInventoryItemArgs = {
-  characterId: Scalars['ID']['input'];
-  input: InventoryItemInput;
-};
-
-
-export type MutationAddWeaponArgs = {
-  characterId: Scalars['ID']['input'];
-  input: WeaponInput;
 };
 
 
@@ -285,24 +255,6 @@ export type MutationLongRestArgs = {
 export type MutationPrepareSpellArgs = {
   characterId: Scalars['ID']['input'];
   spellId: Scalars['ID']['input'];
-};
-
-
-export type MutationRemoveFeatureArgs = {
-  characterId: Scalars['ID']['input'];
-  featureId: Scalars['ID']['input'];
-};
-
-
-export type MutationRemoveInventoryItemArgs = {
-  characterId: Scalars['ID']['input'];
-  itemId: Scalars['ID']['input'];
-};
-
-
-export type MutationRemoveWeaponArgs = {
-  characterId: Scalars['ID']['input'];
-  weaponId: Scalars['ID']['input'];
 };
 
 
@@ -340,40 +292,15 @@ export type MutationUnprepareSpellArgs = {
 };
 
 
-export type MutationUpdateAbilityScoresArgs = {
-  characterId: Scalars['ID']['input'];
-  input: AbilityScoresInput;
-};
-
-
 export type MutationUpdateCharacterArgs = {
   id: Scalars['ID']['input'];
   input: UpdateCharacterInput;
 };
 
 
-export type MutationUpdateCurrencyArgs = {
-  characterId: Scalars['ID']['input'];
-  input: CurrencyInput;
-};
-
-
 export type MutationUpdateDeathSavesArgs = {
   characterId: Scalars['ID']['input'];
   input: DeathSavesInput;
-};
-
-
-export type MutationUpdateFeatureArgs = {
-  characterId: Scalars['ID']['input'];
-  featureId: Scalars['ID']['input'];
-  input: FeatureInput;
-};
-
-
-export type MutationUpdateHpArgs = {
-  characterId: Scalars['ID']['input'];
-  input: HpInput;
 };
 
 
@@ -399,19 +326,6 @@ export type MutationUpdateSavingThrowProficienciesArgs = {
 export type MutationUpdateSkillProficienciesArgs = {
   characterId: Scalars['ID']['input'];
   input: SkillProficienciesInput;
-};
-
-
-export type MutationUpdateTraitsArgs = {
-  characterId: Scalars['ID']['input'];
-  input: TraitsInput;
-};
-
-
-export type MutationUpdateWeaponArgs = {
-  characterId: Scalars['ID']['input'];
-  input: WeaponInput;
-  weaponId: Scalars['ID']['input'];
 };
 
 export enum ProficiencyLevel {
@@ -909,36 +823,24 @@ export type InventoryItemResolvers<ContextType = Context, ParentType extends Res
 };
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  addFeature?: Resolver<ResolversTypes['CharacterFeature'], ParentType, ContextType, RequireFields<MutationAddFeatureArgs, 'characterId' | 'input'>>;
-  addInventoryItem?: Resolver<ResolversTypes['InventoryItem'], ParentType, ContextType, RequireFields<MutationAddInventoryItemArgs, 'characterId' | 'input'>>;
-  addWeapon?: Resolver<ResolversTypes['Weapon'], ParentType, ContextType, RequireFields<MutationAddWeaponArgs, 'characterId' | 'input'>>;
   createCharacter?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationCreateCharacterArgs, 'input'>>;
   deleteCharacter?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCharacterArgs, 'id'>>;
   forgetSpell?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationForgetSpellArgs, 'characterId' | 'spellId'>>;
   learnSpell?: Resolver<ResolversTypes['CharacterSpell'], ParentType, ContextType, RequireFields<MutationLearnSpellArgs, 'characterId' | 'spellId'>>;
   longRest?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationLongRestArgs, 'characterId'>>;
   prepareSpell?: Resolver<ResolversTypes['CharacterSpell'], ParentType, ContextType, RequireFields<MutationPrepareSpellArgs, 'characterId' | 'spellId'>>;
-  removeFeature?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveFeatureArgs, 'characterId' | 'featureId'>>;
-  removeInventoryItem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveInventoryItemArgs, 'characterId' | 'itemId'>>;
-  removeWeapon?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveWeaponArgs, 'characterId' | 'weaponId'>>;
   saveCharacterSheet?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationSaveCharacterSheetArgs, 'characterId' | 'input'>>;
   shortRest?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationShortRestArgs, 'characterId'>>;
   spendHitDie?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationSpendHitDieArgs, 'amount' | 'characterId'>>;
   toggleInspiration?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationToggleInspirationArgs, 'characterId'>>;
   toggleSpellSlot?: Resolver<ResolversTypes['SpellSlot'], ParentType, ContextType, RequireFields<MutationToggleSpellSlotArgs, 'characterId' | 'level'>>;
   unprepareSpell?: Resolver<ResolversTypes['CharacterSpell'], ParentType, ContextType, RequireFields<MutationUnprepareSpellArgs, 'characterId' | 'spellId'>>;
-  updateAbilityScores?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateAbilityScoresArgs, 'characterId' | 'input'>>;
   updateCharacter?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationUpdateCharacterArgs, 'id' | 'input'>>;
-  updateCurrency?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateCurrencyArgs, 'characterId' | 'input'>>;
   updateDeathSaves?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateDeathSavesArgs, 'characterId' | 'input'>>;
-  updateFeature?: Resolver<ResolversTypes['CharacterFeature'], ParentType, ContextType, RequireFields<MutationUpdateFeatureArgs, 'characterId' | 'featureId' | 'input'>>;
-  updateHP?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateHpArgs, 'characterId' | 'input'>>;
   updateHitDice?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateHitDiceArgs, 'characterId' | 'input'>>;
   updateInventoryItem?: Resolver<ResolversTypes['InventoryItem'], ParentType, ContextType, RequireFields<MutationUpdateInventoryItemArgs, 'characterId' | 'input' | 'itemId'>>;
   updateSavingThrowProficiencies?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateSavingThrowProficienciesArgs, 'characterId' | 'input'>>;
   updateSkillProficiencies?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateSkillProficienciesArgs, 'characterId' | 'input'>>;
-  updateTraits?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateTraitsArgs, 'characterId' | 'input'>>;
-  updateWeapon?: Resolver<ResolversTypes['Weapon'], ParentType, ContextType, RequireFields<MutationUpdateWeaponArgs, 'characterId' | 'input' | 'weaponId'>>;
 };
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
