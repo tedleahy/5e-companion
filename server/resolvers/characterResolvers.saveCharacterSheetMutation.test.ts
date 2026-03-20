@@ -199,4 +199,98 @@ describe('characterResolvers — saveCharacterSheet', () => {
 
         expect(transactionMock).toHaveBeenCalledTimes(1);
     });
+
+    test('throws when submitted inventory ids do not belong to the character', async () => {
+        characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
+        characterUpdateMock.mockResolvedValueOnce(fakeCharacter);
+        statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
+        statsUpdateMock.mockResolvedValueOnce(fakeStats);
+        weaponFindManyMock.mockResolvedValueOnce([]);
+        inventoryItemFindManyMock.mockResolvedValueOnce([{ id: 'item-1', characterId: 'char-1' }]);
+        characterFeatureFindManyMock.mockResolvedValueOnce([]);
+
+        expect(resolvers.saveCharacterSheet({}, {
+            characterId: 'char-1',
+            input: {
+                ac: 17,
+                speed: 35,
+                initiative: 3,
+                conditions: [],
+                hp: { current: 54, max: 76, temp: 2 },
+                abilityScores: {
+                    strength: 8,
+                    dexterity: 16,
+                    constitution: 14,
+                    intelligence: 20,
+                    wisdom: 13,
+                    charisma: 11,
+                },
+                currency: { cp: 0, sp: 14, ep: 0, gp: 847, pp: 3 },
+                traits: {
+                    personality: 'Curious',
+                    ideals: 'Knowledge',
+                    bonds: 'Spellbook',
+                    flaws: 'Arrogant',
+                    armorProficiencies: [],
+                    weaponProficiencies: ['Daggers'],
+                    toolProficiencies: [],
+                    languages: ['Common', 'Elvish'],
+                },
+                weapons: [],
+                inventory: [
+                    { id: 'item-other', name: 'Staff', quantity: 1, weight: 4, description: 'Arcane focus', equipped: true, magical: true },
+                ],
+                features: [],
+                spellSaveDC: 17,
+                spellAttackBonus: 9,
+            },
+        }, authedCtx)).rejects.toThrow('Inventory item not found.');
+    });
+
+    test('throws when submitted feature ids do not belong to the character', async () => {
+        characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
+        characterUpdateMock.mockResolvedValueOnce(fakeCharacter);
+        statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
+        statsUpdateMock.mockResolvedValueOnce(fakeStats);
+        weaponFindManyMock.mockResolvedValueOnce([]);
+        inventoryItemFindManyMock.mockResolvedValueOnce([]);
+        characterFeatureFindManyMock.mockResolvedValueOnce([{ id: 'feature-1', characterId: 'char-1' }]);
+
+        expect(resolvers.saveCharacterSheet({}, {
+            characterId: 'char-1',
+            input: {
+                ac: 17,
+                speed: 35,
+                initiative: 3,
+                conditions: [],
+                hp: { current: 54, max: 76, temp: 2 },
+                abilityScores: {
+                    strength: 8,
+                    dexterity: 16,
+                    constitution: 14,
+                    intelligence: 20,
+                    wisdom: 13,
+                    charisma: 11,
+                },
+                currency: { cp: 0, sp: 14, ep: 0, gp: 847, pp: 3 },
+                traits: {
+                    personality: 'Curious',
+                    ideals: 'Knowledge',
+                    bonds: 'Spellbook',
+                    flaws: 'Arrogant',
+                    armorProficiencies: [],
+                    weaponProficiencies: ['Daggers'],
+                    toolProficiencies: [],
+                    languages: ['Common', 'Elvish'],
+                },
+                weapons: [],
+                inventory: [],
+                features: [
+                    { id: 'feature-other', name: 'Arcane Recovery', source: 'Wizard 1', description: 'Recover slots', usesMax: 1, usesRemaining: 1, recharge: 'long' },
+                ],
+                spellSaveDC: 17,
+                spellAttackBonus: 9,
+            },
+        }, authedCtx)).rejects.toThrow('Feature not found.');
+    });
 });

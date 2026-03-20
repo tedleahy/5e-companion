@@ -9,6 +9,7 @@ import type {
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
 import { findOwnedCharacter } from "./helpers";
+import { reconcileCharacterSheetCollection } from "./reconcileSheetCollection";
 
 /**
  * Writes the full editable character sheet in one atomic transaction.
@@ -66,56 +67,29 @@ async function reconcileWeapons(
     characterId: string,
     nextWeapons: SaveCharacterSheetWeaponInput[],
 ) {
-    const existingWeapons = await tx.weapon.findMany({
-        where: { characterId },
+    await reconcileCharacterSheetCollection({
+        delegate: tx.weapon,
+        characterId,
+        nextItems: nextWeapons,
+        notFoundMessage: 'Weapon not found.',
+        buildUpdateData(weapon) {
+            return {
+                name: weapon.name,
+                attackBonus: weapon.attackBonus,
+                damage: weapon.damage,
+                type: weapon.type,
+            };
+        },
+        buildCreateData(weapon, currentCharacterId) {
+            return {
+                characterId: currentCharacterId,
+                name: weapon.name,
+                attackBonus: weapon.attackBonus,
+                damage: weapon.damage,
+                type: weapon.type,
+            };
+        },
     });
-    const existingWeaponIds = new Set(existingWeapons.map((weapon) => weapon.id));
-    const submittedWeaponIds = new Set(
-        nextWeapons
-            .map((weapon) => weapon.id)
-            .filter((weaponId): weaponId is string => typeof weaponId === 'string'),
-    );
-
-    const removedWeaponIds = existingWeapons
-        .filter((weapon) => !submittedWeaponIds.has(weapon.id))
-        .map((weapon) => weapon.id);
-
-    if (removedWeaponIds.length > 0) {
-        await tx.weapon.deleteMany({
-            where: {
-                characterId,
-                id: { in: removedWeaponIds },
-            },
-        });
-    }
-
-    for (const weapon of nextWeapons) {
-        const data = {
-            name: weapon.name,
-            attackBonus: weapon.attackBonus,
-            damage: weapon.damage,
-            type: weapon.type,
-        };
-
-        if (weapon.id) {
-            if (!existingWeaponIds.has(weapon.id)) {
-                throw new Error('Weapon not found.');
-            }
-
-            await tx.weapon.update({
-                where: { id: weapon.id },
-                data,
-            });
-            continue;
-        }
-
-        await tx.weapon.create({
-            data: {
-                characterId,
-                ...data,
-            },
-        });
-    }
 }
 
 /**
@@ -126,58 +100,33 @@ async function reconcileInventory(
     characterId: string,
     nextInventory: SaveCharacterSheetInventoryItemInput[],
 ) {
-    const existingInventory = await tx.inventoryItem.findMany({
-        where: { characterId },
+    await reconcileCharacterSheetCollection({
+        delegate: tx.inventoryItem,
+        characterId,
+        nextItems: nextInventory,
+        notFoundMessage: 'Inventory item not found.',
+        buildUpdateData(item) {
+            return {
+                name: item.name,
+                quantity: item.quantity,
+                weight: item.weight ?? null,
+                description: item.description ?? null,
+                equipped: item.equipped,
+                magical: item.magical,
+            };
+        },
+        buildCreateData(item, currentCharacterId) {
+            return {
+                characterId: currentCharacterId,
+                name: item.name,
+                quantity: item.quantity,
+                weight: item.weight ?? null,
+                description: item.description ?? null,
+                equipped: item.equipped,
+                magical: item.magical,
+            };
+        },
     });
-    const existingInventoryIds = new Set(existingInventory.map((item) => item.id));
-    const submittedInventoryIds = new Set(
-        nextInventory
-            .map((item) => item.id)
-            .filter((itemId): itemId is string => typeof itemId === 'string'),
-    );
-
-    const removedInventoryIds = existingInventory
-        .filter((item) => !submittedInventoryIds.has(item.id))
-        .map((item) => item.id);
-
-    if (removedInventoryIds.length > 0) {
-        await tx.inventoryItem.deleteMany({
-            where: {
-                characterId,
-                id: { in: removedInventoryIds },
-            },
-        });
-    }
-
-    for (const item of nextInventory) {
-        const data = {
-            name: item.name,
-            quantity: item.quantity,
-            weight: item.weight ?? null,
-            description: item.description ?? null,
-            equipped: item.equipped,
-            magical: item.magical,
-        };
-
-        if (item.id) {
-            if (!existingInventoryIds.has(item.id)) {
-                throw new Error('Inventory item not found.');
-            }
-
-            await tx.inventoryItem.update({
-                where: { id: item.id },
-                data,
-            });
-            continue;
-        }
-
-        await tx.inventoryItem.create({
-            data: {
-                characterId,
-                ...data,
-            },
-        });
-    }
 }
 
 /**
@@ -188,56 +137,31 @@ async function reconcileFeatures(
     characterId: string,
     nextFeatures: SaveCharacterSheetFeatureInput[],
 ) {
-    const existingFeatures = await tx.characterFeature.findMany({
-        where: { characterId },
+    await reconcileCharacterSheetCollection({
+        delegate: tx.characterFeature,
+        characterId,
+        nextItems: nextFeatures,
+        notFoundMessage: 'Feature not found.',
+        buildUpdateData(feature) {
+            return {
+                name: feature.name,
+                source: feature.source,
+                description: feature.description,
+                usesMax: feature.usesMax ?? null,
+                usesRemaining: feature.usesRemaining ?? null,
+                recharge: feature.recharge ?? null,
+            };
+        },
+        buildCreateData(feature, currentCharacterId) {
+            return {
+                characterId: currentCharacterId,
+                name: feature.name,
+                source: feature.source,
+                description: feature.description,
+                usesMax: feature.usesMax ?? null,
+                usesRemaining: feature.usesRemaining ?? null,
+                recharge: feature.recharge ?? null,
+            };
+        },
     });
-    const existingFeatureIds = new Set(existingFeatures.map((feature) => feature.id));
-    const submittedFeatureIds = new Set(
-        nextFeatures
-            .map((feature) => feature.id)
-            .filter((featureId): featureId is string => typeof featureId === 'string'),
-    );
-
-    const removedFeatureIds = existingFeatures
-        .filter((feature) => !submittedFeatureIds.has(feature.id))
-        .map((feature) => feature.id);
-
-    if (removedFeatureIds.length > 0) {
-        await tx.characterFeature.deleteMany({
-            where: {
-                characterId,
-                id: { in: removedFeatureIds },
-            },
-        });
-    }
-
-    for (const feature of nextFeatures) {
-        const data = {
-            name: feature.name,
-            source: feature.source,
-            description: feature.description,
-            usesMax: feature.usesMax ?? null,
-            usesRemaining: feature.usesRemaining ?? null,
-            recharge: feature.recharge ?? null,
-        };
-
-        if (feature.id) {
-            if (!existingFeatureIds.has(feature.id)) {
-                throw new Error('Feature not found.');
-            }
-
-            await tx.characterFeature.update({
-                where: { id: feature.id },
-                data,
-            });
-            continue;
-        }
-
-        await tx.characterFeature.create({
-            data: {
-                characterId,
-                ...data,
-            },
-        });
-    }
 }
