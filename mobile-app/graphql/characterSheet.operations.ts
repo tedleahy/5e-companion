@@ -191,7 +191,7 @@ export const SAVE_CHARACTER_SHEET = gql`
  * Adds a weapon row to the character sheet.
  */
 export const ADD_WEAPON = gql`
-    mutation AddWeapon($characterId: ID!, $input: AttackInput!) {
+    mutation AddWeapon($characterId: ID!, $input: WeaponInput!) {
         addWeapon(characterId: $characterId, input: $input) {
             id
             name
@@ -206,7 +206,7 @@ export const ADD_WEAPON = gql`
  * Updates an existing weapon row.
  */
 export const UPDATE_WEAPON = gql`
-    mutation UpdateWeapon($characterId: ID!, $weaponId: ID!, $input: AttackInput!) {
+    mutation UpdateWeapon($characterId: ID!, $weaponId: ID!, $input: WeaponInput!) {
         updateWeapon(characterId: $characterId, weaponId: $weaponId, input: $input) {
             id
             name

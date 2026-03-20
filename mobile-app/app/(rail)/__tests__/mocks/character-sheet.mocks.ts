@@ -53,35 +53,9 @@ export const MOCK_CHARACTER = {
             recharge: null,
         },
     ],
-    attacks: [
-        {
-            __typename: 'Attack',
-            id: 'attack-1',
-            name: 'Dagger',
-            attackBonus: '+7',
-            damage: '1d4+3 piercing',
-            type: 'melee',
-        },
-        {
-            __typename: 'Attack',
-            id: 'attack-2',
-            name: 'Staff of Power',
-            attackBonus: '+9',
-            damage: '1d6+5 bludgeoning',
-            type: 'melee',
-        },
-        {
-            __typename: 'Attack',
-            id: 'attack-3',
-            name: 'Spell Attack',
-            attackBonus: '+10',
-            damage: 'by spell',
-            type: 'spell',
-        },
-    ],
     weapons: [
         {
-            __typename: 'Attack',
+            __typename: 'Weapon',
             id: 'attack-1',
             name: 'Dagger',
             attackBonus: '+7',
@@ -89,7 +63,7 @@ export const MOCK_CHARACTER = {
             type: 'melee',
         },
         {
-            __typename: 'Attack',
+            __typename: 'Weapon',
             id: 'attack-2',
             name: 'Staff of Power',
             attackBonus: '+9',
@@ -97,7 +71,7 @@ export const MOCK_CHARACTER = {
             type: 'melee',
         },
         {
-            __typename: 'Attack',
+            __typename: 'Weapon',
             id: 'attack-3',
             name: 'Spell Attack',
             attackBonus: '+10',

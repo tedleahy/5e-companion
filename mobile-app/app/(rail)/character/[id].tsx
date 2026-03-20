@@ -309,7 +309,7 @@ export default function CharacterByIdScreen() {
             ...previousDraft,
             weapons: [
                 ...previousDraft.weapons,
-                { id: createDraftId('weapon'), name: '', attackBonus: '', damage: '', type: 'melee', __typename: 'Attack' },
+                { id: createDraftId('weapon'), name: '', attackBonus: '', damage: '', type: 'melee', __typename: 'Weapon' },
             ],
         }));
     }

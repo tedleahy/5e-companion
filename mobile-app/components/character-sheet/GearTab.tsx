@@ -1,16 +1,16 @@
 import { StyleSheet, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import type { Attack, Currency, InventoryItem } from '@/types/generated_graphql_types';
+import type { Currency, InventoryItem, Weapon } from '@/types/generated_graphql_types';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
-import AttacksCard from './gear/AttacksCard';
 import CurrencyCard from './gear/CurrencyCard';
 import InventoryCard from './gear/InventoryCard';
+import WeaponsCard from './gear/WeaponsCard';
 
 type CurrencyKey = 'cp' | 'sp' | 'ep' | 'gp' | 'pp';
 
 type GearTabProps = {
-    weapons: Attack[];
+    weapons: Weapon[];
     inventory: InventoryItem[];
     currency: Currency;
     editMode: boolean;
@@ -48,8 +48,8 @@ export default function GearTab({
                 showsVerticalScrollIndicator={false}
             >
                 <CurrencyCard currency={currency} editMode={editMode} onChangeCurrency={onChangeCurrency} />
-                <AttacksCard
-                    attacks={weapons}
+                <WeaponsCard
+                    weapons={weapons}
                     editMode={editMode}
                     onAddWeapon={onAddWeapon}
                     onChangeWeapon={onChangeWeapon}

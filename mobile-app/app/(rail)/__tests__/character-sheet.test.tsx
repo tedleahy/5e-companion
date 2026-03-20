@@ -607,7 +607,7 @@ describe('CharacterByIdScreen', () => {
         expect(screen.getAllByText('+9').length).toBeGreaterThanOrEqual(1);
     });
 
-    it('switches to the Gear tab and shows currency, attacks, and inventory', async () => {
+    it('switches to the Gear tab and shows currency, weapons, and inventory', async () => {
         renderScreen();
 
         await waitFor(() => {
@@ -622,7 +622,7 @@ describe('CharacterByIdScreen', () => {
         expect(screen.getByTestId('currency-gp-amount')).toHaveTextContent('847');
         expect(screen.getAllByText('Weapons').length).toBeGreaterThanOrEqual(1);
         expect(screen.getByText('Dagger')).toBeTruthy();
-        expect(screen.getByTestId('attack-stats-attack-1')).toHaveStyle({ alignItems: 'flex-end' });
+        expect(screen.getByTestId('weapon-stats-attack-1')).toHaveStyle({ alignItems: 'flex-end' });
         expect(screen.getByText('Backpack')).toBeTruthy();
         expect(screen.queryByText('Encumbrance')).toBeNull();
     });

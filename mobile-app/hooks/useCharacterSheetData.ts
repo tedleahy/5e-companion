@@ -4,7 +4,6 @@ import type { ApolloCache } from '@apollo/client';
 import { useMutation, useQuery } from '@apollo/client/react';
 import type {
     AbilityScoresInput,
-    Attack,
     CharacterFeature,
     CurrentUserCharacterSheetsQuery,
     CurrencyInput,
@@ -20,11 +19,11 @@ import type {
     PrepareSpellMutation,
     PrepareSpellMutationVariables,
     ProficiencyLevel,
-    SaveCharacterSheetAttackInput,
     SaveCharacterSheetFeatureInput,
     SaveCharacterSheetInventoryItemInput,
     SaveCharacterSheetMutation,
     SaveCharacterSheetMutationVariables,
+    SaveCharacterSheetWeaponInput,
     SkillProficienciesInput,
     SpellSlot,
     ToggleInspirationMutation,
@@ -40,6 +39,7 @@ import type {
     UpdateSavingThrowProficienciesMutationVariables,
     UpdateSkillProficienciesMutation,
     UpdateSkillProficienciesMutationVariables,
+    Weapon,
 } from '@/types/generated_graphql_types';
 import {
     FORGET_SPELL,
@@ -86,7 +86,7 @@ export type SaveCharacterSheetCoreInput = {
     abilityScores: AbilityScoresInput;
     currency: CurrencyInput;
     traits: TraitsInput;
-    weapons: Attack[];
+    weapons: Weapon[];
     inventory: InventoryItem[];
     features: CharacterFeature[];
     spellSaveDC?: number | null;
@@ -104,7 +104,7 @@ function isDraftEntityId(id: string): boolean {
 /**
  * Maps a weapon row into the atomic save mutation input shape.
  */
-function saveWeaponInput(weapon: Attack): SaveCharacterSheetAttackInput {
+function saveWeaponInput(weapon: Weapon): SaveCharacterSheetWeaponInput {
     return {
         id: isDraftEntityId(weapon.id) ? undefined : weapon.id,
         name: weapon.name,
