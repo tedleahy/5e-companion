@@ -10,6 +10,7 @@ import {
     CHARACTERS_MOCK,
     EMPTY_MOCK,
     ERROR_MOCK,
+    NOT_FOUND_MOCK,
     PREPARE_BIGBYS_HAND_MOCK,
     SAVE_CORE_CHARACTER_MOCKS,
     TOGGLE_MOCK,
@@ -176,6 +177,21 @@ describe('CharacterByIdScreen', () => {
         await waitFor(() => {
             expect(screen.getByText('No characters yet.')).toBeTruthy();
         });
+    });
+
+    it('shows a not-found state when the roster exists but the character does not', async () => {
+        renderScreen([NOT_FOUND_MOCK]);
+        await waitFor(() => {
+            expect(screen.getByText('Character not found.')).toBeTruthy();
+        });
+    });
+
+    it('shows an invalid-link state when the route id is blank', async () => {
+        mockUseLocalSearchParams.mockReturnValueOnce({ id: '   ' });
+
+        renderScreen([]);
+
+        expect(screen.getByText('Invalid character link.')).toBeTruthy();
     });
 
     it('shows error state on network error', async () => {

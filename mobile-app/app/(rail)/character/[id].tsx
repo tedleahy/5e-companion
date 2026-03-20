@@ -112,6 +112,7 @@ export default function CharacterByIdScreen() {
     const characterId = normaliseCharacterId(id);
     const {
         character,
+        hasCurrentUserCharacters,
         loading,
         error,
         isUnauthenticated,
@@ -126,12 +127,7 @@ export default function CharacterByIdScreen() {
         handleSaveCharacterSheetCore,
         handleLevelUp,
         handleToggleEquip,
-    } = useCharacterSheetData(characterId ?? '');
-
-    useEffect(() => {
-        if (characterId) return;
-        router.replace('/characters');
-    }, [characterId, router]);
+    } = useCharacterSheetData(characterId);
 
     useEffect(() => {
         if (isUnauthenticated) router.replace('/(auth)/sign-in');
@@ -164,7 +160,16 @@ export default function CharacterByIdScreen() {
     }, [visibleTabs]);
 
     if (!characterId) {
-        return null;
+        return (
+            <RailScreenShell>
+                <View style={styles.centered}>
+                    <Text style={styles.stateText}>Invalid character link.</Text>
+                    <Text style={styles.stateSubtext}>
+                        Choose a character from your roster and try again.
+                    </Text>
+                </View>
+            </RailScreenShell>
+        );
     }
 
     if (loading) {
@@ -188,13 +193,29 @@ export default function CharacterByIdScreen() {
         );
     }
 
-    if (!character || !character.stats) {
+    if (!character) {
+        const stateTitle = hasCurrentUserCharacters ? 'Character not found.' : 'No characters yet.';
+        const stateSubtext = hasCurrentUserCharacters
+            ? 'This character does not exist or is not available to your account.'
+            : 'Create a character to get started.';
+
         return (
             <RailScreenShell>
                 <View style={styles.centered}>
-                    <Text style={styles.stateText}>No characters yet.</Text>
+                    <Text style={styles.stateText}>{stateTitle}</Text>
+                    <Text style={styles.stateSubtext}>{stateSubtext}</Text>
+                </View>
+            </RailScreenShell>
+        );
+    }
+
+    if (!character.stats) {
+        return (
+            <RailScreenShell>
+                <View style={styles.centered}>
+                    <Text style={styles.stateText}>Character sheet is incomplete.</Text>
                     <Text style={styles.stateSubtext}>
-                        Create a character to get started.
+                        This character is missing required stats data.
                     </Text>
                 </View>
             </RailScreenShell>

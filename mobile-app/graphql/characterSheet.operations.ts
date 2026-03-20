@@ -166,11 +166,12 @@ export const GET_CURRENT_USER_CHARACTER_ROSTER = gql`
 /**
  * Fetches the full character-sheet payload for the signed-in user.
  */
-export const GET_CURRENT_USER_CHARACTER_SHEETS = gql`
-    query CurrentUserCharacterSheets {
-        currentUserCharacters {
+export const GET_CHARACTER_SHEET_DETAIL = gql`
+    query CharacterSheetDetail($id: ID!) {
+        character(id: $id) {
             ...CharacterSheetFields
         }
+        hasCurrentUserCharacters
     }
     ${CHARACTER_SHEET_FIELDS_FRAGMENT}
 `;

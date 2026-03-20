@@ -1,4 +1,4 @@
-import { GET_CURRENT_USER_CHARACTER_SHEETS, PREPARE_SPELL, SAVE_CHARACTER_SHEET, TOGGLE_INSPIRATION, TOGGLE_SPELL_SLOT, UNPREPARE_SPELL, UPDATE_DEATH_SAVES, UPDATE_SAVING_THROW_PROFICIENCIES, UPDATE_SKILL_PROFICIENCIES } from "@/graphql/characterSheet.operations";
+import { GET_CHARACTER_SHEET_DETAIL, PREPARE_SPELL, SAVE_CHARACTER_SHEET, TOGGLE_INSPIRATION, TOGGLE_SPELL_SLOT, UNPREPARE_SPELL, UPDATE_DEATH_SAVES, UPDATE_SAVING_THROW_PROFICIENCIES, UPDATE_SKILL_PROFICIENCIES } from "@/graphql/characterSheet.operations";
 import { ProficiencyLevel } from "@/types/generated_graphql_types";
 import { MockLink } from "@apollo/client/testing";
 
@@ -411,26 +411,50 @@ export const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
 const { __typename: _skillTypeName, ...INITIAL_SKILL_INPUT } = MOCK_CHARACTER.stats.skillProficiencies;
 
 export const CHARACTERS_MOCK: MockLink.MockedResponse = {
-    request: { query: GET_CURRENT_USER_CHARACTER_SHEETS },
+    request: {
+        query: GET_CHARACTER_SHEET_DETAIL,
+        variables: { id: 'char-1' },
+    },
     result: {
         data: {
-            currentUserCharacters: [MOCK_CHARACTER],
+            character: MOCK_CHARACTER,
+            hasCurrentUserCharacters: true,
         },
     },
 };
 
 export const EMPTY_MOCK: MockLink.MockedResponse = {
-    request: { query: GET_CURRENT_USER_CHARACTER_SHEETS },
+    request: {
+        query: GET_CHARACTER_SHEET_DETAIL,
+        variables: { id: 'char-1' },
+    },
     result: {
         data: {
-            currentUserCharacters: [],
+            character: null,
+            hasCurrentUserCharacters: false,
         },
     },
 };
 
 export const ERROR_MOCK: MockLink.MockedResponse = {
-    request: { query: GET_CURRENT_USER_CHARACTER_SHEETS },
+    request: {
+        query: GET_CHARACTER_SHEET_DETAIL,
+        variables: { id: 'char-1' },
+    },
     error: new Error('Network error'),
+};
+
+export const NOT_FOUND_MOCK: MockLink.MockedResponse = {
+    request: {
+        query: GET_CHARACTER_SHEET_DETAIL,
+        variables: { id: 'char-1' },
+    },
+    result: {
+        data: {
+            character: null,
+            hasCurrentUserCharacters: true,
+        },
+    },
 };
 
 export const TOGGLE_MOCK: MockLink.MockedResponse = {

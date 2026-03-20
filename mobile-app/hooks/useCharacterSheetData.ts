@@ -5,7 +5,8 @@ import { useMutation, useQuery } from '@apollo/client/react';
 import type {
     AbilityScoresInput,
     CharacterFeature,
-    CurrentUserCharacterSheetsQuery,
+    CharacterSheetDetailQuery,
+    CharacterSheetDetailQueryVariables,
     CurrencyInput,
     ForgetSpellMutation,
     ForgetSpellMutationVariables,
@@ -43,7 +44,7 @@ import type {
 } from '@/types/generated_graphql_types';
 import {
     FORGET_SPELL,
-    GET_CURRENT_USER_CHARACTER_SHEETS,
+    GET_CHARACTER_SHEET_DETAIL,
     LEARN_SPELL,
     PREPARE_SPELL,
     SAVE_CHARACTER_SHEET,
@@ -67,7 +68,7 @@ import type { AbilityKey, SkillKey } from '@/lib/characterSheetUtils';
 /**
  * Character shape returned by the full character-sheet query.
  */
-type CharacterWithSpells = CurrentUserCharacterSheetsQuery['currentUserCharacters'][number];
+type CharacterWithSpells = NonNullable<CharacterSheetDetailQuery['character']>;
 
 /**
  * Callback for cache-level character updates.
@@ -167,17 +168,17 @@ function updateCharacterInCache(
     characterId: string,
     updateCharacter: CharacterCacheUpdater,
 ) {
-    cache.updateQuery<CurrentUserCharacterSheetsQuery>(
-        { query: GET_CURRENT_USER_CHARACTER_SHEETS },
-        (data: CurrentUserCharacterSheetsQuery | null) => {
-            if (!data) return data;
+    cache.updateQuery<CharacterSheetDetailQuery, CharacterSheetDetailQueryVariables>(
+        {
+            query: GET_CHARACTER_SHEET_DETAIL,
+            variables: { id: characterId },
+        },
+        (data: CharacterSheetDetailQuery | null) => {
+            if (!data?.character) return data;
 
             return {
                 ...data,
-                currentUserCharacters: data.currentUserCharacters.map((currentCharacter: CharacterWithSpells) => {
-                    if (currentCharacter.id !== characterId) return currentCharacter;
-                    return updateCharacter(currentCharacter);
-                }),
+                character: updateCharacter(data.character),
             };
         },
     );
@@ -204,10 +205,14 @@ function updateSpellSlotInCache(
 /**
  * Loads character-sheet data and exposes optimistic mutation handlers.
  */
-export default function useCharacterSheetData(characterId: string) {
-    const { data, loading, error, refetch } = useQuery<CurrentUserCharacterSheetsQuery>(
-        GET_CURRENT_USER_CHARACTER_SHEETS,
-    );
+export default function useCharacterSheetData(characterId: string | null) {
+    const { data, loading, error, refetch } = useQuery<
+        CharacterSheetDetailQuery,
+        CharacterSheetDetailQueryVariables
+    >(GET_CHARACTER_SHEET_DETAIL, {
+        skip: !characterId,
+        variables: characterId ? { id: characterId } : undefined,
+    });
 
     const [toggleInspiration] = useMutation<
         ToggleInspirationMutation,
@@ -267,8 +272,8 @@ export default function useCharacterSheetData(characterId: string) {
         MutationUpdateInventoryItemArgs
     >(UPDATE_INVENTORY_ITEM);
 
-    const currentUserCharacters = data?.currentUserCharacters ?? [];
-    const character = currentUserCharacters.find((candidate) => candidate.id === characterId) ?? null;
+    const character = data?.character ?? null;
+    const hasCurrentUserCharacters = data?.hasCurrentUserCharacters ?? false;
 
     /**
      * Optimistically toggles inspiration for the active character.
@@ -614,6 +619,7 @@ export default function useCharacterSheetData(characterId: string) {
 
     return {
         character,
+        hasCurrentUserCharacters,
         loading,
         error,
         isUnauthenticated: isUnauthenticatedError(error),
