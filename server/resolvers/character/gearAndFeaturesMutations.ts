@@ -1,26 +1,17 @@
 import type { Context } from "../..";
 import type {
-    MutationAddInventoryItemArgs,
+    MutationUpdateInventoryItemArgs,
 } from "../../generated/graphql";
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
 import { findOwnedCharacter, stripNullishFields } from "./helpers";
 
 /**
- * Mutation argument shape for updating an inventory item row.
- */
-type UpdateInventoryItemArgs = {
-    characterId: string;
-    itemId: string;
-    input: MutationAddInventoryItemArgs['input'];
-};
-
-/**
  * Updates an inventory item for an owned character.
  */
 export async function updateInventoryItem(
     _parent: unknown,
-    { characterId, itemId, input }: UpdateInventoryItemArgs,
+    { characterId, itemId, input }: MutationUpdateInventoryItemArgs,
     ctx: Context,
 ) {
     const userId = requireUser(ctx);
@@ -33,5 +24,11 @@ export async function updateInventoryItem(
 
     if (result.count === 0) throw new Error('Inventory item not found.');
 
-    return await prisma.inventoryItem.findUnique({ where: { id: itemId } });
+    const inventoryItem = await prisma.inventoryItem.findUnique({ where: { id: itemId } });
+
+    if (!inventoryItem) {
+        throw new Error('Inventory item not found after update.');
+    }
+
+    return inventoryItem;
 }
