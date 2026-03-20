@@ -3,14 +3,10 @@ import { deriveSpellcastingStats } from '@/lib/characterSheetUtils';
 import type { ApolloCache } from '@apollo/client';
 import { useMutation, useQuery } from '@apollo/client/react';
 import type {
-    AbilityScoresInput,
-    CharacterFeature,
     CharacterSheetDetailQuery,
     CharacterSheetDetailQueryVariables,
-    CurrencyInput,
     ForgetSpellMutation,
     ForgetSpellMutationVariables,
-    HpInput,
     InventoryItem,
     InventoryItemInput,
     LearnSpellMutation,
@@ -20,18 +16,15 @@ import type {
     PrepareSpellMutation,
     PrepareSpellMutationVariables,
     ProficiencyLevel,
-    SaveCharacterSheetFeatureInput,
-    SaveCharacterSheetInventoryItemInput,
+    SaveCharacterSheetInput,
     SaveCharacterSheetMutation,
     SaveCharacterSheetMutationVariables,
-    SaveCharacterSheetWeaponInput,
     SkillProficienciesInput,
     SpellSlot,
     ToggleInspirationMutation,
     ToggleInspirationMutationVariables,
     ToggleSpellSlotMutation,
     ToggleSpellSlotMutationVariables,
-    TraitsInput,
     UnprepareSpellMutation,
     UnprepareSpellMutationVariables,
     UpdateDeathSavesMutation,
@@ -40,7 +33,6 @@ import type {
     UpdateSavingThrowProficienciesMutationVariables,
     UpdateSkillProficienciesMutation,
     UpdateSkillProficienciesMutationVariables,
-    Weapon,
 } from '@/types/generated_graphql_types';
 import {
     FORGET_SPELL,
@@ -74,76 +66,6 @@ type CharacterWithSpells = NonNullable<CharacterSheetDetailQuery['character']>;
  * Callback for cache-level character updates.
  */
 type CharacterCacheUpdater = (character: CharacterWithSpells) => CharacterWithSpells;
-
-/**
- * Persisted edit payload for core character sheet fields.
- */
-export type SaveCharacterSheetCoreInput = {
-    ac: number;
-    speed: number;
-    initiative: number;
-    conditions: string[];
-    hp: HpInput;
-    abilityScores: AbilityScoresInput;
-    currency: CurrencyInput;
-    traits: TraitsInput;
-    weapons: Weapon[];
-    inventory: InventoryItem[];
-    features: CharacterFeature[];
-    spellSaveDC?: number | null;
-    spellAttackBonus?: number | null;
-};
-
-
-/**
- * Returns true when a local edit-mode row has not yet been persisted.
- */
-function isDraftEntityId(id: string): boolean {
-    return id.startsWith('draft-');
-}
-
-/**
- * Maps a weapon row into the atomic save mutation input shape.
- */
-function saveWeaponInput(weapon: Weapon): SaveCharacterSheetWeaponInput {
-    return {
-        id: isDraftEntityId(weapon.id) ? undefined : weapon.id,
-        name: weapon.name,
-        attackBonus: weapon.attackBonus,
-        damage: weapon.damage,
-        type: weapon.type,
-    };
-}
-
-/**
- * Maps an inventory row into the atomic save mutation input shape.
- */
-function saveInventoryItemInput(item: InventoryItem): SaveCharacterSheetInventoryItemInput {
-    return {
-        id: isDraftEntityId(item.id) ? undefined : item.id,
-        name: item.name,
-        quantity: item.quantity,
-        weight: item.weight ?? null,
-        description: item.description ?? null,
-        equipped: item.equipped,
-        magical: item.magical,
-    };
-}
-
-/**
- * Maps a feature row into the atomic save mutation input shape.
- */
-function saveFeatureInput(feature: CharacterFeature): SaveCharacterSheetFeatureInput {
-    return {
-        id: isDraftEntityId(feature.id) ? undefined : feature.id,
-        name: feature.name,
-        source: feature.source,
-        description: feature.description,
-        recharge: feature.recharge ?? null,
-        usesMax: feature.usesMax ?? null,
-        usesRemaining: feature.usesRemaining ?? null,
-    };
-}
 
 /**
  * Maps an inventory row into the GraphQL input shape.
@@ -533,27 +455,13 @@ export default function useCharacterSheetData(characterId: string | null) {
     /**
      * Persists the editable core sheet fields when edit mode is confirmed.
      */
-    const handleSaveCharacterSheetCore = useCallback(async (input: SaveCharacterSheetCoreInput) => {
+    const handleSaveCharacterSheet = useCallback(async (input: SaveCharacterSheetInput) => {
         if (!character) return;
 
         await saveCharacterSheet({
             variables: {
                 characterId: character.id,
-                input: {
-                    ac: input.ac,
-                    speed: input.speed,
-                    initiative: input.initiative,
-                    conditions: input.conditions,
-                    hp: input.hp,
-                    abilityScores: input.abilityScores,
-                    currency: input.currency,
-                    traits: input.traits,
-                    weapons: input.weapons.map(saveWeaponInput),
-                    inventory: input.inventory.map(saveInventoryItemInput),
-                    features: input.features.map(saveFeatureInput),
-                    spellSaveDC: input.spellSaveDC ?? null,
-                    spellAttackBonus: input.spellAttackBonus ?? null,
-                },
+                input,
             },
             update(cache, result) {
                 if (!result.data?.saveCharacterSheet) return;
@@ -631,7 +539,7 @@ export default function useCharacterSheetData(characterId: string | null) {
         handleLearnSpell,
         handleForgetSpell,
         handleSetSpellPrepared,
-        handleSaveCharacterSheetCore,
+        handleSaveCharacterSheet,
         handleLevelUp,
         handleToggleEquip,
     };
