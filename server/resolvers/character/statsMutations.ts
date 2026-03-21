@@ -1,51 +1,13 @@
 import type { Context } from "../..";
 import type {
-    MutationUpdateAbilityScoresArgs,
-    MutationUpdateCurrencyArgs,
     MutationUpdateDeathSavesArgs,
     MutationUpdateHitDiceArgs,
-    MutationUpdateHpArgs,
     MutationUpdateSavingThrowProficienciesArgs,
     MutationUpdateSkillProficienciesArgs,
-    MutationUpdateTraitsArgs,
 } from "../../generated/graphql";
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
 import { findOwnedStats } from "./helpers";
-
-/**
- * Replaces the ability score object for an owned character.
- */
-export async function updateAbilityScores(
-    _parent: unknown,
-    { characterId, input }: MutationUpdateAbilityScoresArgs,
-    ctx: Context,
-) {
-    const userId = requireUser(ctx);
-    const stats = await findOwnedStats(characterId, userId);
-
-    return await prisma.characterStats.update({
-        where: { id: stats.id },
-        data: { abilityScores: input },
-    });
-}
-
-/**
- * Replaces HP values for an owned character.
- */
-export async function updateHP(
-    _parent: unknown,
-    { characterId, input }: MutationUpdateHpArgs,
-    ctx: Context,
-) {
-    const userId = requireUser(ctx);
-    const stats = await findOwnedStats(characterId, userId);
-
-    return await prisma.characterStats.update({
-        where: { id: stats.id },
-        data: { hp: input },
-    });
-}
 
 /**
  * Replaces death save values for an owned character.
@@ -104,41 +66,6 @@ export async function updateSkillProficiencies(
     return await prisma.characterStats.update({
         where: { id: stats.id },
         data: { skillProficiencies: merged },
-    });
-}
-
-/**
- * Merges editable trait fields over existing trait metadata.
- */
-export async function updateTraits(
-    _parent: unknown,
-    { characterId, input }: MutationUpdateTraitsArgs,
-    ctx: Context,
-) {
-    const userId = requireUser(ctx);
-    const stats = await findOwnedStats(characterId, userId);
-    const existingTraits = stats.traits as Record<string, unknown>;
-
-    return await prisma.characterStats.update({
-        where: { id: stats.id },
-        data: { traits: { ...existingTraits, ...input } },
-    });
-}
-
-/**
- * Replaces the currency object for an owned character.
- */
-export async function updateCurrency(
-    _parent: unknown,
-    { characterId, input }: MutationUpdateCurrencyArgs,
-    ctx: Context,
-) {
-    const userId = requireUser(ctx);
-    const stats = await findOwnedStats(characterId, userId);
-
-    return await prisma.characterStats.update({
-        where: { id: stats.id },
-        data: { currency: input },
     });
 }
 

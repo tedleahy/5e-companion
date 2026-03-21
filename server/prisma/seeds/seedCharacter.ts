@@ -400,7 +400,7 @@ export default async function seedCharacter() {
                         },
                     },
                 },
-                attacks: {
+                weapons: {
                     create: [
                         {
                             name: 'Dagger',

@@ -53,6 +53,16 @@ describe('buildWhere', () => {
         expect(result.classIndexes).toBeUndefined();
     });
 
+    test('schools filter produces in clause on schoolIndex', () => {
+        const result = buildWhere({ schools: ['evocation', 'abjuration'] });
+        expect(result.schoolIndex).toEqual({ in: ['evocation', 'abjuration'] });
+    });
+
+    test('empty schools array is ignored', () => {
+        const result = buildWhere({ schools: [] });
+        expect(result.schoolIndex).toBeUndefined();
+    });
+
     test('ritual true is passed through', () => {
         expect(buildWhere({ ritual: true }).ritual).toBe(true);
     });

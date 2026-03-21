@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { PaperProvider } from 'react-native-paper';
 import { MockedProvider } from '@apollo/client/testing/react';
 import type { MockLink } from '@apollo/client/testing';
@@ -64,6 +64,35 @@ const SPELLS_MOCK: MockLink.MockedResponse = {
     },
 };
 
+const SCHOOL_FILTERED_SPELLS_MOCK: MockLink.MockedResponse = {
+    request: {
+        query: SEARCH_SPELLS,
+        variables: {
+            ...FIRST_PAGE_VARIABLES,
+            filter: {
+                schools: ['abjuration'],
+            },
+        },
+    },
+    result: {
+        data: {
+            spells: [
+                {
+                    __typename: 'Spell',
+                    id: '3',
+                    name: 'Alarm',
+                    level: 1,
+                    schoolIndex: 'abjuration',
+                    castingTime: '1 minute',
+                    range: '30 feet',
+                    concentration: false,
+                    ritual: true,
+                },
+            ],
+        },
+    },
+};
+
 function renderScreen(mocks: MockLink.MockedResponse[] = [SPELLS_MOCK]) {
     return render(
         <MockedProvider mocks={mocks}>
@@ -74,14 +103,30 @@ function renderScreen(mocks: MockLink.MockedResponse[] = [SPELLS_MOCK]) {
     );
 }
 
+async function flushSpellScreenUpdates() {
+    await act(async () => {
+        await Promise.resolve();
+        await Promise.resolve();
+        await new Promise<void>((resolve) => setImmediate(resolve));
+    });
+}
+
 describe('SpellSearch screen', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    it('shows a loading indicator initially', () => {
+    afterEach(async () => {
+        await flushSpellScreenUpdates();
+    });
+
+    it('shows a loading indicator initially', async () => {
         renderScreen();
         expect(screen.getByRole('progressbar')).toBeTruthy();
+
+        await waitFor(() => {
+            expect(screen.getByText('Fireball')).toBeTruthy();
+        });
     });
 
     it('renders spell names after loading', async () => {
@@ -92,13 +137,41 @@ describe('SpellSearch screen', () => {
         expect(screen.getByText('Magic Missile')).toBeTruthy();
     });
 
-    it('renders the search bar', () => {
+    it('renders the search bar', async () => {
         renderScreen();
         expect(screen.getByPlaceholderText('Search spells')).toBeTruthy();
+
+        await waitFor(() => {
+            expect(screen.getByText('Fireball')).toBeTruthy();
+        });
     });
 
-    it('renders the filter button', () => {
+    it('renders the filter button', async () => {
         renderScreen();
         expect(screen.getByText('filter')).toBeTruthy();
+
+        await waitFor(() => {
+            expect(screen.getByText('Fireball')).toBeTruthy();
+        });
+    });
+
+    it('refetches the spell list when a school filter is selected', async () => {
+        renderScreen([SPELLS_MOCK, SCHOOL_FILTERED_SPELLS_MOCK]);
+
+        await waitFor(() => {
+            expect(screen.getByText('Fireball')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getByText('filter'));
+        await waitFor(() => {
+            expect(screen.getByText('Abjuration')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByText('Abjuration'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Alarm')).toBeTruthy();
+        });
+
+        expect(screen.queryByText('Fireball')).toBeNull();
     });
 });

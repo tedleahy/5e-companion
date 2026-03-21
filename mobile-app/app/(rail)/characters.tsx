@@ -6,7 +6,8 @@ import { ActivityIndicator, Text } from 'react-native-paper';
 import CharacterCard, { type CharacterCardData } from '@/components/characters/CharacterCard';
 import EmptyState from '@/components/characters/EmptyState';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
-import { GET_CURRENT_USER_CHARACTERS } from '@/graphql/characterSheet.operations';
+import { GET_CURRENT_USER_CHARACTER_ROSTER } from '@/graphql/characterSheet.operations';
+import type { CurrentUserCharacterRosterQuery } from '@/types/generated_graphql_types';
 import { isUnauthenticatedError } from '@/lib/graphqlErrors';
 import useSessionGuard from '@/hooks/useSessionGuard';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -15,47 +16,9 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
 const AUTH_LOADING_LABEL = 'Checking your adventurer records...';
 
 /**
- * GraphQL attack row used by the characters list.
+ * Character row shape from the roster query.
  */
-type CharacterAttack = {
-    attackBonus: string;
-};
-
-/**
- * GraphQL stats row used by the characters list.
- */
-type CharacterStats = {
-    hp: {
-        current: number;
-        max: number;
-    };
-};
-
-/**
- * GraphQL character row used to build list cards.
- */
-type CharacterListRow = {
-    id: string;
-    name: string;
-    race: string;
-    class: string;
-    subclass?: string | null;
-    level: number;
-    spellAttackBonus?: number | null;
-    initiative: number;
-    ac: number;
-    conditions: string[];
-    weapons?: CharacterAttack[];
-    attacks?: CharacterAttack[];
-    stats?: CharacterStats | null;
-};
-
-/**
- * Characters query result shape for the current user.
- */
-type CurrentUserCharactersQueryData = {
-    currentUserCharacters: CharacterListRow[];
-};
+type CharacterListRow = CurrentUserCharacterRosterQuery['currentUserCharacters'][number];
 
 /**
  * Formats values with an explicit leading `+` when positive.
@@ -73,7 +36,7 @@ function attackBonusLabel(character: CharacterListRow): string {
         return formatSignedValue(character.spellAttackBonus);
     }
 
-    const combatRows = character.weapons ?? character.attacks ?? [];
+    const combatRows = character.weapons ?? [];
     const firstAttackWithBonus = combatRows.find((attack) => attack.attackBonus.trim().length > 0);
     return firstAttackWithBonus?.attackBonus ?? '—';
 }
@@ -121,7 +84,7 @@ export default function CharactersScreen() {
         data,
         loading,
         error,
-    } = useQuery<CurrentUserCharactersQueryData>(GET_CURRENT_USER_CHARACTERS, {
+    } = useQuery<CurrentUserCharacterRosterQuery>(GET_CURRENT_USER_CHARACTER_ROSTER, {
         skip: !hasValidSession,
         notifyOnNetworkStatusChange: true,
         fetchPolicy: 'cache-and-network',

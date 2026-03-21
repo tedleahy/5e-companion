@@ -23,66 +23,12 @@ import SpellsTab from '@/components/character-sheet/SpellsTab';
 import TraitsTab from '@/components/character-sheet/TraitsTab';
 import VitalsCard from '@/components/character-sheet/VitalsCard';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
-import useCharacterSheetData, { type SaveCharacterSheetCoreInput } from '@/hooks/useCharacterSheetData';
+import useCharacterSheetData from '@/hooks/useCharacterSheetData';
+import useCharacterSheetDraft from '@/hooks/useCharacterSheetDraft';
 import { deriveSpellcastingStats, isAbilityKey, skillModifier } from '@/lib/characterSheetUtils';
+import type { CharacterSheetDraftTraitTextField } from '@/lib/character-sheet/characterSheetDraft';
 import { fantasyTokens } from '@/theme/fantasyTheme';
-import type { AbilityKey } from '@/lib/characterSheetUtils';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
-
-type CharacterSheetEditDraft = SaveCharacterSheetCoreInput;
-type ProficiencyDraftKey = 'armorProficiencies' | 'weaponProficiencies' | 'toolProficiencies' | 'languages';
-
-/**
- * Creates a stable local-only id for new edit-mode rows.
- */
-function createDraftId(prefix: string): string {
-    return `draft-${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-}
-
-/**
- * Builds editable core-sheet draft state from character data.
- */
-function buildCoreDraft(character: NonNullable<ReturnType<typeof useCharacterSheetData>['character']>): CharacterSheetEditDraft {
-    return {
-        hp: {
-            current: character.stats?.hp.current ?? 0,
-            max: character.stats?.hp.max ?? 0,
-            temp: character.stats?.hp.temp ?? 0,
-        },
-        ac: character.ac,
-        speed: character.speed,
-        initiative: character.initiative,
-        abilityScores: {
-            strength: character.stats?.abilityScores.strength ?? 10,
-            dexterity: character.stats?.abilityScores.dexterity ?? 10,
-            constitution: character.stats?.abilityScores.constitution ?? 10,
-            intelligence: character.stats?.abilityScores.intelligence ?? 10,
-            wisdom: character.stats?.abilityScores.wisdom ?? 10,
-            charisma: character.stats?.abilityScores.charisma ?? 10,
-        },
-        currency: {
-            cp: character.stats?.currency.cp ?? 0,
-            sp: character.stats?.currency.sp ?? 0,
-            ep: character.stats?.currency.ep ?? 0,
-            gp: character.stats?.currency.gp ?? 0,
-            pp: character.stats?.currency.pp ?? 0,
-        },
-        traits: {
-            personality: character.stats?.traits.personality ?? '',
-            ideals: character.stats?.traits.ideals ?? '',
-            bonds: character.stats?.traits.bonds ?? '',
-            flaws: character.stats?.traits.flaws ?? '',
-            armorProficiencies: character.stats?.traits.armorProficiencies ?? [],
-            weaponProficiencies: character.stats?.traits.weaponProficiencies ?? [],
-            toolProficiencies: character.stats?.traits.toolProficiencies ?? [],
-            languages: character.stats?.traits.languages ?? [],
-        },
-        conditions: character.conditions,
-        weapons: character.weapons.map((weapon) => ({ ...weapon })),
-        inventory: character.inventory.map((item) => ({ ...item })),
-        features: character.features.map((feature) => ({ ...feature })),
-    };
-}
 
 /**
  * Normalises the dynamic route parameter into a usable character id.
@@ -104,14 +50,13 @@ export default function CharacterByIdScreen() {
     const [activeTab, setActiveTab] = useState<CharacterSheetTab>('Core');
     const pagerRef = useRef<CharacterSheetPagerHandle>(null);
     const [spellSheetVisible, setSpellSheetVisible] = useState(false);
-    const [editMode, setEditMode] = useState(false);
     const [saveErrorVisible, setSaveErrorVisible] = useState(false);
-    const [sheetDraft, setSheetDraft] = useState<CharacterSheetEditDraft | null>(null);
     const { id } = useLocalSearchParams<{ id?: string }>();
     const router = useRouter();
     const characterId = normaliseCharacterId(id);
     const {
         character,
+        hasCurrentUserCharacters,
         loading,
         error,
         isUnauthenticated,
@@ -123,15 +68,37 @@ export default function CharacterByIdScreen() {
         handleLearnSpell,
         handleForgetSpell,
         handleSetSpellPrepared,
-        handleSaveCharacterSheetCore,
+        handleSaveCharacterSheet,
         handleLevelUp,
         handleToggleEquip,
-    } = useCharacterSheetData(characterId ?? '');
-
-    useEffect(() => {
-        if (characterId) return;
-        router.replace('/characters');
-    }, [characterId, router]);
+    } = useCharacterSheetData(characterId);
+    const {
+        draft,
+        editMode,
+        startEditing,
+        clearDraft,
+        buildSaveInput,
+        changeAbilityScore,
+        changeHp,
+        changeAc,
+        changeSpeed,
+        changeInitiative,
+        changeCurrency,
+        addWeapon,
+        changeWeapon,
+        removeWeapon,
+        addInventoryItem,
+        changeInventoryItem,
+        toggleInventoryEquip,
+        removeInventoryItem,
+        addFeature,
+        changeFeature,
+        removeFeature,
+        addTraitTag,
+        changeTraitTag,
+        removeTraitTag,
+        changeTraitText,
+    } = useCharacterSheetDraft(character);
 
     useEffect(() => {
         if (isUnauthenticated) router.replace('/(auth)/sign-in');
@@ -164,7 +131,16 @@ export default function CharacterByIdScreen() {
     }, [visibleTabs]);
 
     if (!characterId) {
-        return null;
+        return (
+            <RailScreenShell>
+                <View style={styles.centered}>
+                    <Text style={styles.stateText}>Invalid character link.</Text>
+                    <Text style={styles.stateSubtext}>
+                        Choose a character from your roster and try again.
+                    </Text>
+                </View>
+            </RailScreenShell>
+        );
     }
 
     if (loading) {
@@ -188,13 +164,29 @@ export default function CharacterByIdScreen() {
         );
     }
 
-    if (!character || !character.stats) {
+    if (!character) {
+        const stateTitle = hasCurrentUserCharacters ? 'Character not found.' : 'No characters yet.';
+        const stateSubtext = hasCurrentUserCharacters
+            ? 'This character does not exist or is not available to your account.'
+            : 'Create a character to get started.';
+
         return (
             <RailScreenShell>
                 <View style={styles.centered}>
-                    <Text style={styles.stateText}>No characters yet.</Text>
+                    <Text style={styles.stateText}>{stateTitle}</Text>
+                    <Text style={styles.stateSubtext}>{stateSubtext}</Text>
+                </View>
+            </RailScreenShell>
+        );
+    }
+
+    if (!character.stats) {
+        return (
+            <RailScreenShell>
+                <View style={styles.centered}>
+                    <Text style={styles.stateText}>Character sheet is incomplete.</Text>
                     <Text style={styles.stateSubtext}>
-                        Create a character to get started.
+                        This character is missing required stats data.
                     </Text>
                 </View>
             </RailScreenShell>
@@ -205,37 +197,14 @@ export default function CharacterByIdScreen() {
     const savingThrowProficiencies = stats.savingThrowProficiencies.filter(isAbilityKey);
 
     /**
-     * Enters local character-sheet edit mode.
-     */
-    function handleStartEdit() {
-        setSheetDraft(buildCoreDraft(character as NonNullable<typeof character>));
-        setEditMode(true);
-    }
-
-    /**
-     * Leaves edit mode without persisting pending changes.
-     */
-    function handleCancelEdit() {
-        setSheetDraft(null);
-        setEditMode(false);
-    }
-
-    /**
      * Finalises edit mode and confirms save completion.
      */
     async function handleDoneEdit() {
-        if (sheetDraft) {
+        const saveInput = buildSaveInput();
+
+        if (saveInput) {
             try {
-                const { spellAttackBonus, spellSaveDC } = deriveSpellcastingStats(
-                    character?.spellcastingAbility,
-                    sheetDraft.abilityScores as Record<AbilityKey, number>,
-                    character?.proficiencyBonus ?? 2,
-                );
-                await handleSaveCharacterSheetCore({
-                    ...sheetDraft,
-                    spellSaveDC,
-                    spellAttackBonus,
-                });
+                await handleSaveCharacterSheet(saveInput);
             } catch (saveError) {
                 console.error('Failed to save core character sheet edits', saveError);
                 setSaveErrorVisible(true);
@@ -243,20 +212,19 @@ export default function CharacterByIdScreen() {
             }
         }
 
-        setSheetDraft(null);
-        setEditMode(false);
+        clearDraft();
     }
 
-    const displayedHp = sheetDraft?.hp ?? stats.hp;
-    const displayedAc = sheetDraft?.ac ?? character.ac;
-    const displayedSpeed = sheetDraft?.speed ?? character.speed;
-    const displayedInitiative = sheetDraft?.initiative ?? character.initiative;
-    const displayedAbilityScores = sheetDraft?.abilityScores ?? stats.abilityScores;
-    const displayedCurrency = sheetDraft?.currency ?? stats.currency;
-    const displayedTraits = sheetDraft?.traits ?? stats.traits;
-    const displayedWeapons = sheetDraft?.weapons ?? character.weapons;
-    const displayedInventory = sheetDraft?.inventory ?? character.inventory;
-    const displayedFeatures = sheetDraft?.features ?? character.features;
+    const displayedHp = draft?.hp ?? stats.hp;
+    const displayedAc = draft?.ac ?? character.ac;
+    const displayedSpeed = draft?.speed ?? character.speed;
+    const displayedInitiative = draft?.initiative ?? character.initiative;
+    const displayedAbilityScores = draft?.abilityScores ?? stats.abilityScores;
+    const displayedCurrency = draft?.currency ?? stats.currency;
+    const displayedTraits = draft?.traits ?? stats.traits;
+    const displayedWeapons = draft?.weapons ?? character.weapons;
+    const displayedInventory = draft?.inventory ?? character.inventory;
+    const displayedFeatures = draft?.features ?? character.features;
     const { spellAttackBonus: derivedSpellAttack, spellSaveDC: derivedSpellSaveDC } =
         deriveSpellcastingStats(character.spellcastingAbility, displayedAbilityScores, character.proficiencyBonus);
     const passivePerception =
@@ -278,224 +246,6 @@ export default function CharacterByIdScreen() {
             character.proficiencyBonus,
         );
 
-    /**
-     * Applies a functional update to the current sheet draft when edit mode is active.
-     */
-    function updateSheetDraft(updater: (draft: CharacterSheetEditDraft) => CharacterSheetEditDraft) {
-        setSheetDraft((previousDraft) => {
-            if (!previousDraft) return previousDraft;
-            return updater(previousDraft);
-        });
-    }
-
-    /**
-     * Updates one draft ability score while preserving all other ability values.
-     */
-    function handleChangeAbilityScore(ability: AbilityKey, value: number) {
-        updateSheetDraft((previousDraft) => ({
-                ...previousDraft,
-                abilityScores: {
-                    ...previousDraft.abilityScores,
-                    [ability]: value,
-                },
-            }));
-    }
-
-    /**
-     * Adds a new blank weapon row to the local edit draft.
-     */
-    function handleAddWeapon() {
-        updateSheetDraft((previousDraft) => ({
-            ...previousDraft,
-            weapons: [
-                ...previousDraft.weapons,
-                { id: createDraftId('weapon'), name: '', attackBonus: '', damage: '', type: 'melee', __typename: 'Attack' },
-            ],
-        }));
-    }
-
-    /**
-     * Adds a new blank inventory row to the backpack draft list.
-     */
-    function handleAddInventoryItem() {
-        updateSheetDraft((previousDraft) => ({
-            ...previousDraft,
-            inventory: [
-                ...previousDraft.inventory,
-                {
-                    id: createDraftId('item'),
-                    name: '',
-                    quantity: 1,
-                    weight: null,
-                    description: '',
-                    equipped: false,
-                    magical: false,
-                    __typename: 'InventoryItem',
-                },
-            ],
-        }));
-    }
-
-    /**
-     * Adds a new blank feature row to one feature category.
-     */
-    function handleAddFeature(source: string) {
-        updateSheetDraft((previousDraft) => ({
-            ...previousDraft,
-            features: [
-                ...previousDraft.features,
-                {
-                    id: createDraftId('feature'),
-                    name: '',
-                    source,
-                    description: '',
-                    recharge: null,
-                    usesMax: null,
-                    usesRemaining: null,
-                    __typename: 'CharacterFeature',
-                },
-            ],
-        }));
-    }
-
-    /**
-     * Adds a blank proficiency or language tag to the draft.
-     */
-    function handleAddTraitTag(key: ProficiencyDraftKey) {
-        updateSheetDraft((previousDraft) => ({
-            ...previousDraft,
-            traits: {
-                ...previousDraft.traits,
-                [key]: [...(previousDraft.traits[key] ?? []), ''],
-            },
-        }));
-    }
-
-    /**
-     * Updates one draft proficiency or language tag by index.
-     */
-    function handleChangeTraitTag(key: ProficiencyDraftKey, index: number, value: string) {
-        updateSheetDraft((previousDraft) => ({
-            ...previousDraft,
-            traits: {
-                ...previousDraft.traits,
-                [key]: (previousDraft.traits[key] ?? []).map((entry, entryIndex) => (
-                    entryIndex === index ? value : entry
-                )),
-            },
-        }));
-    }
-
-    /**
-     * Removes one draft proficiency or language tag by index.
-     */
-    function handleRemoveTraitTag(key: ProficiencyDraftKey, index: number) {
-        updateSheetDraft((previousDraft) => ({
-            ...previousDraft,
-            traits: {
-                ...previousDraft.traits,
-                [key]: (previousDraft.traits[key] ?? []).filter((_, entryIndex) => entryIndex !== index),
-            },
-        }));
-    }
-
-    /**
-     * Removes one weapon row from the local draft.
-     */
-    function handleRemoveWeapon(weaponId: string) {
-        updateSheetDraft((previousDraft) => ({
-            ...previousDraft,
-            weapons: previousDraft.weapons.filter((weapon) => weapon.id !== weaponId),
-        }));
-    }
-
-    /**
-     * Updates one editable weapon field in the local draft.
-     */
-    function handleChangeWeapon(weaponId: string, field: 'name' | 'attackBonus' | 'damage', value: string) {
-        updateSheetDraft((previousDraft) => ({
-            ...previousDraft,
-            weapons: previousDraft.weapons.map((weapon) => (
-                weapon.id === weaponId ? { ...weapon, [field]: value } : weapon
-            )),
-        }));
-    }
-
-    /**
-     * Removes one inventory row from the local draft.
-     */
-    function handleRemoveInventoryItem(itemId: string) {
-        updateSheetDraft((previousDraft) => ({
-            ...previousDraft,
-            inventory: previousDraft.inventory.filter((item) => item.id !== itemId),
-        }));
-    }
-
-    /**
-     * Updates one inventory item in the local draft.
-     */
-    function handleChangeInventoryItem(itemId: string, changes: Partial<CharacterSheetEditDraft['inventory'][number]>) {
-        updateSheetDraft((previousDraft) => ({
-            ...previousDraft,
-            inventory: previousDraft.inventory.map((item) => (
-                item.id === itemId ? { ...item, ...changes } : item
-            )),
-        }));
-    }
-
-    /**
-     * Toggles equipped state for one inventory row.
-     * In edit mode, mutates the local draft. Outside edit mode, calls the
-     * server mutation directly so equip/unequip works without editing.
-     */
-    function handleToggleInventoryEquip(itemId: string) {
-        if (editMode) {
-            updateSheetDraft((previousDraft) => ({
-                ...previousDraft,
-                inventory: previousDraft.inventory.map((item) => (
-                    item.id === itemId ? { ...item, equipped: !item.equipped } : item
-                )),
-            }));
-        } else {
-            void handleToggleEquip(itemId);
-        }
-    }
-
-    /**
-     * Removes one feature row from the local draft.
-     */
-    function handleRemoveFeature(featureId: string) {
-        updateSheetDraft((previousDraft) => ({
-            ...previousDraft,
-            features: previousDraft.features.filter((feature) => feature.id !== featureId),
-        }));
-    }
-
-    /**
-     * Updates one editable field on a feature row.
-     */
-    function handleChangeFeature(featureId: string, changes: Partial<CharacterSheetEditDraft['features'][number]>) {
-        updateSheetDraft((previousDraft) => ({
-            ...previousDraft,
-            features: previousDraft.features.map((feature) => (
-                feature.id === featureId ? { ...feature, ...changes } : feature
-            )),
-        }));
-    }
-
-    /**
-     * Updates one editable personality trait field.
-     */
-    function handleChangeTrait(field: keyof SaveCharacterSheetCoreInput['traits'], value: string | string[]) {
-        updateSheetDraft((previousDraft) => ({
-            ...previousDraft,
-            traits: {
-                ...previousDraft.traits,
-                [field]: value,
-            },
-        }));
-    }
-
     return (
         <RailScreenShell>
             <View style={styles.container}>
@@ -510,8 +260,8 @@ export default function CharacterByIdScreen() {
                     activeTab={activeTab}
                     onTabPress={handleTabPress}
                     editMode={editMode}
-                    onStartEdit={handleStartEdit}
-                    onCancelEdit={handleCancelEdit}
+                    onStartEdit={startEditing}
+                    onCancelEdit={clearDraft}
                     onDoneEdit={handleDoneEdit}
                     onLevelUp={handleLevelUp}
                 />
@@ -536,38 +286,13 @@ export default function CharacterByIdScreen() {
                                 hp={displayedHp}
                                 ac={displayedAc}
                                 speed={displayedSpeed}
-                                conditions={character.conditions}
+                                conditions={draft?.conditions ?? character.conditions}
                                 editMode={editMode}
-                                onChangeHpCurrent={(value: number) => {
-                                    updateSheetDraft((previousDraft) => ({
-                                            ...previousDraft,
-                                            hp: { ...previousDraft.hp, current: value },
-                                        }));
-                                }}
-                                onChangeHpMax={(value: number) => {
-                                    updateSheetDraft((previousDraft) => ({
-                                            ...previousDraft,
-                                            hp: { ...previousDraft.hp, max: value },
-                                        }));
-                                }}
-                                onChangeHpTemp={(value: number) => {
-                                    updateSheetDraft((previousDraft) => ({
-                                            ...previousDraft,
-                                            hp: { ...previousDraft.hp, temp: value },
-                                        }));
-                                }}
-                                onChangeAc={(value: number) => {
-                                    updateSheetDraft((previousDraft) => ({
-                                            ...previousDraft,
-                                            ac: value,
-                                        }));
-                                }}
-                                onChangeSpeed={(value: number) => {
-                                    updateSheetDraft((previousDraft) => ({
-                                            ...previousDraft,
-                                            speed: value,
-                                        }));
-                                }}
+                                onChangeHpCurrent={(value: number) => changeHp('current', value)}
+                                onChangeHpMax={(value: number) => changeHp('max', value)}
+                                onChangeHpTemp={(value: number) => changeHp('temp', value)}
+                                onChangeAc={changeAc}
+                                onChangeSpeed={changeSpeed}
                             />
                             <QuickStatsCard
                                 proficiencyBonus={character.proficiencyBonus}
@@ -576,12 +301,7 @@ export default function CharacterByIdScreen() {
                                 spellSaveDC={derivedSpellSaveDC}
                                 editMode={editMode}
                                 onToggleInspiration={handleToggleInspiration}
-                                onChangeInitiative={(value: number) => {
-                                    updateSheetDraft((previousDraft) => ({
-                                            ...previousDraft,
-                                            initiative: value,
-                                        }));
-                                }}
+                                onChangeInitiative={changeInitiative}
                             />
                             <PassiveSensesCard
                                 passivePerception={passivePerception}
@@ -605,7 +325,7 @@ export default function CharacterByIdScreen() {
                             savingThrowProficiencies={savingThrowProficiencies}
                             skillProficiencies={stats.skillProficiencies}
                             editMode={editMode}
-                            onChangeAbilityScore={handleChangeAbilityScore}
+                            onChangeAbilityScore={changeAbilityScore}
                             onUpdateSkillProficiency={handleUpdateSkillProficiency}
                             onUpdateSavingThrowProficiencies={handleUpdateSavingThrowProficiencies}
                         />
@@ -637,22 +357,21 @@ export default function CharacterByIdScreen() {
                             inventory={displayedInventory}
                             currency={displayedCurrency}
                             editMode={editMode}
-                            onChangeCurrency={(key: 'cp' | 'sp' | 'ep' | 'gp' | 'pp', value: number) => {
-                                updateSheetDraft((previousDraft) => ({
-                                    ...previousDraft,
-                                    currency: {
-                                        ...previousDraft.currency,
-                                        [key]: value,
-                                    },
-                                }));
+                            onChangeCurrency={changeCurrency}
+                            onAddWeapon={addWeapon}
+                            onChangeWeapon={changeWeapon}
+                            onRemoveWeapon={removeWeapon}
+                            onAddInventoryItem={addInventoryItem}
+                            onChangeInventoryItem={changeInventoryItem}
+                            onRemoveInventoryItem={removeInventoryItem}
+                            onToggleInventoryEquip={(itemId: string) => {
+                                if (editMode) {
+                                    toggleInventoryEquip(itemId);
+                                    return;
+                                }
+
+                                void handleToggleEquip(itemId);
                             }}
-                            onAddWeapon={handleAddWeapon}
-                            onChangeWeapon={handleChangeWeapon}
-                            onRemoveWeapon={handleRemoveWeapon}
-                            onAddInventoryItem={handleAddInventoryItem}
-                            onChangeInventoryItem={handleChangeInventoryItem}
-                            onRemoveInventoryItem={handleRemoveInventoryItem}
-                            onToggleInventoryEquip={handleToggleInventoryEquip}
                         />
                     </View>
 
@@ -662,12 +381,12 @@ export default function CharacterByIdScreen() {
                             background={character.background}
                             traits={displayedTraits}
                             editMode={editMode}
-                            onChangeTraitText={(field: 'personality' | 'ideals' | 'bonds' | 'flaws', value: string) => {
-                                handleChangeTrait(field, value);
+                            onChangeTraitText={(field: CharacterSheetDraftTraitTextField, value: string) => {
+                                changeTraitText(field, value);
                             }}
-                            onAddTraitTag={handleAddTraitTag}
-                            onChangeTraitTag={handleChangeTraitTag}
-                            onRemoveTraitTag={handleRemoveTraitTag}
+                            onAddTraitTag={addTraitTag}
+                            onChangeTraitTag={changeTraitTag}
+                            onRemoveTraitTag={removeTraitTag}
                         />
                     </View>
 
@@ -678,11 +397,11 @@ export default function CharacterByIdScreen() {
                             race={character.race}
                             features={displayedFeatures}
                             editMode={editMode}
-                            onAddClassFeature={() => handleAddFeature(character.class)}
-                            onAddRacialTrait={() => handleAddFeature(character.race)}
-                            onAddFeat={() => handleAddFeature('Feat')}
-                            onChangeFeature={handleChangeFeature}
-                            onRemoveFeature={handleRemoveFeature}
+                            onAddClassFeature={() => addFeature(character.class)}
+                            onAddRacialTrait={() => addFeature(character.race)}
+                            onAddFeat={() => addFeature('Feat')}
+                            onChangeFeature={changeFeature}
+                            onRemoveFeature={removeFeature}
                         />
                     </View>
                 </CharacterSheetPager>

@@ -20,6 +20,7 @@ input SpellFilter {
     name: String
     levels: [Int]
     classes: [String]
+    schools: [String]
     ritual: Boolean
     hasHigherLevel: Boolean
     rangeCategories: [String]
@@ -59,8 +60,7 @@ type Character {
     conditions: [String!]!
     notes: String!
     stats: CharacterStats
-    weapons: [Attack!]!
-    attacks: [Attack!]!
+    weapons: [Weapon!]!
     inventory: [InventoryItem!]!
     features: [CharacterFeature!]!
     spellSlots: [SpellSlot!]!
@@ -151,7 +151,7 @@ type Currency {
     pp: Int!
 }
 
-type Attack {
+type Weapon {
     id: ID!
     name: String!
     attackBonus: String!
@@ -308,7 +308,7 @@ input SavingThrowProficienciesInput {
     proficiencies: [String!]!
 }
 
-input AttackInput {
+input WeaponInput {
     name: String!
     attackBonus: String!
     damage: String!
@@ -333,6 +333,50 @@ input FeatureInput {
     recharge: String
 }
 
+input SaveCharacterSheetWeaponInput {
+    id: ID
+    name: String!
+    attackBonus: String!
+    damage: String!
+    type: String!
+}
+
+input SaveCharacterSheetInventoryItemInput {
+    id: ID
+    name: String!
+    quantity: Int!
+    weight: Float
+    description: String
+    equipped: Boolean!
+    magical: Boolean!
+}
+
+input SaveCharacterSheetFeatureInput {
+    id: ID
+    name: String!
+    source: String!
+    description: String!
+    usesMax: Int
+    usesRemaining: Int
+    recharge: String
+}
+
+input SaveCharacterSheetInput {
+    ac: Int!
+    speed: Int!
+    initiative: Int!
+    conditions: [String!]!
+    hp: HPInput!
+    abilityScores: AbilityScoresInput!
+    currency: CurrencyInput!
+    traits: TraitsInput!
+    weapons: [SaveCharacterSheetWeaponInput!]!
+    inventory: [SaveCharacterSheetInventoryItemInput!]!
+    features: [SaveCharacterSheetFeatureInput!]!
+    spellSaveDC: Int
+    spellAttackBonus: Int
+}
+
 # ---------------------------------------------------------------------------
 # Queries & Mutations
 # ---------------------------------------------------------------------------
@@ -341,6 +385,7 @@ type Query {
     spells(filter: SpellFilter, pagination: SpellPagination): [Spell!]!
     spell(id: ID!): Spell
     character(id: ID!): Character
+    hasCurrentUserCharacters: Boolean!
     currentUserCharacters: [Character!]!
 }
 
@@ -350,15 +395,12 @@ type Mutation {
     updateCharacter(id: ID!, input: UpdateCharacterInput!): Character!
     deleteCharacter(id: ID!): Boolean!
     toggleInspiration(characterId: ID!): Character!
+    saveCharacterSheet(characterId: ID!, input: SaveCharacterSheetInput!): Character!
 
-    # Per-domain stats updates
-    updateAbilityScores(characterId: ID!, input: AbilityScoresInput!): CharacterStats!
-    updateHP(characterId: ID!, input: HPInput!): CharacterStats!
+    # Live stats updates
     updateDeathSaves(characterId: ID!, input: DeathSavesInput!): CharacterStats!
     updateHitDice(characterId: ID!, input: HitDiceInput!): CharacterStats!
     updateSkillProficiencies(characterId: ID!, input: SkillProficienciesInput!): CharacterStats!
-    updateTraits(characterId: ID!, input: TraitsInput!): CharacterStats!
-    updateCurrency(characterId: ID!, input: CurrencyInput!): CharacterStats!
     updateSavingThrowProficiencies(characterId: ID!, input: SavingThrowProficienciesInput!): CharacterStats!
 
     # Spellbook / spell slots
@@ -368,18 +410,8 @@ type Mutation {
     unprepareSpell(characterId: ID!, spellId: ID!): CharacterSpell!
     toggleSpellSlot(characterId: ID!, level: Int!): SpellSlot!
 
-    # Gear / features
-    addWeapon(characterId: ID!, input: AttackInput!): Attack!
-    addAttack(characterId: ID!, input: AttackInput!): Attack!
-    updateWeapon(characterId: ID!, weaponId: ID!, input: AttackInput!): Attack!
-    removeWeapon(characterId: ID!, weaponId: ID!): Boolean!
-    removeAttack(characterId: ID!, attackId: ID!): Boolean!
-    addInventoryItem(characterId: ID!, input: InventoryItemInput!): InventoryItem!
+    # Live gear updates
     updateInventoryItem(characterId: ID!, itemId: ID!, input: InventoryItemInput!): InventoryItem!
-    removeInventoryItem(characterId: ID!, itemId: ID!): Boolean!
-    addFeature(characterId: ID!, input: FeatureInput!): CharacterFeature!
-    updateFeature(characterId: ID!, featureId: ID!, input: FeatureInput!): CharacterFeature!
-    removeFeature(characterId: ID!, featureId: ID!): Boolean!
 
     # Rest / recovery
     spendHitDie(characterId: ID!, amount: Int! = 1): CharacterStats!

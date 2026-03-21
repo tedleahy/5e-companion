@@ -9,9 +9,8 @@ const tslibShimPath = path.resolve(__dirname, 'shims/tslib.ts');
  * Work around Metro resolving `tslib` through its package `exports` map to
  * `modules/index.js`, which currently breaks Apollo on Expo web.
  */
-config.resolver.unstable_enablePackageExports = false;
 config.resolver.resolveRequest = (context, moduleName, platform) => {
-    if (moduleName === 'tslib') {
+    if (moduleName === 'tslib' && platform === 'web') {
         return {
             type: 'sourceFile',
             filePath: tslibShimPath,

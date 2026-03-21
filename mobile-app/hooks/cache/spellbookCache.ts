@@ -1,5 +1,5 @@
 import type { ApolloCache } from '@apollo/client';
-import { GET_CURRENT_USER_CHARACTERS } from '@/graphql/characterSheet.operations';
+import { GET_CHARACTER_SHEET_DETAIL } from '@/graphql/characterSheet.operations';
 
 /**
  * Minimal spellbook row shape required for cache updates.
@@ -16,33 +16,33 @@ type CachedCharacter = {
     spellbook: CachedSpellbookEntry[];
 };
 
-type CurrentUserCharactersCache = {
-    currentUserCharacters: CachedCharacter[];
+type CharacterSheetDetailCache = {
+    character: CachedCharacter | null;
+    hasCurrentUserCharacters: boolean;
 };
 
 /**
- * Mutates one character's spellbook in the current-user cache query.
+ * Mutates the active character spellbook in the character-detail cache query.
  */
 function updateCharacterSpellbookInCache(
     cache: ApolloCache,
     characterId: string,
     updateSpellbook: (spellbook: CachedSpellbookEntry[]) => CachedSpellbookEntry[],
 ) {
-    cache.updateQuery<CurrentUserCharactersCache>(
-        { query: GET_CURRENT_USER_CHARACTERS },
-        (data: CurrentUserCharactersCache | null) => {
-            if (!data) return data;
+    cache.updateQuery<CharacterSheetDetailCache>(
+        {
+            query: GET_CHARACTER_SHEET_DETAIL,
+            variables: { id: characterId },
+        },
+        (data: CharacterSheetDetailCache | null) => {
+            if (!data?.character) return data;
 
             return {
                 ...data,
-                currentUserCharacters: data.currentUserCharacters.map((currentCharacter) => {
-                    if (currentCharacter.id !== characterId) return currentCharacter;
-
-                    return {
-                        ...currentCharacter,
-                        spellbook: updateSpellbook(currentCharacter.spellbook),
-                    };
-                }),
+                character: {
+                    ...data.character,
+                    spellbook: updateSpellbook(data.character.spellbook),
+                },
             };
         },
     );

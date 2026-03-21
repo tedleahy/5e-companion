@@ -18,6 +18,7 @@ import {
     type SpellFilterState,
 } from '@/lib/spellFilters';
 import { SPELL_LIST_FIELDS_FRAGMENT } from '@/graphql/spell.fragments';
+import type { SpellsQuery } from '@/types/generated_graphql_types';
 
 /** Parameters driving the spell search: optional name substring and structured filters. */
 type SearchParams = {
@@ -27,19 +28,6 @@ type SearchParams = {
 
 /** Number of spells requested per page for the main spell list. */
 const SPELLS_PAGE_SIZE = 50;
-
-type SearchSpellsQueryData = {
-    spells: {
-        id: string;
-        name: string;
-        level: number;
-        schoolIndex: string;
-        castingTime: string;
-        range?: string | null;
-        concentration: boolean;
-        ritual: boolean;
-    }[];
-};
 
 /** GraphQL query that fetches a list of spell ids/names, optionally filtered. */
 export const SEARCH_SPELLS = gql`
@@ -87,7 +75,7 @@ export default function SpellSearch() {
         ...(filterVariable ? { filter: filterVariable } : {}),
     }), [filterVariable]);
 
-    const { data, loading, error, fetchMore } = useQuery<SearchSpellsQueryData>(SEARCH_SPELLS, {
+    const { data, loading, error, fetchMore } = useQuery<SpellsQuery>(SEARCH_SPELLS, {
         variables: queryVariables,
         notifyOnNetworkStatusChange: true,
         returnPartialData: true,

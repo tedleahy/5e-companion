@@ -12,35 +12,12 @@ import { useMutation } from '@apollo/client/react';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { buildCreateCharacterInput } from '@/lib/characterCreation/buildCreateCharacterInput';
-import { CREATE_CHARACTER, GET_CURRENT_USER_CHARACTERS } from '@/graphql/characterSheet.operations';
-
-function getStepRoutes(level: number) {
-    const routes = [
-        '/characters/create',
-        '/characters/create/race',
-        '/characters/create/class',
-        '/characters/create/abilities',
-        '/characters/create/background',
-        '/characters/create/skills',
-        '/characters/create/review',
-    ];
-    // Subclass step only available for level > 1
-    if (level > 1) {
-        routes.splice(3, 0, '/characters/create/subclass');
-    }
-    return routes;
-}
-
-function deriveStepIndex(pathname: string, stepRoutes: string[]): number {
-    // Normalize: remove trailing slash
-    const normalized = pathname.replace(/\/$/, '');
-    const idx = stepRoutes.indexOf(normalized);
-    return idx >= 0 ? idx : 0;
-}
-
-function getSubclassStepIndex(level: number): number {
-    return level > 1 ? 3 : -1; // -1 means step doesn't exist
-}
+import {
+    deriveCreateCharacterStepIndex,
+    getCreateCharacterStepRoutes,
+} from '@/lib/characterCreation/routes';
+import { isCreateCharacterStepComplete } from '@/lib/characterCreation/stepCompletion';
+import { CREATE_CHARACTER, GET_CURRENT_USER_CHARACTER_ROSTER } from '@/graphql/characterSheet.operations';
 
 type Props = { children: ReactNode };
 
@@ -49,40 +26,21 @@ export default function WizardShell({ children }: Props) {
     const router = useRouter();
     const { draft, resetDraft, hasDraftData } = useCharacterDraft();
 
-    const stepRoutes = useMemo(() => getStepRoutes(draft.level), [draft.level]);
+    const stepRoutes = useMemo(() => getCreateCharacterStepRoutes(draft.level), [draft.level]);
     const totalSteps = stepRoutes.length;
-    const subclassStepIndex = getSubclassStepIndex(draft.level);
-
-    const currentStep = deriveStepIndex(pathname, stepRoutes);
+    const currentStep = deriveCreateCharacterStepIndex(pathname, stepRoutes);
+    const currentRoute = stepRoutes[currentStep];
     const isFirstStep = currentStep === 0;
     const isLastStep = currentStep === totalSteps - 1;
 
     const [createCharacter, { loading: creating, error: createError }] = useMutation<{
         createCharacter: { id: string; name: string };
     }>(CREATE_CHARACTER, {
-        refetchQueries: [{ query: GET_CURRENT_USER_CHARACTERS }],
+        refetchQueries: [{ query: GET_CURRENT_USER_CHARACTER_ROSTER }],
     });
 
     // Validation: is the current step complete enough to proceed?
-    const canContinue = useMemo(() => {
-        switch (currentStep) {
-            case 0:
-                return draft.name.trim().length > 0;
-            case 1:
-                return draft.race !== '';
-            case 2:
-                return draft.class !== '';
-            case 3:
-                if (subclassStepIndex === 3) {
-                    return draft.subclass !== '';
-                }
-                return true; // abilities step
-            case 4:
-                return draft.background !== '';
-            default:
-                return true;
-        }
-    }, [currentStep, draft.name, draft.race, draft.class, draft.subclass, draft.background, subclassStepIndex]);
+    const canContinue = useMemo(() => isCreateCharacterStepComplete(currentRoute, draft), [currentRoute, draft]);
 
     const progressWidth = ((currentStep + 1) / totalSteps) * 100;
 
@@ -134,7 +92,7 @@ export default function WizardShell({ children }: Props) {
         }
 
         const nextRoute = stepRoutes[currentStep + 1];
-        router.push(nextRoute as any);
+        router.push(nextRoute);
     }
 
     const ctaLabel = isLastStep ? '\u2726 Create Character \u2726' : 'Continue';

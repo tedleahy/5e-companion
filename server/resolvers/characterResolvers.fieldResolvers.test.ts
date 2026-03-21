@@ -1,19 +1,27 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import {
-    attackFindManyMock,
     characterFeatureFindManyMock,
     characterSpellFindManyMock,
     clearAllCharacterResolverMocks,
     fakeCharacter,
+    fakeCharacterDetail,
     fakeStats,
     inventoryItemFindManyMock,
     resolvers,
     spellSlotFindManyMock,
     statsFindUniqueMock,
+    weaponFindManyMock,
 } from './characterResolvers.testUtils';
 
 describe('characterResolvers — field resolvers', () => {
     beforeEach(clearAllCharacterResolverMocks);
+
+    test('characterStats returns preloaded stats without querying Prisma', async () => {
+        const result = await resolvers.characterStats(fakeCharacterDetail as any);
+
+        expect(statsFindUniqueMock).not.toHaveBeenCalled();
+        expect(result).toEqual(fakeCharacterDetail.stats);
+    });
 
     test('characterStats calls findUnique with characterId', async () => {
         statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
@@ -26,28 +34,30 @@ describe('characterResolvers — field resolvers', () => {
         expect(result).toEqual(fakeStats);
     });
 
-    test('characterAttacks calls attack.findMany with characterId', async () => {
-        const fakeAttacks = [{ id: 'atk-1', name: 'Dagger' }];
-        attackFindManyMock.mockResolvedValueOnce(fakeAttacks);
+    test('characterWeapons returns preloaded weapons without querying Prisma', async () => {
+        const result = await resolvers.characterWeapons(fakeCharacterDetail as any);
 
-        const result = await resolvers.characterAttacks(fakeCharacter as any);
-
-        expect(attackFindManyMock).toHaveBeenCalledTimes(1);
-        const args = attackFindManyMock.mock.calls[0]![0] as Record<string, any>;
-        expect(args.where).toEqual({ characterId: 'char-1' });
-        expect(result).toEqual(fakeAttacks);
+        expect(weaponFindManyMock).not.toHaveBeenCalled();
+        expect(result).toEqual(fakeCharacterDetail.weapons);
     });
 
-    test('characterWeapons calls attack.findMany with characterId', async () => {
+    test('characterWeapons calls weapon.findMany with characterId', async () => {
         const fakeWeapons = [{ id: 'atk-2', name: 'Longsword' }];
-        attackFindManyMock.mockResolvedValueOnce(fakeWeapons);
+        weaponFindManyMock.mockResolvedValueOnce(fakeWeapons);
 
         const result = await resolvers.characterWeapons(fakeCharacter as any);
 
-        expect(attackFindManyMock).toHaveBeenCalledTimes(1);
-        const args = attackFindManyMock.mock.calls[0]![0] as Record<string, any>;
+        expect(weaponFindManyMock).toHaveBeenCalledTimes(1);
+        const args = weaponFindManyMock.mock.calls[0]![0] as Record<string, any>;
         expect(args.where).toEqual({ characterId: 'char-1' });
         expect(result).toEqual(fakeWeapons);
+    });
+
+    test('characterInventory returns preloaded inventory without querying Prisma', async () => {
+        const result = await resolvers.characterInventory(fakeCharacterDetail as any);
+
+        expect(inventoryItemFindManyMock).not.toHaveBeenCalled();
+        expect(result).toEqual(fakeCharacterDetail.inventory);
     });
 
     test('characterInventory calls inventoryItem.findMany with characterId', async () => {
@@ -59,6 +69,13 @@ describe('characterResolvers — field resolvers', () => {
         expect(args.where).toEqual({ characterId: 'char-1' });
     });
 
+    test('characterFeatures returns preloaded features without querying Prisma', async () => {
+        const result = await resolvers.characterFeatures(fakeCharacterDetail as any);
+
+        expect(characterFeatureFindManyMock).not.toHaveBeenCalled();
+        expect(result).toEqual(fakeCharacterDetail.features);
+    });
+
     test('characterFeatures calls characterFeature.findMany with characterId', async () => {
         characterFeatureFindManyMock.mockResolvedValueOnce([]);
 
@@ -66,6 +83,13 @@ describe('characterResolvers — field resolvers', () => {
 
         const args = characterFeatureFindManyMock.mock.calls[0]![0] as Record<string, any>;
         expect(args.where).toEqual({ characterId: 'char-1' });
+    });
+
+    test('characterSpellSlots returns preloaded spell slots without querying Prisma', async () => {
+        const result = await resolvers.characterSpellSlots(fakeCharacterDetail as any);
+
+        expect(spellSlotFindManyMock).not.toHaveBeenCalled();
+        expect(result).toEqual(fakeCharacterDetail.spellSlots);
     });
 
     test('characterSpellSlots calls spellSlot.findMany ordered by level', async () => {
@@ -76,6 +100,13 @@ describe('characterResolvers — field resolvers', () => {
         const args = spellSlotFindManyMock.mock.calls[0]![0] as Record<string, any>;
         expect(args.where).toEqual({ characterId: 'char-1' });
         expect(args.orderBy).toEqual({ level: 'asc' });
+    });
+
+    test('characterSpellbook returns preloaded spellbook without querying Prisma', async () => {
+        const result = await resolvers.characterSpellbook(fakeCharacterDetail as any);
+
+        expect(characterSpellFindManyMock).not.toHaveBeenCalled();
+        expect(result).toEqual(fakeCharacterDetail.spellbook);
     });
 
     test('characterSpellbook calls findMany with include spell', async () => {

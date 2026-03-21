@@ -5,7 +5,7 @@ import { fantasyTokens } from '../../theme/fantasyTheme';
 import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { DetailRow, ParchmentPanel } from '../../components/FantasyPrimitives';
-import { Spell } from '../../types/generated_graphql_types';
+import type { SpellQuery, SpellQueryVariables } from '../../types/generated_graphql_types';
 import { schoolAndLevelLabel } from '../../lib/spellUtils';
 
 const GET_SPELL = gql`
@@ -29,14 +29,10 @@ const GET_SPELL = gql`
     }
 `;
 
-type SpellDetailsQueryData = {
-    spell?: Spell;
-};
-
 export default function SpellDetails() {
     const { id } = useLocalSearchParams<{ id?: string }>();
 
-    const { data, loading, error } = useQuery<SpellDetailsQueryData>(GET_SPELL, {
+    const { data, loading, error } = useQuery<SpellQuery, SpellQueryVariables>(GET_SPELL, {
         variables: { id: id ?? '' },
         skip: !id,
     });

@@ -11,6 +11,7 @@ import {
     EMPTY_SPELL_FILTERS,
     LEVEL_OPTIONS,
     RANGE_CATEGORY_OPTIONS,
+    SCHOOL_OPTIONS,
     toggleBooleanFilter,
     toggleFilterValue,
     type SpellFilterState,
@@ -98,6 +99,13 @@ export default function SpellFilterDrawer({ visible, filters, onClose, onChange 
                         options={LEVEL_OPTIONS}
                         selected={filters.levels.map(String)}
                         onToggle={toggleLevel}
+                    />
+
+                    <FilterChipGroup
+                        label="School"
+                        options={SCHOOL_OPTIONS}
+                        selected={filters.schools}
+                        onToggle={(key) => toggleArrayFilter('schools', key)}
                     />
 
                     <FilterSwitch label="Ritual only" value={filters.ritual === true} onToggle={() => toggleBoolFilter('ritual')} />
