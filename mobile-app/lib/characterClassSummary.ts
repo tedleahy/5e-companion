@@ -4,11 +4,21 @@ import type {
     SpellSlotKind,
     SpellcastingProfile,
 } from '@/types/generated_graphql_types';
+import { SpellSlotKind as SpellSlotKindEnum } from '@/types/generated_graphql_types';
 
 /**
  * Spell-slot kinds in the display order used by the character sheet.
  */
-const SPELL_SLOT_KIND_ORDER: SpellSlotKind[] = ['STANDARD', 'PACT_MAGIC'];
+const SPELL_SLOT_KIND_ORDER: SpellSlotKind[] = [
+    SpellSlotKindEnum.Standard,
+    SpellSlotKindEnum.PactMagic,
+];
+
+/** Minimal spellcasting data needed when reading spell attack bonuses. */
+type SpellAttackProfileSummary = Pick<SpellcastingProfile, 'spellAttackBonus'>;
+
+/** Minimal spellcasting data needed when reading spell save DCs. */
+type SpellSaveProfileSummary = Pick<SpellcastingProfile, 'spellSaveDC'>;
 
 /**
  * Sorts class rows by their persisted display order.
@@ -96,14 +106,16 @@ export function orderedCharacterClassIds(classes: CharacterClass[]): string[] {
 /**
  * Returns whether the character has any spellcasting profile data.
  */
-export function hasSpellcastingProfiles(spellcastingProfiles: SpellcastingProfile[]): boolean {
+export function hasSpellcastingProfiles(
+    spellcastingProfiles: Array<SpellAttackProfileSummary | SpellSaveProfileSummary>,
+): boolean {
     return spellcastingProfiles.length > 0;
 }
 
 /**
  * Returns the highest spell attack bonus across all spellcasting profiles.
  */
-export function strongestSpellAttackBonus(spellcastingProfiles: SpellcastingProfile[]): number | null {
+export function strongestSpellAttackBonus(spellcastingProfiles: SpellAttackProfileSummary[]): number | null {
     if (spellcastingProfiles.length === 0) {
         return null;
     }
@@ -114,7 +126,7 @@ export function strongestSpellAttackBonus(spellcastingProfiles: SpellcastingProf
 /**
  * Returns the highest spell save DC across all spellcasting profiles.
  */
-export function strongestSpellSaveDc(spellcastingProfiles: SpellcastingProfile[]): number | null {
+export function strongestSpellSaveDc(spellcastingProfiles: SpellSaveProfileSummary[]): number | null {
     if (spellcastingProfiles.length === 0) {
         return null;
     }

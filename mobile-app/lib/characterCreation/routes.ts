@@ -5,7 +5,6 @@ export const CREATE_CHARACTER_ROUTES = {
     identity: '/characters/create',
     race: '/characters/create/race',
     class: '/characters/create/class',
-    subclass: '/characters/create/subclass',
     abilities: '/characters/create/abilities',
     background: '/characters/create/background',
     skills: '/characters/create/skills',
@@ -15,7 +14,7 @@ export const CREATE_CHARACTER_ROUTES = {
 /** Union of all supported character-creation wizard routes. */
 export type CreateCharacterRoute = (typeof CREATE_CHARACTER_ROUTES)[keyof typeof CREATE_CHARACTER_ROUTES];
 
-/** Base step order for level 1 characters before subclass insertion. */
+/** Base step order for the multiclass-capable character wizard. */
 const BASE_CREATE_CHARACTER_STEP_ROUTES: readonly CreateCharacterRoute[] = [
     CREATE_CHARACTER_ROUTES.identity,
     CREATE_CHARACTER_ROUTES.race,
@@ -26,20 +25,11 @@ const BASE_CREATE_CHARACTER_STEP_ROUTES: readonly CreateCharacterRoute[] = [
     CREATE_CHARACTER_ROUTES.review,
 ];
 
-/** Zero-based insert position for the optional subclass step. */
-const SUBCLASS_STEP_INSERT_INDEX = 3;
-
 /**
  * Returns the typed route order for the create-character wizard.
  */
-export function getCreateCharacterStepRoutes(level: number): CreateCharacterRoute[] {
-    const routes = [...BASE_CREATE_CHARACTER_STEP_ROUTES];
-
-    if (level > 1) {
-        routes.splice(SUBCLASS_STEP_INSERT_INDEX, 0, CREATE_CHARACTER_ROUTES.subclass);
-    }
-
-    return routes;
+export function getCreateCharacterStepRoutes(_level: number): CreateCharacterRoute[] {
+    return [...BASE_CREATE_CHARACTER_STEP_ROUTES];
 }
 
 /**

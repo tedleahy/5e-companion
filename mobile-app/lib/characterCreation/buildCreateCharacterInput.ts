@@ -3,6 +3,9 @@ import {
     BACKGROUND_SKILL_PROFICIENCIES,
 } from '@/lib/characterCreation/classRules';
 import { applyRacialBonuses, RACE_SPEED_MAP } from '@/lib/characterCreation/raceRules';
+import {
+    sanitiseCharacterClassRow,
+} from '@/lib/characterCreation/multiclass';
 import type { CharacterDraft } from '@/store/characterDraft';
 import { ProficiencyLevel, type CreateCharacterInput } from '@/types/generated_graphql_types';
 
@@ -46,26 +49,22 @@ function calculateFinalAbilityScores(draft: CharacterDraft): Record<AbilityKey, 
 
 /**
  * Converts the local draft state into the API input used to create a character.
- *
- * Phase 2 keeps the legacy single-class wizard intact just enough to compile
- * against the multiclass API by mapping the old draft into one class row.
  */
 export function buildCreateCharacterInput(draft: CharacterDraft): CreateCharacterInput {
     const finalScores = calculateFinalAbilityScores(draft);
     const dexterityModifier = abilityModifier(finalScores.dexterity);
     const hasTraits = draft.personalityTraits || draft.ideals || draft.bonds || draft.flaws;
+    const classRows = draft.classes.map(sanitiseCharacterClassRow);
 
     return {
         name: draft.name.trim(),
         race: draft.race,
-        classes: [
-            {
-                classId: draft.class,
-                ...(draft.subclass ? { subclassId: draft.subclass } : {}),
-                level: draft.level,
-            },
-        ],
-        startingClassIndex: 0,
+        classes: classRows.map((classRow) => ({
+            classId: classRow.classId,
+            ...(classRow.subclassId ? { subclassId: classRow.subclassId } : {}),
+            level: classRow.level,
+        })),
+        startingClassIndex: draft.startingClassIndex,
         alignment: draft.alignment ?? '',
         background: draft.background,
         ac: 10 + dexterityModifier,
