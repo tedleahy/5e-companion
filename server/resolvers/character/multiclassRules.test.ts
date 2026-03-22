@@ -142,6 +142,35 @@ describe('multiclassRules', () => {
         ]);
     });
 
+    test('uses the single-class slot table for pure half casters', () => {
+        const classes = [
+            { classRow: { classId: 'paladin', level: 3 }, classRef: paladinClass, subclassRef: null },
+        ];
+
+        expect(deriveSpellSlots(classes)).toEqual([
+            { kind: 'STANDARD', level: 1, total: 3, used: 0 },
+        ]);
+    });
+
+    test('uses the single-class slot table for pure third casters', () => {
+        const classes = [
+            {
+                classRow: { classId: 'fighter', subclassId: 'eldritch-knight', level: 4 },
+                classRef: fighterClass,
+                subclassRef: {
+                    id: 'subclass-eldritch-knight-id',
+                    srdIndex: 'eldritch-knight',
+                    name: 'Eldritch Knight',
+                    classId: 'class-fighter-id',
+                },
+            },
+        ];
+
+        expect(deriveSpellSlots(classes)).toEqual([
+            { kind: 'STANDARD', level: 1, total: 3, used: 0 },
+        ]);
+    });
+
     test('derives multiclass spell slots and separate warlock pact slots', () => {
         const classes = [
             { classRow: { classId: 'wizard', level: 3 }, classRef: wizardClass, subclassRef: null },

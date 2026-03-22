@@ -212,6 +212,60 @@ export const STANDARD_SPELL_SLOT_TABLE: ReadonlyArray<readonly number[]> = [
 ];
 
 /**
+ * Half-caster single-class slot progression keyed by class level.
+ */
+export const HALF_CASTER_SINGLE_CLASS_SLOT_TABLE: ReadonlyArray<readonly number[]> = [
+    [],
+    [],
+    [2, 0, 0, 0, 0],
+    [3, 0, 0, 0, 0],
+    [3, 0, 0, 0, 0],
+    [4, 2, 0, 0, 0],
+    [4, 2, 0, 0, 0],
+    [4, 3, 0, 0, 0],
+    [4, 3, 0, 0, 0],
+    [4, 3, 2, 0, 0],
+    [4, 3, 2, 0, 0],
+    [4, 3, 3, 0, 0],
+    [4, 3, 3, 0, 0],
+    [4, 3, 3, 1, 0],
+    [4, 3, 3, 1, 0],
+    [4, 3, 3, 2, 0],
+    [4, 3, 3, 2, 0],
+    [4, 3, 3, 3, 1],
+    [4, 3, 3, 3, 1],
+    [4, 3, 3, 3, 2],
+    [4, 3, 3, 3, 2],
+];
+
+/**
+ * Third-caster single-class slot progression keyed by class level.
+ */
+export const THIRD_CASTER_SINGLE_CLASS_SLOT_TABLE: ReadonlyArray<readonly number[]> = [
+    [],
+    [],
+    [],
+    [2, 0, 0, 0],
+    [3, 0, 0, 0],
+    [3, 0, 0, 0],
+    [3, 0, 0, 0],
+    [4, 2, 0, 0],
+    [4, 2, 0, 0],
+    [4, 2, 0, 0],
+    [4, 3, 0, 0],
+    [4, 3, 0, 0],
+    [4, 3, 0, 0],
+    [4, 3, 2, 0],
+    [4, 3, 2, 0],
+    [4, 3, 2, 0],
+    [4, 3, 3, 0],
+    [4, 3, 3, 0],
+    [4, 3, 3, 0],
+    [4, 3, 3, 1],
+    [4, 3, 3, 1],
+];
+
+/**
  * Warlock pact-magic slot progression keyed by warlock level.
  */
 export const PACT_MAGIC_SLOT_TABLE: ReadonlyArray<{ level: number; total: number }> = [
@@ -493,8 +547,7 @@ export function deriveNamedClassProficiencies(
  */
 export function deriveSpellSlots(classes: ResolvedCharacterClass[]): DerivedSpellSlot[] {
     const spellSlots: DerivedSpellSlot[] = [];
-    const standardCasterLevel = deriveStandardCasterLevel(classes);
-    const standardSlots = STANDARD_SPELL_SLOT_TABLE[standardCasterLevel] ?? [];
+    const standardSlots = deriveStandardSpellSlots(classes);
 
     for (const [index, total] of standardSlots.entries()) {
         if (total <= 0) continue;
@@ -622,6 +675,38 @@ function deriveSpellcastingAbility(
     }
 
     return ABILITY_KEY_BY_SRD_INDEX[resolvedClass.classRef.spellcastingAbility] ?? null;
+}
+
+/**
+ * Returns standard spell slots for either a pure caster table or multiclass caster level.
+ */
+function deriveStandardSpellSlots(classes: ResolvedCharacterClass[]): readonly number[] {
+    if (classes.length !== 1) {
+        return STANDARD_SPELL_SLOT_TABLE[deriveStandardCasterLevel(classes)] ?? [];
+    }
+
+    return deriveSingleClassStandardSlots(classes[0]!);
+}
+
+/**
+ * Returns single-class standard slots for full, half, and third casters.
+ */
+function deriveSingleClassStandardSlots(resolvedClass: ResolvedCharacterClass): readonly number[] {
+    const { classId, level, subclassId } = resolvedClass.classRow;
+
+    if (FULL_CASTER_CLASS_IDS.has(classId)) {
+        return STANDARD_SPELL_SLOT_TABLE[level] ?? [];
+    }
+
+    if (HALF_CASTER_CLASS_IDS.has(classId)) {
+        return HALF_CASTER_SINGLE_CLASS_SLOT_TABLE[level] ?? [];
+    }
+
+    if (subclassId && THIRD_CASTER_SUBCLASS_IDS.has(subclassId)) {
+        return THIRD_CASTER_SINGLE_CLASS_SLOT_TABLE[level] ?? [];
+    }
+
+    return [];
 }
 
 /**
