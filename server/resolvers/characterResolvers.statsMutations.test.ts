@@ -4,11 +4,13 @@ import {
     characterFindFirstMock,
     clearAllCharacterResolverMocks,
     fakeCharacter,
+    fakeHitDicePools,
     fakeStats,
+    hitDicePoolFindManyMock,
+    hitDicePoolUpdateMock,
     resolvers,
     statsFindUniqueMock,
     statsUpdateMock,
-    unauthedCtx,
 } from './characterResolvers.testUtils';
 
 describe('characterResolvers — updateDeathSaves', () => {
@@ -34,20 +36,20 @@ describe('characterResolvers — updateDeathSaves', () => {
 describe('characterResolvers — updateHitDice', () => {
     beforeEach(clearAllCharacterResolverMocks);
 
-    test('updates hit dice on the stats row', async () => {
+    test('updates per-class remaining hit dice', async () => {
         characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
         statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
-        const newHD = { total: 12, remaining: 8, die: 'd6' };
-        const updatedStats = { ...fakeStats, hitDice: newHD };
-        statsUpdateMock.mockResolvedValueOnce(updatedStats);
+        hitDicePoolFindManyMock.mockResolvedValueOnce(fakeHitDicePools);
 
         const result = await resolvers.updateHitDice(
-            {}, { characterId: 'char-1', input: newHD }, authedCtx,
+            {}, { characterId: 'char-1', input: [{ classId: 'wizard', remaining: 5 }] as any }, authedCtx,
         );
 
-        const callArgs = statsUpdateMock.mock.calls[0]![0] as Record<string, any>;
-        expect(callArgs.data.hitDice).toEqual(newHD);
-        expect(result).toEqual(updatedStats);
+        expect(hitDicePoolUpdateMock).toHaveBeenCalledTimes(1);
+        const callArgs = hitDicePoolUpdateMock.mock.calls[0]![0] as Record<string, any>;
+        expect(callArgs.where).toEqual({ id: 'hd-1' });
+        expect(callArgs.data.remaining).toBe(5);
+        expect(result).toEqual(fakeStats);
     });
 });
 

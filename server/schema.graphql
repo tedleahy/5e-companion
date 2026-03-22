@@ -44,8 +44,7 @@ type Character {
     id: ID!
     name: String!
     race: String!
-    class: String!
-    subclass: String
+    classes: [CharacterClass!]!
     level: Int!
     alignment: String!
     background: String!
@@ -54,9 +53,7 @@ type Character {
     ac: Int!
     speed: Int!
     initiative: Int!
-    spellcastingAbility: String
-    spellSaveDC: Int
-    spellAttackBonus: Int
+    spellcastingProfiles: [SpellcastingProfile!]!
     conditions: [String!]!
     notes: String!
     stats: CharacterStats
@@ -67,12 +64,23 @@ type Character {
     spellbook: [CharacterSpell!]!
 }
 
+type CharacterClass {
+    id: ID!
+    classId: String!
+    className: String!
+    subclassId: String
+    subclassName: String
+    level: Int!
+    order: Int!
+    isStartingClass: Boolean!
+}
+
 type CharacterStats {
     id: ID!
     abilityScores: AbilityScores!
     hp: HP!
     deathSaves: DeathSaves!
-    hitDice: HitDice!
+    hitDicePools: [HitDicePool!]!
     savingThrowProficiencies: [String!]!
     skillProficiencies: SkillProficiencies!
     traits: Traits!
@@ -99,7 +107,10 @@ type DeathSaves {
     failures: Int!
 }
 
-type HitDice {
+type HitDicePool {
+    id: ID!
+    classId: String!
+    className: String!
     total: Int!
     remaining: Int!
     die: String!
@@ -181,9 +192,27 @@ type CharacterFeature {
 
 type SpellSlot {
     id: ID!
+    kind: SpellSlotKind!
     level: Int!
     total: Int!
     used: Int!
+}
+
+enum SpellSlotKind {
+    STANDARD
+    PACT_MAGIC
+}
+
+type SpellcastingProfile {
+    classId: String!
+    className: String!
+    subclassId: String
+    subclassName: String
+    classLevel: Int!
+    spellcastingAbility: String!
+    spellSaveDC: Int!
+    spellAttackBonus: Int!
+    slotKind: SpellSlotKind!
 }
 
 type CharacterSpell {
@@ -198,22 +227,14 @@ type CharacterSpell {
 input CreateCharacterInput {
     name: String!
     race: String!
-    class: String!
-    subclass: String
-    level: Int!
+    classes: [CreateCharacterClassInput!]!
+    startingClassIndex: Int!
     alignment: String!
     background: String!
-    proficiencyBonus: Int!
     ac: Int!
     speed: Int!
     initiative: Int!
-    spellcastingAbility: String
-    spellSaveDC: Int
-    spellAttackBonus: Int
     abilityScores: AbilityScoresInput!
-    hp: HPInput!
-    hitDice: HitDiceInput!
-    savingThrowProficiencies: [String!]
     skillProficiencies: SkillProficienciesInput!
     traits: TraitsInput
     currency: CurrencyInput
@@ -222,20 +243,19 @@ input CreateCharacterInput {
 input UpdateCharacterInput {
     name: String
     race: String
-    class: String
-    subclass: String
-    level: Int
     alignment: String
     background: String
-    proficiencyBonus: Int
     ac: Int
     speed: Int
     initiative: Int
-    spellcastingAbility: String
-    spellSaveDC: Int
-    spellAttackBonus: Int
     conditions: [String!]
     notes: String
+}
+
+input CreateCharacterClassInput {
+    classId: String!
+    subclassId: String
+    level: Int!
 }
 
 input AbilityScoresInput {
@@ -258,10 +278,9 @@ input DeathSavesInput {
     failures: Int!
 }
 
-input HitDiceInput {
-    total: Int!
+input HitDicePoolInput {
+    classId: String!
     remaining: Int!
-    die: String!
 }
 
 input SkillProficienciesInput {
@@ -373,8 +392,6 @@ input SaveCharacterSheetInput {
     weapons: [SaveCharacterSheetWeaponInput!]!
     inventory: [SaveCharacterSheetInventoryItemInput!]!
     features: [SaveCharacterSheetFeatureInput!]!
-    spellSaveDC: Int
-    spellAttackBonus: Int
 }
 
 # ---------------------------------------------------------------------------
@@ -399,7 +416,7 @@ type Mutation {
 
     # Live stats updates
     updateDeathSaves(characterId: ID!, input: DeathSavesInput!): CharacterStats!
-    updateHitDice(characterId: ID!, input: HitDiceInput!): CharacterStats!
+    updateHitDice(characterId: ID!, input: [HitDicePoolInput!]!): CharacterStats!
     updateSkillProficiencies(characterId: ID!, input: SkillProficienciesInput!): CharacterStats!
     updateSavingThrowProficiencies(characterId: ID!, input: SavingThrowProficienciesInput!): CharacterStats!
 
@@ -408,13 +425,13 @@ type Mutation {
     forgetSpell(characterId: ID!, spellId: ID!): Boolean!
     prepareSpell(characterId: ID!, spellId: ID!): CharacterSpell!
     unprepareSpell(characterId: ID!, spellId: ID!): CharacterSpell!
-    toggleSpellSlot(characterId: ID!, level: Int!): SpellSlot!
+    toggleSpellSlot(characterId: ID!, kind: SpellSlotKind!, level: Int!): SpellSlot!
 
     # Live gear updates
     updateInventoryItem(characterId: ID!, itemId: ID!, input: InventoryItemInput!): InventoryItem!
 
     # Rest / recovery
-    spendHitDie(characterId: ID!, amount: Int! = 1): CharacterStats!
+    spendHitDie(characterId: ID!, classId: String!, amount: Int! = 1): CharacterStats!
     shortRest(characterId: ID!): Character!
     longRest(characterId: ID!): Character!
 }

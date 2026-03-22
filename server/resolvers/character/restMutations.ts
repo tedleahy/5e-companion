@@ -7,29 +7,42 @@ import type {
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
 import { findOwnedCharacter, findOwnedStats } from "./helpers";
+import { recoverHitDicePools } from "./multiclassRules";
 
 /**
- * Spends hit dice, clamping remaining dice at zero.
+ * Spends hit dice from a specific class pool, clamping remaining dice at zero.
  */
 export async function spendHitDie(
     _parent: unknown,
-    { characterId, amount }: MutationSpendHitDieArgs,
+    { characterId, classId, amount }: MutationSpendHitDieArgs,
     ctx: Context,
 ) {
     const userId = requireUser(ctx);
     const stats = await findOwnedStats(characterId, userId);
-
-    const hitDice = stats.hitDice as { total: number; remaining: number; die: string };
-    const newRemaining = Math.max(0, hitDice.remaining - (amount ?? 1));
-
-    return await prisma.characterStats.update({
-        where: { id: stats.id },
-        data: { hitDice: { ...hitDice, remaining: newRemaining } },
+    const hitDicePools = await prisma.hitDicePool.findMany({
+        where: { characterId },
+        include: { classRef: true },
     });
+
+    const hitDicePool = hitDicePools.find(
+        (candidate) => (candidate.classRef.srdIndex ?? candidate.classId) === classId,
+    );
+    if (!hitDicePool) {
+        throw new Error(`Hit-dice pool not found for class ${classId}.`);
+    }
+
+    await prisma.hitDicePool.update({
+        where: { id: hitDicePool.id },
+        data: {
+            remaining: Math.max(0, hitDicePool.remaining - (amount ?? 1)),
+        },
+    });
+
+    return stats;
 }
 
 /**
- * Applies short-rest recovery (currently restores short-rest feature uses).
+ * Applies short-rest recovery, including pact slots and short-rest feature uses.
  */
 export async function shortRest(
     _parent: unknown,
@@ -39,8 +52,14 @@ export async function shortRest(
     const userId = requireUser(ctx);
     const character = await findOwnedCharacter(characterId, userId);
 
-    // Prisma updateMany can't set usesRemaining = usesMax dynamically,
-    // so we use a raw query to restore feature uses.
+    await prisma.spellSlot.updateMany({
+        where: {
+            characterId,
+            kind: 'PACT_MAGIC',
+        },
+        data: { used: 0 },
+    });
+
     await prisma.$executeRaw`
         UPDATE "CharacterFeature"
         SET "usesRemaining" = "usesMax"
@@ -65,7 +84,6 @@ export async function longRest(
     const stats = await prisma.characterStats.findUnique({ where: { characterId } });
     if (!stats) throw new Error('Character stats not found.');
 
-    // 1. Restore HP to max, clear temp HP.
     const hp = stats.hp as { current: number; max: number; temp: number };
     await prisma.characterStats.update({
         where: { id: stats.id },
@@ -75,22 +93,39 @@ export async function longRest(
         },
     });
 
-    // 2. Restore hit dice: recover half total (minimum 1).
-    const hitDice = stats.hitDice as { total: number; remaining: number; die: string };
-    const recovered = Math.max(1, Math.floor(hitDice.total / 2));
-    const newRemaining = Math.min(hitDice.total, hitDice.remaining + recovered);
-    await prisma.characterStats.update({
-        where: { id: stats.id },
-        data: { hitDice: { ...hitDice, remaining: newRemaining } },
-    });
+    const [hitDicePools, orderedClasses] = await Promise.all([
+        prisma.hitDicePool.findMany({
+            where: { characterId },
+        }),
+        prisma.characterClass.findMany({
+            where: { characterId },
+            orderBy: { order: 'asc' },
+            select: { classId: true, level: true },
+        }),
+    ]);
 
-    // 3. Reset all spell slots.
+    const totalHitDice = orderedClasses.reduce((total, classRow) => total + classRow.level, 0);
+    const recovered = Math.max(1, Math.floor(totalHitDice / 2));
+    const recoveredPools = recoverHitDicePools(
+        hitDicePools,
+        orderedClasses.map((classRow) => classRow.classId),
+        recovered,
+    );
+
+    for (const recoveredPool of recoveredPools) {
+        if (!recoveredPool.id) continue;
+
+        await prisma.hitDicePool.update({
+            where: { id: recoveredPool.id },
+            data: { remaining: recoveredPool.remaining },
+        });
+    }
+
     await prisma.spellSlot.updateMany({
         where: { characterId },
         data: { used: 0 },
     });
 
-    // 4. Restore feature uses (short + long recharge).
     await prisma.$executeRaw`
         UPDATE "CharacterFeature"
         SET "usesRemaining" = "usesMax"

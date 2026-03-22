@@ -30,8 +30,6 @@ export async function saveCharacterSheet(
                 speed: input.speed,
                 initiative: input.initiative,
                 conditions: input.conditions,
-                spellSaveDC: input.spellSaveDC ?? null,
-                spellAttackBonus: input.spellAttackBonus ?? null,
             },
         });
 

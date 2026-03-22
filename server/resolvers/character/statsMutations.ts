@@ -27,7 +27,7 @@ export async function updateDeathSaves(
 }
 
 /**
- * Replaces hit dice values for an owned character.
+ * Replaces remaining hit-dice values for one or more owned class pools.
  */
 export async function updateHitDice(
     _parent: unknown,
@@ -36,11 +36,31 @@ export async function updateHitDice(
 ) {
     const userId = requireUser(ctx);
     const stats = await findOwnedStats(characterId, userId);
-
-    return await prisma.characterStats.update({
-        where: { id: stats.id },
-        data: { hitDice: input },
+    const hitDicePools = await prisma.hitDicePool.findMany({
+        where: { characterId },
+        include: { classRef: true },
     });
+
+    const poolByClassId = new Map(hitDicePools.map((hitDicePool) => [
+        hitDicePool.classRef.srdIndex ?? hitDicePool.classId,
+        hitDicePool,
+    ]));
+
+    for (const update of input) {
+        const hitDicePool = poolByClassId.get(update.classId);
+        if (!hitDicePool) {
+            throw new Error(`Hit-dice pool not found for class ${update.classId}.`);
+        }
+
+        await prisma.hitDicePool.update({
+            where: { id: hitDicePool.id },
+            data: {
+                remaining: Math.max(0, Math.min(hitDicePool.total, update.remaining)),
+            },
+        });
+    }
+
+    return stats;
 }
 
 /**
@@ -54,7 +74,6 @@ export async function updateSkillProficiencies(
     const userId = requireUser(ctx);
     const stats = await findOwnedStats(characterId, userId);
 
-    // Merge provided fields over existing skill proficiencies
     const existing = stats.skillProficiencies as Record<string, string>;
     const merged = { ...existing };
     for (const [key, value] of Object.entries(input)) {

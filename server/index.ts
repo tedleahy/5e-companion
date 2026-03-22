@@ -62,12 +62,20 @@ const resolvers: Resolvers = {
     },
 
     Character: {
+        level: characterResolvers.characterLevel,
+        proficiencyBonus: characterResolvers.characterProficiencyBonus,
+        classes: characterResolvers.characterClasses,
+        spellcastingProfiles: characterResolvers.characterSpellcastingProfiles,
         stats: characterResolvers.characterStats,
         weapons: characterResolvers.characterWeapons,
         inventory: characterResolvers.characterInventory,
         features: characterResolvers.characterFeatures,
         spellSlots: characterResolvers.characterSpellSlots,
         spellbook: characterResolvers.characterSpellbook,
+    },
+
+    CharacterStats: {
+        hitDicePools: characterResolvers.characterStatsHitDicePools,
     },
 };
 

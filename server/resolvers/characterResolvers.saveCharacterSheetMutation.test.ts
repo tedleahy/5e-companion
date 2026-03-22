@@ -41,8 +41,6 @@ describe('characterResolvers — saveCharacterSheet', () => {
             speed: 30,
             initiative: 4,
             conditions: ['Blessed'],
-            spellSaveDC: 18,
-            spellAttackBonus: 10,
         });
         statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
         statsUpdateMock.mockResolvedValueOnce({ ...fakeStats });
@@ -104,8 +102,6 @@ describe('characterResolvers — saveCharacterSheet', () => {
                     { id: 'feature-1', name: 'Arcane Recovery', source: 'Wizard 1', description: 'Recover slots', usesMax: 1, usesRemaining: 1, recharge: 'long' },
                     { name: 'Keen Mind', source: 'Feat', description: 'Always know north', usesMax: null, usesRemaining: null, recharge: null },
                 ],
-                spellSaveDC: 18,
-                spellAttackBonus: 10,
             },
         }, authedCtx);
 
@@ -145,8 +141,6 @@ describe('characterResolvers — saveCharacterSheet', () => {
             speed: 30,
             initiative: 4,
             conditions: ['Blessed'],
-            spellSaveDC: 18,
-            spellAttackBonus: 10,
         });
     });
 
@@ -192,8 +186,6 @@ describe('characterResolvers — saveCharacterSheet', () => {
                 ],
                 inventory: [],
                 features: [],
-                spellSaveDC: 17,
-                spellAttackBonus: 9,
             },
         }, authedCtx)).rejects.toThrow('Database write failed');
 
@@ -241,8 +233,6 @@ describe('characterResolvers — saveCharacterSheet', () => {
                     { id: 'item-other', name: 'Staff', quantity: 1, weight: 4, description: 'Arcane focus', equipped: true, magical: true },
                 ],
                 features: [],
-                spellSaveDC: 17,
-                spellAttackBonus: 9,
             },
         }, authedCtx)).rejects.toThrow('Inventory item not found.');
     });
@@ -288,8 +278,6 @@ describe('characterResolvers — saveCharacterSheet', () => {
                 features: [
                     { id: 'feature-other', name: 'Arcane Recovery', source: 'Wizard 1', description: 'Recover slots', usesMax: 1, usesRemaining: 1, recharge: 'long' },
                 ],
-                spellSaveDC: 17,
-                spellAttackBonus: 9,
             },
         }, authedCtx)).rejects.toThrow('Feature not found.');
     });

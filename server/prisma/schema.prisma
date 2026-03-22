@@ -29,6 +29,11 @@ enum ProficiencyType {
     OTHER
 }
 
+enum SpellSlotKind {
+    STANDARD
+    PACT_MAGIC
+}
+
 model Spell {
     id                String      @id @default(cuid())
     source            SpellSource
@@ -126,7 +131,8 @@ model Class {
     subclasses      Subclass[]
     proficiencies   Proficiency[]  @relation("ClassProficiencies")
     features        Feature[]      @relation("ClassFeatures")
-    characters      Character[]    @relation("CharacterClassRelation")
+    characterClasses CharacterClass[]
+    hitDicePools    HitDicePool[]
 
     @@index([ownerUserId])
     @@index([name])
@@ -142,7 +148,7 @@ model Subclass {
     sourceBook      String?
     raw             Json?
     features        Feature[]   @relation("SubclassFeatures")
-    characters      Character[] @relation("CharacterSubclassRelation")
+    characterClasses CharacterClass[]
 
     @@index([ownerUserId])
     @@index([classId])
@@ -309,13 +315,8 @@ model Character {
     // Identity
     name                String
     race                String
-    class               String
-    subclass            String?
-    level               Int
     alignment           String
     background          String
-    classId             String?
-    subclassId          String?
     raceId              String?
     subraceId           String?
     backgroundId        String?
@@ -333,12 +334,12 @@ model Character {
     notes               String    @default("")
 
     // Relations
-    classRef            Class?               @relation("CharacterClassRelation", fields: [classId], references: [id], onDelete: SetNull)
-    subclassRef         Subclass?            @relation("CharacterSubclassRelation", fields: [subclassId], references: [id], onDelete: SetNull)
     raceRef             Race?                @relation("CharacterRaceRelation", fields: [raceId], references: [id], onDelete: SetNull)
     subraceRef          Subrace?             @relation("CharacterSubraceRelation", fields: [subraceId], references: [id], onDelete: SetNull)
     backgroundRef       Background?          @relation("CharacterBackgroundRelation", fields: [backgroundId], references: [id], onDelete: SetNull)
     stats               CharacterStats?
+    classes             CharacterClass[]
+    hitDicePools        HitDicePool[]
     weapons             Weapon[]
     inventory           InventoryItem[]
     features            CharacterFeature[]
@@ -349,11 +350,28 @@ model Character {
     spellbook           CharacterSpell[]
 
     @@index([ownerUserId])
-    @@index([classId])
-    @@index([subclassId])
     @@index([raceId])
     @@index([subraceId])
     @@index([backgroundId])
+}
+
+model CharacterClass {
+    id              String    @id @default(cuid())
+    character       Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+    characterId     String
+    classRef        Class     @relation(fields: [classId], references: [id])
+    classId         String
+    subclassRef     Subclass? @relation(fields: [subclassId], references: [id], onDelete: SetNull)
+    subclassId      String?
+    level           Int
+    order           Int
+    isStartingClass Boolean   @default(false)
+
+    @@unique([characterId, classId])
+    @@unique([characterId, order])
+    @@index([characterId])
+    @@index([classId])
+    @@index([subclassId])
 }
 
 // 1:1 table for interactive stat blocks (each updated independently)
@@ -365,11 +383,25 @@ model CharacterStats {
     abilityScores             Json     // { strength, dexterity, constitution, intelligence, wisdom, charisma }
     hp                        Json     // { current, max, temp }
     deathSaves                Json     // { successes, failures }
-    hitDice                   Json     // { total, remaining, die }
     savingThrowProficiencies  String[] @default([])
     skillProficiencies        Json     // Record<SkillName, 'none' | 'proficient' | 'expert'>
     traits                    Json     // { personality, ideals, bonds, flaws }
     currency                  Json     // { cp, sp, ep, gp, pp }
+}
+
+model HitDicePool {
+    id            String    @id @default(cuid())
+    character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+    characterId   String
+    classRef      Class     @relation(fields: [classId], references: [id])
+    classId       String
+    total         Int
+    remaining     Int
+    die           String
+
+    @@unique([characterId, classId])
+    @@index([characterId])
+    @@index([classId])
 }
 
 model Weapon {
@@ -446,11 +478,12 @@ model SpellSlot {
     id            String    @id @default(cuid())
     character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
     characterId   String
+    kind          SpellSlotKind @default(STANDARD)
     level         Int       // 1–9
     total         Int
     used          Int       @default(0)
 
-    @@unique([characterId, level])
+    @@unique([characterId, kind, level])
     @@index([characterId])
 }
 

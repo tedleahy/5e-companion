@@ -23,7 +23,12 @@ export {
 } from "./character/statsMutations";
 
 export {
+    characterLevel,
+    characterProficiencyBonus,
+    characterClasses,
+    characterSpellcastingProfiles,
     characterStats,
+    characterStatsHitDicePools,
     characterWeapons,
     characterInventory,
     characterFeatures,

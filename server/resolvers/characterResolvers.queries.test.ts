@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
-import { CHARACTER_DETAIL_INCLUDE } from './character/detailLoad';
+import { CHARACTER_DETAIL_INCLUDE, CHARACTER_LIST_INCLUDE } from './character/detailLoad';
 import {
     authedCtx,
     characterCountMock,
@@ -62,7 +62,7 @@ describe('characterResolvers — queries', () => {
         expect(characterFindManyMock).toHaveBeenCalledTimes(1);
         const args = characterFindManyMock.mock.calls[0]![0] as Record<string, unknown>;
         expect(args.where).toEqual({ ownerUserId: 'user-abc' });
-        expect(args.include).toBeUndefined();
+        expect(args.include).toEqual(CHARACTER_LIST_INCLUDE);
         expect(result).toEqual([fakeCharacter]);
     });
 });

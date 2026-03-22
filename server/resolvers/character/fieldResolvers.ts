@@ -1,14 +1,93 @@
 import prisma from "../../prisma/prisma";
+import { SpellSlotKind as GraphqlSpellSlotKind } from "../../generated/graphql";
 import type { CharacterDetail, CharacterFieldParent } from "./detailLoad";
+import {
+    deriveProficiencyBonus,
+    deriveSpellcastingProfiles,
+    deriveTotalLevel,
+    sortSpellSlots,
+    type CharacterAbilityScores,
+    type CharacterClassReference,
+    type CharacterSubclassReference,
+    type ResolvedCharacterClass,
+} from "./multiclassRules";
+
+type LoadedCharacterClassRow = Awaited<ReturnType<typeof loadCharacterClasses>>[number];
 
 /**
  * Returns true when the parent already includes the named relation.
  */
 function hasLoadedRelation(
     parent: CharacterFieldParent,
-    relation: 'stats' | 'weapons' | 'inventory' | 'features' | 'spellSlots' | 'spellbook',
+    relation: 'stats' | 'classes' | 'weapons' | 'inventory' | 'features' | 'spellSlots' | 'spellbook',
 ): parent is CharacterDetail {
     return relation in parent;
+}
+
+/**
+ * Field resolver for Character.level.
+ */
+export async function characterLevel(parent: CharacterFieldParent): Promise<number> {
+    const classes = hasLoadedRelation(parent, 'classes')
+        ? parent.classes
+        : await loadCharacterClasses(parent.id);
+
+    return deriveTotalLevel(classes.map((classRow) => ({ classId: classRow.classRef.srdIndex ?? classRow.classId, subclassId: classRow.subclassRef?.srdIndex ?? classRow.subclassId ?? null, level: classRow.level })));
+}
+
+/**
+ * Field resolver for Character.proficiencyBonus.
+ */
+export async function characterProficiencyBonus(parent: CharacterFieldParent): Promise<number> {
+    return deriveProficiencyBonus(await characterLevel(parent));
+}
+
+/**
+ * Field resolver for Character.classes.
+ */
+export async function characterClasses(parent: CharacterFieldParent) {
+    const classes = hasLoadedRelation(parent, 'classes')
+        ? parent.classes
+        : await loadCharacterClasses(parent.id);
+
+    return classes.map((classRow) => ({
+        id: classRow.id,
+        classId: classRow.classRef.srdIndex ?? classRow.classId,
+        className: classRow.classRef.name,
+        subclassId: classRow.subclassRef?.srdIndex ?? classRow.subclassId ?? null,
+        subclassName: classRow.subclassRef?.name ?? null,
+        level: classRow.level,
+        order: classRow.order,
+        isStartingClass: classRow.isStartingClass,
+    }));
+}
+
+/**
+ * Field resolver for Character.spellcastingProfiles.
+ */
+export async function characterSpellcastingProfiles(parent: CharacterFieldParent) {
+    const classes = hasLoadedRelation(parent, 'classes')
+        ? parent.classes
+        : await loadCharacterClasses(parent.id);
+    const stats = hasLoadedRelation(parent, 'stats')
+        ? parent.stats
+        : await prisma.characterStats.findUnique({ where: { characterId: parent.id } });
+
+    if (!stats) {
+        return [];
+    }
+
+    const resolvedClasses = toResolvedCharacterClasses(classes);
+    const abilityScores = stats.abilityScores as CharacterAbilityScores;
+    const proficiencyBonus = deriveProficiencyBonus(
+        deriveTotalLevel(resolvedClasses.map((resolvedClass) => resolvedClass.classRow)),
+    );
+
+    return deriveSpellcastingProfiles(resolvedClasses, abilityScores, proficiencyBonus)
+        .map((profile) => ({
+            ...profile,
+            slotKind: toGraphqlSpellSlotKind(profile.slotKind),
+        }));
 }
 
 /**
@@ -24,6 +103,42 @@ export async function characterStats(
     return await prisma.characterStats.findUnique({
         where: { characterId: parent.id },
     });
+}
+
+/**
+ * Field resolver for CharacterStats.hitDicePools.
+ */
+export async function characterStatsHitDicePools(
+    parent: { characterId: string },
+) {
+    const [classOrder, hitDicePools] = await Promise.all([
+        prisma.characterClass.findMany({
+            where: { characterId: parent.characterId },
+            orderBy: { order: 'asc' },
+            select: { classId: true },
+        }),
+        prisma.hitDicePool.findMany({
+            where: { characterId: parent.characterId },
+            include: { classRef: true },
+        }),
+    ]);
+
+    const classIndexById = new Map(classOrder.map((classRow, index) => [classRow.classId, index]));
+
+    return [...hitDicePools]
+        .sort((left, right) => {
+            const leftIndex = classIndexById.get(left.classId) ?? Number.MAX_SAFE_INTEGER;
+            const rightIndex = classIndexById.get(right.classId) ?? Number.MAX_SAFE_INTEGER;
+            return leftIndex - rightIndex;
+        })
+        .map((hitDicePool) => ({
+            id: hitDicePool.id,
+            classId: hitDicePool.classRef.srdIndex ?? hitDicePool.classId,
+            className: hitDicePool.classRef.name,
+            total: hitDicePool.total,
+            remaining: hitDicePool.remaining,
+            die: hitDicePool.die,
+        }));
 }
 
 /**
@@ -76,15 +191,16 @@ export async function characterFeatures(
  */
 export async function characterSpellSlots(
     parent: CharacterFieldParent,
-): Promise<CharacterDetail['spellSlots']> {
+) {
     if (hasLoadedRelation(parent, 'spellSlots')) {
-        return parent.spellSlots;
+        return mapSpellSlots(sortSpellSlots(parent.spellSlots));
     }
 
-    return await prisma.spellSlot.findMany({
+    const spellSlots = await prisma.spellSlot.findMany({
         where: { characterId: parent.id },
-        orderBy: { level: 'asc' },
     });
+
+    return mapSpellSlots(sortSpellSlots(spellSlots));
 }
 
 /**
@@ -101,4 +217,69 @@ export async function characterSpellbook(
         where: { characterId: parent.id },
         include: { spell: true },
     });
+}
+
+/**
+ * Loads class rows with the reference data needed for display and derivation.
+ */
+async function loadCharacterClasses(characterId: string) {
+    return await prisma.characterClass.findMany({
+        where: { characterId },
+        include: {
+            classRef: true,
+            subclassRef: true,
+        },
+        orderBy: { order: 'asc' },
+    });
+}
+
+/**
+ * Converts loaded Prisma class rows into the pure derivation shape.
+ */
+function toResolvedCharacterClasses(classRows: LoadedCharacterClassRow[]): ResolvedCharacterClass[] {
+    return classRows.map((classRow) => ({
+        classRow: {
+            classId: classRow.classRef.srdIndex ?? classRow.classId,
+            subclassId: classRow.subclassRef?.srdIndex ?? classRow.subclassId ?? null,
+            level: classRow.level,
+        },
+        classRef: {
+            id: classRow.classRef.id,
+            srdIndex: classRow.classRef.srdIndex,
+            name: classRow.classRef.name,
+            hitDie: classRow.classRef.hitDie,
+            spellcastingAbility: classRow.classRef.spellcastingAbility,
+        } satisfies CharacterClassReference,
+        subclassRef: classRow.subclassRef
+            ? {
+                  id: classRow.subclassRef.id,
+                  srdIndex: classRow.subclassRef.srdIndex,
+                  name: classRow.subclassRef.name,
+                  classId: classRow.subclassRef.classId,
+              } satisfies CharacterSubclassReference
+            : null,
+    }));
+}
+
+/**
+ * Converts persisted spell-slot rows into the GraphQL enum shape.
+ */
+function mapSpellSlots(
+    spellSlots: Array<{ id: string; characterId: string; kind: string; level: number; total: number; used: number }>,
+) {
+    return spellSlots.map((spellSlot) => ({
+        ...spellSlot,
+        kind: toGraphqlSpellSlotKind(spellSlot.kind),
+    }));
+}
+
+/**
+ * Normalises internal / Prisma slot kind values into the generated GraphQL enum.
+ */
+function toGraphqlSpellSlotKind(kind: string): GraphqlSpellSlotKind {
+    if (kind === 'PACT_MAGIC') {
+        return GraphqlSpellSlotKind.PactMagic;
+    }
+
+    return GraphqlSpellSlotKind.Standard;
 }

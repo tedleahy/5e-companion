@@ -1,11 +1,15 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import {
+    characterClassFindManyMock,
     characterFeatureFindManyMock,
     characterSpellFindManyMock,
     clearAllCharacterResolverMocks,
     fakeCharacter,
+    fakeCharacterClasses,
     fakeCharacterDetail,
+    fakeHitDicePools,
     fakeStats,
+    hitDicePoolFindManyMock,
     inventoryItemFindManyMock,
     resolvers,
     spellSlotFindManyMock,
@@ -15,6 +19,76 @@ import {
 
 describe('characterResolvers — field resolvers', () => {
     beforeEach(clearAllCharacterResolverMocks);
+
+    test('characterLevel derives total level from preloaded classes', async () => {
+        const result = await resolvers.characterLevel(fakeCharacterDetail as any);
+
+        expect(result).toBe(12);
+        expect(characterClassFindManyMock).not.toHaveBeenCalled();
+    });
+
+    test('characterProficiencyBonus derives from class levels', async () => {
+        const result = await resolvers.characterProficiencyBonus(fakeCharacterDetail as any);
+
+        expect(result).toBe(4);
+    });
+
+    test('characterClasses returns preloaded class rows without querying Prisma', async () => {
+        const result = await resolvers.characterClasses(fakeCharacterDetail as any);
+
+        expect(result).toEqual([
+            {
+                id: 'char-class-1',
+                classId: 'wizard',
+                className: 'Wizard',
+                subclassId: 'evocation',
+                subclassName: 'Evocation',
+                level: 9,
+                order: 0,
+                isStartingClass: true,
+            },
+            {
+                id: 'char-class-2',
+                classId: 'warlock',
+                className: 'Warlock',
+                subclassId: 'fiend',
+                subclassName: 'Fiend',
+                level: 3,
+                order: 1,
+                isStartingClass: false,
+            },
+        ]);
+        expect(characterClassFindManyMock).not.toHaveBeenCalled();
+    });
+
+    test('characterSpellcastingProfiles derives one profile per spellcasting class', async () => {
+        const result = await resolvers.characterSpellcastingProfiles(fakeCharacterDetail as any);
+
+        expect(result).toEqual([
+            {
+                classId: 'wizard',
+                className: 'Wizard',
+                subclassId: 'evocation',
+                subclassName: 'Evocation',
+                classLevel: 9,
+                spellcastingAbility: 'intelligence',
+                spellSaveDC: 17,
+                spellAttackBonus: 9,
+                slotKind: 'STANDARD',
+            },
+            {
+                classId: 'warlock',
+                className: 'Warlock',
+                subclassId: 'fiend',
+                subclassName: 'Fiend',
+                classLevel: 3,
+                spellcastingAbility: 'charisma',
+                spellSaveDC: 12,
+                spellAttackBonus: 4,
+                slotKind: 'PACT_MAGIC',
+            },
+        ]);
+    });
 
     test('characterStats returns preloaded stats without querying Prisma', async () => {
         const result = await resolvers.characterStats(fakeCharacterDetail as any);
@@ -32,6 +106,35 @@ describe('characterResolvers — field resolvers', () => {
         const args = statsFindUniqueMock.mock.calls[0]![0] as Record<string, any>;
         expect(args.where).toEqual({ characterId: 'char-1' });
         expect(result).toEqual(fakeStats);
+    });
+
+    test('characterStatsHitDicePools returns ordered class pools', async () => {
+        characterClassFindManyMock.mockResolvedValueOnce([
+            { classId: 'class-wizard-id' },
+            { classId: 'class-warlock-id' },
+        ]);
+        hitDicePoolFindManyMock.mockResolvedValueOnce(fakeHitDicePools);
+
+        const result = await resolvers.characterStatsHitDicePools(fakeStats as any);
+
+        expect(result).toEqual([
+            {
+                id: 'hd-1',
+                classId: 'wizard',
+                className: 'Wizard',
+                total: 9,
+                remaining: 7,
+                die: 'd6',
+            },
+            {
+                id: 'hd-2',
+                classId: 'warlock',
+                className: 'Warlock',
+                total: 3,
+                remaining: 2,
+                die: 'd8',
+            },
+        ]);
     });
 
     test('characterWeapons returns preloaded weapons without querying Prisma', async () => {
@@ -85,21 +188,31 @@ describe('characterResolvers — field resolvers', () => {
         expect(args.where).toEqual({ characterId: 'char-1' });
     });
 
-    test('characterSpellSlots returns preloaded spell slots without querying Prisma', async () => {
+    test('characterSpellSlots sorts preloaded slots by kind then level', async () => {
         const result = await resolvers.characterSpellSlots(fakeCharacterDetail as any);
 
+        expect(result).toEqual([
+            fakeCharacterDetail.spellSlots[0],
+            fakeCharacterDetail.spellSlots[1],
+        ]);
         expect(spellSlotFindManyMock).not.toHaveBeenCalled();
-        expect(result).toEqual(fakeCharacterDetail.spellSlots);
     });
 
-    test('characterSpellSlots calls spellSlot.findMany ordered by level', async () => {
-        spellSlotFindManyMock.mockResolvedValueOnce([]);
+    test('characterSpellSlots loads and sorts slots when not preloaded', async () => {
+        spellSlotFindManyMock.mockResolvedValueOnce([
+            { id: 'slot-2', characterId: 'char-1', kind: 'PACT_MAGIC', level: 2, total: 2, used: 0 },
+            { id: 'slot-1', characterId: 'char-1', kind: 'STANDARD', level: 1, total: 4, used: 1 },
+        ]);
 
-        await resolvers.characterSpellSlots(fakeCharacter as any);
+        const result = await resolvers.characterSpellSlots(fakeCharacter as any);
 
+        expect(spellSlotFindManyMock).toHaveBeenCalledTimes(1);
         const args = spellSlotFindManyMock.mock.calls[0]![0] as Record<string, any>;
         expect(args.where).toEqual({ characterId: 'char-1' });
-        expect(args.orderBy).toEqual({ level: 'asc' });
+        expect(result).toEqual([
+            { id: 'slot-1', characterId: 'char-1', kind: 'STANDARD', level: 1, total: 4, used: 1 },
+            { id: 'slot-2', characterId: 'char-1', kind: 'PACT_MAGIC', level: 2, total: 2, used: 0 },
+        ]);
     });
 
     test('characterSpellbook returns preloaded spellbook without querying Prisma', async () => {
