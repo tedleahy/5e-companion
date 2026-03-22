@@ -8,6 +8,12 @@ import { ABILITY_ABBREVIATIONS, ABILITY_KEYS, abilityModifier, SKILL_DEFINITIONS
 import { BACKGROUND_SKILL_PROFICIENCIES, CLASS_SAVING_THROWS } from '@/lib/characterCreation/classRules';
 import { applyRacialBonuses } from '@/lib/characterCreation/raceRules';
 import { CREATE_CHARACTER_ROUTES } from '@/lib/characterCreation/routes';
+import {
+    classLabel,
+    formatDraftClassSummary,
+    formatClassRowLabel,
+    startingClassRow,
+} from '@/lib/characterCreation/multiclass';
 
 export default function StepReview() {
     const { draft } = useCharacterDraft();
@@ -18,14 +24,14 @@ export default function StepReview() {
     const bgSkills = BACKGROUND_SKILL_PROFICIENCIES[draft.background] ?? [];
     const allProfSkills = new Set([...draft.skillProficiencies, ...bgSkills]);
     const proficientSkillDefs = SKILL_DEFINITIONS.filter((s) => allProfSkills.has(s.key));
-    const savingThrows = CLASS_SAVING_THROWS[draft.class] ?? [];
+    const startingClass = startingClassRow(draft.classes, draft.startingClassIndex);
+    const savingThrows = CLASS_SAVING_THROWS[startingClass?.classId ?? ''] ?? [];
 
     return (
         <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
             <Text style={styles.heading}>Ready to begin?</Text>
             <Text style={styles.sub}>Review your character before entering the world.</Text>
 
-            {/* Identity — tap to edit */}
             <Pressable onPress={() => router.push(CREATE_CHARACTER_ROUTES.identity)}>
                 <View style={styles.sectionHeader}>
                     <Text style={styles.sectionLabel}>Identity</Text>
@@ -35,13 +41,35 @@ export default function StepReview() {
             <ParchmentPanel style={styles.card}>
                 <DetailRow label="Name" value={draft.name} />
                 <DetailRow label="Race" value={draft.race} />
-                <DetailRow label="Class" value={draft.subclass ? `${draft.class} (${draft.subclass})` : draft.class} />
                 <DetailRow label="Level" value={String(draft.level)} />
                 <DetailRow label="Background" value={draft.background} />
                 <DetailRow label="Alignment" value={draft.alignment || 'Not set'} />
             </ParchmentPanel>
 
-            {/* Ability Scores — tap to edit */}
+            <Pressable onPress={() => router.push(CREATE_CHARACTER_ROUTES.class)}>
+                <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionLabel}>Class Composition</Text>
+                    <Text style={styles.editHint}>Edit {'\u203A'}</Text>
+                </View>
+            </Pressable>
+            <ParchmentPanel style={styles.card}>
+                <DetailRow label="Summary" value={formatDraftClassSummary(draft.classes)} />
+                <DetailRow label="Starting Class" value={startingClass ? classLabel(startingClass.classId) : 'Not set'} />
+                <View style={styles.classList}>
+                    {draft.classes.map((classRow, index) => (
+                        <View key={`${classRow.classId || 'class'}-${index}`} style={styles.classListRow}>
+                            <View>
+                                <Text style={styles.classListValue}>{formatClassRowLabel(classRow)}</Text>
+                                <Text style={styles.classListMeta}>
+                                    Level {classRow.level}
+                                    {index === draft.startingClassIndex ? ' - starting class' : ''}
+                                </Text>
+                            </View>
+                        </View>
+                    ))}
+                </View>
+            </ParchmentPanel>
+
             <Pressable onPress={() => router.push(CREATE_CHARACTER_ROUTES.abilities)}>
                 <View style={[styles.sectionHeader, styles.sectionGap]}>
                     <Text style={styles.sectionLabel}>Ability Scores</Text>
@@ -109,8 +137,6 @@ export default function StepReview() {
                     </View>
                 )}
             </View>
-
-            {/* Post-creation note */}
             <View style={styles.noteBox}>
                 <Text style={styles.noteText}>
                     Spells, equipment, features and the rest can all be filled in from your character
@@ -170,6 +196,24 @@ const styles = StyleSheet.create({
     },
     card: {
         marginBottom: 12,
+    },
+    classList: {
+        marginTop: 8,
+        gap: 10,
+    },
+    classListRow: {
+        paddingTop: 2,
+    },
+    classListValue: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: 14,
+        color: fantasyTokens.colors.inkDark,
+    },
+    classListMeta: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: 11,
+        color: fantasyTokens.colors.inkSoft,
+        marginTop: 2,
     },
     abilityRow: {
         flexDirection: 'row',
