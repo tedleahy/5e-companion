@@ -17,9 +17,29 @@ const authLink = new SetContextLink(async (prevContext, _) => {
     };
 });
 
+/**
+ * Creates the Apollo cache with field policies for non-normalised nested data.
+ */
+export function createApolloCache() {
+    return new InMemoryCache({
+        typePolicies: {
+            Character: {
+                fields: {
+                    /**
+                     * Character spellbooks are treated as full server snapshots, so replacement is intentional.
+                     */
+                    spellbook: {
+                        merge: false,
+                    },
+                },
+            },
+        },
+    });
+}
+
 const apolloClient = new ApolloClient({
     link: ApolloLink.from([authLink, httpLink]),
-    cache: new InMemoryCache(),
+    cache: createApolloCache(),
 });
 
 export default apolloClient;
