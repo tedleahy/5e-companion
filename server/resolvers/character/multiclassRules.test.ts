@@ -43,6 +43,24 @@ const fighterClass: CharacterClassReference = {
     ],
 };
 
+const paladinClass: CharacterClassReference = {
+    id: 'class-paladin-id',
+    srdIndex: 'paladin',
+    name: 'Paladin',
+    hitDie: 10,
+    spellcastingAbility: 'cha',
+    proficiencies: [
+        { srdIndex: 'light-armor', name: 'Light armour', type: ProficiencyType.ARMOR },
+        { srdIndex: 'medium-armor', name: 'Medium armour', type: ProficiencyType.ARMOR },
+        { srdIndex: 'heavy-armor', name: 'Heavy armour', type: ProficiencyType.ARMOR },
+        { srdIndex: 'shields', name: 'Shields', type: ProficiencyType.ARMOR },
+        { srdIndex: 'simple-weapons', name: 'Simple weapons', type: ProficiencyType.WEAPON },
+        { srdIndex: 'martial-weapons', name: 'Martial weapons', type: ProficiencyType.WEAPON },
+        { srdIndex: 'saving-throw-wis', name: 'WIS', type: ProficiencyType.SAVING_THROW },
+        { srdIndex: 'saving-throw-cha', name: 'CHA', type: ProficiencyType.SAVING_THROW },
+    ],
+};
+
 const warlockClass: CharacterClassReference = {
     id: 'class-warlock-id',
     srdIndex: 'warlock',
@@ -72,6 +90,19 @@ describe('multiclassRules', () => {
             subclassRefs,
             0,
         )).toThrow('requires wizard level 2');
+    });
+
+    test('requires subclasses once a class reaches its subclass unlock level', () => {
+        const classRefs = new Map([
+            ['wizard', wizardClass],
+        ]);
+
+        expect(() => validateClassAllocations(
+            [{ classId: 'wizard', level: 2 }],
+            classRefs,
+            new Map(),
+            0,
+        )).toThrow('Class wizard requires a subclass at level 2.');
     });
 
     test('derives total level and proficiency bonus from ordered class rows', () => {
@@ -161,6 +192,21 @@ describe('multiclassRules', () => {
                 slotKind: 'PACT_MAGIC',
             },
         ]);
+    });
+
+    test('delays spellcasting profiles until the class gains spellcasting', () => {
+        const classes = [
+            { classRow: { classId: 'paladin', level: 1 }, classRef: paladinClass, subclassRef: null },
+        ];
+
+        expect(deriveSpellcastingProfiles(classes, {
+            strength: 16,
+            dexterity: 10,
+            constitution: 14,
+            intelligence: 8,
+            wisdom: 12,
+            charisma: 16,
+        }, 2)).toEqual([]);
     });
 
     test('derives named multiclass proficiencies and long-rest hit-dice recovery', () => {

@@ -266,6 +266,20 @@ const HALF_CASTER_CLASS_IDS = new Set(['paladin', 'ranger']);
 const THIRD_CASTER_SUBCLASS_IDS = new Set(['eldritch-knight', 'arcane-trickster']);
 
 /**
+ * Standard spellcasting classes unlock Spellcasting at these class levels.
+ */
+const SPELLCASTING_UNLOCK_LEVEL_BY_CLASS_SRD_INDEX: Record<string, number> = {
+    bard: 1,
+    cleric: 1,
+    druid: 1,
+    paladin: 2,
+    ranger: 2,
+    sorcerer: 1,
+    warlock: 1,
+    wizard: 1,
+};
+
+/**
  * Returns the 5e ability modifier for an ability score.
  */
 export function abilityModifier(score: number): number {
@@ -321,7 +335,13 @@ export function validateClassAllocations(
             throw new Error(`Unknown class: ${classRow.classId}`);
         }
 
+        const unlockLevel = SUBCLASS_UNLOCK_LEVEL_BY_CLASS_SRD_INDEX[classRow.classId] ?? 3;
+
         if (!classRow.subclassId) {
+            if (classRow.level >= unlockLevel) {
+                throw new Error(`Class ${classRow.classId} requires a subclass at level ${unlockLevel}.`);
+            }
+
             continue;
         }
 
@@ -334,7 +354,6 @@ export function validateClassAllocations(
             throw new Error(`Subclass ${classRow.subclassId} does not belong to class ${classRow.classId}.`);
         }
 
-        const unlockLevel = SUBCLASS_UNLOCK_LEVEL_BY_CLASS_SRD_INDEX[classRow.classId] ?? 3;
         if (classRow.level < unlockLevel) {
             throw new Error(
                 `Subclass ${classRow.subclassId} requires ${classRow.classId} level ${unlockLevel}.`,
@@ -586,14 +605,19 @@ function deriveSpellcastingAbility(
     resolvedClass: ResolvedCharacterClass,
 ): keyof CharacterAbilityScores | null {
     if (resolvedClass.classRow.classId === 'fighter' && resolvedClass.classRow.subclassId === 'eldritch-knight') {
-        return 'intelligence';
+        return resolvedClass.classRow.level >= 3 ? 'intelligence' : null;
     }
 
     if (resolvedClass.classRow.classId === 'rogue' && resolvedClass.classRow.subclassId === 'arcane-trickster') {
-        return 'intelligence';
+        return resolvedClass.classRow.level >= 3 ? 'intelligence' : null;
     }
 
     if (!resolvedClass.classRef.spellcastingAbility) {
+        return null;
+    }
+
+    const unlockLevel = SPELLCASTING_UNLOCK_LEVEL_BY_CLASS_SRD_INDEX[resolvedClass.classRow.classId] ?? 1;
+    if (resolvedClass.classRow.level < unlockLevel) {
         return null;
     }
 
