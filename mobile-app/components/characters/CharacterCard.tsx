@@ -11,7 +11,7 @@ export type CharacterCardData = {
     name: string;
     race: string;
     className: string;
-    subclass?: string | null;
+    classSummary: string;
     level: number;
     conditions: string[];
     hpCurrent: number;
@@ -111,9 +111,7 @@ function healthRatio(currentHp: number, maxHp: number): number {
  * Character roster card styled to match the step-3 "My Characters" design.
  */
 export default function CharacterCard({ character, onPress }: CharacterCardProps) {
-    const identityClassText = character.subclass
-        ? `${character.race} · ${character.subclass} ${character.className}`
-        : `${character.race} · ${character.className}`;
+    const identityClassText = `${character.race} · ${character.classSummary}`;
     const hpRatio = healthRatio(character.hpCurrent, character.hpMax);
 
     return (

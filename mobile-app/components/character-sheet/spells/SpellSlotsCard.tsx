@@ -1,27 +1,16 @@
 import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
+import { groupSpellSlotsByKind } from '@/lib/characterClassSummary';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import type { SpellSlot, SpellSlotKind } from '@/types/generated_graphql_types';
 import PipTrack from '../PipTrack';
 import SectionLabel from '../SectionLabel';
 import SheetCard from '../SheetCard';
 
-type SpellSlot = {
-    id: string;
-    level: number;
-    total: number;
-    used: number;
-};
-
-type DisplaySlot = {
-    level: number;
-    total: number;
-    used: number;
-};
-
 type SpellSlotsCardProps = {
     spellSlots: SpellSlot[];
-    onToggleSpellSlot?: (level: number) => Promise<void>;
+    onToggleSpellSlot?: (kind: SpellSlotKind, level: number) => Promise<void>;
 };
 
 function levelLabel(level: number): string {
@@ -34,89 +23,102 @@ function levelLabel(level: number): string {
     return `${level}${suffix}`;
 }
 
-/**
- * Builds display slots from the character's spell slot data, filtering out
- * levels where the character has no slots (i.e. levels they haven't reached yet).
- */
-function buildDisplaySlots(spellSlots: SpellSlot[]): DisplaySlot[] {
-    return Array.from({ length: 9 }, (_, index) => {
-        const level = index + 1;
-        const slot = spellSlots.find((entry) => entry.level === level);
-
-        return {
-            level,
-            total: slot?.total ?? 0,
-            used: slot?.used ?? 0,
-        };
-    }).filter((slot) => slot.total > 0);
-}
-
 export default function SpellSlotsCard({ spellSlots, onToggleSpellSlot }: SpellSlotsCardProps) {
-    const displaySlots = useMemo(() => buildDisplaySlots(spellSlots), [spellSlots]);
+    const spellSlotGroups = useMemo(() => groupSpellSlotsByKind(spellSlots), [spellSlots]);
 
-    if (displaySlots.length === 0) return null;
+    if (spellSlotGroups.length === 0) return null;
 
     return (
         <SheetCard index={1}>
             <SectionLabel>Spell Slots</SectionLabel>
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
-            >
-                {displaySlots.map((slot) => {
-                    const available = Math.max(0, slot.total - slot.used);
-                    const isInteractive = Boolean(onToggleSpellSlot);
-
-                    return (
-                        <Pressable
-                            key={slot.level}
-                            onPress={() => {
-                                if (onToggleSpellSlot) onToggleSpellSlot(slot.level);
-                            }}
+            <View style={styles.groupStack}>
+                {spellSlotGroups.map((group) => (
+                    <View key={group.kind} style={styles.groupSection}>
+                        {spellSlotGroups.length > 1 ? (
+                            <Text style={styles.groupLabel}>{group.label}</Text>
+                        ) : null}
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.scrollContent}
                         >
-                            <View style={styles.slotGroup}>
-                                <Text style={styles.levelLabel}>{levelLabel(slot.level)}</Text>
-                                <View style={styles.pipsRow}>
-                                    <PipTrack
-                                        count={slot.total}
-                                        filledCount={available}
-                                        getAccessibilityLabel={() =>
-                                            `Toggle level ${slot.level} spell slot`
-                                        }
-                                        getTestID={(index) =>
-                                            `spell-slot-pip-${slot.level}-${index + 1}`
-                                        }
-                                        size={14}
-                                        gap={5}
-                                        borderWidth={1.5}
-                                        filledColor={fantasyTokens.colors.gold}
-                                        filledBorderColor={fantasyTokens.colors.gold}
-                                        emptyBorderColor={'rgba(201,146,42,0.35)'}
-                                        disabled={!isInteractive}
-                                        pipStyle={
-                                            !isInteractive ? styles.pipDisabled : undefined
-                                        }
-                                    />
-                                </View>
-                                <Text style={styles.slotCount}>
-                                    {available} / {slot.total}
-                                </Text>
-                            </View>
-                        </Pressable>
-                    );
-                })}
-            </ScrollView>
+                            {group.slots.map((slot) => {
+                                const available = Math.max(0, slot.total - slot.used);
+                                const isInteractive = Boolean(onToggleSpellSlot);
+
+                                return (
+                                    <Pressable
+                                        key={`${slot.kind}-${slot.level}`}
+                                        onPress={() => {
+                                            if (onToggleSpellSlot) onToggleSpellSlot(slot.kind, slot.level);
+                                        }}
+                                    >
+                                        <View style={styles.slotGroup}>
+                                            <Text style={styles.levelLabel}>{levelLabel(slot.level)}</Text>
+                                            <View style={styles.pipsRow}>
+                                                <PipTrack
+                                                    count={slot.total}
+                                                    filledCount={available}
+                                                    getAccessibilityLabel={() =>
+                                                        slot.kind === 'PACT_MAGIC'
+                                                            ? `Toggle pact magic level ${slot.level} spell slot`
+                                                            : `Toggle level ${slot.level} spell slot`
+                                                    }
+                                                    getTestID={(index) =>
+                                                        slot.kind === 'STANDARD'
+                                                            ? `spell-slot-pip-${slot.level}-${index + 1}`
+                                                            : `spell-slot-pip-${slot.kind.toLowerCase()}-${slot.level}-${index + 1}`
+                                                    }
+                                                    size={14}
+                                                    gap={5}
+                                                    borderWidth={1.5}
+                                                    filledColor={fantasyTokens.colors.gold}
+                                                    filledBorderColor={fantasyTokens.colors.gold}
+                                                    emptyBorderColor={'rgba(201,146,42,0.35)'}
+                                                    disabled={!isInteractive}
+                                                    pipStyle={
+                                                        !isInteractive ? styles.pipDisabled : undefined
+                                                    }
+                                                />
+                                            </View>
+                                            <Text style={styles.slotCount}>
+                                                {available} / {slot.total}
+                                            </Text>
+                                        </View>
+                                    </Pressable>
+                                );
+                            })}
+                        </ScrollView>
+                    </View>
+                ))}
+            </View>
         </SheetCard>
     );
 }
 
 const styles = StyleSheet.create({
+    groupStack: {
+        gap: 6,
+        paddingBottom: 12,
+    },
+    groupSection: {
+        gap: 2,
+    },
+    groupLabel: {
+        color: fantasyTokens.colors.gold,
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: 11,
+        letterSpacing: 1.4,
+        textTransform: 'uppercase',
+        opacity: 0.8,
+        paddingHorizontal: 18,
+        paddingTop: 8,
+    },
     scrollContent: {
         gap: 10,
         paddingHorizontal: 18,
         paddingTop: 12,
-        paddingBottom: 16,
+        paddingBottom: 4,
     },
     slotGroup: {
         minWidth: 86,

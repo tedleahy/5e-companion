@@ -4,6 +4,7 @@ import {
     COMPONENT_OPTIONS,
     countActiveSpellFilters,
     defaultSpellFiltersForClass,
+    defaultSpellFiltersForClasses,
     LEVEL_OPTIONS,
     optionLabel,
     SCHOOL_OPTIONS,
@@ -32,6 +33,13 @@ export {
  */
 export function defaultFilterForClass(characterClass: string): AddSpellFilterState {
     return defaultSpellFiltersForClass(characterClass);
+}
+
+/**
+ * Builds add-sheet default filters pre-selected to all character classes.
+ */
+export function defaultFilterForClasses(characterClassIds: string[]): AddSpellFilterState {
+    return defaultSpellFiltersForClasses(characterClassIds);
 }
 
 /**

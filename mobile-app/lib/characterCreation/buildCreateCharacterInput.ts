@@ -1,11 +1,7 @@
-import { ABILITY_KEYS, abilityModifier, deriveSpellcastingStats, SKILL_DEFINITIONS, type AbilityKey } from '@/lib/characterSheetUtils';
+import { ABILITY_KEYS, abilityModifier, SKILL_DEFINITIONS, type AbilityKey } from '@/lib/characterSheetUtils';
 import {
     BACKGROUND_SKILL_PROFICIENCIES,
-    CLASS_SAVING_THROWS,
-    CLASS_SPELLCASTING_ABILITY_MAP,
-    HIT_DIE_MAP,
 } from '@/lib/characterCreation/classRules';
-import { proficiencyBonusForLevel } from '@/lib/characterCreation/abilityRules';
 import { applyRacialBonuses, RACE_SPEED_MAP } from '@/lib/characterCreation/raceRules';
 import type { CharacterDraft } from '@/store/characterDraft';
 import { ProficiencyLevel, type CreateCharacterInput } from '@/types/generated_graphql_types';
@@ -49,52 +45,34 @@ function calculateFinalAbilityScores(draft: CharacterDraft): Record<AbilityKey, 
 }
 
 /**
- * Calculates level-scaled starting HP using average hit die progression.
- */
-function calculateStartingHp(level: number, hitDie: number, constitutionModifier: number): number {
-    const levelOneHp = Math.max(1, hitDie + constitutionModifier);
-    const perLevelHpGain = Math.max(1, Math.floor(hitDie / 2) + 1 + constitutionModifier);
-    return levelOneHp + Math.max(0, level - 1) * perLevelHpGain;
-}
-
-/**
  * Converts the local draft state into the API input used to create a character.
+ *
+ * Phase 2 keeps the legacy single-class wizard intact just enough to compile
+ * against the multiclass API by mapping the old draft into one class row.
  */
 export function buildCreateCharacterInput(draft: CharacterDraft): CreateCharacterInput {
     const finalScores = calculateFinalAbilityScores(draft);
-    const hitDie = HIT_DIE_MAP[draft.class] ?? 8;
     const dexterityModifier = abilityModifier(finalScores.dexterity);
-    const constitutionModifier = abilityModifier(finalScores.constitution);
-    const proficiencyBonus = proficiencyBonusForLevel(draft.level);
-    const maxHp = calculateStartingHp(draft.level, hitDie, constitutionModifier);
     const hasTraits = draft.personalityTraits || draft.ideals || draft.bonds || draft.flaws;
-    const spellcastingAbility = CLASS_SPELLCASTING_ABILITY_MAP[draft.class];
-    const { spellAttackBonus, spellSaveDC } = deriveSpellcastingStats(
-        spellcastingAbility,
-        finalScores,
-        proficiencyBonus,
-    );
 
     return {
         name: draft.name.trim(),
         race: draft.race,
-        class: draft.class,
-        ...(draft.subclass ? { subclass: draft.subclass } : {}),
-        level: draft.level,
+        classes: [
+            {
+                classId: draft.class,
+                ...(draft.subclass ? { subclassId: draft.subclass } : {}),
+                level: draft.level,
+            },
+        ],
+        startingClassIndex: 0,
         alignment: draft.alignment ?? '',
         background: draft.background,
-        proficiencyBonus,
         ac: 10 + dexterityModifier,
         initiative: dexterityModifier,
         speed: RACE_SPEED_MAP[draft.race] ?? 30,
         abilityScores: finalScores,
-        hp: { max: maxHp, current: maxHp, temp: 0 },
-        hitDice: { total: draft.level, remaining: draft.level, die: `d${hitDie}` },
         skillProficiencies: buildSkillProficiencies(draft),
-        savingThrowProficiencies: CLASS_SAVING_THROWS[draft.class] ?? [],
-        ...(spellcastingAbility ? { spellcastingAbility } : {}),
-        ...(spellAttackBonus !== null ? { spellAttackBonus } : {}),
-        ...(spellSaveDC !== null ? { spellSaveDC } : {}),
         ...(hasTraits
             ? {
                   traits: {

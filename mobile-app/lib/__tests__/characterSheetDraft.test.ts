@@ -7,8 +7,6 @@ const CHARACTER_SHEET_CHARACTER = {
     id: 'char-1',
     name: 'Vaelindra',
     race: 'High Elf',
-    class: 'Wizard',
-    subclass: 'School of Evocation',
     level: 12,
     alignment: 'Chaotic Good',
     background: 'Sage',
@@ -17,9 +15,56 @@ const CHARACTER_SHEET_CHARACTER = {
     ac: 17,
     speed: 35,
     initiative: 3,
-    spellcastingAbility: 'intelligence',
-    spellSaveDC: 17,
-    spellAttackBonus: 9,
+    classes: [
+        {
+            __typename: 'CharacterClass',
+            id: 'character-class-1',
+            classId: 'wizard',
+            className: 'Wizard',
+            subclassId: 'school-of-evocation',
+            subclassName: 'School of Evocation',
+            level: 10,
+            order: 0,
+            isStartingClass: true,
+        },
+        {
+            __typename: 'CharacterClass',
+            id: 'character-class-2',
+            classId: 'warlock',
+            className: 'Warlock',
+            subclassId: 'fiend',
+            subclassName: 'Fiend',
+            level: 2,
+            order: 1,
+            isStartingClass: false,
+        },
+    ],
+    spellcastingProfiles: [
+        {
+            __typename: 'SpellcastingProfile',
+            classId: 'wizard',
+            className: 'Wizard',
+            subclassId: 'school-of-evocation',
+            subclassName: 'School of Evocation',
+            classLevel: 10,
+            spellcastingAbility: 'intelligence',
+            spellSaveDC: 17,
+            spellAttackBonus: 9,
+            slotKind: 'STANDARD',
+        },
+        {
+            __typename: 'SpellcastingProfile',
+            classId: 'warlock',
+            className: 'Warlock',
+            subclassId: 'fiend',
+            subclassName: 'Fiend',
+            classLevel: 2,
+            spellcastingAbility: 'charisma',
+            spellSaveDC: 12,
+            spellAttackBonus: 4,
+            slotKind: 'PACT_MAGIC',
+        },
+    ],
     conditions: [],
     features: [
         {
@@ -80,12 +125,26 @@ const CHARACTER_SHEET_CHARACTER = {
             successes: 1,
             failures: 0,
         },
-        hitDice: {
-            __typename: 'HitDice',
-            total: 12,
-            remaining: 12,
-            die: 'd6',
-        },
+        hitDicePools: [
+            {
+                __typename: 'HitDicePool',
+                id: 'hit-dice-pool-1',
+                classId: 'wizard',
+                className: 'Wizard',
+                total: 10,
+                remaining: 10,
+                die: 'd6',
+            },
+            {
+                __typename: 'HitDicePool',
+                id: 'hit-dice-pool-2',
+                classId: 'warlock',
+                className: 'Warlock',
+                total: 2,
+                remaining: 2,
+                die: 'd8',
+            },
+        ],
         savingThrowProficiencies: ['intelligence', 'wisdom'],
         skillProficiencies: {
             __typename: 'SkillProficiencies',
@@ -154,7 +213,7 @@ describe('characterSheetDraft', () => {
             type: 'melee',
         });
 
-        const input = mapCharacterSheetDraftToSaveInput(draft, 'intelligence', 4);
+        const input = mapCharacterSheetDraftToSaveInput(draft);
 
         expect(input.weapons).toEqual([
             {
@@ -174,12 +233,12 @@ describe('characterSheetDraft', () => {
         ]);
     });
 
-    it('derives spellcasting values when mapping save input', () => {
+    it('omits derived spellcasting values when mapping save input', () => {
         const draft = createCharacterSheetDraft(CHARACTER_SHEET_CHARACTER as never);
 
-        const input = mapCharacterSheetDraftToSaveInput(draft, 'intelligence', 4);
+        const input = mapCharacterSheetDraftToSaveInput(draft);
 
-        expect(input.spellAttackBonus).toBe(9);
-        expect(input.spellSaveDC).toBe(17);
+        expect(input).not.toHaveProperty('spellAttackBonus');
+        expect(input).not.toHaveProperty('spellSaveDC');
     });
 });

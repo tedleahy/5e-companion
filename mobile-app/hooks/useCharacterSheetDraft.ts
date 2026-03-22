@@ -60,11 +60,7 @@ export default function useCharacterSheetDraft(character: CharacterSheetDetail |
     function buildSaveInput(): SaveCharacterSheetInput | null {
         if (!draft || !character) return null;
 
-        return mapCharacterSheetDraftToSaveInput(
-            draft,
-            character.spellcastingAbility,
-            character.proficiencyBonus,
-        );
+        return mapCharacterSheetDraftToSaveInput(draft);
     }
 
     /**

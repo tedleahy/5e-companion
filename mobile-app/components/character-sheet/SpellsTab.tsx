@@ -6,17 +6,20 @@ import SpellbookCard from './spells/SpellbookCard';
 import SpellcastingStatsCard from './spells/SpellcastingStatsCard';
 import SpellSlotsCard from './spells/SpellSlotsCard';
 import SheetAddButton from './SheetAddButton';
-import type { CharacterSpellbookEntryFieldsFragment, SpellSlot } from '@/types/generated_graphql_types';
+import type {
+    CharacterSpellbookEntryFieldsFragment,
+    SpellSlot,
+    SpellSlotKind,
+    SpellcastingProfile,
+} from '@/types/generated_graphql_types';
 import AddSpellSheet from './spells/AddSpellSheet';
 
 type SpellsTabProps = {
-    characterClass: string;
-    spellcastingAbility?: string | null;
-    spellSaveDC?: number | null;
-    spellAttackBonus?: number | null;
+    characterClassIds: string[];
+    spellcastingProfiles: SpellcastingProfile[];
     spellSlots: SpellSlot[];
     spellbook: CharacterSpellbookEntryFieldsFragment[];
-    onToggleSpellSlot?: (level: number) => Promise<void>;
+    onToggleSpellSlot?: (kind: SpellSlotKind, level: number) => Promise<void>;
     onSetSpellPrepared?: (spellId: string, prepared: boolean) => Promise<void>;
     onLearnSpell?: (spellId: string) => Promise<void>;
     onForgetSpell?: (spellId: string) => Promise<void>;
@@ -24,10 +27,8 @@ type SpellsTabProps = {
 };
 
 export default function SpellsTab({
-    characterClass,
-    spellcastingAbility,
-    spellSaveDC,
-    spellAttackBonus,
+    characterClassIds,
+    spellcastingProfiles,
     spellSlots,
     spellbook,
     onToggleSpellSlot,
@@ -83,9 +84,7 @@ export default function SpellsTab({
                 showsVerticalScrollIndicator={false}
             >
                 <SpellcastingStatsCard
-                    spellcastingAbility={spellcastingAbility}
-                    spellAttackBonus={spellAttackBonus}
-                    spellSaveDC={spellSaveDC}
+                    spellcastingProfiles={spellcastingProfiles}
                     preparedCount={preparedCount}
                 />
 
@@ -108,13 +107,13 @@ export default function SpellsTab({
                 />
             </ScrollView>
 
-            <AddSpellSheet
-                visible={addSheetVisible}
-                onClose={() => setAddSheetVisible(false)}
-                characterClass={characterClass}
-                knownSpellIds={knownSpellIds}
-                onSpellAdded={handleSpellAdded}
-                onSpellRemoved={handleSpellRemoved}
+                <AddSpellSheet
+                    visible={addSheetVisible}
+                    onClose={() => setAddSheetVisible(false)}
+                    characterClassIds={characterClassIds}
+                    knownSpellIds={knownSpellIds}
+                    onSpellAdded={handleSpellAdded}
+                    onSpellRemoved={handleSpellRemoved}
             />
         </View>
     );
