@@ -19,7 +19,7 @@ describe('characterCreationStepCompletion', () => {
             createDraft({
                 level: 3,
                 classes: [{ classId: 'wizard', subclassId: '', level: 2 }],
-                startingClassIndex: 0,
+                startingClassId: 'wizard',
             }),
         )).toBe(false);
 
@@ -31,7 +31,7 @@ describe('characterCreationStepCompletion', () => {
                     { classId: 'wizard', subclassId: 'evocation', level: 2 },
                     { classId: 'fighter', subclassId: '', level: 1 },
                 ],
-                startingClassIndex: 0,
+                startingClassId: 'wizard',
             }),
         )).toBe(true);
     });
@@ -42,7 +42,7 @@ describe('characterCreationStepCompletion', () => {
             createDraft({
                 level: 1,
                 classes: [{ classId: 'wizard', subclassId: 'evocation', level: 1 }],
-                startingClassIndex: 0,
+                startingClassId: 'wizard',
             }),
         )).toBe(false);
     });
@@ -53,7 +53,7 @@ describe('characterCreationStepCompletion', () => {
             createDraft({
                 level: 2,
                 classes: [{ classId: 'wizard', subclassId: 'evocation', level: 2 }],
-                startingClassIndex: 0,
+                startingClassId: 'wizard',
             }),
         )).toBe(true);
     });

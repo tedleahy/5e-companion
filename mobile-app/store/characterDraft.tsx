@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 import { ABILITY_KEYS, type AbilityKey, type SkillKey } from '@/lib/characterSheetUtils';
 import {
-    clampStartingClassIndex,
+    normaliseStartingClassId,
     type CharacterClassDraft,
 } from '@/lib/characterCreation/multiclass';
 
@@ -9,7 +9,7 @@ export type CharacterDraft = {
     name: string;
     race: string;
     classes: CharacterClassDraft[];
-    startingClassIndex: number;
+    startingClassId: string;
     level: number;
     abilityScores: Record<AbilityKey, number>;
     background: string;
@@ -44,7 +44,7 @@ export function createDefaultDraft(): CharacterDraft {
         name: '',
         race: '',
         classes: [],
-        startingClassIndex: 0,
+        startingClassId: '',
         level: 1,
         abilityScores: { ...DEFAULT_SCORES },
         background: '',
@@ -80,10 +80,10 @@ export function CharacterDraftProvider({ children }: { children: ReactNode }) {
         setDraft((prev) => {
             const nextDraft = { ...prev, ...patch };
 
-            if (patch.classes || patch.startingClassIndex !== undefined) {
-                nextDraft.startingClassIndex = clampStartingClassIndex(
+            if (patch.classes || patch.startingClassId !== undefined) {
+                nextDraft.startingClassId = normaliseStartingClassId(
                     nextDraft.classes,
-                    nextDraft.startingClassIndex,
+                    nextDraft.startingClassId,
                 );
             }
 

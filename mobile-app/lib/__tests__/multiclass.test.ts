@@ -1,6 +1,8 @@
 import {
     formatDraftClassSummary,
+    normaliseStartingClassId,
     sanitiseCharacterClassRow,
+    sortClassRowsForDisplay,
     validateCharacterClassDraft,
 } from '@/lib/characterCreation/multiclass';
 
@@ -27,10 +29,37 @@ describe('multiclass helpers', () => {
         expect(validateCharacterClassDraft(
             [{ classId: 'fighter', subclassId: '', level: 2 }],
             3,
-            0,
+            'fighter',
         )).toMatchObject({
             isValid: false,
             remainingLevels: 1,
         });
+    });
+
+    it('sorts classes by level, then starting class, then class name', () => {
+        expect(sortClassRowsForDisplay([
+            { classId: 'wizard', subclassId: '', level: 2 },
+            { classId: 'fighter', subclassId: '', level: 3 },
+            { classId: 'cleric', subclassId: '', level: 3 },
+        ], 'fighter').map((classRow) => classRow.classId)).toEqual([
+            'fighter',
+            'cleric',
+            'wizard',
+        ]);
+    });
+
+    it('falls back to the first displayed class when the starting class is removed', () => {
+        expect(normaliseStartingClassId([
+            { classId: 'wizard', subclassId: '', level: 2 },
+            { classId: 'fighter', subclassId: '', level: 3 },
+        ], '')).toBe('fighter');
+    });
+
+    it('ignores empty class rows when choosing a fallback starting class', () => {
+        expect(normaliseStartingClassId([
+            { classId: '', subclassId: '', level: 1 },
+            { classId: 'wizard', subclassId: '', level: 2 },
+            { classId: 'fighter', subclassId: '', level: 3 },
+        ], '')).toBe('fighter');
     });
 });

@@ -4,11 +4,12 @@ import { Modal, Portal, Text } from 'react-native-paper';
 import ClassAllocationRow from '@/components/wizard/ClassAllocationRow';
 import {
     availableClassOptions,
-    clampStartingClassIndex,
     createCharacterClassDraft,
     isSubclassUnlocked,
+    normaliseStartingClassId,
     remainingClassLevels,
     sanitiseCharacterClassRow,
+    sortClassRowsForDisplay,
     validateCharacterClassDraft,
 } from '@/lib/characterCreation/multiclass';
 import { SUBCLASS_OPTIONS } from '@/lib/characterCreation/options';
@@ -25,19 +26,23 @@ export default function StepClass() {
     const validation = validateCharacterClassDraft(
         draft.classes,
         draft.level,
-        draft.startingClassIndex,
+        draft.startingClassId,
     );
     const remainingLevelsCount = remainingClassLevels(draft.classes, draft.level);
+    const displayClassRows = sortClassRowsForDisplay(
+        draft.classes.map((classRow, originalIndex) => ({ ...classRow, originalIndex })),
+        draft.startingClassId,
+    );
 
     /**
-     * Writes a new ordered class-row list back into the draft.
+     * Writes new class rows back into the draft and keeps the starting class valid.
      */
-    function updateClasses(nextClasses: typeof draft.classes, nextStartingClassIndex = draft.startingClassIndex) {
+    function updateClasses(nextClasses: typeof draft.classes, nextStartingClassId = draft.startingClassId) {
         const sanitisedClasses = nextClasses.map(sanitiseCharacterClassRow);
 
         updateDraft({
             classes: sanitisedClasses,
-            startingClassIndex: clampStartingClassIndex(sanitisedClasses, nextStartingClassIndex),
+            startingClassId: normaliseStartingClassId(sanitisedClasses, nextStartingClassId),
         });
     }
 
@@ -49,7 +54,10 @@ export default function StepClass() {
             return;
         }
 
-        updateClasses([...draft.classes, createCharacterClassDraft(classId)]);
+        updateClasses(
+            [...draft.classes, createCharacterClassDraft(classId)],
+            draft.startingClassId || classId,
+        );
     }
 
     /**
@@ -82,42 +90,14 @@ export default function StepClass() {
     }
 
     /**
-     * Removes one class row and keeps the starting-class index in sync.
+     * Removes one class row and keeps the starting-class selection valid.
      */
     function handleRemoveClass(index: number) {
         const nextClasses = draft.classes.filter((_, currentIndex) => currentIndex !== index);
-        const nextStartingClassIndex = index < draft.startingClassIndex
-            ? draft.startingClassIndex - 1
-            : draft.startingClassIndex;
+        const removedClassId = draft.classes[index]?.classId ?? '';
+        const nextStartingClassId = removedClassId === draft.startingClassId ? '' : draft.startingClassId;
 
-        updateClasses(nextClasses, nextStartingClassIndex);
-    }
-
-    /**
-     * Moves a class row within the ordered list while keeping the starting row selected.
-     */
-    function handleMoveClass(index: number, direction: -1 | 1) {
-        const targetIndex = index + direction;
-
-        if (targetIndex < 0 || targetIndex >= draft.classes.length) {
-            return;
-        }
-
-        const nextClasses = [...draft.classes];
-        const [movedClass] = nextClasses.splice(index, 1);
-        nextClasses.splice(targetIndex, 0, movedClass);
-
-        let nextStartingClassIndex = draft.startingClassIndex;
-
-        if (draft.startingClassIndex === index) {
-            nextStartingClassIndex = targetIndex;
-        } else if (direction === -1 && draft.startingClassIndex === targetIndex) {
-            nextStartingClassIndex = index;
-        } else if (direction === 1 && draft.startingClassIndex === targetIndex) {
-            nextStartingClassIndex = index;
-        }
-
-        updateClasses(nextClasses, nextStartingClassIndex);
+        updateClasses(nextClasses, nextStartingClassId);
     }
 
     /**
@@ -138,8 +118,7 @@ export default function StepClass() {
             <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
                 <Text style={styles.heading}>Build your class path.</Text>
                 <Text style={styles.sub}>
-                    Split your levels across classes, keep the order you want shown on the sheet,
-                    and choose which one was your first adventuring class.
+                    Split your levels across classes and choose which one was your first adventuring class.
                 </Text>
 
                 <View style={styles.summaryCard}>
@@ -165,24 +144,20 @@ export default function StepClass() {
                     </Text>
                 </View>
 
-                {draft.classes.map((classRow, index) => (
+                {displayClassRows.map((classRow, displayIndex) => (
                     <ClassAllocationRow
-                        key={`${classRow.classId || 'class'}-${index}`}
+                        key={`${classRow.classId || 'class'}-${classRow.originalIndex}`}
                         canDecreaseLevel={classRow.level > 1}
                         canIncreaseLevel={remainingLevelsCount > 0}
-                        canMoveDown={index < draft.classes.length - 1}
-                        canMoveUp={index > 0}
                         canRemove
                         classRow={classRow}
-                        index={index}
-                        isStartingClass={index === draft.startingClassIndex}
-                        onDecreaseLevel={() => handleChangeClassLevel(index, -1)}
-                        onIncreaseLevel={() => handleChangeClassLevel(index, 1)}
-                        onMoveDown={() => handleMoveClass(index, 1)}
-                        onMoveUp={() => handleMoveClass(index, -1)}
-                        onRemove={() => handleRemoveClass(index)}
-                        onSelectStartingClass={() => updateDraft({ startingClassIndex: index })}
-                        onSelectSubclass={(subclassId) => handleSelectSubclass(index, subclassId)}
+                        index={displayIndex}
+                        isStartingClass={classRow.classId === draft.startingClassId}
+                        onDecreaseLevel={() => handleChangeClassLevel(classRow.originalIndex, -1)}
+                        onIncreaseLevel={() => handleChangeClassLevel(classRow.originalIndex, 1)}
+                        onRemove={() => handleRemoveClass(classRow.originalIndex)}
+                        onSelectStartingClass={() => updateDraft({ startingClassId: classRow.classId })}
+                        onSelectSubclass={(subclassId) => handleSelectSubclass(classRow.originalIndex, subclassId)}
                         subclassOptions={SUBCLASS_OPTIONS[classRow.classId] ?? []}
                         subclassUnlocked={isSubclassUnlocked(classRow)}
                     />

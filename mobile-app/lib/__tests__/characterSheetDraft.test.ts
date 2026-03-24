@@ -24,7 +24,6 @@ const CHARACTER_SHEET_CHARACTER = {
             subclassId: 'school-of-evocation',
             subclassName: 'School of Evocation',
             level: 10,
-            order: 0,
             isStartingClass: true,
         },
         {
@@ -35,7 +34,6 @@ const CHARACTER_SHEET_CHARACTER = {
             subclassId: 'fiend',
             subclassName: 'Fiend',
             level: 2,
-            order: 1,
             isStartingClass: false,
         },
     ],

@@ -12,6 +12,7 @@ import {
     classLabel,
     formatDraftClassSummary,
     formatClassRowLabel,
+    sortClassRowsForDisplay,
     startingClassRow,
 } from '@/lib/characterCreation/multiclass';
 
@@ -24,8 +25,9 @@ export default function StepReview() {
     const bgSkills = BACKGROUND_SKILL_PROFICIENCIES[draft.background] ?? [];
     const allProfSkills = new Set([...draft.skillProficiencies, ...bgSkills]);
     const proficientSkillDefs = SKILL_DEFINITIONS.filter((s) => allProfSkills.has(s.key));
-    const startingClass = startingClassRow(draft.classes, draft.startingClassIndex);
+    const startingClass = startingClassRow(draft.classes, draft.startingClassId);
     const savingThrows = CLASS_SAVING_THROWS[startingClass?.classId ?? ''] ?? [];
+    const displayClassRows = sortClassRowsForDisplay(draft.classes, draft.startingClassId);
 
     return (
         <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
@@ -53,16 +55,16 @@ export default function StepReview() {
                 </View>
             </Pressable>
             <ParchmentPanel style={styles.card}>
-                <DetailRow label="Summary" value={formatDraftClassSummary(draft.classes)} />
+                <DetailRow label="Summary" value={formatDraftClassSummary(draft.classes, draft.startingClassId)} />
                 <DetailRow label="Starting Class" value={startingClass ? classLabel(startingClass.classId) : 'Not set'} />
                 <View style={styles.classList}>
-                    {draft.classes.map((classRow, index) => (
+                    {displayClassRows.map((classRow, index) => (
                         <View key={`${classRow.classId || 'class'}-${index}`} style={styles.classListRow}>
                             <View>
                                 <Text style={styles.classListValue}>{formatClassRowLabel(classRow)}</Text>
                                 <Text style={styles.classListMeta}>
                                     Level {classRow.level}
-                                    {index === draft.startingClassIndex ? ' - starting class' : ''}
+                                    {classRow.classId === draft.startingClassId ? ' - starting class' : ''}
                                 </Text>
                             </View>
                         </View>

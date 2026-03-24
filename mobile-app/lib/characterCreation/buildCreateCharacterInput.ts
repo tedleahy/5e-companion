@@ -5,6 +5,7 @@ import {
 import { applyRacialBonuses, RACE_SPEED_MAP } from '@/lib/characterCreation/raceRules';
 import {
     sanitiseCharacterClassRow,
+    sortClassRowsForDisplay,
 } from '@/lib/characterCreation/multiclass';
 import type { CharacterDraft } from '@/store/characterDraft';
 import { ProficiencyLevel, type CreateCharacterInput } from '@/types/generated_graphql_types';
@@ -54,7 +55,10 @@ export function buildCreateCharacterInput(draft: CharacterDraft): CreateCharacte
     const finalScores = calculateFinalAbilityScores(draft);
     const dexterityModifier = abilityModifier(finalScores.dexterity);
     const hasTraits = draft.personalityTraits || draft.ideals || draft.bonds || draft.flaws;
-    const classRows = draft.classes.map(sanitiseCharacterClassRow);
+    const classRows = sortClassRowsForDisplay(
+        draft.classes.map(sanitiseCharacterClassRow),
+        draft.startingClassId,
+    );
 
     return {
         name: draft.name.trim(),
@@ -64,7 +68,7 @@ export function buildCreateCharacterInput(draft: CharacterDraft): CreateCharacte
             ...(classRow.subclassId ? { subclassId: classRow.subclassId } : {}),
             level: classRow.level,
         })),
-        startingClassIndex: draft.startingClassIndex,
+        startingClassId: draft.startingClassId,
         alignment: draft.alignment ?? '',
         background: draft.background,
         ac: 10 + dexterityModifier,

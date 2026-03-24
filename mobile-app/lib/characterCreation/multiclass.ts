@@ -7,7 +7,7 @@ import {
     type OptionItem,
 } from '@/lib/characterCreation/options';
 
-/** One ordered class row in the local create-character draft. */
+/** One class row in the local create-character draft. */
 export type CharacterClassDraft = {
     classId: string;
     subclassId: string;
@@ -153,17 +153,55 @@ export function sanitiseCharacterClassRow(
 }
 
 /**
- * Returns a safe starting-class index for the current class list.
+ * Sorts draft class rows by level, then starting-class status, then class label.
  */
-export function clampStartingClassIndex(
+export function sortClassRowsForDisplay<T extends CharacterClassDraft>(
+    classRows: T[],
+    startingClassId: string,
+): T[] {
+    return [...classRows].sort((left, right) => {
+        if (left.level !== right.level) {
+            return right.level - left.level;
+        }
+
+        const leftIsStartingClass = left.classId === startingClassId;
+        const rightIsStartingClass = right.classId === startingClassId;
+        if (leftIsStartingClass !== rightIsStartingClass) {
+            return leftIsStartingClass ? -1 : 1;
+        }
+
+        return classLabel(left.classId).localeCompare(classLabel(right.classId));
+    });
+}
+
+/**
+ * Returns the first fully selected class row in display order, or `null`.
+ */
+function firstDisplayableClassRow(
     classRows: CharacterClassDraft[],
-    startingClassIndex: number,
-): number {
+): CharacterClassDraft | null {
+    return sortClassRowsForDisplay(
+        classRows.filter((classRow) => classRow.classId !== ''),
+        '',
+    )[0] ?? null;
+}
+
+/**
+ * Returns a safe starting-class id for the current class list.
+ */
+export function normaliseStartingClassId(
+    classRows: CharacterClassDraft[],
+    startingClassId: string,
+): string {
     if (classRows.length === 0) {
-        return 0;
+        return '';
     }
 
-    return Math.min(Math.max(startingClassIndex, 0), classRows.length - 1);
+    if (startingClassId && classRows.some((classRow) => classRow.classId === startingClassId)) {
+        return startingClassId;
+    }
+
+    return firstDisplayableClassRow(classRows)?.classId ?? '';
 }
 
 /**
@@ -171,9 +209,9 @@ export function clampStartingClassIndex(
  */
 export function startingClassRow(
     classRows: CharacterClassDraft[],
-    startingClassIndex: number,
+    startingClassId: string,
 ): CharacterClassDraft | null {
-    return classRows[clampStartingClassIndex(classRows, startingClassIndex)] ?? null;
+    return classRows.find((classRow) => classRow.classId === normaliseStartingClassId(classRows, startingClassId)) ?? null;
 }
 
 /**
@@ -206,16 +244,19 @@ export function formatClassRowLabel(classRow: CharacterClassDraft): string {
  */
 export function formatDraftClassSummary(
     classRows: CharacterClassDraft[],
+    startingClassId = '',
 ): string {
     if (classRows.length === 0) {
         return 'No classes selected';
     }
 
-    if (classRows.length === 1) {
-        return formatClassRowLabel(classRows[0]);
+    const sortedClassRows = sortClassRowsForDisplay(classRows, startingClassId);
+
+    if (sortedClassRows.length === 1) {
+        return formatClassRowLabel(sortedClassRows[0]);
     }
 
-    return classRows
+    return sortedClassRows
         .map((classRow) => `${classLabel(classRow.classId)} ${classRow.level}`)
         .join(' / ');
 }
@@ -226,7 +267,7 @@ export function formatDraftClassSummary(
 export function validateCharacterClassDraft(
     classRows: CharacterClassDraft[],
     totalLevel: number,
-    startingClassIndex: number,
+    startingClassId: string,
 ): CharacterClassDraftValidation {
     const errors: string[] = [];
     const seenClassIds = new Set<string>();
@@ -274,7 +315,7 @@ export function validateCharacterClassDraft(
         }
     }
 
-    if (classRows.length > 0 && (startingClassIndex < 0 || startingClassIndex >= classRows.length)) {
+    if (classRows.length > 0 && !classRows.some((classRow) => classRow.classId === startingClassId)) {
         errors.push('Choose which class is your starting class.');
     }
 

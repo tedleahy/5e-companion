@@ -13,16 +13,12 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
 type Props = {
     canDecreaseLevel: boolean;
     canIncreaseLevel: boolean;
-    canMoveDown: boolean;
-    canMoveUp: boolean;
     canRemove: boolean;
     classRow: CharacterClassDraft;
     index: number;
     isStartingClass: boolean;
     onDecreaseLevel: () => void;
     onIncreaseLevel: () => void;
-    onMoveDown: () => void;
-    onMoveUp: () => void;
     onRemove: () => void;
     onSelectStartingClass: () => void;
     onSelectSubclass: (subclassId: string) => void;
@@ -36,16 +32,12 @@ type Props = {
 export default function ClassAllocationRow({
     canDecreaseLevel,
     canIncreaseLevel,
-    canMoveDown,
-    canMoveUp,
     canRemove,
     classRow,
     index,
     isStartingClass,
     onDecreaseLevel,
     onIncreaseLevel,
-    onMoveDown,
-    onMoveUp,
     onRemove,
     onSelectStartingClass,
     onSelectSubclass,
@@ -114,32 +106,6 @@ export default function ClassAllocationRow({
             </Pressable>
 
             <View style={styles.controlsRow}>
-                <Pressable
-                    accessibilityRole="button"
-                    disabled={!canMoveUp}
-                    onPress={onMoveUp}
-                    style={({ pressed }) => [
-                        styles.controlButton,
-                        !canMoveUp && styles.controlButtonDisabled,
-                        pressed && canMoveUp && styles.controlButtonPressed,
-                    ]}
-                    testID={`class-row-move-up-${index}`}
-                >
-                    <Text style={styles.controlButtonText}>Move Up</Text>
-                </Pressable>
-                <Pressable
-                    accessibilityRole="button"
-                    disabled={!canMoveDown}
-                    onPress={onMoveDown}
-                    style={({ pressed }) => [
-                        styles.controlButton,
-                        !canMoveDown && styles.controlButtonDisabled,
-                        pressed && canMoveDown && styles.controlButtonPressed,
-                    ]}
-                    testID={`class-row-move-down-${index}`}
-                >
-                    <Text style={styles.controlButtonText}>Move Down</Text>
-                </Pressable>
                 <Pressable
                     accessibilityRole="button"
                     disabled={!canRemove}
@@ -286,33 +252,14 @@ const styles = StyleSheet.create({
         lineHeight: 16,
     },
     controlsRow: {
-        flexDirection: 'row',
-        gap: 8,
+        alignItems: 'flex-end',
         marginTop: 12,
-    },
-    controlButton: {
-        flex: 1,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: 'rgba(201,146,42,0.2)',
-        paddingVertical: 10,
-        alignItems: 'center',
-        backgroundColor: 'rgba(240,224,188,0.35)',
-    },
-    controlButtonPressed: {
-        backgroundColor: 'rgba(201,146,42,0.12)',
     },
     controlButtonDisabled: {
         opacity: 0.35,
     },
-    controlButtonText: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
-        letterSpacing: 1,
-        textTransform: 'uppercase',
-        color: fantasyTokens.colors.inkDark,
-    },
     removeButton: {
+        minWidth: 120,
         borderRadius: 10,
         borderWidth: 1,
         borderColor: 'rgba(139,26,26,0.25)',

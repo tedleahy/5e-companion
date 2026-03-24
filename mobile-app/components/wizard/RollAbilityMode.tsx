@@ -16,7 +16,7 @@ export default function RollAbilityMode() {
     const { draft, setAbilityScore, setAllAbilityScores } = useCharacterDraft();
     const racialBonuses = RACE_ABILITY_BONUSES[draft.race] ?? {};
     const scoresModified = ABILITY_KEYS.some((k) => draft.abilityScores[k] !== 10);
-    const selectedStartingClass = startingClassRow(draft.classes, draft.startingClassIndex);
+    const selectedStartingClass = startingClassRow(draft.classes, draft.startingClassId);
     const suggestedClassId = selectedStartingClass?.classId ?? '';
     const hasClass = suggestedClassId.length > 0;
     const canSuggest = scoresModified && hasClass;

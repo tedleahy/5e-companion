@@ -21,21 +21,24 @@ type SpellAttackProfileSummary = Pick<SpellcastingProfile, 'spellAttackBonus'>;
 type SpellSaveProfileSummary = Pick<SpellcastingProfile, 'spellSaveDC'>;
 
 /**
- * Sorts class rows by their persisted display order.
- */
-function compareCharacterClassOrder(leftClass: CharacterClass, rightClass: CharacterClass): number {
-    return leftClass.order - rightClass.order;
-}
-
-/**
- * Returns character classes in their persisted display order.
+ * Sorts character classes by display priority: level, starting class, then class name.
  */
 export function sortCharacterClasses(classes: CharacterClass[]): CharacterClass[] {
-    return [...classes].sort(compareCharacterClassOrder);
+    return [...classes].sort((leftClass, rightClass) => {
+        if (leftClass.level !== rightClass.level) {
+            return rightClass.level - leftClass.level;
+        }
+
+        if (leftClass.isStartingClass !== rightClass.isStartingClass) {
+            return leftClass.isStartingClass ? -1 : 1;
+        }
+
+        return leftClass.className.localeCompare(rightClass.className);
+    });
 }
 
 /**
- * Returns the first ordered class row, or `null` when unavailable.
+ * Returns the first displayed class row, or `null` when unavailable.
  */
 function primaryCharacterClass(classes: CharacterClass[]): CharacterClass | null {
     return sortCharacterClasses(classes)[0] ?? null;
@@ -74,7 +77,7 @@ function formatMulticlassSegment(classRow: CharacterClass): string {
 }
 
 /**
- * Formats a roster/header class summary from ordered class rows.
+ * Formats a roster/header class summary from display-sorted class rows.
  */
 export function formatCharacterClassSummary(classes: CharacterClass[]): string {
     const orderedClasses = sortCharacterClasses(classes);
@@ -91,7 +94,7 @@ export function formatCharacterClassSummary(classes: CharacterClass[]): string {
 }
 
 /**
- * Returns unique class ids in display order for spell-filter defaults.
+ * Returns unique class ids in class-display order for spell-filter defaults.
  */
 export function orderedCharacterClassIds(classes: CharacterClass[]): string[] {
     const classIds = new Set<string>();

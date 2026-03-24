@@ -2,17 +2,17 @@ import { buildCreateCharacterInput } from '@/lib/characterCreation/buildCreateCh
 import { createDefaultDraft } from '@/store/characterDraft';
 
 describe('buildCreateCharacterInput', () => {
-    it('maps ordered multiclass rows and the selected starting class index', () => {
+    it('maps sorted multiclass rows and the selected starting class id', () => {
         const input = buildCreateCharacterInput({
             ...createDefaultDraft(),
             name: 'Vaelindra',
             race: 'Elf',
             level: 5,
             classes: [
-                { classId: 'wizard', subclassId: 'evocation', level: 3 },
                 { classId: 'warlock', subclassId: 'fiend', level: 2 },
+                { classId: 'wizard', subclassId: 'evocation', level: 3 },
             ],
-            startingClassIndex: 1,
+            startingClassId: 'warlock',
             background: 'Acolyte',
         });
 
@@ -20,7 +20,7 @@ describe('buildCreateCharacterInput', () => {
             { classId: 'wizard', subclassId: 'evocation', level: 3 },
             { classId: 'warlock', subclassId: 'fiend', level: 2 },
         ]);
-        expect(input.startingClassIndex).toBe(1);
+        expect(input.startingClassId).toBe('warlock');
     });
 
     it('drops stale subclass ids that are not valid for the class row', () => {
@@ -30,7 +30,7 @@ describe('buildCreateCharacterInput', () => {
             race: 'Human',
             level: 1,
             classes: [{ classId: 'fighter', subclassId: 'evocation', level: 1 }],
-            startingClassIndex: 0,
+            startingClassId: 'fighter',
             background: 'Acolyte',
         });
 

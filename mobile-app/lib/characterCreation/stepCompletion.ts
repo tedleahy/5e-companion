@@ -18,7 +18,7 @@ export function isCreateCharacterStepComplete(
             return validateCharacterClassDraft(
                 draft.classes,
                 draft.level,
-                draft.startingClassIndex,
+                draft.startingClassId,
             ).isValid;
         case CREATE_CHARACTER_ROUTES.background:
             return draft.background !== '';

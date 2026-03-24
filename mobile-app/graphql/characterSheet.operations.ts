@@ -17,7 +17,6 @@ const CHARACTER_ROSTER_FIELDS_FRAGMENT = gql`
             subclassId
             subclassName
             level
-            order
             isStartingClass
         }
         spellcastingProfiles {
@@ -54,7 +53,6 @@ const CHARACTER_SHEET_FIELDS_FRAGMENT = gql`
             subclassId
             subclassName
             level
-            order
             isStartingClass
         }
         level

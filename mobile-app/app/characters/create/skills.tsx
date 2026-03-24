@@ -16,7 +16,7 @@ import ProficiencyItem from '@/components/wizard/ProficiencyItem';
 
 export default function StepSkills() {
     const { draft, toggleSkillProficiency, toggleExpertise } = useCharacterDraft();
-    const startingClass = startingClassRow(draft.classes, draft.startingClassIndex);
+    const startingClass = startingClassRow(draft.classes, draft.startingClassId);
     const startingClassId = startingClass?.classId ?? '';
     const savingThrows = CLASS_SAVING_THROWS[startingClassId] ?? [];
 

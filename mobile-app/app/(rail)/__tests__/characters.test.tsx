@@ -83,7 +83,6 @@ const LIST_CHARACTER = {
             subclassId: 'school-of-abjuration',
             subclassName: 'School of Abjuration',
             level: 10,
-            order: 0,
             isStartingClass: true,
         },
         {
@@ -93,7 +92,6 @@ const LIST_CHARACTER = {
             subclassId: 'fiend',
             subclassName: 'Fiend',
             level: 2,
-            order: 1,
             isStartingClass: false,
         },
     ],
