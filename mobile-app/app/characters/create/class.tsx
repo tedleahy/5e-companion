@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 import { useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import type { LayoutChangeEvent } from 'react-native';
 import { Modal, Portal, Text } from 'react-native-paper';
 import ClassAllocationRow from '@/components/wizard/ClassAllocationRow';
 import {
@@ -33,12 +34,20 @@ export default function StepClass() {
     const displayClassRows = draft.classes.map((classRow, originalIndex) => ({ ...classRow, originalIndex }));
 
     const scrollViewRef = useRef<ScrollView>(null);
+    const [pendingScrollIndex, setPendingScrollIndex] = useState<number | null>(null);
 
     const subtitle = isMulticlassing
         ? 'Split your levels across classes and choose which one was your first adventuring class.'
         : 'Choose your adventuring class.'
 
     const sectionLabel = draft.classes.length > 0 ? 'Add another class' : 'Choose a class';
+
+    /**
+     * Scrolls the form to the top edge of one rendered class row.
+     */
+    function scrollToClassRow(event: LayoutChangeEvent) {
+        scrollViewRef.current?.scrollTo({ y: event.nativeEvent.layout.y, animated: true });
+    }
 
     /**
      * Writes new class rows back into the draft and keeps the starting class valid.
@@ -50,8 +59,6 @@ export default function StepClass() {
             classes: sanitisedClasses,
             startingClassId: normaliseStartingClassId(sanitisedClasses, nextStartingClassId),
         });
-
-        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
     }
 
     /**
@@ -62,10 +69,23 @@ export default function StepClass() {
             return;
         }
 
+        setPendingScrollIndex(draft.classes.length);
         updateClasses(
             [...draft.classes, createCharacterClassDraft(classId)],
             draft.startingClassId || classId,
         );
+    }
+
+    /**
+     * Scrolls to the newly-added class row once it has been laid out.
+     */
+    function handleClassRowLayout(index: number, event: LayoutChangeEvent) {
+        if (pendingScrollIndex !== index) {
+            return;
+        }
+
+        scrollToClassRow(event);
+        setPendingScrollIndex(null);
     }
 
     /**
@@ -174,6 +194,7 @@ export default function StepClass() {
                         isStartingClass={classRow.classId === draft.startingClassId}
                         onDecreaseLevel={() => handleChangeClassLevel(classRow.originalIndex, -1)}
                         onIncreaseLevel={() => handleChangeClassLevel(classRow.originalIndex, 1)}
+                        onLayout={(event) => handleClassRowLayout(displayIndex, event)}
                         onRemove={() => handleRemoveClass(classRow.originalIndex)}
                         onSelectStartingClass={() => updateDraft({ startingClassId: classRow.classId })}
                         onSelectSubclass={(subclassId) => handleSelectSubclass(classRow.originalIndex, subclassId)}

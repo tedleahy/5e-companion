@@ -1,9 +1,31 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
 import { PaperProvider } from 'react-native-paper';
 import StepClass from '../class';
 
 const mockUpdateDraft = jest.fn();
+const mockScrollTo = jest.fn();
+
+jest.mock('react-native', () => {
+    const React = require('react');
+    const actual = jest.requireActual('react-native');
+
+    const ScrollView = React.forwardRef(({ children, ...props }, ref) => {
+        React.useImperativeHandle(ref, () => ({
+            scrollTo: mockScrollTo,
+        }));
+
+        return <actual.View {...props}>{children}</actual.View>;
+    });
+
+    const mockedReactNative = Object.create(actual);
+
+    Object.defineProperty(mockedReactNative, 'ScrollView', {
+        value: ScrollView,
+    });
+
+    return mockedReactNative;
+});
 
 jest.mock('@/store/characterDraft', () => ({
     useCharacterDraft: jest.fn(),
@@ -11,13 +33,25 @@ jest.mock('@/store/characterDraft', () => ({
 
 jest.mock('@/components/wizard/ClassAllocationRow', () => ({
     __esModule: true,
-    default: ({ classRow, index, isStartingClass }: { classRow: { classId: string }, index: number, isStartingClass: boolean }) => {
-        const { Text } = require('react-native');
+    default: ({
+        classRow,
+        index,
+        isStartingClass,
+        onLayout,
+    }: {
+        classRow: { classId: string };
+        index: number;
+        isStartingClass: boolean;
+        onLayout?: (event: unknown) => void;
+    }) => {
+        const { Text, View } = require('react-native');
 
         return (
-            <Text testID="class-allocation-row">
-            {`${index}:${classRow.classId}:${isStartingClass ? 'starting' : 'not-starting'}`}
-            </Text>
+            <View onLayout={onLayout} testID={`class-allocation-row-${index}`}>
+                <Text testID="class-allocation-row">
+                    {`${index}:${classRow.classId}:${isStartingClass ? 'starting' : 'not-starting'}`}
+                </Text>
+            </View>
         );
     },
 }));
@@ -40,6 +74,7 @@ function renderScreen() {
 describe('StepClass', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        mockScrollTo.mockClear();
     });
 
     it('keeps classes in selection order even when a later class is the starting class', () => {
@@ -61,5 +96,38 @@ describe('StepClass', () => {
             '0:wizard:not-starting',
             '1:rogue:starting',
         ]);
+    });
+
+    it('scrolls to the newly added class row instead of the top of the page', () => {
+        useCharacterDraft.mockImplementation(() => {
+            const [draft, setDraft] = React.useState({
+                level: 3,
+                classes: [
+                    { classId: 'wizard', level: 1, subclassId: '' },
+                ],
+                startingClassId: 'wizard',
+            });
+
+            return {
+                draft,
+                updateDraft: (nextDraft: Partial<typeof draft>) => {
+                    mockUpdateDraft(nextDraft);
+                    setDraft((currentDraft) => ({ ...currentDraft, ...nextDraft }));
+                },
+            };
+        });
+
+        renderScreen();
+
+        fireEvent.press(screen.getByTestId('add-class-fighter'));
+        fireEvent(screen.getByTestId('class-allocation-row-1'), 'layout', {
+            nativeEvent: {
+                layout: {
+                    y: 240,
+                },
+            },
+        });
+
+        expect(mockScrollTo).toHaveBeenCalledWith({ y: 240, animated: true });
     });
 });
