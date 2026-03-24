@@ -193,21 +193,21 @@ const styles = StyleSheet.create({
     backBtn: {
         padding: 10,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
         color: 'rgba(201,146,42,0.5)',
     },
     stepIndicator: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: 'rgba(201,146,42,0.4)',
     },
     cancelBtn: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
         color: 'rgba(139,26,26,0.6)',
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     errorText: {
         color: fantasyTokens.colors.crimson,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 13,
+        fontSize: fantasyTokens.fontSizes.label,
         textAlign: 'center',
     },
     footer: {
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     ctaText: {
         fontWeight: 'bold',
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.parchment,

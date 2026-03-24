@@ -77,13 +77,13 @@ const styles = StyleSheet.create({
     profileName: {
         color: fantasyTokens.colors.inkDark,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         fontWeight: '700',
     },
     profileKind: {
         color: fantasyTokens.colors.gold,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1.2,
         textTransform: 'uppercase',
         opacity: 0.8,

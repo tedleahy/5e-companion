@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     },
     heading: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 22,
+        fontSize: fantasyTokens.fontSizes.headline,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
         lineHeight: 26,
@@ -140,14 +140,14 @@ const styles = StyleSheet.create({
     },
     sub: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         fontStyle: 'italic',
         color: 'rgba(201,146,42,0.5)',
         marginBottom: 20,
     },
     sectionLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2.5,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.crimson,
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     },
     savingThrowNote: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         fontStyle: 'italic',
         color: 'rgba(201,146,42,0.45)',
         marginBottom: 8,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     },
     savingThrowChipText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         letterSpacing: 1,
         color: '#2a7a2a',
         fontWeight: '600',
@@ -189,14 +189,14 @@ const styles = StyleSheet.create({
     },
     expertiseHint: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         fontStyle: 'italic',
         color: 'rgba(106,79,212,0.45)',
         marginTop: 6,
     },
     multiclassHint: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         fontStyle: 'italic',
         color: 'rgba(201,146,42,0.45)',
         marginTop: 6,
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     },
     hint: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         fontStyle: 'italic',
         color: 'rgba(245,230,200,0.3)',
         marginTop: 10,

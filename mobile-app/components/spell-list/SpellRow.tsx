@@ -308,16 +308,16 @@ const styles = StyleSheet.create({
     },
     levelBadgeText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         fontWeight: '700',
         color: fantasyTokens.colors.crimson,
     },
     levelBadgeTextCantrip: {
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
         color: fantasyTokens.colors.gold,
     },
     levelBadgeTextUnknown: {
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         color: 'rgba(61,43,31,0.45)',
     },
     preparedDot: {
@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
     },
     spellName: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11.5,
+        fontSize: fantasyTokens.fontSizes.caption,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
         lineHeight: 16,
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     },
     spellMeta: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.6,
         fontStyle: 'italic',
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
     },
     tagText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 7.5,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         textTransform: 'uppercase',
     },
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
     },
     rowChevron: {
         color: 'rgba(26,15,0,0.22)',
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         lineHeight: 14,
         flexShrink: 0,
         marginLeft: 4,

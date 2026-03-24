@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     },
     pointCounterText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         color: fantasyTokens.colors.gold,
         letterSpacing: 0.5,
     },

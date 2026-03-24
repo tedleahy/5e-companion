@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     },
     compactMenuIcon: {
         color: fantasyTokens.colors.gold,
-        fontSize: 17,
+        fontSize: fantasyTokens.fontSizes.title,
         lineHeight: 20,
         marginTop: -1,
     },

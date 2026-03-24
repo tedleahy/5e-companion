@@ -65,14 +65,14 @@ const styles = StyleSheet.create({
     activeChipText: {
         color: '#e3a8a8',
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         textTransform: 'uppercase',
         letterSpacing: 1,
     },
     activeChipRemove: {
         color: '#e3a8a8',
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         opacity: 0.7,
     },
 });

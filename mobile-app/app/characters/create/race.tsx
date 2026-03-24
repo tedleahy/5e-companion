@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     },
     heading: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 22,
+        fontSize: fantasyTokens.fontSizes.headline,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
         lineHeight: 26,
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     },
     sub: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         fontStyle: 'italic',
         color: 'rgba(201,146,42,0.5)',
         marginBottom: 20,

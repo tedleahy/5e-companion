@@ -10,7 +10,7 @@ export const sharedStyles = StyleSheet.create({
     },
     heading: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 22,
+        fontSize: fantasyTokens.fontSizes.headline,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
         lineHeight: 26,
@@ -18,7 +18,7 @@ export const sharedStyles = StyleSheet.create({
     },
     sub: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         fontStyle: 'italic',
         color: 'rgba(201,146,42,0.5)',
         marginBottom: 20,
@@ -42,7 +42,7 @@ export const sharedStyles = StyleSheet.create({
     },
     modeTabText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
         color: 'rgba(201,146,42,0.4)',
@@ -69,14 +69,14 @@ export const sharedStyles = StyleSheet.create({
     },
     asiHeading: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 16,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
         marginBottom: 4,
     },
     asiSub: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         fontStyle: 'italic',
         color: 'rgba(201,146,42,0.5)',
         marginBottom: 14,
@@ -92,7 +92,7 @@ export const sharedStyles = StyleSheet.create({
     },
     asiLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: 'rgba(201,146,42,0.6)',
@@ -121,12 +121,12 @@ export const sharedStyles = StyleSheet.create({
     },
     asiBtnText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         color: 'rgba(201,146,42,0.6)',
     },
     asiValue: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 16,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
         width: 30,

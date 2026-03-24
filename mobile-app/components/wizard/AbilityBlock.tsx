@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: 'rgba(201,146,42,0.5)',
@@ -93,14 +93,14 @@ const styles = StyleSheet.create({
     },
     btnText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         color: 'rgba(201,146,42,0.6)',
     },
     value: {
         flex: 1,
         textAlign: 'center',
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 22,
+        fontSize: fantasyTokens.fontSizes.headline,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
     },
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     },
     modText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         fontWeight: '600',
         color: fantasyTokens.colors.crimson,
         textAlign: 'center',
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     },
     bonusTag: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         fontWeight: '600',
         color: '#2a7a2a',
         position: 'absolute',

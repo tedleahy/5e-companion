@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.parchment,
         opacity: 0.72,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 13,
+        fontSize: fantasyTokens.fontSizes.label,
     },
     emptyState: {
         paddingHorizontal: fantasyTokens.spacing.md,
@@ -177,12 +177,12 @@ const styles = StyleSheet.create({
     emptyText: {
         color: fantasyTokens.colors.parchment,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 15,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
     },
     emptySubtext: {
         color: fantasyTokens.colors.crimson,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         marginTop: 6,
     },
     sectionList: {
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.gold,
         opacity: 0.52,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
         textTransform: 'uppercase',
         letterSpacing: 2.4,
     },
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     levelCountText: {
         color: 'rgba(201,146,42,0.42)',
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
     },
     spellRow: {
         flexDirection: 'row',
@@ -246,13 +246,13 @@ const styles = StyleSheet.create({
     spellName: {
         color: fantasyTokens.colors.parchment,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         fontWeight: '700',
     },
     spellMeta: {
         color: 'rgba(245,230,200,0.4)',
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         fontStyle: 'italic',
         marginTop: 1,
     },
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     tagPillText: {
         color: 'rgba(201,146,42,0.55)',
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 7,
+        fontSize: fantasyTokens.fontSizes.utility,
         textTransform: 'uppercase',
         letterSpacing: 0.8,
     },

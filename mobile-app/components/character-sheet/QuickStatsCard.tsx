@@ -86,13 +86,13 @@ const styles = StyleSheet.create({
     },
     initiativeValue: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 20,
+        fontSize: fantasyTokens.fontSizes.titleLarge,
         fontWeight: '700',
         color: '#2b1c11',
     },
     initiativeLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 0.5,
         textTransform: 'uppercase',
         color: 'rgba(61,43,31,0.5)',

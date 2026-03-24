@@ -1,4 +1,15 @@
-import { MD3DarkTheme, MD3LightTheme, MD3Theme } from 'react-native-paper';
+import type { TextStyle } from 'react-native';
+import { configureFonts, MD3DarkTheme, MD3LightTheme, MD3Theme } from 'react-native-paper';
+import type { MD3TypescaleKey } from 'react-native-paper';
+
+type FantasyPaperType = {
+    fontFamily: string;
+    letterSpacing: number;
+    fontWeight?: TextStyle['fontWeight'];
+    lineHeight: number;
+    fontSize: number;
+    fontStyle?: TextStyle['fontStyle'];
+};
 
 /**
  * Font family names loaded via expo-font / @expo-google-fonts/spectral.
@@ -16,16 +27,129 @@ export const fantasyFonts = {
 } as const;
 
 /**
+ * Shared font-size scale used across the mobile UI.
+ */
+export const fantasyFontSizes = {
+    utility: 10,
+    caption: 12,
+    label: 13,
+    body: 14,
+    bodyLarge: 16,
+    title: 18,
+    titleLarge: 20,
+    headline: 24,
+    display: 30,
+    stat: 32,
+} as const;
+
+/**
+ * Builds a React Native Paper type entry for the fantasy type scale.
+ */
+function createFantasyType(
+    fontFamily: string,
+    fontWeight: FantasyPaperType['fontWeight'],
+    fontSize: number,
+    lineHeight: number,
+    letterSpacing = 0,
+    fontStyle: TextStyle['fontStyle'] = 'normal',
+): FantasyPaperType {
+    return {
+        fontFamily,
+        fontWeight,
+        fontSize,
+        lineHeight,
+        letterSpacing,
+        fontStyle,
+    };
+}
+
+/**
+ * Shared React Native Paper typescale overrides for the fantasy UI.
+ */
+export const fantasyTypescaleConfig = {
+    displayLarge: createFantasyType(fantasyFonts.bold, '700', 32, 38, 0.1),
+    displayMedium: createFantasyType(fantasyFonts.bold, '700', fantasyFontSizes.display, 36, 0.1),
+    displaySmall: createFantasyType(fantasyFonts.semiBold, '600', 26, 32, 0.1),
+    headlineLarge: createFantasyType(fantasyFonts.semiBold, '600', fantasyFontSizes.headline, 30, 0.2),
+    headlineMedium: createFantasyType(fantasyFonts.semiBold, '600', 22, 28, 0.2),
+    headlineSmall: createFantasyType(fantasyFonts.semiBold, '600', fantasyFontSizes.titleLarge, 26, 0.2),
+    titleLarge: createFantasyType(fantasyFonts.semiBold, '600', fantasyFontSizes.titleLarge, 26, 0.15),
+    titleMedium: createFantasyType(fantasyFonts.medium, '500', fantasyFontSizes.title, 24, 0.15),
+    titleSmall: createFantasyType(fantasyFonts.medium, '500', fantasyFontSizes.bodyLarge, 22, 0.1),
+    labelLarge: createFantasyType(fantasyFonts.medium, '500', fantasyFontSizes.body, 20, 0.25),
+    labelMedium: createFantasyType(fantasyFonts.medium, '500', fantasyFontSizes.label, 18, 0.4),
+    labelSmall: createFantasyType(fantasyFonts.medium, '500', fantasyFontSizes.utility, 16, 0.6),
+    bodyLarge: createFantasyType(fantasyFonts.regular, '400', fantasyFontSizes.bodyLarge, 24, 0.2),
+    bodyMedium: createFantasyType(fantasyFonts.regular, '400', fantasyFontSizes.body, 22, 0.15),
+    bodySmall: createFantasyType(fantasyFonts.regular, '400', fantasyFontSizes.caption, 18, 0.2),
+} as const satisfies Partial<Record<MD3TypescaleKey, Partial<FantasyPaperType>>>;
+
+/**
+ * Shared React Native Paper typescale with fantasy font families and sizes.
+ */
+export const fantasyTypescale = configureFonts({
+    isV3: true,
+    config: fantasyTypescaleConfig,
+});
+
+/**
+ * Converts a Paper type entry into a plain React Native text style.
+ */
+function textStyleFromType(type: FantasyPaperType): TextStyle {
+    return {
+        fontFamily: type.fontFamily,
+        fontWeight: type.fontWeight,
+        fontStyle: type.fontStyle,
+        fontSize: type.fontSize,
+        lineHeight: type.lineHeight,
+        letterSpacing: type.letterSpacing,
+    };
+}
+
+/**
+ * Shared typography presets used in custom style sheets.
+ */
+export const fantasyTypography = {
+    body: textStyleFromType(fantasyTypescale.bodyMedium),
+    bodySmall: textStyleFromType(fantasyTypescale.bodySmall),
+    bodyLarge: textStyleFromType(fantasyTypescale.bodyLarge),
+    cardTitle: textStyleFromType(fantasyTypescale.titleLarge),
+    sectionTitle: textStyleFromType(fantasyTypescale.titleMedium),
+    pageTitle: textStyleFromType(fantasyTypescale.displayMedium),
+    pageSubtitle: {
+        ...textStyleFromType(fantasyTypescale.bodyLarge),
+        fontStyle: 'italic',
+    },
+    sectionLabel: {
+        ...textStyleFromType(fantasyTypescale.labelLarge),
+        letterSpacing: 2.5,
+        textTransform: 'uppercase',
+    },
+    eyebrow: {
+        ...textStyleFromType(fantasyTypescale.labelSmall),
+        letterSpacing: 2.5,
+        textTransform: 'uppercase',
+    },
+    buttonLabel: {
+        ...textStyleFromType(fantasyTypescale.labelSmall),
+        letterSpacing: 1.5,
+        textTransform: 'uppercase',
+    },
+    statLabel: {
+        ...textStyleFromType(fantasyTypescale.labelSmall),
+        letterSpacing: 1.2,
+        textTransform: 'uppercase',
+    },
+    statValue: textStyleFromType(fantasyTypescale.displayLarge),
+} as const satisfies Record<string, TextStyle>;
+
+/**
  * Shared design tokens used across the mobile UI.
  */
 export const fantasyTokens = {
     fonts: fantasyFonts,
-    fontSizes: {
-        xs: 9,
-        sm: 13,
-        md: 18,
-        lg: 20,
-    },
+    fontSizes: fantasyFontSizes,
+    typography: fantasyTypography,
     colors: {
         parchment: '#f6e9cf',
         parchmentDeep: '#f0e0c0',
@@ -97,7 +221,7 @@ export const fantasyTokens = {
     },
     addButton: {
         fontFamily: fantasyFonts.regular,
-        fontSize: 8.5,
+        fontSize: fantasyFontSizes.utility,
         letterSpacing: 1.5,
         textTransform: 'uppercase' as const,
         color: '#8b1a1a',
@@ -111,7 +235,7 @@ export const fantasyTokens = {
     text: {
         formLabel: {
             fontFamily: fantasyFonts.regular,
-            fontSize: 11,
+            fontSize: fantasyFontSizes.caption,
             letterSpacing: 2,
             textTransform: 'uppercase' as 'uppercase',
             color: 'rgba(201,146,42,0.6)',
@@ -128,6 +252,7 @@ export function buildFantasyTheme(colorScheme: string | null | undefined): MD3Th
 
     return {
         ...base,
+        fonts: fantasyTypescale,
         colors: {
             ...base.colors,
             primary: fantasyTokens.colors.crimson,

@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.05)',
     },
     inventoryIconText: {
-        fontSize: 18,
+        fontSize: fantasyTokens.fontSizes.title,
         lineHeight: 18,
     },
     magicalDot: {
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     },
     inventoryName: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         color: fantasyTokens.colors.inkDark,
         lineHeight: 17,
     },
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     },
     inventoryDescription: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.5,
         fontStyle: 'italic',
@@ -251,19 +251,19 @@ const styles = StyleSheet.create({
     },
     quantityText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.5,
     },
     weightText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.4,
     },
     equippedBadge: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 7,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
         paddingHorizontal: 6,
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     },
     emptyStateText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.6,
         fontStyle: 'italic',

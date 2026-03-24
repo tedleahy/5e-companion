@@ -453,20 +453,20 @@ const styles = StyleSheet.create({
     stateText: {
         color: fantasyTokens.colors.parchment,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 18,
+        fontSize: fantasyTokens.fontSizes.title,
         textAlign: 'center',
     },
     stateSubtext: {
         color: fantasyTokens.colors.inkSoft,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         textAlign: 'center',
         marginTop: fantasyTokens.spacing.sm,
     },
     errorDetail: {
         color: fantasyTokens.colors.crimson,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 13,
+        fontSize: fantasyTokens.fontSizes.label,
         textAlign: 'center',
         marginTop: fantasyTokens.spacing.sm,
     },

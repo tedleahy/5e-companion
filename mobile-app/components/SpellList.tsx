@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
     },
     groupTitle: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.inkLight,
@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
     },
     groupCountText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
         color: fantasyTokens.colors.gold,
         opacity: 0.8,
     },
@@ -495,6 +495,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: fantasyTokens.colors.inkSoft,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 13,
+        fontSize: fantasyTokens.fontSizes.label,
     },
 });

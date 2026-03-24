@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     },
     groupLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.inkLight,
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     },
     groupValue: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
         opacity: 0.5,

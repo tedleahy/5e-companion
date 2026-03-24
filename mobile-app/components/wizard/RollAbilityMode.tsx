@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     },
     rollBtnText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.gold,

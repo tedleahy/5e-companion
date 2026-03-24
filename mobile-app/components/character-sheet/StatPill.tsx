@@ -50,13 +50,13 @@ const styles = StyleSheet.create({
     },
     pillValue: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 20,
+        fontSize: fantasyTokens.fontSizes.titleLarge,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
     },
     pillLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 0.5,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.inkLight,

@@ -61,12 +61,12 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(201,146,42,0.1)',
     },
     icon: {
-        fontSize: 24,
+        fontSize: fantasyTokens.fontSizes.headline,
         marginBottom: 6,
     },
     name: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         textTransform: 'uppercase',
         color: 'rgba(245,230,200,0.7)',
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     },
     hint: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         fontStyle: 'italic',
         color: 'rgba(245,230,200,0.35)',
         marginTop: 3,

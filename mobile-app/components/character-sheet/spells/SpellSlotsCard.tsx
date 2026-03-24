@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     groupLabel: {
         color: fantasyTokens.colors.gold,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         letterSpacing: 1.4,
         textTransform: 'uppercase',
         opacity: 0.8,
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     },
     levelLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.inkLight,
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     },
     slotCount: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.5,
     },

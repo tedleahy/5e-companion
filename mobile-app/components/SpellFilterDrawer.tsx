@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
         borderLeftColor: fantasyTokens.colors.gold,
     },
     drawerTitle: {
-        fontSize: 22,
+        fontSize: fantasyTokens.fontSizes.headline,
         fontFamily: fantasyTokens.fonts.regular,
         color: fantasyTokens.colors.parchment,
         marginBottom: fantasyTokens.spacing.md,

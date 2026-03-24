@@ -219,9 +219,8 @@ const styles = StyleSheet.create({
     },
     pageTitle: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 28,
-        lineHeight: 32,
+        ...fantasyTokens.typography.pageTitle,
+        lineHeight: 36,
         marginTop: 6,
         fontWeight: '700',
         textAlign: 'center',
@@ -237,10 +236,8 @@ const styles = StyleSheet.create({
     codexLabel: {
         color: fantasyTokens.colors.gold,
         opacity: 0.7,
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        ...fantasyTokens.typography.eyebrow,
         letterSpacing: 3,
-        textTransform: 'uppercase',
         textAlign: 'center',
     },
 });

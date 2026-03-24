@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     },
     heading: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 22,
+        fontSize: fantasyTokens.fontSizes.headline,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
         lineHeight: 26,
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
     },
     sub: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         fontStyle: 'italic',
         color: 'rgba(201,146,42,0.5)',
         marginBottom: 20,
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     },
     summaryLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: 'rgba(201,146,42,0.55)',
@@ -301,18 +301,18 @@ const styles = StyleSheet.create({
     },
     infoButtonText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         color: fantasyTokens.colors.gold,
     },
     summaryValue: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 20,
+        fontSize: fantasyTokens.fontSizes.titleLarge,
         color: fantasyTokens.colors.parchment,
         marginBottom: 4,
     },
     summaryHint: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         color: 'rgba(245,230,200,0.45)',
         lineHeight: 18,
     },
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
     },
     sectionLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2.5,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.crimson,
@@ -347,19 +347,19 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(201,146,42,0.12)',
     },
     addIcon: {
-        fontSize: 24,
+        fontSize: fantasyTokens.fontSizes.headline,
         marginBottom: 6,
     },
     addName: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.parchment,
     },
     addHint: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         fontStyle: 'italic',
         color: 'rgba(245,230,200,0.35)',
         marginTop: 3,
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     },
     errorText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         color: fantasyTokens.colors.parchment,
         lineHeight: 18,
     },
@@ -390,13 +390,13 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 20,
+        fontSize: fantasyTokens.fontSizes.titleLarge,
         color: fantasyTokens.colors.parchment,
         marginBottom: 10,
     },
     modalCopy: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         color: 'rgba(245,230,200,0.8)',
         lineHeight: 22,
     },
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
     },
     modalButtonText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.gold,

@@ -108,10 +108,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     text: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        ...fantasyTokens.typography.buttonLabel,
         letterSpacing: 1.2,
-        textTransform: 'uppercase',
     },
     pressed: {
         opacity: 0.85,

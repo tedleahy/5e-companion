@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     },
     heading: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 22,
+        fontSize: fantasyTokens.fontSizes.headline,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
         lineHeight: 26,
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     },
     sub: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         fontStyle: 'italic',
         color: 'rgba(201,146,42,0.5)',
         marginBottom: 20,
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 14,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 16,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
         color: fantasyTokens.colors.parchment,
     },
     inputError: {
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     },
     errorHint: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         fontStyle: 'italic',
         color: fantasyTokens.colors.crimson,
         marginTop: 6,
@@ -138,20 +138,20 @@ const styles = StyleSheet.create({
     },
     stepperBtnText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 18,
+        fontSize: fantasyTokens.fontSizes.title,
         color: 'rgba(201,146,42,0.5)',
     },
     stepperVal: {
         flex: 1,
         textAlign: 'center',
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 20,
+        fontSize: fantasyTokens.fontSizes.titleLarge,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
     },
     hint: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         fontStyle: 'italic',
         color: 'rgba(245,230,200,0.3)',
         marginTop: 6,

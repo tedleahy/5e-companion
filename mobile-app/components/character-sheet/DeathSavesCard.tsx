@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     },
     columnLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: 'rgba(61,43,31,0.45)',
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     },
     resetText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
         color: 'rgba(61,43,31,0.5)',

@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     },
     rowLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.inkLight,
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     },
     addTagButton: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.gold,
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     },
     tagText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         color: fantasyTokens.colors.inkLight,
     },
     removeBadge: {
@@ -215,13 +215,13 @@ const styles = StyleSheet.create({
     },
     removeBadgeText: {
         color: fantasyTokens.colors.crimson,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         lineHeight: 11,
         fontWeight: '700',
     },
     readOnlyHint: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         color: fantasyTokens.colors.inkSoft,
         textAlign: 'center',

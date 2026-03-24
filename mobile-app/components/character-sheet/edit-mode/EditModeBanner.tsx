@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     },
     text: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1.8,
         textTransform: 'uppercase',
         color: 'rgba(201,146,42,0.7)',

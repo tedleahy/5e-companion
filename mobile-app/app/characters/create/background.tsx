@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     },
     heading: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 22,
+        fontSize: fantasyTokens.fontSizes.headline,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
         lineHeight: 26,
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     },
     sub: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         fontStyle: 'italic',
         color: 'rgba(201,146,42,0.5)',
         marginBottom: 20,
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     },
     sectionLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2.5,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.crimson,
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     },
     fieldLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2.5,
         textTransform: 'uppercase',
         color: 'rgba(201,146,42,0.6)',
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 14,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 15,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
         color: fantasyTokens.colors.parchment,
         minHeight: 80,
         lineHeight: 22,

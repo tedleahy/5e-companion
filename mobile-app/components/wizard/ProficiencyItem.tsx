@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     name: {
         flex: 1,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         textTransform: 'uppercase',
         color: 'rgba(245,230,200,0.55)',
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     },
     attr: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         color: 'rgba(201,146,42,0.3)',
     },
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     },
     lockedTag: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         color: 'rgba(42,122,42,0.6)',
         textTransform: 'uppercase',
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     },
     expertiseTag: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         color: 'rgba(106,79,212,0.7)',
         textTransform: 'uppercase',

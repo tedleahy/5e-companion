@@ -12,11 +12,8 @@ export default function SectionLabel({ children }: SectionLabelProps) {
 
 const styles = StyleSheet.create({
     label: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12.5,
+        ...fantasyTokens.typography.sectionLabel,
         fontWeight: 'bold',
-        letterSpacing: 2.5,
-        textTransform: 'uppercase',
         color: fantasyTokens.colors.crimson,
         opacity: 0.8,
         paddingHorizontal: 18,

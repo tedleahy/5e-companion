@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     },
     iconLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 13,
+        fontSize: fantasyTokens.fontSizes.label,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
     },
@@ -160,14 +160,14 @@ const styles = StyleSheet.create({
     },
     featureName: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 13,
+        fontSize: fantasyTokens.fontSizes.label,
         fontWeight: '600',
         color: fantasyTokens.colors.inkDark,
         lineHeight: 17,
     },
     featureSource: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.45,
         fontStyle: 'italic',
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     },
     featureDescription: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12.5,
+        fontSize: fantasyTokens.fontSizes.label,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.75,
         lineHeight: 18,
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     },
     useLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.5,
     },
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     },
     rechargeBadgeText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.inkLight,
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     },
     emptyStateText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.6,
         fontStyle: 'italic',

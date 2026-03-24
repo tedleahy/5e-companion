@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     },
     filterPillText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8.5,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1.2,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.inkLight,

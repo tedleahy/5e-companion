@@ -12,15 +12,13 @@ export const styles = StyleSheet.create({
     },
     title: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: fantasyTokens.fonts.regular,
+        ...fantasyTokens.typography.pageTitle,
         marginBottom: fantasyTokens.spacing.sm,
         textAlign: 'center',
     },
     subtitle: {
         color: fantasyTokens.colors.gold,
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 16,
-        lineHeight: 24,
+        ...fantasyTokens.typography.pageSubtitle,
         textAlign: 'center',
         opacity: 0.85,
     },
@@ -31,8 +29,7 @@ export const styles = StyleSheet.create({
     },
     sectionTitle: {
         color: fantasyTokens.colors.crimson,
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.md,
+        ...fantasyTokens.typography.sectionTitle,
         marginBottom: fantasyTokens.spacing.sm,
         textAlign: 'center',
     },

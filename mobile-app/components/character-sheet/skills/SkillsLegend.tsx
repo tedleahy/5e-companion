@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     },
     legendText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.55,
         fontStyle: 'italic',

@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     },
     icon: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 16,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
         lineHeight: 18,
         includeFontPadding: false,
         textAlignVertical: 'center',

@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     },
     backgroundText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         color: fantasyTokens.colors.gold,
         opacity: 0.7,
     },
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     },
     traitLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.inkLight,
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     },
     traitText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         lineHeight: 19,
         color: fantasyTokens.colors.inkLight,
         fontStyle: 'italic',

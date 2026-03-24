@@ -174,22 +174,20 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     avatarEmoji: {
-        fontSize: 17,
+        fontSize: fantasyTokens.fontSizes.title,
     },
     characterMeta: {
         flex: 1,
     },
     characterName: {
         color: fantasyTokens.colors.parchment,
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        ...fantasyTokens.typography.bodySmall,
         fontWeight: '700',
         letterSpacing: 0.3,
     },
     characterSubline: {
         color: fantasyTokens.colors.gold,
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        ...fantasyTokens.typography.bodySmall,
         fontStyle: 'italic',
         marginTop: 1,
     },
@@ -199,9 +197,7 @@ const styles = StyleSheet.create({
         paddingTop: fantasyTokens.spacing.sm,
     },
     sectionLabel: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
-        textTransform: 'uppercase',
+        ...fantasyTokens.typography.eyebrow,
         letterSpacing: 2.5,
         color: 'rgba(201,146,42,0.28)',
         paddingHorizontal: fantasyTokens.spacing.sm,
@@ -228,7 +224,7 @@ const styles = StyleSheet.create({
     icon: {
         width: 20,
         textAlign: 'center',
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         color: fantasyTokens.rail.icon,
     },
     iconActive: {
@@ -236,9 +232,7 @@ const styles = StyleSheet.create({
     },
     itemLabel: {
         color: fantasyTokens.rail.label,
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
-        textTransform: 'uppercase',
+        ...fantasyTokens.typography.buttonLabel,
         letterSpacing: 1.5,
     },
     itemLabelActive: {
@@ -256,14 +250,12 @@ const styles = StyleSheet.create({
     collapseIcon: {
         width: 20,
         textAlign: 'center',
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.label,
         color: fantasyTokens.rail.muted,
     },
     collapseLabel: {
         color: fantasyTokens.rail.muted,
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
-        textTransform: 'uppercase',
+        ...fantasyTokens.typography.buttonLabel,
         letterSpacing: 1.5,
     },
 });

@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
+import { fantasyTokens } from '@/theme/fantasyTheme';
 
 /**
  * Props for an inline row remove action.
@@ -46,7 +47,7 @@ const styles = StyleSheet.create({
     },
     label: {
         color: '#8b1a1a',
-        fontSize: 13,
+        fontSize: fantasyTokens.fontSizes.label,
         lineHeight: 13,
         fontWeight: '700',
     },

@@ -168,18 +168,18 @@ const styles = StyleSheet.create({
     filterBackText: {
         color: fantasyTokens.colors.gold,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 13,
+        fontSize: fantasyTokens.fontSizes.label,
     },
     filterPanelTitle: {
         color: fantasyTokens.colors.parchment,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 17,
+        fontSize: fantasyTokens.fontSizes.title,
         fontWeight: '700',
     },
     filterClearText: {
         color: fantasyTokens.colors.crimson,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 13,
+        fontSize: fantasyTokens.fontSizes.label,
     },
     filterScroll: {
         flex: 1,
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     filterApplyButtonText: {
         color: fantasyTokens.colors.parchment,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 15,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
         fontWeight: '700',
     },
 });

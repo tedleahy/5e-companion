@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#4f2410',
     },
     avatarEmoji: {
-        fontSize: 16,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
     },
     separator: {
         width: 28,
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
         backgroundColor: fantasyTokens.rail.pressed,
     },
     buttonIcon: {
-        fontSize: 15,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
         color: fantasyTokens.rail.icon,
     },
     buttonIconActive: {
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
         marginBottom: fantasyTokens.spacing.md,
     },
     expandIcon: {
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.label,
         color: fantasyTokens.rail.muted,
     },
 });

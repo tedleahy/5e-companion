@@ -26,13 +26,13 @@ const styles = StyleSheet.create({
     title: {
         fontFamily: fantasyTokens.fonts.regular,
         color: fantasyTokens.colors.parchment,
-        fontSize: 24,
+        fontSize: fantasyTokens.fontSizes.headline,
         letterSpacing: 0.3,
     },
     message: {
         fontFamily: fantasyTokens.fonts.regular,
         color: fantasyTokens.colors.gold,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         textTransform: 'uppercase',
         letterSpacing: 1.5,
     },

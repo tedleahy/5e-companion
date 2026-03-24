@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.gold,

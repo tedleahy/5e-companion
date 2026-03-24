@@ -110,14 +110,14 @@ const styles = StyleSheet.create({
     title: {
         color: fantasyTokens.colors.parchment,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 18,
+        fontSize: fantasyTokens.fontSizes.title,
         fontWeight: '700',
     },
     subtitle: {
         color: fantasyTokens.colors.gold,
         opacity: 0.55,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         fontStyle: 'italic',
         marginTop: 1,
     },
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
         flex: 1,
         color: fantasyTokens.colors.parchment,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 15,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
         paddingVertical: 6,
     },
     clearSearchButton: {
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.parchment,
         opacity: 0.62,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         textTransform: 'uppercase',
         letterSpacing: 1.2,
     },
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     filterCountText: {
         color: fantasyTokens.colors.parchment,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
         fontWeight: '700',
     },
 });

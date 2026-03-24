@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     avatarEmoji: {
-        fontSize: 26,
+        fontSize: fantasyTokens.fontSizes.display,
     },
     identity: {
         flex: 1,
@@ -239,16 +239,14 @@ const styles = StyleSheet.create({
     },
     name: {
         color: fantasyTokens.colors.inkDark,
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 18,
-        lineHeight: 21,
+        ...fantasyTokens.typography.cardTitle,
+        lineHeight: 24,
         fontWeight: '700',
     },
     identityClass: {
         color: 'rgba(61,43,31,0.74)',
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
-        lineHeight: 18,
+        ...fantasyTokens.typography.body,
+        lineHeight: 20,
         fontStyle: 'italic',
         marginTop: 1,
     },
@@ -264,11 +262,9 @@ const styles = StyleSheet.create({
     },
     levelBadgeText: {
         color: fantasyTokens.colors.crimson,
-        fontFamily: fantasyTokens.fonts.regular,
-        textTransform: 'uppercase',
+        ...fantasyTokens.typography.buttonLabel,
         letterSpacing: 1,
-        fontSize: 10,
-        lineHeight: 11,
+        lineHeight: 12,
         fontWeight: '700',
     },
     conditionsRow: {
@@ -288,8 +284,8 @@ const styles = StyleSheet.create({
     conditionChipText: {
         color: fantasyTokens.colors.crimson,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 7,
-        lineHeight: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
+        lineHeight: 12,
         letterSpacing: 1,
         textTransform: 'uppercase',
     },
@@ -313,7 +309,7 @@ const styles = StyleSheet.create({
     statValue: {
         color: fantasyTokens.colors.inkDark,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 16,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
         lineHeight: 20,
         fontWeight: '700',
     },
@@ -322,19 +318,17 @@ const styles = StyleSheet.create({
     },
     hpMax: {
         color: 'rgba(61,43,31,0.52)',
-        fontSize: 10,
-        lineHeight: 12,
+        ...fantasyTokens.typography.bodySmall,
+        lineHeight: 14,
     },
     acValue: {
         color: fantasyTokens.colors.greenDark,
     },
     statLabel: {
         color: 'rgba(61,43,31,0.53)',
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
-        lineHeight: 12,
+        ...fantasyTokens.typography.statLabel,
+        lineHeight: 14,
         letterSpacing: 1.5,
-        textTransform: 'uppercase',
         marginTop: 2,
     },
     hpBarWrap: {
@@ -360,10 +354,8 @@ const styles = StyleSheet.create({
     },
     viewSheetText: {
         color: fantasyTokens.colors.gold,
-        fontFamily: fantasyTokens.fonts.regular,
-        textTransform: 'uppercase',
+        ...fantasyTokens.typography.buttonLabel,
         letterSpacing: 1.5,
-        fontSize: 8,
-        lineHeight: 11,
+        lineHeight: 12,
     },
 });

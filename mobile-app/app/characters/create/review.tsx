@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     },
     heading: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 22,
+        fontSize: fantasyTokens.fontSizes.headline,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
         lineHeight: 26,
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     },
     sub: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         fontStyle: 'italic',
         color: 'rgba(201,146,42,0.5)',
         marginBottom: 20,
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     },
     sectionLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2.5,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.crimson,
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     },
     editHint: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         color: 'rgba(201,146,42,0.4)',
         marginBottom: 8,
@@ -208,12 +208,12 @@ const styles = StyleSheet.create({
     },
     classListValue: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         color: fantasyTokens.colors.inkDark,
     },
     classListMeta: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         color: fantasyTokens.colors.inkSoft,
         marginTop: 2,
     },
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     },
     abilityAbbr: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
         color: 'rgba(201,146,42,0.5)',
@@ -241,13 +241,13 @@ const styles = StyleSheet.create({
     },
     abilityScore: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 18,
+        fontSize: fantasyTokens.fontSizes.title,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
     },
     abilityMod: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         color: 'rgba(201,146,42,0.55)',
         marginTop: 1,
     },
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     },
     profSubLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
         color: 'rgba(201,146,42,0.45)',
@@ -277,13 +277,13 @@ const styles = StyleSheet.create({
     },
     profChipText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         color: '#2a7a2a',
     },
     profNone: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         fontStyle: 'italic',
         color: 'rgba(245,230,200,0.3)',
     },
@@ -305,19 +305,19 @@ const styles = StyleSheet.create({
     profSkillName: {
         flex: 1,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         color: fantasyTokens.colors.parchment,
     },
     profSkillAbility: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         color: 'rgba(201,146,42,0.4)',
         marginRight: 8,
     },
     profExpertTag: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         color: 'rgba(106,79,212,0.7)',
         textTransform: 'uppercase',
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     },
     noteText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 13,
+        fontSize: fantasyTokens.fontSizes.label,
         fontStyle: 'italic',
         color: 'rgba(245,230,200,0.4)',
         lineHeight: 20,

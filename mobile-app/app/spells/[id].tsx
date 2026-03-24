@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     stateText: {
         color: fantasyTokens.colors.parchment,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 16,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
     },
     page: {
         flex: 1,
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
     },
     kicker: {
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         letterSpacing: 3,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.ember,
@@ -151,13 +151,13 @@ const styles = StyleSheet.create({
         marginBottom: fantasyTokens.spacing.sm,
     },
     title: {
-        fontSize: 30,
+        fontSize: fantasyTokens.fontSizes.display,
         color: fantasyTokens.colors.inkDark,
         fontFamily: fantasyTokens.fonts.regular,
         marginBottom: fantasyTokens.spacing.xs,
     },
     subtitle: {
-        fontSize: 16,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
         color: fantasyTokens.colors.inkSoft,
         fontFamily: fantasyTokens.fonts.regular,
     },
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
         fontFamily: fantasyTokens.fonts.regular,
     },
     sectionTitle: {
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.ember,
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
         fontFamily: fantasyTokens.fonts.regular,
     },
     body: {
-        fontSize: 16,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
         lineHeight: 24,
         color: fantasyTokens.colors.inkDark,
         fontFamily: fantasyTokens.fonts.regular,

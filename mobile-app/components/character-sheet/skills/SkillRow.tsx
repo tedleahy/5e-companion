@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     skillName: {
         flex: 1,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         color: fantasyTokens.colors.inkLight,
     },
     skillNameEmphasis: {
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
         width: 24,
         textAlign: 'center',
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.4,
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
         minWidth: 34,
         textAlign: 'right',
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 13,
+        fontSize: fantasyTokens.fontSizes.label,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
     },

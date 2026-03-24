@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     },
     rowLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.inkSoft,
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     },
     className: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 18,
+        fontSize: fantasyTokens.fontSizes.title,
         color: fantasyTokens.colors.inkDark,
     },
     levelStepper: {
@@ -227,14 +227,14 @@ const styles = StyleSheet.create({
     },
     levelButtonText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 16,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
         color: fantasyTokens.colors.inkDark,
     },
     levelValue: {
         minWidth: 42,
         textAlign: 'center',
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 16,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
         color: fantasyTokens.colors.inkDark,
     },
     startingRow: {
@@ -252,13 +252,13 @@ const styles = StyleSheet.create({
     },
     startingLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 13,
+        fontSize: fantasyTokens.fontSizes.label,
         color: fantasyTokens.colors.inkDark,
         marginBottom: 2,
     },
     startingHint: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         color: fantasyTokens.colors.inkSoft,
         lineHeight: 16,
     },
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     },
     removeButtonText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 10,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.crimson,
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     },
     subclassHeading: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1.8,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.inkSoft,
@@ -322,14 +322,14 @@ const styles = StyleSheet.create({
         opacity: 0.9,
     },
     subclassIcon: {
-        fontSize: 20,
+        fontSize: fantasyTokens.fontSizes.titleLarge,
     },
     subclassText: {
         flex: 1,
     },
     subclassName: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 14,
+        fontSize: fantasyTokens.fontSizes.body,
         color: fantasyTokens.colors.inkDark,
     },
     subclassNameSelected: {
@@ -337,13 +337,13 @@ const styles = StyleSheet.create({
     },
     subclassHint: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         color: fantasyTokens.colors.inkSoft,
         marginTop: 3,
     },
     lockedHint: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         fontStyle: 'italic',
         color: fantasyTokens.colors.inkSoft,
         lineHeight: 18,

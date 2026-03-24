@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     },
     runes: {
         color: fantasyTokens.colors.crimson,
-        fontSize: 18,
+        fontSize: fantasyTokens.fontSizes.title,
         letterSpacing: 6,
         fontFamily: fantasyTokens.fonts.regular,
     },
@@ -81,16 +81,13 @@ const styles = StyleSheet.create({
         borderBottomColor: 'rgba(196, 164, 112, 0.35)',
     },
     detailLabel: {
-        fontSize: 12,
+        ...fantasyTokens.typography.statLabel,
         letterSpacing: 1.2,
-        textTransform: 'uppercase',
         color: fantasyTokens.colors.inkSoft,
         marginBottom: fantasyTokens.spacing.xs,
-        fontFamily: fantasyTokens.fonts.regular,
     },
     detailValue: {
-        fontSize: 16,
+        ...fantasyTokens.typography.bodyLarge,
         color: fantasyTokens.colors.inkDark,
-        fontFamily: fantasyTokens.fonts.regular,
     },
 });

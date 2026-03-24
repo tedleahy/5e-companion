@@ -1,4 +1,10 @@
-import { buildFantasyTheme, fantasyTokens } from '../fantasyTheme';
+import {
+    buildFantasyTheme,
+    fantasyFontSizes,
+    fantasyTokens,
+    fantasyTypography,
+    fantasyTypescale,
+} from '../fantasyTheme';
 
 describe('buildFantasyTheme', () => {
     it('returns a theme with fantasy colour overrides', () => {
@@ -8,6 +14,7 @@ describe('buildFantasyTheme', () => {
         expect(theme.colors.secondary).toBe(fantasyTokens.colors.gold);
         expect(theme.colors.background).toBe(fantasyTokens.colors.night);
         expect(theme.colors.surface).toBe(fantasyTokens.colors.parchmentDeep);
+        expect(theme.fonts.bodyMedium).toEqual(fantasyTypescale.bodyMedium);
     });
 
     it('uses dark base when colorScheme is "dark"', () => {
@@ -44,6 +51,18 @@ describe('fantasyTokens', () => {
         expect(fantasyTokens.spacing.xs).toBe(4);
         expect(fantasyTokens.spacing.sm).toBe(8);
         expect(fantasyTokens.spacing.md).toBe(16);
+    });
+
+    it('has shared font-size tokens', () => {
+        expect(fantasyFontSizes.utility).toBe(10);
+        expect(fantasyFontSizes.label).toBe(13);
+        expect(fantasyFontSizes.display).toBe(30);
+    });
+
+    it('has typography presets built from the Paper typescale', () => {
+        expect(fantasyTypography.body.fontSize).toBe(fantasyTypescale.bodyMedium.fontSize);
+        expect(fantasyTypography.pageTitle.fontFamily).toBe(fantasyTypescale.displayMedium.fontFamily);
+        expect(fantasyTokens.typography.sectionLabel.textTransform).toBe('uppercase');
     });
 
     it('has responsive breakpoints', () => {

@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     },
     sectionLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2.5,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.crimson,
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     },
     skipBtn: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
         color: 'rgba(201,146,42,0.4)',
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     },
     cellText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 8,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         textTransform: 'uppercase',
         color: 'rgba(245,230,200,0.55)',
@@ -128,14 +128,14 @@ const styles = StyleSheet.create({
     },
     skippedTitle: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: 'rgba(201,146,42,0.4)',
     },
     skippedHint: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         fontStyle: 'italic',
         color: 'rgba(245,230,200,0.3)',
         marginTop: 3,
