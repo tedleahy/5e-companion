@@ -1,4 +1,5 @@
-import { useState } from 'react';
+/* eslint-disable react/no-unescaped-entities */
+import { useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Modal, Portal, Text } from 'react-native-paper';
 import ClassAllocationRow from '@/components/wizard/ClassAllocationRow';
@@ -23,7 +24,7 @@ export default function StepClass() {
     const { draft, updateDraft } = useCharacterDraft();
     const [showStartingClassInfo, setShowStartingClassInfo] = useState(false);
     const availableClasses = availableClassOptions(draft.classes);
-    const showStartingClassSelector = draft.classes.length > 1;
+    const isMulticlassing = draft.classes.length > 1;
     const validation = validateCharacterClassDraft(
         draft.classes,
         draft.level,
@@ -35,6 +36,14 @@ export default function StepClass() {
         draft.startingClassId,
     );
 
+    const scrollViewRef = useRef<ScrollView>(null);
+
+    const subtitle = isMulticlassing
+        ? 'Split your levels across classes and choose which one was your first adventuring class.'
+        : 'Choose your adventuring class.'
+
+    const sectionLabel = draft.classes.length > 0 ? 'Add another class' : 'Choose a class';
+
     /**
      * Writes new class rows back into the draft and keeps the starting class valid.
      */
@@ -45,6 +54,8 @@ export default function StepClass() {
             classes: sanitisedClasses,
             startingClassId: normaliseStartingClassId(sanitisedClasses, nextStartingClassId),
         });
+
+        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
     }
 
     /**
@@ -116,34 +127,45 @@ export default function StepClass() {
 
     return (
         <>
-            <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
+            <ScrollView ref={scrollViewRef} style={styles.scroll} contentContainerStyle={styles.container}>
                 <Text style={styles.heading}>Build your class path.</Text>
                 <Text style={styles.sub}>
-                    Split your levels across classes and choose which one was your first adventuring class.
+                    {subtitle}{'\n'}
                 </Text>
 
-                <View style={styles.summaryCard}>
-                    <View style={styles.summaryHeader}>
-                        <Text style={styles.summaryLabel}>Allocation</Text>
-                        <Pressable
-                            onPress={() => setShowStartingClassInfo(true)}
-                            style={({ pressed }) => [styles.infoButton, pressed && styles.infoButtonPressed]}
-                            testID="starting-class-info"
-                        >
-                            <Text style={styles.infoButtonText}>What is a starting class?</Text>
-                        </Pressable>
+                {(draft.classes.length > 0) && (
+                    <View style={styles.summaryCard}>
+                        <View style={styles.summaryHeader}>
+                            <Text style={styles.summaryLabel}>Allocation</Text>
+                            <Pressable
+                                onPress={() => setShowStartingClassInfo(true)}
+                                style={({ pressed }) => [styles.infoButton, pressed && styles.infoButtonPressed]}
+                                testID="starting-class-info"
+                            >
+                                {isMulticlassing && (
+                                    <Text style={styles.infoButtonText}>What is a starting class?</Text>
+                                )}
+                            </Pressable>
+                        </View>
+                        <Text style={styles.summaryValue}>
+                            {draft.level} total level{draft.level === 1 ? '' : 's'}
+                        </Text>
+                        {(remainingLevelsCount === 0) ? (
+                            <Text style={styles.summaryHint}>All levels assigned.</Text>
+                        ) : (
+                            <>
+                                <Text style={styles.summaryHint}>
+                                    {remainingLevelsCount} level{remainingLevelsCount === 1 ? '' : 's'} still to allocate.
+                                </Text>
+                                <Text style={styles.sub}>
+                                    You can either increase the levels in the
+                                    class{draft.classes.length > 1 ? 'es' : ''} you've chosen, or take levels in
+                                    additional classes.
+                                </Text>
+                            </>
+                        )}
                     </View>
-                    <Text style={styles.summaryValue}>
-                        {draft.level} total level{draft.level === 1 ? '' : 's'}
-                    </Text>
-                    <Text style={styles.summaryHint}>
-                        {remainingLevelsCount === 0
-                            ? 'All levels assigned.'
-                            : remainingLevelsCount > 0
-                                ? `${remainingLevelsCount} level${remainingLevelsCount === 1 ? '' : 's'} still to allocate.`
-                                : `${Math.abs(remainingLevelsCount)} level${remainingLevelsCount === -1 ? '' : 's'} over the limit.`}
-                    </Text>
-                </View>
+                )}
 
                 {displayClassRows.map((classRow, displayIndex) => (
                     <ClassAllocationRow
@@ -159,7 +181,7 @@ export default function StepClass() {
                         onRemove={() => handleRemoveClass(classRow.originalIndex)}
                         onSelectStartingClass={() => updateDraft({ startingClassId: classRow.classId })}
                         onSelectSubclass={(subclassId) => handleSelectSubclass(classRow.originalIndex, subclassId)}
-                        showStartingClassSelector={showStartingClassSelector}
+                        showStartingClassSelector={isMulticlassing}
                         subclassOptions={SUBCLASS_OPTIONS[classRow.classId] ?? []}
                         subclassUnlocked={isSubclassUnlocked(classRow)}
                     />
@@ -167,7 +189,7 @@ export default function StepClass() {
 
                 {availableClasses.length > 0 && remainingLevelsCount > 0 ? (
                     <View style={styles.addSection}>
-                        <Text style={styles.sectionLabel}>Add another class</Text>
+                        <Text style={styles.sectionLabel}>{sectionLabel}</Text>
                         <View style={styles.addGrid}>
                             {availableClasses.map((classOption) => (
                                 <Pressable

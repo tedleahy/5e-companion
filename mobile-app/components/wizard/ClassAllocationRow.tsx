@@ -56,35 +56,41 @@ export default function ClassAllocationRow({
                     <Text style={styles.className}>{formatClassRowLabel(classRow)}</Text>
                 </View>
 
-                <View style={styles.levelStepper}>
-                    <Pressable
-                        accessibilityRole="button"
-                        disabled={!canDecreaseLevel}
-                        onPress={onDecreaseLevel}
-                        style={({ pressed }) => [
-                            styles.levelButton,
-                            !canDecreaseLevel && styles.levelButtonDisabled,
-                            pressed && canDecreaseLevel && styles.levelButtonPressed,
-                        ]}
-                        testID={`class-row-level-down-${index}`}
-                    >
-                        <Text style={styles.levelButtonText}>{'\u2212'}</Text>
-                    </Pressable>
-                    <Text style={styles.levelValue}>{classRow.level}</Text>
-                    <Pressable
-                        accessibilityRole="button"
-                        disabled={!canIncreaseLevel}
-                        onPress={onIncreaseLevel}
-                        style={({ pressed }) => [
-                            styles.levelButton,
-                            !canIncreaseLevel && styles.levelButtonDisabled,
-                            pressed && canIncreaseLevel && styles.levelButtonPressed,
-                        ]}
-                        testID={`class-row-level-up-${index}`}
-                    >
-                        <Text style={styles.levelButtonText}>+</Text>
-                    </Pressable>
-                </View>
+                {(!canDecreaseLevel && !canIncreaseLevel) ? (
+                    <Text style={styles.subclassHeading}>
+                        Level {classRow.level}
+                    </Text>
+                ) : (
+                    <View style={styles.levelStepper}>
+                        <Pressable
+                            accessibilityRole="button"
+                            disabled={!canDecreaseLevel}
+                            onPress={onDecreaseLevel}
+                            style={({ pressed }) => [
+                                styles.levelButton,
+                                !canDecreaseLevel && styles.levelButtonDisabled,
+                                pressed && canDecreaseLevel && styles.levelButtonPressed,
+                            ]}
+                            testID={`class-row-level-down-${index}`}
+                        >
+                            <Text style={styles.levelButtonText}>{'\u2212'}</Text>
+                        </Pressable>
+                        <Text style={styles.levelValue}>{classRow.level}</Text>
+                        <Pressable
+                            accessibilityRole="button"
+                            disabled={!canIncreaseLevel}
+                            onPress={onIncreaseLevel}
+                            style={({ pressed }) => [
+                                styles.levelButton,
+                                !canIncreaseLevel && styles.levelButtonDisabled,
+                                pressed && canIncreaseLevel && styles.levelButtonPressed,
+                            ]}
+                            testID={`class-row-level-up-${index}`}
+                        >
+                            <Text style={styles.levelButtonText}>+</Text>
+                        </Pressable>
+                    </View>
+                )}
             </View>
 
             {showStartingClassSelector ? (
