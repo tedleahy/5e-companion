@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     profileName: {
-        color: fantasyTokens.colors.parchment,
+        color: fantasyTokens.colors.inkDark,
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: 14,
         fontWeight: '700',
