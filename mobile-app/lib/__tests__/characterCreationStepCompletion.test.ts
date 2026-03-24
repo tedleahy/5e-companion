@@ -47,6 +47,32 @@ describe('characterCreationStepCompletion', () => {
         )).toBe(false);
     });
 
+    it('requires every unlocked subclass choice before continuing', () => {
+        expect(isCreateCharacterStepComplete(
+            CREATE_CHARACTER_ROUTES.class,
+            createDraft({
+                level: 3,
+                classes: [
+                    { classId: 'wizard', subclassId: '', level: 2 },
+                    { classId: 'fighter', subclassId: '', level: 1 },
+                ],
+                startingClassId: 'wizard',
+            }),
+        )).toBe(false);
+
+        expect(isCreateCharacterStepComplete(
+            CREATE_CHARACTER_ROUTES.class,
+            createDraft({
+                level: 3,
+                classes: [
+                    { classId: 'wizard', subclassId: 'evocation', level: 2 },
+                    { classId: 'fighter', subclassId: '', level: 1 },
+                ],
+                startingClassId: 'wizard',
+            }),
+        )).toBe(true);
+    });
+
     it('does not require a background on the abilities route for higher-level characters', () => {
         expect(isCreateCharacterStepComplete(
             CREATE_CHARACTER_ROUTES.abilities,

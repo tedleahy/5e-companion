@@ -305,6 +305,11 @@ export function validateCharacterClassDraft(
             );
             break;
         }
+
+        if (!classRow.subclassId && isSubclassUnlocked(classRow)) {
+            errors.push(`Choose a subclass for ${classLabel(classRow.classId)}.`);
+            break;
+        }
     }
 
     if (remainingLevelsCount !== 0) {

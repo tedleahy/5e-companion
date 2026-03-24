@@ -36,6 +36,17 @@ describe('multiclass helpers', () => {
         });
     });
 
+    it('requires a subclass once a class reaches its unlock level', () => {
+        expect(validateCharacterClassDraft(
+            [{ classId: 'wizard', subclassId: '', level: 2 }],
+            2,
+            'wizard',
+        )).toMatchObject({
+            isValid: false,
+            errors: ['Choose a subclass for Wizard.'],
+        });
+    });
+
     it('sorts classes by level, then starting class, then class name', () => {
         expect(sortClassRowsForDisplay([
             { classId: 'wizard', subclassId: '', level: 2 },
