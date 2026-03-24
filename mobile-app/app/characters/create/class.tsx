@@ -23,6 +23,7 @@ export default function StepClass() {
     const { draft, updateDraft } = useCharacterDraft();
     const [showStartingClassInfo, setShowStartingClassInfo] = useState(false);
     const availableClasses = availableClassOptions(draft.classes);
+    const showStartingClassSelector = draft.classes.length > 1;
     const validation = validateCharacterClassDraft(
         draft.classes,
         draft.level,
@@ -158,6 +159,7 @@ export default function StepClass() {
                         onRemove={() => handleRemoveClass(classRow.originalIndex)}
                         onSelectStartingClass={() => updateDraft({ startingClassId: classRow.classId })}
                         onSelectSubclass={(subclassId) => handleSelectSubclass(classRow.originalIndex, subclassId)}
+                        showStartingClassSelector={showStartingClassSelector}
                         subclassOptions={SUBCLASS_OPTIONS[classRow.classId] ?? []}
                         subclassUnlocked={isSubclassUnlocked(classRow)}
                     />

@@ -22,6 +22,7 @@ type Props = {
     onRemove: () => void;
     onSelectStartingClass: () => void;
     onSelectSubclass: (subclassId: string) => void;
+    showStartingClassSelector: boolean;
     subclassOptions: OptionItem[];
     subclassUnlocked: boolean;
 };
@@ -41,6 +42,7 @@ export default function ClassAllocationRow({
     onRemove,
     onSelectStartingClass,
     onSelectSubclass,
+    showStartingClassSelector,
     subclassOptions,
     subclassUnlocked,
 }: Props) {
@@ -85,25 +87,27 @@ export default function ClassAllocationRow({
                 </View>
             </View>
 
-            <Pressable
-                accessibilityRole="radio"
-                onPress={onSelectStartingClass}
-                style={styles.startingRow}
-                testID={`class-row-starting-${index}`}
-            >
-                <RadioButton
-                    color={fantasyTokens.colors.gold}
-                    status={isStartingClass ? 'checked' : 'unchecked'}
-                    uncheckedColor="rgba(201,146,42,0.4)"
-                    value={`starting-class-${index}`}
-                />
-                <View style={styles.startingCopy}>
-                    <Text style={styles.startingLabel}>Starting class</Text>
-                    <Text style={styles.startingHint}>
-                        This class grants your opening saving throws and primary class proficiencies.
-                    </Text>
-                </View>
-            </Pressable>
+            {showStartingClassSelector ? (
+                <Pressable
+                    accessibilityRole="radio"
+                    onPress={onSelectStartingClass}
+                    style={styles.startingRow}
+                    testID={`class-row-starting-${index}`}
+                >
+                    <RadioButton
+                        color={fantasyTokens.colors.gold}
+                        status={isStartingClass ? 'checked' : 'unchecked'}
+                        uncheckedColor="rgba(201,146,42,0.4)"
+                        value={`starting-class-${index}`}
+                    />
+                    <View style={styles.startingCopy}>
+                        <Text style={styles.startingLabel}>Starting class</Text>
+                        <Text style={styles.startingHint}>
+                            This class grants your opening saving throws and primary class proficiencies.
+                        </Text>
+                    </View>
+                </Pressable>
+            ) : null}
 
             <View style={styles.controlsRow}>
                 <Pressable
