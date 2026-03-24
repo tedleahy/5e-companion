@@ -364,11 +364,9 @@ model CharacterClass {
     subclassRef     Subclass? @relation(fields: [subclassId], references: [id], onDelete: SetNull)
     subclassId      String?
     level           Int
-    order           Int
     isStartingClass Boolean   @default(false)
 
     @@unique([characterId, classId])
-    @@unique([characterId, order])
     @@index([characterId])
     @@index([classId])
     @@index([subclassId])

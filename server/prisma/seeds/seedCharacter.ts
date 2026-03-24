@@ -453,7 +453,6 @@ export default async function seedCharacter() {
                         classId: classRef.id,
                         subclassId: subclassRef?.id ?? null,
                         level: 12,
-                        order: 0,
                         isStartingClass: true,
                     }],
                 },

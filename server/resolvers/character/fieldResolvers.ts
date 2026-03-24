@@ -5,6 +5,7 @@ import {
     deriveProficiencyBonus,
     deriveSpellcastingProfiles,
     deriveTotalLevel,
+    sortClassRowsForDisplay,
     sortSpellSlots,
     type CharacterAbilityScores,
     type CharacterClassReference,
@@ -50,16 +51,15 @@ export async function characterClasses(parent: CharacterFieldParent) {
         ? parent.classes
         : await loadCharacterClasses(parent.id);
 
-    return classes.map((classRow) => ({
+    return sortClassRowsForDisplay(classes.map((classRow) => ({
         id: classRow.id,
         classId: classRow.classRef.srdIndex ?? classRow.classId,
         className: classRow.classRef.name,
         subclassId: classRow.subclassRef?.srdIndex ?? classRow.subclassId ?? null,
         subclassName: classRow.subclassRef?.name ?? null,
         level: classRow.level,
-        order: classRow.order,
         isStartingClass: classRow.isStartingClass,
-    }));
+    })));
 }
 
 /**
@@ -111,11 +111,10 @@ export async function characterStats(
 export async function characterStatsHitDicePools(
     parent: { characterId: string },
 ) {
-    const [classOrder, hitDicePools] = await Promise.all([
+    const [classRows, hitDicePools] = await Promise.all([
         prisma.characterClass.findMany({
             where: { characterId: parent.characterId },
-            orderBy: { order: 'asc' },
-            select: { classId: true },
+            include: { classRef: true },
         }),
         prisma.hitDicePool.findMany({
             where: { characterId: parent.characterId },
@@ -123,7 +122,15 @@ export async function characterStatsHitDicePools(
         }),
     ]);
 
-    const classIndexById = new Map(classOrder.map((classRow, index) => [classRow.classId, index]));
+    const sortedClassIds = sortClassRowsForDisplay(
+        classRows.map((classRow) => ({
+            classId: classRow.classId,
+            className: classRow.classRef.name,
+            isStartingClass: classRow.isStartingClass,
+            level: classRow.level,
+        })),
+    ).map((classRow) => classRow.classId);
+    const classIndexById = new Map(sortedClassIds.map((classId, index) => [classId, index]));
 
     return [...hitDicePools]
         .sort((left, right) => {
@@ -229,7 +236,6 @@ async function loadCharacterClasses(characterId: string) {
             classRef: true,
             subclassRef: true,
         },
-        orderBy: { order: 'asc' },
     });
 }
 

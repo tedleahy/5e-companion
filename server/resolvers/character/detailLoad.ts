@@ -14,9 +14,6 @@ export const CHARACTER_CLASS_INCLUDE = {
 export const CHARACTER_LIST_INCLUDE = {
     classes: {
         include: CHARACTER_CLASS_INCLUDE,
-        orderBy: {
-            order: 'asc',
-        },
     },
 } satisfies Prisma.CharacterInclude;
 

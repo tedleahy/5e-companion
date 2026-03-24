@@ -101,6 +101,15 @@ export type DerivedNamedProficiencies = {
 };
 
 /**
+ * Minimal class row shape used for deterministic display sorting.
+ */
+export type DisplaySortableClassRow = {
+    className: string;
+    isStartingClass: boolean;
+    level: number;
+};
+
+/**
  * Subclass unlock levels for 2014 PHB/SRD classes.
  */
 export const SUBCLASS_UNLOCK_LEVEL_BY_CLASS_SRD_INDEX: Record<string, number> = {
@@ -355,20 +364,47 @@ export function deriveProficiencyBonus(totalLevel: number): number {
 }
 
 /**
+ * Sorts class-like rows for display by level, then starting-class status, then class name.
+ */
+export function sortClassRowsForDisplay<T extends DisplaySortableClassRow>(classRows: T[]): T[] {
+    return [...classRows].sort((left, right) => {
+        if (left.level !== right.level) {
+            return right.level - left.level;
+        }
+
+        if (left.isStartingClass !== right.isStartingClass) {
+            return left.isStartingClass ? -1 : 1;
+        }
+
+        return left.className.localeCompare(right.className);
+    });
+}
+
+/**
+ * Returns the starting class index for a submitted class-id selection.
+ */
+export function findStartingClassIndex(
+    classRows: CharacterClassAllocation[],
+    startingClassId: string,
+): number {
+    return classRows.findIndex((classRow) => classRow.classId === startingClassId);
+}
+
+/**
  * Validates class rows, subclass ownership, duplicate classes, and starting class rules.
  */
 export function validateClassAllocations(
     classRows: CharacterClassAllocation[],
     classRefsBySrdIndex: Map<string, CharacterClassReference>,
     subclassRefsBySrdIndex: Map<string, CharacterSubclassReference>,
-    startingClassIndex: number,
+    startingClassId: string,
 ) {
     if (classRows.length === 0) {
         throw new Error('At least one class row is required.');
     }
 
-    if (startingClassIndex < 0 || startingClassIndex >= classRows.length) {
-        throw new Error('Starting class index is out of range.');
+    if (findStartingClassIndex(classRows, startingClassId) === -1) {
+        throw new Error('Starting class must match one of the selected classes.');
     }
 
     const seenClassIds = new Set<string>();

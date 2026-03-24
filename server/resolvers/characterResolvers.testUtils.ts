@@ -224,7 +224,6 @@ export const fakeCharacterClasses: any[] = [
         classId: 'class-wizard-id',
         subclassId: 'subclass-evocation-id',
         level: 9,
-        order: 0,
         isStartingClass: true,
         classRef: {
             id: 'class-wizard-id',
@@ -246,7 +245,6 @@ export const fakeCharacterClasses: any[] = [
         classId: 'class-warlock-id',
         subclassId: 'subclass-fiend-id',
         level: 3,
-        order: 1,
         isStartingClass: false,
         classRef: {
             id: 'class-warlock-id',

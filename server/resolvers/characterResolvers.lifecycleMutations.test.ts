@@ -74,7 +74,7 @@ describe('characterResolvers — createCharacter', () => {
                 { classId: 'wizard', subclassId: 'evocation', level: 9 },
                 { classId: 'warlock', subclassId: 'fiend', level: 3 },
             ],
-            startingClassIndex: 0,
+            startingClassId: 'wizard',
             alignment: 'Chaotic Good',
             background: 'acolyte',
             ac: 17,
@@ -94,8 +94,8 @@ describe('characterResolvers — createCharacter', () => {
         expect(callArgs.data.stats.create.hp).toEqual({ current: 77, max: 77, temp: 0 });
         expect(callArgs.data.stats.create.savingThrowProficiencies).toEqual(['intelligence', 'wisdom']);
         expect(callArgs.data.classes.create).toEqual([
-            { classId: 'class-wizard-id', subclassId: 'subclass-evocation-id', level: 9, order: 0, isStartingClass: true },
-            { classId: 'class-warlock-id', subclassId: 'subclass-fiend-id', level: 3, order: 1, isStartingClass: false },
+            { classId: 'class-wizard-id', subclassId: 'subclass-evocation-id', level: 9, isStartingClass: true },
+            { classId: 'class-warlock-id', subclassId: 'subclass-fiend-id', level: 3, isStartingClass: false },
         ]);
         expect(callArgs.data.hitDicePools.create).toEqual([
             { classId: 'class-wizard-id', total: 9, remaining: 9, die: 'd6' },
@@ -133,7 +133,7 @@ describe('characterResolvers — createCharacter', () => {
                 name: 'Vaelindra',
                 race: 'elf',
                 classes: [{ classId: 'wizard', subclassId: 'evocation', level: 1 }],
-                startingClassIndex: 0,
+                startingClassId: 'wizard',
                 alignment: 'Chaotic Good',
                 background: 'acolyte',
                 ac: 12,

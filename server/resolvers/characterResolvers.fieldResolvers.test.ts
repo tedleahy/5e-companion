@@ -44,7 +44,6 @@ describe('characterResolvers — field resolvers', () => {
                 subclassId: 'evocation',
                 subclassName: 'Evocation',
                 level: 9,
-                order: 0,
                 isStartingClass: true,
             },
             {
@@ -54,7 +53,6 @@ describe('characterResolvers — field resolvers', () => {
                 subclassId: 'fiend',
                 subclassName: 'Fiend',
                 level: 3,
-                order: 1,
                 isStartingClass: false,
             },
         ]);
@@ -110,8 +108,8 @@ describe('characterResolvers — field resolvers', () => {
 
     test('characterStatsHitDicePools returns ordered class pools', async () => {
         characterClassFindManyMock.mockResolvedValueOnce([
-            { classId: 'class-wizard-id' },
-            { classId: 'class-warlock-id' },
+            { classId: 'class-wizard-id', level: 9, isStartingClass: true, classRef: { name: 'Wizard' } },
+            { classId: 'class-warlock-id', level: 3, isStartingClass: false, classRef: { name: 'Warlock' } },
         ]);
         hitDicePoolFindManyMock.mockResolvedValueOnce(fakeHitDicePools);
 

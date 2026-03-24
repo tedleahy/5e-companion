@@ -71,7 +71,6 @@ type CharacterClass {
     subclassId: String
     subclassName: String
     level: Int!
-    order: Int!
     isStartingClass: Boolean!
 }
 
@@ -228,7 +227,7 @@ input CreateCharacterInput {
     name: String!
     race: String!
     classes: [CreateCharacterClassInput!]!
-    startingClassIndex: Int!
+    startingClassId: String!
     alignment: String!
     background: String!
     ac: Int!

@@ -23,6 +23,7 @@ import {
     deriveSpellSlots,
     deriveSpellcastingProfiles,
     deriveStartingHp,
+    findStartingClassIndex,
     resolveCharacterClasses,
     validateClassAllocations,
     type CharacterAbilityScores,
@@ -44,7 +45,7 @@ export async function createCharacter(
         traits,
         currency,
         classes,
-        startingClassIndex,
+        startingClassId,
         race,
         background,
         ...characterFields
@@ -126,9 +127,13 @@ export async function createCharacter(
         }
     }
 
-    validateClassAllocations(classes, classRefsBySrdIndex, subclassRefsBySrdIndex, startingClassIndex);
+    validateClassAllocations(classes, classRefsBySrdIndex, subclassRefsBySrdIndex, startingClassId);
 
     const resolvedClasses = resolveCharacterClasses(classes, classRefsBySrdIndex, subclassRefsBySrdIndex);
+    const startingClassIndex = findStartingClassIndex(
+        resolvedClasses.map((resolvedClass) => resolvedClass.classRow),
+        startingClassId,
+    );
     const totalLevel = resolvedClasses.reduce((total, resolvedClass) => total + resolvedClass.classRow.level, 0);
     const proficiencyBonus = deriveProficiencyBonus(totalLevel);
     const startingHp = deriveStartingHp(
@@ -200,7 +205,6 @@ export async function createCharacter(
                     classId: resolvedClass.classRef.id,
                     subclassId: resolvedClass.subclassRef?.id ?? null,
                     level: resolvedClass.classRow.level,
-                    order: index,
                     isStartingClass: index === startingClassIndex,
                 })),
             },

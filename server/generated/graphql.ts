@@ -69,7 +69,6 @@ export type CharacterClass = {
   id: Scalars['ID']['output'];
   isStartingClass: Scalars['Boolean']['output'];
   level: Scalars['Int']['output'];
-  order: Scalars['Int']['output'];
   subclassId?: Maybe<Scalars['String']['output']>;
   subclassName?: Maybe<Scalars['String']['output']>;
 };
@@ -122,7 +121,7 @@ export type CreateCharacterInput = {
   race: Scalars['String']['input'];
   skillProficiencies: SkillProficienciesInput;
   speed: Scalars['Int']['input'];
-  startingClassIndex: Scalars['Int']['input'];
+  startingClassId: Scalars['String']['input'];
   traits?: InputMaybe<TraitsInput>;
 };
 
@@ -784,7 +783,6 @@ export type CharacterClassResolvers<ContextType = Context, ParentType extends Re
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isStartingClass?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   level?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   subclassId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   subclassName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

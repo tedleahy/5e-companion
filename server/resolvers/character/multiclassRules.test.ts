@@ -88,7 +88,7 @@ describe('multiclassRules', () => {
             [{ classId: 'wizard', subclassId: 'evocation', level: 1 }],
             classRefs,
             subclassRefs,
-            0,
+            'wizard',
         )).toThrow('requires wizard level 2');
     });
 
@@ -101,7 +101,7 @@ describe('multiclassRules', () => {
             [{ classId: 'wizard', level: 2 }],
             classRefs,
             new Map(),
-            0,
+            'wizard',
         )).toThrow('Class wizard requires a subclass at level 2.');
     });
 

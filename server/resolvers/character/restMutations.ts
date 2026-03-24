@@ -7,7 +7,7 @@ import type {
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
 import { findOwnedCharacter, findOwnedStats } from "./helpers";
-import { recoverHitDicePools } from "./multiclassRules";
+import { recoverHitDicePools, sortClassRowsForDisplay } from "./multiclassRules";
 
 /**
  * Spends hit dice from a specific class pool, clamping remaining dice at zero.
@@ -93,17 +93,24 @@ export async function longRest(
         },
     });
 
-    const [hitDicePools, orderedClasses] = await Promise.all([
+    const [hitDicePools, classRows] = await Promise.all([
         prisma.hitDicePool.findMany({
             where: { characterId },
         }),
         prisma.characterClass.findMany({
             where: { characterId },
-            orderBy: { order: 'asc' },
-            select: { classId: true, level: true },
+            include: { classRef: true },
         }),
     ]);
 
+    const orderedClasses = sortClassRowsForDisplay(
+        classRows.map((classRow) => ({
+            classId: classRow.classId,
+            className: classRow.classRef.name,
+            isStartingClass: classRow.isStartingClass,
+            level: classRow.level,
+        })),
+    );
     const totalHitDice = orderedClasses.reduce((total, classRow) => total + classRow.level, 0);
     const recovered = Math.max(1, Math.floor(totalHitDice / 2));
     const recoveredPools = recoverHitDicePools(
