@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.inkDark,
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: 16,
-        lineHeight: 16,
+        lineHeight: 20,
         fontWeight: '700',
     },
     hpValue: {
@@ -323,6 +323,7 @@ const styles = StyleSheet.create({
     hpMax: {
         color: 'rgba(61,43,31,0.52)',
         fontSize: 10,
+        lineHeight: 12,
     },
     acValue: {
         color: fantasyTokens.colors.greenDark,
@@ -330,8 +331,8 @@ const styles = StyleSheet.create({
     statLabel: {
         color: 'rgba(61,43,31,0.53)',
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 7,
-        lineHeight: 10,
+        fontSize: 9,
+        lineHeight: 12,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
         marginTop: 2,
