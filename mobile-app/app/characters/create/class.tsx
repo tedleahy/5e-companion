@@ -10,7 +10,6 @@ import {
     normaliseStartingClassId,
     remainingClassLevels,
     sanitiseCharacterClassRow,
-    sortClassRowsForDisplay,
     validateCharacterClassDraft,
 } from '@/lib/characterCreation/multiclass';
 import { SUBCLASS_OPTIONS } from '@/lib/characterCreation/options';
@@ -31,10 +30,7 @@ export default function StepClass() {
         draft.startingClassId,
     );
     const remainingLevelsCount = remainingClassLevels(draft.classes, draft.level);
-    const displayClassRows = sortClassRowsForDisplay(
-        draft.classes.map((classRow, originalIndex) => ({ ...classRow, originalIndex })),
-        draft.startingClassId,
-    );
+    const displayClassRows = draft.classes.map((classRow, originalIndex) => ({ ...classRow, originalIndex }));
 
     const scrollViewRef = useRef<ScrollView>(null);
 
