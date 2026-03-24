@@ -120,18 +120,20 @@ describe('characterResolvers — toggleSpellSlot', () => {
     beforeEach(clearAllCharacterResolverMocks);
 
     test('throws UNAUTHENTICATED when userId is null', () => {
-        expect(resolvers.toggleSpellSlot({}, { characterId: 'char-1', level: 1 }, unauthedCtx))
+        expect(resolvers.toggleSpellSlot({}, { characterId: 'char-1', kind: 'STANDARD', level: 1 }, unauthedCtx))
             .rejects.toThrow('UNAUTHENTICATED');
     });
 
     test('increments used when not all used', async () => {
         characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
-        const slot = { id: 'slot-1', characterId: 'char-1', level: 1, total: 4, used: 2 };
+        const slot = { id: 'slot-1', characterId: 'char-1', kind: 'STANDARD', level: 1, total: 4, used: 2 };
         spellSlotFindUniqueMock.mockResolvedValueOnce(slot);
         const updated = { ...slot, used: 3 };
         spellSlotUpdateMock.mockResolvedValueOnce(updated);
 
-        const result = await resolvers.toggleSpellSlot({}, { characterId: 'char-1', level: 1 }, authedCtx);
+        const result = await resolvers.toggleSpellSlot(
+            {}, { characterId: 'char-1', kind: 'STANDARD', level: 1 }, authedCtx,
+        );
 
         const args = spellSlotUpdateMock.mock.calls[0]![0] as Record<string, any>;
         expect(args.data.used).toBe(3);
@@ -140,12 +142,14 @@ describe('characterResolvers — toggleSpellSlot', () => {
 
     test('resets used to 0 when all slots are used', async () => {
         characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
-        const slot = { id: 'slot-1', characterId: 'char-1', level: 1, total: 4, used: 4 };
+        const slot = { id: 'slot-1', characterId: 'char-1', kind: 'STANDARD', level: 1, total: 4, used: 4 };
         spellSlotFindUniqueMock.mockResolvedValueOnce(slot);
         const updated = { ...slot, used: 0 };
         spellSlotUpdateMock.mockResolvedValueOnce(updated);
 
-        const result = await resolvers.toggleSpellSlot({}, { characterId: 'char-1', level: 1 }, authedCtx);
+        const result = await resolvers.toggleSpellSlot(
+            {}, { characterId: 'char-1', kind: 'STANDARD', level: 1 }, authedCtx,
+        );
 
         const args = spellSlotUpdateMock.mock.calls[0]![0] as Record<string, any>;
         expect(args.data.used).toBe(0);
@@ -156,7 +160,7 @@ describe('characterResolvers — toggleSpellSlot', () => {
         characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
         spellSlotFindUniqueMock.mockResolvedValueOnce(null);
 
-        expect(resolvers.toggleSpellSlot({}, { characterId: 'char-1', level: 9 }, authedCtx))
+        expect(resolvers.toggleSpellSlot({}, { characterId: 'char-1', kind: 'STANDARD', level: 9 }, authedCtx))
             .rejects.toThrow('Spell slot not found.');
     });
 });

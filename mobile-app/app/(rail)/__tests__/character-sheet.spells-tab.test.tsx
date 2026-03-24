@@ -29,6 +29,7 @@ describe('CharacterByIdScreen spells tab', () => {
         expect(screen.getByText('Fireball')).toBeTruthy();
         expect(screen.getByText('Detect Magic')).toBeTruthy();
         expect(screen.getAllByText('+9').length).toBeGreaterThanOrEqual(1);
+        expect(screen.getAllByText('Pact Magic').length).toBeGreaterThanOrEqual(1);
     });
 
     it('updates spell slot count optimistically when a slot pip is pressed', async () => {

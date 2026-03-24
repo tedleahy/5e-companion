@@ -1,5 +1,6 @@
 import type { CharacterDraft } from '@/store/characterDraft';
 import { CREATE_CHARACTER_ROUTES, type CreateCharacterRoute } from '@/lib/characterCreation/routes';
+import { validateCharacterClassDraft } from '@/lib/characterCreation/multiclass';
 
 /**
  * Returns whether the current create-character step is complete enough to continue.
@@ -14,9 +15,11 @@ export function isCreateCharacterStepComplete(
         case CREATE_CHARACTER_ROUTES.race:
             return draft.race !== '';
         case CREATE_CHARACTER_ROUTES.class:
-            return draft.class !== '';
-        case CREATE_CHARACTER_ROUTES.subclass:
-            return draft.subclass !== '';
+            return validateCharacterClassDraft(
+                draft.classes,
+                draft.level,
+                draft.startingClassId,
+            ).isValid;
         case CREATE_CHARACTER_ROUTES.background:
             return draft.background !== '';
         case CREATE_CHARACTER_ROUTES.abilities:

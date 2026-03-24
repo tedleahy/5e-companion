@@ -6,6 +6,7 @@ import type {
     MutationToggleSpellSlotArgs,
     MutationUnprepareSpellArgs,
 } from "../../generated/graphql";
+import { SpellSlotKind as GraphqlSpellSlotKind } from "../../generated/graphql";
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
 import { findOwnedCharacter } from "./helpers";
@@ -90,22 +91,29 @@ export async function unprepareSpell(
  */
 export async function toggleSpellSlot(
     _parent: unknown,
-    { characterId, level }: MutationToggleSpellSlotArgs,
+    { characterId, kind, level }: MutationToggleSpellSlotArgs,
     ctx: Context,
 ) {
     const userId = requireUser(ctx);
     await findOwnedCharacter(characterId, userId);
 
     const slot = await prisma.spellSlot.findUnique({
-        where: { characterId_level: { characterId, level } },
+        where: { characterId_kind_level: { characterId, kind, level } },
     });
     if (!slot) throw new Error('Spell slot not found.');
 
     // Toggle: if all used, start recovering; otherwise use one more
     const newUsed = slot.used < slot.total ? slot.used + 1 : 0;
 
-    return await prisma.spellSlot.update({
+    const updatedSlot = await prisma.spellSlot.update({
         where: { id: slot.id },
         data: { used: newUsed },
     });
+
+    return {
+        ...updatedSlot,
+        kind: updatedSlot.kind === 'PACT_MAGIC'
+            ? GraphqlSpellSlotKind.PactMagic
+            : GraphqlSpellSlotKind.Standard,
+    };
 }

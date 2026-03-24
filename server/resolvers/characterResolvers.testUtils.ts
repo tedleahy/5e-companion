@@ -7,10 +7,19 @@ export const characterCountMock: any = mock((_args: unknown) => Promise.resolve(
 export const characterCreateMock: any = mock((_args: unknown) => Promise.resolve({}));
 export const characterUpdateMock: any = mock((_args: unknown) => Promise.resolve({}));
 export const characterDeleteManyMock: any = mock((_args: unknown) => Promise.resolve({ count: 1 }));
+export const characterClassFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 
 // characterStats model mocks
 export const statsFindUniqueMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const statsUpdateMock: any = mock((_args: unknown) => Promise.resolve({}));
+export const hitDicePoolFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
+export const hitDicePoolUpdateMock: any = mock((_args: unknown) => Promise.resolve({}));
+
+// reference model mocks
+export const classFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
+export const subclassFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
+export const raceFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
+export const backgroundFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 
 // field resolver model mocks
 export const weaponFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
@@ -55,6 +64,10 @@ export const transactionMock: any = mock((callback: (tx: any) => Promise<unknown
         findUnique: statsFindUniqueMock,
         update: statsUpdateMock,
     },
+    hitDicePool: {
+        findMany: hitDicePoolFindManyMock,
+        update: hitDicePoolUpdateMock,
+    },
     weapon: {
         findMany: weaponFindManyMock,
         findUnique: weaponFindUniqueMock,
@@ -91,9 +104,28 @@ mock.module('../prisma/prisma', () => ({
             update: characterUpdateMock,
             deleteMany: characterDeleteManyMock,
         },
+        characterClass: {
+            findMany: characterClassFindManyMock,
+        },
         characterStats: {
             findUnique: statsFindUniqueMock,
             update: statsUpdateMock,
+        },
+        hitDicePool: {
+            findMany: hitDicePoolFindManyMock,
+            update: hitDicePoolUpdateMock,
+        },
+        class: {
+            findMany: classFindManyMock,
+        },
+        subclass: {
+            findMany: subclassFindManyMock,
+        },
+        race: {
+            findFirst: raceFindFirstMock,
+        },
+        background: {
+            findFirst: backgroundFindFirstMock,
         },
         characterSpell: {
             findMany: characterSpellFindManyMock,
@@ -152,7 +184,16 @@ export const fakeCharacter: any = {
     id: 'char-1',
     ownerUserId: 'user-abc',
     name: 'Vaelindra',
+    race: 'High Elf',
+    alignment: 'Chaotic Good',
+    background: 'Acolyte',
     inspiration: false,
+    ac: 17,
+    speed: 35,
+    initiative: 3,
+    proficiencyBonus: 4,
+    conditions: [],
+    notes: '',
 };
 
 export const fakeStats: any = {
@@ -161,7 +202,6 @@ export const fakeStats: any = {
     abilityScores: { strength: 8, dexterity: 16, constitution: 14, intelligence: 20, wisdom: 13, charisma: 11 },
     hp: { current: 54, max: 76, temp: 2 },
     deathSaves: { successes: 0, failures: 0 },
-    hitDice: { total: 12, remaining: 12, die: 'd6' },
     savingThrowProficiencies: ['constitution', 'intelligence'],
     skillProficiencies: { arcana: 'expert', history: 'proficient', stealth: 'none' },
     traits: {
@@ -177,16 +217,94 @@ export const fakeStats: any = {
     currency: { cp: 0, sp: 14, ep: 0, gp: 847, pp: 3 },
 };
 
+export const fakeCharacterClasses: any[] = [
+    {
+        id: 'char-class-1',
+        characterId: 'char-1',
+        classId: 'class-wizard-id',
+        subclassId: 'subclass-evocation-id',
+        level: 9,
+        isStartingClass: true,
+        classRef: {
+            id: 'class-wizard-id',
+            srdIndex: 'wizard',
+            name: 'Wizard',
+            hitDie: 6,
+            spellcastingAbility: 'int',
+        },
+        subclassRef: {
+            id: 'subclass-evocation-id',
+            srdIndex: 'evocation',
+            name: 'Evocation',
+            classId: 'class-wizard-id',
+        },
+    },
+    {
+        id: 'char-class-2',
+        characterId: 'char-1',
+        classId: 'class-warlock-id',
+        subclassId: 'subclass-fiend-id',
+        level: 3,
+        isStartingClass: false,
+        classRef: {
+            id: 'class-warlock-id',
+            srdIndex: 'warlock',
+            name: 'Warlock',
+            hitDie: 8,
+            spellcastingAbility: 'cha',
+        },
+        subclassRef: {
+            id: 'subclass-fiend-id',
+            srdIndex: 'fiend',
+            name: 'Fiend',
+            classId: 'class-warlock-id',
+        },
+    },
+];
+
+export const fakeHitDicePools: any[] = [
+    {
+        id: 'hd-1',
+        characterId: 'char-1',
+        classId: 'class-wizard-id',
+        total: 9,
+        remaining: 7,
+        die: 'd6',
+        classRef: {
+            id: 'class-wizard-id',
+            srdIndex: 'wizard',
+            name: 'Wizard',
+        },
+    },
+    {
+        id: 'hd-2',
+        characterId: 'char-1',
+        classId: 'class-warlock-id',
+        total: 3,
+        remaining: 2,
+        die: 'd8',
+        classRef: {
+            id: 'class-warlock-id',
+            srdIndex: 'warlock',
+            name: 'Warlock',
+        },
+    },
+];
+
 /**
  * Rich character detail payload for resolver tests that exercise parent-loaded relations.
  */
 export const fakeCharacterDetail: any = {
     ...fakeCharacter,
+    classes: fakeCharacterClasses,
     stats: fakeStats,
     weapons: [{ id: 'weapon-1', characterId: 'char-1', name: 'Longsword', attackBonus: '+7', damage: '1d8+4 S', type: 'melee' }],
     inventory: [{ id: 'item-1', characterId: 'char-1', name: 'Potion of Healing', quantity: 2, weight: 0.5, description: 'Restores hit points', equipped: false, magical: true }],
     features: [{ id: 'feature-1', characterId: 'char-1', name: 'Arcane Recovery', source: 'Wizard 1', description: 'Recover spell slots on a short rest.', usesMax: 1, usesRemaining: 1, recharge: 'long' }],
-    spellSlots: [{ id: 'slot-1', characterId: 'char-1', level: 1, total: 4, used: 1 }],
+    spellSlots: [
+        { id: 'slot-1', characterId: 'char-1', kind: 'STANDARD', level: 1, total: 4, used: 1 },
+        { id: 'slot-2', characterId: 'char-1', kind: 'PACT_MAGIC', level: 2, total: 2, used: 0 },
+    ],
     spellbook: [{
         characterId: 'char-1',
         spellId: 'spell-1',
@@ -221,8 +339,15 @@ export function clearAllCharacterResolverMocks() {
     characterCreateMock.mockClear();
     characterUpdateMock.mockClear();
     characterDeleteManyMock.mockClear();
+    characterClassFindManyMock.mockClear();
     statsFindUniqueMock.mockClear();
     statsUpdateMock.mockClear();
+    hitDicePoolFindManyMock.mockClear();
+    hitDicePoolUpdateMock.mockClear();
+    classFindManyMock.mockClear();
+    subclassFindManyMock.mockClear();
+    raceFindFirstMock.mockClear();
+    backgroundFindFirstMock.mockClear();
     weaponFindManyMock.mockClear();
     inventoryItemFindManyMock.mockClear();
     characterFeatureFindManyMock.mockClear();

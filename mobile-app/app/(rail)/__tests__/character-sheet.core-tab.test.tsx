@@ -22,7 +22,8 @@ describe('CharacterByIdScreen core tab', () => {
             expect(screen.getByText('Vaelindra')).toBeTruthy();
         });
 
-        expect(screen.getByText(/Level 12 Wizard/)).toBeTruthy();
+        expect(screen.getByText(/Level 12/)).toBeTruthy();
+        expect(screen.getByText(/Wizard 10 \/ Warlock 2/)).toBeTruthy();
     });
 
     it('renders vitals on the default core tab', async () => {

@@ -19,8 +19,7 @@ export type CharacterSheetTab = (typeof CHARACTER_SHEET_TABS)[number];
 type CharacterSheetHeaderProps = {
     name: string;
     level: number;
-    className: string;
-    subclass?: string;
+    classSummary: string;
     race: string;
     alignment: string;
     tabs?: readonly CharacterSheetTab[];
@@ -42,8 +41,7 @@ type CharacterSheetHeaderProps = {
 export default function CharacterSheetHeader({
     name,
     level,
-    className,
-    subclass,
+    classSummary,
     race,
     alignment,
     activeTab,
@@ -55,7 +53,7 @@ export default function CharacterSheetHeader({
     onLevelUp,
     tabs = CHARACTER_SHEET_TABS,
 }: CharacterSheetHeaderProps) {
-    const subtitle = `Level ${level}\n${className}${subclass ? ` · ${subclass}` : ''} · ${race} · ${alignment}`;
+    const subtitle = `Level ${level}\n${classSummary} · ${race} · ${alignment}`;
 
     return (
         <View style={styles.header}>
@@ -101,7 +99,7 @@ export default function CharacterSheetHeader({
                 <View style={styles.headerText}>
                     <Text style={styles.charName}>{name}</Text>
                     <Text style={styles.charSubtitle}>{subtitle}</Text>
-                    {onLevelUp && !editMode && (
+                    {onLevelUp && editMode && (
                         <Pressable
                             onPress={onLevelUp}
                             style={styles.levelUpButton}

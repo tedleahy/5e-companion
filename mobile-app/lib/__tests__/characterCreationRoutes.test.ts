@@ -5,7 +5,7 @@ import {
 } from '@/lib/characterCreation/routes';
 
 describe('characterCreationRoutes', () => {
-    it('returns the base wizard route order for level 1 characters', () => {
+    it('returns the multiclass wizard route order for level 1 characters', () => {
         expect(getCreateCharacterStepRoutes(1)).toEqual([
             CREATE_CHARACTER_ROUTES.identity,
             CREATE_CHARACTER_ROUTES.race,
@@ -17,12 +17,11 @@ describe('characterCreationRoutes', () => {
         ]);
     });
 
-    it('inserts the subclass step before abilities for higher-level characters', () => {
+    it('uses the same route order for higher-level characters', () => {
         expect(getCreateCharacterStepRoutes(2)).toEqual([
             CREATE_CHARACTER_ROUTES.identity,
             CREATE_CHARACTER_ROUTES.race,
             CREATE_CHARACTER_ROUTES.class,
-            CREATE_CHARACTER_ROUTES.subclass,
             CREATE_CHARACTER_ROUTES.abilities,
             CREATE_CHARACTER_ROUTES.background,
             CREATE_CHARACTER_ROUTES.skills,

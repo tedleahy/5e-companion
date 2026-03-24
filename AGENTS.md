@@ -40,6 +40,7 @@ Coding conventions
 - Avoid creating functions/variables that are only used once, unless doing so improves readability.
 - Use british english for spellings in functions, docs, etc., e.g. "initialise" instead of "initialize"
 - Keep code DRY wherever possible, provided that doing so does not make the code less readable.
+    - Cleaning up duplicated code is particularly something to look out for during refactor/cleanup passes
 - When you're creating or extending existing code, consider whether the file you're editing is becoming too large/specialised. If it is, consider extracting some of the logic into helper or other modules. Don't be afraid to refactor, but if it's going to complicate your current task, just make a note and mention it to me when you're finished.
 
 UI style
@@ -66,7 +67,10 @@ General instructions
 - The main goal in making this app is learning React Native and GraphQL. Explain new concepts relating to these technologies. You can assume React web knowledge and REST API knowledge, but assume no knowledge of graphql or native-specific things. So when you tell me how to do something graphql or react native specific, use it as a teaching opportunity.
 - If you encounter any particular pain points when executing tasks, reflect on them afterwards and make changes to this file to help you navigate the same issues more quickly in future.
 - Shell/testing note: quote paths that contain route-group parentheses (for example `app/(tabs)/...`) when using `zsh` commands, and prefer broad Jest patterns (for example `yarn test character-sheet.test.tsx`) over literal `app/(tabs)/...` paths to avoid glob/pattern mismatches.
+- Local DB note: `bun db:migrate -- <name>` requires PostgreSQL running at `localhost:5432`. If the database is down, Prisma cannot generate a migration from a live shadow database, so fall back to writing the migration SQL manually and leave final migration validation until the DB is available.
+- Prisma permissions note: if a Prisma command needs host/Docker/network access that the sandbox cannot use, pause and ask me to run it manually rather than retrying inside the sandbox. This especially applies to migration and other DB-connected Prisma commands.
 - React Native testing note: `SectionList` virtualizes rows, so off-screen items may not exist in the test tree. In tests, filter/search first or scroll before asserting/pressing deep list rows.
 - Spellbook testing note: prepared/unprepared toggles are in the spell row accordion actions (`character-spell-prepare-*`), so tests should open the row (`character-spell-row-*`) before pressing prepare/unprepare.
 - GraphQL codegen note: `mobile-app/codegen.yml` scans `app/**/*.tsx`, `components/**/*.tsx`, and `graphql/**/*.ts`. If you add GraphQL documents elsewhere, expand the config first so generated operation types stay in sync.
 - Expo TypeScript note: if you add platform-specific files such as `Component.native.tsx` and `Component.web.tsx`, keep `mobile-app/tsconfig.json` `compilerOptions.moduleSuffixes` aligned so TypeScript resolves the same module variants that Expo/Metro does.
+- Character creation reference-data note: the server create mutation resolves class/subclass rows by SRD `srdIndex`, not display labels, so mobile create-flow option values must stay aligned with the seeded SRD reference data. Do not offer races, backgrounds, classes, or subclasses that the current seed data cannot resolve.

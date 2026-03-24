@@ -15,7 +15,7 @@ import SpellDetailModal from './SpellDetailModal';
 type AddSpellSheetProps = {
     visible: boolean;
     onClose: () => void;
-    characterClass: string;
+    characterClassIds: string[];
     knownSpellIds: string[];
     onSpellAdded: (spellId: string) => Promise<void>;
     onSpellRemoved: (spellId: string) => Promise<void>;
@@ -32,7 +32,7 @@ export { GET_SPELL_DETAIL_FOR_SHEET, SEARCH_SPELLS_FOR_SHEET };
 export default function AddSpellSheet({
     visible,
     onClose,
-    characterClass,
+    characterClassIds,
     knownSpellIds,
     onSpellAdded,
     onSpellRemoved,
@@ -70,7 +70,7 @@ export default function AddSpellSheet({
         toggleSpellSelection,
     } = useAddSpellSheetController({
         visible,
-        characterClass,
+        characterClassIds,
         knownSpellIds,
         onSpellAdded,
         onSpellRemoved,

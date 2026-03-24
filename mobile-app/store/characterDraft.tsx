@@ -1,11 +1,15 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 import { ABILITY_KEYS, type AbilityKey, type SkillKey } from '@/lib/characterSheetUtils';
+import {
+    normaliseStartingClassId,
+    type CharacterClassDraft,
+} from '@/lib/characterCreation/multiclass';
 
 export type CharacterDraft = {
     name: string;
     race: string;
-    class: string;
-    subclass: string;
+    classes: CharacterClassDraft[];
+    startingClassId: string;
     level: number;
     abilityScores: Record<AbilityKey, number>;
     background: string;
@@ -32,12 +36,15 @@ const DEFAULT_SCORES: Record<AbilityKey, number> = {
     charisma: 10,
 };
 
-function createDefaultDraft(): CharacterDraft {
+/**
+ * Returns a fresh character draft for the create-character wizard.
+ */
+export function createDefaultDraft(): CharacterDraft {
     return {
         name: '',
         race: '',
-        class: '',
-        subclass: '',
+        classes: [],
+        startingClassId: '',
         level: 1,
         abilityScores: { ...DEFAULT_SCORES },
         background: '',
@@ -70,7 +77,18 @@ export function CharacterDraftProvider({ children }: { children: ReactNode }) {
     const [draft, setDraft] = useState<CharacterDraft>(createDefaultDraft);
 
     const updateDraft = useCallback((patch: Partial<CharacterDraft>) => {
-        setDraft((prev) => ({ ...prev, ...patch }));
+        setDraft((prev) => {
+            const nextDraft = { ...prev, ...patch };
+
+            if (patch.classes || patch.startingClassId !== undefined) {
+                nextDraft.startingClassId = normaliseStartingClassId(
+                    nextDraft.classes,
+                    nextDraft.startingClassId,
+                );
+            }
+
+            return nextDraft;
+        });
     }, []);
 
     const setAbilityScore = useCallback((key: AbilityKey, value: number) => {
@@ -120,7 +138,7 @@ export function CharacterDraftProvider({ children }: { children: ReactNode }) {
         return (
             d.name.trim() !== '' ||
             d.race !== '' ||
-            d.class !== '' ||
+            d.classes.some((classRow) => classRow.classId !== '') ||
             d.background !== '' ||
             d.skillProficiencies.length > 0 ||
             ABILITY_KEYS.some((k) => d.abilityScores[k] !== 10)

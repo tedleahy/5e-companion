@@ -149,18 +149,42 @@ export function normaliseClassIndex(characterClass: string): string {
 }
 
 /**
+ * Normalises multiple class labels into unique spell class indexes.
+ */
+export function normaliseClassIndexes(characterClasses: string[]): string[] {
+    const classIndexes = new Set<string>();
+
+    for (const characterClass of characterClasses) {
+        const classIndex = normaliseClassIndex(characterClass);
+
+        if (classIndex) {
+            classIndexes.add(classIndex);
+        }
+    }
+
+    return [...classIndexes];
+}
+
+/**
  * Creates default spell filters pre-selecting the supplied character class.
  */
 export function defaultSpellFiltersForClass(characterClass: string): SpellFilterState {
-    const classIndex = normaliseClassIndex(characterClass);
+    return defaultSpellFiltersForClasses([characterClass]);
+}
 
-    if (!classIndex) {
+/**
+ * Creates default spell filters pre-selecting all supplied character classes.
+ */
+export function defaultSpellFiltersForClasses(characterClasses: string[]): SpellFilterState {
+    const classIndexes = normaliseClassIndexes(characterClasses);
+
+    if (classIndexes.length === 0) {
         return EMPTY_SPELL_FILTERS;
     }
 
     return {
         ...EMPTY_SPELL_FILTERS,
-        classes: [classIndex],
+        classes: classIndexes,
     };
 }
 

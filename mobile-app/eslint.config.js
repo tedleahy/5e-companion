@@ -5,6 +5,9 @@ const expoConfig = require('eslint-config-expo/flat');
 module.exports = defineConfig([
   expoConfig,
   {
+    rules: {
+      '@typescript-eslint/array-type': 'off',
+    },
     ignores: [
       'dist/*',
       'types/generated_graphql_types.ts',

@@ -18,7 +18,7 @@ import useAddSpellSelection from './useAddSpellSelection';
 import {
     buildAddSpellFilterInput,
     countActiveFilters,
-    defaultFilterForClass,
+    defaultFilterForClasses,
     type AddSpellFilterState,
 } from '../SpellFilterState';
 import type { AddSpellListItem } from '../addSpell.types';
@@ -28,7 +28,7 @@ import type { AddSpellListItem } from '../addSpell.types';
  */
 type UseAddSpellSheetControllerArgs = {
     visible: boolean;
-    characterClass: string;
+    characterClassIds: string[];
     knownSpellIds: string[];
     onSpellAdded: (spellId: string) => Promise<void>;
     onSpellRemoved: (spellId: string) => Promise<void>;
@@ -83,7 +83,7 @@ const MAX_SHEET_RESULTS = 500;
  */
 export default function useAddSpellSheetController({
     visible,
-    characterClass,
+    characterClassIds,
     knownSpellIds,
     onSpellAdded,
     onSpellRemoved,
@@ -91,8 +91,8 @@ export default function useAddSpellSheetController({
     const apolloClient = useApolloClient();
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
-    const [appliedFilters, setAppliedFilters] = useState<AddSpellFilterState>(() => defaultFilterForClass(characterClass));
-    const [draftFilters, setDraftFilters] = useState<AddSpellFilterState>(() => defaultFilterForClass(characterClass));
+    const [appliedFilters, setAppliedFilters] = useState<AddSpellFilterState>(() => defaultFilterForClasses(characterClassIds));
+    const [draftFilters, setDraftFilters] = useState<AddSpellFilterState>(() => defaultFilterForClasses(characterClassIds));
     const [filterPanelOpen, setFilterPanelOpen] = useState(false);
     const [selectedSpell, setSelectedSpell] = useState<AddSpellListItem | null>(null);
     const prefetchedSpellDetailIdsRef = useRef<Set<string>>(new Set());
@@ -199,8 +199,8 @@ export default function useAddSpellSheetController({
      * Resets the draft filter UI to the class-based defaults.
      */
     const clearDraftFilters = useCallback(() => {
-        setDraftFilters(defaultFilterForClass(characterClass));
-    }, [characterClass]);
+        setDraftFilters(defaultFilterForClasses(characterClassIds));
+    }, [characterClassIds]);
 
     /**
      * Removes one already-applied filter chip from the active query state.

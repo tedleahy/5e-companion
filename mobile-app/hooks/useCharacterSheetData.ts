@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { deriveSpellcastingStats } from '@/lib/characterSheetUtils';
 import type { ApolloCache } from '@apollo/client';
 import { skipToken, useMutation, useQuery } from '@apollo/client/react';
 import type {
@@ -11,7 +10,6 @@ import type {
     InventoryItemInput,
     LearnSpellMutation,
     LearnSpellMutationVariables,
-    MutationUpdateCharacterArgs,
     MutationUpdateInventoryItemArgs,
     PrepareSpellMutation,
     PrepareSpellMutationVariables,
@@ -21,6 +19,7 @@ import type {
     SaveCharacterSheetMutationVariables,
     SkillProficienciesInput,
     SpellSlot,
+    SpellSlotKind,
     ToggleInspirationMutation,
     ToggleInspirationMutationVariables,
     ToggleSpellSlotMutation,
@@ -43,7 +42,6 @@ import {
     TOGGLE_INSPIRATION,
     TOGGLE_SPELL_SLOT,
     UNPREPARE_SPELL,
-    UPDATE_CHARACTER,
     UPDATE_DEATH_SAVES,
     UPDATE_INVENTORY_ITEM,
     UPDATE_SAVING_THROW_PROFICIENCIES,
@@ -78,7 +76,6 @@ function isCharacterWithSpells(value: unknown): value is CharacterWithSpells {
     return typeof character.id === 'string'
         && typeof character.name === 'string'
         && typeof character.race === 'string'
-        && typeof character.class === 'string'
         && typeof character.level === 'number'
         && typeof character.alignment === 'string'
         && typeof character.background === 'string'
@@ -87,6 +84,8 @@ function isCharacterWithSpells(value: unknown): value is CharacterWithSpells {
         && typeof character.ac === 'number'
         && typeof character.speed === 'number'
         && typeof character.initiative === 'number'
+        && Array.isArray(character.classes)
+        && Array.isArray(character.spellcastingProfiles)
         && Array.isArray(character.conditions)
         && Array.isArray(character.features)
         && Array.isArray(character.weapons)
@@ -140,13 +139,14 @@ function updateCharacterInCache(
 function updateSpellSlotInCache(
     cache: ApolloCache,
     characterId: string,
+    kind: SpellSlotKind,
     level: number,
     used: number,
 ) {
     updateCharacterInCache(cache, characterId, (currentCharacter: CharacterWithSpells) => ({
         ...currentCharacter,
         spellSlots: currentCharacter.spellSlots.map((slot: SpellSlot) => {
-            if (slot.level !== level) return slot;
+            if (slot.kind !== kind || slot.level !== level) return slot;
             return { ...slot, used };
         }),
     }));
@@ -214,9 +214,6 @@ export default function useCharacterSheetData(characterId: string | null) {
         SaveCharacterSheetMutationVariables
     >(SAVE_CHARACTER_SHEET);
 
-    const [updateCharacter] = useMutation<{ updateCharacter: { id: string } }, MutationUpdateCharacterArgs>(
-        UPDATE_CHARACTER,
-    );
     const [updateInventoryItem] = useMutation<
         { updateInventoryItem: { id: string } },
         MutationUpdateInventoryItemArgs
@@ -338,10 +335,10 @@ export default function useCharacterSheetData(characterId: string | null) {
     /**
      * Cycles a spell slot level from used->used+1->reset.
      */
-    const handleToggleSpellSlot = useCallback(async (level: number) => {
+    const handleToggleSpellSlot = useCallback(async (kind: SpellSlotKind, level: number) => {
         if (!character) return;
 
-        const slot = character.spellSlots.find((spellSlot) => spellSlot.level === level);
+        const slot = character.spellSlots.find((spellSlot) => spellSlot.kind === kind && spellSlot.level === level);
         if (!slot) return;
 
         const nextUsed = slot.used < slot.total ? slot.used + 1 : 0;
@@ -350,23 +347,25 @@ export default function useCharacterSheetData(characterId: string | null) {
             await toggleSpellSlot({
                 variables: {
                     characterId: character.id,
+                    kind,
                     level,
                 },
                 optimisticResponse: {
                     toggleSpellSlot: {
                         __typename: 'SpellSlot',
                         id: slot.id,
+                        kind: slot.kind,
                         level: slot.level,
                         total: slot.total,
                         used: nextUsed,
                     },
                 },
                 update(cache) {
-                    updateSpellSlotInCache(cache, character.id, level, nextUsed);
+                    updateSpellSlotInCache(cache, character.id, kind, level, nextUsed);
                 },
             });
         } catch (error) {
-            console.error('Failed to toggle spell slot', { level, error });
+            console.error('Failed to toggle spell slot', { kind, level, error });
             throw error;
         }
     }, [character, toggleSpellSlot]);
@@ -508,37 +507,6 @@ export default function useCharacterSheetData(characterId: string | null) {
     ]);
 
     /**
-     * Increments the character's level by 1 and recalculates proficiency bonus.
-     * Proficiency bonus follows the 5e rule: 2 + floor((level - 1) / 4).
-     */
-    const handleLevelUp = useCallback(async () => {
-        if (!character) return;
-        const nextLevel = character.level + 1;
-        const nextProficiencyBonus = 2 + Math.floor((nextLevel - 1) / 4);
-
-        const abilityScores = character.stats?.abilityScores ?? {} as Record<AbilityKey, number>;
-        const { spellAttackBonus, spellSaveDC } = deriveSpellcastingStats(
-            character.spellcastingAbility,
-            abilityScores as Record<AbilityKey, number>,
-            nextProficiencyBonus,
-        );
-
-        await updateCharacter({
-            variables: {
-                id: character.id,
-                input: {
-                    level: nextLevel,
-                    proficiencyBonus: nextProficiencyBonus,
-                    ...(spellSaveDC != null && { spellSaveDC }),
-                    ...(spellAttackBonus != null && { spellAttackBonus }),
-                },
-            },
-        });
-
-        await refetch();
-    }, [character, refetch, updateCharacter]);
-
-    /**
      * Toggles the equipped state of an inventory item directly via mutation.
      * Works outside edit mode — no draft required.
      */
@@ -573,7 +541,6 @@ export default function useCharacterSheetData(characterId: string | null) {
         handleForgetSpell,
         handleSetSpellPrepared,
         handleSaveCharacterSheet,
-        handleLevelUp,
         handleToggleEquip,
     };
 }

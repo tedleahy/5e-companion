@@ -1,4 +1,3 @@
-import { deriveSpellcastingStats } from '@/lib/characterSheetUtils';
 import type {
     CharacterSheetDetailQuery,
     SaveCharacterSheetInput,
@@ -248,15 +247,7 @@ export function createBlankDraftFeature(source: string): CharacterSheetDraftFeat
  */
 export function mapCharacterSheetDraftToSaveInput(
     draft: CharacterSheetDraft,
-    spellcastingAbility: string | null | undefined,
-    proficiencyBonus: number,
 ): SaveCharacterSheetInput {
-    const { spellAttackBonus, spellSaveDC } = deriveSpellcastingStats(
-        spellcastingAbility,
-        draft.abilityScores,
-        proficiencyBonus,
-    );
-
     return {
         ac: draft.ac,
         speed: draft.speed,
@@ -291,7 +282,5 @@ export function mapCharacterSheetDraftToSaveInput(
             usesMax: feature.usesMax ?? null,
             usesRemaining: feature.usesRemaining ?? null,
         })),
-        spellSaveDC,
-        spellAttackBonus,
     };
 }

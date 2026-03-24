@@ -25,7 +25,14 @@ import VitalsCard from '@/components/character-sheet/VitalsCard';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
 import useCharacterSheetData from '@/hooks/useCharacterSheetData';
 import useCharacterSheetDraft from '@/hooks/useCharacterSheetDraft';
-import { deriveSpellcastingStats, isAbilityKey, skillModifier } from '@/lib/characterSheetUtils';
+import {
+    formatCharacterClassSummary,
+    hasSpellcastingProfiles,
+    orderedCharacterClassIds,
+    primaryCharacterClassName,
+    strongestSpellSaveDc,
+} from '@/lib/characterClassSummary';
+import { isAbilityKey, skillModifier } from '@/lib/characterSheetUtils';
 import type { CharacterSheetDraftTraitTextField } from '@/lib/character-sheet/characterSheetDraft';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
@@ -69,7 +76,6 @@ export default function CharacterByIdScreen() {
         handleForgetSpell,
         handleSetSpellPrepared,
         handleSaveCharacterSheet,
-        handleLevelUp,
         handleToggleEquip,
     } = useCharacterSheetData(characterId);
     const {
@@ -106,11 +112,11 @@ export default function CharacterByIdScreen() {
 
     /** Tabs visible for this character — hides Spells for non-casters. */
     const visibleTabs: readonly CharacterSheetTab[] = useMemo(() => {
-        if (!character?.spellcastingAbility) {
+        if (!character || !hasSpellcastingProfiles(character.spellcastingProfiles)) {
             return CHARACTER_SHEET_TABS.filter((tab) => tab !== 'Spells');
         }
         return [...CHARACTER_SHEET_TABS];
-    }, [character?.spellcastingAbility]);
+    }, [character]);
 
     /**
      * Called when a tab header button is pressed — syncs PagerView to that page.
@@ -225,8 +231,10 @@ export default function CharacterByIdScreen() {
     const displayedWeapons = draft?.weapons ?? character.weapons;
     const displayedInventory = draft?.inventory ?? character.inventory;
     const displayedFeatures = draft?.features ?? character.features;
-    const { spellAttackBonus: derivedSpellAttack, spellSaveDC: derivedSpellSaveDC } =
-        deriveSpellcastingStats(character.spellcastingAbility, displayedAbilityScores, character.proficiencyBonus);
+    const classSummary = formatCharacterClassSummary(character.classes);
+    const primaryClassName = primaryCharacterClassName(character.classes);
+    const characterClassIds = orderedCharacterClassIds(character.classes);
+    const spellSaveDC = strongestSpellSaveDc(character.spellcastingProfiles);
     const passivePerception =
         10 + skillModifier(
             displayedAbilityScores.wisdom,
@@ -252,8 +260,7 @@ export default function CharacterByIdScreen() {
                 <CharacterSheetHeader
                     name={character.name}
                     level={character.level}
-                    className={character.class}
-                    subclass={character.subclass ?? undefined}
+                    classSummary={classSummary}
                     race={character.race}
                     alignment={character.alignment}
                     tabs={visibleTabs}
@@ -263,7 +270,6 @@ export default function CharacterByIdScreen() {
                     onStartEdit={startEditing}
                     onCancelEdit={clearDraft}
                     onDoneEdit={handleDoneEdit}
-                    onLevelUp={handleLevelUp}
                 />
                 <CharacterSheetPager
                     ref={pagerRef}
@@ -298,7 +304,7 @@ export default function CharacterByIdScreen() {
                                 proficiencyBonus={character.proficiencyBonus}
                                 initiative={displayedInitiative}
                                 inspiration={character.inspiration}
-                                spellSaveDC={derivedSpellSaveDC}
+                                spellSaveDC={spellSaveDC}
                                 editMode={editMode}
                                 onToggleInspiration={handleToggleInspiration}
                                 onChangeInitiative={changeInitiative}
@@ -332,13 +338,11 @@ export default function CharacterByIdScreen() {
                     </View>
 
                     {/* Spells — only for caster characters */}
-                    {character.spellcastingAbility ? (
+                    {hasSpellcastingProfiles(character.spellcastingProfiles) ? (
                         <View key="Spells" style={styles.page}>
                             <SpellsTab
-                                characterClass={character.class}
-                                spellcastingAbility={character.spellcastingAbility}
-                                spellSaveDC={derivedSpellSaveDC}
-                                spellAttackBonus={derivedSpellAttack}
+                                characterClassIds={characterClassIds}
+                                spellcastingProfiles={character.spellcastingProfiles}
                                 spellSlots={character.spellSlots}
                                 spellbook={character.spellbook}
                                 onToggleSpellSlot={handleToggleSpellSlot}
@@ -393,11 +397,11 @@ export default function CharacterByIdScreen() {
                     {/* Page 5 — Features */}
                     <View key="Features" style={styles.page}>
                         <FeaturesTab
-                            className={character.class}
+                            className={primaryClassName}
                             race={character.race}
                             features={displayedFeatures}
                             editMode={editMode}
-                            onAddClassFeature={() => addFeature(character.class)}
+                            onAddClassFeature={() => addFeature(primaryClassName)}
                             onAddRacialTrait={() => addFeature(character.race)}
                             onAddFeat={() => addFeature('Feat')}
                             onChangeFeature={changeFeature}

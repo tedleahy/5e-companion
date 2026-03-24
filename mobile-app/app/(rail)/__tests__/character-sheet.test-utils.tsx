@@ -15,7 +15,7 @@ export const ADD_SPELL_LIST_MOCK: MockLink.MockedResponse = {
         query: SEARCH_SPELLS_FOR_SHEET,
         variables: {
             filter: {
-                classes: ['wizard'],
+                classes: ['wizard', 'warlock'],
             },
             pagination: {
                 limit: 500,

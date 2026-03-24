@@ -159,7 +159,7 @@ function renderSheetWithMocks(
                 <AddSpellSheet
                     visible={true}
                     onClose={onClose}
-                    characterClass="Wizard"
+                    characterClassIds={['wizard']}
                     knownSpellIds={[]}
                     onSpellAdded={onSpellAdded}
                     onSpellRemoved={onSpellRemoved}

@@ -7,6 +7,11 @@ import CharacterCard, { type CharacterCardData } from '@/components/characters/C
 import EmptyState from '@/components/characters/EmptyState';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
 import { GET_CURRENT_USER_CHARACTER_ROSTER } from '@/graphql/characterSheet.operations';
+import {
+    formatCharacterClassSummary,
+    primaryCharacterClassName,
+    strongestSpellAttackBonus,
+} from '@/lib/characterClassSummary';
 import type { CurrentUserCharacterRosterQuery } from '@/types/generated_graphql_types';
 import { isUnauthenticatedError } from '@/lib/graphqlErrors';
 import useSessionGuard from '@/hooks/useSessionGuard';
@@ -32,8 +37,10 @@ function formatSignedValue(value: number): string {
  * Resolves the attack bonus shown on a character card.
  */
 function attackBonusLabel(character: CharacterListRow): string {
-    if (typeof character.spellAttackBonus === 'number') {
-        return formatSignedValue(character.spellAttackBonus);
+    const spellAttackBonus = strongestSpellAttackBonus(character.spellcastingProfiles);
+
+    if (typeof spellAttackBonus === 'number') {
+        return formatSignedValue(spellAttackBonus);
     }
 
     const combatRows = character.weapons ?? [];
@@ -57,8 +64,8 @@ function toCharacterCardData(character: CharacterListRow): CharacterCardData {
         id: character.id,
         name: character.name,
         race: character.race,
-        className: character.class,
-        subclass: character.subclass,
+        className: primaryCharacterClassName(character.classes),
+        classSummary: formatCharacterClassSummary(character.classes),
         level: character.level,
         conditions: character.conditions,
         hpCurrent: character.stats?.hp.current ?? 0,

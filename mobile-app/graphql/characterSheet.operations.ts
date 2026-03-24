@@ -9,10 +9,20 @@ const CHARACTER_ROSTER_FIELDS_FRAGMENT = gql`
         id
         name
         race
-        class
-        subclass
         level
-        spellAttackBonus
+        classes {
+            id
+            classId
+            className
+            subclassId
+            subclassName
+            level
+            isStartingClass
+        }
+        spellcastingProfiles {
+            classId
+            spellAttackBonus
+        }
         initiative
         ac
         conditions
@@ -36,8 +46,15 @@ const CHARACTER_SHEET_FIELDS_FRAGMENT = gql`
         id
         name
         race
-        class
-        subclass
+        classes {
+            id
+            classId
+            className
+            subclassId
+            subclassName
+            level
+            isStartingClass
+        }
         level
         alignment
         background
@@ -46,9 +63,17 @@ const CHARACTER_SHEET_FIELDS_FRAGMENT = gql`
         ac
         speed
         initiative
-        spellcastingAbility
-        spellSaveDC
-        spellAttackBonus
+        spellcastingProfiles {
+            classId
+            className
+            subclassId
+            subclassName
+            classLevel
+            spellcastingAbility
+            spellSaveDC
+            spellAttackBonus
+            slotKind
+        }
         conditions
         features {
             id
@@ -77,6 +102,7 @@ const CHARACTER_SHEET_FIELDS_FRAGMENT = gql`
         }
         spellSlots {
             id
+            kind
             level
             total
             used
@@ -103,7 +129,10 @@ const CHARACTER_SHEET_FIELDS_FRAGMENT = gql`
                 successes
                 failures
             }
-            hitDice {
+            hitDicePools {
+                id
+                classId
+                className
                 total
                 remaining
                 die
@@ -206,25 +235,6 @@ export const UPDATE_INVENTORY_ITEM = gql`
 `;
 
 /**
- * Updates top-level character fields such as AC, speed, initiative, and conditions.
- */
-export const UPDATE_CHARACTER = gql`
-    mutation UpdateCharacter($id: ID!, $input: UpdateCharacterInput!) {
-        updateCharacter(id: $id, input: $input) {
-            id
-            level
-            proficiencyBonus
-            ac
-            speed
-            initiative
-            conditions
-            spellSaveDC
-            spellAttackBonus
-        }
-    }
-`;
-
-/**
  * Creates a new character with the full initial sheet data.
  */
 export const CREATE_CHARACTER = gql`
@@ -310,9 +320,10 @@ export const UPDATE_SAVING_THROW_PROFICIENCIES = gql`
  * Cycles used spell slots at a given spell level.
  */
 export const TOGGLE_SPELL_SLOT = gql`
-    mutation ToggleSpellSlot($characterId: ID!, $level: Int!) {
-        toggleSpellSlot(characterId: $characterId, level: $level) {
+    mutation ToggleSpellSlot($characterId: ID!, $kind: SpellSlotKind!, $level: Int!) {
+        toggleSpellSlot(characterId: $characterId, kind: $kind, level: $level) {
             id
+            kind
             level
             total
             used

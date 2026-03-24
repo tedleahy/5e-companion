@@ -1,13 +1,17 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import {
     authedCtx,
+    backgroundFindFirstMock,
     characterCreateMock,
     characterDeleteManyMock,
     characterFindFirstMock,
     characterUpdateMock,
+    classFindManyMock,
     clearAllCharacterResolverMocks,
     fakeCharacter,
     resolvers,
+    raceFindFirstMock,
+    subclassFindManyMock,
     unauthedCtx,
 } from './characterResolvers.testUtils';
 
@@ -19,37 +23,126 @@ describe('characterResolvers — createCharacter', () => {
             .rejects.toThrow('UNAUTHENTICATED');
     });
 
-    test('creates character with stats in a nested create', async () => {
-        const createdChar = { id: 'char-new', ownerUserId: 'user-abc' };
-        characterCreateMock.mockResolvedValueOnce(createdChar);
+    test('creates a multiclass character with derived class rows, hp, hit dice, and spell slots', async () => {
+        characterCreateMock.mockResolvedValueOnce({ id: 'char-new', ownerUserId: 'user-abc' });
+        classFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'class-wizard-id',
+                srdIndex: 'wizard',
+                name: 'Wizard',
+                hitDie: 6,
+                spellcastingAbility: 'int',
+                proficiencies: [
+                    { srdIndex: 'saving-throw-int', name: 'INT', type: 'SAVING_THROW' },
+                    { srdIndex: 'saving-throw-wis', name: 'WIS', type: 'SAVING_THROW' },
+                ],
+            },
+            {
+                id: 'class-warlock-id',
+                srdIndex: 'warlock',
+                name: 'Warlock',
+                hitDie: 8,
+                spellcastingAbility: 'cha',
+                proficiencies: [
+                    { srdIndex: 'saving-throw-wis', name: 'WIS', type: 'SAVING_THROW' },
+                    { srdIndex: 'saving-throw-cha', name: 'CHA', type: 'SAVING_THROW' },
+                ],
+            },
+        ]);
+        subclassFindManyMock.mockResolvedValueOnce([
+            { id: 'subclass-evocation-id', srdIndex: 'evocation', name: 'Evocation', classId: 'class-wizard-id' },
+            { id: 'subclass-fiend-id', srdIndex: 'fiend', name: 'Fiend', classId: 'class-warlock-id' },
+        ]);
+        raceFindFirstMock.mockResolvedValueOnce({
+            id: 'race-elf-id',
+            name: 'Elf',
+            languages: [{ name: 'Common' }, { name: 'Elvish' }],
+            traits: [],
+        });
+        backgroundFindFirstMock.mockResolvedValueOnce({
+            id: 'background-acolyte-id',
+            name: 'Acolyte',
+            proficiencies: [],
+            languages: [],
+            languageChoiceCount: 2,
+        });
 
         const input = {
             name: 'Vaelindra',
-            race: 'High Elf',
-            class: 'Wizard',
-            level: 12,
+            race: 'elf',
+            classes: [
+                { classId: 'wizard', subclassId: 'evocation', level: 9 },
+                { classId: 'warlock', subclassId: 'fiend', level: 3 },
+            ],
+            startingClassId: 'wizard',
             alignment: 'Chaotic Good',
-            background: 'Sage',
-            proficiencyBonus: 4,
+            background: 'acolyte',
             ac: 17,
-            speed: 35,
-            initiative: 7,
-            abilityScores: { strength: 8, dexterity: 16, constitution: 14, intelligence: 20, wisdom: 13, charisma: 11 },
-            hp: { current: 76, max: 76, temp: 0 },
-            hitDice: { total: 12, remaining: 12, die: 'd6' },
+            speed: 30,
+            initiative: 3,
+            abilityScores: { strength: 8, dexterity: 16, constitution: 14, intelligence: 20, wisdom: 13, charisma: 14 },
             skillProficiencies: { arcana: 'expert' },
         };
 
-        const result = await resolvers.createCharacter({}, { input: input as any }, authedCtx);
+        await resolvers.createCharacter({}, { input: input as any }, authedCtx);
 
-        expect(characterCreateMock).toHaveBeenCalledTimes(1);
         const callArgs = characterCreateMock.mock.calls[0]![0] as Record<string, any>;
         expect(callArgs.data.ownerUserId).toBe('user-abc');
-        expect(callArgs.data.name).toBe('Vaelindra');
-        expect(callArgs.data.stats.create.abilityScores).toEqual(input.abilityScores);
-        expect(callArgs.data.stats.create.hp).toEqual(input.hp);
-        expect(callArgs.data.stats.create.deathSaves).toEqual({ successes: 0, failures: 0 });
-        expect(result).toEqual(createdChar);
+        expect(callArgs.data.race).toBe('Elf');
+        expect(callArgs.data.background).toBe('Acolyte');
+        expect(callArgs.data.proficiencyBonus).toBe(4);
+        expect(callArgs.data.stats.create.hp).toEqual({ current: 77, max: 77, temp: 0 });
+        expect(callArgs.data.stats.create.savingThrowProficiencies).toEqual(['intelligence', 'wisdom']);
+        expect(callArgs.data.classes.create).toEqual([
+            { classId: 'class-wizard-id', subclassId: 'subclass-evocation-id', level: 9, isStartingClass: true },
+            { classId: 'class-warlock-id', subclassId: 'subclass-fiend-id', level: 3, isStartingClass: false },
+        ]);
+        expect(callArgs.data.hitDicePools.create).toEqual([
+            { classId: 'class-wizard-id', total: 9, remaining: 9, die: 'd6' },
+            { classId: 'class-warlock-id', total: 3, remaining: 3, die: 'd8' },
+        ]);
+        expect(callArgs.data.spellSlots.create).toEqual([
+            { kind: 'STANDARD', level: 1, total: 4, used: 0 },
+            { kind: 'STANDARD', level: 2, total: 3, used: 0 },
+            { kind: 'STANDARD', level: 3, total: 3, used: 0 },
+            { kind: 'STANDARD', level: 4, total: 3, used: 0 },
+            { kind: 'STANDARD', level: 5, total: 1, used: 0 },
+            { kind: 'PACT_MAGIC', level: 2, total: 2, used: 0 },
+        ]);
+    });
+
+    test('rejects subclass rows that have not reached their unlock level', async () => {
+        classFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'class-wizard-id',
+                srdIndex: 'wizard',
+                name: 'Wizard',
+                hitDie: 6,
+                spellcastingAbility: 'int',
+                proficiencies: [],
+            },
+        ]);
+        subclassFindManyMock.mockResolvedValueOnce([
+            { id: 'subclass-evocation-id', srdIndex: 'evocation', name: 'Evocation', classId: 'class-wizard-id' },
+        ]);
+        raceFindFirstMock.mockResolvedValueOnce({ id: 'race-elf-id', name: 'Elf', languages: [], traits: [] });
+        backgroundFindFirstMock.mockResolvedValueOnce({ id: 'background-acolyte-id', name: 'Acolyte', proficiencies: [], languages: [], languageChoiceCount: null });
+
+        expect(resolvers.createCharacter({}, {
+            input: {
+                name: 'Vaelindra',
+                race: 'elf',
+                classes: [{ classId: 'wizard', subclassId: 'evocation', level: 1 }],
+                startingClassId: 'wizard',
+                alignment: 'Chaotic Good',
+                background: 'acolyte',
+                ac: 12,
+                speed: 30,
+                initiative: 2,
+                abilityScores: { strength: 8, dexterity: 14, constitution: 14, intelligence: 16, wisdom: 10, charisma: 10 },
+                skillProficiencies: {},
+            },
+        } as any, authedCtx)).rejects.toThrow('requires wizard level 2');
     });
 });
 

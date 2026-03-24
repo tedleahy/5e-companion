@@ -5,6 +5,10 @@ import { useCharacterDraft } from '@/store/characterDraft';
 import { ABILITY_KEYS, type AbilityKey } from '@/lib/characterSheetUtils';
 import { rollAllAbilityScores, suggestAbilityScores } from '@/lib/characterCreation/abilityRules';
 import { RACE_ABILITY_BONUSES } from '@/lib/characterCreation/raceRules';
+import {
+    classLabel,
+    startingClassRow,
+} from '@/lib/characterCreation/multiclass';
 import AbilityBlock from '@/components/wizard/AbilityBlock';
 import { sharedStyles } from './abilitiesShared';
 
@@ -12,7 +16,9 @@ export default function RollAbilityMode() {
     const { draft, setAbilityScore, setAllAbilityScores } = useCharacterDraft();
     const racialBonuses = RACE_ABILITY_BONUSES[draft.race] ?? {};
     const scoresModified = ABILITY_KEYS.some((k) => draft.abilityScores[k] !== 10);
-    const hasClass = draft.class.length > 0;
+    const selectedStartingClass = startingClassRow(draft.classes, draft.startingClassId);
+    const suggestedClassId = selectedStartingClass?.classId ?? '';
+    const hasClass = suggestedClassId.length > 0;
     const canSuggest = scoresModified && hasClass;
 
     const rows: AbilityKey[][] = [];
@@ -25,7 +31,7 @@ export default function RollAbilityMode() {
     }
 
     function handleSuggest() {
-        setAllAbilityScores(suggestAbilityScores(draft.abilityScores, draft.class));
+        setAllAbilityScores(suggestAbilityScores(draft.abilityScores, suggestedClassId));
     }
 
     return (
@@ -47,7 +53,7 @@ export default function RollAbilityMode() {
                 ]}
             >
                 <Text style={[styles.rollBtnText, !canSuggest && styles.rollBtnTextDisabled]}>
-                    {'\u2728'} Suggested for {draft.class || 'your class'}
+                    {'\u2728'} Suggested for {hasClass ? classLabel(suggestedClassId) : 'your starting class'}
                 </Text>
             </Pressable>
 
