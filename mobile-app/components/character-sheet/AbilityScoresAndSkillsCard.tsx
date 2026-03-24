@@ -141,7 +141,14 @@ export default function AbilityScoresAndSkillsCard({
                         >
                             <View style={styles.abilityColumn}>
                                 <View style={styles.abilityCard}>
-                                    <Text style={styles.abilityLabel}>{label}</Text>
+                                    <Text
+                                        style={styles.abilityLabel}
+                                        numberOfLines={1}
+                                        adjustsFontSizeToFit
+                                        minimumFontScale={0.75}
+                                    >
+                                        {label}
+                                    </Text>
                                     <InlineField
                                         value={String(score)}
                                         onChangeText={(value: string) => {
@@ -263,7 +270,7 @@ const styles = StyleSheet.create({
         borderBottomColor: fantasyTokens.colors.divider,
     },
     abilityColumn: {
-        width: 94,
+        width: 104,
         alignItems: 'center',
         justifyContent: 'flex-start',
     },
@@ -275,28 +282,31 @@ const styles = StyleSheet.create({
         backgroundColor: fantasyTokens.colors.cardBg,
         alignItems: 'center',
         paddingVertical: 10,
-        paddingHorizontal: 8,
+        paddingHorizontal: 6,
         gap: 4,
     },
     abilityLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 9,
+        fontSize: fantasyTokens.fontSizes.utility,
         fontWeight: 'bold',
         letterSpacing: 0.3,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.inkLight,
         opacity: 0.6,
+        width: '100%',
+        textAlign: 'center',
     },
     abilityScore: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 22,
+        fontSize: fantasyTokens.fontSizes.headline,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
-        lineHeight: 24,
+        lineHeight: 30,
+        minWidth: 32,
     },
     abilityMod: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 16,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
         fontWeight: '700',
         color: fantasyTokens.colors.crimson,
         opacity: 1,
@@ -320,7 +330,7 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 13,
+        fontSize: fantasyTokens.fontSizes.label,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.6,
     },
@@ -338,7 +348,7 @@ const styles = StyleSheet.create({
     skillName: {
         flex: 1,
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 13,
+        fontSize: fantasyTokens.fontSizes.label,
         color: fantasyTokens.colors.inkLight,
     },
     skillNameEmphasis: {
@@ -347,7 +357,7 @@ const styles = StyleSheet.create({
     },
     skillMod: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 12,
+        fontSize: fantasyTokens.fontSizes.label,
         fontWeight: '600',
         color: fantasyTokens.colors.inkDark,
         minWidth: 28,
@@ -370,7 +380,7 @@ const styles = StyleSheet.create({
     },
     legendText: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: 11,
+        fontSize: fantasyTokens.fontSizes.caption,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.5,
         fontStyle: 'italic',
