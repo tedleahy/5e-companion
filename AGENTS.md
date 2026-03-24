@@ -40,6 +40,7 @@ Coding conventions
 - Avoid creating functions/variables that are only used once, unless doing so improves readability.
 - Use british english for spellings in functions, docs, etc., e.g. "initialise" instead of "initialize"
 - Keep code DRY wherever possible, provided that doing so does not make the code less readable.
+    - Cleaning up duplicated code is particularly something to look out for during refactor/cleanup passes
 - When you're creating or extending existing code, consider whether the file you're editing is becoming too large/specialised. If it is, consider extracting some of the logic into helper or other modules. Don't be afraid to refactor, but if it's going to complicate your current task, just make a note and mention it to me when you're finished.
 
 UI style
