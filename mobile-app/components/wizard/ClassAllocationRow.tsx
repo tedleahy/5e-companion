@@ -115,22 +115,6 @@ export default function ClassAllocationRow({
                 </Pressable>
             ) : null}
 
-            <View style={styles.controlsRow}>
-                <Pressable
-                    accessibilityRole="button"
-                    disabled={!canRemove}
-                    onPress={onRemove}
-                    style={({ pressed }) => [
-                        styles.removeButton,
-                        !canRemove && styles.controlButtonDisabled,
-                        pressed && canRemove && styles.removeButtonPressed,
-                    ]}
-                    testID={`class-row-remove-${index}`}
-                >
-                    <Text style={styles.removeButtonText}>Remove</Text>
-                </Pressable>
-            </View>
-
             {subclassOptions.length > 0 ? (
                 <View style={styles.subclassSection}>
                     <Text style={styles.subclassHeading}>
@@ -172,6 +156,23 @@ export default function ClassAllocationRow({
                     )}
                 </View>
             ) : null}
+
+            <View style={styles.controlsRow}>
+                <Pressable
+                    accessibilityRole="button"
+                    disabled={!canRemove}
+                    onPress={onRemove}
+                    style={({ pressed }) => [
+                        styles.removeButton,
+                        !canRemove && styles.controlButtonDisabled,
+                        pressed && canRemove && styles.removeButtonPressed,
+                    ]}
+                    testID={`class-row-remove-${index}`}
+                >
+                    <Text style={styles.removeButtonText}>Remove</Text>
+                </Pressable>
+            </View>
+
         </ParchmentPanel>
     );
 }
