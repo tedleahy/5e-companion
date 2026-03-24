@@ -1,18 +1,18 @@
 import { MD3DarkTheme, MD3LightTheme, MD3Theme } from 'react-native-paper';
 
 /**
- * Font family names loaded via expo-font / @expo-google-fonts/cinzel.
+ * Font family names loaded via expo-font / @expo-google-fonts/spectral.
  * We use Regular for body text and Bold for headings.
  */
 export const fantasyFonts = {
     /** Standard body text weight. */
-    regular: 'Cinzel_400Regular',
+    regular: 'Spectral_400Regular',
     /** Medium weight for emphasis. */
-    medium: 'Cinzel_500Medium',
+    medium: 'Spectral_500Medium',
     /** Semi-bold for sub-headings. */
-    semiBold: 'Cinzel_600SemiBold',
+    semiBold: 'Spectral_600SemiBold',
     /** Bold for headings and prominent labels. */
-    bold: 'Cinzel_700Bold',
+    bold: 'Spectral_700Bold',
 } as const;
 
 /**

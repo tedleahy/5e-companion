@@ -7,11 +7,11 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useFonts } from 'expo-font';
 import {
-    Cinzel_400Regular,
-    Cinzel_500Medium,
-    Cinzel_600SemiBold,
-    Cinzel_700Bold,
-} from '@expo-google-fonts/cinzel';
+    Spectral_400Regular,
+    Spectral_500Medium,
+    Spectral_600SemiBold,
+    Spectral_700Bold,
+} from '@expo-google-fonts/spectral';
 import apolloClient from './apolloClient';
 import { buildFantasyTheme, fantasyTokens } from '../theme/fantasyTheme';
 
@@ -19,10 +19,10 @@ export default function RootLayout() {
     const colorScheme = useColorScheme();
     const theme = buildFantasyTheme(colorScheme);
     const [fontsLoaded] = useFonts({
-        Cinzel_400Regular,
-        Cinzel_500Medium,
-        Cinzel_600SemiBold,
-        Cinzel_700Bold,
+        Spectral_400Regular,
+        Spectral_500Medium,
+        Spectral_600SemiBold,
+        Spectral_700Bold,
     });
 
     if (!fontsLoaded) {

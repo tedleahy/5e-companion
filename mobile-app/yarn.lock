@@ -950,10 +950,10 @@
     "@eslint/core" "^0.17.0"
     levn "^0.4.1"
 
-"@expo-google-fonts/cinzel@^0.4.2":
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/@expo-google-fonts/cinzel/-/cinzel-0.4.2.tgz#26f376cf7f883fb0e14006cae0513152db05dc38"
-  integrity sha512-UAlyuHCGjmKpMt2MoCKYueHz8ZEzjHO1VEol2G7NcPW54UH+85SWIGzpor05YNqUvr/aoqS8Qrfnswxg1RsNMw==
+"@expo-google-fonts/spectral@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@expo-google-fonts/spectral/-/spectral-0.4.1.tgz#0718bd0cb7555c2ab5e5bdbccfcc99305f434a13"
+  integrity sha512-9bbehW/XUAoHWAsd5rgLYRY/I1+FZFZJOyvbsM1mD9vqNJEB3izviAyZ5k7lEQpYcHV1cxChGg9HpWW+0YkJog==
 
 "@expo/cli@54.0.23":
   version "54.0.23"
