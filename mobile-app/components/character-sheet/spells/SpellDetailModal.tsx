@@ -320,7 +320,6 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.parchment,
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.label,
-        lineHeight: 15,
         marginTop: 3,
     },
     bodyScroll: {
@@ -346,7 +345,6 @@ const styles = StyleSheet.create({
         opacity: 0.82,
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.bodyLarge,
-        lineHeight: 22,
     },
     loadingWrap: {
         flexDirection: 'row',

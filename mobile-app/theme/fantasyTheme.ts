@@ -30,16 +30,16 @@ export const fantasyFonts = {
  * Shared font-size scale used across the mobile UI.
  */
 export const fantasyFontSizes = {
-    utility: 10,
-    caption: 12,
-    label: 13,
-    body: 14,
-    bodyLarge: 16,
-    title: 18,
-    titleLarge: 20,
-    headline: 24,
-    display: 30,
-    stat: 32,
+    utility: 12,
+    caption: 14,
+    label: 15,
+    body: 16,
+    bodyLarge: 18,
+    title: 20,
+    titleLarge: 22,
+    headline: 26,
+    display: 32,
+    stat: 34,
 } as const;
 
 /**

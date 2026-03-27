@@ -228,7 +228,6 @@ const styles = StyleSheet.create({
     pageTitle: {
         color: fantasyTokens.colors.parchment,
         ...fantasyTokens.typography.pageTitle,
-        lineHeight: 36,
         marginTop: 6,
         fontWeight: '700',
         textAlign: 'center',
@@ -236,7 +235,6 @@ const styles = StyleSheet.create({
     countText: {
         color: 'rgba(201,146,42,0.5)',
         ...fantasyTokens.typography.bodySmall,
-        lineHeight: 17,
         marginTop: 2,
         fontStyle: 'italic',
         textAlign: 'center',
@@ -266,7 +264,7 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.parchment,
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.headline,
-        lineHeight: 24,
+        lineHeight: fantasyTokens.fontSizes.headline + 12,
         marginTop: -1,
     },
     loadingContainer: {

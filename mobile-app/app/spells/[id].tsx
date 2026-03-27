@@ -187,7 +187,6 @@ const styles = StyleSheet.create({
     },
     body: {
         fontSize: fantasyTokens.fontSizes.bodyLarge,
-        lineHeight: 24,
         color: fantasyTokens.colors.inkDark,
         fontFamily: fantasyTokens.fonts.regular,
     },

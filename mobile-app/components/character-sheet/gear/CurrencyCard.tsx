@@ -77,7 +77,6 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.title,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
-        lineHeight: 20,
     },
     currencyLabel: {
         fontFamily: fantasyTokens.fonts.regular,

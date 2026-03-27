@@ -136,7 +136,6 @@ const styles = StyleSheet.create({
     },
     weaponIconText: {
         fontSize: fantasyTokens.fontSizes.title,
-        lineHeight: 18,
     },
     weaponInfo: {
         flex: 1,

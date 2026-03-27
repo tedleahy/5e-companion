@@ -34,7 +34,6 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.headline,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
-        lineHeight: 26,
         marginBottom: 4,
     },
     sub: {

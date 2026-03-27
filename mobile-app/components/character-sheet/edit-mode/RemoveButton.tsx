@@ -9,6 +9,7 @@ export type RemoveButtonProps = {
     editMode: boolean;
     onPress: () => void;
     accessibilityLabel?: string;
+    style?: any;
 };
 
 /**
@@ -18,13 +19,14 @@ export default function RemoveButton({
     editMode,
     onPress,
     accessibilityLabel = 'Remove item',
+    style,
 }: RemoveButtonProps) {
     if (!editMode) return null;
 
     return (
         <Pressable
             onPress={onPress}
-            style={styles.button}
+            style={[styles.button, style]}
             accessibilityRole="button"
             accessibilityLabel={accessibilityLabel}
         >
@@ -48,7 +50,6 @@ const styles = StyleSheet.create({
     label: {
         color: '#8b1a1a',
         fontSize: fantasyTokens.fontSizes.label,
-        lineHeight: 13,
         fontWeight: '700',
     },
 });

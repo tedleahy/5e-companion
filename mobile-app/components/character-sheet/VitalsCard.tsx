@@ -163,7 +163,6 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.stat,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
-        lineHeight: 40,
     },
     hpColor: {
         color: fantasyTokens.colors.crimson,
@@ -184,7 +183,6 @@ const styles = StyleSheet.create({
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.stat,
         fontWeight: '700',
-        lineHeight: 40,
         minWidth: 28,
     },
     hpSeparator: {
@@ -198,7 +196,6 @@ const styles = StyleSheet.create({
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.bodyLarge,
         fontWeight: '700',
-        lineHeight: 22,
         opacity: 0.5,
         minWidth: 18,
     },
@@ -216,7 +213,6 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.inkLight,
         opacity: 0.6,
         marginTop: 6,
-        lineHeight: 14,
         minHeight: 14,
         textAlign: 'center',
     },

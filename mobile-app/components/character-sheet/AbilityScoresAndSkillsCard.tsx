@@ -301,7 +301,6 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.headline,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
-        lineHeight: 30,
         minWidth: 32,
     },
     abilityMod: {

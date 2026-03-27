@@ -141,7 +141,6 @@ const styles = StyleSheet.create({
     traitText: {
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.body,
-        lineHeight: 19,
         color: fantasyTokens.colors.inkLight,
         fontStyle: 'italic',
     },

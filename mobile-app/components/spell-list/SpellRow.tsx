@@ -340,7 +340,6 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.caption,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
-        lineHeight: 16,
     },
     spellNameOpen: {
         color: fantasyTokens.colors.crimson,
@@ -389,7 +388,6 @@ const styles = StyleSheet.create({
     rowChevron: {
         color: 'rgba(26,15,0,0.22)',
         fontSize: fantasyTokens.fontSizes.body,
-        lineHeight: 14,
         flexShrink: 0,
         marginLeft: 4,
     },
