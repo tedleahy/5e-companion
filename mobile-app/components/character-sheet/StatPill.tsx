@@ -57,7 +57,6 @@ const styles = StyleSheet.create({
     pillLabel: {
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.utility,
-        letterSpacing: 0.5,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.inkLight,
         opacity: 0.5,

@@ -232,14 +232,14 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     tab: {
-        paddingHorizontal: 12,
+        paddingHorizontal: 7,
         paddingTop: 8,
         paddingBottom: 10,
         position: 'relative',
     },
     tabText: {
         ...fantasyTokens.typography.buttonLabel,
-        letterSpacing: 1.5,
+        letterSpacing: 0.5,
         color: 'rgba(201,146,42,0.5)',
     },
     tabTextActive: {
