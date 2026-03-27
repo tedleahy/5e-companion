@@ -10,7 +10,6 @@ import StatPill from '../StatPill';
 
 type SpellcastingStatsCardProps = {
     spellcastingProfiles: SpellcastingProfile[];
-    preparedCount: number;
 };
 
 function abilityAbbreviation(ability: string | null | undefined): string {
@@ -30,7 +29,6 @@ function spellSaveDCLabel(spellSaveDC: number | null | undefined): string {
 
 export default function SpellcastingStatsCard({
     spellcastingProfiles,
-    preparedCount,
 }: SpellcastingStatsCardProps) {
     return (
         <SheetCard index={0}>
@@ -40,7 +38,9 @@ export default function SpellcastingStatsCard({
                     <View key={`${profile.slotKind}-${profile.classId}`} style={styles.profileBlock}>
                         <View style={styles.profileHeader}>
                             <Text style={styles.profileName}>{profile.className}</Text>
-                            <Text style={styles.profileKind}>{spellSlotKindLabel(profile.slotKind)}</Text>
+                            {spellcastingProfiles.length > 1 && (
+                                <Text style={styles.profileKind}>{spellSlotKindLabel(profile.slotKind)}</Text>
+                            )}
                         </View>
                         <View style={styles.row}>
                             <StatPill label="Ability" value={abilityAbbreviation(profile.spellcastingAbility)} />
@@ -49,11 +49,6 @@ export default function SpellcastingStatsCard({
                         </View>
                     </View>
                 ))}
-                <View style={styles.summaryRow}>
-                    <View style={styles.summaryPillWrap}>
-                        <StatPill label="Prepared" value={String(preparedCount)} />
-                    </View>
-                </View>
             </View>
         </SheetCard>
     );

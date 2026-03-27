@@ -39,6 +39,9 @@ export default function SpellsTab({
 }: SpellsTabProps) {
     const [addSheetVisible, setAddSheetVisible] = useState(false);
     const router = useRouter();
+    const spellcastingClassIds = useMemo(() => {
+        return [...new Set(spellcastingProfiles.map((profile) => profile.classId))];
+    }, [spellcastingProfiles]);
 
     useEffect(() => {
         onAddSpellSheetVisibilityChange?.(addSheetVisible);
@@ -49,10 +52,6 @@ export default function SpellsTab({
             onAddSpellSheetVisibilityChange?.(false);
         };
     }, [onAddSpellSheetVisibilityChange]);
-
-    const preparedCount = useMemo(() => {
-        return spellbook.filter((entry) => entry.prepared).length;
-    }, [spellbook]);
 
     const handleOpenSpell = useCallback((spellId: string) => {
         router.push(`/spells/${spellId}`);
@@ -85,7 +84,6 @@ export default function SpellsTab({
             >
                 <SpellcastingStatsCard
                     spellcastingProfiles={spellcastingProfiles}
-                    preparedCount={preparedCount}
                 />
 
                 <SpellSlotsCard
@@ -94,6 +92,7 @@ export default function SpellsTab({
                 />
 
                 <SpellbookCard
+                    spellcastingClassIds={spellcastingClassIds}
                     spellbook={spellbook}
                     onOpenSpell={handleOpenSpell}
                     onSetPrepared={onSetSpellPrepared}

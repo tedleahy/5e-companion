@@ -9,6 +9,7 @@ import CardDivider from '../CardDivider';
 import SheetCard from '../SheetCard';
 
 type SpellbookCardProps = {
+    spellcastingClassIds: string[];
     spellbook: CharacterSpellbookEntryFieldsFragment[];
     onOpenSpell?: (spellId: string) => void;
     onSetPrepared?: (spellId: string, prepared: boolean) => Promise<void>;
@@ -25,6 +26,9 @@ const SPELLBOOK_FILTERS: { key: SpellbookFilter; label: string }[] = [
     { key: 'unprepared', label: 'Unprepared' },
 ];
 
+/** Spellcasting classes that use a fixed known-spells list instead of daily preparation. */
+const KNOWN_CASTER_CLASS_IDS = new Set(['bard', 'ranger', 'sorcerer', 'warlock']);
+
 /**
  * Filters spellbook entries by the active filter mode.
  */
@@ -32,6 +36,27 @@ function filterSpellbook(spellbook: CharacterSpellbookEntryFieldsFragment[], fil
     if (filter === 'all') return spellbook;
     if (filter === 'prepared') return spellbook.filter((entry) => entry.prepared);
     return spellbook.filter((entry) => !entry.prepared);
+}
+
+/**
+ * Counts spellbook entries for each filter bucket.
+ */
+function countSpellbookEntries(spellbook: CharacterSpellbookEntryFieldsFragment[]): Record<SpellbookFilter, number> {
+    const preparedCount = spellbook.filter((entry) => entry.prepared).length;
+
+    return {
+        all: spellbook.length,
+        prepared: preparedCount,
+        unprepared: spellbook.length - preparedCount,
+    };
+}
+
+/**
+ * Returns whether this character sheet should hide prepared-spell UI.
+ */
+function usesKnownCasterSpellbook(spellcastingClassIds: string[]): boolean {
+    return spellcastingClassIds.length > 0
+        && spellcastingClassIds.every((classId) => KNOWN_CASTER_CLASS_IDS.has(classId));
 }
 
 function toSpellListItems(spellbook: CharacterSpellbookEntryFieldsFragment[]): SpellListItem[] {
@@ -49,6 +74,7 @@ function toSpellListItems(spellbook: CharacterSpellbookEntryFieldsFragment[]): S
 }
 
 export default function SpellbookCard({
+    spellcastingClassIds,
     spellbook,
     onOpenSpell,
     onSetPrepared,
@@ -56,7 +82,12 @@ export default function SpellbookCard({
 }: SpellbookCardProps) {
     const [activeFilter, setActiveFilter] = useState<SpellbookFilter>('all');
 
-    const filteredSpellbook = useMemo(() => filterSpellbook(spellbook, activeFilter), [spellbook, activeFilter]);
+    const hidePreparedSpellUi = useMemo(() => usesKnownCasterSpellbook(spellcastingClassIds), [spellcastingClassIds]);
+    const spellCounts = useMemo(() => countSpellbookEntries(spellbook), [spellbook]);
+    const filteredSpellbook = useMemo(() => {
+        if (hidePreparedSpellUi) return spellbook;
+        return filterSpellbook(spellbook, activeFilter);
+    }, [spellbook, activeFilter, hidePreparedSpellUi]);
     const spellListItems = useMemo(() => toSpellListItems(filteredSpellbook), [filteredSpellbook]);
 
     /**
@@ -76,19 +107,21 @@ export default function SpellbookCard({
                     View
                 </ActionButton>
 
-                <ActionButton
-                    variant={context.isPrepared ? 'outlineCrimson' : 'filledCrimson'}
-                    onPress={() => {
-                        if (!context.togglePrepared) return;
-                        context.togglePrepared();
-                    }}
-                    disabled={!context.togglePrepared || context.isRemoving}
-                    style={styles.prepareButton}
-                    accessibilityLabel={`${context.isPrepared ? 'Unprepare' : 'Prepare'} ${context.spell.name}`}
-                    testID={`character-spell-prepare-${context.spell.id}`}
-                >
-                    {context.isPrepared ? 'Unprepare' : 'Prepare'}
-                </ActionButton>
+                {!hidePreparedSpellUi && (
+                    <ActionButton
+                        variant={context.isPrepared ? 'outlineCrimson' : 'filledCrimson'}
+                        onPress={() => {
+                            if (!context.togglePrepared) return;
+                            context.togglePrepared();
+                        }}
+                        disabled={!context.togglePrepared || context.isRemoving}
+                        style={styles.prepareButton}
+                        accessibilityLabel={`${context.isPrepared ? 'Unprepare' : 'Prepare'} ${context.spell.name}`}
+                        testID={`character-spell-prepare-${context.spell.id}`}
+                    >
+                        {context.isPrepared ? 'Unprepare' : 'Prepare'}
+                    </ActionButton>
+                )}
 
                 <ActionButton
                     variant="ghostCrimson"
@@ -115,40 +148,45 @@ export default function SpellbookCard({
 
     return (
         <SheetCard index={2}>
-            <View style={styles.filterRow}>
-                {SPELLBOOK_FILTERS.map(({ key, label }) => {
-                    const isActive = activeFilter === key;
+            {!hidePreparedSpellUi && (
+                <>
+                    <View style={styles.filterRow}>
+                        {SPELLBOOK_FILTERS.map(({ key, label }) => {
+                            const isActive = activeFilter === key;
+                            const filterLabel = `${label} (${spellCounts[key]})`;
 
-                    return (
-                        <Pressable
-                            key={key}
-                            style={[styles.filterPill, isActive && styles.filterPillActive]}
-                            onPress={() => setActiveFilter(key)}
-                            accessibilityRole="button"
-                            accessibilityLabel={`Show ${label} spells`}
-                            accessibilityState={{ selected: isActive }}
-                        >
-                            <Text style={[styles.filterText, isActive && styles.filterTextActive]}>
-                                {label}
-                            </Text>
-                        </Pressable>
-                    );
-                })}
-            </View>
+                            return (
+                                <Pressable
+                                    key={key}
+                                    style={[styles.filterPill, isActive && styles.filterPillActive]}
+                                    onPress={() => setActiveFilter(key)}
+                                    accessibilityRole="button"
+                                    accessibilityLabel={`Show ${filterLabel} spells`}
+                                    accessibilityState={{ selected: isActive }}
+                                >
+                                    <Text style={[styles.filterText, isActive && styles.filterTextActive]}>
+                                        {filterLabel}
+                                    </Text>
+                                </Pressable>
+                            );
+                        })}
+                    </View>
 
-            <CardDivider />
+                    <CardDivider />
+                </>
+            )}
 
             <SpellList
                 spells={spellListItems}
                 loading={false}
                 variant="embedded"
-                showPreparedState
+                showPreparedState={!hidePreparedSpellUi}
                 onSpellPress={onOpenSpell}
-                onTogglePrepared={onSetPrepared}
+                onTogglePrepared={hidePreparedSpellUi ? undefined : onSetPrepared}
                 onRemoveSpell={onRemoveSpell}
                 renderAccordionActions={renderSpellAccordionActions}
                 rowTestIdPrefix="character-spell"
-                emptyText={emptyTextMap[activeFilter]}
+                emptyText={emptyTextMap[hidePreparedSpellUi ? 'all' : activeFilter]}
             />
         </SheetCard>
     );
