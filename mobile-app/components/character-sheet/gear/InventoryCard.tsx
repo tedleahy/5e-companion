@@ -210,7 +210,6 @@ const styles = StyleSheet.create({
     },
     inventoryIconText: {
         fontSize: fantasyTokens.fontSizes.title,
-        lineHeight: 18,
     },
     magicalDot: {
         position: 'absolute',
@@ -231,7 +230,6 @@ const styles = StyleSheet.create({
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.body,
         color: fantasyTokens.colors.inkDark,
-        lineHeight: 17,
     },
     inventoryNameEquipped: {
         fontWeight: '600',

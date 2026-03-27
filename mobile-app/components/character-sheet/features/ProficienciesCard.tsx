@@ -5,6 +5,7 @@ import { Text } from 'react-native-paper';
 import InlineField from '../edit-mode/InlineField';
 import SectionHeader from '../edit-mode/SectionHeader';
 import SheetCard from '../SheetCard';
+import RemoveButton from '../edit-mode/RemoveButton';
 
 type TraitTagField =
     | 'armorProficiencies'
@@ -76,14 +77,21 @@ function ProficiencyRow({
                             placeholder="Tag"
                         />
                         {editMode && (
-                            <Pressable
+                            // <Pressable
+                            //     onPress={() => onRemoveTag(field, index)}
+                            //     style={styles.removeBadge}
+                            //     accessibilityRole="button"
+                            //     accessibilityLabel={`Remove ${label.toLowerCase()} tag`}
+                            // >
+                            //     <Text style={styles.removeBadgeText}>×</Text>
+                            // </Pressable>
+
+                            <RemoveButton
+                                editMode={editMode}
                                 onPress={() => onRemoveTag(field, index)}
-                                style={styles.removeBadge}
-                                accessibilityRole="button"
                                 accessibilityLabel={`Remove ${label.toLowerCase()} tag`}
-                            >
-                                <Text style={styles.removeBadgeText}>×</Text>
-                            </Pressable>
+                                style={styles.removeBadge}
+                            />
                         )}
                     </View>
                 ))}
@@ -209,14 +217,10 @@ const styles = StyleSheet.create({
         width: 16,
         height: 16,
         borderRadius: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'rgba(139,26,26,0.14)',
     },
     removeBadgeText: {
         color: fantasyTokens.colors.crimson,
         fontSize: fantasyTokens.fontSizes.caption,
-        lineHeight: 11,
         fontWeight: '700',
     },
     readOnlyHint: {

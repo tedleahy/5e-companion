@@ -281,7 +281,6 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.headline,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
-        lineHeight: 26,
         marginBottom: 4,
     },
     sub: {
@@ -290,7 +289,6 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         color: 'rgba(201,146,42,0.5)',
         marginBottom: 20,
-        lineHeight: 20,
     },
     summaryCard: {
         borderWidth: 1,
@@ -335,14 +333,13 @@ const styles = StyleSheet.create({
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.label,
         color: 'rgba(245,230,200,0.45)',
-        lineHeight: 18,
     },
     addSection: {
         marginTop: 6,
     },
     sectionLabel: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.utility,
+        fontFamily: fantasyTokens.fonts.bold,
+        fontSize: fantasyTokens.fontSizes.body,
         letterSpacing: 2.5,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.crimson,
@@ -399,7 +396,6 @@ const styles = StyleSheet.create({
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.label,
         color: fantasyTokens.colors.parchment,
-        lineHeight: 18,
     },
     modal: {
         margin: 20,
@@ -419,7 +415,6 @@ const styles = StyleSheet.create({
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.body,
         color: 'rgba(245,230,200,0.8)',
-        lineHeight: 22,
     },
     modalButton: {
         marginTop: 16,

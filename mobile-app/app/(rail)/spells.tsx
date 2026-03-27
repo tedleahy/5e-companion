@@ -220,7 +220,6 @@ const styles = StyleSheet.create({
     pageTitle: {
         color: fantasyTokens.colors.parchment,
         ...fantasyTokens.typography.pageTitle,
-        lineHeight: 36,
         marginTop: 6,
         fontWeight: '700',
         textAlign: 'center',

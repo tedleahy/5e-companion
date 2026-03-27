@@ -163,7 +163,6 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.label,
         fontWeight: '600',
         color: fantasyTokens.colors.inkDark,
-        lineHeight: 17,
     },
     featureSource: {
         fontFamily: fantasyTokens.fonts.regular,
@@ -178,8 +177,6 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.label,
         color: fantasyTokens.colors.inkLight,
         opacity: 0.75,
-        lineHeight: 18,
-        marginTop: 6,
     },
     useRow: {
         flexDirection: 'row',

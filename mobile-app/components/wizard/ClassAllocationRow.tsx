@@ -265,7 +265,6 @@ const styles = StyleSheet.create({
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.caption,
         color: fantasyTokens.colors.inkSoft,
-        lineHeight: 16,
     },
     controlsRow: {
         alignItems: 'flex-end',
@@ -351,6 +350,5 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.label,
         fontStyle: 'italic',
         color: fantasyTokens.colors.inkSoft,
-        lineHeight: 18,
     },
 });

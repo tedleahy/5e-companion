@@ -69,7 +69,6 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.headline,
         fontWeight: '700',
         color: fantasyTokens.colors.inkDark,
-        lineHeight: 28,
     },
     passiveLabel: {
         fontFamily: fantasyTokens.fonts.regular,
@@ -79,7 +78,6 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.inkLight,
         opacity: 0.5,
         marginTop: 6,
-        lineHeight: 14,
         textAlign: 'center',
     },
 });

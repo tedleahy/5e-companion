@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.headline,
         fontWeight: '700',
         color: fantasyTokens.colors.parchment,
-        lineHeight: 26,
         marginBottom: 4,
     },
     sub: {
@@ -156,7 +155,6 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.bodyLarge,
         color: fantasyTokens.colors.parchment,
         minHeight: 80,
-        lineHeight: 22,
     },
     textareaSmall: {
         minHeight: 64,

@@ -99,7 +99,6 @@ const styles = StyleSheet.create({
     compactMenuIcon: {
         color: fantasyTokens.colors.gold,
         fontSize: fantasyTokens.fontSizes.title,
-        lineHeight: 20,
         marginTop: -1,
     },
 });

@@ -379,14 +379,12 @@ const styles = StyleSheet.create({
     heading: {
         color: fantasyTokens.colors.parchment,
         ...fantasyTokens.typography.pageTitle,
-        lineHeight: 38,
         textAlign: 'center',
         letterSpacing: 0.5,
     },
     flavour: {
         color: 'rgba(245,230,200,0.62)',
         ...fantasyTokens.typography.sectionTitle,
-        lineHeight: 28,
         fontStyle: 'italic',
         textAlign: 'center',
     },
@@ -414,7 +412,6 @@ const styles = StyleSheet.create({
     ctaIcon: {
         color: fantasyTokens.colors.parchment,
         fontSize: fantasyTokens.fontSizes.title,
-        lineHeight: 18,
     },
     ctaText: {
         color: fantasyTokens.colors.parchment,
