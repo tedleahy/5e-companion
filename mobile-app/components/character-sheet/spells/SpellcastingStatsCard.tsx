@@ -10,7 +10,6 @@ import StatPill from '../StatPill';
 
 type SpellcastingStatsCardProps = {
     spellcastingProfiles: SpellcastingProfile[];
-    preparedCount: number;
 };
 
 function abilityAbbreviation(ability: string | null | undefined): string {
@@ -30,7 +29,6 @@ function spellSaveDCLabel(spellSaveDC: number | null | undefined): string {
 
 export default function SpellcastingStatsCard({
     spellcastingProfiles,
-    preparedCount,
 }: SpellcastingStatsCardProps) {
     return (
         <SheetCard index={0}>
@@ -49,11 +47,6 @@ export default function SpellcastingStatsCard({
                         </View>
                     </View>
                 ))}
-                <View style={styles.summaryRow}>
-                    <View style={styles.summaryPillWrap}>
-                        <StatPill label="Prepared" value={String(preparedCount)} />
-                    </View>
-                </View>
             </View>
         </SheetCard>
     );

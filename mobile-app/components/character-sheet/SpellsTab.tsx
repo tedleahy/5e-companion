@@ -50,10 +50,6 @@ export default function SpellsTab({
         };
     }, [onAddSpellSheetVisibilityChange]);
 
-    const preparedCount = useMemo(() => {
-        return spellbook.filter((entry) => entry.prepared).length;
-    }, [spellbook]);
-
     const handleOpenSpell = useCallback((spellId: string) => {
         router.push(`/spells/${spellId}`);
     }, [router]);
@@ -85,7 +81,6 @@ export default function SpellsTab({
             >
                 <SpellcastingStatsCard
                     spellcastingProfiles={spellcastingProfiles}
-                    preparedCount={preparedCount}
                 />
 
                 <SpellSlotsCard
