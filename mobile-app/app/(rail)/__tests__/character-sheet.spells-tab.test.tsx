@@ -28,6 +28,9 @@ describe('CharacterByIdScreen spells tab', () => {
 
         expect(screen.getByText('Fireball')).toBeTruthy();
         expect(screen.getByText('Detect Magic')).toBeTruthy();
+        expect(screen.getByText('All (3)')).toBeTruthy();
+        expect(screen.getByText('Prepared (2)')).toBeTruthy();
+        expect(screen.getByText('Unprepared (1)')).toBeTruthy();
         expect(screen.getAllByText('+9').length).toBeGreaterThanOrEqual(1);
         expect(screen.getAllByText('Pact Magic').length).toBeGreaterThanOrEqual(1);
     });
@@ -71,6 +74,8 @@ describe('CharacterByIdScreen spells tab', () => {
             expect(screen.getByTestId('character-spell-prepared-spell-fireball')).toHaveStyle({
                 opacity: 0,
             });
+            expect(screen.getByText('Prepared (1)')).toBeTruthy();
+            expect(screen.getByText('Unprepared (2)')).toBeTruthy();
         });
     });
 

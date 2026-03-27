@@ -34,6 +34,19 @@ function filterSpellbook(spellbook: CharacterSpellbookEntryFieldsFragment[], fil
     return spellbook.filter((entry) => !entry.prepared);
 }
 
+/**
+ * Counts spellbook entries for each filter bucket.
+ */
+function countSpellbookEntries(spellbook: CharacterSpellbookEntryFieldsFragment[]): Record<SpellbookFilter, number> {
+    const preparedCount = spellbook.filter((entry) => entry.prepared).length;
+
+    return {
+        all: spellbook.length,
+        prepared: preparedCount,
+        unprepared: spellbook.length - preparedCount,
+    };
+}
+
 function toSpellListItems(spellbook: CharacterSpellbookEntryFieldsFragment[]): SpellListItem[] {
     return spellbook.map((entry) => ({
         id: entry.spell.id,
@@ -56,6 +69,7 @@ export default function SpellbookCard({
 }: SpellbookCardProps) {
     const [activeFilter, setActiveFilter] = useState<SpellbookFilter>('all');
 
+    const spellCounts = useMemo(() => countSpellbookEntries(spellbook), [spellbook]);
     const filteredSpellbook = useMemo(() => filterSpellbook(spellbook, activeFilter), [spellbook, activeFilter]);
     const spellListItems = useMemo(() => toSpellListItems(filteredSpellbook), [filteredSpellbook]);
 
@@ -118,6 +132,7 @@ export default function SpellbookCard({
             <View style={styles.filterRow}>
                 {SPELLBOOK_FILTERS.map(({ key, label }) => {
                     const isActive = activeFilter === key;
+                    const filterLabel = `${label} (${spellCounts[key]})`;
 
                     return (
                         <Pressable
@@ -125,11 +140,11 @@ export default function SpellbookCard({
                             style={[styles.filterPill, isActive && styles.filterPillActive]}
                             onPress={() => setActiveFilter(key)}
                             accessibilityRole="button"
-                            accessibilityLabel={`Show ${label} spells`}
+                            accessibilityLabel={`Show ${filterLabel} spells`}
                             accessibilityState={{ selected: isActive }}
                         >
                             <Text style={[styles.filterText, isActive && styles.filterTextActive]}>
-                                {label}
+                                {filterLabel}
                             </Text>
                         </Pressable>
                     );
