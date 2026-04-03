@@ -24,8 +24,12 @@
     },
     "scripts": {
         "dev": "bun --watch index.ts",
+        "start": "bun run index.ts",
         "test": "bun test",
         "codegen": "bunx graphql-codegen --config codegen.yml",
-        "reset-db": "bunx prisma migrate reset && bunx prisma generate && bunx prisma db seed"
+        "prisma:generate": "bunx prisma generate",
+        "db:deploy": "bunx prisma migrate deploy",
+        "db:seed": "bunx prisma db seed",
+        "reset-db": "bunx prisma migrate reset && bun run prisma:generate && bun run db:seed"
     }
 }

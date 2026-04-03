@@ -12,11 +12,43 @@ import spellResolver from './resolvers/spellResolver';
 import * as characterResolvers from './resolvers/characterResolvers';
 
 const typeDefs = loadFilesSync('schema.graphql');
+const DEFAULT_PORT = 4000;
 
 export type Context = {
     userId: string | null;
 };
 
+/**
+ * Resolves the HTTP port for the API server.
+ */
+function resolvePort(): number {
+    const rawPort = process.env.PORT;
+
+    if (!rawPort) return DEFAULT_PORT;
+
+    const parsedPort = Number.parseInt(rawPort, 10);
+    if (Number.isNaN(parsedPort) || parsedPort <= 0) {
+        throw new Error(`Invalid PORT value: ${rawPort}`);
+    }
+
+    return parsedPort;
+}
+
+/**
+ * Ensures required environment variables are present before the server starts.
+ */
+function validateEnvironment(): void {
+    const requiredVariables = ['DATABASE_URL', 'SUPABASE_URL'];
+    const missingVariables = requiredVariables.filter((name) => !process.env[name]);
+
+    if (missingVariables.length > 0) {
+        throw new Error(`Missing required environment variables: ${missingVariables.join(', ')}`);
+    }
+}
+
+/**
+ * Creates the Apollo context from the incoming HTTP request.
+ */
 async function context({ req }: StandaloneServerContextFunctionArgument): Promise<Context> {
     try {
         const userId = await getUserIdFromAuthHeader(req.headers.authorization);
@@ -79,9 +111,11 @@ const resolvers: Resolvers = {
     },
 };
 
+validateEnvironment();
+
 const server = new ApolloServer<Context>({ typeDefs, resolvers });
 const { url } = await startStandaloneServer(server, {
-    listen: { port: 4000 },
+    listen: { port: resolvePort() },
     context,
 });
 
