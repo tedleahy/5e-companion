@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import type { LayoutChangeEvent } from 'react-native';
 import { Text } from 'react-native-paper';
 import ClassAllocationRow from '@/components/wizard/ClassAllocationRow';
+import OptionGrid from '@/components/wizard/OptionGrid';
 import {
     availableClassOptions,
     createCharacterClassDraft,
@@ -13,55 +14,120 @@ import {
     sanitiseCharacterClassRow,
     validateCharacterClassDraft,
 } from '@/lib/characterCreation/multiclass';
-import { SUBCLASS_OPTIONS } from '@/lib/characterCreation/options';
+import { CLASS_OPTIONS, SUBCLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 /**
- * Multiclass allocation step for the create-character wizard.
+ * Class selection step for the create-character wizard.
+ *
+ * Defaults to single-class mode (pick one class from a grid).
+ * For characters level 2+, offers an opt-in toggle to multiclass mode.
  */
 export default function StepClass() {
     const { draft, updateDraft } = useCharacterDraft();
+    const [multiclassMode, setMulticlassMode] = useState(
+        () => draft.classes.length > 1,
+    );
+
+    const selectedClass = draft.classes[0];
+    const selectedClassId = selectedClass?.classId ?? '';
+
+    /* ── multiclass helpers (reused from previous implementation) ── */
+
     const availableClasses = availableClassOptions(draft.classes);
-    const isMulticlassing = draft.classes.length > 1;
     const validation = validateCharacterClassDraft(
         draft.classes,
         draft.level,
         draft.startingClassId,
     );
     const remainingLevelsCount = remainingClassLevels(draft.classes, draft.level);
-    const displayClassRows = draft.classes.map((classRow, originalIndex) => ({ ...classRow, originalIndex }));
+    const displayClassRows = draft.classes.map((classRow, originalIndex) => ({
+        ...classRow,
+        originalIndex,
+    }));
 
     const scrollViewRef = useRef<ScrollView>(null);
     const [pendingScrollIndex, setPendingScrollIndex] = useState<number | null>(null);
 
-    /**
-     * Scrolls the form to the top edge of one rendered class row.
-     */
+    /* ── level stepper ── */
+
+    function adjustLevel(delta: number) {
+        const next = Math.max(1, Math.min(20, draft.level + delta));
+
+        if (!multiclassMode && selectedClassId) {
+            // In single-class mode, the single class row tracks the character level
+            updateDraft({
+                level: next,
+                classes: [{ ...draft.classes[0]!, level: next }],
+            });
+        } else {
+            updateDraft({ level: next });
+        }
+
+        // Auto-exit multiclass mode when level drops below 2
+        if (next < 2 && multiclassMode) {
+            exitMulticlassMode();
+        }
+    }
+
+    /* ── single-class selection ── */
+
+    function handleSelectSingleClass(classId: string) {
+        const classRow = createCharacterClassDraft(classId, draft.level);
+        updateDraft({
+            classes: [classRow],
+            startingClassId: classId,
+        });
+    }
+
+    function handleSelectSingleSubclass(subclassId: string) {
+        if (!selectedClass) return;
+        updateDraft({
+            classes: [{ ...selectedClass, subclassId }],
+        });
+    }
+
+    /* ── multiclass toggle ── */
+
+    function enterMulticlassMode() {
+        setMulticlassMode(true);
+    }
+
+    function exitMulticlassMode() {
+        setMulticlassMode(false);
+        // Keep only the starting class and give it all levels
+        if (draft.classes.length > 0) {
+            const startingRow = draft.classes.find(
+                (c) => c.classId === draft.startingClassId,
+            ) ?? draft.classes[0]!;
+            const sanitised = sanitiseCharacterClassRow({
+                ...startingRow,
+                level: draft.level,
+            });
+            updateDraft({
+                classes: [sanitised],
+                startingClassId: sanitised.classId,
+            });
+        }
+    }
+
+    /* ── multiclass row handlers ── */
+
     function scrollToClassRow(event: LayoutChangeEvent) {
         scrollViewRef.current?.scrollTo({ y: event.nativeEvent.layout.y, animated: true });
     }
 
-    /**
-     * Writes new class rows back into the draft and keeps the starting class valid.
-     */
     function updateClasses(nextClasses: typeof draft.classes, nextStartingClassId = draft.startingClassId) {
         const sanitisedClasses = nextClasses.map(sanitiseCharacterClassRow);
-
         updateDraft({
             classes: sanitisedClasses,
             startingClassId: normaliseStartingClassId(sanitisedClasses, nextStartingClassId),
         });
     }
 
-    /**
-     * Adds a new class row at level 1 when there is room in the allocation.
-     */
     function handleAddClass(classId: string) {
-        if (remainingLevelsCount <= 0) {
-            return;
-        }
-
+        if (remainingLevelsCount <= 0) return;
         setPendingScrollIndex(draft.classes.length);
         updateClasses(
             [...draft.classes, createCharacterClassDraft(classId)],
@@ -69,163 +135,225 @@ export default function StepClass() {
         );
     }
 
-    /**
-     * Scrolls to the newly-added class row once it has been laid out.
-     */
     function handleClassRowLayout(index: number, event: LayoutChangeEvent) {
-        if (pendingScrollIndex !== index) {
-            return;
-        }
-
+        if (pendingScrollIndex !== index) return;
         scrollToClassRow(event);
         setPendingScrollIndex(null);
     }
 
-    /**
-     * Adjusts one class row's level while preserving the total allocation rules.
-     */
     function handleChangeClassLevel(index: number, delta: number) {
         const classRow = draft.classes[index];
-
-        if (!classRow) {
-            return;
-        }
-
+        if (!classRow) return;
         const nextLevel = classRow.level + delta;
-
-        if (nextLevel < 1) {
-            return;
-        }
-
-        if (delta > 0 && remainingLevelsCount <= 0) {
-            return;
-        }
-
+        if (nextLevel < 1) return;
+        if (delta > 0 && remainingLevelsCount <= 0) return;
         updateClasses(
-            draft.classes.map((currentClassRow, currentIndex) => (
-                currentIndex === index
-                    ? { ...currentClassRow, level: nextLevel }
-                    : currentClassRow
-            )),
+            draft.classes.map((c, i) =>
+                i === index ? { ...c, level: nextLevel } : c,
+            ),
         );
     }
 
-    /**
-     * Removes one class row and keeps the starting-class selection valid.
-     */
     function handleRemoveClass(index: number) {
-        const nextClasses = draft.classes.filter((_, currentIndex) => currentIndex !== index);
+        const nextClasses = draft.classes.filter((_, i) => i !== index);
         const removedClassId = draft.classes[index]?.classId ?? '';
-        const nextStartingClassId = removedClassId === draft.startingClassId ? '' : draft.startingClassId;
-
+        const nextStartingClassId =
+            removedClassId === draft.startingClassId ? '' : draft.startingClassId;
         updateClasses(nextClasses, nextStartingClassId);
+
+        // If only one class remains, auto-switch back to single-class mode
+        if (nextClasses.length <= 1) {
+            setMulticlassMode(false);
+            if (nextClasses.length === 1) {
+                const solo = { ...nextClasses[0]!, level: draft.level };
+                updateDraft({
+                    classes: [sanitiseCharacterClassRow(solo)],
+                    startingClassId: solo.classId,
+                });
+            }
+        }
     }
 
-    /**
-     * Stores one subclass choice for the selected class row.
-     */
     function handleSelectSubclass(index: number, subclassId: string) {
         updateClasses(
-            draft.classes.map((classRow, currentIndex) => (
-                currentIndex === index
-                    ? { ...classRow, subclassId }
-                    : classRow
-            )),
+            draft.classes.map((c, i) =>
+                i === index ? { ...c, subclassId } : c,
+            ),
         );
     }
 
+    /* ── subclass options for single-class mode ── */
+
+    const singleSubclassOptions = SUBCLASS_OPTIONS[selectedClassId] ?? [];
+    const singleSubclassUnlocked = selectedClass ? isSubclassUnlocked(selectedClass) : false;
+
+    /* ── render ── */
+
     return (
-        <>
-            <ScrollView ref={scrollViewRef} style={styles.scroll} contentContainerStyle={styles.container}>
-                <Text style={styles.heading}>Choose your class.</Text>
+        <ScrollView ref={scrollViewRef} style={styles.scroll} contentContainerStyle={styles.container}>
+            <Text style={styles.heading}>Choose your class and level.</Text>
 
-                {(draft.classes.length > 0) && (
-                    <View style={styles.summaryCard}>
-                        <View style={styles.summaryHeader}>
-                            <Text style={styles.summaryLabel}>Allocation</Text>
-                        </View>
-                        <Text style={styles.summaryValue}>
-                            {draft.level} total level{draft.level === 1 ? '' : 's'}
-                        </Text>
-                        {(remainingLevelsCount === 0) ? (
-                            <Text style={styles.summaryHint}>All levels assigned.</Text>
-                        ) : (
-                            <>
-                                <Text style={styles.summaryHint}>
-                                    {remainingLevelsCount} level{remainingLevelsCount === 1 ? '' : 's'} still to allocate.
-                                </Text>
-                                <Text style={styles.sub}>
-                                    You can either increase the levels in the
-                                    class{draft.classes.length > 1 ? 'es' : ''} you've chosen, or take levels in
-                                    additional classes.
-                                </Text>
-                            </>
-                        )}
-                    </View>
-                )}
+            {/* ── Level stepper (both modes) ── */}
+            <Text style={fantasyTokens.text.formLabel}>Starting Level</Text>
+            <View style={styles.stepper}>
+                <Pressable
+                    onPress={() => adjustLevel(-1)}
+                    style={({ pressed }) => [styles.stepperBtn, pressed && styles.stepperBtnPressed]}
+                >
+                    <Text style={styles.stepperBtnText}>{'\u2212'}</Text>
+                </Pressable>
+                <Text style={styles.stepperVal}>{draft.level}</Text>
+                <Pressable
+                    onPress={() => adjustLevel(1)}
+                    style={({ pressed }) => [styles.stepperBtn, pressed && styles.stepperBtnPressed]}
+                >
+                    <Text style={styles.stepperBtnText}>+</Text>
+                </Pressable>
+            </View>
+            <Text style={styles.hint}>Most campaigns start at level 1. Check with your DM.</Text>
 
-                {displayClassRows.map((classRow, displayIndex) => (
-                    <ClassAllocationRow
-                        key={`${classRow.classId || 'class'}-${classRow.originalIndex}`}
-                        canDecreaseLevel={classRow.level > 1}
-                        canIncreaseLevel={remainingLevelsCount > 0}
-                        canRemove
-                        classRow={classRow}
-                        index={displayIndex}
-                        isStartingClass={classRow.classId === draft.startingClassId}
-                        onDecreaseLevel={() => handleChangeClassLevel(classRow.originalIndex, -1)}
-                        onIncreaseLevel={() => handleChangeClassLevel(classRow.originalIndex, 1)}
-                        onLayout={(event) => handleClassRowLayout(displayIndex, event)}
-                        onRemove={() => handleRemoveClass(classRow.originalIndex)}
-                        onSelectStartingClass={() => updateDraft({ startingClassId: classRow.classId })}
-                        onSelectSubclass={(subclassId) => handleSelectSubclass(classRow.originalIndex, subclassId)}
-                        showStartingClassSelector={isMulticlassing}
-                        subclassOptions={SUBCLASS_OPTIONS[classRow.classId] ?? []}
-                        subclassUnlocked={isSubclassUnlocked(classRow)}
+            <View style={styles.divider} />
+
+            {!multiclassMode ? (
+                /* ── Single-class mode ── */
+                <>
+                    <OptionGrid
+                        options={CLASS_OPTIONS}
+                        selected={selectedClassId}
+                        onSelect={handleSelectSingleClass}
                     />
-                ))}
 
-                {availableClasses.length > 0 && remainingLevelsCount > 0 ? (
-                    <View style={styles.addSection}>
-                        {draft.classes.length > 0 && (
-                            <Text style={styles.sectionLabel}>
-                                Add another class
+                    {/* Inline subclass picker when unlocked */}
+                    {selectedClassId !== '' && singleSubclassUnlocked && singleSubclassOptions.length > 0 && (
+                        <View style={styles.subclassSection}>
+                            <Text style={styles.sectionLabel}>Subclass</Text>
+                            <OptionGrid
+                                options={singleSubclassOptions}
+                                selected={selectedClass?.subclassId ?? ''}
+                                onSelect={handleSelectSingleSubclass}
+                            />
+                        </View>
+                    )}
+
+                    {/* Multiclass prompt (only when level > 1 and a class is selected) */}
+                    {selectedClassId !== '' && draft.level > 1 && (
+                        <View style={styles.multiclassPrompt}>
+                            <Text style={styles.multiclassHeading}>Want to multiclass?</Text>
+                            <Text style={styles.multiclassBody}>
+                                If you like, you can split your levels between multiple classes.
                             </Text>
-                        )}
-                        <View style={styles.addGrid}>
-                            {availableClasses.map((classOption) => (
-                                <Pressable
-                                    key={classOption.value}
-                                    onPress={() => handleAddClass(classOption.value)}
-                                    style={({ pressed }) => [
-                                        styles.addCard,
-                                        pressed && styles.addCardPressed,
-                                    ]}
-                                    testID={`add-class-${classOption.value}`}
-                                >
-                                    <Text style={styles.addIcon}>{classOption.icon}</Text>
-                                    <Text style={styles.addName}>{classOption.label}</Text>
-                                    {classOption.hint ? (
-                                        <Text style={styles.addHint}>{classOption.hint}</Text>
-                                    ) : null}
-                                </Pressable>
+                            <Pressable
+                                onPress={enterMulticlassMode}
+                                style={({ pressed }) => [
+                                    styles.multiclassBtn,
+                                    pressed && styles.multiclassBtnPressed,
+                                ]}
+                            >
+                                <Text style={styles.multiclassBtnText}>Choose additional classes</Text>
+                            </Pressable>
+                        </View>
+                    )}
+                </>
+            ) : (
+                /* ── Multiclass mode ── */
+                <>
+                    <Pressable
+                        onPress={exitMulticlassMode}
+                        style={({ pressed }) => [
+                            styles.singleClassBtn,
+                            pressed && styles.singleClassBtnPressed,
+                        ]}
+                    >
+                        <Text style={styles.singleClassBtnText}>Use a single class</Text>
+                    </Pressable>
+
+                    {draft.classes.length > 0 && (
+                        <View style={styles.summaryCard}>
+                            <View style={styles.summaryHeader}>
+                                <Text style={styles.summaryLabel}>Allocation</Text>
+                            </View>
+                            <Text style={styles.summaryValue}>
+                                {draft.level} total level{draft.level === 1 ? '' : 's'}
+                            </Text>
+                            {remainingLevelsCount === 0 ? (
+                                <Text style={styles.summaryHint}>All levels assigned.</Text>
+                            ) : (
+                                <>
+                                    <Text style={styles.summaryHint}>
+                                        {remainingLevelsCount} level{remainingLevelsCount === 1 ? '' : 's'} still to allocate.
+                                    </Text>
+                                    <Text style={styles.sub}>
+                                        You can either increase the levels in the
+                                        class{draft.classes.length > 1 ? 'es' : ''} you've chosen, or take levels in
+                                        additional classes.
+                                    </Text>
+                                </>
+                            )}
+                        </View>
+                    )}
+
+                    {displayClassRows.map((classRow, displayIndex) => (
+                        <ClassAllocationRow
+                            key={`${classRow.classId || 'class'}-${classRow.originalIndex}`}
+                            canDecreaseLevel={classRow.level > 1}
+                            canIncreaseLevel={remainingLevelsCount > 0}
+                            canRemove
+                            classRow={classRow}
+                            index={displayIndex}
+                            isStartingClass={classRow.classId === draft.startingClassId}
+                            onDecreaseLevel={() => handleChangeClassLevel(classRow.originalIndex, -1)}
+                            onIncreaseLevel={() => handleChangeClassLevel(classRow.originalIndex, 1)}
+                            onLayout={(event) => handleClassRowLayout(displayIndex, event)}
+                            onRemove={() => handleRemoveClass(classRow.originalIndex)}
+                            onSelectStartingClass={() => updateDraft({ startingClassId: classRow.classId })}
+                            onSelectSubclass={(subclassId) => handleSelectSubclass(classRow.originalIndex, subclassId)}
+                            showStartingClassSelector={draft.classes.length > 1}
+                            subclassOptions={SUBCLASS_OPTIONS[classRow.classId] ?? []}
+                            subclassUnlocked={isSubclassUnlocked(classRow)}
+                        />
+                    ))}
+
+                    {availableClasses.length > 0 && remainingLevelsCount > 0 ? (
+                        <View style={styles.addSection}>
+                            {draft.classes.length > 0 && (
+                                <Text style={styles.sectionLabel}>
+                                    Add another class
+                                </Text>
+                            )}
+                            <View style={styles.addGrid}>
+                                {availableClasses.map((classOption) => (
+                                    <Pressable
+                                        key={classOption.value}
+                                        onPress={() => handleAddClass(classOption.value)}
+                                        style={({ pressed }) => [
+                                            styles.addCard,
+                                            pressed && styles.addCardPressed,
+                                        ]}
+                                        testID={`add-class-${classOption.value}`}
+                                    >
+                                        <Text style={styles.addIcon}>{classOption.icon}</Text>
+                                        <Text style={styles.addName}>{classOption.label}</Text>
+                                        {classOption.hint ? (
+                                            <Text style={styles.addHint}>{classOption.hint}</Text>
+                                        ) : null}
+                                    </Pressable>
+                                ))}
+                            </View>
+                        </View>
+                    ) : null}
+
+                    {validation.errors.length > 0 ? (
+                        <View style={styles.errorBox}>
+                            {validation.errors.map((error) => (
+                                <Text key={error} style={styles.errorText}>
+                                    {`\u2022 ${error}`}
+                                </Text>
                             ))}
                         </View>
-                    </View>
-                ) : null}
-
-                {validation.errors.length > 0 ? (
-                    <View style={styles.errorBox}>
-                        {validation.errors.map((error) => (
-                            <Text key={error} style={styles.errorText}>
-                                {`\u2022 ${error}`}
-                            </Text>
-                        ))}
-                    </View>
-                ) : null}
-            </ScrollView>
-
-        </>
+                    ) : null}
+                </>
+            )}
+        </ScrollView>
     );
 }
 
@@ -251,6 +379,126 @@ const styles = StyleSheet.create({
         color: 'rgba(201,146,42,0.5)',
         marginBottom: 20,
     },
+    divider: {
+        height: 1,
+        backgroundColor: 'rgba(201,146,42,0.12)',
+        marginVertical: 16,
+    },
+
+    /* Level stepper */
+    stepper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(240,224,188,0.06)',
+        borderWidth: 1,
+        borderColor: 'rgba(201,146,42,0.2)',
+        borderRadius: 10,
+        overflow: 'hidden',
+    },
+    stepperBtn: {
+        width: 44,
+        height: 44,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    stepperBtnPressed: {
+        backgroundColor: 'rgba(201,146,42,0.08)',
+    },
+    stepperBtnText: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: fantasyTokens.fontSizes.title,
+        color: 'rgba(201,146,42,0.5)',
+    },
+    stepperVal: {
+        flex: 1,
+        textAlign: 'center',
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: fantasyTokens.fontSizes.titleLarge,
+        fontWeight: '700',
+        color: fantasyTokens.colors.parchment,
+    },
+    hint: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: fantasyTokens.fontSizes.label,
+        fontStyle: 'italic',
+        color: 'rgba(245,230,200,0.3)',
+        marginTop: 6,
+    },
+
+    /* Single-class subclass section */
+    subclassSection: {
+        marginTop: 16,
+    },
+    sectionLabel: {
+        fontFamily: fantasyTokens.fonts.bold,
+        fontSize: fantasyTokens.fontSizes.body,
+        letterSpacing: 2.5,
+        textTransform: 'uppercase',
+        color: fantasyTokens.colors.crimson,
+        opacity: 0.75,
+        marginBottom: 8,
+    },
+
+    /* Multiclass prompt (single-class mode) */
+    multiclassPrompt: {
+        marginTop: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(201,146,42,0.15)',
+        backgroundColor: 'rgba(240,224,188,0.04)',
+        borderRadius: 14,
+        padding: 16,
+    },
+    multiclassHeading: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
+        fontWeight: '700',
+        color: fantasyTokens.colors.parchment,
+        marginBottom: 4,
+    },
+    multiclassBody: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: fantasyTokens.fontSizes.label,
+        fontStyle: 'italic',
+        color: 'rgba(245,230,200,0.45)',
+        marginBottom: 12,
+    },
+    multiclassBtn: {
+        backgroundColor: 'rgba(201,146,42,0.12)',
+        borderWidth: 1,
+        borderColor: 'rgba(201,146,42,0.3)',
+        borderRadius: 10,
+        paddingVertical: 10,
+        alignItems: 'center',
+    },
+    multiclassBtnPressed: {
+        backgroundColor: 'rgba(201,146,42,0.2)',
+    },
+    multiclassBtnText: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: fantasyTokens.fontSizes.body,
+        color: fantasyTokens.colors.gold,
+    },
+
+    /* "Use a single class" button (multiclass mode) */
+    singleClassBtn: {
+        backgroundColor: 'rgba(201,146,42,0.08)',
+        borderWidth: 1,
+        borderColor: 'rgba(201,146,42,0.2)',
+        borderRadius: 10,
+        paddingVertical: 10,
+        alignItems: 'center',
+        marginBottom: 14,
+    },
+    singleClassBtnPressed: {
+        backgroundColor: 'rgba(201,146,42,0.16)',
+    },
+    singleClassBtnText: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: fantasyTokens.fontSizes.body,
+        color: 'rgba(245,230,200,0.6)',
+    },
+
+    /* Multiclass allocation summary */
     summaryCard: {
         borderWidth: 1,
         borderColor: 'rgba(201,146,42,0.2)',
@@ -284,17 +532,10 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.label,
         color: 'rgba(245,230,200,0.45)',
     },
+
+    /* Add-class grid (multiclass mode) */
     addSection: {
         marginTop: 6,
-    },
-    sectionLabel: {
-        fontFamily: fantasyTokens.fonts.bold,
-        fontSize: fantasyTokens.fontSizes.body,
-        letterSpacing: 2.5,
-        textTransform: 'uppercase',
-        color: fantasyTokens.colors.crimson,
-        opacity: 0.75,
-        marginBottom: 8,
     },
     addGrid: {
         flexDirection: 'row',
@@ -333,6 +574,8 @@ const styles = StyleSheet.create({
         marginTop: 3,
         textAlign: 'center',
     },
+
+    /* Validation errors */
     errorBox: {
         marginTop: 16,
         borderRadius: 12,
