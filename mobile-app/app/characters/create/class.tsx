@@ -2,7 +2,7 @@
 import { useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import type { LayoutChangeEvent } from 'react-native';
-import { Modal, Portal, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import ClassAllocationRow from '@/components/wizard/ClassAllocationRow';
 import {
     availableClassOptions,
@@ -22,7 +22,6 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
  */
 export default function StepClass() {
     const { draft, updateDraft } = useCharacterDraft();
-    const [showStartingClassInfo, setShowStartingClassInfo] = useState(false);
     const availableClasses = availableClassOptions(draft.classes);
     const isMulticlassing = draft.classes.length > 1;
     const validation = validateCharacterClassDraft(
@@ -35,12 +34,6 @@ export default function StepClass() {
 
     const scrollViewRef = useRef<ScrollView>(null);
     const [pendingScrollIndex, setPendingScrollIndex] = useState<number | null>(null);
-
-    const subtitle = isMulticlassing
-        ? 'Split your levels across classes and choose which one was your first adventuring class.'
-        : 'Choose your adventuring class.'
-
-    const sectionLabel = draft.classes.length > 0 ? 'Add another class' : 'Choose a class';
 
     /**
      * Scrolls the form to the top edge of one rendered class row.
@@ -144,24 +137,12 @@ export default function StepClass() {
     return (
         <>
             <ScrollView ref={scrollViewRef} style={styles.scroll} contentContainerStyle={styles.container}>
-                <Text style={styles.heading}>Build your class path.</Text>
-                <Text style={styles.sub}>
-                    {subtitle}{'\n'}
-                </Text>
+                <Text style={styles.heading}>Choose your class.</Text>
 
                 {(draft.classes.length > 0) && (
                     <View style={styles.summaryCard}>
                         <View style={styles.summaryHeader}>
                             <Text style={styles.summaryLabel}>Allocation</Text>
-                            <Pressable
-                                onPress={() => setShowStartingClassInfo(true)}
-                                style={({ pressed }) => [styles.infoButton, pressed && styles.infoButtonPressed]}
-                                testID="starting-class-info"
-                            >
-                                {isMulticlassing && (
-                                    <Text style={styles.infoButtonText}>What is a starting class?</Text>
-                                )}
-                            </Pressable>
                         </View>
                         <Text style={styles.summaryValue}>
                             {draft.level} total level{draft.level === 1 ? '' : 's'}
@@ -206,7 +187,11 @@ export default function StepClass() {
 
                 {availableClasses.length > 0 && remainingLevelsCount > 0 ? (
                     <View style={styles.addSection}>
-                        <Text style={styles.sectionLabel}>{sectionLabel}</Text>
+                        {draft.classes.length > 0 && (
+                            <Text style={styles.sectionLabel}>
+                                Add another class
+                            </Text>
+                        )}
                         <View style={styles.addGrid}>
                             {availableClasses.map((classOption) => (
                                 <Pressable
@@ -240,30 +225,6 @@ export default function StepClass() {
                 ) : null}
             </ScrollView>
 
-            <Portal>
-                <Modal
-                    contentContainerStyle={styles.modal}
-                    dismissable
-                    onDismiss={() => setShowStartingClassInfo(false)}
-                    visible={showStartingClassInfo}
-                >
-                    <Text style={styles.modalTitle}>Starting class</Text>
-                    <Text style={styles.modalCopy}>
-                        In D&amp;D multiclassing, your starting class is the one you began at level 1.
-                        It determines your saving throw proficiencies and your full set of opening
-                        class proficiencies. Later classes add only the reduced multiclass proficiencies.
-                    </Text>
-                    <Pressable
-                        onPress={() => setShowStartingClassInfo(false)}
-                        style={({ pressed }) => [
-                            styles.modalButton,
-                            pressed && styles.modalButtonPressed,
-                        ]}
-                    >
-                        <Text style={styles.modalButtonText}>Close</Text>
-                    </Pressable>
-                </Modal>
-            </Portal>
         </>
     );
 }
@@ -311,17 +272,6 @@ const styles = StyleSheet.create({
         letterSpacing: 2,
         textTransform: 'uppercase',
         color: 'rgba(201,146,42,0.55)',
-    },
-    infoButton: {
-        paddingVertical: 4,
-    },
-    infoButtonPressed: {
-        opacity: 0.75,
-    },
-    infoButtonText: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.utility,
-        color: fantasyTokens.colors.gold,
     },
     summaryValue: {
         fontFamily: fantasyTokens.fonts.regular,
@@ -396,44 +346,5 @@ const styles = StyleSheet.create({
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.label,
         color: fantasyTokens.colors.parchment,
-    },
-    modal: {
-        margin: 20,
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.gold,
-        backgroundColor: fantasyTokens.colors.night,
-        padding: 20,
-    },
-    modalTitle: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.titleLarge,
-        color: fantasyTokens.colors.parchment,
-        marginBottom: 10,
-    },
-    modalCopy: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.body,
-        color: 'rgba(245,230,200,0.8)',
-    },
-    modalButton: {
-        marginTop: 16,
-        alignSelf: 'flex-end',
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: 'rgba(201,146,42,0.25)',
-        paddingVertical: 10,
-        paddingHorizontal: 16,
-        backgroundColor: 'rgba(201,146,42,0.1)',
-    },
-    modalButtonPressed: {
-        backgroundColor: 'rgba(201,146,42,0.16)',
-    },
-    modalButtonText: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.utility,
-        letterSpacing: 1,
-        textTransform: 'uppercase',
-        color: fantasyTokens.colors.gold,
     },
 });
