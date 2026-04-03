@@ -64,7 +64,7 @@ Git Commits
 - Don't commit any markdown or txt files, other than AGENTS.md.
 
 General instructions
-- The main goal in making this app is learning React Native and GraphQL. Explain new concepts relating to these technologies. You can assume React web knowledge and REST API knowledge, but assume no knowledge of graphql or native-specific things. So when you tell me how to do something graphql or react native specific, use it as a teaching opportunity.
+- Explain concepts relating to React native and graphql/apollo, as they come up. You can assume React web knowledge and REST API knowledge, but assume no knowledge of graphql or native-specific things.
 - If you encounter any particular pain points when executing tasks, reflect on them afterwards and make changes to this file to help you navigate the same issues more quickly in future.
 - Shell/testing note: quote paths that contain route-group parentheses (for example `app/(tabs)/...`) when using `zsh` commands, and prefer broad Jest patterns (for example `yarn test character-sheet.test.tsx`) over literal `app/(tabs)/...` paths to avoid glob/pattern mismatches.
 - Local DB note: `bun db:migrate -- <name>` requires PostgreSQL running at `localhost:5432`. If the database is down, Prisma cannot generate a migration from a live shadow database, so fall back to writing the migration SQL manually and leave final migration validation until the DB is available.
