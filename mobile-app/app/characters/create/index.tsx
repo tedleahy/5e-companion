@@ -1,20 +1,17 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
+import { RACE_OPTIONS } from '@/lib/characterCreation/options';
+import OptionGrid from '@/components/wizard/OptionGrid';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 
 export default function StepIdentity() {
     const { draft, updateDraft } = useCharacterDraft();
     const [blurred, setBlurred] = useState(false);
     const showError = blurred && draft.name.trim() === '';
-
-    function adjustLevel(delta: number) {
-        const next = Math.max(1, Math.min(20, draft.level + delta));
-        updateDraft({ level: next });
-    }
 
     return (
         <KeyboardAwareScrollView
@@ -45,24 +42,14 @@ export default function StepIdentity() {
             </View>
 
             <View style={styles.divider} />
-            <Text style={fantasyTokens.text.formLabel}>Starting Level</Text>
+            <Text style={styles.heading}>Choose your race.</Text>
+            <Text style={styles.sub}>Your lineage shapes who you are.</Text>
 
-            <View style={styles.stepper}>
-                <Pressable
-                    onPress={() => adjustLevel(-1)}
-                    style={({ pressed }) => [styles.stepperBtn, pressed && styles.stepperBtnPressed]}
-                >
-                    <Text style={styles.stepperBtnText}>{'\u2212'}</Text>
-                </Pressable>
-                <Text style={styles.stepperVal}>{draft.level}</Text>
-                <Pressable
-                    onPress={() => adjustLevel(1)}
-                    style={({ pressed }) => [styles.stepperBtn, pressed && styles.stepperBtnPressed]}
-                >
-                    <Text style={styles.stepperBtnText}>+</Text>
-                </Pressable>
-            </View>
-            <Text style={styles.hint}>Most campaigns start at level 1. Check with your DM.</Text>
+            <OptionGrid
+                options={RACE_OPTIONS}
+                selected={draft.race}
+                onSelect={(value) => updateDraft({ race: value })}
+            />
         </KeyboardAwareScrollView>
     );
 }
@@ -115,44 +102,6 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.label,
         fontStyle: 'italic',
         color: fantasyTokens.colors.crimson,
-        marginTop: 6,
-    },
-    stepper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: 'rgba(240,224,188,0.06)',
-        borderWidth: 1,
-        borderColor: 'rgba(201,146,42,0.2)',
-        borderRadius: 10,
-        overflow: 'hidden',
-    },
-    stepperBtn: {
-        width: 44,
-        height: 44,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    stepperBtnPressed: {
-        backgroundColor: 'rgba(201,146,42,0.08)',
-    },
-    stepperBtnText: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.title,
-        color: 'rgba(201,146,42,0.5)',
-    },
-    stepperVal: {
-        flex: 1,
-        textAlign: 'center',
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.titleLarge,
-        fontWeight: '700',
-        color: fantasyTokens.colors.parchment,
-    },
-    hint: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.label,
-        fontStyle: 'italic',
-        color: 'rgba(245,230,200,0.3)',
         marginTop: 6,
     },
 });
