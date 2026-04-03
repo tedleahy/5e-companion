@@ -31,6 +31,35 @@ jest.mock('@/store/characterDraft', () => ({
     useCharacterDraft: jest.fn(),
 }));
 
+jest.mock('@/components/wizard/OptionGrid', () => ({
+    __esModule: true,
+    default: ({
+        options,
+        selected,
+        onSelect,
+    }: {
+        options: { value: string; label: string; icon: string }[];
+        selected: string;
+        onSelect: (value: string) => void;
+    }) => {
+        const { Pressable, Text, View } = require('react-native');
+
+        return (
+            <View testID="option-grid">
+                {options.map((option) => (
+                    <Pressable
+                        key={option.value}
+                        onPress={() => onSelect(option.value)}
+                        testID={`option-${option.value}`}
+                    >
+                        <Text>{`${option.label}${option.value === selected ? ' (selected)' : ''}`}</Text>
+                    </Pressable>
+                ))}
+            </View>
+        );
+    },
+}));
+
 jest.mock('@/components/wizard/ClassAllocationRow', () => ({
     __esModule: true,
     default: ({
@@ -118,6 +147,9 @@ describe('StepClass', () => {
         });
 
         renderScreen();
+
+        // Enter multiclass mode first (single-class mode doesn't show add-class buttons)
+        fireEvent.press(screen.getByText('Choose additional classes'));
 
         fireEvent.press(screen.getByTestId('add-class-fighter'));
         fireEvent(screen.getByTestId('class-allocation-row-1'), 'layout', {

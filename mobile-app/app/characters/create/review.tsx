@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { ParchmentPanel, DetailRow } from '@/components/FantasyPrimitives';
-import { ABILITY_ABBREVIATIONS, ABILITY_KEYS, abilityModifier, SKILL_DEFINITIONS } from '@/lib/characterSheetUtils';
+import { ABILITY_ABBREVIATIONS, ABILITY_KEYS, abilityModifier, SKILL_DEFINITIONS, type AbilityKey } from '@/lib/characterSheetUtils';
 import { BACKGROUND_SKILL_PROFICIENCIES, CLASS_SAVING_THROWS } from '@/lib/characterCreation/classRules';
 import { applyRacialBonuses } from '@/lib/characterCreation/raceRules';
 import { CREATE_CHARACTER_ROUTES } from '@/lib/characterCreation/routes';
@@ -20,7 +20,11 @@ export default function StepReview() {
     const { draft } = useCharacterDraft();
     const router = useRouter();
 
-    const finalScores = applyRacialBonuses(draft.abilityScores, draft.race);
+    const scoresWithAsi = ABILITY_KEYS.reduce((scores, key) => {
+        scores[key] = draft.abilityScores[key] + (draft.asiAllocations[key] ?? 0);
+        return scores;
+    }, {} as Record<AbilityKey, number>);
+    const finalScores = applyRacialBonuses(scoresWithAsi, draft.race);
 
     const bgSkills = BACKGROUND_SKILL_PROFICIENCIES[draft.background] ?? [];
     const allProfSkills = new Set([...draft.skillProficiencies, ...bgSkills]);

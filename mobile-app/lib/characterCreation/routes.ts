@@ -14,10 +14,9 @@ export const CREATE_CHARACTER_ROUTES = {
 /** Union of all supported character-creation wizard routes. */
 export type CreateCharacterRoute = (typeof CREATE_CHARACTER_ROUTES)[keyof typeof CREATE_CHARACTER_ROUTES];
 
-/** Base step order for the multiclass-capable character wizard. */
+/** Base step order for the character wizard (race is merged into identity). */
 const BASE_CREATE_CHARACTER_STEP_ROUTES: readonly CreateCharacterRoute[] = [
     CREATE_CHARACTER_ROUTES.identity,
-    CREATE_CHARACTER_ROUTES.race,
     CREATE_CHARACTER_ROUTES.class,
     CREATE_CHARACTER_ROUTES.abilities,
     CREATE_CHARACTER_ROUTES.background,

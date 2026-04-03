@@ -10,6 +10,7 @@ import {
 } from '@/lib/characterCreation/multiclass';
 import type { OptionItem } from '@/lib/characterCreation/options';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { useState } from 'react';
 
 type Props = {
     canDecreaseLevel: boolean;
@@ -49,6 +50,7 @@ export default function ClassAllocationRow({
     subclassOptions,
     subclassUnlocked,
 }: Props) {
+    const [showStartingClassInfo, setShowStartingClassInfo] = useState(false);
     const unlockLevel = subclassUnlockLevel(classRow.classId);
 
     return (
@@ -111,10 +113,28 @@ export default function ClassAllocationRow({
                             value={`starting-class-${index}`}
                         />
                         <View style={styles.startingCopy}>
-                            <Text style={styles.startingLabel}>Starting class</Text>
-                            <Text style={styles.startingHint}>
-                                This class grants your opening saving throws and primary class proficiencies.
-                            </Text>
+                            <View style={styles.startingLabelRow}>
+                                <Text style={styles.startingLabel}>Starting class</Text>
+                                <Pressable
+                                    onPress={() => setShowStartingClassInfo(!showStartingClassInfo)}
+                                    testID="starting-class-info"
+                                    style={styles.infoButton}
+                                    hitSlop={8}
+                                >
+                                    <Text style={styles.infoButtonIcon}>
+                                        {'\u{1F6C8}'}
+                                    </Text>
+                                    <Text style={styles.infoButtonLabel}>What is this?</Text>
+                                </Pressable>
+                            </View>
+
+                            {showStartingClassInfo && (
+                                <Text style={styles.startingHint}>
+                                    This is the class your character began with at level 1. It determines
+                                    your saving throw proficiencies and your full set of opening class proficiencies.
+                                    Later classes add only the reduced multiclass proficiencies.
+                                </Text>
+                            )}
                         </View>
                     </Pressable>
                 ) : null}
@@ -259,7 +279,6 @@ const styles = StyleSheet.create({
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.label,
         color: fantasyTokens.colors.inkDark,
-        marginBottom: 2,
     },
     startingHint: {
         fontFamily: fantasyTokens.fonts.regular,
@@ -350,5 +369,25 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.label,
         fontStyle: 'italic',
         color: fantasyTokens.colors.inkSoft,
+    },
+    startingLabelRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 2,
+    },
+    infoButtonIcon: {
+        fontSize: 14,
+        color: fantasyTokens.colors.goldDark,
+        paddingRight: 3
+    },
+    infoButton: {
+        padding: 4,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    infoButtonLabel: {
+        fontSize: 12,
+        color: fantasyTokens.colors.goldDark,
     },
 });

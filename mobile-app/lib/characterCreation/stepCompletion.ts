@@ -11,9 +11,7 @@ export function isCreateCharacterStepComplete(
 ): boolean {
     switch (route) {
         case CREATE_CHARACTER_ROUTES.identity:
-            return draft.name.trim().length > 0;
-        case CREATE_CHARACTER_ROUTES.race:
-            return draft.race !== '';
+            return draft.name.trim().length > 0 && draft.race !== '';
         case CREATE_CHARACTER_ROUTES.class:
             return validateCharacterClassDraft(
                 draft.classes,
