@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import type { LayoutChangeEvent } from 'react-native';
 import { Text } from 'react-native-paper';
 import ClassAllocationRow from '@/components/wizard/ClassAllocationRow';
+import ClassOptionGrid from '@/components/wizard/ClassOptionGrid';
 import OptionGrid from '@/components/wizard/OptionGrid';
 import {
     availableClassOptions,
@@ -14,7 +15,7 @@ import {
     sanitiseCharacterClassRow,
     validateCharacterClassDraft,
 } from '@/lib/characterCreation/multiclass';
-import { CLASS_OPTIONS, SUBCLASS_OPTIONS } from '@/lib/characterCreation/options';
+import { SUBCLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
@@ -217,8 +218,7 @@ export default function StepClass() {
             {!multiclassMode ? (
                 /* ── Single-class mode ── */
                 <>
-                    <OptionGrid
-                        options={CLASS_OPTIONS}
+                    <ClassOptionGrid
                         selected={selectedClassId}
                         onSelect={handleSelectSingleClass}
                     />
@@ -320,25 +320,12 @@ export default function StepClass() {
                                     Add another class
                                 </Text>
                             )}
-                            <View style={styles.addGrid}>
-                                {availableClasses.map((classOption) => (
-                                    <Pressable
-                                        key={classOption.value}
-                                        onPress={() => handleAddClass(classOption.value)}
-                                        style={({ pressed }) => [
-                                            styles.addCard,
-                                            pressed && styles.addCardPressed,
-                                        ]}
-                                        testID={`add-class-${classOption.value}`}
-                                    >
-                                        <Text style={styles.addIcon}>{classOption.icon}</Text>
-                                        <Text style={styles.addName}>{classOption.label}</Text>
-                                        {classOption.hint ? (
-                                            <Text style={styles.addHint}>{classOption.hint}</Text>
-                                        ) : null}
-                                    </Pressable>
-                                ))}
-                            </View>
+                            <ClassOptionGrid
+                                options={availableClasses}
+                                selected=""
+                                onSelect={handleAddClass}
+                                getOptionTestId={(option) => `add-class-${option.value}`}
+                            />
                         </View>
                     ) : null}
 
@@ -537,44 +524,6 @@ const styles = StyleSheet.create({
     addSection: {
         marginTop: 6,
     },
-    addGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-    },
-    addCard: {
-        width: '48%',
-        backgroundColor: 'rgba(240,224,188,0.06)',
-        borderWidth: 1.5,
-        borderColor: 'rgba(201,146,42,0.2)',
-        borderRadius: 12,
-        paddingVertical: 14,
-        paddingHorizontal: 12,
-        alignItems: 'center',
-    },
-    addCardPressed: {
-        backgroundColor: 'rgba(201,146,42,0.12)',
-    },
-    addIcon: {
-        fontSize: fantasyTokens.fontSizes.headline,
-        marginBottom: 6,
-    },
-    addName: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.utility,
-        letterSpacing: 1,
-        textTransform: 'uppercase',
-        color: fantasyTokens.colors.parchment,
-    },
-    addHint: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.caption,
-        fontStyle: 'italic',
-        color: 'rgba(245,230,200,0.35)',
-        marginTop: 3,
-        textAlign: 'center',
-    },
-
     /* Validation errors */
     errorBox: {
         marginTop: 16,

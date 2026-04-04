@@ -7,16 +7,18 @@ const mockUpdateDraft = jest.fn();
 const mockScrollTo = jest.fn();
 
 jest.mock('react-native', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const React = require('react');
     const actual = jest.requireActual('react-native');
 
-    const ScrollView = React.forwardRef(({ children, ...props }, ref) => {
+    const ScrollView = React.forwardRef(({ children, ...props }: { children: React.ReactNode }, ref: React.Ref<any>) => {
         React.useImperativeHandle(ref, () => ({
             scrollTo: mockScrollTo,
         }));
 
         return <actual.View {...props}>{children}</actual.View>;
     });
+    ScrollView.displayName = 'ScrollView';
 
     const mockedReactNative = Object.create(actual);
 
@@ -37,11 +39,14 @@ jest.mock('@/components/wizard/OptionGrid', () => ({
         options,
         selected,
         onSelect,
+        getOptionTestId,
     }: {
         options: { value: string; label: string; icon: string }[];
         selected: string;
         onSelect: (value: string) => void;
+        getOptionTestId?: (option: { value: string; label: string; icon: string }) => string | undefined;
     }) => {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { Pressable, Text, View } = require('react-native');
 
         return (
@@ -50,7 +55,7 @@ jest.mock('@/components/wizard/OptionGrid', () => ({
                     <Pressable
                         key={option.value}
                         onPress={() => onSelect(option.value)}
-                        testID={`option-${option.value}`}
+                        testID={getOptionTestId?.(option) ?? `option-${option.value}`}
                     >
                         <Text>{`${option.label}${option.value === selected ? ' (selected)' : ''}`}</Text>
                     </Pressable>
@@ -73,6 +78,7 @@ jest.mock('@/components/wizard/ClassAllocationRow', () => ({
         isStartingClass: boolean;
         onLayout?: (event: unknown) => void;
     }) => {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { Text, View } = require('react-native');
 
         return (
