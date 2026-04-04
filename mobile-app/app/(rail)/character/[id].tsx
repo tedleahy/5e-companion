@@ -11,6 +11,7 @@ import type { CharacterSheetTab } from '@/components/character-sheet/CharacterSh
 import DeathSavesCard from '@/components/character-sheet/DeathSavesCard';
 import FeaturesTab from '@/components/character-sheet/FeaturesTab';
 import GearTab from '@/components/character-sheet/GearTab';
+import LevelUpWizardSheet from '@/components/character-sheet/level-up/LevelUpWizardSheet';
 import QuickStatsCard from '@/components/character-sheet/QuickStatsCard';
 import CharacterSheetPager from '@/components/character-sheet/CharacterSheetPager';
 import type {
@@ -57,6 +58,7 @@ export default function CharacterByIdScreen() {
     const [activeTab, setActiveTab] = useState<CharacterSheetTab>('Core');
     const pagerRef = useRef<CharacterSheetPagerHandle>(null);
     const [spellSheetVisible, setSpellSheetVisible] = useState(false);
+    const [levelUpSheetVisible, setLevelUpSheetVisible] = useState(false);
     const [saveErrorVisible, setSaveErrorVisible] = useState(false);
     const { id } = useLocalSearchParams<{ id?: string }>();
     const router = useRouter();
@@ -110,6 +112,12 @@ export default function CharacterByIdScreen() {
         if (isUnauthenticated) router.replace('/(auth)/sign-in');
     }, [isUnauthenticated, router]);
 
+    useEffect(() => {
+        if (!editMode && levelUpSheetVisible) {
+            setLevelUpSheetVisible(false);
+        }
+    }, [editMode, levelUpSheetVisible]);
+
     /** Tabs visible for this character — hides Spells for non-casters. */
     const visibleTabs: readonly CharacterSheetTab[] = useMemo(() => {
         if (!character || !hasSpellcastingProfiles(character.spellcastingProfiles)) {
@@ -135,6 +143,20 @@ export default function CharacterByIdScreen() {
         const tab = visibleTabs[pageIndex];
         if (tab) setActiveTab(tab);
     }, [visibleTabs]);
+
+    /**
+     * Opens the chunk-1 level-up sheet shell while edit mode remains active underneath.
+     */
+    const handleOpenLevelUpSheet = useCallback(() => {
+        setLevelUpSheetVisible(true);
+    }, []);
+
+    /**
+     * Closes the level-up sheet without affecting the underlying edit draft.
+     */
+    const handleCloseLevelUpSheet = useCallback(() => {
+        setLevelUpSheetVisible(false);
+    }, []);
 
     if (!characterId) {
         return (
@@ -270,13 +292,14 @@ export default function CharacterByIdScreen() {
                     onStartEdit={startEditing}
                     onCancelEdit={clearDraft}
                     onDoneEdit={handleDoneEdit}
+                    onLevelUp={handleOpenLevelUpSheet}
                 />
                 <CharacterSheetPager
                     ref={pagerRef}
                     testID="character-sheet-pager"
                     style={styles.pager}
                     initialPage={0}
-                    scrollEnabled={!spellSheetVisible}
+                    scrollEnabled={!spellSheetVisible && !levelUpSheetVisible}
                     onPageSelected={handlePageSelected}
                 >
                     {/* Page 0 — Core */}
@@ -418,6 +441,13 @@ export default function CharacterByIdScreen() {
                 >
                     Failed to save — your changes are still here.
                 </Snackbar>
+
+                <LevelUpWizardSheet
+                    visible={levelUpSheetVisible}
+                    characterName={character.name}
+                    currentLevel={character.level}
+                    onClose={handleCloseLevelUpSheet}
+                />
             </View>
         </RailScreenShell>
     );
