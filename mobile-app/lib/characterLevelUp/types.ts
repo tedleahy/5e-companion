@@ -51,3 +51,17 @@ export type LevelUpWizardSelectedClass = {
     subclassId: string | null;
     subclassName: string | null;
 };
+
+/**
+ * Choose-class step display mode.
+ */
+export type LevelUpClassSelectionMode = 'current_class' | 'multiclass_picker';
+
+/**
+ * Route-local choose-class step state.
+ */
+export type LevelUpClassSelectionState = {
+    currentClassId: string;
+    mode: LevelUpClassSelectionMode;
+    selectedClassId: string | null;
+};

@@ -88,9 +88,14 @@ export default function LevelUpWizardSheet({
                     </Text>
                     <LevelUpWizardStepBody
                         step={wizard.currentStep}
-                        selectedClassId={wizard.selectedClassId}
+                        currentClass={wizard.currentClass}
+                        classSelectionMode={wizard.classSelectionMode}
+                        pickerSelectedClassId={wizard.pickerSelectedClassId}
                         selectedClass={wizard.selectedClass}
+                        prerequisiteWarnings={wizard.prerequisiteWarnings}
                         onSelectClass={wizard.selectClass}
+                        onEnterClassPicker={wizard.enterClassPicker}
+                        onReturnToCurrentClass={wizard.returnToCurrentClass}
                     />
                 </ScrollView>
 
@@ -122,10 +127,13 @@ export default function LevelUpWizardSheet({
                         onPress={wizard.goToNextStep}
                         accessibilityRole="button"
                         accessibilityLabel="Go to next level up step"
+                        accessibilityState={{ disabled: wizard.nextButtonDisabled }}
+                        disabled={wizard.nextButtonDisabled}
                         style={[
                             styles.footerButton,
                             styles.nextButton,
                             wizard.isLastStep && styles.confirmButton,
+                            wizard.nextButtonDisabled && styles.nextButtonDisabled,
                         ]}
                         testID="level-up-next-button"
                     >
@@ -270,6 +278,9 @@ const styles = StyleSheet.create({
     },
     confirmButton: {
         backgroundColor: fantasyTokens.colors.success,
+    },
+    nextButtonDisabled: {
+        opacity: 0.45,
     },
     nextButtonText: {
         ...fantasyTokens.typography.buttonLabel,

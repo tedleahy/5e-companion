@@ -1,10 +1,21 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+    canContinueFromChooseClass,
+    createLevelUpClassSelectionState,
+    currentLevelUpClass,
+    effectiveLevelUpClassId,
+    enterMulticlassPicker,
+    multiclassPrerequisiteWarnings,
+    resetToCurrentClassSelection,
+    selectMulticlassLevelUpClass,
+} from '@/lib/characterLevelUp/chooseClass';
+import {
     buildLevelUpStepList,
     defaultLevelUpClassId,
     selectedLevelUpClass,
 } from '@/lib/characterLevelUp/stepAssembly';
 import type {
+    LevelUpClassSelectionMode,
     LevelUpWizardCharacter,
     LevelUpWizardSelectedClass,
     LevelUpWizardStep,
@@ -15,7 +26,11 @@ import type {
  */
 export type UseLevelUpWizardResult = {
     selectedClassId: string;
+    currentClass: LevelUpWizardSelectedClass;
     selectedClass: LevelUpWizardSelectedClass;
+    classSelectionMode: LevelUpClassSelectionMode;
+    pickerSelectedClassId: string | null;
+    prerequisiteWarnings: string[];
     steps: LevelUpWizardStep[];
     currentStep: LevelUpWizardStep;
     currentStepIndex: number;
@@ -23,7 +38,10 @@ export type UseLevelUpWizardResult = {
     isLastStep: boolean;
     stepLabel: string;
     nextButtonLabel: string;
+    nextButtonDisabled: boolean;
     selectClass: (classId: string) => void;
+    enterClassPicker: () => void;
+    returnToCurrentClass: () => void;
     goToPreviousStep: () => void;
     goToNextStep: () => void;
     resetWizard: () => void;
@@ -37,16 +55,25 @@ export default function useLevelUpWizard(
     visible: boolean,
 ): UseLevelUpWizardResult {
     const defaultClassId = useMemo(() => defaultLevelUpClassId(character), [character]);
-    const [selectedClassId, setSelectedClassId] = useState(defaultClassId);
+    const [classSelection, setClassSelection] = useState(() => createLevelUpClassSelectionState(defaultClassId));
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
+    const selectedClassId = effectiveLevelUpClassId(classSelection);
 
     const steps = useMemo(
         () => buildLevelUpStepList(character, selectedClassId),
         [character, selectedClassId],
     );
+    const currentClass = useMemo(
+        () => currentLevelUpClass(character, defaultClassId),
+        [character, defaultClassId],
+    );
     const selectedClass = useMemo(
         () => selectedLevelUpClass(character, selectedClassId),
         [character, selectedClassId],
+    );
+    const prerequisiteWarnings = useMemo(
+        () => multiclassPrerequisiteWarnings(character, defaultClassId, classSelection.selectedClassId),
+        [character, classSelection.selectedClassId, defaultClassId],
     );
 
     useEffect(() => {
@@ -54,7 +81,7 @@ export default function useLevelUpWizard(
             return;
         }
 
-        setSelectedClassId(defaultClassId);
+        setClassSelection(createLevelUpClassSelectionState(defaultClassId));
         setCurrentStepIndex(0);
     }, [defaultClassId, visible]);
 
@@ -71,9 +98,20 @@ export default function useLevelUpWizard(
     const stepNumber = currentStepIndex + 1;
     const stepLabel = `Step ${stepNumber} of ${steps.length} - ${currentStep.title}`;
     const nextButtonLabel = isLastStep ? 'Confirm Level Up' : 'Next';
+    const nextButtonDisabled = currentStep.id === 'choose_class'
+        ? !canContinueFromChooseClass(classSelection)
+        : false;
 
     const selectClass = useCallback((classId: string) => {
-        setSelectedClassId(classId);
+        setClassSelection((previousState) => selectMulticlassLevelUpClass(previousState, classId));
+    }, []);
+
+    const enterClassPicker = useCallback(() => {
+        setClassSelection((previousState) => enterMulticlassPicker(previousState));
+    }, []);
+
+    const returnToCurrentClass = useCallback(() => {
+        setClassSelection((previousState) => resetToCurrentClassSelection(previousState));
     }, []);
 
     const goToPreviousStep = useCallback(() => {
@@ -81,6 +119,10 @@ export default function useLevelUpWizard(
     }, []);
 
     const goToNextStep = useCallback(() => {
+        if (nextButtonDisabled) {
+            return;
+        }
+
         setCurrentStepIndex((previousIndex) => {
             if (previousIndex >= steps.length - 1) {
                 return previousIndex;
@@ -88,16 +130,20 @@ export default function useLevelUpWizard(
 
             return previousIndex + 1;
         });
-    }, [steps.length]);
+    }, [nextButtonDisabled, steps.length]);
 
     const resetWizard = useCallback(() => {
-        setSelectedClassId(defaultClassId);
+        setClassSelection(createLevelUpClassSelectionState(defaultClassId));
         setCurrentStepIndex(0);
     }, [defaultClassId]);
 
     return {
         selectedClassId,
+        currentClass,
         selectedClass,
+        classSelectionMode: classSelection.mode,
+        pickerSelectedClassId: classSelection.selectedClassId,
+        prerequisiteWarnings,
         steps,
         currentStep,
         currentStepIndex,
@@ -105,7 +151,10 @@ export default function useLevelUpWizard(
         isLastStep,
         stepLabel,
         nextButtonLabel,
+        nextButtonDisabled,
         selectClass,
+        enterClassPicker,
+        returnToCurrentClass,
         goToPreviousStep,
         goToNextStep,
         resetWizard,
