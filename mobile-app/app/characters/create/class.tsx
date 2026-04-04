@@ -5,6 +5,7 @@ import type { LayoutChangeEvent } from 'react-native';
 import { Text } from 'react-native-paper';
 import ClassAllocationRow from '@/components/wizard/ClassAllocationRow';
 import ClassOptionGrid from '@/components/wizard/ClassOptionGrid';
+import NumericStepper from '@/components/wizard/NumericStepper';
 import OptionGrid from '@/components/wizard/OptionGrid';
 import {
     availableClassOptions,
@@ -196,21 +197,15 @@ export default function StepClass() {
 
             {/* ── Level stepper (both modes) ── */}
             <Text style={fantasyTokens.text.formLabel}>Starting Level</Text>
-            <View style={styles.stepper}>
-                <Pressable
-                    onPress={() => adjustLevel(-1)}
-                    style={({ pressed }) => [styles.stepperBtn, pressed && styles.stepperBtnPressed]}
-                >
-                    <Text style={styles.stepperBtnText}>{'\u2212'}</Text>
-                </Pressable>
-                <Text style={styles.stepperVal}>{draft.level}</Text>
-                <Pressable
-                    onPress={() => adjustLevel(1)}
-                    style={({ pressed }) => [styles.stepperBtn, pressed && styles.stepperBtnPressed]}
-                >
-                    <Text style={styles.stepperBtnText}>+</Text>
-                </Pressable>
-            </View>
+            <NumericStepper
+                value={draft.level}
+                canDecrease={draft.level > 1}
+                canIncrease={draft.level < 20}
+                decrementLabel="Decrease starting level"
+                incrementLabel="Increase starting level"
+                onDecrease={() => adjustLevel(-1)}
+                onIncrease={() => adjustLevel(1)}
+            />
             <Text style={styles.hint}>Most campaigns start at level 1. Check with your DM.</Text>
 
             <View style={styles.divider} />
@@ -373,37 +368,6 @@ const styles = StyleSheet.create({
     },
 
     /* Level stepper */
-    stepper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: 'rgba(240,224,188,0.06)',
-        borderWidth: 1,
-        borderColor: 'rgba(201,146,42,0.2)',
-        borderRadius: 10,
-        overflow: 'hidden',
-    },
-    stepperBtn: {
-        width: 44,
-        height: 44,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    stepperBtnPressed: {
-        backgroundColor: 'rgba(201,146,42,0.08)',
-    },
-    stepperBtnText: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.title,
-        color: 'rgba(201,146,42,0.5)',
-    },
-    stepperVal: {
-        flex: 1,
-        textAlign: 'center',
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.titleLarge,
-        fontWeight: '700',
-        color: fantasyTokens.colors.parchment,
-    },
     hint: {
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.label,
