@@ -108,7 +108,27 @@ export default function CharacterByIdScreen() {
         removeTraitTag,
         changeTraitText,
     } = useCharacterSheetDraft(character);
-    const levelUpWizard = useLevelUpWizard(character, levelUpSheetVisible);
+    const wizardCharacter = useMemo(() => {
+        if (!character) {
+            return null;
+        }
+
+        if (!character.stats) {
+            return {
+                ...character,
+                stats: null,
+            };
+        }
+
+        return {
+            ...character,
+            stats: {
+                ...character.stats,
+                abilityScores: draft?.abilityScores ?? character.stats.abilityScores,
+            },
+        };
+    }, [character, draft?.abilityScores]);
+    const levelUpWizard = useLevelUpWizard(wizardCharacter, levelUpSheetVisible);
 
     useEffect(() => {
         if (isUnauthenticated) router.replace('/(auth)/sign-in');
