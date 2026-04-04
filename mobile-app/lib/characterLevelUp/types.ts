@@ -53,6 +53,22 @@ export type LevelUpWizardSelectedClass = {
 };
 
 /**
+ * One supported hit-points selection mode for the level-up wizard.
+ */
+export type LevelUpHitPointsMethod = 'roll' | 'average';
+
+/**
+ * Captured hit-points result for the current level-up session.
+ */
+export type LevelUpHitPointsState = {
+    method: LevelUpHitPointsMethod;
+    hitDieSize: number;
+    hitDieValue: number;
+    constitutionModifier: number;
+    hpGained: number;
+};
+
+/**
  * Choose-class step display mode.
  */
 export type LevelUpClassSelectionMode = 'current_class' | 'multiclass_picker';

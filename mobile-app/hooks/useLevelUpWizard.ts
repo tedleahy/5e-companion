@@ -9,12 +9,14 @@ import {
     resetToCurrentClassSelection,
     selectMulticlassLevelUpClass,
 } from '@/lib/characterLevelUp/chooseClass';
+import { createLevelUpHitPointsState } from '@/lib/characterLevelUp/hitPoints';
 import {
     buildLevelUpStepList,
     defaultLevelUpClassId,
     selectedLevelUpClass,
 } from '@/lib/characterLevelUp/stepAssembly';
 import type {
+    LevelUpHitPointsState,
     LevelUpClassSelectionMode,
     LevelUpWizardCharacter,
     LevelUpWizardSelectedClass,
@@ -31,6 +33,7 @@ export type UseLevelUpWizardResult = {
     classSelectionMode: LevelUpClassSelectionMode;
     pickerSelectedClassId: string | null;
     prerequisiteWarnings: string[];
+    hitPointsState: LevelUpHitPointsState | null;
     steps: LevelUpWizardStep[];
     currentStep: LevelUpWizardStep;
     currentStepIndex: number;
@@ -42,6 +45,8 @@ export type UseLevelUpWizardResult = {
     selectClass: (classId: string) => void;
     enterClassPicker: () => void;
     returnToCurrentClass: () => void;
+    rollHitPoints: () => void;
+    takeAverageHitPoints: () => void;
     goToPreviousStep: () => void;
     goToNextStep: () => void;
     resetWizard: () => void;
@@ -56,8 +61,10 @@ export default function useLevelUpWizard(
 ): UseLevelUpWizardResult {
     const defaultClassId = useMemo(() => defaultLevelUpClassId(character), [character]);
     const [classSelection, setClassSelection] = useState(() => createLevelUpClassSelectionState(defaultClassId));
+    const [hitPointsState, setHitPointsState] = useState<LevelUpHitPointsState | null>(null);
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const selectedClassId = effectiveLevelUpClassId(classSelection);
+    const constitutionScore = character?.stats?.abilityScores.constitution ?? 10;
 
     const steps = useMemo(
         () => buildLevelUpStepList(character, selectedClassId),
@@ -82,8 +89,13 @@ export default function useLevelUpWizard(
         }
 
         setClassSelection(createLevelUpClassSelectionState(defaultClassId));
+        setHitPointsState(null);
         setCurrentStepIndex(0);
     }, [defaultClassId, visible]);
+
+    useEffect(() => {
+        setHitPointsState(null);
+    }, [selectedClassId]);
 
     useEffect(() => {
         setCurrentStepIndex((previousIndex) => {
@@ -100,7 +112,9 @@ export default function useLevelUpWizard(
     const nextButtonLabel = isLastStep ? 'Confirm Level Up' : 'Next';
     const nextButtonDisabled = currentStep.id === 'choose_class'
         ? !canContinueFromChooseClass(classSelection)
-        : false;
+        : currentStep.id === 'hit_points'
+            ? hitPointsState == null
+            : false;
 
     const selectClass = useCallback((classId: string) => {
         setClassSelection((previousState) => selectMulticlassLevelUpClass(previousState, classId));
@@ -113,6 +127,14 @@ export default function useLevelUpWizard(
     const returnToCurrentClass = useCallback(() => {
         setClassSelection((previousState) => resetToCurrentClassSelection(previousState));
     }, []);
+
+    const rollHitPoints = useCallback(() => {
+        setHitPointsState(createLevelUpHitPointsState(selectedClassId, constitutionScore, 'roll'));
+    }, [constitutionScore, selectedClassId]);
+
+    const takeAverageHitPoints = useCallback(() => {
+        setHitPointsState(createLevelUpHitPointsState(selectedClassId, constitutionScore, 'average'));
+    }, [constitutionScore, selectedClassId]);
 
     const goToPreviousStep = useCallback(() => {
         setCurrentStepIndex((previousIndex) => Math.max(previousIndex - 1, 0));
@@ -134,6 +156,7 @@ export default function useLevelUpWizard(
 
     const resetWizard = useCallback(() => {
         setClassSelection(createLevelUpClassSelectionState(defaultClassId));
+        setHitPointsState(null);
         setCurrentStepIndex(0);
     }, [defaultClassId]);
 
@@ -144,6 +167,7 @@ export default function useLevelUpWizard(
         classSelectionMode: classSelection.mode,
         pickerSelectedClassId: classSelection.selectedClassId,
         prerequisiteWarnings,
+        hitPointsState,
         steps,
         currentStep,
         currentStepIndex,
@@ -155,6 +179,8 @@ export default function useLevelUpWizard(
         selectClass,
         enterClassPicker,
         returnToCurrentClass,
+        rollHitPoints,
+        takeAverageHitPoints,
         goToPreviousStep,
         goToNextStep,
         resetWizard,
