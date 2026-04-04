@@ -1,38 +1,18 @@
+import { useEffect, useRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
+import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import LevelUpWizardProgress from './LevelUpWizardProgress';
+import LevelUpWizardStepBody from './LevelUpWizardStepBody';
 
 type LevelUpWizardSheetProps = {
     visible: boolean;
     characterName: string;
-    currentLevel: number;
+    nextCharacterLevel: number;
+    wizard: UseLevelUpWizardResult;
     onClose: () => void;
 };
-
-/**
- * Placeholder step title used by the chunk-1 shell implementation.
- */
-const PLACEHOLDER_STEP_NAME = 'Choose Class';
-
-/**
- * Temporary step count used until the real wizard controller lands.
- */
-const PLACEHOLDER_STEP_TOTAL = 1;
-
-/**
- * Placeholder body copy used to reserve space for the first real step.
- */
-const PLACEHOLDER_SECTIONS = [
-    {
-        title: 'Class Choice',
-        body: 'Step 1 will let you continue in your current class or switch into a multiclass level-up flow.',
-    },
-    {
-        title: 'Session Summary',
-        body: 'Future chunks will fill this sheet with hit points, ASI or feat choices, subclass decisions, and spellcasting updates.',
-    },
-] as const;
 
 /**
  * Bottom-sheet shell for the character-sheet level-up flow.
@@ -40,15 +20,23 @@ const PLACEHOLDER_SECTIONS = [
 export default function LevelUpWizardSheet({
     visible,
     characterName,
-    currentLevel,
+    nextCharacterLevel,
+    wizard,
     onClose,
 }: LevelUpWizardSheetProps) {
+    const scrollViewRef = useRef<ScrollView>(null);
+
+    useEffect(() => {
+        if (!visible) {
+            return;
+        }
+
+        scrollViewRef.current?.scrollTo({ y: 0, animated: false });
+    }, [visible, wizard.currentStep.id]);
+
     if (!visible) {
         return null;
     }
-
-    const nextLevel = currentLevel + 1;
-    const stepLabel = `Step 1 of ${PLACEHOLDER_STEP_TOTAL} - ${PLACEHOLDER_STEP_NAME}`;
 
     return (
         <View style={styles.overlayContainer} pointerEvents="box-none">
@@ -80,46 +68,68 @@ export default function LevelUpWizardSheet({
                     </View>
 
                     <Text style={styles.subtitle}>
-                        {`Advance ${characterName} to Level ${nextLevel}`}
+                        {`Advance ${characterName} to Level ${nextCharacterLevel}`}
                     </Text>
-                    <Text style={styles.stepLabel}>{stepLabel}</Text>
-                    <LevelUpWizardProgress currentStep={1} totalSteps={PLACEHOLDER_STEP_TOTAL} />
+                    <Text style={styles.stepLabel}>{wizard.stepLabel}</Text>
+                    <LevelUpWizardProgress
+                        currentStep={wizard.currentStepIndex + 1}
+                        totalSteps={wizard.steps.length}
+                    />
                 </View>
 
                 <ScrollView
+                    ref={scrollViewRef}
                     style={styles.body}
                     contentContainerStyle={styles.bodyContent}
                     showsVerticalScrollIndicator={false}
                 >
                     <Text style={styles.placeholderLead}>
-                        The wizard shell is in place. Step content will be wired in the next chunks.
+                        Chunk 2 wires the wizard controller, dynamic step registry, and navigation before the real step UIs arrive.
                     </Text>
-
-                    {PLACEHOLDER_SECTIONS.map((section) => (
-                        <View key={section.title} style={styles.placeholderCard}>
-                            <Text style={styles.placeholderTitle}>{section.title}</Text>
-                            <Text style={styles.placeholderBody}>{section.body}</Text>
-                            <View style={styles.placeholderBlock} />
-                        </View>
-                    ))}
+                    <LevelUpWizardStepBody
+                        step={wizard.currentStep}
+                        selectedClassId={wizard.selectedClassId}
+                        selectedClass={wizard.selectedClass}
+                        onSelectClass={wizard.selectClass}
+                    />
                 </ScrollView>
 
                 <View style={styles.footer}>
                     <Pressable
+                        onPress={wizard.goToPreviousStep}
                         accessibilityRole="button"
                         accessibilityLabel="Go to previous level up step"
-                        disabled
-                        style={[styles.footerButton, styles.backButton, styles.backButtonDisabled]}
+                        accessibilityState={{ disabled: wizard.isFirstStep }}
+                        disabled={wizard.isFirstStep}
+                        style={[
+                            styles.footerButton,
+                            styles.backButton,
+                            wizard.isFirstStep && styles.backButtonDisabled,
+                        ]}
+                        testID="level-up-back-button"
                     >
-                        <Text style={[styles.backButtonText, styles.backButtonTextDisabled]}>Back</Text>
+                        <Text
+                            style={[
+                                styles.backButtonText,
+                                wizard.isFirstStep && styles.backButtonTextDisabled,
+                            ]}
+                        >
+                            Back
+                        </Text>
                     </Pressable>
 
                     <Pressable
+                        onPress={wizard.goToNextStep}
                         accessibilityRole="button"
                         accessibilityLabel="Go to next level up step"
-                        style={[styles.footerButton, styles.nextButton]}
+                        style={[
+                            styles.footerButton,
+                            styles.nextButton,
+                            wizard.isLastStep && styles.confirmButton,
+                        ]}
+                        testID="level-up-next-button"
                     >
-                        <Text style={styles.nextButtonText}>Next</Text>
+                        <Text style={styles.nextButtonText}>{wizard.nextButtonLabel}</Text>
                     </Pressable>
                 </View>
             </View>
@@ -222,27 +232,6 @@ const styles = StyleSheet.create({
         ...fantasyTokens.typography.body,
         color: fantasyTokens.colors.inkLight,
     },
-    placeholderCard: {
-        backgroundColor: fantasyTokens.colors.parchmentLight,
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        padding: fantasyTokens.spacing.lg,
-        gap: fantasyTokens.spacing.sm,
-    },
-    placeholderTitle: {
-        ...fantasyTokens.typography.sectionLabel,
-        color: fantasyTokens.colors.claret,
-    },
-    placeholderBody: {
-        ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
-    },
-    placeholderBlock: {
-        height: 64,
-        borderRadius: fantasyTokens.radii.sm,
-        backgroundColor: 'rgba(212,201,180,0.55)',
-    },
     footer: {
         paddingHorizontal: 24,
         paddingVertical: 16,
@@ -278,6 +267,9 @@ const styles = StyleSheet.create({
     },
     nextButton: {
         backgroundColor: fantasyTokens.colors.claret,
+    },
+    confirmButton: {
+        backgroundColor: fantasyTokens.colors.success,
     },
     nextButtonText: {
         ...fantasyTokens.typography.buttonLabel,

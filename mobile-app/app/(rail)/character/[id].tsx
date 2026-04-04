@@ -23,6 +23,7 @@ import PassiveSensesCard from '@/components/character-sheet/skills/PassiveSenses
 import SpellsTab from '@/components/character-sheet/SpellsTab';
 import TraitsTab from '@/components/character-sheet/TraitsTab';
 import VitalsCard from '@/components/character-sheet/VitalsCard';
+import useLevelUpWizard from '@/hooks/useLevelUpWizard';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
 import useCharacterSheetData from '@/hooks/useCharacterSheetData';
 import useCharacterSheetDraft from '@/hooks/useCharacterSheetDraft';
@@ -107,6 +108,7 @@ export default function CharacterByIdScreen() {
         removeTraitTag,
         changeTraitText,
     } = useCharacterSheetDraft(character);
+    const levelUpWizard = useLevelUpWizard(character, levelUpSheetVisible);
 
     useEffect(() => {
         if (isUnauthenticated) router.replace('/(auth)/sign-in');
@@ -156,7 +158,8 @@ export default function CharacterByIdScreen() {
      */
     const handleCloseLevelUpSheet = useCallback(() => {
         setLevelUpSheetVisible(false);
-    }, []);
+        levelUpWizard.resetWizard();
+    }, [levelUpWizard]);
 
     if (!characterId) {
         return (
@@ -445,7 +448,8 @@ export default function CharacterByIdScreen() {
                 <LevelUpWizardSheet
                     visible={levelUpSheetVisible}
                     characterName={character.name}
-                    currentLevel={character.level}
+                    nextCharacterLevel={character.level + 1}
+                    wizard={levelUpWizard}
                     onClose={handleCloseLevelUpSheet}
                 />
             </View>

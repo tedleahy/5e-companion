@@ -23,6 +23,7 @@ export default function LevelUpWizardProgress({
                 return (
                     <View
                         key={stepNumber}
+                        testID={`level-up-progress-segment-${stepNumber}`}
                         style={[
                             styles.progressSegment,
                             isCompleted && styles.progressSegmentCompleted,

@@ -7,9 +7,21 @@ type Props = {
     options: OptionItem[];
     selected: string;
     onSelect: (value: string) => void;
+    tone?: 'night' | 'parchment';
+    getOptionTestId?: (option: OptionItem) => string | undefined;
+    getOptionAccessibilityLabel?: (option: OptionItem) => string | undefined;
 };
 
-export default function OptionGrid({ options, selected, onSelect }: Props) {
+export default function OptionGrid({
+    options,
+    selected,
+    onSelect,
+    tone = 'night',
+    getOptionTestId,
+    getOptionAccessibilityLabel,
+}: Props) {
+    const isParchmentTone = tone === 'parchment';
+
     return (
         <FlatList
             data={options}
@@ -23,14 +35,36 @@ export default function OptionGrid({ options, selected, onSelect }: Props) {
                 return (
                     <Pressable
                         onPress={() => onSelect(item.value)}
-                        style={[styles.card, isSelected && styles.cardSelected]}
+                        style={[
+                            styles.card,
+                            isParchmentTone ? styles.cardParchment : styles.cardNight,
+                            isSelected && styles.cardSelected,
+                            isSelected && isParchmentTone && styles.cardSelectedParchment,
+                        ]}
+                        testID={getOptionTestId?.(item)}
+                        accessibilityRole="button"
+                        accessibilityLabel={getOptionAccessibilityLabel?.(item)}
                     >
                         <Text style={styles.icon}>{item.icon}</Text>
-                        <Text style={[styles.name, isSelected && styles.nameSelected]}>
+                        <Text
+                            style={[
+                                styles.name,
+                                isParchmentTone ? styles.nameParchment : styles.nameNight,
+                                isSelected && styles.nameSelected,
+                                isSelected && isParchmentTone && styles.nameSelectedParchment,
+                            ]}
+                        >
                             {item.label}
                         </Text>
                         {item.hint ? (
-                            <Text style={styles.hint}>{item.hint}</Text>
+                            <Text
+                                style={[
+                                    styles.hint,
+                                    isParchmentTone ? styles.hintParchment : styles.hintNight,
+                                ]}
+                            >
+                                {item.hint}
+                            </Text>
                         ) : null}
                     </Pressable>
                 );
@@ -48,17 +82,27 @@ const styles = StyleSheet.create({
     },
     card: {
         flex: 1,
-        backgroundColor: 'rgba(240,224,188,0.06)',
         borderWidth: 1.5,
-        borderColor: 'rgba(201,146,42,0.2)',
         borderRadius: 12,
         paddingVertical: 14,
         paddingHorizontal: 12,
         alignItems: 'center',
     },
+    cardNight: {
+        backgroundColor: 'rgba(240,224,188,0.06)',
+        borderColor: 'rgba(201,146,42,0.2)',
+    },
+    cardParchment: {
+        backgroundColor: fantasyTokens.colors.parchmentLight,
+        borderColor: fantasyTokens.colors.sheetDivider,
+    },
     cardSelected: {
         borderColor: fantasyTokens.colors.gold,
         backgroundColor: 'rgba(201,146,42,0.1)',
+    },
+    cardSelectedParchment: {
+        borderColor: fantasyTokens.colors.claret,
+        backgroundColor: fantasyTokens.colors.parchmentDeep,
     },
     icon: {
         fontSize: fantasyTokens.fontSizes.headline,
@@ -69,16 +113,30 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
         textTransform: 'uppercase',
+    },
+    nameNight: {
         color: 'rgba(245,230,200,0.7)',
+    },
+    nameParchment: {
+        color: fantasyTokens.colors.inkDark,
     },
     nameSelected: {
         color: fantasyTokens.colors.gold,
+    },
+    nameSelectedParchment: {
+        color: fantasyTokens.colors.claret,
     },
     hint: {
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.caption,
         fontStyle: 'italic',
-        color: 'rgba(245,230,200,0.35)',
         marginTop: 3,
+        textAlign: 'center',
+    },
+    hintNight: {
+        color: 'rgba(245,230,200,0.35)',
+    },
+    hintParchment: {
+        color: fantasyTokens.colors.inkLight,
     },
 });
