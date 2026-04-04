@@ -1,4 +1,5 @@
 import type { CharacterSheetFieldsFragment } from '@/types/generated_graphql_types';
+import type { AbilityKey } from '@/lib/characterSheetUtils';
 
 /**
  * Ordered step ids supported by the level-up wizard.
@@ -66,6 +67,34 @@ export type LevelUpHitPointsState = {
     hitDieValue: number;
     constitutionModifier: number;
     hpGained: number;
+};
+
+/**
+ * Active mode for the ASI / feat step.
+ */
+export type LevelUpAsiOrFeatMode = 'asi' | 'feat';
+
+/**
+ * Per-ability ASI increases assigned during one level-up.
+ */
+export type LevelUpAsiAllocation = Record<AbilityKey, number>;
+
+/**
+ * Captured custom feat draft for one level-up.
+ */
+export type LevelUpFeatState = {
+    name: string;
+    description: string;
+    abilityIncrease: AbilityKey | null;
+};
+
+/**
+ * Route-local state for the ASI / feat step.
+ */
+export type LevelUpAsiOrFeatState = {
+    mode: LevelUpAsiOrFeatMode;
+    allocations: LevelUpAsiAllocation;
+    feat: LevelUpFeatState;
 };
 
 /**

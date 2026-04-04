@@ -29,6 +29,35 @@ const LOW_CON_CHARACTER_SHEET_MOCK = {
     },
 };
 
+const ASI_ELIGIBLE_CHARACTER_SHEET_MOCK = {
+    request: {
+        ...CHARACTERS_MOCK.request,
+    },
+    result: {
+        data: {
+            character: {
+                ...MOCK_CHARACTER,
+                level: 13,
+                classes: [
+                    {
+                        ...MOCK_CHARACTER.classes[0],
+                        level: 11,
+                    },
+                    MOCK_CHARACTER.classes[1],
+                ],
+                spellcastingProfiles: [
+                    {
+                        ...MOCK_CHARACTER.spellcastingProfiles[0],
+                        classLevel: 11,
+                    },
+                    MOCK_CHARACTER.spellcastingProfiles[1],
+                ],
+            },
+            hasCurrentUserCharacters: true,
+        },
+    },
+};
+
 describe('CharacterByIdScreen level-up wizard', () => {
     setupCharacterSheetScreenTestHooks();
 
@@ -212,6 +241,78 @@ describe('CharacterByIdScreen level-up wizard', () => {
         expect(screen.getByText('Average Hit Die')).toBeTruthy();
         expect(screen.getAllByText('\u22125').length).toBeGreaterThan(0);
         expect(screen.getAllByText('+1').length).toBeGreaterThan(0);
+    });
+
+    it('shows the ASI / feat step at eligible levels and preserves both modes while switching', async () => {
+        renderCharacterSheetScreen([ASI_ELIGIBLE_CHARACTER_SHEET_MOCK]);
+
+        await enableCharacterSheetEditMode();
+        await pressAndFlush(screen.getByLabelText('Level up character'));
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 2 of 7 - Hit Points')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-hit-points-average-button'));
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 3 of 7 - ASI / Feat')).toBeTruthy();
+        });
+
+        expect(screen.getByTestId('level-up-asi-panel')).toBeTruthy();
+        expect(screen.getByText('2 points remaining')).toBeTruthy();
+        expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(true);
+        expect(screen.getByTestId('level-up-asi-decrement-wisdom').props.accessibilityState?.disabled).toBe(true);
+        expect(screen.getByTestId('level-up-asi-increment-intelligence').props.accessibilityState?.disabled).toBe(true);
+
+        await pressAndFlush(screen.getByTestId('level-up-asi-increment-wisdom'));
+        expect(screen.getByText('1 point remaining')).toBeTruthy();
+        expect(screen.getByTestId('level-up-asi-decrement-wisdom').props.accessibilityState?.disabled).toBe(false);
+
+        await pressAndFlush(screen.getByTestId('level-up-asi-increment-charisma'));
+        expect(screen.getByText('0 points remaining')).toBeTruthy();
+        expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
+        expect(screen.getByTestId('level-up-asi-increment-charisma').props.accessibilityState?.disabled).toBe(true);
+
+        await pressAndFlush(screen.getByTestId('level-up-feat-choice'));
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-feat-panel')).toBeTruthy();
+        });
+
+        expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(true);
+
+        fireEvent.changeText(screen.getByTestId('level-up-feat-name-input'), 'Resilient');
+        fireEvent.changeText(
+            screen.getByTestId('level-up-feat-description-input'),
+            'Gain proficiency in Constitution saving throws and improve concentration checks.',
+        );
+
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-asi-choice'));
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-asi-panel')).toBeTruthy();
+        });
+
+        expect(screen.getByText('0 points remaining')).toBeTruthy();
+        expect(screen.getByTestId('level-up-asi-increase-wisdom').props.children).toBe('+1');
+        expect(screen.getByTestId('level-up-asi-increase-charisma').props.children).toBe('+1');
+
+        await pressAndFlush(screen.getByTestId('level-up-feat-choice'));
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-feat-panel')).toBeTruthy();
+        });
+
+        expect(screen.getByTestId('level-up-feat-name-input').props.value).toBe('Resilient');
+        expect(screen.getByTestId('level-up-feat-description-input').props.value).toContain('Constitution saving throws');
     });
 
     it('navigates placeholder steps after picking hit points and switches the final action label', async () => {

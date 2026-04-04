@@ -1,9 +1,12 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import ClassOptionGrid from '@/components/wizard/ClassOptionGrid';
+import type { AbilityKey } from '@/lib/characterSheetUtils';
 import { levelUpClassOption } from '@/lib/characterLevelUp/chooseClass';
+import LevelUpAsiOrFeatStep from './LevelUpAsiOrFeatStep';
 import LevelUpHitPointsStep from './LevelUpHitPointsStep';
 import type {
+    LevelUpAsiOrFeatState,
     LevelUpHitPointsState,
     LevelUpClassSelectionMode,
     LevelUpWizardSelectedClass,
@@ -18,12 +21,20 @@ type LevelUpWizardStepBodyProps = {
     pickerSelectedClassId: string | null;
     selectedClass: LevelUpWizardSelectedClass;
     prerequisiteWarnings: string[];
+    abilityScores: Record<AbilityKey, number>;
     hitPointsState: LevelUpHitPointsState | null;
+    asiOrFeatState: LevelUpAsiOrFeatState;
     onSelectClass: (classId: string) => void;
     onEnterClassPicker: () => void;
     onReturnToCurrentClass: () => void;
     onRollHitPoints: () => void;
     onTakeAverageHitPoints: () => void;
+    onSelectAsiOrFeatMode: (mode: 'asi' | 'feat') => void;
+    onIncrementAsiAbility: (ability: AbilityKey) => void;
+    onDecrementAsiAbility: (ability: AbilityKey) => void;
+    onChangeFeatName: (value: string) => void;
+    onChangeFeatDescription: (value: string) => void;
+    onChangeFeatAbilityIncrease: (value: AbilityKey | null) => void;
 };
 
 /**
@@ -36,12 +47,20 @@ export default function LevelUpWizardStepBody({
     pickerSelectedClassId,
     selectedClass,
     prerequisiteWarnings,
+    abilityScores,
     hitPointsState,
+    asiOrFeatState,
     onSelectClass,
     onEnterClassPicker,
     onReturnToCurrentClass,
     onRollHitPoints,
     onTakeAverageHitPoints,
+    onSelectAsiOrFeatMode,
+    onIncrementAsiAbility,
+    onDecrementAsiAbility,
+    onChangeFeatName,
+    onChangeFeatDescription,
+    onChangeFeatAbilityIncrease,
 }: LevelUpWizardStepBodyProps) {
     if (step.id === 'choose_class') {
         const currentClassOption = levelUpClassOption(currentClass.classId);
@@ -137,6 +156,21 @@ export default function LevelUpWizardStepBody({
                 hitPointsState={hitPointsState}
                 onRollHitPoints={onRollHitPoints}
                 onTakeAverageHitPoints={onTakeAverageHitPoints}
+            />
+        );
+    }
+
+    if (step.id === 'asi_or_feat') {
+        return (
+            <LevelUpAsiOrFeatStep
+                abilityScores={abilityScores}
+                asiOrFeatState={asiOrFeatState}
+                onSelectMode={onSelectAsiOrFeatMode}
+                onIncrementAbility={onIncrementAsiAbility}
+                onDecrementAbility={onDecrementAsiAbility}
+                onChangeFeatName={onChangeFeatName}
+                onChangeFeatDescription={onChangeFeatDescription}
+                onChangeFeatAbilityIncrease={onChangeFeatAbilityIncrease}
             />
         );
     }

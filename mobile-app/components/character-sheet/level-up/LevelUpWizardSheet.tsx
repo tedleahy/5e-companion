@@ -90,12 +90,20 @@ export default function LevelUpWizardSheet({
                         pickerSelectedClassId={wizard.pickerSelectedClassId}
                         selectedClass={wizard.selectedClass}
                         prerequisiteWarnings={wizard.prerequisiteWarnings}
+                        abilityScores={wizard.abilityScores}
                         hitPointsState={wizard.hitPointsState}
+                        asiOrFeatState={wizard.asiOrFeatState}
                         onSelectClass={wizard.selectClass}
                         onEnterClassPicker={wizard.enterClassPicker}
                         onReturnToCurrentClass={wizard.returnToCurrentClass}
                         onRollHitPoints={wizard.rollHitPoints}
                         onTakeAverageHitPoints={wizard.takeAverageHitPoints}
+                        onSelectAsiOrFeatMode={wizard.selectAsiOrFeatMode}
+                        onIncrementAsiAbility={wizard.incrementAsiAbility}
+                        onDecrementAsiAbility={wizard.decrementAsiAbility}
+                        onChangeFeatName={wizard.changeFeatName}
+                        onChangeFeatDescription={wizard.changeFeatDescription}
+                        onChangeFeatAbilityIncrease={wizard.changeFeatAbilityIncrease}
                     />
                 </ScrollView>
 
