@@ -1,5 +1,6 @@
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { CHARACTERS_MOCK, MOCK_CHARACTER } from './mocks/character-sheet.mocks';
 import {
     enableCharacterSheetEditMode,
     pressAndFlush,
@@ -7,8 +8,33 @@ import {
     setupCharacterSheetScreenTestHooks,
 } from './character-sheet.test-utils';
 
-describe('CharacterByIdScreen level-up wizard shell', () => {
+const LOW_CON_CHARACTER_SHEET_MOCK = {
+    request: {
+        ...CHARACTERS_MOCK.request,
+    },
+    result: {
+        data: {
+            character: {
+                ...MOCK_CHARACTER,
+                stats: {
+                    ...MOCK_CHARACTER.stats,
+                    abilityScores: {
+                        ...MOCK_CHARACTER.stats.abilityScores,
+                        constitution: 1,
+                    },
+                },
+            },
+            hasCurrentUserCharacters: true,
+        },
+    },
+};
+
+describe('CharacterByIdScreen level-up wizard', () => {
     setupCharacterSheetScreenTestHooks();
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
 
     it('only shows the level-up button while edit mode is active', async () => {
         renderCharacterSheetScreen();
@@ -109,7 +135,86 @@ describe('CharacterByIdScreen level-up wizard shell', () => {
         expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
     });
 
-    it('navigates placeholder steps and switches the final action label', async () => {
+    it('captures rolled, rerolled, and average hit points before continuing', async () => {
+        const randomSpy = jest.spyOn(Math, 'random');
+
+        renderCharacterSheetScreen();
+
+        await enableCharacterSheetEditMode();
+        await pressAndFlush(screen.getByLabelText('Level up character'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 1 of 6 - Choose Class')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 2 of 6 - Hit Points')).toBeTruthy();
+        });
+
+        expect(String(screen.getByTestId('level-up-hit-points-die-value').props.children)).toBe('d6');
+        expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(true);
+
+        randomSpy.mockReturnValue(0.5);
+        await pressAndFlush(screen.getByTestId('level-up-hit-points-roll-button'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-hit-points-breakdown')).toBeTruthy();
+        });
+
+        expect(String(screen.getByTestId('level-up-hit-points-die-value').props.children)).toBe('4');
+        expect(screen.getByText('Hit Die Roll')).toBeTruthy();
+        expect(screen.getByText('+6')).toBeTruthy();
+        expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
+        expect(screen.getByText('Re-roll')).toBeTruthy();
+
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-hit-points-roll-button').props.accessibilityState?.disabled).toBe(false);
+        });
+
+        randomSpy.mockReturnValue(0.99);
+        await pressAndFlush(screen.getByTestId('level-up-hit-points-roll-button'));
+
+        await waitFor(() => {
+            expect(screen.getByText('+8')).toBeTruthy();
+        });
+
+        expect(String(screen.getByTestId('level-up-hit-points-die-value').props.children)).toBe('6');
+
+        await pressAndFlush(screen.getByTestId('level-up-hit-points-average-button'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Average Hit Die')).toBeTruthy();
+        });
+
+        expect(String(screen.getByTestId('level-up-hit-points-die-value').props.children)).toBe('4');
+        expect(screen.getByText('+6')).toBeTruthy();
+    });
+
+    it('applies the minimum-one HP rule for low-CON characters', async () => {
+        renderCharacterSheetScreen([LOW_CON_CHARACTER_SHEET_MOCK]);
+
+        await enableCharacterSheetEditMode();
+        await pressAndFlush(screen.getByLabelText('Level up character'));
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 2 of 6 - Hit Points')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-hit-points-average-button'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-hit-points-breakdown')).toBeTruthy();
+        });
+
+        expect(screen.getByText('Average Hit Die')).toBeTruthy();
+        expect(screen.getAllByText('\u22125').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('+1').length).toBeGreaterThan(0);
+    });
+
+    it('navigates placeholder steps after picking hit points and switches the final action label', async () => {
         renderCharacterSheetScreen();
 
         await enableCharacterSheetEditMode();
@@ -125,6 +230,14 @@ describe('CharacterByIdScreen level-up wizard shell', () => {
         await pressAndFlush(screen.getByTestId('level-up-next-button'));
         await waitFor(() => {
             expect(screen.getByText('Step 2 of 6 - Hit Points')).toBeTruthy();
+        });
+
+        expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(true);
+
+        await pressAndFlush(screen.getByTestId('level-up-hit-points-average-button'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
         });
 
         await pressAndFlush(screen.getByTestId('level-up-next-button'));

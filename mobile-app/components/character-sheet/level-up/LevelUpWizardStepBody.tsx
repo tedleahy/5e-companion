@@ -2,7 +2,9 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import ClassOptionGrid from '@/components/wizard/ClassOptionGrid';
 import { levelUpClassOption } from '@/lib/characterLevelUp/chooseClass';
+import LevelUpHitPointsStep from './LevelUpHitPointsStep';
 import type {
+    LevelUpHitPointsState,
     LevelUpClassSelectionMode,
     LevelUpWizardSelectedClass,
     LevelUpWizardStep,
@@ -16,9 +18,12 @@ type LevelUpWizardStepBodyProps = {
     pickerSelectedClassId: string | null;
     selectedClass: LevelUpWizardSelectedClass;
     prerequisiteWarnings: string[];
+    hitPointsState: LevelUpHitPointsState | null;
     onSelectClass: (classId: string) => void;
     onEnterClassPicker: () => void;
     onReturnToCurrentClass: () => void;
+    onRollHitPoints: () => void;
+    onTakeAverageHitPoints: () => void;
 };
 
 /**
@@ -31,9 +36,12 @@ export default function LevelUpWizardStepBody({
     pickerSelectedClassId,
     selectedClass,
     prerequisiteWarnings,
+    hitPointsState,
     onSelectClass,
     onEnterClassPicker,
     onReturnToCurrentClass,
+    onRollHitPoints,
+    onTakeAverageHitPoints,
 }: LevelUpWizardStepBodyProps) {
     if (step.id === 'choose_class') {
         const currentClassOption = levelUpClassOption(currentClass.classId);
@@ -119,6 +127,17 @@ export default function LevelUpWizardStepBody({
                     </>
                 )}
             </View>
+        );
+    }
+
+    if (step.id === 'hit_points') {
+        return (
+            <LevelUpHitPointsStep
+                selectedClass={selectedClass}
+                hitPointsState={hitPointsState}
+                onRollHitPoints={onRollHitPoints}
+                onTakeAverageHitPoints={onTakeAverageHitPoints}
+            />
         );
     }
 

@@ -83,9 +83,6 @@ export default function LevelUpWizardSheet({
                     contentContainerStyle={styles.bodyContent}
                     showsVerticalScrollIndicator={false}
                 >
-                    <Text style={styles.placeholderLead}>
-                        Chunk 2 wires the wizard controller, dynamic step registry, and navigation before the real step UIs arrive.
-                    </Text>
                     <LevelUpWizardStepBody
                         step={wizard.currentStep}
                         currentClass={wizard.currentClass}
@@ -93,9 +90,12 @@ export default function LevelUpWizardSheet({
                         pickerSelectedClassId={wizard.pickerSelectedClassId}
                         selectedClass={wizard.selectedClass}
                         prerequisiteWarnings={wizard.prerequisiteWarnings}
+                        hitPointsState={wizard.hitPointsState}
                         onSelectClass={wizard.selectClass}
                         onEnterClassPicker={wizard.enterClassPicker}
                         onReturnToCurrentClass={wizard.returnToCurrentClass}
+                        onRollHitPoints={wizard.rollHitPoints}
+                        onTakeAverageHitPoints={wizard.takeAverageHitPoints}
                     />
                 </ScrollView>
 
@@ -235,10 +235,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         paddingVertical: 20,
         gap: fantasyTokens.spacing.md,
-    },
-    placeholderLead: {
-        ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
     },
     footer: {
         paddingHorizontal: 24,
