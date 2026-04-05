@@ -379,6 +379,14 @@ input SaveCharacterSheetFeatureInput {
     recharge: String
 }
 
+input SaveCharacterSheetClassInput {
+    id: ID
+    classId: String!
+    subclassId: String
+    level: Int!
+    isStartingClass: Boolean!
+}
+
 input SaveCharacterSheetInput {
     ac: Int!
     speed: Int!
@@ -388,6 +396,7 @@ input SaveCharacterSheetInput {
     abilityScores: AbilityScoresInput!
     currency: CurrencyInput!
     traits: TraitsInput!
+    classes: [SaveCharacterSheetClassInput!]!
     weapons: [SaveCharacterSheetWeaponInput!]!
     inventory: [SaveCharacterSheetInventoryItemInput!]!
     features: [SaveCharacterSheetFeatureInput!]!

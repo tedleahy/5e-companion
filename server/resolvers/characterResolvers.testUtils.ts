@@ -68,6 +68,12 @@ export const transactionMock: any = mock((callback: (tx: any) => Promise<unknown
         findMany: hitDicePoolFindManyMock,
         update: hitDicePoolUpdateMock,
     },
+    spellSlot: {
+        findMany: spellSlotFindManyMock,
+        findUnique: spellSlotFindUniqueMock,
+        update: spellSlotUpdateMock,
+        updateMany: spellSlotUpdateManyMock,
+    },
     weapon: {
         findMany: weaponFindManyMock,
         findUnique: weaponFindUniqueMock,

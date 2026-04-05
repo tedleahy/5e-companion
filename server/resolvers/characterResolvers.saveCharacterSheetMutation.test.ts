@@ -7,16 +7,22 @@ import {
     characterFeatureUpdateMock,
     characterFindFirstMock,
     characterUpdateMock,
+    classFindManyMock,
     clearAllCharacterResolverMocks,
     fakeCharacter,
+    fakeCharacterClasses,
+    fakeHitDicePools,
     fakeStats,
+    hitDicePoolFindManyMock,
     inventoryItemCreateMock,
     inventoryItemDeleteManyMock,
     inventoryItemFindManyMock,
     inventoryItemUpdateMock,
     resolvers,
+    spellSlotFindManyMock,
     statsFindUniqueMock,
     statsUpdateMock,
+    subclassFindManyMock,
     transactionMock,
     unauthedCtx,
     weaponCreateMock,
@@ -24,6 +30,44 @@ import {
     weaponFindManyMock,
     weaponUpdateMock,
 } from './characterResolvers.testUtils';
+
+const BASE_SAVE_CLASSES = [
+    {
+        id: 'char-class-1',
+        classId: 'wizard',
+        subclassId: 'evocation',
+        level: 9,
+        isStartingClass: true,
+    },
+    {
+        id: 'char-class-2',
+        classId: 'warlock',
+        subclassId: 'fiend',
+        level: 3,
+        isStartingClass: false,
+    },
+] as const;
+
+const EXISTING_SPELL_SLOTS = [
+    { id: 'slot-standard-1', characterId: 'char-1', kind: 'STANDARD', level: 1, total: 4, used: 1 },
+    { id: 'slot-standard-2', characterId: 'char-1', kind: 'STANDARD', level: 2, total: 3, used: 0 },
+    { id: 'slot-standard-3', characterId: 'char-1', kind: 'STANDARD', level: 3, total: 3, used: 2 },
+    { id: 'slot-pact-1', characterId: 'char-1', kind: 'PACT_MAGIC', level: 2, total: 2, used: 1 },
+] as const;
+
+/**
+ * Seeds the reference-data mocks needed to resolve saved class rows.
+ */
+function mockClassReferenceLookups() {
+    classFindManyMock.mockResolvedValueOnce([
+        fakeCharacterClasses[0]!.classRef,
+        fakeCharacterClasses[1]!.classRef,
+    ]);
+    subclassFindManyMock.mockResolvedValueOnce([
+        fakeCharacterClasses[0]!.subclassRef,
+        fakeCharacterClasses[1]!.subclassRef,
+    ]);
+}
 
 describe('characterResolvers — saveCharacterSheet', () => {
     beforeEach(clearAllCharacterResolverMocks);
@@ -33,17 +77,21 @@ describe('characterResolvers — saveCharacterSheet', () => {
             .rejects.toThrow('UNAUTHENTICATED');
     });
 
-    test('saves the full editable sheet inside one transaction', async () => {
+    test('saves the full editable sheet inside one transaction and re-derives level-up data', async () => {
+        mockClassReferenceLookups();
         characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
         characterUpdateMock.mockResolvedValueOnce({
             ...fakeCharacter,
             ac: 18,
             speed: 30,
             initiative: 4,
+            proficiencyBonus: 5,
             conditions: ['Blessed'],
         });
         statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
         statsUpdateMock.mockResolvedValueOnce({ ...fakeStats });
+        hitDicePoolFindManyMock.mockResolvedValueOnce(fakeHitDicePools);
+        spellSlotFindManyMock.mockResolvedValueOnce(EXISTING_SPELL_SLOTS);
         weaponFindManyMock.mockResolvedValueOnce([
             { id: 'attack-1', characterId: 'char-1' },
             { id: 'attack-2', characterId: 'char-1' },
@@ -90,6 +138,13 @@ describe('characterResolvers — saveCharacterSheet', () => {
                     toolProficiencies: [],
                     languages: ['Common', 'Elvish'],
                 },
+                classes: [
+                    {
+                        ...BASE_SAVE_CLASSES[0],
+                        level: 10,
+                    },
+                    BASE_SAVE_CLASSES[1],
+                ],
                 weapons: [
                     { id: 'attack-1', name: 'Dagger', attackBonus: '+8', damage: '1d4+4 piercing', type: 'melee' },
                     { name: 'Quarterstaff', attackBonus: '+7', damage: '1d6+3 bludgeoning', type: 'melee' },
@@ -107,6 +162,64 @@ describe('characterResolvers — saveCharacterSheet', () => {
 
         expect(transactionMock).toHaveBeenCalledTimes(1);
         expect(characterUpdateMock).toHaveBeenCalledTimes(1);
+        expect(characterUpdateMock).toHaveBeenCalledWith({
+            where: { id: 'char-1' },
+            data: {
+                ac: 18,
+                speed: 30,
+                initiative: 4,
+                conditions: ['Blessed'],
+                proficiencyBonus: 5,
+                spellcastingAbility: null,
+                spellSaveDC: null,
+                spellAttackBonus: null,
+                classes: {
+                    deleteMany: {},
+                    create: [
+                        {
+                            classId: 'class-wizard-id',
+                            subclassId: 'subclass-evocation-id',
+                            level: 10,
+                            isStartingClass: true,
+                        },
+                        {
+                            classId: 'class-warlock-id',
+                            subclassId: 'subclass-fiend-id',
+                            level: 3,
+                            isStartingClass: false,
+                        },
+                    ],
+                },
+                hitDicePools: {
+                    deleteMany: {},
+                    create: [
+                        {
+                            classId: 'class-wizard-id',
+                            total: 10,
+                            remaining: 8,
+                            die: 'd6',
+                        },
+                        {
+                            classId: 'class-warlock-id',
+                            total: 3,
+                            remaining: 2,
+                            die: 'd8',
+                        },
+                    ],
+                },
+                spellSlots: {
+                    deleteMany: {},
+                    create: [
+                        { kind: 'STANDARD', level: 1, total: 4, used: 1 },
+                        { kind: 'STANDARD', level: 2, total: 3, used: 0 },
+                        { kind: 'STANDARD', level: 3, total: 3, used: 2 },
+                        { kind: 'STANDARD', level: 4, total: 3, used: 0 },
+                        { kind: 'STANDARD', level: 5, total: 2, used: 0 },
+                        { kind: 'PACT_MAGIC', level: 2, total: 2, used: 1 },
+                    ],
+                },
+            },
+        });
         expect(statsUpdateMock).toHaveBeenCalledTimes(1);
         expect(weaponDeleteManyMock).toHaveBeenCalledWith({
             where: { characterId: 'char-1', id: { in: ['attack-2'] } },
@@ -140,15 +253,18 @@ describe('characterResolvers — saveCharacterSheet', () => {
             ac: 18,
             speed: 30,
             initiative: 4,
+            proficiencyBonus: 5,
             conditions: ['Blessed'],
         });
     });
 
     test('surfaces transactional failures so the caller can keep the draft', async () => {
+        mockClassReferenceLookups();
         characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
         characterUpdateMock.mockResolvedValueOnce(fakeCharacter);
         statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
-        statsUpdateMock.mockResolvedValueOnce(fakeStats);
+        hitDicePoolFindManyMock.mockResolvedValueOnce(fakeHitDicePools);
+        spellSlotFindManyMock.mockResolvedValueOnce(EXISTING_SPELL_SLOTS);
         weaponFindManyMock.mockResolvedValueOnce([{ id: 'attack-1', characterId: 'char-1' }]);
         inventoryItemFindManyMock.mockResolvedValueOnce([]);
         characterFeatureFindManyMock.mockResolvedValueOnce([]);
@@ -181,6 +297,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                     toolProficiencies: [],
                     languages: ['Common', 'Elvish'],
                 },
+                classes: BASE_SAVE_CLASSES,
                 weapons: [
                     { id: 'attack-1', name: 'Dagger', attackBonus: '+7', damage: '1d4+3 piercing', type: 'melee' },
                 ],
@@ -193,10 +310,12 @@ describe('characterResolvers — saveCharacterSheet', () => {
     });
 
     test('throws when submitted inventory ids do not belong to the character', async () => {
+        mockClassReferenceLookups();
         characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
         characterUpdateMock.mockResolvedValueOnce(fakeCharacter);
         statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
-        statsUpdateMock.mockResolvedValueOnce(fakeStats);
+        hitDicePoolFindManyMock.mockResolvedValueOnce(fakeHitDicePools);
+        spellSlotFindManyMock.mockResolvedValueOnce(EXISTING_SPELL_SLOTS);
         weaponFindManyMock.mockResolvedValueOnce([]);
         inventoryItemFindManyMock.mockResolvedValueOnce([{ id: 'item-1', characterId: 'char-1' }]);
         characterFeatureFindManyMock.mockResolvedValueOnce([]);
@@ -228,6 +347,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                     toolProficiencies: [],
                     languages: ['Common', 'Elvish'],
                 },
+                classes: BASE_SAVE_CLASSES,
                 weapons: [],
                 inventory: [
                     { id: 'item-other', name: 'Staff', quantity: 1, weight: 4, description: 'Arcane focus', equipped: true, magical: true },
@@ -238,10 +358,12 @@ describe('characterResolvers — saveCharacterSheet', () => {
     });
 
     test('throws when submitted feature ids do not belong to the character', async () => {
+        mockClassReferenceLookups();
         characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
         characterUpdateMock.mockResolvedValueOnce(fakeCharacter);
         statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
-        statsUpdateMock.mockResolvedValueOnce(fakeStats);
+        hitDicePoolFindManyMock.mockResolvedValueOnce(fakeHitDicePools);
+        spellSlotFindManyMock.mockResolvedValueOnce(EXISTING_SPELL_SLOTS);
         weaponFindManyMock.mockResolvedValueOnce([]);
         inventoryItemFindManyMock.mockResolvedValueOnce([]);
         characterFeatureFindManyMock.mockResolvedValueOnce([{ id: 'feature-1', characterId: 'char-1' }]);
@@ -273,6 +395,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                     toolProficiencies: [],
                     languages: ['Common', 'Elvish'],
                 },
+                classes: BASE_SAVE_CLASSES,
                 weapons: [],
                 inventory: [],
                 features: [
