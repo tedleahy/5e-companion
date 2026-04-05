@@ -54,6 +54,7 @@ export default function VitalsCard({
                             value={String(hp.current)}
                             onChangeText={(value: string) => onChangeHpCurrent(parseNumericInput(value))}
                             editMode={editMode}
+                            testID="vitals-hp-current"
                             style={[styles.hpMain, styles.hpColor]}
                             keyboardType="number-pad"
                             align="center"
@@ -63,6 +64,7 @@ export default function VitalsCard({
                             value={String(hp.max)}
                             onChangeText={(value: string) => onChangeHpMax(parseNumericInput(value))}
                             editMode={editMode}
+                            testID="vitals-hp-max"
                             style={[styles.hpMaxValue, styles.hpColor]}
                             keyboardType="number-pad"
                             align="center"

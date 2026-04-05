@@ -3,6 +3,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { CHARACTERS_MOCK, MOCK_CHARACTER } from './mocks/character-sheet.mocks';
 import {
     enableCharacterSheetEditMode,
+    openCharacterSheetTab,
     pressAndFlush,
     renderCharacterSheetScreen,
     setupCharacterSheetScreenTestHooks,
@@ -370,5 +371,81 @@ describe('CharacterByIdScreen level-up wizard', () => {
         });
 
         expect(screen.getByText('Next')).toBeTruthy();
+    });
+
+    it('applies the confirmed level-up into the local draft and closes the sheet', async () => {
+        renderCharacterSheetScreen([ASI_ELIGIBLE_CHARACTER_SHEET_MOCK]);
+
+        await enableCharacterSheetEditMode();
+        await pressAndFlush(screen.getByLabelText('Level up character'));
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 2 of 7 - Hit Points')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-hit-points-average-button'));
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+        await waitFor(() => {
+            expect(screen.getByText('Step 3 of 7 - ASI / Feat')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-feat-choice'));
+        fireEvent.changeText(screen.getByTestId('level-up-feat-name-input'), 'Resilient');
+        fireEvent.changeText(
+            screen.getByTestId('level-up-feat-description-input'),
+            'Gain proficiency in Constitution saving throws and improve concentration checks.',
+        );
+
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+        await waitFor(() => {
+            expect(screen.getByText('Step 4 of 7 - New Class Features')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+        await waitFor(() => {
+            expect(screen.getByText('Step 5 of 7 - Spellcasting Updates')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+        await waitFor(() => {
+            expect(screen.getByText('Step 6 of 7 - Class Resources')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+        await waitFor(() => {
+            expect(screen.getByText('Step 7 of 7 - Summary')).toBeTruthy();
+        });
+
+        expect(screen.getByTestId('level-up-summary-class-level')).toBeTruthy();
+        expect(screen.getByTestId('level-up-summary-hit-points')).toBeTruthy();
+        expect(screen.getByTestId('level-up-summary-feat')).toBeTruthy();
+        expect(screen.getByText('Confirm Level Up')).toBeTruthy();
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+
+        await waitFor(() => {
+            expect(screen.queryByTestId('level-up-wizard-sheet')).toBeNull();
+        });
+
+        expect(screen.getByTestId('character-sheet-header-subtitle').props.children).toEqual(
+            'Level 14\nWizard 12 / Warlock 2 · High Elf · Chaotic Good',
+        );
+        expect(screen.getByTestId('vitals-hp-current').props.value).toBe('60');
+        expect(screen.getByTestId('vitals-hp-max').props.value).toBe('82');
+
+        await openCharacterSheetTab('Features');
+
+        await waitFor(() => {
+            expect(screen.getByDisplayValue('Resilient')).toBeTruthy();
+        });
     });
 });

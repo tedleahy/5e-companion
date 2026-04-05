@@ -98,7 +98,9 @@ export default function CharacterSheetHeader({
             <View style={styles.topRow}>
                 <View style={styles.headerText}>
                     <Text style={styles.charName}>{name}</Text>
-                    <Text style={styles.charSubtitle}>{subtitle}</Text>
+                    <Text style={styles.charSubtitle} testID="character-sheet-header-subtitle">
+                        {subtitle}
+                    </Text>
                 </View>
             </View>
 
@@ -194,6 +196,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 8,
         position: 'absolute',
+        flexDirection: 'row',
         top: 0,
         right: 0,
     },
