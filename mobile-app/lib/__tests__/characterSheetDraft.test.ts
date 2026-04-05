@@ -203,6 +203,15 @@ describe('characterSheetDraft', () => {
 
     it('maps draft-only ids to creates in the save input', () => {
         const draft = createCharacterSheetDraft(CHARACTER_SHEET_CHARACTER as never);
+        draft.classes.push({
+            id: 'draft-class-123',
+            classId: 'fighter',
+            className: 'Fighter',
+            subclassId: null,
+            subclassName: null,
+            level: 1,
+            isStartingClass: false,
+        });
         draft.weapons.push({
             id: 'draft-weapon-123',
             name: 'Quarterstaff',
@@ -213,6 +222,29 @@ describe('characterSheetDraft', () => {
 
         const input = mapCharacterSheetDraftToSaveInput(draft);
 
+        expect(input.classes).toEqual([
+            {
+                id: 'character-class-1',
+                classId: 'wizard',
+                subclassId: 'school-of-evocation',
+                level: 10,
+                isStartingClass: true,
+            },
+            {
+                id: 'character-class-2',
+                classId: 'warlock',
+                subclassId: 'fiend',
+                level: 2,
+                isStartingClass: false,
+            },
+            {
+                id: undefined,
+                classId: 'fighter',
+                subclassId: null,
+                level: 1,
+                isStartingClass: false,
+            },
+        ]);
         expect(input.weapons).toEqual([
             {
                 id: 'weapon-1',

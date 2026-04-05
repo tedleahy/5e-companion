@@ -273,6 +273,13 @@ export function mapCharacterSheetDraftToSaveInput(
         abilityScores: draft.abilityScores,
         currency: draft.currency,
         traits: draft.traits,
+        classes: draft.classes.map((classRow) => ({
+            id: persistedEntityId(classRow.id),
+            classId: classRow.classId,
+            subclassId: classRow.subclassId ?? null,
+            level: classRow.level,
+            isStartingClass: classRow.isStartingClass,
+        })),
         weapons: draft.weapons.map((weapon) => ({
             id: persistedEntityId(weapon.id),
             name: weapon.name,

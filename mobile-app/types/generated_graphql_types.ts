@@ -365,6 +365,14 @@ export type QuerySpellsArgs = {
   pagination?: InputMaybe<SpellPagination>;
 };
 
+export type SaveCharacterSheetClassInput = {
+  classId: Scalars['String']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  isStartingClass: Scalars['Boolean']['input'];
+  level: Scalars['Int']['input'];
+  subclassId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type SaveCharacterSheetFeatureInput = {
   description: Scalars['String']['input'];
   id?: InputMaybe<Scalars['ID']['input']>;
@@ -378,6 +386,7 @@ export type SaveCharacterSheetFeatureInput = {
 export type SaveCharacterSheetInput = {
   abilityScores: AbilityScoresInput;
   ac: Scalars['Int']['input'];
+  classes: Array<SaveCharacterSheetClassInput>;
   conditions: Array<Scalars['String']['input']>;
   currency: CurrencyInput;
   features: Array<SaveCharacterSheetFeatureInput>;
