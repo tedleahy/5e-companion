@@ -5,6 +5,7 @@ import type { AbilityKey } from '@/lib/characterSheetUtils';
 import { levelUpClassOption } from '@/lib/characterLevelUp/chooseClass';
 import LevelUpAsiOrFeatStep from './LevelUpAsiOrFeatStep';
 import LevelUpHitPointsStep from './LevelUpHitPointsStep';
+import LevelUpSummaryStep from './LevelUpSummaryStep';
 import type {
     LevelUpAsiOrFeatState,
     LevelUpHitPointsState,
@@ -22,6 +23,12 @@ type LevelUpWizardStepBodyProps = {
     selectedClass: LevelUpWizardSelectedClass;
     prerequisiteWarnings: string[];
     abilityScores: Record<AbilityKey, number>;
+    currentCharacterLevel: number;
+    currentHitPoints: {
+        current: number;
+        max: number;
+        temp: number;
+    };
     hitPointsState: LevelUpHitPointsState | null;
     asiOrFeatState: LevelUpAsiOrFeatState;
     onSelectClass: (classId: string) => void;
@@ -48,6 +55,8 @@ export default function LevelUpWizardStepBody({
     selectedClass,
     prerequisiteWarnings,
     abilityScores,
+    currentCharacterLevel,
+    currentHitPoints,
     hitPointsState,
     asiOrFeatState,
     onSelectClass,
@@ -171,6 +180,19 @@ export default function LevelUpWizardStepBody({
                 onChangeFeatName={onChangeFeatName}
                 onChangeFeatDescription={onChangeFeatDescription}
                 onChangeFeatAbilityIncrease={onChangeFeatAbilityIncrease}
+            />
+        );
+    }
+
+    if (step.id === 'summary' && hitPointsState) {
+        return (
+            <LevelUpSummaryStep
+                currentCharacterLevel={currentCharacterLevel}
+                currentHitPoints={currentHitPoints}
+                abilityScores={abilityScores}
+                selectedClass={selectedClass}
+                hitPointsState={hitPointsState}
+                asiOrFeatState={stepRequiresAsiOrFeat(step, asiOrFeatState)}
             />
         );
     }
@@ -315,3 +337,26 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.inkLight,
     },
 });
+
+/**
+ * Returns the ASI / feat state for summary rendering when that step was active.
+ */
+function stepRequiresAsiOrFeat(
+    _step: LevelUpWizardStep,
+    asiOrFeatState: LevelUpAsiOrFeatState,
+): LevelUpAsiOrFeatState | null {
+    return canRenderAsiOrFeatSummary(asiOrFeatState) ? asiOrFeatState : null;
+}
+
+/**
+ * Returns whether the ASI / feat state contains meaningful summary data.
+ */
+function canRenderAsiOrFeatSummary(
+    asiOrFeatState: LevelUpAsiOrFeatState,
+): boolean {
+    if (asiOrFeatState.mode === 'asi') {
+        return Object.values(asiOrFeatState.allocations).some((value) => value > 0);
+    }
+
+    return asiOrFeatState.feat.name.trim().length > 0 && asiOrFeatState.feat.description.trim().length > 0;
+}

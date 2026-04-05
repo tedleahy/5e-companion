@@ -39,6 +39,7 @@ import type {
  * Route-local controller returned by the level-up wizard hook.
  */
 export type UseLevelUpWizardResult = {
+    currentCharacterLevel: number;
     selectedClassId: string;
     currentClass: LevelUpWizardSelectedClass;
     selectedClass: LevelUpWizardSelectedClass;
@@ -46,6 +47,7 @@ export type UseLevelUpWizardResult = {
     pickerSelectedClassId: string | null;
     prerequisiteWarnings: string[];
     abilityScores: Record<AbilityKey, number>;
+    currentHitPoints: { current: number; max: number; temp: number };
     hitPointsState: LevelUpHitPointsState | null;
     asiOrFeatState: LevelUpAsiOrFeatState;
     steps: LevelUpWizardStep[];
@@ -97,6 +99,15 @@ export default function useLevelUpWizard(
         [character],
     );
     const constitutionScore = abilityScores.constitution;
+    const currentCharacterLevel = character?.level ?? 0;
+    const currentHitPoints = useMemo(
+        () => ({
+            current: character?.stats?.hp.current ?? 0,
+            max: character?.stats?.hp.max ?? 0,
+            temp: character?.stats?.hp.temp ?? 0,
+        }),
+        [character],
+    );
 
     const steps = useMemo(
         () => buildLevelUpStepList(character, selectedClassId),
@@ -225,6 +236,7 @@ export default function useLevelUpWizard(
     }, [defaultClassId]);
 
     return {
+        currentCharacterLevel,
         selectedClassId,
         currentClass,
         selectedClass,
@@ -232,6 +244,7 @@ export default function useLevelUpWizard(
         pickerSelectedClassId: classSelection.selectedClassId,
         prerequisiteWarnings,
         abilityScores,
+        currentHitPoints,
         hitPointsState,
         asiOrFeatState,
         steps,

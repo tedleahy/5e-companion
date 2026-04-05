@@ -11,6 +11,7 @@ type LevelUpWizardSheetProps = {
     characterName: string;
     nextCharacterLevel: number;
     wizard: UseLevelUpWizardResult;
+    onConfirm: () => void;
     onClose: () => void;
 };
 
@@ -22,6 +23,7 @@ export default function LevelUpWizardSheet({
     characterName,
     nextCharacterLevel,
     wizard,
+    onConfirm,
     onClose,
 }: LevelUpWizardSheetProps) {
     const scrollViewRef = useRef<ScrollView>(null);
@@ -91,6 +93,8 @@ export default function LevelUpWizardSheet({
                         selectedClass={wizard.selectedClass}
                         prerequisiteWarnings={wizard.prerequisiteWarnings}
                         abilityScores={wizard.abilityScores}
+                        currentCharacterLevel={wizard.currentCharacterLevel}
+                        currentHitPoints={wizard.currentHitPoints}
                         hitPointsState={wizard.hitPointsState}
                         asiOrFeatState={wizard.asiOrFeatState}
                         onSelectClass={wizard.selectClass}
@@ -132,9 +136,9 @@ export default function LevelUpWizardSheet({
                     </Pressable>
 
                     <Pressable
-                        onPress={wizard.goToNextStep}
+                        onPress={wizard.isLastStep ? onConfirm : wizard.goToNextStep}
                         accessibilityRole="button"
-                        accessibilityLabel="Go to next level up step"
+                        accessibilityLabel={wizard.isLastStep ? 'Confirm level up changes' : 'Go to next level up step'}
                         accessibilityState={{ disabled: wizard.nextButtonDisabled }}
                         disabled={wizard.nextButtonDisabled}
                         style={[

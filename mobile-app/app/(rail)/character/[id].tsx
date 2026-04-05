@@ -107,6 +107,7 @@ export default function CharacterByIdScreen() {
         changeTraitTag,
         removeTraitTag,
         changeTraitText,
+        applyConfirmedLevelUp,
     } = useCharacterSheetDraft(character);
     const wizardCharacter = useMemo(() => {
         if (!character) {
@@ -122,12 +123,15 @@ export default function CharacterByIdScreen() {
 
         return {
             ...character,
+            level: draft?.level ?? character.level,
+            classes: draft?.classes ?? character.classes,
             stats: {
                 ...character.stats,
+                hp: draft?.hp ?? character.stats.hp,
                 abilityScores: draft?.abilityScores ?? character.stats.abilityScores,
             },
         };
-    }, [character, draft?.abilityScores]);
+    }, [character, draft?.abilityScores, draft?.classes, draft?.hp, draft?.level]);
     const levelUpWizard = useLevelUpWizard(wizardCharacter, levelUpSheetVisible);
 
     useEffect(() => {
@@ -180,6 +184,25 @@ export default function CharacterByIdScreen() {
         setLevelUpSheetVisible(false);
         levelUpWizard.resetWizard();
     }, [levelUpWizard]);
+
+    /**
+     * Applies the current wizard result into the local edit draft and closes the sheet.
+     */
+    const handleConfirmLevelUp = useCallback(() => {
+        if (!levelUpWizard.hitPointsState) {
+            return;
+        }
+
+        applyConfirmedLevelUp({
+            selectedClass: levelUpWizard.selectedClass,
+            hitPointsState: levelUpWizard.hitPointsState,
+            asiOrFeatState: levelUpWizard.steps.some((step) => step.id === 'asi_or_feat')
+                ? levelUpWizard.asiOrFeatState
+                : null,
+        });
+        setLevelUpSheetVisible(false);
+        levelUpWizard.resetWizard();
+    }, [applyConfirmedLevelUp, levelUpWizard]);
 
     if (!characterId) {
         return (
@@ -276,9 +299,11 @@ export default function CharacterByIdScreen() {
     const displayedWeapons = draft?.weapons ?? character.weapons;
     const displayedInventory = draft?.inventory ?? character.inventory;
     const displayedFeatures = draft?.features ?? character.features;
-    const classSummary = formatCharacterClassSummary(character.classes);
-    const primaryClassName = primaryCharacterClassName(character.classes);
-    const characterClassIds = orderedCharacterClassIds(character.classes);
+    const displayedLevel = draft?.level ?? character.level;
+    const displayedClasses = draft?.classes ?? character.classes;
+    const classSummary = formatCharacterClassSummary(displayedClasses);
+    const primaryClassName = primaryCharacterClassName(displayedClasses);
+    const characterClassIds = orderedCharacterClassIds(displayedClasses);
     const spellSaveDC = strongestSpellSaveDc(character.spellcastingProfiles);
     const passivePerception =
         10 + skillModifier(
@@ -304,7 +329,7 @@ export default function CharacterByIdScreen() {
             <View style={styles.container}>
                 <CharacterSheetHeader
                     name={character.name}
-                    level={character.level}
+                    level={displayedLevel}
                     classSummary={classSummary}
                     race={character.race}
                     alignment={character.alignment}
@@ -468,8 +493,9 @@ export default function CharacterByIdScreen() {
                 <LevelUpWizardSheet
                     visible={levelUpSheetVisible}
                     characterName={character.name}
-                    nextCharacterLevel={character.level + 1}
+                    nextCharacterLevel={displayedLevel + 1}
                     wizard={levelUpWizard}
+                    onConfirm={handleConfirmLevelUp}
                     onClose={handleCloseLevelUpSheet}
                 />
             </View>
