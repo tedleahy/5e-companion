@@ -103,9 +103,9 @@ export default function LevelUpSummaryStep({
             ) : null}
 
             <View style={styles.noteCard}>
-                <Text style={styles.noteTitle}>Local Draft Only</Text>
+                <Text style={styles.noteTitle}>Draft First, Then Save</Text>
                 <Text style={styles.noteText}>
-                    Confirming here updates the current edit session underneath. Use Done afterwards to save the parts the API already supports.
+                    Confirming here updates the current edit session underneath. Use Done afterwards to persist the implemented level-up changes.
                 </Text>
             </View>
         </View>

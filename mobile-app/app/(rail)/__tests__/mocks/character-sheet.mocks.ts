@@ -373,6 +373,22 @@ export const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
                         toolProficiencies: [],
                         languages: ['Common', 'Elvish', 'Draconic'],
                     },
+                    classes: [
+                        {
+                            id: 'character-class-1',
+                            classId: 'wizard',
+                            subclassId: 'school-of-evocation',
+                            level: 10,
+                            isStartingClass: true,
+                        },
+                        {
+                            id: 'character-class-2',
+                            classId: 'warlock',
+                            subclassId: 'fiend',
+                            level: 2,
+                            isStartingClass: false,
+                        },
+                    ],
                     weapons: [
                         {
                             id: 'attack-1',

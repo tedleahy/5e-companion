@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
-import { CHARACTERS_MOCK, MOCK_CHARACTER } from './mocks/character-sheet.mocks';
+import { SAVE_CHARACTER_SHEET } from '@/graphql/characterSheet.operations';
+import { CHARACTERS_MOCK, MOCK_CHARACTER, SAVE_CORE_CHARACTER_MOCKS } from './mocks/character-sheet.mocks';
 import {
     enableCharacterSheetEditMode,
     openCharacterSheetTab,
@@ -55,6 +56,97 @@ const ASI_ELIGIBLE_CHARACTER_SHEET_MOCK = {
                 ],
             },
             hasCurrentUserCharacters: true,
+        },
+    },
+};
+
+const LEVEL_UP_SAVE_MOCK = {
+    request: {
+        query: SAVE_CHARACTER_SHEET,
+        variables: {
+            characterId: 'char-1',
+            input: {
+                ...SAVE_CORE_CHARACTER_MOCKS[0].request.variables.input,
+                hp: {
+                    current: 60,
+                    max: 82,
+                    temp: 2,
+                },
+                abilityScores: {
+                    ...SAVE_CORE_CHARACTER_MOCKS[0].request.variables.input.abilityScores,
+                    constitution: 15,
+                },
+                classes: [
+                    {
+                        ...SAVE_CORE_CHARACTER_MOCKS[0].request.variables.input.classes[0],
+                        level: 12,
+                    },
+                    SAVE_CORE_CHARACTER_MOCKS[0].request.variables.input.classes[1],
+                ],
+                features: [
+                    ...SAVE_CORE_CHARACTER_MOCKS[0].request.variables.input.features,
+                    {
+                        name: 'Resilient',
+                        source: 'Feat',
+                        description: 'Gain proficiency in Constitution saving throws and improve concentration checks.\n\nConstitution +1',
+                        usesMax: null,
+                        usesRemaining: null,
+                        recharge: null,
+                    },
+                ],
+            },
+        },
+    },
+    result: {
+        data: {
+            saveCharacterSheet: {
+                ...MOCK_CHARACTER,
+                level: 14,
+                proficiencyBonus: 5,
+                classes: [
+                    {
+                        ...MOCK_CHARACTER.classes[0],
+                        level: 12,
+                    },
+                    MOCK_CHARACTER.classes[1],
+                ],
+                spellcastingProfiles: [
+                    {
+                        ...MOCK_CHARACTER.spellcastingProfiles[0],
+                        classLevel: 12,
+                        spellSaveDC: 18,
+                        spellAttackBonus: 10,
+                    },
+                    MOCK_CHARACTER.spellcastingProfiles[1],
+                ],
+                features: [
+                    ...MOCK_CHARACTER.features,
+                    {
+                        __typename: 'CharacterFeature',
+                        id: 'feature-resilient',
+                        name: 'Resilient',
+                        source: 'Feat',
+                        description: 'Gain proficiency in Constitution saving throws and improve concentration checks.\n\nConstitution +1',
+                        usesMax: null,
+                        usesRemaining: null,
+                        recharge: null,
+                    },
+                ],
+                stats: {
+                    ...MOCK_CHARACTER.stats,
+                    abilityScores: {
+                        __typename: 'AbilityScores',
+                        ...MOCK_CHARACTER.stats.abilityScores,
+                        constitution: 15,
+                    },
+                    hp: {
+                        __typename: 'HP',
+                        current: 60,
+                        max: 82,
+                        temp: 2,
+                    },
+                },
+            },
         },
     },
 };
@@ -446,6 +538,87 @@ describe('CharacterByIdScreen level-up wizard', () => {
 
         await waitFor(() => {
             expect(screen.getByDisplayValue('Resilient')).toBeTruthy();
+        });
+    });
+
+    it('persists supported level-up changes when Done saves the draft', async () => {
+        renderCharacterSheetScreen([
+            ASI_ELIGIBLE_CHARACTER_SHEET_MOCK,
+            LEVEL_UP_SAVE_MOCK,
+        ]);
+
+        await enableCharacterSheetEditMode();
+        await pressAndFlush(screen.getByLabelText('Level up character'));
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 2 of 7 - Hit Points')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-hit-points-average-button'));
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+        await waitFor(() => {
+            expect(screen.getByText('Step 3 of 7 - ASI / Feat')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-feat-choice'));
+        fireEvent.changeText(screen.getByTestId('level-up-feat-name-input'), 'Resilient');
+        fireEvent.changeText(
+            screen.getByTestId('level-up-feat-description-input'),
+            'Gain proficiency in Constitution saving throws and improve concentration checks.',
+        );
+        await pressAndFlush(screen.getByTestId('level-up-feat-ability-increase-button'));
+        await pressAndFlush(screen.getByTestId('level-up-feat-ability-increase-constitution'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+        await waitFor(() => {
+            expect(screen.getByText('Step 4 of 7 - New Class Features')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+        await waitFor(() => {
+            expect(screen.getByText('Step 5 of 7 - Spellcasting Updates')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+        await waitFor(() => {
+            expect(screen.getByText('Step 6 of 7 - Class Resources')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+        await waitFor(() => {
+            expect(screen.getByText('Step 7 of 7 - Summary')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+
+        await waitFor(() => {
+            expect(screen.queryByTestId('level-up-wizard-sheet')).toBeNull();
+        });
+
+        await pressAndFlush(screen.getByLabelText('Save character sheet edits'));
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Enable character sheet edit mode')).toBeTruthy();
+        });
+
+        expect(screen.queryByLabelText('Level up character')).toBeNull();
+        expect(screen.getByTestId('character-sheet-header-subtitle').props.children).toEqual(
+            'Level 14\nWizard 12 / Warlock 2 · High Elf · Chaotic Good',
+        );
+
+        await openCharacterSheetTab('Features');
+
+        await waitFor(() => {
+            expect(screen.getByText('Resilient')).toBeTruthy();
         });
     });
 });
