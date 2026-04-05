@@ -1,4 +1,5 @@
 import type {
+    CharacterClass,
     CharacterSheetDetailQuery,
     SaveCharacterSheetInput,
 } from '@/types/generated_graphql_types';
@@ -75,8 +76,13 @@ export type CharacterSheetDraftFeature = {
     recharge: string | null;
 };
 
+/** Local class row used while editing the character sheet. */
+export type CharacterSheetDraftClass = Omit<CharacterClass, '__typename'>;
+
 /** Local editable character-sheet draft state. */
 export type CharacterSheetDraft = {
+    level: number;
+    classes: CharacterSheetDraftClass[];
     ac: number;
     speed: number;
     initiative: number;
@@ -137,6 +143,16 @@ function persistedEntityId(id: string): string | undefined {
  */
 export function createCharacterSheetDraft(character: CharacterSheetDetail): CharacterSheetDraft {
     return {
+        level: character.level,
+        classes: character.classes.map((classRow) => ({
+            id: classRow.id,
+            classId: classRow.classId,
+            className: classRow.className,
+            subclassId: classRow.subclassId ?? null,
+            subclassName: classRow.subclassName ?? null,
+            level: classRow.level,
+            isStartingClass: classRow.isStartingClass,
+        })),
         hp: {
             current: character.stats?.hp.current ?? 0,
             max: character.stats?.hp.max ?? 0,

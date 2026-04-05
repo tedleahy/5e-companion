@@ -37,7 +37,7 @@ export type LevelUpWizardCharacter = Pick<
     CharacterSheetFieldsFragment,
     'id' | 'name' | 'level' | 'classes' | 'spellcastingProfiles'
 > & {
-    stats: Pick<NonNullable<CharacterSheetFieldsFragment['stats']>, 'abilityScores'> | null;
+    stats: Pick<NonNullable<CharacterSheetFieldsFragment['stats']>, 'abilityScores' | 'hp'> | null;
 };
 
 /**

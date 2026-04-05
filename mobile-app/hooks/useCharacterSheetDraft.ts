@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { applyLevelUpToDraft, type ApplyLevelUpDraftInput } from '@/lib/characterLevelUp/draftApplication';
 import {
     createBlankDraftFeature,
     createBlankDraftInventoryItem,
@@ -294,6 +295,13 @@ export default function useCharacterSheetDraft(character: CharacterSheetDetail |
         }));
     }
 
+    /**
+     * Applies a confirmed level-up into the current local edit draft.
+     */
+    function applyConfirmedLevelUp(input: ApplyLevelUpDraftInput) {
+        updateDraft((currentDraft) => applyLevelUpToDraft(currentDraft, input));
+    }
+
     return {
         draft,
         editMode,
@@ -320,5 +328,6 @@ export default function useCharacterSheetDraft(character: CharacterSheetDetail |
         changeTraitTag,
         removeTraitTag,
         changeTraitText,
+        applyConfirmedLevelUp,
     };
 }
