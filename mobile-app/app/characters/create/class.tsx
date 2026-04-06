@@ -203,6 +203,7 @@ export default function StepClass() {
                 canIncrease={draft.level < 20}
                 decrementLabel="Decrease starting level"
                 incrementLabel="Increase starting level"
+                tone="night"
                 onDecrease={() => adjustLevel(-1)}
                 onIncrease={() => adjustLevel(1)}
             />
