@@ -3,13 +3,19 @@ import { Text } from 'react-native-paper';
 import ClassOptionGrid from '@/components/wizard/ClassOptionGrid';
 import type { AbilityKey } from '@/lib/characterSheetUtils';
 import { levelUpClassOption } from '@/lib/characterLevelUp/chooseClass';
+import { mapCustomFeatureDrafts } from '@/lib/characterLevelUp/subclassFeatures';
 import LevelUpAsiOrFeatStep from './LevelUpAsiOrFeatStep';
 import LevelUpHitPointsStep from './LevelUpHitPointsStep';
+import LevelUpNewFeaturesStep from './LevelUpNewFeaturesStep';
+import LevelUpSubclassSelectionStep from './LevelUpSubclassSelectionStep';
 import LevelUpSummaryStep from './LevelUpSummaryStep';
 import type {
     LevelUpAsiOrFeatState,
+    LevelUpCustomFeatureDraft,
+    LevelUpFeature,
     LevelUpHitPointsState,
     LevelUpClassSelectionMode,
+    LevelUpSubclassSelectionState,
     LevelUpWizardSelectedClass,
     LevelUpWizardStep,
 } from '@/lib/characterLevelUp/types';
@@ -31,6 +37,9 @@ type LevelUpWizardStepBodyProps = {
     };
     hitPointsState: LevelUpHitPointsState | null;
     asiOrFeatState: LevelUpAsiOrFeatState;
+    subclassSelectionState: LevelUpSubclassSelectionState;
+    newFeatures: LevelUpFeature[];
+    customFeatures: LevelUpCustomFeatureDraft[];
     onSelectClass: (classId: string) => void;
     onEnterClassPicker: () => void;
     onReturnToCurrentClass: () => void;
@@ -42,6 +51,12 @@ type LevelUpWizardStepBodyProps = {
     onChangeFeatName: (value: string) => void;
     onChangeFeatDescription: (value: string) => void;
     onChangeFeatAbilityIncrease: (value: AbilityKey | null) => void;
+    onSelectSrdSubclass: (subclassId: string) => void;
+    onSelectCustomSubclass: () => void;
+    onChangeCustomSubclassName: (value: string) => void;
+    onAddCustomFeature: () => void;
+    onChangeCustomFeature: (featureId: string, changes: Partial<LevelUpCustomFeatureDraft>) => void;
+    onRemoveCustomFeature: (featureId: string) => void;
 };
 
 /**
@@ -59,6 +74,9 @@ export default function LevelUpWizardStepBody({
     currentHitPoints,
     hitPointsState,
     asiOrFeatState,
+    subclassSelectionState,
+    newFeatures,
+    customFeatures,
     onSelectClass,
     onEnterClassPicker,
     onReturnToCurrentClass,
@@ -70,6 +88,12 @@ export default function LevelUpWizardStepBody({
     onChangeFeatName,
     onChangeFeatDescription,
     onChangeFeatAbilityIncrease,
+    onSelectSrdSubclass,
+    onSelectCustomSubclass,
+    onChangeCustomSubclassName,
+    onAddCustomFeature,
+    onChangeCustomFeature,
+    onRemoveCustomFeature,
 }: LevelUpWizardStepBodyProps) {
     if (step.id === 'choose_class') {
         const currentClassOption = levelUpClassOption(currentClass.classId);
@@ -184,6 +208,33 @@ export default function LevelUpWizardStepBody({
         );
     }
 
+    if (step.id === 'subclass_selection') {
+        return (
+            <LevelUpSubclassSelectionStep
+                selectedClass={selectedClass}
+                selectedSrdSubclassId={subclassSelectionState.selectedSubclassId}
+                customSubclassName={subclassSelectionState.customSubclassName}
+                selectedMode={subclassSelectionState.mode}
+                onSelectSrdSubclass={onSelectSrdSubclass}
+                onSelectCustomSubclass={onSelectCustomSubclass}
+                onChangeCustomSubclassName={onChangeCustomSubclassName}
+            />
+        );
+    }
+
+    if (step.id === 'new_features') {
+        return (
+            <LevelUpNewFeaturesStep
+                selectedClass={selectedClass}
+                features={newFeatures}
+                customFeatures={customFeatures}
+                onAddCustomFeature={onAddCustomFeature}
+                onChangeCustomFeature={onChangeCustomFeature}
+                onRemoveCustomFeature={onRemoveCustomFeature}
+            />
+        );
+    }
+
     if (step.id === 'summary' && hitPointsState) {
         return (
             <LevelUpSummaryStep
@@ -193,6 +244,10 @@ export default function LevelUpWizardStepBody({
                 selectedClass={selectedClass}
                 hitPointsState={hitPointsState}
                 asiOrFeatState={stepRequiresAsiOrFeat(step, asiOrFeatState)}
+                features={[
+                    ...newFeatures,
+                    ...mapCustomFeatureDrafts(selectedClass, customFeatures),
+                ]}
             />
         );
     }

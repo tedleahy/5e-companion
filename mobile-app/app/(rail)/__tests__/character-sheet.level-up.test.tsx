@@ -60,6 +60,40 @@ const ASI_ELIGIBLE_CHARACTER_SHEET_MOCK = {
     },
 };
 
+const SUBCLASS_ELIGIBLE_CHARACTER_SHEET_MOCK = {
+    request: {
+        ...CHARACTERS_MOCK.request,
+    },
+    result: {
+        data: {
+            character: {
+                ...MOCK_CHARACTER,
+                level: 1,
+                proficiencyBonus: 2,
+                classes: [
+                    {
+                        ...MOCK_CHARACTER.classes[0],
+                        subclassId: null,
+                        subclassName: null,
+                        level: 1,
+                    },
+                ],
+                spellcastingProfiles: [
+                    {
+                        ...MOCK_CHARACTER.spellcastingProfiles[0],
+                        subclassId: null,
+                        subclassName: null,
+                        classLevel: 1,
+                        spellSaveDC: 15,
+                        spellAttackBonus: 7,
+                    },
+                ],
+            },
+            hasCurrentUserCharacters: true,
+        },
+    },
+};
+
 const LEVEL_UP_SAVE_MOCK = {
     request: {
         query: SAVE_CHARACTER_SHEET,
@@ -222,7 +256,7 @@ describe('CharacterByIdScreen level-up wizard', () => {
         await pressAndFlush(screen.getByTestId('level-up-class-option-fighter'));
 
         await waitFor(() => {
-            expect(screen.getByText('Step 1 of 5 - Choose Class')).toBeTruthy();
+            expect(screen.getByText('Step 1 of 6 - Choose Class')).toBeTruthy();
         });
 
         expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
@@ -344,7 +378,7 @@ describe('CharacterByIdScreen level-up wizard', () => {
         await pressAndFlush(screen.getByTestId('level-up-next-button'));
 
         await waitFor(() => {
-            expect(screen.getByText('Step 2 of 7 - Hit Points')).toBeTruthy();
+            expect(screen.getByText('Step 2 of 6 - Hit Points')).toBeTruthy();
         });
 
         await pressAndFlush(screen.getByTestId('level-up-hit-points-average-button'));
@@ -355,7 +389,7 @@ describe('CharacterByIdScreen level-up wizard', () => {
         await pressAndFlush(screen.getByTestId('level-up-next-button'));
 
         await waitFor(() => {
-            expect(screen.getByText('Step 3 of 7 - ASI / Feat')).toBeTruthy();
+            expect(screen.getByText('Step 3 of 6 - ASI / Feat')).toBeTruthy();
         });
 
         expect(screen.getByTestId('level-up-asi-panel')).toBeTruthy();
@@ -406,6 +440,94 @@ describe('CharacterByIdScreen level-up wizard', () => {
 
         expect(screen.getByTestId('level-up-feat-name-input').props.value).toBe('Resilient');
         expect(screen.getByTestId('level-up-feat-description-input').props.value).toContain('Constitution saving throws');
+    });
+
+    it('shows subclass selection, then inserts the new-features step after picking the SRD subclass', async () => {
+        renderCharacterSheetScreen([SUBCLASS_ELIGIBLE_CHARACTER_SHEET_MOCK]);
+
+        await enableCharacterSheetEditMode();
+        await pressAndFlush(screen.getByLabelText('Level up character'));
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 2 of 6 - Hit Points')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-hit-points-average-button'));
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+        await waitFor(() => {
+            expect(screen.getByText('Step 3 of 6 - Subclass Selection')).toBeTruthy();
+        });
+
+        expect(screen.getByTestId('expandable-lore-read-more')).toBeTruthy();
+        await pressAndFlush(screen.getByTestId('expandable-lore-read-more'));
+        await waitFor(() => {
+            expect(screen.getByTestId('expandable-lore-read-less')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-subclass-option-evocation'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 3 of 7 - Subclass Selection')).toBeTruthy();
+        });
+
+        expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+        await waitFor(() => {
+            expect(screen.getByText('Step 4 of 7 - New Class Features')).toBeTruthy();
+        });
+
+        expect(screen.getByText('Evocation Savant')).toBeTruthy();
+        expect(screen.getByText('Sculpt Spells')).toBeTruthy();
+    });
+
+    it('supports the custom subclass branch and custom feature entry', async () => {
+        renderCharacterSheetScreen([SUBCLASS_ELIGIBLE_CHARACTER_SHEET_MOCK]);
+
+        await enableCharacterSheetEditMode();
+        await pressAndFlush(screen.getByLabelText('Level up character'));
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 2 of 6 - Hit Points')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-hit-points-average-button'));
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+        await waitFor(() => {
+            expect(screen.getByText('Step 3 of 6 - Subclass Selection')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-subclass-option-custom'));
+        fireEvent.changeText(screen.getByTestId('level-up-custom-subclass-name-input'), 'School of Glass');
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 3 of 7 - Subclass Selection')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+        await waitFor(() => {
+            expect(screen.getByText('Step 4 of 7 - New Class Features')).toBeTruthy();
+        });
+
+        expect(screen.getByTestId('level-up-custom-feature-section')).toBeTruthy();
+        await pressAndFlush(screen.getByTestId('level-up-add-custom-feature'));
+        fireEvent.changeText(screen.getByTestId('level-up-custom-feature-name-0'), 'Prismatic Ward');
+        fireEvent.changeText(
+            screen.getByTestId('level-up-custom-feature-description-0'),
+            'Bend light around yourself to deflect incoming attacks.',
+        );
+
+        expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
     });
 
     it('navigates placeholder steps after picking hit points and switches the final action label', async () => {
@@ -473,7 +595,7 @@ describe('CharacterByIdScreen level-up wizard', () => {
         await pressAndFlush(screen.getByTestId('level-up-next-button'));
 
         await waitFor(() => {
-            expect(screen.getByText('Step 2 of 7 - Hit Points')).toBeTruthy();
+            expect(screen.getByText('Step 2 of 6 - Hit Points')).toBeTruthy();
         });
 
         await pressAndFlush(screen.getByTestId('level-up-hit-points-average-button'));
@@ -483,7 +605,7 @@ describe('CharacterByIdScreen level-up wizard', () => {
 
         await pressAndFlush(screen.getByTestId('level-up-next-button'));
         await waitFor(() => {
-            expect(screen.getByText('Step 3 of 7 - ASI / Feat')).toBeTruthy();
+            expect(screen.getByText('Step 3 of 6 - ASI / Feat')).toBeTruthy();
         });
 
         await pressAndFlush(screen.getByTestId('level-up-feat-choice'));
@@ -499,22 +621,17 @@ describe('CharacterByIdScreen level-up wizard', () => {
 
         await pressAndFlush(screen.getByTestId('level-up-next-button'));
         await waitFor(() => {
-            expect(screen.getByText('Step 4 of 7 - New Class Features')).toBeTruthy();
+            expect(screen.getByText('Step 4 of 6 - Spellcasting Updates')).toBeTruthy();
         });
 
         await pressAndFlush(screen.getByTestId('level-up-next-button'));
         await waitFor(() => {
-            expect(screen.getByText('Step 5 of 7 - Spellcasting Updates')).toBeTruthy();
+            expect(screen.getByText('Step 5 of 6 - Class Resources')).toBeTruthy();
         });
 
         await pressAndFlush(screen.getByTestId('level-up-next-button'));
         await waitFor(() => {
-            expect(screen.getByText('Step 6 of 7 - Class Resources')).toBeTruthy();
-        });
-
-        await pressAndFlush(screen.getByTestId('level-up-next-button'));
-        await waitFor(() => {
-            expect(screen.getByText('Step 7 of 7 - Summary')).toBeTruthy();
+            expect(screen.getByText('Step 6 of 6 - Summary')).toBeTruthy();
         });
 
         expect(screen.getByTestId('level-up-summary-class-level')).toBeTruthy();
@@ -552,7 +669,7 @@ describe('CharacterByIdScreen level-up wizard', () => {
         await pressAndFlush(screen.getByTestId('level-up-next-button'));
 
         await waitFor(() => {
-            expect(screen.getByText('Step 2 of 7 - Hit Points')).toBeTruthy();
+            expect(screen.getByText('Step 2 of 6 - Hit Points')).toBeTruthy();
         });
 
         await pressAndFlush(screen.getByTestId('level-up-hit-points-average-button'));
@@ -562,7 +679,7 @@ describe('CharacterByIdScreen level-up wizard', () => {
 
         await pressAndFlush(screen.getByTestId('level-up-next-button'));
         await waitFor(() => {
-            expect(screen.getByText('Step 3 of 7 - ASI / Feat')).toBeTruthy();
+            expect(screen.getByText('Step 3 of 6 - ASI / Feat')).toBeTruthy();
         });
 
         await pressAndFlush(screen.getByTestId('level-up-feat-choice'));
@@ -580,22 +697,17 @@ describe('CharacterByIdScreen level-up wizard', () => {
 
         await pressAndFlush(screen.getByTestId('level-up-next-button'));
         await waitFor(() => {
-            expect(screen.getByText('Step 4 of 7 - New Class Features')).toBeTruthy();
+            expect(screen.getByText('Step 4 of 6 - Spellcasting Updates')).toBeTruthy();
         });
 
         await pressAndFlush(screen.getByTestId('level-up-next-button'));
         await waitFor(() => {
-            expect(screen.getByText('Step 5 of 7 - Spellcasting Updates')).toBeTruthy();
+            expect(screen.getByText('Step 5 of 6 - Class Resources')).toBeTruthy();
         });
 
         await pressAndFlush(screen.getByTestId('level-up-next-button'));
         await waitFor(() => {
-            expect(screen.getByText('Step 6 of 7 - Class Resources')).toBeTruthy();
-        });
-
-        await pressAndFlush(screen.getByTestId('level-up-next-button'));
-        await waitFor(() => {
-            expect(screen.getByText('Step 7 of 7 - Summary')).toBeTruthy();
+            expect(screen.getByText('Step 6 of 6 - Summary')).toBeTruthy();
         });
 
         await pressAndFlush(screen.getByTestId('level-up-next-button'));

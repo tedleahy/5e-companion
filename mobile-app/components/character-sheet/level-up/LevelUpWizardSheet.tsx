@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Keyboard, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
+import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import LevelUpWizardProgress from './LevelUpWizardProgress';
 import LevelUpWizardStepBody from './LevelUpWizardStepBody';
@@ -26,7 +28,15 @@ export default function LevelUpWizardSheet({
     onConfirm,
     onClose,
 }: LevelUpWizardSheetProps) {
-    const scrollViewRef = useRef<ScrollView>(null);
+    const scrollViewRef = useRef<KeyboardAwareScrollView>(null);
+
+    /**
+     * Dismisses the active keyboard before running the supplied wizard action.
+     */
+    function dismissKeyboardAndRun(action: () => void) {
+        Keyboard.dismiss();
+        action();
+    }
 
     useEffect(() => {
         if (!visible) {
@@ -45,7 +55,7 @@ export default function LevelUpWizardSheet({
             <View style={styles.backdrop}>
                 <Pressable
                     style={styles.backdropPressable}
-                    onPress={onClose}
+                    onPress={() => dismissKeyboardAndRun(onClose)}
                     accessibilityRole="button"
                     accessibilityLabel="Dismiss level up wizard"
                 />
@@ -60,7 +70,7 @@ export default function LevelUpWizardSheet({
                     <View style={styles.titleRow}>
                         <Text style={styles.title}>Level Up</Text>
                         <Pressable
-                            onPress={onClose}
+                            onPress={() => dismissKeyboardAndRun(onClose)}
                             accessibilityRole="button"
                             accessibilityLabel="Close level up wizard"
                             style={styles.closeButton}
@@ -79,8 +89,10 @@ export default function LevelUpWizardSheet({
                     />
                 </View>
 
-                <ScrollView
+                <KeyboardAwareScrollView
+                    {...keyboardAwareScrollProps}
                     ref={scrollViewRef}
+                    bottomOffset={keyboardAwareBottomOffset}
                     style={styles.body}
                     contentContainerStyle={styles.bodyContent}
                     showsVerticalScrollIndicator={false}
@@ -97,6 +109,9 @@ export default function LevelUpWizardSheet({
                         currentHitPoints={wizard.currentHitPoints}
                         hitPointsState={wizard.hitPointsState}
                         asiOrFeatState={wizard.asiOrFeatState}
+                        subclassSelectionState={wizard.subclassSelectionState}
+                        newFeatures={wizard.newFeatures}
+                        customFeatures={wizard.customFeatures}
                         onSelectClass={wizard.selectClass}
                         onEnterClassPicker={wizard.enterClassPicker}
                         onReturnToCurrentClass={wizard.returnToCurrentClass}
@@ -108,12 +123,18 @@ export default function LevelUpWizardSheet({
                         onChangeFeatName={wizard.changeFeatName}
                         onChangeFeatDescription={wizard.changeFeatDescription}
                         onChangeFeatAbilityIncrease={wizard.changeFeatAbilityIncrease}
+                        onSelectSrdSubclass={wizard.selectSrdSubclass}
+                        onSelectCustomSubclass={wizard.selectCustomSubclass}
+                        onChangeCustomSubclassName={wizard.changeCustomSubclassName}
+                        onAddCustomFeature={wizard.addCustomFeature}
+                        onChangeCustomFeature={wizard.changeCustomFeature}
+                        onRemoveCustomFeature={wizard.removeCustomFeature}
                     />
-                </ScrollView>
+                </KeyboardAwareScrollView>
 
                 <View style={styles.footer}>
                     <Pressable
-                        onPress={wizard.goToPreviousStep}
+                        onPress={() => dismissKeyboardAndRun(wizard.goToPreviousStep)}
                         accessibilityRole="button"
                         accessibilityLabel="Go to previous level up step"
                         accessibilityState={{ disabled: wizard.isFirstStep }}
@@ -136,7 +157,7 @@ export default function LevelUpWizardSheet({
                     </Pressable>
 
                     <Pressable
-                        onPress={wizard.isLastStep ? onConfirm : wizard.goToNextStep}
+                        onPress={() => dismissKeyboardAndRun(wizard.isLastStep ? onConfirm : wizard.goToNextStep)}
                         accessibilityRole="button"
                         accessibilityLabel={wizard.isLastStep ? 'Confirm level up changes' : 'Go to next level up step'}
                         accessibilityState={{ disabled: wizard.nextButtonDisabled }}

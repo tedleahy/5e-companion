@@ -27,6 +27,7 @@ import useLevelUpWizard from '@/hooks/useLevelUpWizard';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
 import useCharacterSheetData from '@/hooks/useCharacterSheetData';
 import useCharacterSheetDraft from '@/hooks/useCharacterSheetDraft';
+import { mapCustomFeatureDrafts } from '@/lib/characterLevelUp/subclassFeatures';
 import {
     formatCharacterClassSummary,
     hasSpellcastingProfiles,
@@ -199,6 +200,10 @@ export default function CharacterByIdScreen() {
             asiOrFeatState: levelUpWizard.steps.some((step) => step.id === 'asi_or_feat')
                 ? levelUpWizard.asiOrFeatState
                 : null,
+            features: [
+                ...levelUpWizard.newFeatures,
+                ...mapCustomFeatureDrafts(levelUpWizard.selectedClass, levelUpWizard.customFeatures),
+            ],
         });
         setLevelUpSheetVisible(false);
         levelUpWizard.resetWizard();

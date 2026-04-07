@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { AbilityKey } from '@/lib/characterSheetUtils';
+import { createDraftEntityId } from '@/lib/character-sheet/characterSheetDraft';
 import {
     canContinueFromAsiOrFeat,
     createLevelUpAsiOrFeatState,
@@ -26,10 +27,23 @@ import {
     defaultLevelUpClassId,
     selectedLevelUpClass,
 } from '@/lib/characterLevelUp/stepAssembly';
+import {
+    canContinueFromNewFeatures,
+    canContinueFromSubclassSelection,
+    createLevelUpSubclassSelectionState,
+    getLevelUpFeatures,
+    needsSubclassSelectionStep,
+    selectLevelUpCustomSubclass,
+    selectLevelUpSrdSubclass,
+    setLevelUpCustomSubclassName,
+} from '@/lib/characterLevelUp/subclassFeatures';
 import type {
     LevelUpAsiOrFeatState,
+    LevelUpCustomFeatureDraft,
+    LevelUpFeature,
     LevelUpHitPointsState,
     LevelUpClassSelectionMode,
+    LevelUpSubclassSelectionState,
     LevelUpWizardCharacter,
     LevelUpWizardSelectedClass,
     LevelUpWizardStep,
@@ -50,6 +64,9 @@ export type UseLevelUpWizardResult = {
     currentHitPoints: { current: number; max: number; temp: number };
     hitPointsState: LevelUpHitPointsState | null;
     asiOrFeatState: LevelUpAsiOrFeatState;
+    subclassSelectionState: LevelUpSubclassSelectionState;
+    newFeatures: LevelUpFeature[];
+    customFeatures: LevelUpCustomFeatureDraft[];
     steps: LevelUpWizardStep[];
     currentStep: LevelUpWizardStep;
     currentStepIndex: number;
@@ -69,6 +86,12 @@ export type UseLevelUpWizardResult = {
     changeFeatName: (value: string) => void;
     changeFeatDescription: (value: string) => void;
     changeFeatAbilityIncrease: (value: AbilityKey | null) => void;
+    selectSrdSubclass: (subclassId: string) => void;
+    selectCustomSubclass: () => void;
+    changeCustomSubclassName: (value: string) => void;
+    addCustomFeature: () => void;
+    changeCustomFeature: (featureId: string, changes: Partial<LevelUpCustomFeatureDraft>) => void;
+    removeCustomFeature: (featureId: string) => void;
     goToPreviousStep: () => void;
     goToNextStep: () => void;
     resetWizard: () => void;
@@ -85,6 +108,8 @@ export default function useLevelUpWizard(
     const [classSelection, setClassSelection] = useState(() => createLevelUpClassSelectionState(defaultClassId));
     const [hitPointsState, setHitPointsState] = useState<LevelUpHitPointsState | null>(null);
     const [asiOrFeatState, setAsiOrFeatState] = useState<LevelUpAsiOrFeatState>(() => createLevelUpAsiOrFeatState());
+    const [subclassSelectionState, setSubclassSelectionState] = useState<LevelUpSubclassSelectionState>(() => createLevelUpSubclassSelectionState());
+    const [customFeatures, setCustomFeatures] = useState<LevelUpCustomFeatureDraft[]>([]);
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const selectedClassId = effectiveLevelUpClassId(classSelection);
     const abilityScores = useMemo<Record<AbilityKey, number>>(
@@ -109,17 +134,29 @@ export default function useLevelUpWizard(
         [character],
     );
 
-    const steps = useMemo(
-        () => buildLevelUpStepList(character, selectedClassId),
-        [character, selectedClassId],
-    );
     const currentClass = useMemo(
         () => currentLevelUpClass(character, defaultClassId),
         [character, defaultClassId],
     );
-    const selectedClass = useMemo(
+    const baseSelectedClass = useMemo(
         () => selectedLevelUpClass(character, selectedClassId),
         [character, selectedClassId],
+    );
+    const selectedClass = useMemo(
+        () => selectedLevelUpClass(character, selectedClassId, subclassSelectionState),
+        [character, selectedClassId, subclassSelectionState],
+    );
+    const shouldIncludeSubclassSelection = useMemo(
+        () => needsSubclassSelectionStep(baseSelectedClass),
+        [baseSelectedClass],
+    );
+    const steps = useMemo(
+        () => buildLevelUpStepList(selectedClass, shouldIncludeSubclassSelection),
+        [selectedClass, shouldIncludeSubclassSelection],
+    );
+    const newFeatures = useMemo(
+        () => getLevelUpFeatures(selectedClass),
+        [selectedClass],
     );
     const prerequisiteWarnings = useMemo(
         () => multiclassPrerequisiteWarnings(character, defaultClassId, classSelection.selectedClassId),
@@ -134,11 +171,15 @@ export default function useLevelUpWizard(
         setClassSelection(createLevelUpClassSelectionState(defaultClassId));
         setHitPointsState(null);
         setAsiOrFeatState(createLevelUpAsiOrFeatState());
+        setSubclassSelectionState(createLevelUpSubclassSelectionState());
+        setCustomFeatures([]);
         setCurrentStepIndex(0);
     }, [defaultClassId, visible]);
 
     useEffect(() => {
         setHitPointsState(null);
+        setSubclassSelectionState(createLevelUpSubclassSelectionState());
+        setCustomFeatures([]);
     }, [selectedClassId]);
 
     useEffect(() => {
@@ -160,7 +201,11 @@ export default function useLevelUpWizard(
             ? hitPointsState == null
             : currentStep.id === 'asi_or_feat'
                 ? !canContinueFromAsiOrFeat(asiOrFeatState)
-            : false;
+                : currentStep.id === 'subclass_selection'
+                    ? !canContinueFromSubclassSelection(subclassSelectionState)
+                    : currentStep.id === 'new_features'
+                        ? !canContinueFromNewFeatures(customFeatures)
+                        : false;
 
     const selectClass = useCallback((classId: string) => {
         setClassSelection((previousState) => selectMulticlassLevelUpClass(previousState, classId));
@@ -210,6 +255,39 @@ export default function useLevelUpWizard(
         setAsiOrFeatState((previousState) => setLevelUpFeatAbilityIncrease(previousState, value));
     }, []);
 
+    const selectSrdSubclass = useCallback((subclassId: string) => {
+        setSubclassSelectionState((previousState) => selectLevelUpSrdSubclass(previousState, subclassId));
+    }, []);
+
+    const selectCustomSubclass = useCallback(() => {
+        setSubclassSelectionState((previousState) => selectLevelUpCustomSubclass(previousState));
+    }, []);
+
+    const changeCustomSubclassName = useCallback((value: string) => {
+        setSubclassSelectionState((previousState) => setLevelUpCustomSubclassName(previousState, value));
+    }, []);
+
+    const addCustomFeature = useCallback(() => {
+        setCustomFeatures((previousState) => [
+            ...previousState,
+            {
+                id: createDraftEntityId('level-up-feature'),
+                name: '',
+                description: '',
+            },
+        ]);
+    }, []);
+
+    const changeCustomFeature = useCallback((featureId: string, changes: Partial<LevelUpCustomFeatureDraft>) => {
+        setCustomFeatures((previousState) => previousState.map((feature) => (
+            feature.id === featureId ? { ...feature, ...changes } : feature
+        )));
+    }, []);
+
+    const removeCustomFeature = useCallback((featureId: string) => {
+        setCustomFeatures((previousState) => previousState.filter((feature) => feature.id !== featureId));
+    }, []);
+
     const goToPreviousStep = useCallback(() => {
         setCurrentStepIndex((previousIndex) => Math.max(previousIndex - 1, 0));
     }, []);
@@ -232,6 +310,8 @@ export default function useLevelUpWizard(
         setClassSelection(createLevelUpClassSelectionState(defaultClassId));
         setHitPointsState(null);
         setAsiOrFeatState(createLevelUpAsiOrFeatState());
+        setSubclassSelectionState(createLevelUpSubclassSelectionState());
+        setCustomFeatures([]);
         setCurrentStepIndex(0);
     }, [defaultClassId]);
 
@@ -247,6 +327,9 @@ export default function useLevelUpWizard(
         currentHitPoints,
         hitPointsState,
         asiOrFeatState,
+        subclassSelectionState,
+        newFeatures,
+        customFeatures,
         steps,
         currentStep,
         currentStepIndex,
@@ -266,6 +349,12 @@ export default function useLevelUpWizard(
         changeFeatName,
         changeFeatDescription,
         changeFeatAbilityIncrease,
+        selectSrdSubclass,
+        selectCustomSubclass,
+        changeCustomSubclassName,
+        addCustomFeature,
+        changeCustomFeature,
+        removeCustomFeature,
         goToPreviousStep,
         goToNextStep,
         resetWizard,

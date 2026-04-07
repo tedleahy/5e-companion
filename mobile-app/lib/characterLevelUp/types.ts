@@ -51,6 +51,7 @@ export type LevelUpWizardSelectedClass = {
     isExistingClass: boolean;
     subclassId: string | null;
     subclassName: string | null;
+    subclassIsCustom: boolean;
 };
 
 /**
@@ -109,4 +110,42 @@ export type LevelUpClassSelectionState = {
     currentClassId: string;
     mode: LevelUpClassSelectionMode;
     selectedClassId: string | null;
+};
+
+/**
+ * Supported subclass selection modes for the level-up flow.
+ */
+export type LevelUpSubclassSelectionMode = 'none' | 'srd' | 'custom';
+
+/**
+ * Route-local subclass selection state.
+ */
+export type LevelUpSubclassSelectionState = {
+    mode: LevelUpSubclassSelectionMode;
+    selectedSubclassId: string | null;
+    customSubclassName: string;
+};
+
+/**
+ * One custom subclass feature drafted during the level-up flow.
+ */
+export type LevelUpCustomFeatureDraft = {
+    id: string;
+    name: string;
+    description: string;
+};
+
+/**
+ * One display-ready class or subclass feature shown in the wizard.
+ */
+export type LevelUpFeature = {
+    key: string;
+    name: string;
+    description: string;
+    source: string;
+    classId: string;
+    level: number;
+    subclassId: string | null;
+    subclassName: string | null;
+    kind: 'class' | 'subclass' | 'spell_slot' | 'custom';
 };

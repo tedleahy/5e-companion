@@ -6,6 +6,7 @@ import { formatSignedNumber } from '@/lib/characterSheetUtils';
 import { LEVEL_UP_ABILITY_LABELS } from '@/lib/characterLevelUp/asiOrFeat';
 import type {
     LevelUpAsiOrFeatState,
+    LevelUpFeature,
     LevelUpHitPointsState,
     LevelUpWizardSelectedClass,
 } from '@/lib/characterLevelUp/types';
@@ -22,6 +23,7 @@ type LevelUpSummaryStepProps = {
     selectedClass: LevelUpWizardSelectedClass;
     hitPointsState: LevelUpHitPointsState;
     asiOrFeatState: LevelUpAsiOrFeatState | null;
+    features: LevelUpFeature[];
 };
 
 /**
@@ -34,6 +36,7 @@ export default function LevelUpSummaryStep({
     selectedClass,
     hitPointsState,
     asiOrFeatState,
+    features,
 }: LevelUpSummaryStepProps) {
     const nextMaxHitPoints = currentHitPoints.max + hitPointsState.hpGained;
     const abilityScoreChanges = abilityScoreSummaryRows(abilityScores, asiOrFeatState);
@@ -100,6 +103,26 @@ export default function LevelUpSummaryStep({
                         ) : null}
                     </SummaryCard>
                 )
+            ) : null}
+
+            {selectedClass.subclassName ? (
+                <SummaryCard label="Subclass" testID="level-up-summary-subclass">
+                    <Text style={styles.summaryValue}>
+                        <Text style={styles.summaryHighlight}>{selectedClass.subclassName}</Text>
+                    </Text>
+                </SummaryCard>
+            ) : null}
+
+            {features.length > 0 ? (
+                <SummaryCard label="New Features" testID="level-up-summary-features">
+                    <View style={styles.featureList}>
+                        {features.map((feature) => (
+                            <Text key={feature.key} style={styles.summaryListItem}>
+                                {`\u2022 ${feature.name}`}
+                            </Text>
+                        ))}
+                    </View>
+                </SummaryCard>
             ) : null}
 
             <View style={styles.noteCard}>
@@ -244,6 +267,9 @@ const styles = StyleSheet.create({
     summaryListItem: {
         ...fantasyTokens.typography.body,
         color: fantasyTokens.colors.inkDark,
+    },
+    featureList: {
+        gap: 4,
     },
     summaryOldValue: {
         color: fantasyTokens.colors.inkSoft,

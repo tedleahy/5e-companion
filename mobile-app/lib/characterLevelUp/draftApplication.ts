@@ -6,6 +6,7 @@ import { createDraftEntityId } from '@/lib/character-sheet/characterSheetDraft';
 import { ABILITY_KEYS, type AbilityKey } from '@/lib/characterSheetUtils';
 import type {
     LevelUpAsiOrFeatState,
+    LevelUpFeature,
     LevelUpHitPointsState,
     LevelUpWizardSelectedClass,
 } from './types';
@@ -22,6 +23,7 @@ export type ApplyLevelUpDraftInput = {
     selectedClass: LevelUpWizardSelectedClass;
     hitPointsState: LevelUpHitPointsState;
     asiOrFeatState: LevelUpAsiOrFeatState | null;
+    features: LevelUpFeature[];
 };
 
 /**
@@ -45,7 +47,7 @@ export function applyLevelUpToDraft(
         classes,
         abilityScores,
         hp,
-        features: applyLevelUpFeatFeature(draft, input.asiOrFeatState),
+        features: applyLevelUpFeatures(draft.features, input.asiOrFeatState, input.features),
     };
 }
 
@@ -61,7 +63,12 @@ function applyLevelUpClasses(
     if (existingClassIndex >= 0) {
         return classes.map((classRow, classIndex) => (
             classIndex === existingClassIndex
-                ? { ...classRow, level: classRow.level + 1 }
+                ? {
+                    ...classRow,
+                    level: classRow.level + 1,
+                    subclassId: selectedClass.subclassId,
+                    subclassName: selectedClass.subclassName,
+                }
                 : classRow
         ));
     }
@@ -112,22 +119,17 @@ function applyLevelUpAbilityScores(
 }
 
 /**
- * Adds a feat feature row when the current level-up used feat mode.
+ * Adds level-up-created features to the existing draft feature list.
  */
-function applyLevelUpFeatFeature(
-    draft: CharacterSheetDraft,
+function applyLevelUpFeatures(
+    existingFeatures: CharacterSheetDraft['features'],
     asiOrFeatState: LevelUpAsiOrFeatState | null,
+    features: LevelUpFeature[],
 ): CharacterSheetDraft['features'] {
-    if (
-        asiOrFeatState == null
-        || asiOrFeatState.mode !== 'feat'
-    ) {
-        return draft.features;
-    }
+    const nextFeatures = [...existingFeatures];
 
-    return [
-        ...draft.features,
-        {
+    if (asiOrFeatState != null && asiOrFeatState.mode === 'feat') {
+        nextFeatures.push({
             id: createDraftEntityId('feature'),
             name: asiOrFeatState.feat.name.trim(),
             source: 'Feat',
@@ -138,8 +140,22 @@ function applyLevelUpFeatFeature(
             usesMax: null,
             usesRemaining: null,
             recharge: null,
-        },
-    ];
+        });
+    }
+
+    for (const feature of features) {
+        nextFeatures.push({
+            id: createDraftEntityId('feature'),
+            name: feature.name.trim(),
+            source: feature.source,
+            description: feature.description.trim(),
+            usesMax: null,
+            usesRemaining: null,
+            recharge: null,
+        });
+    }
+
+    return nextFeatures;
 }
 
 /**

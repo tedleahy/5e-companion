@@ -1,0 +1,110 @@
+import {
+    canContinueFromNewFeatures,
+    canContinueFromSubclassSelection,
+    getLevelUpFeatures,
+    isSubclassChoiceLevel,
+    mapCustomFeatureDrafts,
+} from '@/lib/characterLevelUp/subclassFeatures';
+import type { LevelUpWizardSelectedClass } from '@/lib/characterLevelUp/types';
+
+/**
+ * Builds one selected-class fixture for feature-lookup tests.
+ */
+function createSelectedClass(
+    overrides: Partial<LevelUpWizardSelectedClass>,
+): LevelUpWizardSelectedClass {
+    return {
+        classId: 'wizard',
+        className: 'Wizard',
+        currentLevel: 10,
+        newLevel: 11,
+        isExistingClass: true,
+        subclassId: 'evocation',
+        subclassName: 'School of Evocation',
+        subclassIsCustom: false,
+        ...overrides,
+    };
+}
+
+describe('characterLevelUp subclass features', () => {
+    it('detects subclass-choice levels from the SRD progression table', () => {
+        expect(isSubclassChoiceLevel('wizard', 2)).toBe(true);
+        expect(isSubclassChoiceLevel('wizard', 3)).toBe(false);
+        expect(isSubclassChoiceLevel('fighter', 3)).toBe(true);
+    });
+
+    it('includes new spell-slot-tier unlocks in the feature list', () => {
+        expect(getLevelUpFeatures(createSelectedClass({
+            currentLevel: 12,
+            newLevel: 13,
+        }))).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                name: '7th Level Spell Slot',
+                kind: 'spell_slot',
+                source: 'Wizard 13',
+            }),
+        ]));
+    });
+
+    it('includes subclass features once an SRD subclass has been chosen', () => {
+        expect(getLevelUpFeatures(createSelectedClass({
+            currentLevel: 1,
+            newLevel: 2,
+        }))).toEqual(expect.arrayContaining([
+            expect.objectContaining({ name: 'Evocation Savant', kind: 'subclass' }),
+            expect.objectContaining({ name: 'Sculpt Spells', kind: 'subclass' }),
+        ]));
+    });
+
+    it('requires drafted custom subclass features to be complete before continuing', () => {
+        expect(canContinueFromNewFeatures([])).toBe(true);
+        expect(canContinueFromNewFeatures([
+            { id: 'feature-1', name: 'Runic Ward', description: 'Create a brief shield of force.' },
+        ])).toBe(true);
+        expect(canContinueFromNewFeatures([
+            { id: 'feature-1', name: 'Runic Ward', description: '' },
+        ])).toBe(false);
+    });
+
+    it('maps custom subclass features into persisted feature rows', () => {
+        expect(mapCustomFeatureDrafts(createSelectedClass({
+            currentLevel: 1,
+            newLevel: 2,
+            subclassId: null,
+            subclassName: 'School of Glass',
+            subclassIsCustom: true,
+        }), [
+            {
+                id: 'feature-1',
+                name: 'Refraction Shield',
+                description: 'Bend light to turn aside attacks.',
+            },
+        ])).toEqual([
+            expect.objectContaining({
+                name: 'Refraction Shield',
+                kind: 'custom',
+                source: 'School of Glass Wizard 2',
+            }),
+        ]);
+    });
+
+    it('requires a concrete subclass choice before the subclass step can continue', () => {
+        expect(canContinueFromSubclassSelection({
+            mode: 'none',
+            selectedSubclassId: null,
+            customSubclassName: '',
+        })).toBe(false);
+
+        expect(canContinueFromSubclassSelection({
+            mode: 'srd',
+            selectedSubclassId: 'evocation',
+            customSubclassName: '',
+        })).toBe(true);
+
+        expect(canContinueFromSubclassSelection({
+            mode: 'custom',
+            selectedSubclassId: null,
+            customSubclassName: 'School of Glass',
+        })).toBe(true);
+    });
+});

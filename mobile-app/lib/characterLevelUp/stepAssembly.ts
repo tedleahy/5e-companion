@@ -1,5 +1,12 @@
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { sortCharacterClasses } from '@/lib/characterClassSummary';
+import type { LevelUpSubclassSelectionState } from './types';
+import {
+    createLevelUpSubclassSelectionState,
+    hasNewFeaturesStep,
+    needsSubclassSelectionStep,
+    resolveSelectedClassSubclass,
+} from './subclassFeatures';
 import type {
     LevelUpWizardCharacter,
     LevelUpWizardSelectedClass,
@@ -54,24 +61,6 @@ export const CLASS_RESOURCE_UNLOCK_LEVEL_BY_CLASS_ID: Record<string, number> = {
     sorcerer: 2,
     warlock: 1,
     wizard: 1,
-};
-
-/**
- * Subclass unlock levels keyed by class id.
- */
-export const SUBCLASS_UNLOCK_LEVEL_BY_CLASS_ID: Record<string, number> = {
-    barbarian: 3,
-    bard: 3,
-    cleric: 1,
-    druid: 2,
-    fighter: 3,
-    monk: 3,
-    paladin: 3,
-    ranger: 3,
-    rogue: 3,
-    sorcerer: 1,
-    warlock: 1,
-    wizard: 2,
 };
 
 /**
@@ -140,12 +129,13 @@ export function defaultLevelUpClassId(character: LevelUpWizardCharacter | null |
 export function selectedLevelUpClass(
     character: LevelUpWizardCharacter | null | undefined,
     selectedClassId: string,
+    subclassSelection: LevelUpSubclassSelectionState = createLevelUpSubclassSelectionState(),
 ): LevelUpWizardSelectedClass {
     const matchingClassRow = character?.classes.find((classRow) => classRow.classId === selectedClassId) ?? null;
     const classOption = CLASS_OPTIONS.find((option) => option.value === selectedClassId) ?? null;
 
     if (matchingClassRow) {
-        return {
+        const baseSelectedClass: LevelUpWizardSelectedClass = {
             classId: matchingClassRow.classId,
             className: matchingClassRow.className,
             currentLevel: matchingClassRow.level,
@@ -153,10 +143,17 @@ export function selectedLevelUpClass(
             isExistingClass: true,
             subclassId: matchingClassRow.subclassId ?? null,
             subclassName: matchingClassRow.subclassName ?? null,
+            subclassIsCustom: false,
+        };
+        const resolvedSubclass = resolveSelectedClassSubclass(baseSelectedClass, subclassSelection);
+
+        return {
+            ...baseSelectedClass,
+            ...resolvedSubclass,
         };
     }
 
-    return {
+    const baseSelectedClass: LevelUpWizardSelectedClass = {
         classId: selectedClassId,
         className: classOption?.label ?? 'Unknown class',
         currentLevel: 0,
@@ -164,6 +161,13 @@ export function selectedLevelUpClass(
         isExistingClass: false,
         subclassId: null,
         subclassName: null,
+        subclassIsCustom: false,
+    };
+    const resolvedSubclass = resolveSelectedClassSubclass(baseSelectedClass, subclassSelection);
+
+    return {
+        ...baseSelectedClass,
+        ...resolvedSubclass,
     };
 }
 
@@ -172,19 +176,6 @@ export function selectedLevelUpClass(
  */
 export function isAsiLevel(classId: string, newClassLevel: number): boolean {
     return (ASI_LEVELS_BY_CLASS_ID[classId] ?? []).includes(newClassLevel);
-}
-
-/**
- * Returns whether the selected class should show a subclass placeholder step.
- */
-export function needsSubclassSelectionStep(selectedClass: LevelUpWizardSelectedClass): boolean {
-    const unlockLevel = SUBCLASS_UNLOCK_LEVEL_BY_CLASS_ID[selectedClass.classId];
-
-    if (!unlockLevel) {
-        return false;
-    }
-
-    return selectedClass.newLevel >= unlockLevel && selectedClass.subclassId == null;
 }
 
 /**
@@ -221,30 +212,24 @@ export function isNewMulticlass(selectedClass: LevelUpWizardSelectedClass): bool
 }
 
 /**
- * Returns whether the placeholder features step should appear.
- *
- * This is intentionally broad for chunk 2 so the dynamic step registry is
- * exercised before the feature data source is implemented in a later chunk.
- */
-export function hasNewFeaturesStep(selectedClass: LevelUpWizardSelectedClass): boolean {
-    return selectedClass.newLevel > 1;
-}
-
-/**
  * Builds the active step list for the current class selection.
  */
 export function buildLevelUpStepList(
-    character: LevelUpWizardCharacter | null | undefined,
-    selectedClassId: string,
+    selectedClass: LevelUpWizardSelectedClass,
+    includeSubclassSelection: boolean = needsSubclassSelectionStep({
+        ...selectedClass,
+        subclassId: null,
+        subclassName: null,
+        subclassIsCustom: false,
+    }),
 ): LevelUpWizardStep[] {
-    const selectedClass = selectedLevelUpClass(character, selectedClassId);
     const stepIds: LevelUpWizardStepId[] = ['choose_class', 'hit_points'];
 
     if (isAsiLevel(selectedClass.classId, selectedClass.newLevel)) {
         stepIds.push('asi_or_feat');
     }
 
-    if (needsSubclassSelectionStep(selectedClass)) {
+    if (includeSubclassSelection) {
         stepIds.push('subclass_selection');
     }
 

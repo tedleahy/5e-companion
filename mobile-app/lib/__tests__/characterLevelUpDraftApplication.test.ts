@@ -124,6 +124,7 @@ describe('applyLevelUpToDraft', () => {
                 isExistingClass: true,
                 subclassId: 'school-of-evocation',
                 subclassName: 'School of Evocation',
+                subclassIsCustom: false,
             },
             hitPointsState: {
                 method: 'average',
@@ -148,6 +149,19 @@ describe('applyLevelUpToDraft', () => {
                     abilityIncrease: null,
                 },
             },
+            features: [
+                {
+                    key: 'wizard-11-slot-6',
+                    name: '6th Level Spell Slot',
+                    description: 'You gain access to 6th-level spell slots for Wizard.',
+                    source: 'Wizard 11',
+                    classId: 'wizard',
+                    level: 11,
+                    subclassId: null,
+                    subclassName: null,
+                    kind: 'spell_slot',
+                },
+            ],
         });
 
         expect(nextDraft.level).toBe(13);
@@ -192,6 +206,7 @@ describe('applyLevelUpToDraft', () => {
                 isExistingClass: false,
                 subclassId: null,
                 subclassName: null,
+                subclassIsCustom: false,
             },
             hitPointsState: {
                 method: 'roll',
@@ -216,6 +231,7 @@ describe('applyLevelUpToDraft', () => {
                     abilityIncrease: 'constitution',
                 },
             },
+            features: [],
         });
         const addedClass = nextDraft.classes[nextDraft.classes.length - 1];
         const addedFeature = nextDraft.features[nextDraft.features.length - 1];

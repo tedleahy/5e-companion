@@ -3,6 +3,7 @@ import {
     defaultLevelUpClassId,
     selectedLevelUpClass,
 } from '@/lib/characterLevelUp/stepAssembly';
+import { needsSubclassSelectionStep } from '@/lib/characterLevelUp/subclassFeatures';
 import type { LevelUpWizardCharacter } from '@/lib/characterLevelUp/types';
 
 /**
@@ -89,7 +90,8 @@ describe('characterLevelUp step assembly', () => {
     });
 
     it('builds the default wizard progression for the current class', () => {
-        const steps = buildLevelUpStepList(TEST_CHARACTER, 'wizard').map((step) => step.id);
+        const selectedClass = selectedLevelUpClass(TEST_CHARACTER, 'wizard');
+        const steps = buildLevelUpStepList(selectedClass, needsSubclassSelectionStep(selectedClass)).map((step) => step.id);
 
         expect(steps).toEqual([
             'choose_class',
@@ -102,11 +104,13 @@ describe('characterLevelUp step assembly', () => {
     });
 
     it('adds multiclass proficiencies for a brand-new class selection', () => {
-        const steps = buildLevelUpStepList(TEST_CHARACTER, 'fighter').map((step) => step.id);
+        const selectedClass = selectedLevelUpClass(TEST_CHARACTER, 'fighter');
+        const steps = buildLevelUpStepList(selectedClass, needsSubclassSelectionStep(selectedClass)).map((step) => step.id);
 
         expect(steps).toEqual([
             'choose_class',
             'hit_points',
+            'new_features',
             'multiclass_proficiencies',
             'class_resources',
             'summary',
@@ -114,12 +118,14 @@ describe('characterLevelUp step assembly', () => {
     });
 
     it('adds immediate subclass and spellcasting steps for level-one subclass casters', () => {
-        const steps = buildLevelUpStepList(TEST_CHARACTER, 'sorcerer').map((step) => step.id);
+        const selectedClass = selectedLevelUpClass(TEST_CHARACTER, 'sorcerer');
+        const steps = buildLevelUpStepList(selectedClass, needsSubclassSelectionStep(selectedClass)).map((step) => step.id);
 
         expect(steps).toEqual([
             'choose_class',
             'hit_points',
             'subclass_selection',
+            'new_features',
             'spellcasting_updates',
             'multiclass_proficiencies',
             'summary',
