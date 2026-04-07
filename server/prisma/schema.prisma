@@ -143,6 +143,7 @@ model Subclass {
     ownerUserId     String?
     srdIndex        String?     @unique
     name            String
+    description     String[]
     classId         String
     classRef        Class       @relation(fields: [classId], references: [id], onDelete: Cascade)
     sourceBook      String?
