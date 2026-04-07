@@ -53,7 +53,8 @@ export default function CharacterSheetHeader({
     onLevelUp,
     tabs = CHARACTER_SHEET_TABS,
 }: CharacterSheetHeaderProps) {
-    const subtitle = `Level ${level}\n${classSummary} · ${race} · ${alignment}`;
+    let subtitle = `Level ${level}\n${classSummary} · ${race}`;
+    if (alignment) subtitle += ` · ${alignment}`;
 
     return (
         <View style={styles.header}>

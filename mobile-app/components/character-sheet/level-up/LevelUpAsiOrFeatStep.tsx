@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { LayoutChangeEvent } from 'react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Menu, Text, TextInput } from 'react-native-paper';
 import NumericStepper from '@/components/wizard/NumericStepper';
@@ -37,7 +38,19 @@ export default function LevelUpAsiOrFeatStep({
     onChangeFeatAbilityIncrease,
 }: LevelUpAsiOrFeatStepProps) {
     const [abilityIncreaseMenuVisible, setAbilityIncreaseMenuVisible] = useState(false);
+    const [abilityIncreaseMenuWidth, setAbilityIncreaseMenuWidth] = useState(0);
     const pointsRemaining = remainingLevelUpAsiPoints(asiOrFeatState.allocations);
+
+    /**
+     * Keeps the menu surface aligned to the trigger width, which matters on iPad.
+     */
+    function handleAbilityIncreaseButtonLayout(event: LayoutChangeEvent) {
+        const nextWidth = event.nativeEvent.layout.width;
+
+        if (nextWidth !== abilityIncreaseMenuWidth) {
+            setAbilityIncreaseMenuWidth(nextWidth);
+        }
+    }
 
     return (
         <View style={styles.section} testID="level-up-step-asi_or_feat">
@@ -165,9 +178,15 @@ export default function LevelUpAsiOrFeatStep({
                     <Menu
                         visible={abilityIncreaseMenuVisible}
                         onDismiss={() => setAbilityIncreaseMenuVisible(false)}
+                        anchorPosition="bottom"
+                        contentStyle={[
+                            styles.menuContent,
+                            abilityIncreaseMenuWidth > 0 ? { width: abilityIncreaseMenuWidth } : null,
+                        ]}
                         anchor={(
                             <Pressable
                                 onPress={() => setAbilityIncreaseMenuVisible(true)}
+                                onLayout={handleAbilityIncreaseButtonLayout}
                                 style={styles.menuButton}
                                 accessibilityRole="button"
                                 accessibilityLabel="Select optional feat ability increase"
@@ -185,6 +204,9 @@ export default function LevelUpAsiOrFeatStep({
                                 setAbilityIncreaseMenuVisible(false);
                             }}
                             title="No ability increase"
+                            titleStyle={styles.menuItemTitle}
+                            style={styles.menuItem}
+                            contentStyle={styles.menuItemContent}
                             testID="level-up-feat-ability-increase-none"
                         />
                         {ABILITY_KEYS.map((ability) => (
@@ -195,6 +217,9 @@ export default function LevelUpAsiOrFeatStep({
                                     setAbilityIncreaseMenuVisible(false);
                                 }}
                                 title={`${LEVEL_UP_ABILITY_LABELS[ability]} +1`}
+                                titleStyle={styles.menuItemTitle}
+                                style={styles.menuItem}
+                                contentStyle={styles.menuItemContent}
                                 testID={`level-up-feat-ability-increase-${ability}`}
                             />
                         ))}
@@ -336,6 +361,22 @@ const styles = StyleSheet.create({
         paddingVertical: fantasyTokens.spacing.md,
     },
     menuButtonText: {
+        ...fantasyTokens.typography.body,
+        color: fantasyTokens.colors.inkDark,
+    },
+    menuContent: {
+        borderRadius: fantasyTokens.radii.sm,
+        borderWidth: 1,
+        borderColor: fantasyTokens.colors.gold,
+        backgroundColor: fantasyTokens.colors.parchmentLight,
+    },
+    menuItem: {
+        minWidth: '100%',
+    },
+    menuItemContent: {
+        paddingHorizontal: fantasyTokens.spacing.sm,
+    },
+    menuItemTitle: {
         ...fantasyTokens.typography.body,
         color: fantasyTokens.colors.inkDark,
     },
