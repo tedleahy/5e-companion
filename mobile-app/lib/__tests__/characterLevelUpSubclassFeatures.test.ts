@@ -21,7 +21,10 @@ function createSelectedClass(
         isExistingClass: true,
         subclassId: 'evocation',
         subclassName: 'School of Evocation',
+        subclassDescription: null,
         subclassIsCustom: false,
+        subclassFeatures: [],
+        customSubclass: null,
         ...overrides,
     };
 }
@@ -42,6 +45,7 @@ describe('characterLevelUp subclass features', () => {
                 name: '7th Level Spell Slot',
                 kind: 'spell_slot',
                 source: 'Wizard 13',
+                customSubclassFeature: null,
             }),
         ]));
     });
@@ -50,9 +54,45 @@ describe('characterLevelUp subclass features', () => {
         expect(getLevelUpFeatures(createSelectedClass({
             currentLevel: 1,
             newLevel: 2,
+            subclassFeatures: [],
         }))).toEqual(expect.arrayContaining([
-            expect.objectContaining({ name: 'Evocation Savant', kind: 'subclass' }),
-            expect.objectContaining({ name: 'Sculpt Spells', kind: 'subclass' }),
+            expect.objectContaining({ name: 'Evocation Savant', kind: 'subclass', customSubclassFeature: null }),
+            expect.objectContaining({ name: 'Sculpt Spells', kind: 'subclass', customSubclassFeature: null }),
+        ]));
+    });
+
+    it('includes persisted custom subclass features for owned subclasses at the current level', () => {
+        expect(getLevelUpFeatures(createSelectedClass({
+            currentLevel: 1,
+            newLevel: 2,
+            subclassId: 'custom-wizard-subclass-id',
+            subclassName: 'School of Glass',
+            subclassDescription: 'A delicate art of mirrored wards and refractions.',
+            subclassIsCustom: true,
+            subclassFeatures: [
+                {
+                    id: 'glass-2-refraction-shield',
+                    name: 'Refraction Shield',
+                    description: 'Bend light to turn aside attacks.',
+                    level: 2,
+                },
+                {
+                    id: 'glass-6-prism-step',
+                    name: 'Prism Step',
+                    description: 'Fold space through mirrored angles.',
+                    level: 6,
+                },
+            ],
+            customSubclass: null,
+        }))).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                name: 'Refraction Shield',
+                kind: 'custom',
+                customSubclassFeature: {
+                    classId: 'wizard',
+                    level: 2,
+                },
+            }),
         ]));
     });
 
@@ -72,7 +112,12 @@ describe('characterLevelUp subclass features', () => {
             newLevel: 2,
             subclassId: null,
             subclassName: 'School of Glass',
+            subclassDescription: 'A delicate art of mirrored wards and refractions.',
             subclassIsCustom: true,
+            customSubclass: {
+                name: 'School of Glass',
+                description: 'A delicate art of mirrored wards and refractions.',
+            },
         }), [
             {
                 id: 'feature-1',
@@ -84,6 +129,10 @@ describe('characterLevelUp subclass features', () => {
                 name: 'Refraction Shield',
                 kind: 'custom',
                 source: 'School of Glass Wizard 2',
+                customSubclassFeature: {
+                    classId: 'wizard',
+                    level: 2,
+                },
             }),
         ]);
     });
@@ -92,19 +141,34 @@ describe('characterLevelUp subclass features', () => {
         expect(canContinueFromSubclassSelection({
             mode: 'none',
             selectedSubclassId: null,
+            selectedSubclassName: null,
+            selectedSubclassDescription: '',
+            selectedSubclassIsCustom: false,
+            selectedSubclassFeatures: [],
             customSubclassName: '',
+            customSubclassDescription: '',
         })).toBe(false);
 
         expect(canContinueFromSubclassSelection({
             mode: 'srd',
             selectedSubclassId: 'evocation',
+            selectedSubclassName: 'School of Evocation',
+            selectedSubclassDescription: 'Focus your magic on raw elemental force.',
+            selectedSubclassIsCustom: false,
+            selectedSubclassFeatures: [],
             customSubclassName: '',
+            customSubclassDescription: '',
         })).toBe(true);
 
         expect(canContinueFromSubclassSelection({
             mode: 'custom',
             selectedSubclassId: null,
+            selectedSubclassName: null,
+            selectedSubclassDescription: '',
+            selectedSubclassIsCustom: false,
+            selectedSubclassFeatures: [],
             customSubclassName: 'School of Glass',
+            customSubclassDescription: 'A delicate art of mirrored wards and refractions.',
         })).toBe(true);
     });
 });

@@ -209,6 +209,7 @@ describe('characterSheetDraft', () => {
             className: 'Fighter',
             subclassId: null,
             subclassName: null,
+            customSubclass: null,
             level: 1,
             isStartingClass: false,
         });
@@ -227,6 +228,7 @@ describe('characterSheetDraft', () => {
                 id: 'character-class-1',
                 classId: 'wizard',
                 subclassId: 'school-of-evocation',
+                customSubclass: null,
                 level: 10,
                 isStartingClass: true,
             },
@@ -234,6 +236,7 @@ describe('characterSheetDraft', () => {
                 id: 'character-class-2',
                 classId: 'warlock',
                 subclassId: 'fiend',
+                customSubclass: null,
                 level: 2,
                 isStartingClass: false,
             },
@@ -241,6 +244,7 @@ describe('characterSheetDraft', () => {
                 id: undefined,
                 classId: 'fighter',
                 subclassId: null,
+                customSubclass: null,
                 level: 1,
                 isStartingClass: false,
             },
@@ -259,6 +263,18 @@ describe('characterSheetDraft', () => {
                 attackBonus: '+5',
                 damage: '1d6 bludgeoning',
                 type: 'melee',
+            },
+        ]);
+        expect(input.features).toEqual([
+            {
+                id: 'feature-1',
+                name: 'Arcane Recovery',
+                source: 'Wizard 1',
+                description: 'Recover spell slots on a long rest.',
+                recharge: 'long',
+                usesMax: 1,
+                usesRemaining: 1,
+                customSubclassFeature: null,
             },
         ]);
     });

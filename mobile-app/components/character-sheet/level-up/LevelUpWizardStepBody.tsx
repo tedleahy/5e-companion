@@ -4,6 +4,7 @@ import ClassOptionGrid from '@/components/wizard/ClassOptionGrid';
 import type { AbilityKey } from '@/lib/characterSheetUtils';
 import { levelUpClassOption } from '@/lib/characterLevelUp/chooseClass';
 import { mapCustomFeatureDrafts } from '@/lib/characterLevelUp/subclassFeatures';
+import type { AvailableSubclassOption } from '@/lib/subclasses';
 import LevelUpAsiOrFeatStep from './LevelUpAsiOrFeatStep';
 import LevelUpHitPointsStep from './LevelUpHitPointsStep';
 import LevelUpNewFeaturesStep from './LevelUpNewFeaturesStep';
@@ -38,6 +39,7 @@ type LevelUpWizardStepBodyProps = {
     hitPointsState: LevelUpHitPointsState | null;
     asiOrFeatState: LevelUpAsiOrFeatState;
     subclassSelectionState: LevelUpSubclassSelectionState;
+    availableSubclasses: AvailableSubclassOption[];
     newFeatures: LevelUpFeature[];
     customFeatures: LevelUpCustomFeatureDraft[];
     onSelectClass: (classId: string) => void;
@@ -51,9 +53,10 @@ type LevelUpWizardStepBodyProps = {
     onChangeFeatName: (value: string) => void;
     onChangeFeatDescription: (value: string) => void;
     onChangeFeatAbilityIncrease: (value: AbilityKey | null) => void;
-    onSelectSrdSubclass: (subclassId: string) => void;
+    onSelectExistingSubclass: (subclass: AvailableSubclassOption) => void;
     onSelectCustomSubclass: () => void;
     onChangeCustomSubclassName: (value: string) => void;
+    onChangeCustomSubclassDescription: (value: string) => void;
     onAddCustomFeature: () => void;
     onChangeCustomFeature: (featureId: string, changes: Partial<LevelUpCustomFeatureDraft>) => void;
     onRemoveCustomFeature: (featureId: string) => void;
@@ -75,6 +78,7 @@ export default function LevelUpWizardStepBody({
     hitPointsState,
     asiOrFeatState,
     subclassSelectionState,
+    availableSubclasses,
     newFeatures,
     customFeatures,
     onSelectClass,
@@ -88,9 +92,10 @@ export default function LevelUpWizardStepBody({
     onChangeFeatName,
     onChangeFeatDescription,
     onChangeFeatAbilityIncrease,
-    onSelectSrdSubclass,
+    onSelectExistingSubclass,
     onSelectCustomSubclass,
     onChangeCustomSubclassName,
+    onChangeCustomSubclassDescription,
     onAddCustomFeature,
     onChangeCustomFeature,
     onRemoveCustomFeature,
@@ -212,12 +217,15 @@ export default function LevelUpWizardStepBody({
         return (
             <LevelUpSubclassSelectionStep
                 selectedClass={selectedClass}
-                selectedSrdSubclassId={subclassSelectionState.selectedSubclassId}
+                availableSubclasses={availableSubclasses}
+                selectedSubclassId={subclassSelectionState.selectedSubclassId}
                 customSubclassName={subclassSelectionState.customSubclassName}
+                customSubclassDescription={subclassSelectionState.customSubclassDescription}
                 selectedMode={subclassSelectionState.mode}
-                onSelectSrdSubclass={onSelectSrdSubclass}
+                onSelectExistingSubclass={onSelectExistingSubclass}
                 onSelectCustomSubclass={onSelectCustomSubclass}
                 onChangeCustomSubclassName={onChangeCustomSubclassName}
+                onChangeCustomSubclassDescription={onChangeCustomSubclassDescription}
             />
         );
     }

@@ -1,5 +1,6 @@
 import { SUBCLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { SUBCLASS_UNLOCK_LEVEL_BY_CLASS } from '@/lib/characterCreation/classRules';
+import type { AvailableSubclassOption } from '@/lib/subclasses';
 import type {
     LevelUpCustomFeatureDraft,
     LevelUpFeature,
@@ -83,7 +84,12 @@ export function createLevelUpSubclassSelectionState(): LevelUpSubclassSelectionS
     return {
         mode: 'none',
         selectedSubclassId: null,
+        selectedSubclassName: null,
+        selectedSubclassDescription: '',
+        selectedSubclassIsCustom: false,
+        selectedSubclassFeatures: [],
         customSubclassName: '',
+        customSubclassDescription: '',
     };
 }
 
@@ -132,14 +138,18 @@ export function levelUpSrdSubclassOption(classId: string): LevelUpSrdSubclassOpt
 /**
  * Applies one SRD subclass choice into the current selection state.
  */
-export function selectLevelUpSrdSubclass(
+export function selectLevelUpExistingSubclass(
     state: LevelUpSubclassSelectionState,
-    subclassId: string,
+    subclass: AvailableSubclassOption,
 ): LevelUpSubclassSelectionState {
     return {
         ...state,
         mode: 'srd',
-        selectedSubclassId: subclassId,
+        selectedSubclassId: subclass.value,
+        selectedSubclassName: subclass.name,
+        selectedSubclassDescription: subclass.description,
+        selectedSubclassIsCustom: subclass.isCustom,
+        selectedSubclassFeatures: subclass.features,
     };
 }
 
@@ -170,6 +180,20 @@ export function setLevelUpCustomSubclassName(
 }
 
 /**
+ * Updates the custom subclass description draft.
+ */
+export function setLevelUpCustomSubclassDescription(
+    state: LevelUpSubclassSelectionState,
+    value: string,
+): LevelUpSubclassSelectionState {
+    return {
+        ...state,
+        mode: 'custom',
+        customSubclassDescription: value,
+    };
+}
+
+/**
  * Returns whether the current subclass step has enough information to continue.
  */
 export function canContinueFromSubclassSelection(
@@ -180,7 +204,8 @@ export function canContinueFromSubclassSelection(
     }
 
     if (state.mode === 'custom') {
-        return state.customSubclassName.trim().length > 0;
+        return state.customSubclassName.trim().length > 0
+            && (state.customSubclassDescription ?? '').trim().length > 0;
     }
 
     return false;
@@ -203,16 +228,15 @@ export function normaliseLevelUpSubclassId(subclassId: string | null | undefined
 export function resolveSelectedClassSubclass(
     selectedClass: LevelUpWizardSelectedClass,
     subclassSelection: LevelUpSubclassSelectionState,
-): Pick<LevelUpWizardSelectedClass, 'subclassId' | 'subclassName' | 'subclassIsCustom'> {
+): Pick<LevelUpWizardSelectedClass, 'subclassId' | 'subclassName' | 'subclassDescription' | 'subclassIsCustom' | 'subclassFeatures' | 'customSubclass'> {
     if (subclassSelection.mode === 'srd' && subclassSelection.selectedSubclassId) {
-        const subclass = levelUpSrdSubclassOption(selectedClass.classId);
-
         return {
             subclassId: subclassSelection.selectedSubclassId,
-            subclassName: subclass?.subclassId === subclassSelection.selectedSubclassId
-                ? subclass.name
-                : null,
-            subclassIsCustom: false,
+            subclassName: subclassSelection.selectedSubclassName,
+            subclassDescription: subclassSelection.selectedSubclassDescription.trim() || null,
+            subclassIsCustom: subclassSelection.selectedSubclassIsCustom,
+            subclassFeatures: subclassSelection.selectedSubclassFeatures,
+            customSubclass: null,
         };
     }
 
@@ -220,7 +244,13 @@ export function resolveSelectedClassSubclass(
         return {
             subclassId: null,
             subclassName: subclassSelection.customSubclassName.trim() || 'Custom Subclass',
+            subclassDescription: subclassSelection.customSubclassDescription.trim() || null,
             subclassIsCustom: true,
+            subclassFeatures: [],
+            customSubclass: {
+                name: subclassSelection.customSubclassName.trim() || 'Custom Subclass',
+                description: subclassSelection.customSubclassDescription.trim(),
+            },
         };
     }
 
@@ -232,7 +262,10 @@ export function resolveSelectedClassSubclass(
                 normaliseLevelUpSubclassId(selectedClass.subclassId),
                 selectedClass.subclassName,
             ),
+        subclassDescription: selectedClass.subclassDescription,
         subclassIsCustom: selectedClass.subclassIsCustom,
+        subclassFeatures: selectedClass.subclassFeatures,
+        customSubclass: selectedClass.customSubclass,
     };
 }
 
@@ -245,9 +278,33 @@ export function getLevelUpFeatures(selectedClass: LevelUpWizardSelectedClass): L
         .filter((feature) => feature.classId === selectedClass.classId && feature.level === selectedClass.newLevel)
         .filter((feature) => shouldIncludeFeature(feature, selectedSubclassId))
         .map((feature) => mapGeneratedFeature(feature));
+    const customSubclassFeatures = selectedClass.subclassIsCustom
+        ? selectedClass.subclassFeatures
+            .filter((feature) => feature.level === selectedClass.newLevel)
+            .map((feature) => ({
+                key: feature.id,
+                name: feature.name,
+                description: feature.description,
+                source: featureSourceLabel(
+                    selectedClass.className,
+                    selectedClass.newLevel,
+                    selectedClass.subclassName,
+                ),
+                classId: selectedClass.classId,
+                level: selectedClass.newLevel,
+                subclassId: selectedClass.subclassId,
+                subclassName: selectedClass.subclassName,
+                kind: 'custom' as const,
+                customSubclassFeature: {
+                    classId: selectedClass.classId,
+                    level: selectedClass.newLevel,
+                },
+            }))
+        : [];
 
     return [
         ...classFeatures,
+        ...customSubclassFeatures,
         ...spellSlotUnlockFeatures(selectedClass),
     ];
 }
@@ -302,6 +359,10 @@ export function mapCustomFeatureDrafts(
         subclassId: selectedClass.subclassId,
         subclassName: selectedClass.subclassName,
         kind: 'custom',
+        customSubclassFeature: {
+            classId: selectedClass.classId,
+            level: selectedClass.newLevel,
+        },
     }));
 }
 
@@ -368,6 +429,7 @@ function mapGeneratedFeature(
         subclassId: feature.subclassId,
         subclassName,
         kind: feature.subclassId ? 'subclass' : 'class',
+        customSubclassFeature: null,
     };
 }
 
@@ -405,6 +467,7 @@ function spellSlotUnlockFeatures(selectedClass: LevelUpWizardSelectedClass): Lev
             subclassId: null,
             subclassName: null,
             kind: 'spell_slot',
+            customSubclassFeature: null,
         });
     }
 

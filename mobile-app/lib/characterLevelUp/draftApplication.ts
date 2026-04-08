@@ -68,6 +68,7 @@ function applyLevelUpClasses(
                     level: classRow.level + 1,
                     subclassId: selectedClass.subclassId,
                     subclassName: selectedClass.subclassName,
+                    customSubclass: selectedClass.customSubclass ?? null,
                 }
                 : classRow
         ));
@@ -81,6 +82,7 @@ function applyLevelUpClasses(
             className: selectedClass.className,
             subclassId: selectedClass.subclassId,
             subclassName: selectedClass.subclassName,
+            customSubclass: selectedClass.customSubclass ?? null,
             level: 1,
             isStartingClass: false,
         },
@@ -140,6 +142,7 @@ function applyLevelUpFeatures(
             usesMax: null,
             usesRemaining: null,
             recharge: null,
+            customSubclassFeature: null,
         });
     }
 
@@ -152,6 +155,7 @@ function applyLevelUpFeatures(
             usesMax: null,
             usesRemaining: null,
             recharge: null,
+            customSubclassFeature: feature.customSubclassFeature,
         });
     }
 

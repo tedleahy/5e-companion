@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { AbilityKey } from '@/lib/characterSheetUtils';
 import { createDraftEntityId } from '@/lib/character-sheet/characterSheetDraft';
+import type { AvailableSubclassOption } from '@/lib/subclasses';
 import {
     canContinueFromAsiOrFeat,
     createLevelUpAsiOrFeatState,
@@ -33,8 +34,9 @@ import {
     createLevelUpSubclassSelectionState,
     getLevelUpFeatures,
     needsSubclassSelectionStep,
+    selectLevelUpExistingSubclass,
     selectLevelUpCustomSubclass,
-    selectLevelUpSrdSubclass,
+    setLevelUpCustomSubclassDescription,
     setLevelUpCustomSubclassName,
 } from '@/lib/characterLevelUp/subclassFeatures';
 import type {
@@ -86,9 +88,10 @@ export type UseLevelUpWizardResult = {
     changeFeatName: (value: string) => void;
     changeFeatDescription: (value: string) => void;
     changeFeatAbilityIncrease: (value: AbilityKey | null) => void;
-    selectSrdSubclass: (subclassId: string) => void;
+    selectExistingSubclass: (subclass: AvailableSubclassOption) => void;
     selectCustomSubclass: () => void;
     changeCustomSubclassName: (value: string) => void;
+    changeCustomSubclassDescription: (value: string) => void;
     addCustomFeature: () => void;
     changeCustomFeature: (featureId: string, changes: Partial<LevelUpCustomFeatureDraft>) => void;
     removeCustomFeature: (featureId: string) => void;
@@ -103,6 +106,7 @@ export type UseLevelUpWizardResult = {
 export default function useLevelUpWizard(
     character: LevelUpWizardCharacter | null | undefined,
     visible: boolean,
+    availableSubclasses: readonly AvailableSubclassOption[] = [],
 ): UseLevelUpWizardResult {
     const defaultClassId = useMemo(() => defaultLevelUpClassId(character), [character]);
     const [classSelection, setClassSelection] = useState(() => createLevelUpClassSelectionState(defaultClassId));
@@ -139,12 +143,12 @@ export default function useLevelUpWizard(
         [character, defaultClassId],
     );
     const baseSelectedClass = useMemo(
-        () => selectedLevelUpClass(character, selectedClassId),
-        [character, selectedClassId],
+        () => selectedLevelUpClass(character, selectedClassId, createLevelUpSubclassSelectionState(), availableSubclasses),
+        [availableSubclasses, character, selectedClassId],
     );
     const selectedClass = useMemo(
-        () => selectedLevelUpClass(character, selectedClassId, subclassSelectionState),
-        [character, selectedClassId, subclassSelectionState],
+        () => selectedLevelUpClass(character, selectedClassId, subclassSelectionState, availableSubclasses),
+        [availableSubclasses, character, selectedClassId, subclassSelectionState],
     );
     const shouldIncludeSubclassSelection = useMemo(
         () => needsSubclassSelectionStep(baseSelectedClass),
@@ -255,8 +259,8 @@ export default function useLevelUpWizard(
         setAsiOrFeatState((previousState) => setLevelUpFeatAbilityIncrease(previousState, value));
     }, []);
 
-    const selectSrdSubclass = useCallback((subclassId: string) => {
-        setSubclassSelectionState((previousState) => selectLevelUpSrdSubclass(previousState, subclassId));
+    const selectExistingSubclass = useCallback((subclass: AvailableSubclassOption) => {
+        setSubclassSelectionState((previousState) => selectLevelUpExistingSubclass(previousState, subclass));
     }, []);
 
     const selectCustomSubclass = useCallback(() => {
@@ -265,6 +269,10 @@ export default function useLevelUpWizard(
 
     const changeCustomSubclassName = useCallback((value: string) => {
         setSubclassSelectionState((previousState) => setLevelUpCustomSubclassName(previousState, value));
+    }, []);
+
+    const changeCustomSubclassDescription = useCallback((value: string) => {
+        setSubclassSelectionState((previousState) => setLevelUpCustomSubclassDescription(previousState, value));
     }, []);
 
     const addCustomFeature = useCallback(() => {
@@ -349,9 +357,10 @@ export default function useLevelUpWizard(
         changeFeatName,
         changeFeatDescription,
         changeFeatAbilityIncrease,
-        selectSrdSubclass,
+        selectExistingSubclass,
         selectCustomSubclass,
         changeCustomSubclassName,
+        changeCustomSubclassDescription,
         addCustomFeature,
         changeCustomFeature,
         removeCustomFeature,

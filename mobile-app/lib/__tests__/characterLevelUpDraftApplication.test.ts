@@ -124,7 +124,10 @@ describe('applyLevelUpToDraft', () => {
                 isExistingClass: true,
                 subclassId: 'school-of-evocation',
                 subclassName: 'School of Evocation',
+                subclassDescription: null,
                 subclassIsCustom: false,
+                subclassFeatures: [],
+                customSubclass: null,
             },
             hitPointsState: {
                 method: 'average',
@@ -160,6 +163,7 @@ describe('applyLevelUpToDraft', () => {
                     subclassId: null,
                     subclassName: null,
                     kind: 'spell_slot',
+                    customSubclassFeature: null,
                 },
             ],
         });
@@ -179,6 +183,7 @@ describe('applyLevelUpToDraft', () => {
                 className: 'Wizard',
                 subclassId: 'school-of-evocation',
                 subclassName: 'School of Evocation',
+                customSubclass: null,
                 level: 11,
                 isStartingClass: true,
             },
@@ -188,6 +193,7 @@ describe('applyLevelUpToDraft', () => {
                 className: 'Warlock',
                 subclassId: 'fiend',
                 subclassName: 'Fiend',
+                customSubclass: null,
                 level: 2,
                 isStartingClass: false,
             },
@@ -206,7 +212,10 @@ describe('applyLevelUpToDraft', () => {
                 isExistingClass: false,
                 subclassId: null,
                 subclassName: null,
+                subclassDescription: null,
                 subclassIsCustom: false,
+                subclassFeatures: [],
+                customSubclass: null,
             },
             hitPointsState: {
                 method: 'roll',
@@ -252,6 +261,7 @@ describe('applyLevelUpToDraft', () => {
             recharge: null,
             usesMax: null,
             usesRemaining: null,
+            customSubclassFeature: null,
         });
         expect(addedFeature?.description).toContain('Gain proficiency in Constitution saving throws.');
         expect(addedFeature?.description).toContain('Constitution +1');

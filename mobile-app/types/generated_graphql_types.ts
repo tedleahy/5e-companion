@@ -33,6 +33,27 @@ export type AbilityScoresInput = {
   wisdom: Scalars['Int']['input'];
 };
 
+export type AvailableSubclass = {
+  __typename?: 'AvailableSubclass';
+  classId: Scalars['String']['output'];
+  className: Scalars['String']['output'];
+  description: Array<Scalars['String']['output']>;
+  features: Array<AvailableSubclassFeature>;
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  value: Scalars['String']['output'];
+};
+
+export type AvailableSubclassFeature = {
+  __typename?: 'AvailableSubclassFeature';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  level: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+};
+
 export type Character = {
   __typename?: 'Character';
   ac: Scalars['Int']['output'];
@@ -101,6 +122,7 @@ export type CharacterStats = {
 
 export type CreateCharacterClassInput = {
   classId: Scalars['String']['input'];
+  customSubclass?: InputMaybe<CustomSubclassInput>;
   level: Scalars['Int']['input'];
   subclassId?: InputMaybe<Scalars['String']['input']>;
 };
@@ -136,6 +158,11 @@ export type CurrencyInput = {
   gp: Scalars['Int']['input'];
   pp: Scalars['Int']['input'];
   sp: Scalars['Int']['input'];
+};
+
+export type CustomSubclassInput = {
+  description: Scalars['String']['input'];
+  name: Scalars['String']['input'];
 };
 
 export type DeathSaves = {
@@ -342,11 +369,17 @@ export enum ProficiencyLevel {
 
 export type Query = {
   __typename?: 'Query';
+  availableSubclasses: Array<AvailableSubclass>;
   character?: Maybe<Character>;
   currentUserCharacters: Array<Character>;
   hasCurrentUserCharacters: Scalars['Boolean']['output'];
   spell?: Maybe<Spell>;
   spells: Array<Spell>;
+};
+
+
+export type QueryAvailableSubclassesArgs = {
+  classIds?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 
@@ -367,6 +400,7 @@ export type QuerySpellsArgs = {
 
 export type SaveCharacterSheetClassInput = {
   classId: Scalars['String']['input'];
+  customSubclass?: InputMaybe<CustomSubclassInput>;
   id?: InputMaybe<Scalars['ID']['input']>;
   isStartingClass: Scalars['Boolean']['input'];
   level: Scalars['Int']['input'];
@@ -374,6 +408,7 @@ export type SaveCharacterSheetClassInput = {
 };
 
 export type SaveCharacterSheetFeatureInput = {
+  customSubclassFeature?: InputMaybe<SaveCustomSubclassFeatureInput>;
   description: Scalars['String']['input'];
   id?: InputMaybe<Scalars['ID']['input']>;
   name: Scalars['String']['input'];
@@ -414,6 +449,11 @@ export type SaveCharacterSheetWeaponInput = {
   id?: InputMaybe<Scalars['ID']['input']>;
   name: Scalars['String']['input'];
   type: Scalars['String']['input'];
+};
+
+export type SaveCustomSubclassFeatureInput = {
+  classId: Scalars['String']['input'];
+  level: Scalars['Int']['input'];
 };
 
 export type SavingThrowProficienciesInput = {
@@ -642,6 +682,13 @@ export type UpdateInventoryItemMutationVariables = Exact<{
 
 
 export type UpdateInventoryItemMutation = { __typename?: 'Mutation', updateInventoryItem: { __typename?: 'InventoryItem', id: string, name: string, quantity: number, weight?: number | null, description?: string | null, equipped: boolean, magical: boolean } };
+
+export type AvailableSubclassesQueryVariables = Exact<{
+  classIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type AvailableSubclassesQuery = { __typename?: 'Query', availableSubclasses: Array<{ __typename?: 'AvailableSubclass', id: string, value: string, srdIndex?: string | null, classId: string, className: string, name: string, description: Array<string>, isCustom: boolean, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> }> };
 
 export type CreateCharacterMutationVariables = Exact<{
   input: CreateCharacterInput;

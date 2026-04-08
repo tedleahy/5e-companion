@@ -72,8 +72,9 @@ export function classLabel(classId: string): string {
 export function subclassOptionById(
     classId: string,
     subclassId: string,
+    subclassOptionsByClassId: Record<string, OptionItem[]> = SUBCLASS_OPTIONS,
 ): OptionItem | null {
-    return (SUBCLASS_OPTIONS[classId] ?? []).find((option) => option.value === subclassId) ?? null;
+    return (subclassOptionsByClassId[classId] ?? []).find((option) => option.value === subclassId) ?? null;
 }
 
 /**
@@ -82,8 +83,9 @@ export function subclassOptionById(
 export function subclassLabel(
     classId: string,
     subclassId: string,
+    subclassOptionsByClassId: Record<string, OptionItem[]> = SUBCLASS_OPTIONS,
 ): string | null {
-    return subclassOptionById(classId, subclassId)?.label ?? null;
+    return subclassOptionById(classId, subclassId, subclassOptionsByClassId)?.label ?? null;
 }
 
 /**
@@ -96,15 +98,21 @@ export function subclassUnlockLevel(classId: string): number {
 /**
  * Returns whether the class has any selectable subclasses in the current SRD data.
  */
-export function classHasSubclassOptions(classId: string): boolean {
-    return (SUBCLASS_OPTIONS[classId] ?? []).length > 0;
+export function classHasSubclassOptions(
+    classId: string,
+    subclassOptionsByClassId: Record<string, OptionItem[]> = SUBCLASS_OPTIONS,
+): boolean {
+    return (subclassOptionsByClassId[classId] ?? []).length > 0;
 }
 
 /**
  * Returns whether the class row may choose a subclass at its current level.
  */
-export function isSubclassUnlocked(classRow: CharacterClassDraft): boolean {
-    if (!classHasSubclassOptions(classRow.classId)) {
+export function isSubclassUnlocked(
+    classRow: CharacterClassDraft,
+    subclassOptionsByClassId: Record<string, OptionItem[]> = SUBCLASS_OPTIONS,
+): boolean {
+    if (!classHasSubclassOptions(classRow.classId, subclassOptionsByClassId)) {
         return false;
     }
 
@@ -116,6 +124,7 @@ export function isSubclassUnlocked(classRow: CharacterClassDraft): boolean {
  */
 export function sanitiseCharacterClassRow(
     classRow: CharacterClassDraft,
+    subclassOptionsByClassId: Record<string, OptionItem[]> = SUBCLASS_OPTIONS,
 ): CharacterClassDraft {
     if (!classRow.classId) {
         return {
@@ -124,7 +133,7 @@ export function sanitiseCharacterClassRow(
         };
     }
 
-    if (!classHasSubclassOptions(classRow.classId)) {
+    if (!classHasSubclassOptions(classRow.classId, subclassOptionsByClassId)) {
         return {
             ...classRow,
             subclassId: '',
@@ -135,14 +144,14 @@ export function sanitiseCharacterClassRow(
         return classRow;
     }
 
-    if (!subclassOptionById(classRow.classId, classRow.subclassId)) {
+    if (!subclassOptionById(classRow.classId, classRow.subclassId, subclassOptionsByClassId)) {
         return {
             ...classRow,
             subclassId: '',
         };
     }
 
-    if (!isSubclassUnlocked(classRow)) {
+    if (!isSubclassUnlocked(classRow, subclassOptionsByClassId)) {
         return {
             ...classRow,
             subclassId: '',
@@ -228,9 +237,12 @@ export function availableClassOptions(
 /**
  * Returns one human-readable class-row label for review and editor summaries.
  */
-export function formatClassRowLabel(classRow: CharacterClassDraft): string {
+export function formatClassRowLabel(
+    classRow: CharacterClassDraft,
+    subclassOptionsByClassId: Record<string, OptionItem[]> = SUBCLASS_OPTIONS,
+): string {
     const currentClassLabel = classLabel(classRow.classId);
-    const currentSubclassLabel = subclassLabel(classRow.classId, classRow.subclassId);
+    const currentSubclassLabel = subclassLabel(classRow.classId, classRow.subclassId, subclassOptionsByClassId);
 
     if (currentSubclassLabel) {
         return `${currentSubclassLabel} ${currentClassLabel}`;
@@ -268,6 +280,7 @@ export function validateCharacterClassDraft(
     classRows: CharacterClassDraft[],
     totalLevel: number,
     startingClassId: string,
+    subclassOptionsByClassId: Record<string, OptionItem[]> = SUBCLASS_OPTIONS,
 ): CharacterClassDraftValidation {
     const errors: string[] = [];
     const seenClassIds = new Set<string>();
@@ -294,19 +307,19 @@ export function validateCharacterClassDraft(
             break;
         }
 
-        if (classRow.subclassId && !subclassOptionById(classRow.classId, classRow.subclassId)) {
+        if (classRow.subclassId && !subclassOptionById(classRow.classId, classRow.subclassId, subclassOptionsByClassId)) {
             errors.push(`Selected subclass is not valid for ${classLabel(classRow.classId)}.`);
             break;
         }
 
-        if (classRow.subclassId && !isSubclassUnlocked(classRow)) {
+        if (classRow.subclassId && !isSubclassUnlocked(classRow, subclassOptionsByClassId)) {
             errors.push(
                 `${classLabel(classRow.classId)} reaches its subclass at level ${subclassUnlockLevel(classRow.classId)}.`,
             );
             break;
         }
 
-        if (!classRow.subclassId && isSubclassUnlocked(classRow)) {
+        if (!classRow.subclassId && isSubclassUnlocked(classRow, subclassOptionsByClassId)) {
             errors.push(`Choose a subclass for ${classLabel(classRow.classId)}.`);
             break;
         }

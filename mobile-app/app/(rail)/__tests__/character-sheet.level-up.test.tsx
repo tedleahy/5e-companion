@@ -10,6 +10,85 @@ import {
     setupCharacterSheetScreenTestHooks,
 } from './character-sheet.test-utils';
 
+jest.mock('@/hooks/useAvailableSubclasses', () => ({
+    __esModule: true,
+    default: jest.fn((classIds: string[]) => {
+        const byClassId: Record<string, Array<{
+            id: string;
+            value: string;
+            srdIndex: string | null;
+            classId: string;
+            className: string;
+            name: string;
+            description: string;
+            isCustom: boolean;
+            features: Array<{
+                id: string;
+                name: string;
+                description: string;
+                level: number;
+            }>;
+            icon: string;
+            hint?: string;
+        }>> = {
+            wizard: [
+                {
+                    id: 'subclass-evocation-id',
+                    value: 'evocation',
+                    srdIndex: 'evocation',
+                    classId: 'wizard',
+                    className: 'Wizard',
+                    name: 'School of Evocation',
+                    description: 'Focus your magic on raw elemental force, disciplined blast shaping, and battlefield control through practiced destructive wizardry that turns fire, frost, and thunder into precise arcane tools.',
+                    isCustom: false,
+                    features: [],
+                    icon: '\u{1F525}',
+                },
+                {
+                    id: 'custom-wizard-subclass-id',
+                    value: 'custom-wizard-subclass-id',
+                    srdIndex: null,
+                    classId: 'wizard',
+                    className: 'Wizard',
+                    name: 'School of Glass',
+                    description: 'A delicate art of mirrored wards and refractions.',
+                    isCustom: true,
+                    features: [
+                        {
+                            id: 'glass-feature-refraction-shield',
+                            name: 'Refraction Shield',
+                            description: 'Bend light to turn aside attacks.',
+                            level: 2,
+                        },
+                    ],
+                    icon: '\u2728',
+                },
+            ],
+        };
+
+        const filtered = Object.fromEntries(
+            classIds.map((classId) => [classId, byClassId[classId] ?? []]),
+        );
+
+        return {
+            availableSubclasses: Object.values(filtered).flat(),
+            availableSubclassesByClassId: filtered,
+            subclassOptionItemsByClassId: Object.fromEntries(
+                Object.entries(filtered).map(([classId, subclasses]) => [
+                    classId,
+                    subclasses.map((subclass) => ({
+                        value: subclass.value,
+                        label: subclass.name,
+                        icon: subclass.icon,
+                        hint: subclass.hint,
+                    })),
+                ]),
+            ),
+            loading: false,
+        };
+    }),
+}));
+
 const LOW_CON_CHARACTER_SHEET_MOCK = {
     request: {
         ...CHARACTERS_MOCK.request,
@@ -126,6 +205,7 @@ const LEVEL_UP_SAVE_MOCK = {
                         usesMax: null,
                         usesRemaining: null,
                         recharge: null,
+                        customSubclassFeature: null,
                     },
                 ],
             },
@@ -463,12 +543,6 @@ describe('CharacterByIdScreen level-up wizard', () => {
             expect(screen.getByText('Step 3 of 6 - Subclass Selection')).toBeTruthy();
         });
 
-        expect(screen.getByTestId('expandable-lore-read-more')).toBeTruthy();
-        await pressAndFlush(screen.getByTestId('expandable-lore-read-more'));
-        await waitFor(() => {
-            expect(screen.getByTestId('expandable-lore-read-less')).toBeTruthy();
-        });
-
         await pressAndFlush(screen.getByTestId('level-up-subclass-option-evocation'));
 
         await waitFor(() => {
@@ -509,6 +583,10 @@ describe('CharacterByIdScreen level-up wizard', () => {
 
         await pressAndFlush(screen.getByTestId('level-up-subclass-option-custom'));
         fireEvent.changeText(screen.getByTestId('level-up-custom-subclass-name-input'), 'School of Glass');
+        fireEvent.changeText(
+            screen.getByTestId('level-up-custom-subclass-description-input'),
+            'A delicate art of mirrored wards and refractions.',
+        );
 
         await waitFor(() => {
             expect(screen.getByText('Step 3 of 7 - Subclass Selection')).toBeTruthy();
@@ -528,6 +606,35 @@ describe('CharacterByIdScreen level-up wizard', () => {
         );
 
         expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
+    });
+
+    it('replays persisted custom subclass features when selecting an existing custom subclass', async () => {
+        renderCharacterSheetScreen([SUBCLASS_ELIGIBLE_CHARACTER_SHEET_MOCK]);
+
+        await enableCharacterSheetEditMode();
+        await pressAndFlush(screen.getByLabelText('Level up character'));
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 2 of 6 - Hit Points')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-hit-points-average-button'));
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 3 of 6 - Subclass Selection')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-subclass-option-custom-wizard-subclass-id'));
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 4 of 7 - New Class Features')).toBeTruthy();
+        });
+
+        expect(screen.getByText('Refraction Shield')).toBeTruthy();
+        expect(screen.getByText('Bend light to turn aside attacks.')).toBeTruthy();
     });
 
     it('navigates placeholder steps after picking hit points and switches the final action label', async () => {

@@ -24,6 +24,7 @@ import SpellsTab from '@/components/character-sheet/SpellsTab';
 import TraitsTab from '@/components/character-sheet/TraitsTab';
 import VitalsCard from '@/components/character-sheet/VitalsCard';
 import useLevelUpWizard from '@/hooks/useLevelUpWizard';
+import useAvailableSubclasses from '@/hooks/useAvailableSubclasses';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
 import useCharacterSheetData from '@/hooks/useCharacterSheetData';
 import useCharacterSheetDraft from '@/hooks/useCharacterSheetDraft';
@@ -35,6 +36,7 @@ import {
     primaryCharacterClassName,
     strongestSpellSaveDc,
 } from '@/lib/characterClassSummary';
+import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { isAbilityKey, skillModifier } from '@/lib/characterSheetUtils';
 import type { CharacterSheetDraftTraitTextField } from '@/lib/character-sheet/characterSheetDraft';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -133,7 +135,13 @@ export default function CharacterByIdScreen() {
             },
         };
     }, [character, draft?.abilityScores, draft?.classes, draft?.hp, draft?.level]);
-    const levelUpWizard = useLevelUpWizard(wizardCharacter, levelUpSheetVisible);
+    const allSubclassClassIds = useMemo(
+        () => CLASS_OPTIONS.map((option) => option.value),
+        [],
+    );
+    const { availableSubclasses, availableSubclassesByClassId } = useAvailableSubclasses(allSubclassClassIds);
+    const levelUpWizard = useLevelUpWizard(wizardCharacter, levelUpSheetVisible, availableSubclasses);
+    const levelUpAvailableSubclasses = availableSubclassesByClassId[levelUpWizard.selectedClass.classId] ?? [];
 
     useEffect(() => {
         if (isUnauthenticated) router.replace('/(auth)/sign-in');
@@ -498,11 +506,12 @@ export default function CharacterByIdScreen() {
                 <LevelUpWizardSheet
                     visible={levelUpSheetVisible}
                     characterName={character.name}
-                    nextCharacterLevel={displayedLevel + 1}
-                    wizard={levelUpWizard}
-                    onConfirm={handleConfirmLevelUp}
-                    onClose={handleCloseLevelUpSheet}
-                />
+                nextCharacterLevel={displayedLevel + 1}
+                wizard={levelUpWizard}
+                availableSubclasses={levelUpAvailableSubclasses}
+                onConfirm={handleConfirmLevelUp}
+                onClose={handleCloseLevelUpSheet}
+            />
             </View>
         </RailScreenShell>
     );

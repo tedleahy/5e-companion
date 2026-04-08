@@ -7,6 +7,7 @@ import {
     sanitiseCharacterClassRow,
     sortClassRowsForDisplay,
 } from '@/lib/characterCreation/multiclass';
+import { SUBCLASS_OPTIONS, type OptionItem } from '@/lib/characterCreation/options';
 import type { CharacterDraft } from '@/store/characterDraft';
 import { ProficiencyLevel, type CreateCharacterInput } from '@/types/generated_graphql_types';
 
@@ -51,12 +52,15 @@ function calculateFinalAbilityScores(draft: CharacterDraft): Record<AbilityKey, 
 /**
  * Converts the local draft state into the API input used to create a character.
  */
-export function buildCreateCharacterInput(draft: CharacterDraft): CreateCharacterInput {
+export function buildCreateCharacterInput(
+    draft: CharacterDraft,
+    subclassOptionsByClassId: Record<string, OptionItem[]> = SUBCLASS_OPTIONS,
+): CreateCharacterInput {
     const finalScores = calculateFinalAbilityScores(draft);
     const dexterityModifier = abilityModifier(finalScores.dexterity);
     const hasTraits = draft.personalityTraits || draft.ideals || draft.bonds || draft.flaws;
     const classRows = sortClassRowsForDisplay(
-        draft.classes.map(sanitiseCharacterClassRow),
+        draft.classes.map((classRow) => sanitiseCharacterClassRow(classRow, subclassOptionsByClassId)),
         draft.startingClassId,
     );
 

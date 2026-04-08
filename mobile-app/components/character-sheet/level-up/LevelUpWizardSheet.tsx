@@ -4,6 +4,7 @@ import { Text } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
+import type { AvailableSubclassOption } from '@/lib/subclasses';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import LevelUpWizardProgress from './LevelUpWizardProgress';
 import LevelUpWizardStepBody from './LevelUpWizardStepBody';
@@ -13,6 +14,7 @@ type LevelUpWizardSheetProps = {
     characterName: string;
     nextCharacterLevel: number;
     wizard: UseLevelUpWizardResult;
+    availableSubclasses: AvailableSubclassOption[];
     onConfirm: () => void;
     onClose: () => void;
 };
@@ -25,6 +27,7 @@ export default function LevelUpWizardSheet({
     characterName,
     nextCharacterLevel,
     wizard,
+    availableSubclasses,
     onConfirm,
     onClose,
 }: LevelUpWizardSheetProps) {
@@ -110,6 +113,7 @@ export default function LevelUpWizardSheet({
                         hitPointsState={wizard.hitPointsState}
                         asiOrFeatState={wizard.asiOrFeatState}
                         subclassSelectionState={wizard.subclassSelectionState}
+                        availableSubclasses={availableSubclasses}
                         newFeatures={wizard.newFeatures}
                         customFeatures={wizard.customFeatures}
                         onSelectClass={wizard.selectClass}
@@ -123,9 +127,10 @@ export default function LevelUpWizardSheet({
                         onChangeFeatName={wizard.changeFeatName}
                         onChangeFeatDescription={wizard.changeFeatDescription}
                         onChangeFeatAbilityIncrease={wizard.changeFeatAbilityIncrease}
-                        onSelectSrdSubclass={wizard.selectSrdSubclass}
+                        onSelectExistingSubclass={wizard.selectExistingSubclass}
                         onSelectCustomSubclass={wizard.selectCustomSubclass}
                         onChangeCustomSubclassName={wizard.changeCustomSubclassName}
+                        onChangeCustomSubclassDescription={wizard.changeCustomSubclassDescription}
                         onAddCustomFeature={wizard.addCustomFeature}
                         onChangeCustomFeature={wizard.changeCustomFeature}
                         onRemoveCustomFeature={wizard.removeCustomFeature}

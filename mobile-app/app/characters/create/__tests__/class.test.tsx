@@ -33,6 +33,20 @@ jest.mock('@/store/characterDraft', () => ({
     useCharacterDraft: jest.fn(),
 }));
 
+jest.mock('@/hooks/useAvailableSubclasses', () => ({
+    __esModule: true,
+    default: jest.fn(() => ({
+        availableSubclasses: [],
+        availableSubclassesByClassId: {},
+        subclassOptionItemsByClassId: {
+            wizard: [{ value: 'evocation', label: 'School of Evocation', icon: '\u{1F525}' }],
+            rogue: [{ value: 'thief', label: 'Thief', icon: '\u{1F4B0}' }],
+            fighter: [{ value: 'champion', label: 'Champion', icon: '\u{1F3C6}' }],
+        },
+        loading: false,
+    })),
+}));
+
 jest.mock('@/components/wizard/OptionGrid', () => ({
     __esModule: true,
     default: ({

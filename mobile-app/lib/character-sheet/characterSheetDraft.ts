@@ -74,10 +74,22 @@ export type CharacterSheetDraftFeature = {
     usesMax: number | null;
     usesRemaining: number | null;
     recharge: string | null;
+    customSubclassFeature: {
+        classId: string;
+        level: number;
+    } | null;
+};
+
+/** Draft-only custom subclass payload persisted until the sheet is saved. */
+export type CharacterSheetDraftCustomSubclass = {
+    name: string;
+    description: string;
 };
 
 /** Local class row used while editing the character sheet. */
-export type CharacterSheetDraftClass = Omit<CharacterClass, '__typename'>;
+export type CharacterSheetDraftClass = Omit<CharacterClass, '__typename'> & {
+    customSubclass: CharacterSheetDraftCustomSubclass | null;
+};
 
 /** Local editable character-sheet draft state. */
 export type CharacterSheetDraft = {
@@ -150,6 +162,7 @@ export function createCharacterSheetDraft(character: CharacterSheetDetail): Char
             className: classRow.className,
             subclassId: classRow.subclassId ?? null,
             subclassName: classRow.subclassName ?? null,
+            customSubclass: null,
             level: classRow.level,
             isStartingClass: classRow.isStartingClass,
         })),
@@ -211,6 +224,7 @@ export function createCharacterSheetDraft(character: CharacterSheetDetail): Char
             recharge: feature.recharge ?? null,
             usesMax: feature.usesMax ?? null,
             usesRemaining: feature.usesRemaining ?? null,
+            customSubclassFeature: null,
         })),
     };
 }
@@ -255,6 +269,7 @@ export function createBlankDraftFeature(source: string): CharacterSheetDraftFeat
         recharge: null,
         usesMax: null,
         usesRemaining: null,
+        customSubclassFeature: null,
     };
 }
 
@@ -277,6 +292,12 @@ export function mapCharacterSheetDraftToSaveInput(
             id: persistedEntityId(classRow.id),
             classId: classRow.classId,
             subclassId: classRow.subclassId ?? null,
+            customSubclass: classRow.customSubclass
+                ? {
+                    name: classRow.customSubclass.name,
+                    description: classRow.customSubclass.description,
+                }
+                : null,
             level: classRow.level,
             isStartingClass: classRow.isStartingClass,
         })),
@@ -304,6 +325,12 @@ export function mapCharacterSheetDraftToSaveInput(
             recharge: feature.recharge ?? null,
             usesMax: feature.usesMax ?? null,
             usesRemaining: feature.usesRemaining ?? null,
+            customSubclassFeature: feature.customSubclassFeature
+                ? {
+                    classId: feature.customSubclassFeature.classId,
+                    level: feature.customSubclassFeature.level,
+                }
+                : null,
         })),
     };
 }

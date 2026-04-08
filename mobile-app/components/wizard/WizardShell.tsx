@@ -9,6 +9,7 @@ import {
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { usePathname, useRouter } from 'expo-router';
 import { useMutation } from '@apollo/client/react';
+import useAvailableSubclasses from '@/hooks/useAvailableSubclasses';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { buildCreateCharacterInput } from '@/lib/characterCreation/buildCreateCharacterInput';
@@ -25,6 +26,9 @@ export default function WizardShell({ children }: Props) {
     const pathname = usePathname();
     const router = useRouter();
     const { draft, resetDraft, hasDraftData } = useCharacterDraft();
+    const { subclassOptionItemsByClassId } = useAvailableSubclasses(
+        draft.classes.map((classRow) => classRow.classId),
+    );
 
     const stepRoutes = useMemo(() => getCreateCharacterStepRoutes(draft.level), [draft.level]);
     const totalSteps = stepRoutes.length;
@@ -40,7 +44,10 @@ export default function WizardShell({ children }: Props) {
     });
 
     // Validation: is the current step complete enough to proceed?
-    const canContinue = useMemo(() => isCreateCharacterStepComplete(currentRoute, draft), [currentRoute, draft]);
+    const canContinue = useMemo(
+        () => isCreateCharacterStepComplete(currentRoute, draft, subclassOptionItemsByClassId),
+        [currentRoute, draft, subclassOptionItemsByClassId],
+    );
 
     const progressWidth = ((currentStep + 1) / totalSteps) * 100;
 
@@ -76,7 +83,7 @@ export default function WizardShell({ children }: Props) {
 
         if (isLastStep) {
             try {
-                const input = buildCreateCharacterInput(draft);
+                const input = buildCreateCharacterInput(draft, subclassOptionItemsByClassId);
                 const result = await createCharacter({ variables: { input } });
                 const newId = result.data?.createCharacter?.id;
                 resetDraft();

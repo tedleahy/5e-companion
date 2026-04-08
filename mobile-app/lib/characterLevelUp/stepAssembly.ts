@@ -1,5 +1,6 @@
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { sortCharacterClasses } from '@/lib/characterClassSummary';
+import type { AvailableSubclassOption } from '@/lib/subclasses';
 import type { LevelUpSubclassSelectionState } from './types';
 import {
     createLevelUpSubclassSelectionState,
@@ -130,11 +131,17 @@ export function selectedLevelUpClass(
     character: LevelUpWizardCharacter | null | undefined,
     selectedClassId: string,
     subclassSelection: LevelUpSubclassSelectionState = createLevelUpSubclassSelectionState(),
+    availableSubclasses: readonly AvailableSubclassOption[] = [],
 ): LevelUpWizardSelectedClass {
     const matchingClassRow = character?.classes.find((classRow) => classRow.classId === selectedClassId) ?? null;
     const classOption = CLASS_OPTIONS.find((option) => option.value === selectedClassId) ?? null;
 
     if (matchingClassRow) {
+        const matchingSubclassOption = availableSubclasses.find((subclass) => (
+            subclass.value === (matchingClassRow.subclassId ?? '')
+            || subclass.id === (matchingClassRow.subclassId ?? '')
+            || subclass.srdIndex === (matchingClassRow.subclassId ?? '')
+        )) ?? null;
         const baseSelectedClass: LevelUpWizardSelectedClass = {
             classId: matchingClassRow.classId,
             className: matchingClassRow.className,
@@ -143,7 +150,10 @@ export function selectedLevelUpClass(
             isExistingClass: true,
             subclassId: matchingClassRow.subclassId ?? null,
             subclassName: matchingClassRow.subclassName ?? null,
-            subclassIsCustom: false,
+            subclassDescription: matchingSubclassOption?.description ?? null,
+            subclassIsCustom: matchingSubclassOption?.isCustom ?? false,
+            subclassFeatures: matchingSubclassOption?.features ?? [],
+            customSubclass: null,
         };
         const resolvedSubclass = resolveSelectedClassSubclass(baseSelectedClass, subclassSelection);
 
@@ -161,7 +171,10 @@ export function selectedLevelUpClass(
         isExistingClass: false,
         subclassId: null,
         subclassName: null,
+        subclassDescription: null,
         subclassIsCustom: false,
+        subclassFeatures: [],
+        customSubclass: null,
     };
     const resolvedSubclass = resolveSelectedClassSubclass(baseSelectedClass, subclassSelection);
 
@@ -220,7 +233,10 @@ export function buildLevelUpStepList(
         ...selectedClass,
         subclassId: null,
         subclassName: null,
+        subclassDescription: null,
         subclassIsCustom: false,
+        subclassFeatures: [],
+        customSubclass: null,
     }),
 ): LevelUpWizardStep[] {
     const stepIds: LevelUpWizardStepId[] = ['choose_class', 'hit_points'];

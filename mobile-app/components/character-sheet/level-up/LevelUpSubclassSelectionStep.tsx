@@ -1,8 +1,8 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
 import type { LevelUpWizardSelectedClass } from '@/lib/characterLevelUp/types';
+import type { AvailableSubclassOption } from '@/lib/subclasses';
 import {
-    levelUpSrdSubclassOption,
     subclassCategoryName,
 } from '@/lib/characterLevelUp/subclassFeatures';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -10,12 +10,15 @@ import ExpandableLoreText from './ExpandableLoreText';
 
 type LevelUpSubclassSelectionStepProps = {
     selectedClass: LevelUpWizardSelectedClass;
-    selectedSrdSubclassId: string | null;
+    availableSubclasses: AvailableSubclassOption[];
+    selectedSubclassId: string | null;
     customSubclassName: string;
+    customSubclassDescription: string;
     selectedMode: 'none' | 'srd' | 'custom';
-    onSelectSrdSubclass: (subclassId: string) => void;
+    onSelectExistingSubclass: (subclass: AvailableSubclassOption) => void;
     onSelectCustomSubclass: () => void;
     onChangeCustomSubclassName: (value: string) => void;
+    onChangeCustomSubclassDescription: (value: string) => void;
 };
 
 /**
@@ -23,16 +26,18 @@ type LevelUpSubclassSelectionStepProps = {
  */
 export default function LevelUpSubclassSelectionStep({
     selectedClass,
-    selectedSrdSubclassId,
+    availableSubclasses,
+    selectedSubclassId,
     customSubclassName,
+    customSubclassDescription,
     selectedMode,
-    onSelectSrdSubclass,
+    onSelectExistingSubclass,
     onSelectCustomSubclass,
     onChangeCustomSubclassName,
+    onChangeCustomSubclassDescription,
 }: LevelUpSubclassSelectionStepProps) {
-    const srdSubclass = levelUpSrdSubclassOption(selectedClass.classId);
     const categoryName = subclassCategoryName(selectedClass.classId);
-    const srdSelected = selectedMode === 'srd' && selectedSrdSubclassId === srdSubclass?.subclassId;
+    const existingSubclassSelected = selectedMode === 'srd';
     const customSelected = selectedMode === 'custom';
 
     return (
@@ -41,34 +46,49 @@ export default function LevelUpSubclassSelectionStep({
                 {`Choose your ${categoryName} for ${selectedClass.className}.`}
             </Text>
 
-            {srdSubclass ? (
-                <Pressable
-                    onPress={() => onSelectSrdSubclass(srdSubclass.subclassId)}
-                    style={[
-                        styles.optionCard,
-                        srdSelected && styles.optionCardSelected,
-                    ]}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Choose ${srdSubclass.name}`}
-                    accessibilityState={{ selected: srdSelected }}
-                    testID={`level-up-subclass-option-${srdSubclass.subclassId}`}
-                >
-                    <View style={styles.optionHeader}>
-                        <Text style={styles.optionIcon}>{srdSubclass.icon}</Text>
-                        <View style={styles.optionTitleWrap}>
-                            <Text style={styles.optionTitle}>{srdSubclass.name}</Text>
-                            <Text style={styles.optionSubtitle}>{categoryName}</Text>
+            {availableSubclasses.map((subclass) => {
+                const isSelected = existingSubclassSelected && selectedSubclassId === subclass.value;
+
+                return (
+                    <Pressable
+                        key={subclass.value}
+                        onPress={() => onSelectExistingSubclass(subclass)}
+                        style={[
+                            styles.optionCard,
+                            isSelected && styles.optionCardSelected,
+                        ]}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Choose ${subclass.name}`}
+                        accessibilityState={{ selected: isSelected }}
+                        testID={`level-up-subclass-option-${subclass.value}`}
+                    >
+                        <View style={styles.optionHeader}>
+                            <Text style={styles.optionIcon}>{subclass.icon}</Text>
+                            <View style={styles.optionTitleWrap}>
+                                <Text style={styles.optionTitle}>{subclass.name}</Text>
+                                <Text style={styles.optionSubtitle}>
+                                    {subclass.isCustom ? `Custom ${categoryName}` : categoryName}
+                                </Text>
+                            </View>
+                            <View style={[
+                                styles.sourceBadge,
+                                subclass.isCustom && styles.customBadge,
+                            ]}>
+                                <Text style={[
+                                    styles.sourceBadgeText,
+                                    subclass.isCustom && styles.customBadgeText,
+                                ]}>
+                                    {subclass.isCustom ? 'Yours' : 'SRD'}
+                                </Text>
+                            </View>
                         </View>
-                        <View style={styles.srdBadge}>
-                            <Text style={styles.srdBadgeText}>SRD</Text>
-                        </View>
-                    </View>
-                    <ExpandableLoreText
-                        text={srdSubclass.description}
-                        testID={`level-up-subclass-description-${srdSubclass.subclassId}`}
-                    />
-                </Pressable>
-            ) : null}
+                        <ExpandableLoreText
+                            text={subclass.description}
+                            testID={`level-up-subclass-description-${subclass.value}`}
+                        />
+                    </Pressable>
+                );
+            })}
 
             <Pressable
                 onPress={onSelectCustomSubclass}
@@ -94,18 +114,34 @@ export default function LevelUpSubclassSelectionStep({
                 </Text>
 
                 {customSelected ? (
-                    <TextInput
-                        mode="outlined"
-                        label="Custom Subclass Name"
-                        placeholder={`Enter your ${categoryName.toLowerCase()} name`}
-                        value={customSubclassName}
-                        onChangeText={onChangeCustomSubclassName}
-                        outlineColor={fantasyTokens.colors.gold}
-                        activeOutlineColor={fantasyTokens.colors.claret}
-                        textColor={fantasyTokens.colors.inkDark}
-                        style={styles.input}
-                        testID="level-up-custom-subclass-name-input"
-                    />
+                    <View style={styles.customInputGroup}>
+                        <TextInput
+                            mode="outlined"
+                            label="Custom Subclass Name"
+                            placeholder={`Enter your ${categoryName.toLowerCase()} name`}
+                            value={customSubclassName}
+                            onChangeText={onChangeCustomSubclassName}
+                            outlineColor={fantasyTokens.colors.gold}
+                            activeOutlineColor={fantasyTokens.colors.claret}
+                            textColor={fantasyTokens.colors.inkDark}
+                            style={styles.input}
+                            testID="level-up-custom-subclass-name-input"
+                        />
+                        <TextInput
+                            mode="outlined"
+                            label="Subclass Description"
+                            placeholder="Describe this subclass for future selection screens"
+                            value={customSubclassDescription}
+                            onChangeText={onChangeCustomSubclassDescription}
+                            outlineColor={fantasyTokens.colors.gold}
+                            activeOutlineColor={fantasyTokens.colors.claret}
+                            textColor={fantasyTokens.colors.inkDark}
+                            multiline
+                            style={styles.input}
+                            contentStyle={styles.descriptionInputContent}
+                            testID="level-up-custom-subclass-description-input"
+                        />
+                    </View>
                 ) : null}
             </Pressable>
         </View>
@@ -160,18 +196,30 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.inkLight,
         lineHeight: 24,
     },
-    srdBadge: {
+    sourceBadge: {
         borderRadius: 999,
         backgroundColor: 'rgba(45,106,79,0.12)',
         paddingHorizontal: 10,
         paddingVertical: 4,
     },
-    srdBadgeText: {
+    customBadge: {
+        backgroundColor: 'rgba(122,77,24,0.12)',
+    },
+    sourceBadgeText: {
         ...fantasyTokens.typography.buttonLabel,
         color: fantasyTokens.colors.success,
+    },
+    customBadgeText: {
+        color: fantasyTokens.colors.inkDark,
+    },
+    customInputGroup: {
+        gap: fantasyTokens.spacing.sm,
     },
     input: {
         backgroundColor: fantasyTokens.colors.parchmentLight,
         marginTop: fantasyTokens.spacing.xs,
+    },
+    descriptionInputContent: {
+        minHeight: 96,
     },
 });

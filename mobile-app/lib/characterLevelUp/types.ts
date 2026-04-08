@@ -1,5 +1,6 @@
 import type { CharacterSheetFieldsFragment } from '@/types/generated_graphql_types';
 import type { AbilityKey } from '@/lib/characterSheetUtils';
+import type { AvailableSubclassFeature } from '@/lib/subclasses';
 
 /**
  * Ordered step ids supported by the level-up wizard.
@@ -51,7 +52,13 @@ export type LevelUpWizardSelectedClass = {
     isExistingClass: boolean;
     subclassId: string | null;
     subclassName: string | null;
+    subclassDescription: string | null;
     subclassIsCustom: boolean;
+    subclassFeatures: AvailableSubclassFeature[];
+    customSubclass: {
+        name: string;
+        description: string;
+    } | null;
 };
 
 /**
@@ -123,7 +130,12 @@ export type LevelUpSubclassSelectionMode = 'none' | 'srd' | 'custom';
 export type LevelUpSubclassSelectionState = {
     mode: LevelUpSubclassSelectionMode;
     selectedSubclassId: string | null;
+    selectedSubclassName: string | null;
+    selectedSubclassDescription: string;
+    selectedSubclassIsCustom: boolean;
+    selectedSubclassFeatures: AvailableSubclassFeature[];
     customSubclassName: string;
+    customSubclassDescription: string;
 };
 
 /**
@@ -148,4 +160,8 @@ export type LevelUpFeature = {
     subclassId: string | null;
     subclassName: string | null;
     kind: 'class' | 'subclass' | 'spell_slot' | 'custom';
+    customSubclassFeature: {
+        classId: string;
+        level: number;
+    } | null;
 };

@@ -7,6 +7,7 @@ import ClassAllocationRow from '@/components/wizard/ClassAllocationRow';
 import ClassOptionGrid from '@/components/wizard/ClassOptionGrid';
 import NumericStepper from '@/components/wizard/NumericStepper';
 import OptionGrid from '@/components/wizard/OptionGrid';
+import useAvailableSubclasses from '@/hooks/useAvailableSubclasses';
 import {
     availableClassOptions,
     createCharacterClassDraft,
@@ -16,7 +17,6 @@ import {
     sanitiseCharacterClassRow,
     validateCharacterClassDraft,
 } from '@/lib/characterCreation/multiclass';
-import { SUBCLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
@@ -34,6 +34,10 @@ export default function StepClass() {
 
     const selectedClass = draft.classes[0];
     const selectedClassId = selectedClass?.classId ?? '';
+    const selectedSubclassClassIds = draft.classes
+        .map((classRow) => classRow.classId)
+        .filter((classId) => classId.trim().length > 0);
+    const { subclassOptionItemsByClassId } = useAvailableSubclasses(selectedSubclassClassIds);
 
     /* ── multiclass helpers (reused from previous implementation) ── */
 
@@ -42,6 +46,7 @@ export default function StepClass() {
         draft.classes,
         draft.level,
         draft.startingClassId,
+        subclassOptionItemsByClassId,
     );
     const remainingLevelsCount = remainingClassLevels(draft.classes, draft.level);
     const displayClassRows = draft.classes.map((classRow, originalIndex) => ({
@@ -121,7 +126,10 @@ export default function StepClass() {
     }
 
     function updateClasses(nextClasses: typeof draft.classes, nextStartingClassId = draft.startingClassId) {
-        const sanitisedClasses = nextClasses.map(sanitiseCharacterClassRow);
+        const sanitisedClasses = nextClasses.map((classRow) => sanitiseCharacterClassRow(
+            classRow,
+            subclassOptionItemsByClassId,
+        ));
         updateDraft({
             classes: sanitisedClasses,
             startingClassId: normaliseStartingClassId(sanitisedClasses, nextStartingClassId),
@@ -186,8 +194,10 @@ export default function StepClass() {
 
     /* ── subclass options for single-class mode ── */
 
-    const singleSubclassOptions = SUBCLASS_OPTIONS[selectedClassId] ?? [];
-    const singleSubclassUnlocked = selectedClass ? isSubclassUnlocked(selectedClass) : false;
+    const singleSubclassOptions = subclassOptionItemsByClassId[selectedClassId] ?? [];
+    const singleSubclassUnlocked = selectedClass
+        ? isSubclassUnlocked(selectedClass, subclassOptionItemsByClassId)
+        : false;
 
     /* ── render ── */
 
@@ -304,8 +314,8 @@ export default function StepClass() {
                             onSelectStartingClass={() => updateDraft({ startingClassId: classRow.classId })}
                             onSelectSubclass={(subclassId) => handleSelectSubclass(classRow.originalIndex, subclassId)}
                             showStartingClassSelector={draft.classes.length > 1}
-                            subclassOptions={SUBCLASS_OPTIONS[classRow.classId] ?? []}
-                            subclassUnlocked={isSubclassUnlocked(classRow)}
+                            subclassOptions={subclassOptionItemsByClassId[classRow.classId] ?? []}
+                            subclassUnlocked={isSubclassUnlocked(classRow, subclassOptionItemsByClassId)}
                         />
                     ))}
 
