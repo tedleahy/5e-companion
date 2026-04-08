@@ -16,10 +16,8 @@ import {
     deriveSpellSlots,
     deriveSpellcastingProfiles,
     findStartingClassIndex,
-    resolveCharacterClasses,
     validateClassAllocations,
     type CharacterAbilityScores,
-    type CharacterClassAllocation,
     type CharacterClassReference,
     type CharacterSubclassReference,
     type DerivedHitDicePool,
@@ -28,6 +26,16 @@ import {
     type ResolvedCharacterClass,
 } from "./multiclassRules";
 import { reconcileCharacterSheetCollection } from "./reconcileSheetCollection";
+import {
+    findOrCreateOwnedCustomSubclassFeature,
+    loadVisibleSubclassReferences,
+    mapSubclassReferencesBySelectionValue,
+    materialiseResolvedCharacterClasses,
+    normaliseCustomSubclassFeatureInput,
+    normaliseCustomSubclassInput,
+    type SubmittedCharacterClassAllocation,
+    type SubmittedCustomSubclassFeature,
+} from "./subclassReferences";
 
 /**
  * Persisted hit-dice state needed to carry spent dice forward through a level-up.
@@ -59,6 +67,13 @@ type SavedHitDicePool = {
 };
 
 /**
+ * Save-input feature row after normalising optional custom-subclass metadata.
+ */
+type SubmittedSaveCharacterSheetFeature = Omit<SaveCharacterSheetFeatureInput, "customSubclassFeature"> & {
+    customSubclassFeature: SubmittedCustomSubclassFeature | null;
+};
+
+/**
  * Writes the full editable character sheet in one atomic transaction.
  *
  * Chunk 7 extends this save path so level-up class rows also persist here. The
@@ -75,24 +90,39 @@ export async function saveCharacterSheet(
     await findOwnedCharacter(characterId, userId);
 
     const submittedClasses = normaliseSubmittedClasses(input.classes);
+    const submittedFeatures = normaliseSubmittedFeatures(input.features);
     const startingClassId = extractStartingClassId(input.classes);
-    const resolvedClasses = await resolveSaveCharacterClasses(submittedClasses, startingClassId);
-    const startingClassIndex = findStartingClassIndex(submittedClasses, startingClassId);
-    const proficiencyBonus = deriveProficiencyBonus(
-        submittedClasses.reduce((total, classRow) => total + classRow.level, 0),
+    const { classRefsBySrdIndex, subclassRefsBySelectionValue } = await resolveSaveCharacterClassReferences(
+        userId,
+        submittedClasses,
+        startingClassId,
     );
-    const spellcastingProfiles = deriveSpellcastingProfiles(
-        resolvedClasses,
-        input.abilityScores as CharacterAbilityScores,
-        proficiencyBonus,
-    );
-    const singleSpellcastingProfile = spellcastingProfiles.length === 1
-        ? spellcastingProfiles[0]
-        : null;
-    const derivedHitDicePools = deriveHitDicePools(resolvedClasses);
-    const derivedSpellSlots = deriveSpellSlots(resolvedClasses);
 
     return await prisma.$transaction(async (tx) => {
+        const resolvedClasses = await materialiseResolvedCharacterClasses(
+            tx,
+            userId,
+            submittedClasses,
+            classRefsBySrdIndex,
+            subclassRefsBySelectionValue,
+        );
+        const startingClassIndex = findStartingClassIndex(
+            resolvedClasses.map((resolvedClass) => resolvedClass.classRow),
+            startingClassId,
+        );
+        const proficiencyBonus = deriveProficiencyBonus(
+            submittedClasses.reduce((total, classRow) => total + classRow.level, 0),
+        );
+        const spellcastingProfiles = deriveSpellcastingProfiles(
+            resolvedClasses,
+            input.abilityScores as CharacterAbilityScores,
+            proficiencyBonus,
+        );
+        const singleSpellcastingProfile = spellcastingProfiles.length === 1
+            ? spellcastingProfiles[0]
+            : null;
+        const derivedHitDicePools = deriveHitDicePools(resolvedClasses);
+        const derivedSpellSlots = deriveSpellSlots(resolvedClasses);
         const [stats, existingHitDicePools, existingSpellSlots] = await Promise.all([
             tx.characterStats.findUnique({
                 where: { characterId },
@@ -157,7 +187,7 @@ export async function saveCharacterSheet(
 
         await reconcileWeapons(tx, characterId, input.weapons);
         await reconcileInventory(tx, characterId, input.inventory);
-        await reconcileFeatures(tx, characterId, input.features);
+        await reconcileFeatures(tx, characterId, submittedFeatures, resolvedClasses, userId);
 
         return updatedCharacter;
     });
@@ -168,11 +198,24 @@ export async function saveCharacterSheet(
  */
 function normaliseSubmittedClasses(
     classes: SaveCharacterSheetClassInput[],
-): CharacterClassAllocation[] {
+): SubmittedCharacterClassAllocation[] {
     return classes.map((classRow) => ({
         classId: classRow.classId,
         subclassId: classRow.subclassId ?? null,
+        customSubclass: normaliseCustomSubclassInput(classRow.customSubclass),
         level: classRow.level,
+    }));
+}
+
+/**
+ * Normalises submitted feature rows into the server-side save shape.
+ */
+function normaliseSubmittedFeatures(
+    features: SaveCharacterSheetFeatureInput[],
+): SubmittedSaveCharacterSheetFeature[] {
+    return features.map((feature) => ({
+        ...feature,
+        customSubclassFeature: normaliseCustomSubclassFeatureInput(feature.customSubclassFeature),
     }));
 }
 
@@ -192,11 +235,15 @@ function extractStartingClassId(classes: SaveCharacterSheetClassInput[]): string
 /**
  * Resolves submitted class rows against seeded reference data and validates them.
  */
-async function resolveSaveCharacterClasses(
-    classes: CharacterClassAllocation[],
+async function resolveSaveCharacterClassReferences(
+    userId: string,
+    classes: SubmittedCharacterClassAllocation[],
     startingClassId: string,
-): Promise<ResolvedCharacterClass[]> {
-    const subclassIds = classes
+): Promise<{
+    classRefsBySrdIndex: Map<string, CharacterClassReference>;
+    subclassRefsBySelectionValue: Map<string, CharacterSubclassReference>;
+}> {
+    const subclassSelectionValues = classes
         .map((classRow) => classRow.subclassId)
         .filter((subclassId): subclassId is string => typeof subclassId === "string");
 
@@ -208,15 +255,9 @@ async function resolveSaveCharacterClasses(
                 },
             },
         }),
-        subclassIds.length === 0
+        subclassSelectionValues.length === 0
             ? Promise.resolve([])
-            : prisma.subclass.findMany({
-                  where: {
-                      srdIndex: {
-                          in: subclassIds,
-                      },
-                  },
-              }),
+            : loadVisibleSubclassReferences(userId, subclassSelectionValues),
     ]);
 
     const classRefsBySrdIndex = new Map<string, CharacterClassReference>();
@@ -226,16 +267,14 @@ async function resolveSaveCharacterClasses(
         }
     }
 
-    const subclassRefsBySrdIndex = new Map<string, CharacterSubclassReference>();
-    for (const subclassRef of subclassRefs) {
-        if (subclassRef.srdIndex) {
-            subclassRefsBySrdIndex.set(subclassRef.srdIndex, subclassRef);
-        }
-    }
+    const subclassRefsBySelectionValue = mapSubclassReferencesBySelectionValue(subclassRefs);
 
-    validateClassAllocations(classes, classRefsBySrdIndex, subclassRefsBySrdIndex, startingClassId);
+    validateClassAllocations(classes, classRefsBySrdIndex, subclassRefsBySelectionValue, startingClassId);
 
-    return resolveCharacterClasses(classes, classRefsBySrdIndex, subclassRefsBySrdIndex);
+    return {
+        classRefsBySrdIndex,
+        subclassRefsBySelectionValue,
+    };
 }
 
 /**
@@ -404,33 +443,79 @@ async function reconcileInventory(
 async function reconcileFeatures(
     tx: Prisma.TransactionClient,
     characterId: string,
-    nextFeatures: SaveCharacterSheetFeatureInput[],
+    nextFeatures: SubmittedSaveCharacterSheetFeature[],
+    resolvedClasses: ResolvedCharacterClass[],
+    userId: string,
 ) {
+    async function buildFeatureData(feature: SubmittedSaveCharacterSheetFeature) {
+        const featureId = await resolvePersistedFeatureIdForSave(
+            tx,
+            userId,
+            feature,
+            resolvedClasses,
+        );
+
+        return {
+            ...(featureId ? { featureId } : {}),
+            name: feature.name,
+            source: feature.source,
+            description: feature.description,
+            usesMax: feature.usesMax ?? null,
+            usesRemaining: feature.usesRemaining ?? null,
+            recharge: feature.recharge ?? null,
+        };
+    }
+
     await reconcileCharacterSheetCollection({
         delegate: tx.characterFeature,
         characterId,
         nextItems: nextFeatures,
         notFoundMessage: "Feature not found.",
-        buildUpdateData(feature) {
-            return {
-                name: feature.name,
-                source: feature.source,
-                description: feature.description,
-                usesMax: feature.usesMax ?? null,
-                usesRemaining: feature.usesRemaining ?? null,
-                recharge: feature.recharge ?? null,
-            };
+        async buildUpdateData(feature) {
+            return await buildFeatureData(feature);
         },
-        buildCreateData(feature, currentCharacterId) {
+        async buildCreateData(feature, currentCharacterId) {
+            const featureData = await buildFeatureData(feature);
+
             return {
                 characterId: currentCharacterId,
-                name: feature.name,
-                source: feature.source,
-                description: feature.description,
-                usesMax: feature.usesMax ?? null,
-                usesRemaining: feature.usesRemaining ?? null,
-                recharge: feature.recharge ?? null,
+                ...featureData,
             };
         },
     });
+}
+
+/**
+ * Resolves one optional reusable feature definition for the submitted feature row.
+ */
+async function resolvePersistedFeatureIdForSave(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    feature: SubmittedSaveCharacterSheetFeature,
+    resolvedClasses: ResolvedCharacterClass[],
+): Promise<string | undefined> {
+    if (!feature.customSubclassFeature) {
+        return undefined;
+    }
+
+    const resolvedClass = resolvedClasses.find((candidate) => (
+        candidate.classRow.classId === feature.customSubclassFeature!.classId
+    ));
+
+    if (!resolvedClass) {
+        throw new Error(`Cannot attach a custom subclass feature to unknown class ${feature.customSubclassFeature.classId}.`);
+    }
+
+    const persistedFeature = await findOrCreateOwnedCustomSubclassFeature(
+        tx,
+        userId,
+        resolvedClass,
+        {
+            name: feature.name.trim(),
+            description: feature.description.trim(),
+            level: feature.customSubclassFeature.level,
+        },
+    );
+
+    return persistedFeature.id;
 }

@@ -34,6 +34,7 @@ const resolvers: Resolvers = {
         character: characterResolvers.character,
         hasCurrentUserCharacters: characterResolvers.hasCurrentUserCharacters,
         currentUserCharacters: characterResolvers.currentUserCharacters,
+        availableSubclasses: characterResolvers.availableSubclasses,
     },
 
     Mutation: {

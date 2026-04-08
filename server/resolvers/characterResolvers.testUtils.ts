@@ -18,6 +18,13 @@ export const hitDicePoolUpdateMock: any = mock((_args: unknown) => Promise.resol
 // reference model mocks
 export const classFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const subclassFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
+export const subclassFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
+export const subclassCreateMock: any = mock((_args: unknown) => Promise.resolve({}));
+export const subclassUpdateMock: any = mock((_args: unknown) => Promise.resolve({}));
+export const featureFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
+export const featureFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
+export const featureCreateMock: any = mock((_args: unknown) => Promise.resolve({}));
+export const featureUpdateMock: any = mock((_args: unknown) => Promise.resolve({}));
 export const raceFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const backgroundFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 
@@ -67,6 +74,17 @@ export const transactionMock: any = mock((callback: (tx: any) => Promise<unknown
     hitDicePool: {
         findMany: hitDicePoolFindManyMock,
         update: hitDicePoolUpdateMock,
+    },
+    subclass: {
+        findFirst: subclassFindFirstMock,
+        create: subclassCreateMock,
+        update: subclassUpdateMock,
+    },
+    feature: {
+        findMany: featureFindManyMock,
+        findFirst: featureFindFirstMock,
+        create: featureCreateMock,
+        update: featureUpdateMock,
     },
     spellSlot: {
         findMany: spellSlotFindManyMock,
@@ -126,6 +144,15 @@ mock.module('../prisma/prisma', () => ({
         },
         subclass: {
             findMany: subclassFindManyMock,
+            findFirst: subclassFindFirstMock,
+            create: subclassCreateMock,
+            update: subclassUpdateMock,
+        },
+        feature: {
+            findMany: featureFindManyMock,
+            findFirst: featureFindFirstMock,
+            create: featureCreateMock,
+            update: featureUpdateMock,
         },
         race: {
             findFirst: raceFindFirstMock,
@@ -352,6 +379,13 @@ export function clearAllCharacterResolverMocks() {
     hitDicePoolUpdateMock.mockClear();
     classFindManyMock.mockClear();
     subclassFindManyMock.mockClear();
+    subclassFindFirstMock.mockClear();
+    subclassCreateMock.mockClear();
+    subclassUpdateMock.mockClear();
+    featureFindFirstMock.mockClear();
+    featureFindManyMock.mockClear();
+    featureCreateMock.mockClear();
+    featureUpdateMock.mockClear();
     raceFindFirstMock.mockClear();
     backgroundFindFirstMock.mockClear();
     weaponFindManyMock.mockClear();

@@ -13,6 +13,8 @@ import {
     fakeCharacterClasses,
     fakeHitDicePools,
     fakeStats,
+    featureCreateMock,
+    featureFindFirstMock,
     hitDicePoolFindManyMock,
     inventoryItemCreateMock,
     inventoryItemDeleteManyMock,
@@ -22,6 +24,8 @@ import {
     spellSlotFindManyMock,
     statsFindUniqueMock,
     statsUpdateMock,
+    subclassCreateMock,
+    subclassFindFirstMock,
     subclassFindManyMock,
     transactionMock,
     unauthedCtx,
@@ -403,5 +407,176 @@ describe('characterResolvers — saveCharacterSheet', () => {
                 ],
             },
         }, authedCtx)).rejects.toThrow('Feature not found.');
+    });
+
+    test('creates and persists a new owned custom subclass when the saved sheet submits one', async () => {
+        classFindManyMock.mockResolvedValueOnce([
+            fakeCharacterClasses[0]!.classRef,
+        ]);
+        characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
+        characterUpdateMock.mockResolvedValueOnce(fakeCharacter);
+        statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
+        statsUpdateMock.mockResolvedValueOnce({ ...fakeStats });
+        hitDicePoolFindManyMock.mockResolvedValueOnce(fakeHitDicePools.slice(0, 1));
+        spellSlotFindManyMock.mockResolvedValueOnce(EXISTING_SPELL_SLOTS.slice(0, 3));
+        weaponFindManyMock.mockResolvedValueOnce([]);
+        inventoryItemFindManyMock.mockResolvedValueOnce([]);
+        characterFeatureFindManyMock.mockResolvedValueOnce([]);
+        subclassFindFirstMock.mockResolvedValueOnce(null);
+        subclassCreateMock.mockResolvedValueOnce({
+            id: 'custom-subclass-id',
+            srdIndex: null,
+            ownerUserId: 'user-abc',
+            name: 'School of Glass',
+            description: ['A delicate art of mirrored wards and refractions.'],
+            classId: 'class-wizard-id',
+        });
+
+        await resolvers.saveCharacterSheet({}, {
+            characterId: 'char-1',
+            input: {
+                ac: 17,
+                speed: 35,
+                initiative: 3,
+                conditions: [],
+                hp: fakeStats.hp,
+                abilityScores: fakeStats.abilityScores,
+                currency: fakeStats.currency,
+                traits: fakeStats.traits,
+                classes: [
+                    {
+                        id: 'char-class-1',
+                        classId: 'wizard',
+                        subclassId: null,
+                        customSubclass: {
+                            name: 'School of Glass',
+                            description: 'A delicate art of mirrored wards and refractions.',
+                        },
+                        level: 10,
+                        isStartingClass: true,
+                    },
+                ],
+                weapons: [],
+                inventory: [],
+                features: [],
+            },
+        } as any, authedCtx);
+
+        expect(subclassCreateMock).toHaveBeenCalledWith({
+            data: {
+                ownerUserId: 'user-abc',
+                name: 'School of Glass',
+                description: ['A delicate art of mirrored wards and refractions.'],
+                classId: 'class-wizard-id',
+            },
+        });
+        const callArgs = characterUpdateMock.mock.calls[0]![0] as Record<string, any>;
+        expect(callArgs.data.classes.create).toEqual([
+            {
+                classId: 'class-wizard-id',
+                subclassId: 'custom-subclass-id',
+                level: 10,
+                isStartingClass: true,
+            },
+        ]);
+    });
+
+    test('persists reusable custom subclass feature definitions and links the saved character feature row', async () => {
+        classFindManyMock.mockResolvedValueOnce([
+            fakeCharacterClasses[0]!.classRef,
+        ]);
+        characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
+        characterUpdateMock.mockResolvedValueOnce(fakeCharacter);
+        statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
+        statsUpdateMock.mockResolvedValueOnce({ ...fakeStats });
+        hitDicePoolFindManyMock.mockResolvedValueOnce(fakeHitDicePools.slice(0, 1));
+        spellSlotFindManyMock.mockResolvedValueOnce(EXISTING_SPELL_SLOTS.slice(0, 3));
+        weaponFindManyMock.mockResolvedValueOnce([]);
+        inventoryItemFindManyMock.mockResolvedValueOnce([]);
+        characterFeatureFindManyMock.mockResolvedValueOnce([]);
+        subclassFindFirstMock.mockResolvedValueOnce(null);
+        subclassCreateMock.mockResolvedValueOnce({
+            id: 'custom-subclass-id',
+            srdIndex: null,
+            ownerUserId: 'user-abc',
+            name: 'School of Glass',
+            description: ['A delicate art of mirrored wards and refractions.'],
+            classId: 'class-wizard-id',
+        });
+        featureFindFirstMock.mockResolvedValueOnce(null);
+        featureCreateMock.mockResolvedValueOnce({
+            id: 'glass-feature-1',
+        });
+        characterFeatureCreateMock.mockResolvedValueOnce({
+            id: 'character-feature-1',
+        });
+
+        await resolvers.saveCharacterSheet({}, {
+            characterId: 'char-1',
+            input: {
+                ac: 17,
+                speed: 35,
+                initiative: 3,
+                conditions: [],
+                hp: fakeStats.hp,
+                abilityScores: fakeStats.abilityScores,
+                currency: fakeStats.currency,
+                traits: fakeStats.traits,
+                classes: [
+                    {
+                        id: 'char-class-1',
+                        classId: 'wizard',
+                        subclassId: null,
+                        customSubclass: {
+                            name: 'School of Glass',
+                            description: 'A delicate art of mirrored wards and refractions.',
+                        },
+                        level: 10,
+                        isStartingClass: true,
+                    },
+                ],
+                weapons: [],
+                inventory: [],
+                features: [
+                    {
+                        name: 'Refraction Shield',
+                        source: 'School of Glass Wizard 10',
+                        description: 'Bend light to turn aside attacks.',
+                        usesMax: null,
+                        usesRemaining: null,
+                        recharge: null,
+                        customSubclassFeature: {
+                            classId: 'wizard',
+                            level: 10,
+                        },
+                    },
+                ],
+            },
+        } as any, authedCtx);
+
+        expect(featureCreateMock).toHaveBeenCalledWith({
+            data: {
+                ownerUserId: 'user-abc',
+                name: 'Refraction Shield',
+                description: ['Bend light to turn aside attacks.'],
+                level: 10,
+                kind: 'SUBCLASS_FEATURE',
+                sourceLabel: 'School of Glass Wizard 10',
+                classId: 'class-wizard-id',
+                subclassId: 'custom-subclass-id',
+            },
+        });
+        expect(characterFeatureCreateMock).toHaveBeenCalledWith({
+            data: {
+                characterId: 'char-1',
+                featureId: 'glass-feature-1',
+                name: 'Refraction Shield',
+                source: 'School of Glass Wizard 10',
+                description: 'Bend light to turn aside attacks.',
+                usesMax: null,
+                usesRemaining: null,
+                recharge: null,
+            },
+        });
     });
 });

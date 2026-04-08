@@ -42,8 +42,8 @@ type ReconcileCharacterSheetCollectionArgs<
     characterId: string;
     nextItems: TInput[];
     notFoundMessage: string;
-    buildUpdateData(item: TInput): TUpdateData;
-    buildCreateData(item: TInput, characterId: string): TCreateData;
+    buildUpdateData(item: TInput): Promise<TUpdateData> | TUpdateData;
+    buildCreateData(item: TInput, characterId: string): Promise<TCreateData> | TCreateData;
 };
 
 /**
@@ -93,13 +93,13 @@ export async function reconcileCharacterSheetCollection<
 
             await delegate.update({
                 where: { id: item.id },
-                data: buildUpdateData(item),
+                data: await buildUpdateData(item),
             });
             continue;
         }
 
         await delegate.create({
-            data: buildCreateData(item, characterId),
+            data: await buildCreateData(item, characterId),
         });
     }
 }
