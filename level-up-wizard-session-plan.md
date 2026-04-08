@@ -29,12 +29,12 @@ These decisions are based on the current codebase, not just the feature spec.
 
 ## Current status
 
-- Completed: Chunks 1-6
-- Next recommended chunk: Chunk 7 `API and persistence foundation for level-up data`
+- Completed: Chunks 1-8
+- Next recommended chunk: Chunk 9 `Spellcasting updates`
 - Current end-to-end state:
   - The wizard supports choose-class, hit points, ASI/feat, summary, and confirm into the local edit draft.
   - Confirming a level-up updates the character sheet immediately while staying in edit mode.
-  - `Done` still only persists the fields supported by the existing `saveCharacterSheet` mutation.
+  - Pressing `Done` now persists the currently implemented level-up changes through `saveCharacterSheet`, including class rows and server-derived hit dice / spell slots.
 
 ## Delivery chunks
 
@@ -223,10 +223,10 @@ Implementation notes from completion:
 - Automated coverage now includes:
   - pure draft-application tests
   - route coverage for confirm updating visible character-sheet state
-- Known follow-up note:
-  - the hit-points step animation produces React Native Animated `act(...)` warnings in Jest; tests pass, but this is a cleanup candidate if the warnings start obscuring failures.
+- Test-harness note:
+  - React Native Animated `act(...)` warnings are handled in the route-test harness rather than by adding runtime conditionals to production components.
 
-### Chunk 7: API and persistence foundation for level-up data
+### Chunk 7: API and persistence foundation for level-up data [Completed]
 
 Scope:
 - Extend the save path or add a dedicated level-up mutation so the backend can persist:
@@ -254,7 +254,19 @@ Manual test:
 Stop after this chunk when:
 - The feature has a reliable persistence contract.
 
-### Chunk 8: Subclass selection and new features
+Implementation notes from completion:
+- `SaveCharacterSheetInput` now includes character class rows, so the mobile character-sheet draft can submit level-up class changes through the existing atomic save mutation.
+- The server save path now reuses the existing multiclass helpers to validate submitted classes and re-derive:
+  - persisted class rows
+  - proficiency bonus
+  - single-class spellcasting scalars
+  - hit-dice pools
+  - spell slots
+- Hit-dice remaining and spell-slot used counts are preserved where possible when totals change, so levelling up does not silently reset already-spent resources.
+- The mobile save mocks and draft mapping tests now cover the expanded save payload.
+- Route-level coverage now verifies that a confirmed level-up survives `Done` and remains visible after edit mode exits.
+
+### Chunk 8: Subclass selection and new features [Completed]
 
 Scope:
 - Implement Step 4 `Subclass Selection`.
@@ -275,6 +287,12 @@ Manual test:
 
 Stop after this chunk when:
 - Subclass selection and feature-display flows are stable for standard class progression.
+
+Implementation notes from completion:
+- The wizard now supports subclass selection and feature lookup from server reference data, not just a local SRD-only lookup table.
+- Users can create owned custom subclasses with both a name and description during level-up, and those subclasses are persisted and scoped to the creating user.
+- Custom subclass features entered during level-up are persisted as reusable subclass feature definitions and reappear when that same custom subclass is chosen again.
+- The create-character flow now uses the same visible subclass list and will attach saved custom subclass features when a character starts with one of those subclasses.
 
 ### Chunk 9: Spellcasting updates
 
