@@ -36,7 +36,7 @@ export type LevelUpWizardStep = {
  */
 export type LevelUpWizardCharacter = Pick<
     CharacterSheetFieldsFragment,
-    'id' | 'name' | 'level' | 'classes' | 'spellcastingProfiles'
+    'id' | 'name' | 'level' | 'classes' | 'spellcastingProfiles' | 'spellSlots' | 'spellbook'
 > & {
     stats: Pick<NonNullable<CharacterSheetFieldsFragment['stats']>, 'abilityScores' | 'hp'> | null;
 };
@@ -164,4 +164,69 @@ export type LevelUpFeature = {
         classId: string;
         level: number;
     } | null;
+};
+
+/**
+ * One locally selected spell reused across level-up spell-picking flows.
+ */
+export type LevelUpSpellSelection = {
+    id: string;
+    name: string;
+    level: number;
+    schoolIndex: string;
+    classIndexes: string[];
+    range?: string | null;
+    ritual: boolean;
+    concentration: boolean;
+    castingTime: string;
+};
+
+/**
+ * Route-local spellcasting state captured during one level-up.
+ */
+export type LevelUpSpellcastingState = {
+    learnedSpells: LevelUpSpellSelection[];
+    cantripSpells: LevelUpSpellSelection[];
+    swapOutSpellId: string | null;
+    swapReplacementSpell: LevelUpSpellSelection | null;
+};
+
+/**
+ * One before/after spell-slot comparison row shown in the wizard.
+ */
+export type LevelUpSpellSlotComparison = {
+    key: string;
+    kind: 'STANDARD' | 'PACT_MAGIC';
+    level: number;
+    previousTotal: number;
+    nextTotal: number;
+    changed: boolean;
+};
+
+/**
+ * High-level spellcasting branch handled by the level-up step.
+ */
+export type LevelUpSpellcastingMode = 'none' | 'wizard' | 'known' | 'prepared';
+
+/**
+ * Derived spellcasting summary used by the UI and validation helpers.
+ */
+export type LevelUpSpellcastingSummary = {
+    mode: LevelUpSpellcastingMode;
+    hasChanges: boolean;
+    slotComparisons: LevelUpSpellSlotComparison[];
+    previousMaxSpellLevel: number;
+    nextMaxSpellLevel: number;
+    newSpellLevelUnlocked: boolean;
+    previousKnownSpells: number | null;
+    nextKnownSpells: number | null;
+    learnedSpellCount: number;
+    previousPreparedSpellLimit: number | null;
+    nextPreparedSpellLimit: number | null;
+    previousCantripsKnown: number | null;
+    nextCantripsKnown: number | null;
+    cantripCountGain: number;
+    eligibleSpellLevels: number[];
+    currentKnownSpells: LevelUpWizardCharacter['spellbook'];
+    currentKnownSpellIds: string[];
 };
