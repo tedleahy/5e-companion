@@ -4,6 +4,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-
 import { MockedProvider } from '@apollo/client/testing/react';
 import { PaperProvider } from 'react-native-paper';
 import AddSpellSheet, { GET_SPELL_DETAIL_FOR_SHEET, SEARCH_SPELLS_FOR_SHEET } from '../AddSpellSheet';
+import type { AddSpellListItem } from '../addSpell.types';
 
 const SPELLS_QUERY_MOCK = {
     request: {
@@ -29,6 +30,51 @@ const SPELLS_QUERY_MOCK = {
                     schoolIndex: 'evocation',
                     castingTime: '1 action',
                     range: '120 feet',
+                    concentration: false,
+                    ritual: false,
+                    classIndexes: ['wizard', 'sorcerer'],
+                },
+            ],
+        },
+    },
+};
+
+const MULTI_SPELLS_QUERY_MOCK = {
+    request: {
+        query: SEARCH_SPELLS_FOR_SHEET,
+        variables: {
+            filter: {
+                classes: ['wizard'],
+            },
+            pagination: {
+                limit: 500,
+                offset: 0,
+            },
+        },
+    },
+    result: {
+        data: {
+            spells: [
+                {
+                    __typename: 'Spell',
+                    id: 'spell-magic-missile',
+                    name: 'Magic Missile',
+                    level: 1,
+                    schoolIndex: 'evocation',
+                    castingTime: '1 action',
+                    range: '120 feet',
+                    concentration: false,
+                    ritual: false,
+                    classIndexes: ['wizard', 'sorcerer'],
+                },
+                {
+                    __typename: 'Spell',
+                    id: 'spell-shield',
+                    name: 'Shield',
+                    level: 1,
+                    schoolIndex: 'abjuration',
+                    castingTime: '1 reaction',
+                    range: 'Self',
                     concentration: false,
                     ritual: false,
                     classIndexes: ['wizard', 'sorcerer'],
@@ -145,11 +191,13 @@ function renderSheetWithMocks(
     mocks: ReadonlyArray<MockedResponse>,
     overrides?: {
         onClose?: () => void;
-        onSpellAdded?: (spellId: string) => Promise<void>;
-        onSpellRemoved?: (spellId: string) => Promise<void>;
+        selectionLimit?: number;
+        onSpellAdded?: (spell: AddSpellListItem) => Promise<void>;
+        onSpellRemoved?: (spell: AddSpellListItem) => Promise<void>;
     },
 ) {
     const onClose = overrides?.onClose ?? jest.fn();
+    const selectionLimit = overrides?.selectionLimit;
     const onSpellAdded = overrides?.onSpellAdded ?? jest.fn().mockResolvedValue(undefined);
     const onSpellRemoved = overrides?.onSpellRemoved ?? jest.fn().mockResolvedValue(undefined);
 
@@ -161,6 +209,7 @@ function renderSheetWithMocks(
                     onClose={onClose}
                     characterClassIds={['wizard']}
                     knownSpellIds={[]}
+                    selectionLimit={selectionLimit}
                     onSpellAdded={onSpellAdded}
                     onSpellRemoved={onSpellRemoved}
                 />
@@ -180,8 +229,8 @@ function renderSheetWithMocks(
  */
 function renderSheet(overrides?: {
     onClose?: () => void;
-    onSpellAdded?: (spellId: string) => Promise<void>;
-    onSpellRemoved?: (spellId: string) => Promise<void>;
+    onSpellAdded?: (spell: AddSpellListItem) => Promise<void>;
+    onSpellRemoved?: (spell: AddSpellListItem) => Promise<void>;
 }) {
     return renderSheetWithMocks([
         SPELLS_QUERY_MOCK,
@@ -212,21 +261,21 @@ describe('AddSpellSheet', () => {
         await flushAnimationTimers();
 
         await waitFor(() => {
-            expect(onSpellAdded).toHaveBeenCalledWith('spell-magic-missile');
+            expect(onSpellAdded).toHaveBeenCalledWith(expect.objectContaining({ id: 'spell-magic-missile' }));
         });
 
         fireEvent.press(screen.getByLabelText('Remove spell'));
         await flushAnimationTimers();
 
         await waitFor(() => {
-            expect(onSpellRemoved).toHaveBeenCalledWith('spell-magic-missile');
+            expect(onSpellRemoved).toHaveBeenCalledWith(expect.objectContaining({ id: 'spell-magic-missile' }));
         });
 
         expect(onClose).not.toHaveBeenCalled();
         expect(screen.getByText('Add Spell')).toBeTruthy();
     });
 
-    it('switches detail action label from add to remove for selected spells', async () => {
+it('switches detail action label from add to remove for selected spells', async () => {
         const { onSpellAdded, onSpellRemoved } = renderSheet();
         await flushAnimationTimers();
 
@@ -246,7 +295,7 @@ describe('AddSpellSheet', () => {
         await flushAnimationTimers();
 
         await waitFor(() => {
-            expect(onSpellAdded).toHaveBeenCalledWith('spell-magic-missile');
+            expect(onSpellAdded).toHaveBeenCalledWith(expect.objectContaining({ id: 'spell-magic-missile' }));
         });
 
         await waitFor(() => {
@@ -257,8 +306,38 @@ describe('AddSpellSheet', () => {
         await flushAnimationTimers();
 
         await waitFor(() => {
-            expect(onSpellRemoved).toHaveBeenCalledWith('spell-magic-missile');
+            expect(onSpellRemoved).toHaveBeenCalledWith(expect.objectContaining({ id: 'spell-magic-missile' }));
         });
+    });
+
+    it('blocks extra spell selections once the caller-provided limit is reached', async () => {
+        const { onSpellAdded } = renderSheetWithMocks([
+            MULTI_SPELLS_QUERY_MOCK,
+        ], {
+            selectionLimit: 1,
+        });
+        await flushAnimationTimers();
+
+        await waitFor(() => {
+            expect(screen.getByText('Magic Missile')).toBeTruthy();
+            expect(screen.getByText('Shield')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getAllByLabelText('Add spell')[0]!);
+        await flushAnimationTimers();
+
+        await waitFor(() => {
+            expect(onSpellAdded).toHaveBeenCalledWith(expect.objectContaining({ id: 'spell-magic-missile' }));
+        });
+
+        await waitFor(() => {
+            expect(screen.getByText('Selection limit reached')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getByLabelText('Selection limit reached'));
+        await flushAnimationTimers();
+
+        expect(onSpellAdded).toHaveBeenCalledTimes(1);
     });
 
     it('stays open while add/remove mutations complete', async () => {
@@ -281,7 +360,7 @@ describe('AddSpellSheet', () => {
         await flushAnimationTimers();
 
         await waitFor(() => {
-            expect(onSpellAdded).toHaveBeenCalledWith('spell-magic-missile');
+            expect(onSpellAdded).toHaveBeenCalledWith(expect.objectContaining({ id: 'spell-magic-missile' }));
         });
 
         expect(screen.getByText('Add Spell')).toBeTruthy();

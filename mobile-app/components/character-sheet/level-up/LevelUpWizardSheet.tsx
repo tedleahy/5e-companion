@@ -113,6 +113,8 @@ export default function LevelUpWizardSheet({
                         hitPointsState={wizard.hitPointsState}
                         asiOrFeatState={wizard.asiOrFeatState}
                         subclassSelectionState={wizard.subclassSelectionState}
+                        spellcastingState={wizard.spellcastingState}
+                        spellcastingSummary={wizard.spellcastingSummary}
                         availableSubclasses={availableSubclasses}
                         newFeatures={wizard.newFeatures}
                         customFeatures={wizard.customFeatures}
@@ -134,6 +136,12 @@ export default function LevelUpWizardSheet({
                         onAddCustomFeature={wizard.addCustomFeature}
                         onChangeCustomFeature={wizard.changeCustomFeature}
                         onRemoveCustomFeature={wizard.removeCustomFeature}
+                        onAddLearnedSpell={wizard.addLearnedSpell}
+                        onRemoveLearnedSpell={wizard.removeLearnedSpell}
+                        onAddCantripSpell={wizard.addCantripSpell}
+                        onRemoveCantripSpell={wizard.removeCantripSpell}
+                        onSetSwapOutSpellId={wizard.setSwapOutSpellId}
+                        onSetSwapReplacementSpell={wizard.setSwapReplacementSpell}
                     />
                 </KeyboardAwareScrollView>
 

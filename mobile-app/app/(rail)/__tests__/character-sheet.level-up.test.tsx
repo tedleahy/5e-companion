@@ -1,6 +1,7 @@
 import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react-native';
-import { SAVE_CHARACTER_SHEET } from '@/graphql/characterSheet.operations';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react-native';
+import { SEARCH_SPELLS_FOR_SHEET } from '@/components/character-sheet/spells/AddSpellSheet';
+import { LEARN_SPELL, SAVE_CHARACTER_SHEET } from '@/graphql/characterSheet.operations';
 import { CHARACTERS_MOCK, MOCK_CHARACTER, SAVE_CORE_CHARACTER_MOCKS } from './mocks/character-sheet.mocks';
 import {
     enableCharacterSheetEditMode,
@@ -264,6 +265,144 @@ const LEVEL_UP_SAVE_MOCK = {
         },
     },
 };
+
+const LEVEL_UP_SPELL_SELECTION_QUERY_MOCK = {
+    request: {
+        query: SEARCH_SPELLS_FOR_SHEET,
+        variables: {
+            filter: {
+                classes: ['wizard'],
+                levels: [1, 2, 3, 4, 5, 6],
+            },
+            pagination: {
+                limit: 500,
+                offset: 0,
+            },
+        },
+    },
+    result: {
+        data: {
+            spells: [
+                {
+                    __typename: 'Spell',
+                    id: 'spell-counterspell',
+                    name: 'Counterspell',
+                    level: 3,
+                    schoolIndex: 'abjuration',
+                    classIndexes: ['wizard', 'sorcerer', 'warlock'],
+                    castingTime: '1 reaction',
+                    range: '60 feet',
+                    concentration: false,
+                    ritual: false,
+                },
+                {
+                    __typename: 'Spell',
+                    id: 'spell-wall-of-force',
+                    name: 'Wall of Force',
+                    level: 5,
+                    schoolIndex: 'evocation',
+                    classIndexes: ['wizard'],
+                    castingTime: '1 action',
+                    range: '120 feet',
+                    concentration: true,
+                    ritual: false,
+                },
+            ],
+        },
+    },
+};
+
+const COUNTERSPELL = {
+    __typename: 'Spell',
+    id: 'spell-counterspell',
+    name: 'Counterspell',
+    level: 3,
+    schoolIndex: 'abjuration',
+    classIndexes: ['wizard', 'sorcerer', 'warlock'],
+    castingTime: '1 reaction',
+    range: '60 feet',
+    concentration: false,
+    ritual: false,
+} as const;
+
+const WALL_OF_FORCE = {
+    __typename: 'Spell',
+    id: 'spell-wall-of-force',
+    name: 'Wall of Force',
+    level: 5,
+    schoolIndex: 'evocation',
+    classIndexes: ['wizard'],
+    castingTime: '1 action',
+    range: '120 feet',
+    concentration: true,
+    ritual: false,
+} as const;
+
+function buildLearnSpellMock(spell: {
+    id: string;
+    name: string;
+    level: number;
+    schoolIndex: string;
+    classIndexes: string[];
+    castingTime: string;
+    range: string;
+    concentration: boolean;
+    ritual: boolean;
+}) {
+    return {
+        request: {
+            query: LEARN_SPELL,
+            variables: {
+                characterId: 'char-1',
+                spellId: spell.id,
+            },
+        },
+        result: {
+            data: {
+                learnSpell: {
+                    __typename: 'CharacterSpell',
+                    prepared: false,
+                    spell: {
+                        __typename: 'Spell',
+                        id: spell.id,
+                        name: spell.name,
+                        level: spell.level,
+                        schoolIndex: spell.schoolIndex,
+                        classIndexes: spell.classIndexes,
+                        castingTime: spell.castingTime,
+                        range: spell.range,
+                        concentration: spell.concentration,
+                        ritual: spell.ritual,
+                    },
+                },
+            },
+        },
+    };
+}
+
+async function chooseWizardLevelUpSpells() {
+    await pressAndFlush(screen.getByText('+ Choose 2 New Spells'));
+
+    await waitFor(() => {
+        expect(screen.getByText('Counterspell')).toBeTruthy();
+        expect(screen.getByText('Wall of Force')).toBeTruthy();
+    });
+
+    const sheet = () => within(screen.getByTestId('add-spell-sheet'));
+
+    await pressAndFlush(sheet().getAllByLabelText('Add spell')[0]!);
+    await waitFor(() => {
+        expect(screen.getByText('1 of 2 spells selected')).toBeTruthy();
+    });
+
+    await pressAndFlush(sheet().getAllByLabelText('Add spell')[0]!);
+
+    await pressAndFlush(sheet().getByLabelText('Done adding spells'));
+
+    await waitFor(() => {
+        expect(screen.getByText('2 of 2 spells selected')).toBeTruthy();
+    });
+}
 
 describe('CharacterByIdScreen level-up wizard', () => {
     setupCharacterSheetScreenTestHooks();
@@ -638,7 +777,10 @@ describe('CharacterByIdScreen level-up wizard', () => {
     });
 
     it('navigates placeholder steps after picking hit points and switches the final action label', async () => {
-        renderCharacterSheetScreen();
+        renderCharacterSheetScreen([
+            CHARACTERS_MOCK,
+            LEVEL_UP_SPELL_SELECTION_QUERY_MOCK,
+        ]);
 
         await enableCharacterSheetEditMode();
         await pressAndFlush(screen.getByLabelText('Level up character'));
@@ -673,6 +815,7 @@ describe('CharacterByIdScreen level-up wizard', () => {
             expect(screen.getByText('Step 4 of 6 - Spellcasting Updates')).toBeTruthy();
         });
 
+        await chooseWizardLevelUpSpells();
         await pressAndFlush(screen.getByTestId('level-up-next-button'));
         await waitFor(() => {
             expect(screen.getByText('Step 5 of 6 - Class Resources')).toBeTruthy();
@@ -695,7 +838,10 @@ describe('CharacterByIdScreen level-up wizard', () => {
     });
 
     it('applies the confirmed level-up into the local draft and closes the sheet', async () => {
-        renderCharacterSheetScreen([ASI_ELIGIBLE_CHARACTER_SHEET_MOCK]);
+        renderCharacterSheetScreen([
+            ASI_ELIGIBLE_CHARACTER_SHEET_MOCK,
+            LEVEL_UP_SPELL_SELECTION_QUERY_MOCK,
+        ]);
 
         await enableCharacterSheetEditMode();
         await pressAndFlush(screen.getByLabelText('Level up character'));
@@ -731,6 +877,7 @@ describe('CharacterByIdScreen level-up wizard', () => {
             expect(screen.getByText('Step 4 of 6 - Spellcasting Updates')).toBeTruthy();
         });
 
+        await chooseWizardLevelUpSpells();
         await pressAndFlush(screen.getByTestId('level-up-next-button'));
         await waitFor(() => {
             expect(screen.getByText('Step 5 of 6 - Class Resources')).toBeTruthy();
@@ -768,7 +915,14 @@ describe('CharacterByIdScreen level-up wizard', () => {
     it('persists supported level-up changes when Done saves the draft', async () => {
         renderCharacterSheetScreen([
             ASI_ELIGIBLE_CHARACTER_SHEET_MOCK,
+            LEVEL_UP_SPELL_SELECTION_QUERY_MOCK,
             LEVEL_UP_SAVE_MOCK,
+            buildLearnSpellMock({
+                ...COUNTERSPELL,
+            }),
+            buildLearnSpellMock({
+                ...WALL_OF_FORCE,
+            }),
         ]);
 
         await enableCharacterSheetEditMode();
@@ -807,6 +961,7 @@ describe('CharacterByIdScreen level-up wizard', () => {
             expect(screen.getByText('Step 4 of 6 - Spellcasting Updates')).toBeTruthy();
         });
 
+        await chooseWizardLevelUpSpells();
         await pressAndFlush(screen.getByTestId('level-up-next-button'));
         await waitFor(() => {
             expect(screen.getByText('Step 5 of 6 - Class Resources')).toBeTruthy();

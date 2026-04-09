@@ -294,7 +294,7 @@ Implementation notes from completion:
 - Custom subclass features entered during level-up are persisted as reusable subclass feature definitions and reappear when that same custom subclass is chosen again.
 - The create-character flow now uses the same visible subclass list and will attach saved custom subclass features when a character starts with one of those subclasses.
 
-### Chunk 9: Spellcasting updates
+### Chunk 9: Spellcasting updates [Completed]
 
 Scope:
 - Implement Step 6 `Spellcasting Updates`.

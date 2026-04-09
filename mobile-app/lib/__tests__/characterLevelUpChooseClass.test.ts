@@ -48,11 +48,21 @@ const TEST_CHARACTER: LevelUpWizardCharacter = {
             spellcastingAbility: 'intelligence',
             spellSaveDC: 17,
             spellAttackBonus: 9,
-            slotKind: 'STANDARD',
+            slotKind: 'STANDARD' as never,
             __typename: 'SpellcastingProfile',
         },
     ],
+    spellSlots: [
+        { __typename: 'SpellSlot', id: 'slot-standard-1', kind: 'STANDARD' as never, level: 1, total: 4, used: 0 },
+    ],
+    spellbook: [],
     stats: {
+        hp: {
+            __typename: 'HP',
+            current: 64,
+            max: 64,
+            temp: 0,
+        },
         abilityScores: {
             strength: 8,
             dexterity: 16,

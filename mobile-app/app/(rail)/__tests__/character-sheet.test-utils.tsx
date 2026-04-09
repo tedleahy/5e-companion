@@ -6,6 +6,8 @@ import { Animated } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 import CharacterByIdScreen from '../character/[id]';
 import { SEARCH_SPELLS_FOR_SHEET } from '@/components/character-sheet/spells/AddSpellSheet';
+import { GET_AVAILABLE_SUBCLASSES } from '@/graphql/characterSheet.operations';
+import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { CHARACTERS_MOCK } from './mocks/character-sheet.mocks';
 
 /**
@@ -27,6 +29,48 @@ export const ADD_SPELL_LIST_MOCK: MockLink.MockedResponse = {
     result: {
         data: {
             spells: [],
+        },
+    },
+};
+
+/**
+ * Shared subclass query mock so route tests do not need to provide subclass data explicitly.
+ */
+export const AVAILABLE_SUBCLASSES_MOCK: MockLink.MockedResponse = {
+    request: {
+        query: GET_AVAILABLE_SUBCLASSES,
+        variables: {
+            classIds: CLASS_OPTIONS.map((option) => option.value),
+        },
+    },
+    result: {
+        data: {
+            availableSubclasses: [
+                {
+                    id: 'subclass-evocation-id',
+                    value: 'evocation',
+                    srdIndex: 'evocation',
+                    classId: 'wizard',
+                    className: 'Wizard',
+                    name: 'School of Evocation',
+                    description: ['Focus your magic on disciplined elemental force.'],
+                    isCustom: false,
+                    features: [],
+                    __typename: 'AvailableSubclass',
+                },
+                {
+                    id: 'subclass-fiend-id',
+                    value: 'fiend',
+                    srdIndex: 'fiend',
+                    classId: 'warlock',
+                    className: 'Warlock',
+                    name: 'Fiend',
+                    description: ['Infernal patronage that rewards ruthless ambition.'],
+                    isCustom: false,
+                    features: [],
+                    __typename: 'AvailableSubclass',
+                },
+            ],
         },
     },
 };
@@ -140,7 +184,7 @@ export function renderCharacterSheetScreen(
     mocks: MockLink.MockedResponse[] = [CHARACTERS_MOCK],
 ) {
     return render(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={[...mocks, ADD_SPELL_LIST_MOCK, AVAILABLE_SUBCLASSES_MOCK]}>
             <PaperProvider>
                 <CharacterByIdScreen />
             </PaperProvider>
@@ -181,6 +225,7 @@ export function setupCharacterSheetScreenTestHooks() {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        mockUseLocalSearchParams.mockReturnValue({ id: 'char-1' });
     });
 
     afterEach(async () => {

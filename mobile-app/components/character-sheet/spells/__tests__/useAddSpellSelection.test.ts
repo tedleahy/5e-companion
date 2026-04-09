@@ -39,6 +39,8 @@ describe('useAddSpellSelection', () => {
         });
 
         expect(onSpellAdded).toHaveBeenCalledTimes(1);
-        expect(onSpellAdded).toHaveBeenCalledWith('spell-1');
+        expect(onSpellAdded).toHaveBeenCalledWith(
+            expect.objectContaining({ id: 'spell-1' }),
+        );
     });
 });

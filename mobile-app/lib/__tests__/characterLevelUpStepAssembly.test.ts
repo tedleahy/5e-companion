@@ -3,6 +3,7 @@ import {
     defaultLevelUpClassId,
     selectedLevelUpClass,
 } from '@/lib/characterLevelUp/stepAssembly';
+import { buildLevelUpSpellcastingSummary } from '@/lib/characterLevelUp/spellcasting';
 import { needsSubclassSelectionStep } from '@/lib/characterLevelUp/subclassFeatures';
 import type { LevelUpWizardCharacter } from '@/lib/characterLevelUp/types';
 
@@ -45,7 +46,7 @@ const TEST_CHARACTER: LevelUpWizardCharacter = {
             spellcastingAbility: 'intelligence',
             spellSaveDC: 17,
             spellAttackBonus: 9,
-            slotKind: 'STANDARD',
+            slotKind: 'STANDARD' as never,
             __typename: 'SpellcastingProfile',
         },
         {
@@ -57,11 +58,22 @@ const TEST_CHARACTER: LevelUpWizardCharacter = {
             spellcastingAbility: 'charisma',
             spellSaveDC: 12,
             spellAttackBonus: 4,
-            slotKind: 'PACT_MAGIC',
+            slotKind: 'PACT_MAGIC' as never,
             __typename: 'SpellcastingProfile',
         },
     ],
+    spellSlots: [
+        { __typename: 'SpellSlot', id: 'slot-standard-1', kind: 'STANDARD' as never, level: 1, total: 4, used: 0 },
+        { __typename: 'SpellSlot', id: 'slot-pact-1', kind: 'PACT_MAGIC' as never, level: 1, total: 2, used: 0 },
+    ],
+    spellbook: [],
     stats: {
+        hp: {
+            __typename: 'HP',
+            current: 64,
+            max: 64,
+            temp: 0,
+        },
         abilityScores: {
             strength: 8,
             dexterity: 16,
@@ -91,7 +103,11 @@ describe('characterLevelUp step assembly', () => {
 
     it('builds the default wizard progression for the current class', () => {
         const selectedClass = selectedLevelUpClass(TEST_CHARACTER, 'wizard');
-        const steps = buildLevelUpStepList(selectedClass, needsSubclassSelectionStep(selectedClass)).map((step) => step.id);
+        const steps = buildLevelUpStepList(
+            selectedClass,
+            needsSubclassSelectionStep(selectedClass),
+            buildLevelUpSpellcastingSummary(TEST_CHARACTER, selectedClass),
+        ).map((step) => step.id);
 
         expect(steps).toEqual([
             'choose_class',
@@ -105,7 +121,11 @@ describe('characterLevelUp step assembly', () => {
 
     it('adds multiclass proficiencies for a brand-new class selection', () => {
         const selectedClass = selectedLevelUpClass(TEST_CHARACTER, 'fighter');
-        const steps = buildLevelUpStepList(selectedClass, needsSubclassSelectionStep(selectedClass)).map((step) => step.id);
+        const steps = buildLevelUpStepList(
+            selectedClass,
+            needsSubclassSelectionStep(selectedClass),
+            buildLevelUpSpellcastingSummary(TEST_CHARACTER, selectedClass),
+        ).map((step) => step.id);
 
         expect(steps).toEqual([
             'choose_class',
@@ -119,7 +139,11 @@ describe('characterLevelUp step assembly', () => {
 
     it('adds immediate subclass and spellcasting steps for level-one subclass casters', () => {
         const selectedClass = selectedLevelUpClass(TEST_CHARACTER, 'sorcerer');
-        const steps = buildLevelUpStepList(selectedClass, needsSubclassSelectionStep(selectedClass)).map((step) => step.id);
+        const steps = buildLevelUpStepList(
+            selectedClass,
+            needsSubclassSelectionStep(selectedClass),
+            buildLevelUpSpellcastingSummary(TEST_CHARACTER, selectedClass),
+        ).map((step) => step.id);
 
         expect(steps).toEqual([
             'choose_class',

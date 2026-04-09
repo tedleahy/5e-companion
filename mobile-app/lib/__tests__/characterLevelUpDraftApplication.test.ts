@@ -152,6 +152,12 @@ describe('applyLevelUpToDraft', () => {
                     abilityIncrease: null,
                 },
             },
+            spellcastingState: {
+                learnedSpells: [],
+                cantripSpells: [],
+                swapOutSpellId: null,
+                swapReplacementSpell: null,
+            },
             features: [
                 {
                     key: 'wizard-11-slot-6',
@@ -239,6 +245,12 @@ describe('applyLevelUpToDraft', () => {
                     description: 'Gain proficiency in Constitution saving throws.',
                     abilityIncrease: 'constitution',
                 },
+            },
+            spellcastingState: {
+                learnedSpells: [],
+                cantripSpells: [],
+                swapOutSpellId: null,
+                swapReplacementSpell: null,
             },
             features: [],
         });
