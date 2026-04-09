@@ -1,6 +1,7 @@
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { sortCharacterClasses } from '@/lib/characterClassSummary';
 import type { AvailableSubclassOption } from '@/lib/subclasses';
+import type { LevelUpSpellcastingSummary } from './types';
 import type { LevelUpSubclassSelectionState } from './types';
 import {
     createLevelUpSubclassSelectionState,
@@ -31,20 +32,6 @@ export const ASI_LEVELS_BY_CLASS_ID: Record<string, readonly number[]> = {
     sorcerer: [4, 8, 12, 16, 19],
     warlock: [4, 8, 12, 16, 19],
     wizard: [4, 8, 12, 16, 19],
-};
-
-/**
- * Placeholder spellcasting unlock levels keyed by class id.
- */
-export const SPELLCASTING_UNLOCK_LEVEL_BY_CLASS_ID: Record<string, number> = {
-    bard: 1,
-    cleric: 1,
-    druid: 1,
-    paladin: 2,
-    ranger: 2,
-    sorcerer: 1,
-    warlock: 1,
-    wizard: 1,
 };
 
 /**
@@ -192,19 +179,6 @@ export function isAsiLevel(classId: string, newClassLevel: number): boolean {
 }
 
 /**
- * Returns whether the selected class should show a spellcasting placeholder step.
- */
-export function hasSpellcastingUpdatesStep(classId: string, newClassLevel: number): boolean {
-    const unlockLevel = SPELLCASTING_UNLOCK_LEVEL_BY_CLASS_ID[classId];
-
-    if (!unlockLevel) {
-        return false;
-    }
-
-    return newClassLevel >= unlockLevel;
-}
-
-/**
  * Returns whether the selected class should show a class-resources placeholder step.
  */
 export function hasClassResourceStep(classId: string, newClassLevel: number): boolean {
@@ -238,6 +212,7 @@ export function buildLevelUpStepList(
         subclassFeatures: [],
         customSubclass: null,
     }),
+    spellcastingSummary?: LevelUpSpellcastingSummary,
 ): LevelUpWizardStep[] {
     const stepIds: LevelUpWizardStepId[] = ['choose_class', 'hit_points'];
 
@@ -253,7 +228,7 @@ export function buildLevelUpStepList(
         stepIds.push('new_features');
     }
 
-    if (hasSpellcastingUpdatesStep(selectedClass.classId, selectedClass.newLevel)) {
+    if (spellcastingSummary?.hasChanges) {
         stepIds.push('spellcasting_updates');
     }
 
