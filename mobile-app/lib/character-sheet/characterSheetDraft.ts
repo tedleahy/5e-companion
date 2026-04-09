@@ -1,7 +1,10 @@
 import type {
     CharacterClass,
+    CharacterSpellbookEntryFieldsFragment,
     CharacterSheetDetailQuery,
     SaveCharacterSheetInput,
+    SpellSlot,
+    SpellcastingProfile,
 } from '@/types/generated_graphql_types';
 
 /** Character detail row consumed by the character-sheet route. */
@@ -95,6 +98,9 @@ export type CharacterSheetDraftClass = Omit<CharacterClass, '__typename'> & {
 export type CharacterSheetDraft = {
     level: number;
     classes: CharacterSheetDraftClass[];
+    spellcastingProfiles: SpellcastingProfile[];
+    spellSlots: SpellSlot[];
+    spellbook: CharacterSpellbookEntryFieldsFragment[];
     ac: number;
     speed: number;
     initiative: number;
@@ -165,6 +171,15 @@ export function createCharacterSheetDraft(character: CharacterSheetDetail): Char
             customSubclass: null,
             level: classRow.level,
             isStartingClass: classRow.isStartingClass,
+        })),
+        spellcastingProfiles: character.spellcastingProfiles.map((profile) => ({ ...profile })),
+        spellSlots: character.spellSlots.map((spellSlot) => ({ ...spellSlot })),
+        spellbook: character.spellbook.map((entry) => ({
+            ...entry,
+            spell: {
+                ...entry.spell,
+                classIndexes: [...entry.spell.classIndexes],
+            },
         })),
         hp: {
             current: character.stats?.hp.current ?? 0,

@@ -4,10 +4,16 @@ import type {
 } from '@/lib/character-sheet/characterSheetDraft';
 import { createDraftEntityId } from '@/lib/character-sheet/characterSheetDraft';
 import { ABILITY_KEYS, type AbilityKey } from '@/lib/characterSheetUtils';
+import {
+    applyLevelUpSpellbookChanges,
+    derivePreviewSpellSlots,
+    derivePreviewSpellcastingProfiles,
+} from './spellcasting';
 import type {
     LevelUpAsiOrFeatState,
     LevelUpFeature,
     LevelUpHitPointsState,
+    LevelUpSpellcastingState,
     LevelUpWizardSelectedClass,
 } from './types';
 
@@ -23,6 +29,7 @@ export type ApplyLevelUpDraftInput = {
     selectedClass: LevelUpWizardSelectedClass;
     hitPointsState: LevelUpHitPointsState;
     asiOrFeatState: LevelUpAsiOrFeatState | null;
+    spellcastingState: LevelUpSpellcastingState;
     features: LevelUpFeature[];
 };
 
@@ -40,11 +47,17 @@ export function applyLevelUpToDraft(
         current: draft.hp.current + input.hitPointsState.hpGained,
         max: draft.hp.max + input.hitPointsState.hpGained,
     };
+    const spellbook = applyLevelUpSpellbookChanges(draft.spellbook, input.spellcastingState);
+    const spellSlots = derivePreviewSpellSlots(classes, draft.spellSlots);
+    const spellcastingProfiles = derivePreviewSpellcastingProfiles(classes, abilityScores);
 
     return {
         ...draft,
         level: draft.level + 1,
         classes,
+        spellcastingProfiles,
+        spellSlots,
+        spellbook,
         abilityScores,
         hp,
         features: applyLevelUpFeatures(draft.features, input.asiOrFeatState, input.features),
