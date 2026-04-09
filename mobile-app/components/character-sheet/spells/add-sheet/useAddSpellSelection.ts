@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { AddSpellListItem } from '../addSpell.types';
+import type { AddSpellBlockedReason, AddSpellListItem } from '../addSpell.types';
 
 type UseAddSpellSelectionParams = {
     knownSpellIds: string[];
-    onSpellAdded: (spellId: string) => Promise<void>;
-    onSpellRemoved: (spellId: string) => Promise<void>;
+    blockedSpellIds?: string[];
+    selectionLimit?: number;
+    onSpellAdded: (spell: AddSpellListItem) => Promise<void>;
+    onSpellRemoved: (spell: AddSpellListItem) => Promise<void>;
 };
 
 type UseAddSpellSelectionResult = {
@@ -13,6 +15,8 @@ type UseAddSpellSelectionResult = {
     sessionChangesCount: number;
     actionErrorMessage: string | null;
     isKnownSpell: (spellId: string) => boolean;
+    blockedReasonForSpell: (spellId: string) => AddSpellBlockedReason | null;
+    isBlockedSpell: (spellId: string) => boolean;
     clearActionErrorMessage: () => void;
     toggleSpellSelection: (spell: AddSpellListItem) => Promise<void>;
 };
@@ -22,6 +26,8 @@ type UseAddSpellSelectionResult = {
  */
 export default function useAddSpellSelection({
     knownSpellIds,
+    blockedSpellIds = [],
+    selectionLimit,
     onSpellAdded,
     onSpellRemoved,
 }: UseAddSpellSelectionParams): UseAddSpellSelectionResult {
@@ -44,6 +50,14 @@ export default function useAddSpellSelection({
 
         return ids;
     }, [knownOverrides, knownSpellIds]);
+    const blockedSpellIdSet = useMemo(() => new Set(blockedSpellIds), [blockedSpellIds]);
+    const selectionLimitReached = useMemo(() => {
+        if (selectionLimit == null || selectionLimit < 1) {
+            return false;
+        }
+
+        return knownSpellIdSet.size >= selectionLimit;
+    }, [knownSpellIdSet.size, selectionLimit]);
 
     useEffect(() => {
         const knownIds = new Set(knownSpellIds);
@@ -72,6 +86,32 @@ export default function useAddSpellSelection({
     }, [knownSpellIdSet]);
 
     /**
+     * Returns why a spell is blocked from selection in the current flow.
+     */
+    const blockedReasonForSpell = useCallback((spellId: string): AddSpellBlockedReason | null => {
+        if (knownSpellIdSet.has(spellId)) {
+            return null;
+        }
+
+        if (blockedSpellIdSet.has(spellId)) {
+            return 'known';
+        }
+
+        if (selectionLimitReached) {
+            return 'selection_limit';
+        }
+
+        return null;
+    }, [blockedSpellIdSet, knownSpellIdSet, selectionLimitReached]);
+
+    /**
+     * Returns whether a spell is blocked from selection in the current flow.
+     */
+    const isBlockedSpell = useCallback((spellId: string) => {
+        return blockedReasonForSpell(spellId) != null;
+    }, [blockedReasonForSpell]);
+
+    /**
      * Clears any displayed add/remove action error state.
      */
     const clearActionErrorMessage = useCallback(() => {
@@ -82,6 +122,10 @@ export default function useAddSpellSelection({
      * Optimistically toggles one spell between known and unknown states.
      */
     const toggleSpellSelection = useCallback(async (spell: AddSpellListItem) => {
+        if (blockedReasonForSpell(spell.id) != null) {
+            return;
+        }
+
         if (inFlightSpellIdsRef.current.has(spell.id)) return;
         inFlightSpellIdsRef.current.add(spell.id);
 
@@ -103,9 +147,9 @@ export default function useAddSpellSelection({
 
         try {
             if (nextKnown) {
-                await onSpellAdded(spell.id);
+                await onSpellAdded(spell);
             } else {
-                await onSpellRemoved(spell.id);
+                await onSpellRemoved(spell);
             }
         } catch (mutationError) {
             console.error('Failed to toggle spell selection', {
@@ -139,7 +183,7 @@ export default function useAddSpellSelection({
                 return nextIds;
             });
         }
-    }, [knownOverrides, knownSpellIdSet, onSpellAdded, onSpellRemoved]);
+    }, [blockedReasonForSpell, knownOverrides, knownSpellIdSet, onSpellAdded, onSpellRemoved]);
 
     return {
         knownSpellIdSet,
@@ -147,6 +191,8 @@ export default function useAddSpellSelection({
         sessionChangesCount: knownOverrides.size,
         actionErrorMessage,
         isKnownSpell,
+        blockedReasonForSpell,
+        isBlockedSpell,
         clearActionErrorMessage,
         toggleSpellSelection,
     };

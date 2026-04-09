@@ -1,5 +1,5 @@
 import { Animated, Keyboard, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
-import { Snackbar } from 'react-native-paper';
+import { Portal, Snackbar } from 'react-native-paper';
 import { GestureDetector } from 'react-native-gesture-handler';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import AddSpellBottomBar from './add-sheet/AddSpellBottomBar';
@@ -11,14 +11,22 @@ import { GET_SPELL_DETAIL_FOR_SHEET, SEARCH_SPELLS_FOR_SHEET } from './add-sheet
 import useAddSpellSheetController from './add-sheet/useAddSpellSheetController';
 import useAddSpellSheetMotion from './add-sheet/useAddSpellSheetMotion';
 import SpellDetailModal from './SpellDetailModal';
+import type { AddSpellListItem } from './addSpell.types';
+import type { AddSpellFilterState } from './SpellFilterState';
 
 type AddSpellSheetProps = {
     visible: boolean;
     onClose: () => void;
     characterClassIds: string[];
     knownSpellIds: string[];
-    onSpellAdded: (spellId: string) => Promise<void>;
-    onSpellRemoved: (spellId: string) => Promise<void>;
+    blockedSpellIds?: string[];
+    forcedFilters?: Partial<AddSpellFilterState>;
+    selectionLimit?: number;
+    title?: string;
+    subtitle?: string;
+    showFilterButton?: boolean;
+    onSpellAdded: (spell: AddSpellListItem) => Promise<void>;
+    onSpellRemoved: (spell: AddSpellListItem) => Promise<void>;
 };
 
 /** Visible height of the main add-spell sheet. */
@@ -34,6 +42,12 @@ export default function AddSpellSheet({
     onClose,
     characterClassIds,
     knownSpellIds,
+    blockedSpellIds = [],
+    forcedFilters,
+    selectionLimit,
+    title,
+    subtitle,
+    showFilterButton = true,
     onSpellAdded,
     onSpellRemoved,
 }: AddSpellSheetProps) {
@@ -43,6 +57,7 @@ export default function AddSpellSheet({
         activeFilterChips,
         activeFilterCount,
         applyFilters,
+        blockedReasonForSpell,
         clearActionErrorMessage,
         clearDraftFilters,
         clearSelectedSpell,
@@ -72,6 +87,9 @@ export default function AddSpellSheet({
         visible,
         characterClassIds,
         knownSpellIds,
+        blockedSpellIds,
+        forcedFilters,
+        selectionLimit,
         onSpellAdded,
         onSpellRemoved,
     });
@@ -104,96 +122,104 @@ export default function AddSpellSheet({
     }
 
     return (
-        <View style={styles.overlayContainer} pointerEvents="box-none">
-            <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
-                <Pressable style={styles.backdropPressable} onPress={requestSheetClose} accessibilityLabel="Close add spell sheet" />
-            </Animated.View>
-
-            <GestureDetector gesture={sheetDismissGesture}>
-                <Animated.View
-                    style={[styles.sheet, { transform: [{ translateY: sheetTranslateY }] }]}
-                    onStartShouldSetResponderCapture={() => {
-                        Keyboard.dismiss();
-                        return false;
-                    }}
-                >
-                    <AddSpellSheetHeader
-                        searchQuery={searchQuery}
-                        onChangeSearchQuery={setSearchQuery}
-                        onClearSearchQuery={() => setSearchQuery('')}
-                        activeFilterCount={activeFilterCount}
-                        onOpenFilterPanel={openFilterPanel}
-                    />
-
-                    <AddSpellActiveFilterChips
-                        chips={activeFilterChips}
-                        onRemoveChip={removeAppliedFilterChip}
-                    />
-
-                    <View style={styles.divider} />
-
-                    <AddSpellSectionList
-                        sections={sections}
-                        loading={loading}
-                        errorMessage={errorMessage}
-                        isKnownSpell={isKnownSpell}
-                        pendingSpellIds={pendingSpellIds}
-                        onToggleSpellSelection={(spell) => {
-                            void toggleSpellSelection(spell);
-                        }}
-                        onPrefetchSpellDetail={prefetchSpellDetail}
-                        onOpenSpellDetail={openSpellDetail}
-                        onScroll={handleSpellListScroll}
-                    />
-
-                    <AddSpellBottomBar sessionChangesCount={sessionChangesCount} onDone={requestSheetClose} />
-
-                    <Animated.View style={[styles.filterPanel, { transform: [{ translateX: filterPanelTranslateX }] }]}>
-                        <AddSpellFilterPanel
-                            draftFilters={draftFilters}
-                            setDraftFilters={setDraftFilters}
-                            onBack={closeFilterPanel}
-                            onClear={clearDraftFilters}
-                            onApply={applyFilters}
-                        />
-                    </Animated.View>
-
-                    {selectedSpell && (
-                        <>
-                            <Animated.View style={[styles.detailBackdrop, { opacity: detailOverlayOpacity }]}>
-                                <Pressable style={styles.backdropPressable} onPress={animateCloseSpellDetail} accessibilityLabel="Close spell details" />
-                            </Animated.View>
-
-                            <GestureDetector gesture={detailDismissGesture}>
-                                <Animated.View style={[styles.detailModalWrap, { transform: [{ translateY: detailModalTranslateY }] }]}>
-                                    <SpellDetailModal
-                                        spell={selectedSpellDetail ?? null}
-                                        spellName={selectedSpell.name}
-                                        known={isKnownSpell(selectedSpell.id)}
-                                        loading={selectedSpellDetailLoading && selectedSpellDetail == null}
-                                        errorMessage={selectedSpellDetailErrorMessage}
-                                        onRetry={retrySelectedSpellDetail}
-                                        onToggleSelection={() => {
-                                            void toggleSpellSelection(selectedSpell);
-                                        }}
-                                        onBodyScroll={handleDetailBodyScroll}
-                                    />
-                                </Animated.View>
-                            </GestureDetector>
-                        </>
-                    )}
-
-                    <Snackbar
-                        visible={actionErrorMessage != null}
-                        onDismiss={clearActionErrorMessage}
-                        duration={3000}
-                        style={styles.errorSnackbar}
-                    >
-                        {actionErrorMessage ?? ''}
-                    </Snackbar>
+        <Portal>
+            <View style={styles.overlayContainer} pointerEvents="box-none">
+                <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
+                    <Pressable style={styles.backdropPressable} onPress={requestSheetClose} accessibilityLabel="Close add spell sheet" />
                 </Animated.View>
-            </GestureDetector>
-        </View>
+
+                <GestureDetector gesture={sheetDismissGesture}>
+                    <Animated.View
+                        testID="add-spell-sheet"
+                        style={[styles.sheet, { transform: [{ translateY: sheetTranslateY }] }]}
+                        onStartShouldSetResponderCapture={() => {
+                            Keyboard.dismiss();
+                            return false;
+                        }}
+                    >
+                        <AddSpellSheetHeader
+                            searchQuery={searchQuery}
+                            onChangeSearchQuery={setSearchQuery}
+                            onClearSearchQuery={() => setSearchQuery('')}
+                            activeFilterCount={activeFilterCount}
+                            onOpenFilterPanel={openFilterPanel}
+                            title={title}
+                            subtitle={subtitle}
+                            showFilterButton={showFilterButton}
+                        />
+
+                        <AddSpellActiveFilterChips
+                            chips={activeFilterChips}
+                            onRemoveChip={removeAppliedFilterChip}
+                        />
+
+                        <View style={styles.divider} />
+
+                        <AddSpellSectionList
+                            sections={sections}
+                            loading={loading}
+                            errorMessage={errorMessage}
+                            isKnownSpell={isKnownSpell}
+                            blockedReasonForSpell={blockedReasonForSpell}
+                            pendingSpellIds={pendingSpellIds}
+                            onToggleSpellSelection={(spell) => {
+                                void toggleSpellSelection(spell);
+                            }}
+                            onPrefetchSpellDetail={prefetchSpellDetail}
+                            onOpenSpellDetail={openSpellDetail}
+                            onScroll={handleSpellListScroll}
+                        />
+
+                        <AddSpellBottomBar sessionChangesCount={sessionChangesCount} onDone={requestSheetClose} />
+
+                        <Animated.View style={[styles.filterPanel, { transform: [{ translateX: filterPanelTranslateX }] }]}>
+                            <AddSpellFilterPanel
+                                draftFilters={draftFilters}
+                                setDraftFilters={setDraftFilters}
+                                onBack={closeFilterPanel}
+                                onClear={clearDraftFilters}
+                                onApply={applyFilters}
+                            />
+                        </Animated.View>
+
+                        {selectedSpell && (
+                            <>
+                                <Animated.View style={[styles.detailBackdrop, { opacity: detailOverlayOpacity }]}>
+                                    <Pressable style={styles.backdropPressable} onPress={animateCloseSpellDetail} accessibilityLabel="Close spell details" />
+                                </Animated.View>
+
+                                <GestureDetector gesture={detailDismissGesture}>
+                                    <Animated.View style={[styles.detailModalWrap, { transform: [{ translateY: detailModalTranslateY }] }]}>
+                                        <SpellDetailModal
+                                            spell={selectedSpellDetail ?? null}
+                                            spellName={selectedSpell.name}
+                                            known={isKnownSpell(selectedSpell.id)}
+                                            blockedReason={blockedReasonForSpell(selectedSpell.id)}
+                                            loading={selectedSpellDetailLoading && selectedSpellDetail == null}
+                                            errorMessage={selectedSpellDetailErrorMessage}
+                                            onRetry={retrySelectedSpellDetail}
+                                            onToggleSelection={() => {
+                                                void toggleSpellSelection(selectedSpell);
+                                            }}
+                                            onBodyScroll={handleDetailBodyScroll}
+                                        />
+                                    </Animated.View>
+                                </GestureDetector>
+                            </>
+                        )}
+
+                        <Snackbar
+                            visible={actionErrorMessage != null}
+                            onDismiss={clearActionErrorMessage}
+                            duration={3000}
+                            style={styles.errorSnackbar}
+                        >
+                            {actionErrorMessage ?? ''}
+                        </Snackbar>
+                    </Animated.View>
+                </GestureDetector>
+            </View>
+        </Portal>
     );
 }
 

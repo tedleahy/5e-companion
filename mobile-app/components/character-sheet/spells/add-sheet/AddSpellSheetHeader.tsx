@@ -12,6 +12,9 @@ type AddSpellSheetHeaderProps = {
     onClearSearchQuery: () => void;
     activeFilterCount: number;
     onOpenFilterPanel: () => void;
+    title?: string;
+    subtitle?: string;
+    showFilterButton?: boolean;
 };
 
 /**
@@ -23,6 +26,9 @@ export default function AddSpellSheetHeader({
     onClearSearchQuery,
     activeFilterCount,
     onOpenFilterPanel,
+    title = 'Add Spell',
+    subtitle = 'Choose spells to add to your spellbook',
+    showFilterButton = true,
 }: AddSpellSheetHeaderProps) {
     return (
         <View style={styles.headerDragZone}>
@@ -32,8 +38,8 @@ export default function AddSpellSheetHeader({
 
             <View style={styles.titleRow}>
                 <View>
-                    <Text style={styles.title}>Add Spell</Text>
-                    <Text style={styles.subtitle}>Choose spells to add to your spellbook</Text>
+                    <Text style={styles.title}>{title}</Text>
+                    <Text style={styles.subtitle}>{subtitle}</Text>
                 </View>
             </View>
 
@@ -62,19 +68,21 @@ export default function AddSpellSheetHeader({
                     </Pressable>
                 </View>
 
-                <Pressable
-                    onPress={onOpenFilterPanel}
-                    style={[styles.filterButton, activeFilterCount > 0 && styles.filterButtonActive]}
-                    accessibilityLabel="Open spell filters"
-                >
-                    <Ionicons name="filter" size={14} color="rgba(245,230,200,0.45)" />
-                    <Text style={styles.filterButtonText}>Filter</Text>
-                    {activeFilterCount > 0 && (
-                        <View style={styles.filterCountBadge}>
-                            <Text style={styles.filterCountText}>{activeFilterCount}</Text>
-                        </View>
-                    )}
-                </Pressable>
+                {showFilterButton ? (
+                    <Pressable
+                        onPress={onOpenFilterPanel}
+                        style={[styles.filterButton, activeFilterCount > 0 && styles.filterButtonActive]}
+                        accessibilityLabel="Open spell filters"
+                    >
+                        <Ionicons name="filter" size={14} color="rgba(245,230,200,0.45)" />
+                        <Text style={styles.filterButtonText}>Filter</Text>
+                        {activeFilterCount > 0 && (
+                            <View style={styles.filterCountBadge}>
+                                <Text style={styles.filterCountText}>{activeFilterCount}</Text>
+                            </View>
+                        )}
+                    </Pressable>
+                ) : null}
             </View>
         </View>
     );

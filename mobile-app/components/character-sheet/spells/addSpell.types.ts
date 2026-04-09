@@ -31,3 +31,8 @@ export type AddSpellSection = {
     title: string;
     data: AddSpellListItem[];
 };
+
+/**
+ * Reasons a spell can be visible but unavailable for selection.
+ */
+export type AddSpellBlockedReason = 'known' | 'selection_limit';
