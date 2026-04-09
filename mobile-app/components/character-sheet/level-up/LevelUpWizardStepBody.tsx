@@ -8,6 +8,7 @@ import type { AvailableSubclassOption } from '@/lib/subclasses';
 import LevelUpAsiOrFeatStep from './LevelUpAsiOrFeatStep';
 import LevelUpHitPointsStep from './LevelUpHitPointsStep';
 import LevelUpNewFeaturesStep from './LevelUpNewFeaturesStep';
+import LevelUpSpellcastingStep from './LevelUpSpellcastingStep';
 import LevelUpSubclassSelectionStep from './LevelUpSubclassSelectionStep';
 import LevelUpSummaryStep from './LevelUpSummaryStep';
 import type {
@@ -16,6 +17,9 @@ import type {
     LevelUpFeature,
     LevelUpHitPointsState,
     LevelUpClassSelectionMode,
+    LevelUpSpellSelection,
+    LevelUpSpellcastingState,
+    LevelUpSpellcastingSummary,
     LevelUpSubclassSelectionState,
     LevelUpWizardSelectedClass,
     LevelUpWizardStep,
@@ -39,6 +43,8 @@ type LevelUpWizardStepBodyProps = {
     hitPointsState: LevelUpHitPointsState | null;
     asiOrFeatState: LevelUpAsiOrFeatState;
     subclassSelectionState: LevelUpSubclassSelectionState;
+    spellcastingState: LevelUpSpellcastingState;
+    spellcastingSummary: LevelUpSpellcastingSummary;
     availableSubclasses: AvailableSubclassOption[];
     newFeatures: LevelUpFeature[];
     customFeatures: LevelUpCustomFeatureDraft[];
@@ -60,6 +66,12 @@ type LevelUpWizardStepBodyProps = {
     onAddCustomFeature: () => void;
     onChangeCustomFeature: (featureId: string, changes: Partial<LevelUpCustomFeatureDraft>) => void;
     onRemoveCustomFeature: (featureId: string) => void;
+    onAddLearnedSpell: (spell: LevelUpSpellSelection) => void;
+    onRemoveLearnedSpell: (spellId: string) => void;
+    onAddCantripSpell: (spell: LevelUpSpellSelection) => void;
+    onRemoveCantripSpell: (spellId: string) => void;
+    onSetSwapOutSpellId: (spellId: string | null) => void;
+    onSetSwapReplacementSpell: (spell: LevelUpSpellSelection | null) => void;
 };
 
 /**
@@ -78,6 +90,8 @@ export default function LevelUpWizardStepBody({
     hitPointsState,
     asiOrFeatState,
     subclassSelectionState,
+    spellcastingState,
+    spellcastingSummary,
     availableSubclasses,
     newFeatures,
     customFeatures,
@@ -99,6 +113,12 @@ export default function LevelUpWizardStepBody({
     onAddCustomFeature,
     onChangeCustomFeature,
     onRemoveCustomFeature,
+    onAddLearnedSpell,
+    onRemoveLearnedSpell,
+    onAddCantripSpell,
+    onRemoveCantripSpell,
+    onSetSwapOutSpellId,
+    onSetSwapReplacementSpell,
 }: LevelUpWizardStepBodyProps) {
     if (step.id === 'choose_class') {
         const currentClassOption = levelUpClassOption(currentClass.classId);
@@ -243,6 +263,22 @@ export default function LevelUpWizardStepBody({
         );
     }
 
+    if (step.id === 'spellcasting_updates') {
+        return (
+            <LevelUpSpellcastingStep
+                selectedClass={selectedClass}
+                spellcastingState={spellcastingState}
+                spellcastingSummary={spellcastingSummary}
+                onAddLearnedSpell={onAddLearnedSpell}
+                onRemoveLearnedSpell={onRemoveLearnedSpell}
+                onAddCantripSpell={onAddCantripSpell}
+                onRemoveCantripSpell={onRemoveCantripSpell}
+                onSetSwapOutSpellId={onSetSwapOutSpellId}
+                onSetSwapReplacementSpell={onSetSwapReplacementSpell}
+            />
+        );
+    }
+
     if (step.id === 'summary' && hitPointsState) {
         return (
             <LevelUpSummaryStep
@@ -256,6 +292,8 @@ export default function LevelUpWizardStepBody({
                     ...newFeatures,
                     ...mapCustomFeatureDrafts(selectedClass, customFeatures),
                 ]}
+                spellcastingState={spellcastingState}
+                spellcastingSummary={spellcastingSummary}
             />
         );
     }
