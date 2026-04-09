@@ -4,10 +4,13 @@ import { Text } from 'react-native-paper';
 import type { AbilityKey } from '@/lib/characterSheetUtils';
 import { formatSignedNumber } from '@/lib/characterSheetUtils';
 import { LEVEL_UP_ABILITY_LABELS } from '@/lib/characterLevelUp/asiOrFeat';
+import { spellLevelLabel } from '@/lib/spellPresentation';
 import type {
     LevelUpAsiOrFeatState,
     LevelUpFeature,
     LevelUpHitPointsState,
+    LevelUpSpellcastingState,
+    LevelUpSpellcastingSummary,
     LevelUpWizardSelectedClass,
 } from '@/lib/characterLevelUp/types';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -24,6 +27,8 @@ type LevelUpSummaryStepProps = {
     hitPointsState: LevelUpHitPointsState;
     asiOrFeatState: LevelUpAsiOrFeatState | null;
     features: LevelUpFeature[];
+    spellcastingState: LevelUpSpellcastingState;
+    spellcastingSummary: LevelUpSpellcastingSummary;
 };
 
 /**
@@ -37,6 +42,8 @@ export default function LevelUpSummaryStep({
     hitPointsState,
     asiOrFeatState,
     features,
+    spellcastingState,
+    spellcastingSummary,
 }: LevelUpSummaryStepProps) {
     const nextMaxHitPoints = currentHitPoints.max + hitPointsState.hpGained;
     const abilityScoreChanges = abilityScoreSummaryRows(abilityScores, asiOrFeatState);
@@ -125,6 +132,32 @@ export default function LevelUpSummaryStep({
                 </SummaryCard>
             ) : null}
 
+            {hasSpellcastingSummary(spellcastingSummary, spellcastingState) ? (
+                <SummaryCard label="Spellcasting" testID="level-up-summary-spellcasting">
+                    {spellcastingSummary.slotComparisons.filter((comparison) => comparison.changed).map((comparison) => (
+                        <Text key={comparison.key} style={styles.summaryListItem}>
+                            {`${comparison.kind === 'PACT_MAGIC' ? 'Pact' : 'Slots'} ${spellLevelLabel(comparison.level)}: ${comparison.previousTotal} -> ${comparison.nextTotal}`}
+                        </Text>
+                    ))}
+                    {spellcastingState.learnedSpells.map((spell) => (
+                        <Text key={spell.id} style={styles.summaryListItem}>{`\u2022 ${spell.name}`}</Text>
+                    ))}
+                    {spellcastingState.cantripSpells.map((spell) => (
+                        <Text key={spell.id} style={styles.summaryListItem}>{`\u2022 ${spell.name} (Cantrip)`}</Text>
+                    ))}
+                    {spellcastingState.swapOutSpellId && spellcastingState.swapReplacementSpell ? (
+                        <Text style={styles.summaryListItem}>
+                            {`Swap: replace one known spell with ${spellcastingState.swapReplacementSpell.name}`}
+                        </Text>
+                    ) : null}
+                    {spellcastingSummary.nextPreparedSpellLimit != null && spellcastingSummary.previousPreparedSpellLimit != null ? (
+                        <Text style={styles.summaryListItem}>
+                            {`Prepared spells: ${spellcastingSummary.previousPreparedSpellLimit} -> ${spellcastingSummary.nextPreparedSpellLimit}`}
+                        </Text>
+                    ) : null}
+                </SummaryCard>
+            ) : null}
+
             <View style={styles.noteCard}>
                 <Text style={styles.noteTitle}>Draft First, Then Save</Text>
                 <Text style={styles.noteText}>
@@ -133,6 +166,20 @@ export default function LevelUpSummaryStep({
             </View>
         </View>
     );
+}
+
+/**
+ * Returns whether the summary should render a spellcasting section.
+ */
+function hasSpellcastingSummary(
+    spellcastingSummary: LevelUpSpellcastingSummary,
+    spellcastingState: LevelUpSpellcastingState,
+): boolean {
+    return spellcastingSummary.slotComparisons.some((comparison) => comparison.changed)
+        || spellcastingState.learnedSpells.length > 0
+        || spellcastingState.cantripSpells.length > 0
+        || spellcastingState.swapReplacementSpell != null
+        || spellcastingSummary.nextPreparedSpellLimit !== spellcastingSummary.previousPreparedSpellLimit;
 }
 
 type SummaryCardProps = {
