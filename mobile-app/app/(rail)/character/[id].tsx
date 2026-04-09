@@ -128,13 +128,16 @@ export default function CharacterByIdScreen() {
             ...character,
             level: draft?.level ?? character.level,
             classes: draft?.classes ?? character.classes,
+            spellcastingProfiles: draft?.spellcastingProfiles ?? character.spellcastingProfiles,
+            spellSlots: draft?.spellSlots ?? character.spellSlots,
+            spellbook: draft?.spellbook ?? character.spellbook,
             stats: {
                 ...character.stats,
                 hp: draft?.hp ?? character.stats.hp,
                 abilityScores: draft?.abilityScores ?? character.stats.abilityScores,
             },
         };
-    }, [character, draft?.abilityScores, draft?.classes, draft?.hp, draft?.level]);
+    }, [character, draft?.abilityScores, draft?.classes, draft?.hp, draft?.level, draft?.spellSlots, draft?.spellbook, draft?.spellcastingProfiles]);
     const allSubclassClassIds = useMemo(
         () => CLASS_OPTIONS.map((option) => option.value),
         [],
@@ -155,11 +158,13 @@ export default function CharacterByIdScreen() {
 
     /** Tabs visible for this character — hides Spells for non-casters. */
     const visibleTabs: readonly CharacterSheetTab[] = useMemo(() => {
-        if (!character || !hasSpellcastingProfiles(character.spellcastingProfiles)) {
+        const visibleSpellcastingProfiles = draft?.spellcastingProfiles ?? character?.spellcastingProfiles ?? [];
+
+        if (!character || !hasSpellcastingProfiles(visibleSpellcastingProfiles)) {
             return CHARACTER_SHEET_TABS.filter((tab) => tab !== 'Spells');
         }
         return [...CHARACTER_SHEET_TABS];
-    }, [character]);
+    }, [character, draft?.spellcastingProfiles]);
 
     /**
      * Called when a tab header button is pressed — syncs PagerView to that page.
@@ -208,6 +213,7 @@ export default function CharacterByIdScreen() {
             asiOrFeatState: levelUpWizard.steps.some((step) => step.id === 'asi_or_feat')
                 ? levelUpWizard.asiOrFeatState
                 : null,
+            spellcastingState: levelUpWizard.spellcastingState,
             features: [
                 ...levelUpWizard.newFeatures,
                 ...mapCustomFeatureDrafts(levelUpWizard.selectedClass, levelUpWizard.customFeatures),
@@ -287,7 +293,20 @@ export default function CharacterByIdScreen() {
      * Finalises edit mode and confirms save completion.
      */
     async function handleDoneEdit() {
+        if (!character) {
+            return;
+        }
+
         const saveInput = buildSaveInput();
+        const draftSpellbook = draft?.spellbook ?? character.spellbook;
+        const currentSpellIds = new Set(character.spellbook.map((entry) => entry.spell.id));
+        const draftSpellIds = new Set(draftSpellbook.map((entry) => entry.spell.id));
+        const spellIdsToLearn = draftSpellbook
+            .filter((entry) => !currentSpellIds.has(entry.spell.id))
+            .map((entry) => entry.spell.id);
+        const spellIdsToForget = character.spellbook
+            .filter((entry) => !draftSpellIds.has(entry.spell.id))
+            .map((entry) => entry.spell.id);
 
         if (saveInput) {
             try {
@@ -298,6 +317,13 @@ export default function CharacterByIdScreen() {
                 return;
             }
         }
+
+        await Promise.all([
+            ...spellIdsToLearn.map((spellId) => handleLearnSpell(spellId)),
+            ...spellIdsToForget.map((spellId) => handleForgetSpell(spellId)),
+        ]).catch((spellError) => {
+            console.error('Failed to save spellbook changes', spellError);
+        });
 
         clearDraft();
     }
@@ -314,10 +340,13 @@ export default function CharacterByIdScreen() {
     const displayedFeatures = draft?.features ?? character.features;
     const displayedLevel = draft?.level ?? character.level;
     const displayedClasses = draft?.classes ?? character.classes;
+    const displayedSpellcastingProfiles = draft?.spellcastingProfiles ?? character.spellcastingProfiles;
+    const displayedSpellSlots = draft?.spellSlots ?? character.spellSlots;
+    const displayedSpellbook = draft?.spellbook ?? character.spellbook;
     const classSummary = formatCharacterClassSummary(displayedClasses);
     const primaryClassName = primaryCharacterClassName(displayedClasses);
     const characterClassIds = orderedCharacterClassIds(displayedClasses);
-    const spellSaveDC = strongestSpellSaveDc(character.spellcastingProfiles);
+    const spellSaveDC = strongestSpellSaveDc(displayedSpellcastingProfiles);
     const passivePerception =
         10 + skillModifier(
             displayedAbilityScores.wisdom,
@@ -422,13 +451,13 @@ export default function CharacterByIdScreen() {
                     </View>
 
                     {/* Spells — only for caster characters */}
-                    {hasSpellcastingProfiles(character.spellcastingProfiles) ? (
+                    {hasSpellcastingProfiles(displayedSpellcastingProfiles) ? (
                         <View key="Spells" style={styles.page}>
                             <SpellsTab
                                 characterClassIds={characterClassIds}
-                                spellcastingProfiles={character.spellcastingProfiles}
-                                spellSlots={character.spellSlots}
-                                spellbook={character.spellbook}
+                                spellcastingProfiles={displayedSpellcastingProfiles}
+                                spellSlots={displayedSpellSlots}
+                                spellbook={displayedSpellbook}
                                 onToggleSpellSlot={handleToggleSpellSlot}
                                 onLearnSpell={handleLearnSpell}
                                 onForgetSpell={handleForgetSpell}
