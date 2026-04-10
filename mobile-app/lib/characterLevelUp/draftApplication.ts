@@ -3,12 +3,14 @@ import type {
     CharacterSheetDraftClass,
 } from '@/lib/character-sheet/characterSheetDraft';
 import { createDraftEntityId } from '@/lib/character-sheet/characterSheetDraft';
-import { ABILITY_KEYS, type AbilityKey } from '@/lib/characterSheetUtils';
+import { ABILITY_KEYS, findSkillDefinitionByLabel, type AbilityKey } from '@/lib/characterSheetUtils';
 import {
     applyLevelUpSpellbookChanges,
     derivePreviewSpellSlots,
     derivePreviewSpellcastingProfiles,
 } from './spellcasting';
+import type { LevelUpMulticlassProficiencyState } from './multiclassProficiencies';
+import { getMulticlassProficiencyGains } from './multiclassProficiencies';
 import type {
     LevelUpAsiOrFeatState,
     LevelUpFeature,
@@ -30,6 +32,7 @@ export type ApplyLevelUpDraftInput = {
     hitPointsState: LevelUpHitPointsState;
     asiOrFeatState: LevelUpAsiOrFeatState | null;
     spellcastingState: LevelUpSpellcastingState;
+    multiclassProficiencyState: LevelUpMulticlassProficiencyState;
     features: LevelUpFeature[];
 };
 
@@ -50,6 +53,13 @@ export function applyLevelUpToDraft(
     const spellbook = applyLevelUpSpellbookChanges(draft.spellbook, input.spellcastingState);
     const spellSlots = derivePreviewSpellSlots(classes, draft.spellSlots);
     const spellcastingProfiles = derivePreviewSpellcastingProfiles(classes, abilityScores);
+    const skillProficiencies = applyLevelUpSkillProficiencies(
+        draft.skillProficiencies,
+        input.selectedClass,
+        input.multiclassProficiencyState,
+    );
+
+    const traits = applyLevelUpProficiencies(draft.traits, input.selectedClass, input.multiclassProficiencyState);
 
     return {
         ...draft,
@@ -60,6 +70,8 @@ export function applyLevelUpToDraft(
         spellbook,
         abilityScores,
         hp,
+        skillProficiencies,
+        traits,
         features: applyLevelUpFeatures(draft.features, input.asiOrFeatState, input.features),
     };
 }
@@ -209,4 +221,72 @@ function abilityIncreaseLabel(ability: AbilityKey): string {
  */
 function clampLevelUpScore(value: number): number {
     return Math.min(LEVEL_UP_SCORE_CAP, value);
+}
+
+/**
+ * Applies multiclass proficiency gains to the traits draft when adding a new class.
+ */
+function applyLevelUpProficiencies(
+    traits: CharacterSheetDraft['traits'],
+    selectedClass: LevelUpWizardSelectedClass,
+    proficiencyState: LevelUpMulticlassProficiencyState,
+): CharacterSheetDraft['traits'] {
+    if (selectedClass.isExistingClass) {
+        return traits;
+    }
+
+    const gains = getMulticlassProficiencyGains(selectedClass.classId);
+
+    if (!gains) {
+        return traits;
+    }
+
+    const armorGains = gains.armor.filter((label) => !traits.armorProficiencies.includes(label));
+    const weaponGains = gains.weapons.filter((label) => !traits.weaponProficiencies.includes(label));
+    const toolGains = gains.tools.filter((label) => !traits.toolProficiencies.includes(label));
+
+    const hasChanges = armorGains.length > 0
+        || weaponGains.length > 0
+        || toolGains.length > 0
+        || proficiencyState.selectedSkills.length > 0;
+
+    if (!hasChanges) {
+        return traits;
+    }
+
+    return {
+        ...traits,
+        armorProficiencies: [...traits.armorProficiencies, ...armorGains],
+        weaponProficiencies: [...traits.weaponProficiencies, ...weaponGains],
+        toolProficiencies: [...traits.toolProficiencies, ...toolGains],
+    };
+}
+
+/**
+ * Applies newly selected multiclass skill proficiencies to the draft.
+ */
+function applyLevelUpSkillProficiencies(
+    skillProficiencies: CharacterSheetDraft['skillProficiencies'],
+    selectedClass: LevelUpWizardSelectedClass,
+    proficiencyState: LevelUpMulticlassProficiencyState,
+): CharacterSheetDraft['skillProficiencies'] {
+    if (selectedClass.isExistingClass || proficiencyState.selectedSkills.length === 0) {
+        return skillProficiencies;
+    }
+
+    let hasChanges = false;
+    const nextSkillProficiencies = { ...skillProficiencies };
+
+    for (const skillLabel of proficiencyState.selectedSkills) {
+        const skillDefinition = findSkillDefinitionByLabel(skillLabel);
+
+        if (!skillDefinition || nextSkillProficiencies[skillDefinition.key] !== 'none') {
+            continue;
+        }
+
+        nextSkillProficiencies[skillDefinition.key] = 'proficient';
+        hasChanges = true;
+    }
+
+    return hasChanges ? nextSkillProficiencies : skillProficiencies;
 }

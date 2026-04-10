@@ -180,6 +180,7 @@ export async function saveCharacterSheet(
             data: {
                 hp: input.hp,
                 abilityScores: input.abilityScores,
+                skillProficiencies: input.skillProficiencies,
                 currency: input.currency,
                 traits: input.traits,
             },

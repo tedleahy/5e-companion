@@ -38,7 +38,7 @@ export type LevelUpWizardCharacter = Pick<
     CharacterSheetFieldsFragment,
     'id' | 'name' | 'level' | 'classes' | 'spellcastingProfiles' | 'spellSlots' | 'spellbook'
 > & {
-    stats: Pick<NonNullable<CharacterSheetFieldsFragment['stats']>, 'abilityScores' | 'hp'> | null;
+    stats: Pick<NonNullable<CharacterSheetFieldsFragment['stats']>, 'abilityScores' | 'hp' | 'skillProficiencies'> | null;
 };
 
 /**
@@ -206,6 +206,16 @@ export type LevelUpSpellSlotComparison = {
 /**
  * High-level spellcasting branch handled by the level-up step.
  */
+/**
+ * Re-exported multiclass proficiency state for use from the central types module.
+ */
+export type { LevelUpMulticlassProficiencyState } from './multiclassProficiencies';
+
+/**
+ * Re-exported class resource change type for use from the central types module.
+ */
+export type { ClassResourceChange } from './classResources';
+
 export type LevelUpSpellcastingMode = 'none' | 'wizard' | 'known' | 'prepared';
 
 /**

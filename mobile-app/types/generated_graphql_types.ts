@@ -428,6 +428,7 @@ export type SaveCharacterSheetInput = {
   hp: HpInput;
   initiative: Scalars['Int']['input'];
   inventory: Array<SaveCharacterSheetInventoryItemInput>;
+  skillProficiencies: SkillProficienciesInput;
   speed: Scalars['Int']['input'];
   traits: TraitsInput;
   weapons: Array<SaveCharacterSheetWeaponInput>;

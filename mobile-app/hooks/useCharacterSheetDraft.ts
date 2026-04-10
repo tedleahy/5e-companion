@@ -16,9 +16,10 @@ import {
 } from '@/lib/character-sheet/characterSheetDraft';
 import type {
     CharacterSheetDetailQuery,
+    ProficiencyLevel,
     SaveCharacterSheetInput,
 } from '@/types/generated_graphql_types';
-import type { AbilityKey } from '@/lib/characterSheetUtils';
+import type { AbilityKey, SkillKey } from '@/lib/characterSheetUtils';
 
 /** Character detail row consumed by the character-sheet draft hook. */
 type CharacterSheetDetail = NonNullable<CharacterSheetDetailQuery['character']>;
@@ -73,6 +74,19 @@ export default function useCharacterSheetDraft(character: CharacterSheetDetail |
             abilityScores: {
                 ...currentDraft.abilityScores,
                 [ability]: value,
+            },
+        }));
+    }
+
+    /**
+     * Updates one draft skill proficiency level.
+     */
+    function changeSkillProficiency(skill: SkillKey, level: ProficiencyLevel) {
+        updateDraft((currentDraft) => ({
+            ...currentDraft,
+            skillProficiencies: {
+                ...currentDraft.skillProficiencies,
+                [skill]: level,
             },
         }));
     }
@@ -309,6 +323,7 @@ export default function useCharacterSheetDraft(character: CharacterSheetDetail |
         clearDraft,
         buildSaveInput,
         changeAbilityScore,
+        changeSkillProficiency,
         changeHp,
         changeAc,
         changeSpeed,

@@ -4,11 +4,14 @@ import { Text } from 'react-native-paper';
 import type { AbilityKey } from '@/lib/characterSheetUtils';
 import { formatSignedNumber } from '@/lib/characterSheetUtils';
 import { LEVEL_UP_ABILITY_LABELS } from '@/lib/characterLevelUp/asiOrFeat';
+import { getClassResourceChanges } from '@/lib/characterLevelUp/classResources';
+import { getMulticlassProficiencyGains, getAutomaticProficiencyLabels } from '@/lib/characterLevelUp/multiclassProficiencies';
 import { spellLevelLabel } from '@/lib/spellPresentation';
 import type {
     LevelUpAsiOrFeatState,
     LevelUpFeature,
     LevelUpHitPointsState,
+    LevelUpMulticlassProficiencyState,
     LevelUpSpellcastingState,
     LevelUpSpellcastingSummary,
     LevelUpWizardSelectedClass,
@@ -29,6 +32,7 @@ type LevelUpSummaryStepProps = {
     features: LevelUpFeature[];
     spellcastingState: LevelUpSpellcastingState;
     spellcastingSummary: LevelUpSpellcastingSummary;
+    multiclassProficiencyState: LevelUpMulticlassProficiencyState;
 };
 
 /**
@@ -44,9 +48,15 @@ export default function LevelUpSummaryStep({
     features,
     spellcastingState,
     spellcastingSummary,
+    multiclassProficiencyState,
 }: LevelUpSummaryStepProps) {
     const nextMaxHitPoints = currentHitPoints.max + hitPointsState.hpGained;
     const abilityScoreChanges = abilityScoreSummaryRows(abilityScores, asiOrFeatState);
+    const proficiencyGains = !selectedClass.isExistingClass ? getMulticlassProficiencyGains(selectedClass.classId) : null;
+    const automaticProfLabels = proficiencyGains ? getAutomaticProficiencyLabels(proficiencyGains) : [];
+    const allProficiencyLabels = [...automaticProfLabels, ...multiclassProficiencyState.selectedSkills];
+    const resourceChanges = getClassResourceChanges(selectedClass.classId, selectedClass.currentLevel, selectedClass.newLevel)
+        .filter((change) => change.changed);
 
     return (
         <View style={styles.section} testID="level-up-step-summary">
@@ -155,6 +165,28 @@ export default function LevelUpSummaryStep({
                             {`Prepared spells: ${spellcastingSummary.previousPreparedSpellLimit} -> ${spellcastingSummary.nextPreparedSpellLimit}`}
                         </Text>
                     ) : null}
+                </SummaryCard>
+            ) : null}
+
+            {allProficiencyLabels.length > 0 ? (
+                <SummaryCard label="Multiclass Proficiencies" testID="level-up-summary-proficiencies">
+                    <View style={styles.featureList}>
+                        {allProficiencyLabels.map((label) => (
+                            <Text key={label} style={styles.summaryListItem}>
+                                {`\u2022 ${label}`}
+                            </Text>
+                        ))}
+                    </View>
+                </SummaryCard>
+            ) : null}
+
+            {resourceChanges.length > 0 ? (
+                <SummaryCard label="Class Resources" testID="level-up-summary-resources">
+                    {resourceChanges.map((change) => (
+                        <Text key={change.key} style={styles.summaryListItem}>
+                            {`${change.label}: ${change.previousValue} \u2192 ${change.nextValue}`}
+                        </Text>
+                    ))}
                 </SummaryCard>
             ) : null}
 

@@ -191,6 +191,8 @@ describe('characterSheetDraft', () => {
     it('strips GraphQL typenames from local draft rows', () => {
         const draft = createCharacterSheetDraft(CHARACTER_SHEET_CHARACTER as never);
 
+        expect(draft.skillProficiencies.arcana).toBe('expert');
+        expect(Object.prototype.hasOwnProperty.call(draft.skillProficiencies, '__typename')).toBe(false);
         expect(draft.weapons[0]).toEqual({
             id: 'weapon-1',
             name: 'Dagger',
@@ -277,6 +279,26 @@ describe('characterSheetDraft', () => {
                 customSubclassFeature: null,
             },
         ]);
+        expect(input.skillProficiencies).toEqual({
+            acrobatics: 'none',
+            animalHandling: 'none',
+            arcana: 'expert',
+            athletics: 'none',
+            deception: 'none',
+            history: 'expert',
+            insight: 'proficient',
+            intimidation: 'none',
+            investigation: 'expert',
+            medicine: 'none',
+            nature: 'proficient',
+            perception: 'proficient',
+            performance: 'none',
+            persuasion: 'none',
+            religion: 'proficient',
+            sleightOfHand: 'none',
+            stealth: 'proficient',
+            survival: 'none',
+        });
     });
 
     it('omits derived spellcasting values when mapping save input', () => {

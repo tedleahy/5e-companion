@@ -114,7 +114,6 @@ describe('characterLevelUp step assembly', () => {
             'hit_points',
             'new_features',
             'spellcasting_updates',
-            'class_resources',
             'summary',
         ]);
     });
@@ -132,7 +131,6 @@ describe('characterLevelUp step assembly', () => {
             'hit_points',
             'new_features',
             'multiclass_proficiencies',
-            'class_resources',
             'summary',
         ]);
     });

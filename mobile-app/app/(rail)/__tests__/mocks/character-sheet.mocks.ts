@@ -335,6 +335,8 @@ export const MOCK_CHARACTER = {
     },
 };
 
+const { __typename: _skillTypeName, ...INITIAL_SKILL_INPUT } = MOCK_CHARACTER.stats.skillProficiencies;
+
 export const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
     {
         request: {
@@ -359,6 +361,7 @@ export const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
                         wisdom: 13,
                         charisma: 11,
                     },
+                    skillProficiencies: INITIAL_SKILL_INPUT,
                     currency: {
                         cp: 0,
                         sp: 14,
@@ -510,8 +513,6 @@ export const SAVE_CHARACTER_SHEET_FAILURE_MOCK: MockLink.MockedResponse = {
     },
     error: new Error('Network error'),
 };
-
-const { __typename: _skillTypeName, ...INITIAL_SKILL_INPUT } = MOCK_CHARACTER.stats.skillProficiencies;
 
 export const CHARACTERS_MOCK: MockLink.MockedResponse = {
     request: {

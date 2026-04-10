@@ -115,6 +115,8 @@ export default function LevelUpWizardSheet({
                         subclassSelectionState={wizard.subclassSelectionState}
                         spellcastingState={wizard.spellcastingState}
                         spellcastingSummary={wizard.spellcastingSummary}
+                        multiclassProficiencyState={wizard.multiclassProficiencyState}
+                        existingSkillProficiencies={wizard.existingSkillProficiencies}
                         availableSubclasses={availableSubclasses}
                         newFeatures={wizard.newFeatures}
                         customFeatures={wizard.customFeatures}
@@ -142,6 +144,7 @@ export default function LevelUpWizardSheet({
                         onRemoveCantripSpell={wizard.removeCantripSpell}
                         onSetSwapOutSpellId={wizard.setSwapOutSpellId}
                         onSetSwapReplacementSpell={wizard.setSwapReplacementSpell}
+                        onToggleMulticlassSkill={wizard.toggleMulticlassSkill}
                     />
                 </KeyboardAwareScrollView>
 

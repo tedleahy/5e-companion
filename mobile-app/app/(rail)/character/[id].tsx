@@ -13,6 +13,8 @@ import FeaturesTab from '@/components/character-sheet/FeaturesTab';
 import GearTab from '@/components/character-sheet/GearTab';
 import LevelUpWizardSheet from '@/components/character-sheet/level-up/LevelUpWizardSheet';
 import QuickStatsCard from '@/components/character-sheet/QuickStatsCard';
+// ESLint's resolver does not understand Expo's platform-specific module suffixes here.
+// eslint-disable-next-line import/no-unresolved
 import CharacterSheetPager from '@/components/character-sheet/CharacterSheetPager';
 import type {
     CharacterSheetPagerHandle,
@@ -91,6 +93,7 @@ export default function CharacterByIdScreen() {
         clearDraft,
         buildSaveInput,
         changeAbilityScore,
+        changeSkillProficiency,
         changeHp,
         changeAc,
         changeSpeed,
@@ -135,9 +138,15 @@ export default function CharacterByIdScreen() {
                 ...character.stats,
                 hp: draft?.hp ?? character.stats.hp,
                 abilityScores: draft?.abilityScores ?? character.stats.abilityScores,
+                skillProficiencies: draft?.skillProficiencies
+                    ? {
+                        __typename: 'SkillProficiencies',
+                        ...draft.skillProficiencies,
+                    }
+                    : character.stats.skillProficiencies,
             },
         };
-    }, [character, draft?.abilityScores, draft?.classes, draft?.hp, draft?.level, draft?.spellSlots, draft?.spellbook, draft?.spellcastingProfiles]);
+    }, [character, draft?.abilityScores, draft?.classes, draft?.hp, draft?.level, draft?.skillProficiencies, draft?.spellSlots, draft?.spellbook, draft?.spellcastingProfiles]);
     const allSubclassClassIds = useMemo(
         () => CLASS_OPTIONS.map((option) => option.value),
         [],
@@ -214,6 +223,7 @@ export default function CharacterByIdScreen() {
                 ? levelUpWizard.asiOrFeatState
                 : null,
             spellcastingState: levelUpWizard.spellcastingState,
+            multiclassProficiencyState: levelUpWizard.multiclassProficiencyState,
             features: [
                 ...levelUpWizard.newFeatures,
                 ...mapCustomFeatureDrafts(levelUpWizard.selectedClass, levelUpWizard.customFeatures),
@@ -333,6 +343,12 @@ export default function CharacterByIdScreen() {
     const displayedSpeed = draft?.speed ?? character.speed;
     const displayedInitiative = draft?.initiative ?? character.initiative;
     const displayedAbilityScores = draft?.abilityScores ?? stats.abilityScores;
+    const displayedSkillProficiencies = draft?.skillProficiencies
+        ? {
+            __typename: 'SkillProficiencies',
+            ...draft.skillProficiencies,
+        }
+        : stats.skillProficiencies;
     const displayedCurrency = draft?.currency ?? stats.currency;
     const displayedTraits = draft?.traits ?? stats.traits;
     const displayedWeapons = draft?.weapons ?? character.weapons;
@@ -350,19 +366,19 @@ export default function CharacterByIdScreen() {
     const passivePerception =
         10 + skillModifier(
             displayedAbilityScores.wisdom,
-            stats.skillProficiencies.perception,
+            displayedSkillProficiencies.perception,
             character.proficiencyBonus,
         );
     const passiveInvestigation =
         10 + skillModifier(
             displayedAbilityScores.intelligence,
-            stats.skillProficiencies.investigation,
+            displayedSkillProficiencies.investigation,
             character.proficiencyBonus,
         );
     const passiveInsight =
         10 + skillModifier(
             displayedAbilityScores.wisdom,
-            stats.skillProficiencies.insight,
+            displayedSkillProficiencies.insight,
             character.proficiencyBonus,
         );
 
@@ -442,10 +458,12 @@ export default function CharacterByIdScreen() {
                             abilityScores={displayedAbilityScores}
                             proficiencyBonus={character.proficiencyBonus}
                             savingThrowProficiencies={savingThrowProficiencies}
-                            skillProficiencies={stats.skillProficiencies}
+                            skillProficiencies={displayedSkillProficiencies}
                             editMode={editMode}
                             onChangeAbilityScore={changeAbilityScore}
-                            onUpdateSkillProficiency={handleUpdateSkillProficiency}
+                            onUpdateSkillProficiency={editMode
+                                ? (skillKey, level) => changeSkillProficiency(skillKey, level)
+                                : handleUpdateSkillProficiency}
                             onUpdateSavingThrowProficiencies={handleUpdateSavingThrowProficiencies}
                         />
                     </View>

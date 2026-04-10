@@ -1,6 +1,7 @@
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { sortCharacterClasses } from '@/lib/characterClassSummary';
 import type { AvailableSubclassOption } from '@/lib/subclasses';
+import { hasClassResourceChanges } from './classResources';
 import type { LevelUpSpellcastingSummary } from './types';
 import type { LevelUpSubclassSelectionState } from './types';
 import {
@@ -34,22 +35,6 @@ export const ASI_LEVELS_BY_CLASS_ID: Record<string, readonly number[]> = {
     wizard: [4, 8, 12, 16, 19],
 };
 
-/**
- * Placeholder resource unlock levels keyed by class id.
- */
-export const CLASS_RESOURCE_UNLOCK_LEVEL_BY_CLASS_ID: Record<string, number> = {
-    barbarian: 1,
-    bard: 1,
-    cleric: 2,
-    druid: 2,
-    fighter: 1,
-    monk: 2,
-    paladin: 1,
-    ranger: 1,
-    sorcerer: 2,
-    warlock: 1,
-    wizard: 1,
-};
 
 /**
  * Human-readable step metadata keyed by wizard step id.
@@ -179,16 +164,13 @@ export function isAsiLevel(classId: string, newClassLevel: number): boolean {
 }
 
 /**
- * Returns whether the selected class should show a class-resources placeholder step.
+ * Returns whether the selected class should show a class-resources step.
+ * Uses the real resource progression data to check for actual changes.
  */
 export function hasClassResourceStep(classId: string, newClassLevel: number): boolean {
-    const unlockLevel = CLASS_RESOURCE_UNLOCK_LEVEL_BY_CLASS_ID[classId];
+    const currentLevel = newClassLevel - 1;
 
-    if (!unlockLevel) {
-        return false;
-    }
-
-    return newClassLevel >= unlockLevel;
+    return hasClassResourceChanges(classId, currentLevel, newClassLevel);
 }
 
 /**

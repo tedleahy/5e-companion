@@ -426,6 +426,7 @@ input SaveCharacterSheetInput {
     conditions: [String!]!
     hp: HPInput!
     abilityScores: AbilityScoresInput!
+    skillProficiencies: SkillProficienciesInput!
     currency: CurrencyInput!
     traits: TraitsInput!
     classes: [SaveCharacterSheetClassInput!]!

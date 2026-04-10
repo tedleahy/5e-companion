@@ -2,11 +2,14 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import ClassOptionGrid from '@/components/wizard/ClassOptionGrid';
 import type { AbilityKey } from '@/lib/characterSheetUtils';
+import type { SkillProficiencies } from '@/types/generated_graphql_types';
 import { levelUpClassOption } from '@/lib/characterLevelUp/chooseClass';
 import { mapCustomFeatureDrafts } from '@/lib/characterLevelUp/subclassFeatures';
 import type { AvailableSubclassOption } from '@/lib/subclasses';
 import LevelUpAsiOrFeatStep from './LevelUpAsiOrFeatStep';
+import LevelUpClassResourcesStep from './LevelUpClassResourcesStep';
 import LevelUpHitPointsStep from './LevelUpHitPointsStep';
+import LevelUpMulticlassProficienciesStep from './LevelUpMulticlassProficienciesStep';
 import LevelUpNewFeaturesStep from './LevelUpNewFeaturesStep';
 import LevelUpSpellcastingStep from './LevelUpSpellcastingStep';
 import LevelUpSubclassSelectionStep from './LevelUpSubclassSelectionStep';
@@ -17,6 +20,7 @@ import type {
     LevelUpFeature,
     LevelUpHitPointsState,
     LevelUpClassSelectionMode,
+    LevelUpMulticlassProficiencyState,
     LevelUpSpellSelection,
     LevelUpSpellcastingState,
     LevelUpSpellcastingSummary,
@@ -45,6 +49,8 @@ type LevelUpWizardStepBodyProps = {
     subclassSelectionState: LevelUpSubclassSelectionState;
     spellcastingState: LevelUpSpellcastingState;
     spellcastingSummary: LevelUpSpellcastingSummary;
+    multiclassProficiencyState: LevelUpMulticlassProficiencyState;
+    existingSkillProficiencies: SkillProficiencies | null;
     availableSubclasses: AvailableSubclassOption[];
     newFeatures: LevelUpFeature[];
     customFeatures: LevelUpCustomFeatureDraft[];
@@ -72,6 +78,7 @@ type LevelUpWizardStepBodyProps = {
     onRemoveCantripSpell: (spellId: string) => void;
     onSetSwapOutSpellId: (spellId: string | null) => void;
     onSetSwapReplacementSpell: (spell: LevelUpSpellSelection | null) => void;
+    onToggleMulticlassSkill: (skill: string) => void;
 };
 
 /**
@@ -92,6 +99,8 @@ export default function LevelUpWizardStepBody({
     subclassSelectionState,
     spellcastingState,
     spellcastingSummary,
+    multiclassProficiencyState,
+    existingSkillProficiencies,
     availableSubclasses,
     newFeatures,
     customFeatures,
@@ -119,6 +128,7 @@ export default function LevelUpWizardStepBody({
     onRemoveCantripSpell,
     onSetSwapOutSpellId,
     onSetSwapReplacementSpell,
+    onToggleMulticlassSkill,
 }: LevelUpWizardStepBodyProps) {
     if (step.id === 'choose_class') {
         const currentClassOption = levelUpClassOption(currentClass.classId);
@@ -279,6 +289,25 @@ export default function LevelUpWizardStepBody({
         );
     }
 
+    if (step.id === 'multiclass_proficiencies') {
+        return (
+            <LevelUpMulticlassProficienciesStep
+                selectedClass={selectedClass}
+                proficiencyState={multiclassProficiencyState}
+                existingSkillProficiencies={existingSkillProficiencies}
+                onToggleSkill={onToggleMulticlassSkill}
+            />
+        );
+    }
+
+    if (step.id === 'class_resources') {
+        return (
+            <LevelUpClassResourcesStep
+                selectedClass={selectedClass}
+            />
+        );
+    }
+
     if (step.id === 'summary' && hitPointsState) {
         return (
             <LevelUpSummaryStep
@@ -294,6 +323,7 @@ export default function LevelUpWizardStepBody({
                 ]}
                 spellcastingState={spellcastingState}
                 spellcastingSummary={spellcastingSummary}
+                multiclassProficiencyState={multiclassProficiencyState}
             />
         );
     }

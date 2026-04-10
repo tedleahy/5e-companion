@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { AbilityKey } from '@/lib/characterSheetUtils';
+import type { SkillProficiencies } from '@/types/generated_graphql_types';
 import { createDraftEntityId } from '@/lib/character-sheet/characterSheetDraft';
 import type { AvailableSubclassOption } from '@/lib/subclasses';
 import {
@@ -23,6 +24,13 @@ import {
     selectMulticlassLevelUpClass,
 } from '@/lib/characterLevelUp/chooseClass';
 import { createLevelUpHitPointsState } from '@/lib/characterLevelUp/hitPoints';
+import {
+    canContinueFromMulticlassProficiencies,
+    createLevelUpMulticlassProficiencyState,
+    toggleMulticlassProficiencySkill,
+    getMulticlassProficiencyGains,
+} from '@/lib/characterLevelUp/multiclassProficiencies';
+import type { LevelUpMulticlassProficiencyState } from '@/lib/characterLevelUp/multiclassProficiencies';
 import {
     addLevelUpSpellSelection,
     buildLevelUpSpellcastingSummary,
@@ -81,6 +89,8 @@ export type UseLevelUpWizardResult = {
     subclassSelectionState: LevelUpSubclassSelectionState;
     spellcastingState: LevelUpSpellcastingState;
     spellcastingSummary: LevelUpSpellcastingSummary;
+    multiclassProficiencyState: LevelUpMulticlassProficiencyState;
+    existingSkillProficiencies: SkillProficiencies | null;
     newFeatures: LevelUpFeature[];
     customFeatures: LevelUpCustomFeatureDraft[];
     steps: LevelUpWizardStep[];
@@ -115,6 +125,7 @@ export type UseLevelUpWizardResult = {
     removeCantripSpell: (spellId: string) => void;
     setSwapOutSpellId: (spellId: string | null) => void;
     setSwapReplacementSpell: (spell: LevelUpSpellSelection | null) => void;
+    toggleMulticlassSkill: (skill: string) => void;
     goToPreviousStep: () => void;
     goToNextStep: () => void;
     resetWizard: () => void;
@@ -134,6 +145,7 @@ export default function useLevelUpWizard(
     const [asiOrFeatState, setAsiOrFeatState] = useState<LevelUpAsiOrFeatState>(() => createLevelUpAsiOrFeatState());
     const [subclassSelectionState, setSubclassSelectionState] = useState<LevelUpSubclassSelectionState>(() => createLevelUpSubclassSelectionState());
     const [spellcastingState, setSpellcastingState] = useState<LevelUpSpellcastingState>(() => createLevelUpSpellcastingState());
+    const [multiclassProficiencyState, setMulticlassProficiencyState] = useState<LevelUpMulticlassProficiencyState>(() => createLevelUpMulticlassProficiencyState());
     const [customFeatures, setCustomFeatures] = useState<LevelUpCustomFeatureDraft[]>([]);
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const selectedClassId = effectiveLevelUpClassId(classSelection);
@@ -202,6 +214,7 @@ export default function useLevelUpWizard(
         setAsiOrFeatState(createLevelUpAsiOrFeatState());
         setSubclassSelectionState(createLevelUpSubclassSelectionState());
         setSpellcastingState(createLevelUpSpellcastingState());
+        setMulticlassProficiencyState(createLevelUpMulticlassProficiencyState());
         setCustomFeatures([]);
         setCurrentStepIndex(0);
     }, [defaultClassId, visible]);
@@ -210,6 +223,7 @@ export default function useLevelUpWizard(
         setHitPointsState(null);
         setSubclassSelectionState(createLevelUpSubclassSelectionState());
         setSpellcastingState(createLevelUpSpellcastingState());
+        setMulticlassProficiencyState(createLevelUpMulticlassProficiencyState());
         setCustomFeatures([]);
     }, [selectedClassId]);
 
@@ -238,7 +252,9 @@ export default function useLevelUpWizard(
                         ? !canContinueFromNewFeatures(customFeatures)
                         : currentStep.id === 'spellcasting_updates'
                             ? !canContinueFromSpellcastingUpdates(spellcastingSummary, spellcastingState)
-                            : false;
+                            : currentStep.id === 'multiclass_proficiencies'
+                                ? !canContinueFromMulticlassProficiencies(selectedClass, multiclassProficiencyState)
+                                : false;
 
     const selectClass = useCallback((classId: string) => {
         setClassSelection((previousState) => selectMulticlassLevelUpClass(previousState, classId));
@@ -359,6 +375,13 @@ export default function useLevelUpWizard(
         setSpellcastingState((previousState) => setLevelUpSwapReplacementSpell(previousState, spell));
     }, []);
 
+    const toggleMulticlassSkill = useCallback((skill: string) => {
+        const gains = getMulticlassProficiencyGains(selectedClassId);
+        const maxChoices = gains?.skillChoices ?? 0;
+
+        setMulticlassProficiencyState((previousState) => toggleMulticlassProficiencySkill(previousState, skill, maxChoices));
+    }, [selectedClassId]);
+
     const goToPreviousStep = useCallback(() => {
         setCurrentStepIndex((previousIndex) => Math.max(previousIndex - 1, 0));
     }, []);
@@ -383,6 +406,7 @@ export default function useLevelUpWizard(
         setAsiOrFeatState(createLevelUpAsiOrFeatState());
         setSubclassSelectionState(createLevelUpSubclassSelectionState());
         setSpellcastingState(createLevelUpSpellcastingState());
+        setMulticlassProficiencyState(createLevelUpMulticlassProficiencyState());
         setCustomFeatures([]);
         setCurrentStepIndex(0);
     }, [defaultClassId]);
@@ -402,6 +426,8 @@ export default function useLevelUpWizard(
         subclassSelectionState,
         spellcastingState,
         spellcastingSummary,
+        multiclassProficiencyState,
+        existingSkillProficiencies: character?.stats?.skillProficiencies ?? null,
         newFeatures,
         customFeatures,
         steps,
@@ -436,6 +462,7 @@ export default function useLevelUpWizard(
         removeCantripSpell,
         setSwapOutSpellId,
         setSwapReplacementSpell,
+        toggleMulticlassSkill,
         goToPreviousStep,
         goToNextStep,
         resetWizard,

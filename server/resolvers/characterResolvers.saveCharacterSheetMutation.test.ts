@@ -59,6 +59,27 @@ const EXISTING_SPELL_SLOTS = [
     { id: 'slot-pact-1', characterId: 'char-1', kind: 'PACT_MAGIC', level: 2, total: 2, used: 1 },
 ] as const;
 
+const BASE_SAVE_SKILL_PROFICIENCIES = {
+    acrobatics: 'none',
+    animalHandling: 'none',
+    arcana: 'expert',
+    athletics: 'none',
+    deception: 'none',
+    history: 'expert',
+    insight: 'proficient',
+    intimidation: 'none',
+    investigation: 'expert',
+    medicine: 'none',
+    nature: 'proficient',
+    perception: 'proficient',
+    performance: 'none',
+    persuasion: 'none',
+    religion: 'proficient',
+    sleightOfHand: 'none',
+    stealth: 'proficient',
+    survival: 'none',
+} as const;
+
 /**
  * Seeds the reference-data mocks needed to resolve saved class rows.
  */
@@ -131,6 +152,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                     wisdom: 14,
                     charisma: 11,
                 },
+                skillProficiencies: BASE_SAVE_SKILL_PROFICIENCIES,
                 currency: { cp: 0, sp: 10, ep: 0, gp: 900, pp: 3 },
                 traits: {
                     personality: 'Curious',
@@ -290,6 +312,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                     wisdom: 13,
                     charisma: 11,
                 },
+                skillProficiencies: BASE_SAVE_SKILL_PROFICIENCIES,
                 currency: { cp: 0, sp: 14, ep: 0, gp: 847, pp: 3 },
                 traits: {
                     personality: 'Curious',
@@ -340,6 +363,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                     wisdom: 13,
                     charisma: 11,
                 },
+                skillProficiencies: BASE_SAVE_SKILL_PROFICIENCIES,
                 currency: { cp: 0, sp: 14, ep: 0, gp: 847, pp: 3 },
                 traits: {
                     personality: 'Curious',
@@ -388,6 +412,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                     wisdom: 13,
                     charisma: 11,
                 },
+                skillProficiencies: BASE_SAVE_SKILL_PROFICIENCIES,
                 currency: { cp: 0, sp: 14, ep: 0, gp: 847, pp: 3 },
                 traits: {
                     personality: 'Curious',
@@ -441,6 +466,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                 conditions: [],
                 hp: fakeStats.hp,
                 abilityScores: fakeStats.abilityScores,
+                skillProficiencies: fakeStats.skillProficiencies,
                 currency: fakeStats.currency,
                 traits: fakeStats.traits,
                 classes: [
@@ -520,6 +546,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                 conditions: [],
                 hp: fakeStats.hp,
                 abilityScores: fakeStats.abilityScores,
+                skillProficiencies: fakeStats.skillProficiencies,
                 currency: fakeStats.currency,
                 traits: fakeStats.traits,
                 classes: [

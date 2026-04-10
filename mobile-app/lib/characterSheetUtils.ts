@@ -125,6 +125,13 @@ export const SKILLS_BY_ABILITY: Record<AbilityKey, SkillDefinition[]> = ABILITY_
     {} as Record<AbilityKey, SkillDefinition[]>,
 );
 
+/**
+ * Finds one skill definition by its display label.
+ */
+export function findSkillDefinitionByLabel(label: string): SkillDefinition | undefined {
+    return SKILL_DEFINITIONS.find((skill) => skill.label === label);
+}
+
 export function isAbilityKey(value: string): value is AbilityKey {
     return ABILITY_KEYS.includes(value as AbilityKey);
 }

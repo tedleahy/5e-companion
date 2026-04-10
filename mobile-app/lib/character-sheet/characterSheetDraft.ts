@@ -3,6 +3,7 @@ import type {
     CharacterSpellbookEntryFieldsFragment,
     CharacterSheetDetailQuery,
     SaveCharacterSheetInput,
+    SkillProficiencies,
     SpellSlot,
     SpellcastingProfile,
 } from '@/types/generated_graphql_types';
@@ -35,6 +36,9 @@ export type CharacterSheetDraftCurrency = {
     gp: number;
     pp: number;
 };
+
+/** Local skill proficiency draft state used while editing the character sheet. */
+export type CharacterSheetDraftSkillProficiencies = Omit<SkillProficiencies, '__typename'>;
 
 /** Local traits draft state used while editing the character sheet. */
 export type CharacterSheetDraftTraits = {
@@ -107,6 +111,7 @@ export type CharacterSheetDraft = {
     conditions: string[];
     hp: CharacterSheetDraftHp;
     abilityScores: CharacterSheetDraftAbilityScores;
+    skillProficiencies: CharacterSheetDraftSkillProficiencies;
     currency: CharacterSheetDraftCurrency;
     traits: CharacterSheetDraftTraits;
     weapons: CharacterSheetDraftWeapon[];
@@ -157,6 +162,47 @@ function persistedEntityId(id: string): string | undefined {
 }
 
 /**
+ * Returns the default empty skill-proficiency map for local draft state.
+ */
+function emptyDraftSkillProficiencies(): CharacterSheetDraftSkillProficiencies {
+    return {
+        acrobatics: 'none',
+        animalHandling: 'none',
+        arcana: 'none',
+        athletics: 'none',
+        deception: 'none',
+        history: 'none',
+        insight: 'none',
+        intimidation: 'none',
+        investigation: 'none',
+        medicine: 'none',
+        nature: 'none',
+        perception: 'none',
+        performance: 'none',
+        persuasion: 'none',
+        religion: 'none',
+        sleightOfHand: 'none',
+        stealth: 'none',
+        survival: 'none',
+    };
+}
+
+/**
+ * Removes GraphQL typename metadata from skill proficiencies for draft editing.
+ */
+function createDraftSkillProficiencies(
+    skillProficiencies: SkillProficiencies | null | undefined,
+): CharacterSheetDraftSkillProficiencies {
+    if (!skillProficiencies) {
+        return emptyDraftSkillProficiencies();
+    }
+
+    const { __typename: _typename, ...draftSkillProficiencies } = skillProficiencies;
+
+    return draftSkillProficiencies;
+}
+
+/**
  * Builds editable local draft state from one loaded character.
  */
 export function createCharacterSheetDraft(character: CharacterSheetDetail): CharacterSheetDraft {
@@ -197,6 +243,7 @@ export function createCharacterSheetDraft(character: CharacterSheetDetail): Char
             wisdom: character.stats?.abilityScores.wisdom ?? 10,
             charisma: character.stats?.abilityScores.charisma ?? 10,
         },
+        skillProficiencies: createDraftSkillProficiencies(character.stats?.skillProficiencies ?? null),
         currency: {
             cp: character.stats?.currency.cp ?? 0,
             sp: character.stats?.currency.sp ?? 0,
@@ -301,6 +348,7 @@ export function mapCharacterSheetDraftToSaveInput(
         conditions: draft.conditions,
         hp: draft.hp,
         abilityScores: draft.abilityScores,
+        skillProficiencies: draft.skillProficiencies,
         currency: draft.currency,
         traits: draft.traits,
         classes: draft.classes.map((classRow) => ({

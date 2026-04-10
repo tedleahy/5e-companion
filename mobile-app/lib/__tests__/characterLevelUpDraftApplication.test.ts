@@ -158,6 +158,9 @@ describe('applyLevelUpToDraft', () => {
                 swapOutSpellId: null,
                 swapReplacementSpell: null,
             },
+            multiclassProficiencyState: {
+                selectedSkills: [],
+            },
             features: [
                 {
                     key: 'wizard-11-slot-6',
@@ -252,6 +255,9 @@ describe('applyLevelUpToDraft', () => {
                 swapOutSpellId: null,
                 swapReplacementSpell: null,
             },
+            multiclassProficiencyState: {
+                selectedSkills: [],
+            },
             features: [],
         });
         const addedClass = nextDraft.classes[nextDraft.classes.length - 1];
@@ -260,6 +266,12 @@ describe('applyLevelUpToDraft', () => {
         expect(nextDraft.level).toBe(13);
         expect(nextDraft.hp.max).toBe(85);
         expect(nextDraft.abilityScores.constitution).toBe(15);
+        expect(nextDraft.traits.armorProficiencies).toEqual(['Light armour', 'Medium armour', 'Shields']);
+        expect(nextDraft.traits.weaponProficiencies).toEqual([
+            'Daggers',
+            'Simple weapons',
+            'Martial weapons',
+        ]);
         expect(addedClass).toMatchObject({
             classId: 'fighter',
             className: 'Fighter',
@@ -277,5 +289,46 @@ describe('applyLevelUpToDraft', () => {
         });
         expect(addedFeature?.description).toContain('Gain proficiency in Constitution saving throws.');
         expect(addedFeature?.description).toContain('Constitution +1');
+    });
+
+    it('applies selected multiclass skill proficiencies into the local draft', () => {
+        const draft = createCharacterSheetDraft(BASE_CHARACTER as never);
+
+        const nextDraft = applyLevelUpToDraft(draft, {
+            selectedClass: {
+                classId: 'rogue',
+                className: 'Rogue',
+                currentLevel: 0,
+                newLevel: 1,
+                isExistingClass: false,
+                subclassId: null,
+                subclassName: null,
+                subclassDescription: null,
+                subclassIsCustom: false,
+                subclassFeatures: [],
+                customSubclass: null,
+            },
+            hitPointsState: {
+                method: 'average',
+                hitDieSize: 8,
+                hitDieValue: 5,
+                constitutionModifier: 2,
+                hpGained: 7,
+            },
+            asiOrFeatState: null,
+            spellcastingState: {
+                learnedSpells: [],
+                cantripSpells: [],
+                swapOutSpellId: null,
+                swapReplacementSpell: null,
+            },
+            multiclassProficiencyState: {
+                selectedSkills: ['Athletics'],
+            },
+            features: [],
+        });
+
+        expect(nextDraft.skillProficiencies.athletics).toBe('proficient');
+        expect(nextDraft.traits.toolProficiencies).toEqual(["Thieves' tools"]);
     });
 });
