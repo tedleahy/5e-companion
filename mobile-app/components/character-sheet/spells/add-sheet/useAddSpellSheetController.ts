@@ -21,8 +21,7 @@ import {
     defaultFilterForClasses,
     type AddSpellFilterState,
 } from '../SpellFilterState';
-import type { AddSpellListItem } from '../addSpell.types';
-import type { AddSpellBlockedReason } from '../addSpell.types';
+import type { AddSpellBlockedReason, AddSpellListItem } from '../addSpell.types';
 
 /**
  * Props required to drive the add-sheet controller.
