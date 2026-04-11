@@ -29,12 +29,16 @@ These decisions are based on the current codebase, not just the feature spec.
 
 ## Current status
 
-- Completed: Chunks 1-8
-- Next recommended chunk: Chunk 9 `Spellcasting updates`
+- Completed: Chunks 1-11
+- Next recommended chunk: Chunk 12 `Polish, cancellation, and final test sweep`
 - Current end-to-end state:
-  - The wizard supports choose-class, hit points, ASI/feat, summary, and confirm into the local edit draft.
+  - The wizard supports choose-class, hit points, ASI/feat, subclass selection, new features, spellcasting updates, multiclass proficiencies, class resources, summary, and confirm into the local edit draft.
   - Confirming a level-up updates the character sheet immediately while staying in edit mode.
   - Pressing `Done` now persists the currently implemented level-up changes through `saveCharacterSheet`, including class rows and server-derived hit dice / spell slots.
+  - Multiclass proficiencies are applied to the traits draft when adding a new class.
+  - Class resource changes (Barbarian rage, Monk ki/martial arts/movement, Rogue sneak attack, Sorcery points, Warlock invocations) are displayed as before/after cards.
+  - Advanced class-resource pickers now cover warlock invocation gains/swaps, sorcerer metamagic choices, and warlock mystic arcanum spell selection, with matching summary and draft-application support.
+  - The remaining follow-up noted before review is route-level enforcement/polish for the level-20 cap, even though the helper logic and tests now exist.
 
 ## Delivery chunks
 
@@ -329,7 +333,7 @@ Manual test:
 Stop after this chunk when:
 - Spellcasting changes can be previewed, selected, summarised, and persisted.
 
-### Chunk 10: Multiclass proficiencies and class resources
+### Chunk 10: Multiclass proficiencies and class resources [Completed]
 
 Scope:
 - Implement Step 7 `Multiclass Proficiencies`.
@@ -354,7 +358,18 @@ Manual test:
 Stop after this chunk when:
 - The wizard covers the main rules-driven non-spell side effects of levelling.
 
-### Chunk 11: Advanced pickers and edge-case rules
+Implementation notes from completion:
+- New helper module `multiclassProficiencies.ts` contains the full SRD multiclass proficiency table, skill choice lists per class (Bard=any, Ranger=8 skills, Rogue=11 skills), and state management for toggling skill picks.
+- New helper module `classResources.ts` contains progression functions for all five tracked classes (Barbarian rages/rage damage, Monk martial arts/ki/movement, Rogue sneak attack, Sorcerer sorcery points, Warlock invocations) and returns before/after comparison data.
+- `LevelUpMulticlassProficienciesStep` renders automatic proficiency gains as a read-only list plus an interactive skill chip picker when the class grants a skill choice.
+- `LevelUpClassResourcesStep` renders resource change cards with old→new values, with unchanged resources shown in a separate section below.
+- The step assembly now uses real resource progression data (`hasClassResourceChanges`) instead of the previous placeholder unlock-level lookup, so the class_resources step only appears when a resource actually changes at the new level.
+- Multiclass proficiency gains (armor, weapon, tool proficiencies) are applied to the character draft's traits when confirming a level-up into a new class.
+- Both new steps render summary sections in the review step.
+- The `canContinueFromMulticlassProficiencies` validation blocks the Next button until all required skill choices are filled.
+- Test coverage: 40 new tests across 4 suites (2 unit, 2 component), plus all 88 existing level-up tests pass including updated route-level tests that account for the refined step assembly logic.
+
+### Chunk 11: Advanced pickers and edge-case rules [Completed]
 
 Scope:
 - Implement:
@@ -376,6 +391,25 @@ Manual test:
 
 Stop after this chunk when:
 - All rule branches in the implementation plan are represented in the wizard.
+
+Implementation notes from completion:
+- New helper module `advancedClassChoices.ts` contains SRD invocation and metamagic option data, invocation prerequisite checks, gain/swap rules, mystic arcanum progression, level-cap helpers, and route-local state helpers for all three advanced picker flows.
+- `LevelUpClassResourcesStep` now embeds dedicated advanced pickers for:
+  - warlock invocation gains, including prerequisite display and custom entries
+  - warlock invocation swaps via a simple free-text swap-out / swap-in flow
+  - sorcerer metamagic gains, including custom entries
+  - warlock mystic arcanum spell naming at the correct spell level
+- Reusable picker UI was extracted into `OptionPickerList`, `CustomEntryCard`, and shared picker styles so invocation and metamagic flows stay visually aligned.
+- The wizard controller (`useLevelUpWizard`) now owns invocation, metamagic, and mystic arcanum state, resets that state correctly when the sheet opens/closes or the selected class changes, and blocks `Next` on the class-resources step until required advanced choices are complete.
+- The summary step now includes dedicated sections for selected invocations, metamagic, mystic arcanum, and invocation swaps, while picker-managed invocation/metamagic features are filtered out of the auto-derived feature list to avoid duplicate summary/draft entries.
+- Confirming the wizard now converts selected invocations, metamagic, and mystic arcanum choices into persisted draft feature rows with the full SRD descriptions where available.
+- Supporting clean-up/refactor work in this chunk included moving several step components (`Hit Points`, `ASI / Feat`, `Spellcasting Updates`) onto the shared `wizard` controller prop and tightening spell-picker integration tests around selection limits.
+- Test coverage now includes:
+  - a new advanced helper unit-test suite for invocation/metamagic/arcanum rules and state transitions
+  - expanded draft-application tests for advanced-choice feature creation
+  - subclass-feature regression tests covering picker-managed feature filtering
+  - substantial component coverage for the class-resources step advanced pickers
+- Note: the level-20 cap helper/tests are in place, and the character-sheet header now hides the `Level Up` entry point at total level 20, but a deeper in-flow guard/regression test would still be a sensible follow-up in chunk 12.
 
 ### Chunk 12: Polish, cancellation, and final test sweep
 

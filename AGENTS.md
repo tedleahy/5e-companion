@@ -42,6 +42,7 @@ Coding conventions
 - Keep code DRY wherever possible, provided that doing so does not make the code less readable.
     - Cleaning up duplicated code is particularly something to look out for during refactor/cleanup passes
 - When you're creating or extending existing code, consider whether the file you're editing is becoming too large/specialised. If it is, consider extracting some of the logic into helper or other modules. Don't be afraid to refactor, but if it's going to complicate your current task, just make a note and mention it to me when you're finished.
+- If SRD data is required that isn't currently in the database, add it to the database seed script rather than trying to duplicate in code.
 
 UI style
 - Give the app a fantasy-style look and feel to it.
@@ -75,3 +76,4 @@ General instructions
 - GraphQL codegen note: `mobile-app/codegen.yml` scans `app/**/*.tsx`, `components/**/*.tsx`, and `graphql/**/*.ts`. If you add GraphQL documents elsewhere, expand the config first so generated operation types stay in sync.
 - Expo TypeScript note: if you add platform-specific files such as `Component.native.tsx` and `Component.web.tsx`, keep `mobile-app/tsconfig.json` `compilerOptions.moduleSuffixes` aligned so TypeScript resolves the same module variants that Expo/Metro does.
 - Character creation reference-data note: the server create mutation resolves class/subclass rows by SRD `srdIndex`, not display labels, so mobile create-flow option values must stay aligned with the seeded SRD reference data. Do not offer races, backgrounds, classes, or subclasses that the current seed data cannot resolve.
+- For any missing information or any step that requires user input, use the ask-user-questions skill instead of continuing on your own. During troubleshooting, continue using the ask-user-questions skill whenever user input, confirmation, or a result check is needed. Do not assume the task is complete. Continue gathering input through ask-user-questions until the user explicitly confirms the task is complete. If the work appears complete but the user has not confirmed it, ask for confirmation before ending the task.
