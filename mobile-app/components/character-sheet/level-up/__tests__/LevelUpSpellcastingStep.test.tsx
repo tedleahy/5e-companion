@@ -2,6 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { PaperProvider } from 'react-native-paper';
 import LevelUpSpellcastingStep from '../LevelUpSpellcastingStep';
+import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
 import type {
     LevelUpSpellcastingState,
     LevelUpSpellcastingSummary,
@@ -66,15 +67,17 @@ function renderStep() {
     return render(
         <PaperProvider>
             <LevelUpSpellcastingStep
-                selectedClass={SELECTED_CLASS}
-                spellcastingSummary={SPELLCASTING_SUMMARY}
-                spellcastingState={SPELLCASTING_STATE}
-                onAddLearnedSpell={jest.fn()}
-                onRemoveLearnedSpell={jest.fn()}
-                onAddCantripSpell={jest.fn()}
-                onRemoveCantripSpell={jest.fn()}
-                onSetSwapOutSpellId={jest.fn()}
-                onSetSwapReplacementSpell={jest.fn()}
+                wizard={{
+                    selectedClass: SELECTED_CLASS,
+                    spellcastingSummary: SPELLCASTING_SUMMARY,
+                    spellcastingState: SPELLCASTING_STATE,
+                    addLearnedSpell: jest.fn(),
+                    removeLearnedSpell: jest.fn(),
+                    addCantripSpell: jest.fn(),
+                    removeCantripSpell: jest.fn(),
+                    setSwapOutSpellId: jest.fn(),
+                    setSwapReplacementSpell: jest.fn(),
+                } as unknown as UseLevelUpWizardResult}
             />
         </PaperProvider>,
     );

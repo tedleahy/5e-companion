@@ -101,50 +101,8 @@ export default function LevelUpWizardSheet({
                     showsVerticalScrollIndicator={false}
                 >
                     <LevelUpWizardStepBody
-                        step={wizard.currentStep}
-                        currentClass={wizard.currentClass}
-                        classSelectionMode={wizard.classSelectionMode}
-                        pickerSelectedClassId={wizard.pickerSelectedClassId}
-                        selectedClass={wizard.selectedClass}
-                        prerequisiteWarnings={wizard.prerequisiteWarnings}
-                        abilityScores={wizard.abilityScores}
-                        currentCharacterLevel={wizard.currentCharacterLevel}
-                        currentHitPoints={wizard.currentHitPoints}
-                        hitPointsState={wizard.hitPointsState}
-                        asiOrFeatState={wizard.asiOrFeatState}
-                        subclassSelectionState={wizard.subclassSelectionState}
-                        spellcastingState={wizard.spellcastingState}
-                        spellcastingSummary={wizard.spellcastingSummary}
-                        multiclassProficiencyState={wizard.multiclassProficiencyState}
-                        existingSkillProficiencies={wizard.existingSkillProficiencies}
+                        wizard={wizard}
                         availableSubclasses={availableSubclasses}
-                        newFeatures={wizard.newFeatures}
-                        customFeatures={wizard.customFeatures}
-                        onSelectClass={wizard.selectClass}
-                        onEnterClassPicker={wizard.enterClassPicker}
-                        onReturnToCurrentClass={wizard.returnToCurrentClass}
-                        onRollHitPoints={wizard.rollHitPoints}
-                        onTakeAverageHitPoints={wizard.takeAverageHitPoints}
-                        onSelectAsiOrFeatMode={wizard.selectAsiOrFeatMode}
-                        onIncrementAsiAbility={wizard.incrementAsiAbility}
-                        onDecrementAsiAbility={wizard.decrementAsiAbility}
-                        onChangeFeatName={wizard.changeFeatName}
-                        onChangeFeatDescription={wizard.changeFeatDescription}
-                        onChangeFeatAbilityIncrease={wizard.changeFeatAbilityIncrease}
-                        onSelectExistingSubclass={wizard.selectExistingSubclass}
-                        onSelectCustomSubclass={wizard.selectCustomSubclass}
-                        onChangeCustomSubclassName={wizard.changeCustomSubclassName}
-                        onChangeCustomSubclassDescription={wizard.changeCustomSubclassDescription}
-                        onAddCustomFeature={wizard.addCustomFeature}
-                        onChangeCustomFeature={wizard.changeCustomFeature}
-                        onRemoveCustomFeature={wizard.removeCustomFeature}
-                        onAddLearnedSpell={wizard.addLearnedSpell}
-                        onRemoveLearnedSpell={wizard.removeLearnedSpell}
-                        onAddCantripSpell={wizard.addCantripSpell}
-                        onRemoveCantripSpell={wizard.removeCantripSpell}
-                        onSetSwapOutSpellId={wizard.setSwapOutSpellId}
-                        onSetSwapReplacementSpell={wizard.setSwapReplacementSpell}
-                        onToggleMulticlassSkill={wizard.toggleMulticlassSkill}
                     />
                 </KeyboardAwareScrollView>
 

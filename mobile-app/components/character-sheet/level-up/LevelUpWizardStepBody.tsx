@@ -1,8 +1,10 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import ClassOptionGrid from '@/components/wizard/ClassOptionGrid';
-import type { AbilityKey } from '@/lib/characterSheetUtils';
-import type { SkillProficiencies } from '@/types/generated_graphql_types';
+import type {
+    LevelUpAsiOrFeatState,
+    LevelUpWizardStep,
+} from '@/lib/characterLevelUp/types';
 import { levelUpClassOption } from '@/lib/characterLevelUp/chooseClass';
 import { mapCustomFeatureDrafts } from '@/lib/characterLevelUp/subclassFeatures';
 import type { AvailableSubclassOption } from '@/lib/subclasses';
@@ -14,129 +16,70 @@ import LevelUpNewFeaturesStep from './LevelUpNewFeaturesStep';
 import LevelUpSpellcastingStep from './LevelUpSpellcastingStep';
 import LevelUpSubclassSelectionStep from './LevelUpSubclassSelectionStep';
 import LevelUpSummaryStep from './LevelUpSummaryStep';
-import type {
-    LevelUpAsiOrFeatState,
-    LevelUpCustomFeatureDraft,
-    LevelUpFeature,
-    LevelUpHitPointsState,
-    LevelUpClassSelectionMode,
-    LevelUpMulticlassProficiencyState,
-    LevelUpSpellSelection,
-    LevelUpSpellcastingState,
-    LevelUpSpellcastingSummary,
-    LevelUpSubclassSelectionState,
-    LevelUpWizardSelectedClass,
-    LevelUpWizardStep,
-} from '@/lib/characterLevelUp/types';
+import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 type LevelUpWizardStepBodyProps = {
-    step: LevelUpWizardStep;
-    currentClass: LevelUpWizardSelectedClass;
-    classSelectionMode: LevelUpClassSelectionMode;
-    pickerSelectedClassId: string | null;
-    selectedClass: LevelUpWizardSelectedClass;
-    prerequisiteWarnings: string[];
-    abilityScores: Record<AbilityKey, number>;
-    currentCharacterLevel: number;
-    currentHitPoints: {
-        current: number;
-        max: number;
-        temp: number;
-    };
-    hitPointsState: LevelUpHitPointsState | null;
-    asiOrFeatState: LevelUpAsiOrFeatState;
-    subclassSelectionState: LevelUpSubclassSelectionState;
-    spellcastingState: LevelUpSpellcastingState;
-    spellcastingSummary: LevelUpSpellcastingSummary;
-    multiclassProficiencyState: LevelUpMulticlassProficiencyState;
-    existingSkillProficiencies: SkillProficiencies | null;
+    wizard: UseLevelUpWizardResult;
     availableSubclasses: AvailableSubclassOption[];
-    newFeatures: LevelUpFeature[];
-    customFeatures: LevelUpCustomFeatureDraft[];
-    onSelectClass: (classId: string) => void;
-    onEnterClassPicker: () => void;
-    onReturnToCurrentClass: () => void;
-    onRollHitPoints: () => void;
-    onTakeAverageHitPoints: () => void;
-    onSelectAsiOrFeatMode: (mode: 'asi' | 'feat') => void;
-    onIncrementAsiAbility: (ability: AbilityKey) => void;
-    onDecrementAsiAbility: (ability: AbilityKey) => void;
-    onChangeFeatName: (value: string) => void;
-    onChangeFeatDescription: (value: string) => void;
-    onChangeFeatAbilityIncrease: (value: AbilityKey | null) => void;
-    onSelectExistingSubclass: (subclass: AvailableSubclassOption) => void;
-    onSelectCustomSubclass: () => void;
-    onChangeCustomSubclassName: (value: string) => void;
-    onChangeCustomSubclassDescription: (value: string) => void;
-    onAddCustomFeature: () => void;
-    onChangeCustomFeature: (featureId: string, changes: Partial<LevelUpCustomFeatureDraft>) => void;
-    onRemoveCustomFeature: (featureId: string) => void;
-    onAddLearnedSpell: (spell: LevelUpSpellSelection) => void;
-    onRemoveLearnedSpell: (spellId: string) => void;
-    onAddCantripSpell: (spell: LevelUpSpellSelection) => void;
-    onRemoveCantripSpell: (spellId: string) => void;
-    onSetSwapOutSpellId: (spellId: string | null) => void;
-    onSetSwapReplacementSpell: (spell: LevelUpSpellSelection | null) => void;
-    onToggleMulticlassSkill: (skill: string) => void;
 };
 
 /**
  * Body renderer for the level-up wizard steps.
  */
 export default function LevelUpWizardStepBody({
-    step,
-    currentClass,
-    classSelectionMode,
-    pickerSelectedClassId,
-    selectedClass,
-    prerequisiteWarnings,
-    abilityScores,
-    currentCharacterLevel,
-    currentHitPoints,
-    hitPointsState,
-    asiOrFeatState,
-    subclassSelectionState,
-    spellcastingState,
-    spellcastingSummary,
-    multiclassProficiencyState,
-    existingSkillProficiencies,
+    wizard,
     availableSubclasses,
-    newFeatures,
-    customFeatures,
-    onSelectClass,
-    onEnterClassPicker,
-    onReturnToCurrentClass,
-    onRollHitPoints,
-    onTakeAverageHitPoints,
-    onSelectAsiOrFeatMode,
-    onIncrementAsiAbility,
-    onDecrementAsiAbility,
-    onChangeFeatName,
-    onChangeFeatDescription,
-    onChangeFeatAbilityIncrease,
-    onSelectExistingSubclass,
-    onSelectCustomSubclass,
-    onChangeCustomSubclassName,
-    onChangeCustomSubclassDescription,
-    onAddCustomFeature,
-    onChangeCustomFeature,
-    onRemoveCustomFeature,
-    onAddLearnedSpell,
-    onRemoveLearnedSpell,
-    onAddCantripSpell,
-    onRemoveCantripSpell,
-    onSetSwapOutSpellId,
-    onSetSwapReplacementSpell,
-    onToggleMulticlassSkill,
 }: LevelUpWizardStepBodyProps) {
-    if (step.id === 'choose_class') {
+    const {
+        currentCharacterLevel,
+        currentClass,
+        selectedClass,
+        classSelectionMode,
+        pickerSelectedClassId,
+        prerequisiteWarnings,
+        abilityScores,
+        currentHitPoints,
+        hitPointsState,
+        asiOrFeatState,
+        subclassSelectionState,
+        spellcastingState,
+        spellcastingSummary,
+        multiclassProficiencyState,
+        existingSkillProficiencies,
+        invocationPrerequisiteContext,
+        invocationState,
+        metamagicState,
+        mysticArcanumState,
+        newFeatures,
+        customFeatures,
+        currentStep,
+        selectClass,
+        enterClassPicker,
+        returnToCurrentClass,
+        selectExistingSubclass,
+        selectCustomSubclass,
+        changeCustomSubclassName,
+        changeCustomSubclassDescription,
+        addCustomFeature,
+        changeCustomFeature,
+        removeCustomFeature,
+        toggleMulticlassSkill,
+        toggleInvocation,
+        changeCustomInvocation,
+        changeInvocationSwapOut,
+        changeInvocationSwapIn,
+        toggleMetamagic,
+        changeCustomMetamagic,
+        changeMysticArcanumSpell,
+    } = wizard;
+    if (currentStep.id === 'choose_class') {
         const currentClassOption = levelUpClassOption(currentClass.classId);
         const isDefaultCurrentClassView = classSelectionMode === 'current_class';
         const pickerSelectedId = pickerSelectedClassId ?? '';
 
         return (
-            <View style={styles.section} testID={`level-up-step-${step.id}`}>
+            <View style={styles.section} testID={`level-up-step-${currentStep.id}`}>
                 {isDefaultCurrentClassView ? (
                     <>
                         <Text style={styles.bodyText}>
@@ -158,7 +101,7 @@ export default function LevelUpWizardStepBody({
 
                         <View style={styles.multiclassButtonWrap}>
                             <Pressable
-                                onPress={onEnterClassPicker}
+                                onPress={enterClassPicker}
                                 style={styles.multiclassButton}
                                 accessibilityLabel="Choose a class to multiclass"
                                 testID="level-up-open-class-picker"
@@ -170,7 +113,7 @@ export default function LevelUpWizardStepBody({
                 ) : (
                     <>
                         <Pressable
-                            onPress={onReturnToCurrentClass}
+                            onPress={returnToCurrentClass}
                             accessibilityLabel="Back to current class level up"
                             testID="level-up-back-to-current-class"
                         >
@@ -183,7 +126,7 @@ export default function LevelUpWizardStepBody({
 
                         <ClassOptionGrid
                             selected={pickerSelectedId}
-                            onSelect={onSelectClass}
+                            onSelect={selectClass}
                             tone="parchment"
                             getOptionTestId={(option) => `level-up-class-option-${option.value}`}
                             getOptionAccessibilityLabel={(option) => `Select ${option.label} for level up`}
@@ -217,33 +160,15 @@ export default function LevelUpWizardStepBody({
         );
     }
 
-    if (step.id === 'hit_points') {
-        return (
-            <LevelUpHitPointsStep
-                selectedClass={selectedClass}
-                hitPointsState={hitPointsState}
-                onRollHitPoints={onRollHitPoints}
-                onTakeAverageHitPoints={onTakeAverageHitPoints}
-            />
-        );
+    if (currentStep.id === 'hit_points') {
+        return <LevelUpHitPointsStep wizard={wizard} />;
     }
 
-    if (step.id === 'asi_or_feat') {
-        return (
-            <LevelUpAsiOrFeatStep
-                abilityScores={abilityScores}
-                asiOrFeatState={asiOrFeatState}
-                onSelectMode={onSelectAsiOrFeatMode}
-                onIncrementAbility={onIncrementAsiAbility}
-                onDecrementAbility={onDecrementAsiAbility}
-                onChangeFeatName={onChangeFeatName}
-                onChangeFeatDescription={onChangeFeatDescription}
-                onChangeFeatAbilityIncrease={onChangeFeatAbilityIncrease}
-            />
-        );
+    if (currentStep.id === 'asi_or_feat') {
+        return <LevelUpAsiOrFeatStep wizard={wizard} />;
     }
 
-    if (step.id === 'subclass_selection') {
+    if (currentStep.id === 'subclass_selection') {
         return (
             <LevelUpSubclassSelectionStep
                 selectedClass={selectedClass}
@@ -252,63 +177,62 @@ export default function LevelUpWizardStepBody({
                 customSubclassName={subclassSelectionState.customSubclassName}
                 customSubclassDescription={subclassSelectionState.customSubclassDescription}
                 selectedMode={subclassSelectionState.mode}
-                onSelectExistingSubclass={onSelectExistingSubclass}
-                onSelectCustomSubclass={onSelectCustomSubclass}
-                onChangeCustomSubclassName={onChangeCustomSubclassName}
-                onChangeCustomSubclassDescription={onChangeCustomSubclassDescription}
+                onSelectExistingSubclass={selectExistingSubclass}
+                onSelectCustomSubclass={selectCustomSubclass}
+                onChangeCustomSubclassName={changeCustomSubclassName}
+                onChangeCustomSubclassDescription={changeCustomSubclassDescription}
             />
         );
     }
 
-    if (step.id === 'new_features') {
+    if (currentStep.id === 'new_features') {
         return (
             <LevelUpNewFeaturesStep
                 selectedClass={selectedClass}
                 features={newFeatures}
                 customFeatures={customFeatures}
-                onAddCustomFeature={onAddCustomFeature}
-                onChangeCustomFeature={onChangeCustomFeature}
-                onRemoveCustomFeature={onRemoveCustomFeature}
+                onAddCustomFeature={addCustomFeature}
+                onChangeCustomFeature={changeCustomFeature}
+                onRemoveCustomFeature={removeCustomFeature}
             />
         );
     }
 
-    if (step.id === 'spellcasting_updates') {
-        return (
-            <LevelUpSpellcastingStep
-                selectedClass={selectedClass}
-                spellcastingState={spellcastingState}
-                spellcastingSummary={spellcastingSummary}
-                onAddLearnedSpell={onAddLearnedSpell}
-                onRemoveLearnedSpell={onRemoveLearnedSpell}
-                onAddCantripSpell={onAddCantripSpell}
-                onRemoveCantripSpell={onRemoveCantripSpell}
-                onSetSwapOutSpellId={onSetSwapOutSpellId}
-                onSetSwapReplacementSpell={onSetSwapReplacementSpell}
-            />
-        );
+    if (currentStep.id === 'spellcasting_updates') {
+        return <LevelUpSpellcastingStep wizard={wizard} />;
     }
 
-    if (step.id === 'multiclass_proficiencies') {
+    if (currentStep.id === 'multiclass_proficiencies') {
         return (
             <LevelUpMulticlassProficienciesStep
                 selectedClass={selectedClass}
                 proficiencyState={multiclassProficiencyState}
                 existingSkillProficiencies={existingSkillProficiencies}
-                onToggleSkill={onToggleMulticlassSkill}
+                onToggleSkill={toggleMulticlassSkill}
             />
         );
     }
 
-    if (step.id === 'class_resources') {
+    if (currentStep.id === 'class_resources') {
         return (
             <LevelUpClassResourcesStep
                 selectedClass={selectedClass}
+                invocationPrerequisiteContext={invocationPrerequisiteContext}
+                invocationState={invocationState}
+                metamagicState={metamagicState}
+                mysticArcanumState={mysticArcanumState}
+                onToggleInvocation={toggleInvocation}
+                onChangeCustomInvocation={changeCustomInvocation}
+                onChangeInvocationSwapOut={changeInvocationSwapOut}
+                onChangeInvocationSwapIn={changeInvocationSwapIn}
+                onToggleMetamagic={toggleMetamagic}
+                onChangeCustomMetamagic={changeCustomMetamagic}
+                onChangeMysticArcanumSpell={changeMysticArcanumSpell}
             />
         );
     }
 
-    if (step.id === 'summary' && hitPointsState) {
+    if (currentStep.id === 'summary' && hitPointsState) {
         return (
             <LevelUpSummaryStep
                 currentCharacterLevel={currentCharacterLevel}
@@ -316,7 +240,7 @@ export default function LevelUpWizardStepBody({
                 abilityScores={abilityScores}
                 selectedClass={selectedClass}
                 hitPointsState={hitPointsState}
-                asiOrFeatState={stepRequiresAsiOrFeat(step, asiOrFeatState)}
+                asiOrFeatState={stepRequiresAsiOrFeat(currentStep, asiOrFeatState)}
                 features={[
                     ...newFeatures,
                     ...mapCustomFeatureDrafts(selectedClass, customFeatures),
@@ -324,14 +248,17 @@ export default function LevelUpWizardStepBody({
                 spellcastingState={spellcastingState}
                 spellcastingSummary={spellcastingSummary}
                 multiclassProficiencyState={multiclassProficiencyState}
+                invocationState={invocationState}
+                metamagicState={metamagicState}
+                mysticArcanumState={mysticArcanumState}
             />
         );
     }
 
     return (
-        <View style={styles.section} testID={`level-up-step-${step.id}`}>
-            <Text style={styles.sectionTitle}>{step.title}</Text>
-            <Text style={styles.bodyText}>{step.description}</Text>
+        <View style={styles.section} testID={`level-up-step-${currentStep.id}`}>
+            <Text style={styles.sectionTitle}>{currentStep.title}</Text>
+            <Text style={styles.bodyText}>{currentStep.description}</Text>
 
             <View style={styles.summaryCard}>
                 <Text style={styles.summaryLabel}>Selected class</Text>

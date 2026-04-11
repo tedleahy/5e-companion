@@ -4,42 +4,33 @@ import { Text } from 'react-native-paper';
 import AddSpellSheet from '@/components/character-sheet/spells/AddSpellSheet';
 import { spellLevelLabel } from '@/lib/spellPresentation';
 import { classDisplayName } from '@/lib/characterLevelUp/spellcasting';
-import type {
-    LevelUpSpellSelection,
-    LevelUpSpellcastingState,
-    LevelUpSpellcastingSummary,
-    LevelUpWizardSelectedClass,
-} from '@/lib/characterLevelUp/types';
+import type { LevelUpSpellSelection } from '@/lib/characterLevelUp/types';
+import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 type SpellPickerMode = 'learned' | 'cantrip' | 'swap' | null;
 
 type LevelUpSpellcastingStepProps = {
-    selectedClass: LevelUpWizardSelectedClass;
-    spellcastingSummary: LevelUpSpellcastingSummary;
-    spellcastingState: LevelUpSpellcastingState;
-    onAddLearnedSpell: (spell: LevelUpSpellSelection) => void;
-    onRemoveLearnedSpell: (spellId: string) => void;
-    onAddCantripSpell: (spell: LevelUpSpellSelection) => void;
-    onRemoveCantripSpell: (spellId: string) => void;
-    onSetSwapOutSpellId: (spellId: string | null) => void;
-    onSetSwapReplacementSpell: (spell: LevelUpSpellSelection | null) => void;
+    wizard: UseLevelUpWizardResult;
 };
 
 /**
  * Spellcasting-specific wizard step covering slots, learnable spells, and cantrips.
  */
 export default function LevelUpSpellcastingStep({
-    selectedClass,
-    spellcastingSummary,
-    spellcastingState,
-    onAddLearnedSpell,
-    onRemoveLearnedSpell,
-    onAddCantripSpell,
-    onRemoveCantripSpell,
-    onSetSwapOutSpellId,
-    onSetSwapReplacementSpell,
+    wizard,
 }: LevelUpSpellcastingStepProps) {
+    const {
+        selectedClass,
+        spellcastingState,
+        spellcastingSummary,
+        addLearnedSpell,
+        removeLearnedSpell,
+        addCantripSpell,
+        removeCantripSpell,
+        setSwapOutSpellId,
+        setSwapReplacementSpell,
+    } = wizard;
     const [pickerMode, setPickerMode] = useState<SpellPickerMode>(null);
     const blockedSpellIds = useMemo(() => {
         const blockedIds = new Set(spellcastingSummary.currentKnownSpellIds);
@@ -129,7 +120,7 @@ export default function LevelUpSpellcastingStep({
                     counterLabel={`${spellcastingState.learnedSpells.length} of ${spellcastingSummary.learnedSpellCount} spells selected`}
                     onPress={() => setPickerMode('learned')}
                     selections={spellcastingState.learnedSpells}
-                    onRemoveSelection={onRemoveLearnedSpell}
+                    onRemoveSelection={removeLearnedSpell}
                 />
             ) : null}
 
@@ -148,7 +139,7 @@ export default function LevelUpSpellcastingStep({
                             counterLabel={`${spellcastingState.learnedSpells.length} of ${spellcastingSummary.learnedSpellCount} spells selected`}
                             onPress={() => setPickerMode('learned')}
                             selections={spellcastingState.learnedSpells}
-                            onRemoveSelection={onRemoveLearnedSpell}
+                            onRemoveSelection={removeLearnedSpell}
                         />
                     ) : null}
 
@@ -166,7 +157,7 @@ export default function LevelUpSpellcastingStep({
                                     return (
                                         <Pressable
                                             key={entry.spell.id}
-                                            onPress={() => onSetSwapOutSpellId(entry.spell.id)}
+                                            onPress={() => setSwapOutSpellId(entry.spell.id)}
                                             style={[styles.swapRow, selected && styles.swapRowSelected]}
                                         >
                                             <Text style={styles.swapSpellName}>{entry.spell.name}</Text>
@@ -189,7 +180,7 @@ export default function LevelUpSpellcastingStep({
                                     {spellcastingState.swapReplacementSpell ? (
                                         <SelectionPill
                                             spell={spellcastingState.swapReplacementSpell}
-                                            onRemove={() => onSetSwapReplacementSpell(null)}
+                                            onRemove={() => setSwapReplacementSpell(null)}
                                         />
                                     ) : null}
                                 </>
@@ -216,7 +207,7 @@ export default function LevelUpSpellcastingStep({
                     counterLabel={`${spellcastingState.cantripSpells.length} of ${spellcastingSummary.cantripCountGain} cantrips selected`}
                     onPress={() => setPickerMode('cantrip')}
                     selections={spellcastingState.cantripSpells}
-                    onRemoveSelection={onRemoveCantripSpell}
+                    onRemoveSelection={removeCantripSpell}
                 />
             ) : null}
 
@@ -235,29 +226,29 @@ export default function LevelUpSpellcastingStep({
                 showFilterButton={false}
                 onSpellAdded={async (spell) => {
                     if (pickerMode === 'cantrip') {
-                        onAddCantripSpell(spell);
+                        addCantripSpell(spell);
                         return;
                     }
 
                     if (pickerMode === 'swap') {
-                        onSetSwapReplacementSpell(spell);
+                        setSwapReplacementSpell(spell);
                         return;
                     }
 
-                    onAddLearnedSpell(spell);
+                    addLearnedSpell(spell);
                 }}
                 onSpellRemoved={async (spell) => {
                     if (pickerMode === 'cantrip') {
-                        onRemoveCantripSpell(spell.id);
+                        removeCantripSpell(spell.id);
                         return;
                     }
 
                     if (pickerMode === 'swap') {
-                        onSetSwapReplacementSpell(null);
+                        setSwapReplacementSpell(null);
                         return;
                     }
 
-                    onRemoveLearnedSpell(spell.id);
+                    removeLearnedSpell(spell.id);
                 }}
             />
         </View>

@@ -4,25 +4,21 @@ import { Text } from 'react-native-paper';
 import { levelUpHitDieLabel } from '@/lib/characterLevelUp/chooseClass';
 import { averageLevelUpHitDieValue } from '@/lib/characterLevelUp/hitPoints';
 import type { LevelUpHitPointsState, LevelUpWizardSelectedClass } from '@/lib/characterLevelUp/types';
+import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
 import { formatSignedNumber } from '@/lib/characterSheetUtils';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 type LevelUpHitPointsStepProps = {
-    selectedClass: LevelUpWizardSelectedClass;
-    hitPointsState: LevelUpHitPointsState | null;
-    onRollHitPoints: () => void;
-    onTakeAverageHitPoints: () => void;
+    wizard: UseLevelUpWizardResult;
 };
 
 /**
  * Renders the hit-points step for one level-up flow.
  */
 export default function LevelUpHitPointsStep({
-    selectedClass,
-    hitPointsState,
-    onRollHitPoints,
-    onTakeAverageHitPoints,
+    wizard,
 }: LevelUpHitPointsStepProps) {
+    const { selectedClass, hitPointsState, rollHitPoints, takeAverageHitPoints } = wizard;
     const dieScale = useRef(new Animated.Value(1)).current;
     const dieRotate = useRef(new Animated.Value(0)).current;
     const dieShiftX = useRef(new Animated.Value(0)).current;
@@ -124,7 +120,7 @@ export default function LevelUpHitPointsStep({
 
             <View style={styles.actions}>
                 <Pressable
-                    onPress={onRollHitPoints}
+                    onPress={rollHitPoints}
                     style={[styles.rollButton, isRolling && styles.rollButtonDisabled]}
                     accessibilityRole="button"
                     accessibilityLabel="Roll hit die"
@@ -138,7 +134,7 @@ export default function LevelUpHitPointsStep({
                 </Pressable>
 
                 <Pressable
-                    onPress={onTakeAverageHitPoints}
+                    onPress={takeAverageHitPoints}
                     accessibilityRole="button"
                     accessibilityLabel={`Take the average hit points of ${averageHitPoints}`}
                     testID="level-up-hit-points-average-button"

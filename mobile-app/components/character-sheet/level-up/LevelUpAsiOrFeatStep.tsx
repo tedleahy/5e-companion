@@ -11,32 +11,29 @@ import {
     remainingLevelUpAsiPoints,
 } from '@/lib/characterLevelUp/asiOrFeat';
 import type { LevelUpAsiOrFeatState } from '@/lib/characterLevelUp/types';
+import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 type LevelUpAsiOrFeatStepProps = {
-    abilityScores: Record<AbilityKey, number>;
-    asiOrFeatState: LevelUpAsiOrFeatState;
-    onSelectMode: (mode: 'asi' | 'feat') => void;
-    onIncrementAbility: (ability: AbilityKey) => void;
-    onDecrementAbility: (ability: AbilityKey) => void;
-    onChangeFeatName: (value: string) => void;
-    onChangeFeatDescription: (value: string) => void;
-    onChangeFeatAbilityIncrease: (value: AbilityKey | null) => void;
+    wizard: UseLevelUpWizardResult;
 };
 
 /**
  * Renders the ASI / feat step for one level-up flow.
  */
 export default function LevelUpAsiOrFeatStep({
-    abilityScores,
-    asiOrFeatState,
-    onSelectMode,
-    onIncrementAbility,
-    onDecrementAbility,
-    onChangeFeatName,
-    onChangeFeatDescription,
-    onChangeFeatAbilityIncrease,
+    wizard,
 }: LevelUpAsiOrFeatStepProps) {
+    const {
+        abilityScores,
+        asiOrFeatState,
+        selectAsiOrFeatMode,
+        incrementAsiAbility,
+        decrementAsiAbility,
+        changeFeatName,
+        changeFeatDescription,
+        changeFeatAbilityIncrease,
+    } = wizard;
     const [abilityIncreaseMenuVisible, setAbilityIncreaseMenuVisible] = useState(false);
     const [abilityIncreaseMenuWidth, setAbilityIncreaseMenuWidth] = useState(0);
     const pointsRemaining = remainingLevelUpAsiPoints(asiOrFeatState.allocations);
@@ -60,7 +57,7 @@ export default function LevelUpAsiOrFeatStep({
 
             <View style={styles.choiceCards}>
                 <Pressable
-                    onPress={() => onSelectMode('asi')}
+                    onPress={() => selectAsiOrFeatMode('asi')}
                     style={[
                         styles.choiceCard,
                         asiOrFeatState.mode === 'asi' && styles.choiceCardSelected,
@@ -76,7 +73,7 @@ export default function LevelUpAsiOrFeatStep({
                 </Pressable>
 
                 <Pressable
-                    onPress={() => onSelectMode('feat')}
+                    onPress={() => selectAsiOrFeatMode('feat')}
                     style={[
                         styles.choiceCard,
                         asiOrFeatState.mode === 'feat' && styles.choiceCardSelected,
@@ -132,8 +129,8 @@ export default function LevelUpAsiOrFeatStep({
                                         decrementTestID={`level-up-asi-decrement-${ability}`}
                                         incrementTestID={`level-up-asi-increment-${ability}`}
                                         valueTestID={`level-up-asi-increase-${ability}`}
-                                        onDecrease={() => onDecrementAbility(ability)}
-                                        onIncrease={() => onIncrementAbility(ability)}
+                                        onDecrease={() => decrementAsiAbility(ability)}
+                                        onIncrease={() => incrementAsiAbility(ability)}
                                     />
                                 </View>
                             );
@@ -147,7 +144,7 @@ export default function LevelUpAsiOrFeatStep({
                         label="Feat Name"
                         placeholder="Feat name (e.g. War Caster)"
                         value={asiOrFeatState.feat.name}
-                        onChangeText={onChangeFeatName}
+                        onChangeText={changeFeatName}
                         outlineColor={fantasyTokens.colors.gold}
                         activeOutlineColor={fantasyTokens.colors.claret}
                         textColor={fantasyTokens.colors.inkDark}
@@ -160,7 +157,7 @@ export default function LevelUpAsiOrFeatStep({
                         label="Description"
                         placeholder="Describe the feat's benefits..."
                         value={asiOrFeatState.feat.description}
-                        onChangeText={onChangeFeatDescription}
+                        onChangeText={changeFeatDescription}
                         outlineColor={fantasyTokens.colors.gold}
                         activeOutlineColor={fantasyTokens.colors.claret}
                         textColor={fantasyTokens.colors.inkDark}
@@ -200,7 +197,7 @@ export default function LevelUpAsiOrFeatStep({
                     >
                         <Menu.Item
                             onPress={() => {
-                                onChangeFeatAbilityIncrease(null);
+                                changeFeatAbilityIncrease(null);
                                 setAbilityIncreaseMenuVisible(false);
                             }}
                             title="No ability increase"
@@ -213,7 +210,7 @@ export default function LevelUpAsiOrFeatStep({
                             <Menu.Item
                                 key={ability}
                                 onPress={() => {
-                                    onChangeFeatAbilityIncrease(ability);
+                                    changeFeatAbilityIncrease(ability);
                                     setAbilityIncreaseMenuVisible(false);
                                 }}
                                 title={`${LEVEL_UP_ABILITY_LABELS[ability]} +1`}
