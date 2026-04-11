@@ -224,6 +224,9 @@ export default function CharacterByIdScreen() {
                 : null,
             spellcastingState: levelUpWizard.spellcastingState,
             multiclassProficiencyState: levelUpWizard.multiclassProficiencyState,
+            invocationState: levelUpWizard.invocationState,
+            metamagicState: levelUpWizard.metamagicState,
+            mysticArcanumState: levelUpWizard.mysticArcanumState,
             features: [
                 ...levelUpWizard.newFeatures,
                 ...mapCustomFeatureDrafts(levelUpWizard.selectedClass, levelUpWizard.customFeatures),
@@ -398,7 +401,7 @@ export default function CharacterByIdScreen() {
                     onStartEdit={startEditing}
                     onCancelEdit={clearDraft}
                     onDoneEdit={handleDoneEdit}
-                    onLevelUp={handleOpenLevelUpSheet}
+                    onLevelUp={displayedLevel < 20 ? handleOpenLevelUpSheet : undefined}
                 />
                 <CharacterSheetPager
                     ref={pagerRef}

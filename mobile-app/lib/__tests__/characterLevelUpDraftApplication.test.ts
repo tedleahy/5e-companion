@@ -1,5 +1,13 @@
 import { createCharacterSheetDraft } from '../character-sheet/characterSheetDraft';
-import { applyLevelUpToDraft } from '../characterLevelUp/draftApplication';
+import { applyLevelUpToDraft, buildAdvancedChoiceFeatures } from '../characterLevelUp/draftApplication';
+import {
+    createLevelUpInvocationState,
+    createLevelUpMetamagicState,
+    createLevelUpMysticArcanumState,
+    SRD_INVOCATIONS,
+    SRD_METAMAGIC_OPTIONS,
+} from '../characterLevelUp/advancedClassChoices';
+import type { LevelUpWizardSelectedClass } from '../characterLevelUp/types';
 
 const BASE_CHARACTER = {
     id: 'char-1',
@@ -111,6 +119,180 @@ const BASE_CHARACTER = {
     },
 } as const;
 
+const WARLOCK_LEVEL_UP_CLASS: LevelUpWizardSelectedClass = {
+    classId: 'warlock',
+    className: 'Warlock',
+    currentLevel: 2,
+    newLevel: 3,
+    isExistingClass: true,
+    subclassId: 'fiend',
+    subclassName: 'Fiend',
+    subclassDescription: null,
+    subclassIsCustom: false,
+    subclassFeatures: [],
+    customSubclass: null,
+};
+
+const SORCERER_LEVEL_UP_CLASS: LevelUpWizardSelectedClass = {
+    classId: 'sorcerer',
+    className: 'Sorcerer',
+    currentLevel: 2,
+    newLevel: 3,
+    isExistingClass: true,
+    subclassId: 'draconic-bloodline',
+    subclassName: 'Draconic Bloodline',
+    subclassDescription: null,
+    subclassIsCustom: false,
+    subclassFeatures: [],
+    customSubclass: null,
+};
+
+describe('buildAdvancedChoiceFeatures', () => {
+    it('creates SRD invocation features with the full SRD description', () => {
+        const invocation = SRD_INVOCATIONS.find((entry) => entry.id === 'fiendish-vigor');
+
+        expect(invocation).toBeDefined();
+
+        const features = buildAdvancedChoiceFeatures(
+            WARLOCK_LEVEL_UP_CLASS,
+            {
+                ...createLevelUpInvocationState(),
+                selectedInvocations: ['fiendish-vigor'],
+            },
+            createLevelUpMetamagicState(),
+            createLevelUpMysticArcanumState(),
+        );
+
+        expect(features).toEqual([
+            expect.objectContaining({
+                key: 'invocation-fiendish-vigor',
+                name: 'Eldritch Invocation: Fiendish Vigor',
+                description: invocation?.fullDescription,
+                source: 'Warlock',
+                classId: 'warlock',
+                level: 3,
+                subclassId: 'fiend',
+                subclassName: 'Fiend',
+                kind: 'class',
+                customSubclassFeature: null,
+            }),
+        ]);
+        expect(features[0]?.description).not.toBe(invocation?.description);
+    });
+
+    it('creates trimmed custom invocation features and excludes whitespace-only custom names', () => {
+        const customInvocationFeatures = buildAdvancedChoiceFeatures(
+            WARLOCK_LEVEL_UP_CLASS,
+            {
+                ...createLevelUpInvocationState(),
+                customInvocation: {
+                    name: '  Shadow Step  ',
+                    description: '  Teleport through the dark between stars.  ',
+                },
+            },
+            createLevelUpMetamagicState(),
+            createLevelUpMysticArcanumState(),
+        );
+
+        expect(customInvocationFeatures).toEqual([
+            expect.objectContaining({
+                key: 'invocation-custom-shadow-step',
+                name: 'Eldritch Invocation: Shadow Step',
+                description: 'Teleport through the dark between stars.',
+            }),
+        ]);
+
+        const whitespaceOnlyFeatures = buildAdvancedChoiceFeatures(
+            WARLOCK_LEVEL_UP_CLASS,
+            {
+                ...createLevelUpInvocationState(),
+                customInvocation: {
+                    name: '   ',
+                    description: 'Ignored description',
+                },
+            },
+            createLevelUpMetamagicState(),
+            createLevelUpMysticArcanumState(),
+        );
+
+        expect(whitespaceOnlyFeatures).toEqual([]);
+    });
+
+    it('creates SRD metamagic features with the full SRD description', () => {
+        const metamagic = SRD_METAMAGIC_OPTIONS.find((entry) => entry.id === 'careful-spell');
+
+        expect(metamagic).toBeDefined();
+
+        const features = buildAdvancedChoiceFeatures(
+            SORCERER_LEVEL_UP_CLASS,
+            createLevelUpInvocationState(),
+            {
+                ...createLevelUpMetamagicState(),
+                selectedMetamagicIds: ['careful-spell'],
+            },
+            createLevelUpMysticArcanumState(),
+        );
+
+        expect(features).toEqual([
+            expect.objectContaining({
+                key: 'metamagic-careful-spell',
+                name: 'Metamagic: Careful Spell',
+                description: metamagic?.fullDescription,
+                source: 'Sorcerer',
+                classId: 'sorcerer',
+                level: 3,
+                subclassId: 'draconic-bloodline',
+                subclassName: 'Draconic Bloodline',
+                kind: 'class',
+                customSubclassFeature: null,
+            }),
+        ]);
+        expect(features[0]?.description).not.toBe(metamagic?.description);
+    });
+
+    it('creates mystic arcanum features with the expected key and description', () => {
+        const features = buildAdvancedChoiceFeatures(
+            {
+                ...WARLOCK_LEVEL_UP_CLASS,
+                currentLevel: 10,
+                newLevel: 11,
+            },
+            createLevelUpInvocationState(),
+            createLevelUpMetamagicState(),
+            {
+                selectedSpell: {
+                    id: 'mass-suggestion',
+                    name: 'Mass Suggestion',
+                    level: 6,
+                },
+            },
+        );
+
+        expect(features).toEqual([
+            expect.objectContaining({
+                key: 'mystic-arcanum-6',
+                name: 'Mystic Arcanum: Mass Suggestion',
+                description: 'Mass Suggestion — once per long rest without a spell slot.',
+                source: 'Warlock',
+                classId: 'warlock',
+                level: 11,
+                kind: 'class',
+            }),
+        ]);
+    });
+
+    it('returns no advanced choice features when all advanced states are empty', () => {
+        const features = buildAdvancedChoiceFeatures(
+            WARLOCK_LEVEL_UP_CLASS,
+            createLevelUpInvocationState(),
+            createLevelUpMetamagicState(),
+            createLevelUpMysticArcanumState(),
+        );
+
+        expect(features).toEqual([]);
+    });
+});
+
 describe('applyLevelUpToDraft', () => {
     it('applies same-class HP and ASI gains into the local draft', () => {
         const draft = createCharacterSheetDraft(BASE_CHARACTER as never);
@@ -161,6 +343,9 @@ describe('applyLevelUpToDraft', () => {
             multiclassProficiencyState: {
                 selectedSkills: [],
             },
+            invocationState: createLevelUpInvocationState(),
+            metamagicState: createLevelUpMetamagicState(),
+            mysticArcanumState: createLevelUpMysticArcanumState(),
             features: [
                 {
                     key: 'wizard-11-slot-6',
@@ -258,6 +443,9 @@ describe('applyLevelUpToDraft', () => {
             multiclassProficiencyState: {
                 selectedSkills: [],
             },
+            invocationState: createLevelUpInvocationState(),
+            metamagicState: createLevelUpMetamagicState(),
+            mysticArcanumState: createLevelUpMysticArcanumState(),
             features: [],
         });
         const addedClass = nextDraft.classes[nextDraft.classes.length - 1];
@@ -325,6 +513,9 @@ describe('applyLevelUpToDraft', () => {
             multiclassProficiencyState: {
                 selectedSkills: ['Athletics'],
             },
+            invocationState: createLevelUpInvocationState(),
+            metamagicState: createLevelUpMetamagicState(),
+            mysticArcanumState: createLevelUpMysticArcanumState(),
             features: [],
         });
 

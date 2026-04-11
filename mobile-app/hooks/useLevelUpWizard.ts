@@ -4,6 +4,22 @@ import type { SkillProficiencies } from '@/types/generated_graphql_types';
 import { createDraftEntityId } from '@/lib/character-sheet/characterSheetDraft';
 import type { AvailableSubclassOption } from '@/lib/subclasses';
 import {
+    buildInvocationPrerequisiteContext,
+    canContinueFromAdvancedResources,
+    createLevelUpInvocationState,
+    createLevelUpMetamagicState,
+    createLevelUpMysticArcanumState,
+    invocationGainCount,
+    metamagicGainCount,
+    setCustomInvocation,
+    setCustomMetamagic,
+    setInvocationSwapIn,
+    setInvocationSwapOut,
+    setMysticArcanumSpell,
+    toggleInvocationSelection,
+    toggleMetamagicSelection,
+} from '@/lib/characterLevelUp/advancedClassChoices';
+import {
     canContinueFromAsiOrFeat,
     createLevelUpAsiOrFeatState,
     decrementLevelUpAsiAllocation,
@@ -57,11 +73,15 @@ import {
     setLevelUpCustomSubclassName,
 } from '@/lib/characterLevelUp/subclassFeatures';
 import type {
+    InvocationPrerequisiteContext,
     LevelUpAsiOrFeatState,
     LevelUpCustomFeatureDraft,
     LevelUpFeature,
     LevelUpHitPointsState,
     LevelUpClassSelectionMode,
+    LevelUpInvocationState,
+    LevelUpMetamagicState,
+    LevelUpMysticArcanumState,
     LevelUpSpellSelection,
     LevelUpSpellcastingState,
     LevelUpSpellcastingSummary,
@@ -91,6 +111,10 @@ export type UseLevelUpWizardResult = {
     spellcastingSummary: LevelUpSpellcastingSummary;
     multiclassProficiencyState: LevelUpMulticlassProficiencyState;
     existingSkillProficiencies: SkillProficiencies | null;
+    invocationPrerequisiteContext: InvocationPrerequisiteContext | null;
+    invocationState: LevelUpInvocationState;
+    metamagicState: LevelUpMetamagicState;
+    mysticArcanumState: LevelUpMysticArcanumState;
     newFeatures: LevelUpFeature[];
     customFeatures: LevelUpCustomFeatureDraft[];
     steps: LevelUpWizardStep[];
@@ -126,6 +150,13 @@ export type UseLevelUpWizardResult = {
     setSwapOutSpellId: (spellId: string | null) => void;
     setSwapReplacementSpell: (spell: LevelUpSpellSelection | null) => void;
     toggleMulticlassSkill: (skill: string) => void;
+    toggleInvocation: (invocationId: string) => void;
+    changeCustomInvocation: (custom: { name: string; description: string } | null) => void;
+    changeInvocationSwapOut: (invocationId: string | null) => void;
+    changeInvocationSwapIn: (invocation: { id: string; name: string; isCustom: boolean } | null) => void;
+    toggleMetamagic: (metamagicId: string) => void;
+    changeCustomMetamagic: (custom: { name: string; description: string } | null) => void;
+    changeMysticArcanumSpell: (spell: { id: string; name: string; level: number } | null) => void;
     goToPreviousStep: () => void;
     goToNextStep: () => void;
     resetWizard: () => void;
@@ -146,6 +177,9 @@ export default function useLevelUpWizard(
     const [subclassSelectionState, setSubclassSelectionState] = useState<LevelUpSubclassSelectionState>(() => createLevelUpSubclassSelectionState());
     const [spellcastingState, setSpellcastingState] = useState<LevelUpSpellcastingState>(() => createLevelUpSpellcastingState());
     const [multiclassProficiencyState, setMulticlassProficiencyState] = useState<LevelUpMulticlassProficiencyState>(() => createLevelUpMulticlassProficiencyState());
+    const [invocationState, setInvocationState] = useState<LevelUpInvocationState>(() => createLevelUpInvocationState());
+    const [metamagicState, setMetamagicState] = useState<LevelUpMetamagicState>(() => createLevelUpMetamagicState());
+    const [mysticArcanumState, setMysticArcanumState] = useState<LevelUpMysticArcanumState>(() => createLevelUpMysticArcanumState());
     const [customFeatures, setCustomFeatures] = useState<LevelUpCustomFeatureDraft[]>([]);
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const selectedClassId = effectiveLevelUpClassId(classSelection);
@@ -203,6 +237,15 @@ export default function useLevelUpWizard(
         () => multiclassPrerequisiteWarnings(character, defaultClassId, classSelection.selectedClassId),
         [character, classSelection.selectedClassId, defaultClassId],
     );
+    const invocationPrerequisiteContext = useMemo(() => {
+        if (!character || selectedClass.classId !== 'warlock') return null;
+
+        return buildInvocationPrerequisiteContext(
+            selectedClass.newLevel,
+            character.spellbook,
+            character.features,
+        );
+    }, [character, selectedClass.classId, selectedClass.newLevel]);
 
     useEffect(() => {
         if (!visible) {
@@ -215,6 +258,9 @@ export default function useLevelUpWizard(
         setSubclassSelectionState(createLevelUpSubclassSelectionState());
         setSpellcastingState(createLevelUpSpellcastingState());
         setMulticlassProficiencyState(createLevelUpMulticlassProficiencyState());
+        setInvocationState(createLevelUpInvocationState());
+        setMetamagicState(createLevelUpMetamagicState());
+        setMysticArcanumState(createLevelUpMysticArcanumState());
         setCustomFeatures([]);
         setCurrentStepIndex(0);
     }, [defaultClassId, visible]);
@@ -224,6 +270,9 @@ export default function useLevelUpWizard(
         setSubclassSelectionState(createLevelUpSubclassSelectionState());
         setSpellcastingState(createLevelUpSpellcastingState());
         setMulticlassProficiencyState(createLevelUpMulticlassProficiencyState());
+        setInvocationState(createLevelUpInvocationState());
+        setMetamagicState(createLevelUpMetamagicState());
+        setMysticArcanumState(createLevelUpMysticArcanumState());
         setCustomFeatures([]);
     }, [selectedClassId]);
 
@@ -240,21 +289,41 @@ export default function useLevelUpWizard(
     const stepNumber = currentStepIndex + 1;
     const stepLabel = `Step ${stepNumber} of ${steps.length} - ${currentStep.title}`;
     const nextButtonLabel = isLastStep ? 'Confirm Level Up' : 'Next';
-    const nextButtonDisabled = currentStep.id === 'choose_class'
-        ? !canContinueFromChooseClass(classSelection)
-        : currentStep.id === 'hit_points'
-            ? hitPointsState == null
-            : currentStep.id === 'asi_or_feat'
-                ? !canContinueFromAsiOrFeat(asiOrFeatState)
-                : currentStep.id === 'subclass_selection'
-                    ? !canContinueFromSubclassSelection(subclassSelectionState)
-                    : currentStep.id === 'new_features'
-                        ? !canContinueFromNewFeatures(customFeatures)
-                        : currentStep.id === 'spellcasting_updates'
-                            ? !canContinueFromSpellcastingUpdates(spellcastingSummary, spellcastingState)
-                            : currentStep.id === 'multiclass_proficiencies'
-                                ? !canContinueFromMulticlassProficiencies(selectedClass, multiclassProficiencyState)
-                                : false;
+
+    /**
+     * Returns whether the wizard should prevent advancing from the given step.
+     */
+    function isNextButtonDisabled(stepId: LevelUpWizardStep['id']): boolean {
+        switch (stepId) {
+            case 'choose_class':
+                return !canContinueFromChooseClass(classSelection);
+            case 'hit_points':
+                return hitPointsState == null;
+            case 'asi_or_feat':
+                return !canContinueFromAsiOrFeat(asiOrFeatState);
+            case 'subclass_selection':
+                return !canContinueFromSubclassSelection(subclassSelectionState);
+            case 'new_features':
+                return !canContinueFromNewFeatures(customFeatures);
+            case 'spellcasting_updates':
+                return !canContinueFromSpellcastingUpdates(spellcastingSummary, spellcastingState);
+            case 'multiclass_proficiencies':
+                return !canContinueFromMulticlassProficiencies(selectedClass, multiclassProficiencyState);
+            case 'class_resources':
+                return !canContinueFromAdvancedResources(
+                    selectedClass.classId,
+                    selectedClass.newLevel,
+                    selectedClass.currentLevel,
+                    invocationState,
+                    metamagicState,
+                    mysticArcanumState,
+                );
+            default:
+                return false;
+        }
+    }
+
+    const nextButtonDisabled = isNextButtonDisabled(currentStep.id);
 
     const selectClass = useCallback((classId: string) => {
         setClassSelection((previousState) => selectMulticlassLevelUpClass(previousState, classId));
@@ -382,6 +451,38 @@ export default function useLevelUpWizard(
         setMulticlassProficiencyState((previousState) => toggleMulticlassProficiencySkill(previousState, skill, maxChoices));
     }, [selectedClassId]);
 
+    const toggleInvocation = useCallback((invocationId: string) => {
+        const gain = invocationGainCount(selectedClass.currentLevel, selectedClass.newLevel);
+
+        setInvocationState((previousState) => toggleInvocationSelection(previousState, invocationId, gain));
+    }, [selectedClass.currentLevel, selectedClass.newLevel]);
+
+    const changeCustomInvocation = useCallback((custom: { name: string; description: string } | null) => {
+        setInvocationState((previousState) => setCustomInvocation(previousState, custom));
+    }, []);
+
+    const changeInvocationSwapOut = useCallback((invocationId: string | null) => {
+        setInvocationState((previousState) => setInvocationSwapOut(previousState, invocationId));
+    }, []);
+
+    const changeInvocationSwapIn = useCallback((invocation: { id: string; name: string; isCustom: boolean } | null) => {
+        setInvocationState((previousState) => setInvocationSwapIn(previousState, invocation));
+    }, []);
+
+    const toggleMetamagic = useCallback((metamagicId: string) => {
+        const gain = metamagicGainCount(selectedClass.newLevel);
+
+        setMetamagicState((previousState) => toggleMetamagicSelection(previousState, metamagicId, gain));
+    }, [selectedClass.newLevel]);
+
+    const changeCustomMetamagic = useCallback((custom: { name: string; description: string } | null) => {
+        setMetamagicState((previousState) => setCustomMetamagic(previousState, custom));
+    }, []);
+
+    const changeMysticArcanumSpell = useCallback((spell: { id: string; name: string; level: number } | null) => {
+        setMysticArcanumState((previousState) => setMysticArcanumSpell(previousState, spell));
+    }, []);
+
     const goToPreviousStep = useCallback(() => {
         setCurrentStepIndex((previousIndex) => Math.max(previousIndex - 1, 0));
     }, []);
@@ -407,6 +508,9 @@ export default function useLevelUpWizard(
         setSubclassSelectionState(createLevelUpSubclassSelectionState());
         setSpellcastingState(createLevelUpSpellcastingState());
         setMulticlassProficiencyState(createLevelUpMulticlassProficiencyState());
+        setInvocationState(createLevelUpInvocationState());
+        setMetamagicState(createLevelUpMetamagicState());
+        setMysticArcanumState(createLevelUpMysticArcanumState());
         setCustomFeatures([]);
         setCurrentStepIndex(0);
     }, [defaultClassId]);
@@ -428,6 +532,10 @@ export default function useLevelUpWizard(
         spellcastingSummary,
         multiclassProficiencyState,
         existingSkillProficiencies: character?.stats?.skillProficiencies ?? null,
+        invocationPrerequisiteContext,
+        invocationState,
+        metamagicState,
+        mysticArcanumState,
         newFeatures,
         customFeatures,
         steps,
@@ -463,6 +571,13 @@ export default function useLevelUpWizard(
         setSwapOutSpellId,
         setSwapReplacementSpell,
         toggleMulticlassSkill,
+        toggleInvocation,
+        changeCustomInvocation,
+        changeInvocationSwapOut,
+        changeInvocationSwapIn,
+        toggleMetamagic,
+        changeCustomMetamagic,
+        changeMysticArcanumSpell,
         goToPreviousStep,
         goToNextStep,
         resetWizard,

@@ -1,3 +1,6 @@
+import {
+    ProficiencyLevel,
+} from '@/types/generated_graphql_types';
 import type {
     CharacterSheetDraft,
     CharacterSheetDraftClass,
@@ -11,6 +14,8 @@ import {
 } from './spellcasting';
 import type { LevelUpMulticlassProficiencyState } from './multiclassProficiencies';
 import { getMulticlassProficiencyGains } from './multiclassProficiencies';
+import { findSrdInvocation, findSrdMetamagic } from './advancedClassChoices';
+import type { LevelUpInvocationState, LevelUpMetamagicState, LevelUpMysticArcanumState } from './advancedClassChoices';
 import type {
     LevelUpAsiOrFeatState,
     LevelUpFeature,
@@ -33,6 +38,9 @@ export type ApplyLevelUpDraftInput = {
     asiOrFeatState: LevelUpAsiOrFeatState | null;
     spellcastingState: LevelUpSpellcastingState;
     multiclassProficiencyState: LevelUpMulticlassProficiencyState;
+    invocationState: LevelUpInvocationState;
+    metamagicState: LevelUpMetamagicState;
+    mysticArcanumState: LevelUpMysticArcanumState;
     features: LevelUpFeature[];
 };
 
@@ -61,6 +69,13 @@ export function applyLevelUpToDraft(
 
     const traits = applyLevelUpProficiencies(draft.traits, input.selectedClass, input.multiclassProficiencyState);
 
+    const advancedFeatures = buildAdvancedChoiceFeatures(
+        input.selectedClass,
+        input.invocationState,
+        input.metamagicState,
+        input.mysticArcanumState,
+    );
+
     return {
         ...draft,
         level: draft.level + 1,
@@ -72,7 +87,7 @@ export function applyLevelUpToDraft(
         hp,
         skillProficiencies,
         traits,
-        features: applyLevelUpFeatures(draft.features, input.asiOrFeatState, input.features),
+        features: applyLevelUpFeatures(draft.features, input.asiOrFeatState, [...input.features, ...advancedFeatures]),
     };
 }
 
@@ -280,13 +295,93 @@ function applyLevelUpSkillProficiencies(
     for (const skillLabel of proficiencyState.selectedSkills) {
         const skillDefinition = findSkillDefinitionByLabel(skillLabel);
 
-        if (!skillDefinition || nextSkillProficiencies[skillDefinition.key] !== 'none') {
+        if (!skillDefinition || nextSkillProficiencies[skillDefinition.key] !== ProficiencyLevel.None) {
             continue;
         }
 
-        nextSkillProficiencies[skillDefinition.key] = 'proficient';
+        nextSkillProficiencies[skillDefinition.key] = ProficiencyLevel.Proficient;
         hasChanges = true;
     }
 
     return hasChanges ? nextSkillProficiencies : skillProficiencies;
+}
+
+/**
+ * Converts advanced class choice selections (invocations, metamagic, mystic arcanum)
+ * into LevelUpFeature entries that can be appended to the draft feature list.
+ */
+export function buildAdvancedChoiceFeatures(
+    selectedClass: LevelUpWizardSelectedClass,
+    invocationState: LevelUpInvocationState,
+    metamagicState: LevelUpMetamagicState,
+    mysticArcanumState: LevelUpMysticArcanumState,
+): LevelUpFeature[] {
+    const features: LevelUpFeature[] = [];
+    const base = {
+        source: selectedClass.className,
+        classId: selectedClass.classId,
+        level: selectedClass.newLevel,
+        subclassId: selectedClass.subclassId,
+        subclassName: selectedClass.subclassName,
+        kind: 'class' as const,
+        customSubclassFeature: null,
+    };
+
+    for (const invocationId of invocationState.selectedInvocations) {
+        const srd = findSrdInvocation(invocationId);
+
+        if (srd) {
+            features.push({
+                ...base,
+                key: `invocation-${srd.id}`,
+                name: `Eldritch Invocation: ${srd.name}`,
+                description: srd.fullDescription,
+            });
+        }
+    }
+
+    if (invocationState.customInvocation && invocationState.customInvocation.name.trim().length > 0) {
+        const trimmedCustomInvocationName = invocationState.customInvocation.name.trim();
+        const customInvocationKey = trimmedCustomInvocationName.toLowerCase().replace(/\s+/g, '-');
+
+        features.push({
+            ...base,
+            key: `invocation-custom-${customInvocationKey}`,
+            name: `Eldritch Invocation: ${trimmedCustomInvocationName}`,
+            description: invocationState.customInvocation.description.trim(),
+        });
+    }
+
+    for (const metamagicId of metamagicState.selectedMetamagicIds) {
+        const srd = findSrdMetamagic(metamagicId);
+
+        if (srd) {
+            features.push({
+                ...base,
+                key: `metamagic-${srd.id}`,
+                name: `Metamagic: ${srd.name}`,
+                description: srd.fullDescription,
+            });
+        }
+    }
+
+    if (metamagicState.customMetamagic && metamagicState.customMetamagic.name.trim().length > 0) {
+        features.push({
+            ...base,
+            key: `metamagic-custom-${metamagicState.customMetamagic.name}`,
+            name: `Metamagic: ${metamagicState.customMetamagic.name.trim()}`,
+            description: metamagicState.customMetamagic.description.trim(),
+        });
+    }
+
+    if (mysticArcanumState.selectedSpell) {
+        features.push({
+            ...base,
+            key: `mystic-arcanum-${mysticArcanumState.selectedSpell.level}`,
+            name: `Mystic Arcanum: ${mysticArcanumState.selectedSpell.name.trim()}`,
+            description: `${mysticArcanumState.selectedSpell.name} — once per long rest without a spell slot.`,
+        });
+    }
+
+    return features;
 }

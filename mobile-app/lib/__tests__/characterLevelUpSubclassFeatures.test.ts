@@ -2,6 +2,7 @@ import {
     canContinueFromNewFeatures,
     canContinueFromSubclassSelection,
     getLevelUpFeatures,
+    isPickerManagedFeature,
     isSubclassChoiceLevel,
     mapCustomFeatureDrafts,
 } from '@/lib/characterLevelUp/subclassFeatures';
@@ -34,6 +35,18 @@ describe('characterLevelUp subclass features', () => {
         expect(isSubclassChoiceLevel('wizard', 2)).toBe(true);
         expect(isSubclassChoiceLevel('wizard', 3)).toBe(false);
         expect(isSubclassChoiceLevel('fighter', 3)).toBe(true);
+    });
+
+    it('treats invocation and metamagic entries as picker-managed features', () => {
+        expect(isPickerManagedFeature('Eldritch Invocation: Agonizing Blast')).toBe(true);
+        expect(isPickerManagedFeature('Metamagic: Careful Spell')).toBe(true);
+    });
+
+    it('does not treat unrelated feature names as picker-managed', () => {
+        expect(isPickerManagedFeature('Mystic Arcanum: Mass Suggestion')).toBe(false);
+        expect(isPickerManagedFeature('Eldritch Invocation')).toBe(false);
+        expect(isPickerManagedFeature('Metamagic')).toBe(false);
+        expect(isPickerManagedFeature('Ability Score Improvement')).toBe(false);
     });
 
     it('includes new spell-slot-tier unlocks in the feature list', () => {

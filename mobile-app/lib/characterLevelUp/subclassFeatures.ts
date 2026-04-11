@@ -277,6 +277,7 @@ export function getLevelUpFeatures(selectedClass: LevelUpWizardSelectedClass): L
     const classFeatures = LEVEL_UP_SRD_FEATURES
         .filter((feature) => feature.classId === selectedClass.classId && feature.level === selectedClass.newLevel)
         .filter((feature) => shouldIncludeFeature(feature, selectedSubclassId))
+        .filter((feature) => !isPickerManagedFeature(feature.name))
         .map((feature) => mapGeneratedFeature(feature));
     const customSubclassFeatures = selectedClass.subclassIsCustom
         ? selectedClass.subclassFeatures
@@ -307,6 +308,16 @@ export function getLevelUpFeatures(selectedClass: LevelUpWizardSelectedClass): L
         ...customSubclassFeatures,
         ...spellSlotUnlockFeatures(selectedClass),
     ];
+}
+
+/**
+ * Returns true for SRD feature names that represent individual picker-managed
+ * choices (e.g. "Eldritch Invocation: Agonizing Blast", "Metamagic: Careful Spell").
+ * These are excluded from the auto-added feature list because the level-up
+ * picker UI handles their selection instead.
+ */
+export function isPickerManagedFeature(name: string): boolean {
+    return name.startsWith('Eldritch Invocation: ') || name.startsWith('Metamagic: ');
 }
 
 /**

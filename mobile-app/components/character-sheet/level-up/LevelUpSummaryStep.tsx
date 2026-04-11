@@ -11,11 +11,15 @@ import type {
     LevelUpAsiOrFeatState,
     LevelUpFeature,
     LevelUpHitPointsState,
+    LevelUpInvocationState,
+    LevelUpMetamagicState,
     LevelUpMulticlassProficiencyState,
+    LevelUpMysticArcanumState,
     LevelUpSpellcastingState,
     LevelUpSpellcastingSummary,
     LevelUpWizardSelectedClass,
 } from '@/lib/characterLevelUp/types';
+import { findSrdInvocation, findSrdMetamagic } from '@/lib/characterLevelUp/advancedClassChoices';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 type LevelUpSummaryStepProps = {
@@ -33,6 +37,9 @@ type LevelUpSummaryStepProps = {
     spellcastingState: LevelUpSpellcastingState;
     spellcastingSummary: LevelUpSpellcastingSummary;
     multiclassProficiencyState: LevelUpMulticlassProficiencyState;
+    invocationState: LevelUpInvocationState;
+    metamagicState: LevelUpMetamagicState;
+    mysticArcanumState: LevelUpMysticArcanumState;
 };
 
 /**
@@ -49,6 +56,9 @@ export default function LevelUpSummaryStep({
     spellcastingState,
     spellcastingSummary,
     multiclassProficiencyState,
+    invocationState,
+    metamagicState,
+    mysticArcanumState,
 }: LevelUpSummaryStepProps) {
     const nextMaxHitPoints = currentHitPoints.max + hitPointsState.hpGained;
     const abilityScoreChanges = abilityScoreSummaryRows(abilityScores, asiOrFeatState);
@@ -190,6 +200,61 @@ export default function LevelUpSummaryStep({
                 </SummaryCard>
             ) : null}
 
+            {hasInvocationSummary(invocationState) ? (
+                <SummaryCard label="Eldritch Invocations" testID="level-up-summary-invocations">
+                    <View style={styles.featureList}>
+                        {invocationState.selectedInvocations.map((id) => {
+                            const srd = findSrdInvocation(id);
+                            return (
+                                <Text key={id} style={styles.summaryListItem}>
+                                    {`\u2022 ${srd?.name ?? id}`}
+                                </Text>
+                            );
+                        })}
+                        {invocationState.customInvocation && invocationState.customInvocation.name.trim().length > 0 ? (
+                            <Text style={styles.summaryListItem}>
+                                {`\u2022 ${invocationState.customInvocation.name} (Custom)`}
+                            </Text>
+                        ) : null}
+                        {invocationState.swapOutInvocationId != null
+                            && invocationState.swapOutInvocationId.trim().length > 0
+                            && invocationState.swapInInvocation ? (
+                            <Text style={styles.summaryListItem}>
+                                {`Swap: replace with ${invocationState.swapInInvocation.name}`}
+                            </Text>
+                        ) : null}
+                    </View>
+                </SummaryCard>
+            ) : null}
+
+            {hasMetamagicSummary(metamagicState) ? (
+                <SummaryCard label="Metamagic" testID="level-up-summary-metamagic">
+                    <View style={styles.featureList}>
+                        {metamagicState.selectedMetamagicIds.map((id) => {
+                            const srd = findSrdMetamagic(id);
+                            return (
+                                <Text key={id} style={styles.summaryListItem}>
+                                    {`\u2022 ${srd?.name ?? id}`}
+                                </Text>
+                            );
+                        })}
+                        {metamagicState.customMetamagic && metamagicState.customMetamagic.name.trim().length > 0 ? (
+                            <Text style={styles.summaryListItem}>
+                                {`\u2022 ${metamagicState.customMetamagic.name} (Custom)`}
+                            </Text>
+                        ) : null}
+                    </View>
+                </SummaryCard>
+            ) : null}
+
+            {mysticArcanumState.selectedSpell ? (
+                <SummaryCard label="Mystic Arcanum" testID="level-up-summary-mystic-arcanum">
+                    <Text style={styles.summaryListItem}>
+                        {`${mysticArcanumState.selectedSpell.name} (${spellLevelLabel(mysticArcanumState.selectedSpell.level)})`}
+                    </Text>
+                </SummaryCard>
+            ) : null}
+
             <View style={styles.noteCard}>
                 <Text style={styles.noteTitle}>Draft First, Then Save</Text>
                 <Text style={styles.noteText}>
@@ -212,6 +277,25 @@ function hasSpellcastingSummary(
         || spellcastingState.cantripSpells.length > 0
         || spellcastingState.swapReplacementSpell != null
         || spellcastingSummary.nextPreparedSpellLimit !== spellcastingSummary.previousPreparedSpellLimit;
+}
+
+/**
+ * Returns whether the summary should render an invocation section.
+ */
+function hasInvocationSummary(state: LevelUpInvocationState): boolean {
+    return state.selectedInvocations.length > 0
+        || (state.customInvocation != null && state.customInvocation.name.trim().length > 0)
+        || (state.swapOutInvocationId != null
+            && state.swapOutInvocationId.trim().length > 0
+            && state.swapInInvocation != null);
+}
+
+/**
+ * Returns whether the summary should render a metamagic section.
+ */
+function hasMetamagicSummary(state: LevelUpMetamagicState): boolean {
+    return state.selectedMetamagicIds.length > 0
+        || (state.customMetamagic != null && state.customMetamagic.name.trim().length > 0);
 }
 
 type SummaryCardProps = {
