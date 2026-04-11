@@ -36,7 +36,7 @@ export type LevelUpWizardStep = {
  */
 export type LevelUpWizardCharacter = Pick<
     CharacterSheetFieldsFragment,
-    'id' | 'name' | 'level' | 'classes' | 'spellcastingProfiles' | 'spellSlots' | 'spellbook'
+    'id' | 'name' | 'level' | 'classes' | 'spellcastingProfiles' | 'spellSlots' | 'spellbook' | 'features'
 > & {
     stats: Pick<NonNullable<CharacterSheetFieldsFragment['stats']>, 'abilityScores' | 'hp' | 'skillProficiencies'> | null;
 };
@@ -215,6 +215,16 @@ export type { LevelUpMulticlassProficiencyState } from './multiclassProficiencie
  * Re-exported class resource change type for use from the central types module.
  */
 export type { ClassResourceChange } from './classResources';
+
+/**
+ * Re-exported advanced class choice types for use from the central types module.
+ */
+export type {
+    InvocationPrerequisiteContext,
+    LevelUpInvocationState,
+    LevelUpMetamagicState,
+    LevelUpMysticArcanumState,
+} from './advancedClassChoices';
 
 export type LevelUpSpellcastingMode = 'none' | 'wizard' | 'known' | 'prepared';
 
