@@ -2,6 +2,7 @@ import { Alert } from 'react-native';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react-native';
 import { SEARCH_SPELLS_FOR_SHEET } from '@/components/character-sheet/spells/AddSpellSheet';
 import { LEARN_SPELL, SAVE_CHARACTER_SHEET } from '@/graphql/characterSheet.operations';
+import type { SaveCharacterSheetMutationVariables } from '@/types/generated_graphql_types';
 import { CHARACTERS_MOCK, MOCK_CHARACTER, SAVE_CORE_CHARACTER_MOCKS } from './mocks/character-sheet.mocks';
 import {
     enableCharacterSheetEditMode,
@@ -196,31 +197,33 @@ const SUBCLASS_ELIGIBLE_CHARACTER_SHEET_MOCK = {
     },
 };
 
+const BASE_SAVE_CHARACTER_INPUT = (SAVE_CORE_CHARACTER_MOCKS[0]?.request.variables as SaveCharacterSheetMutationVariables).input;
+
 const LEVEL_UP_SAVE_MOCK = {
     request: {
         query: SAVE_CHARACTER_SHEET,
         variables: {
             characterId: 'char-1',
             input: {
-                ...SAVE_CORE_CHARACTER_MOCKS[0].request.variables.input,
+                ...BASE_SAVE_CHARACTER_INPUT,
                 hp: {
                     current: 60,
                     max: 82,
                     temp: 2,
                 },
                 abilityScores: {
-                    ...SAVE_CORE_CHARACTER_MOCKS[0].request.variables.input.abilityScores,
+                    ...BASE_SAVE_CHARACTER_INPUT.abilityScores,
                     constitution: 15,
                 },
                 classes: [
                     {
-                        ...SAVE_CORE_CHARACTER_MOCKS[0].request.variables.input.classes[0],
+                        ...BASE_SAVE_CHARACTER_INPUT.classes[0],
                         level: 12,
                     },
-                    SAVE_CORE_CHARACTER_MOCKS[0].request.variables.input.classes[1],
+                    BASE_SAVE_CHARACTER_INPUT.classes[1],
                 ],
                 features: [
-                    ...SAVE_CORE_CHARACTER_MOCKS[0].request.variables.input.features,
+                    ...BASE_SAVE_CHARACTER_INPUT.features,
                     {
                         name: 'Resilient',
                         source: 'Feat',
@@ -272,7 +275,6 @@ const LEVEL_UP_SAVE_MOCK = {
                 stats: {
                     ...MOCK_CHARACTER.stats,
                     abilityScores: {
-                        __typename: 'AbilityScores',
                         ...MOCK_CHARACTER.stats.abilityScores,
                         constitution: 15,
                     },
@@ -365,7 +367,7 @@ function buildLearnSpellMock(spell: {
     name: string;
     level: number;
     schoolIndex: string;
-    classIndexes: string[];
+    classIndexes: readonly string[];
     castingTime: string;
     range: string;
     concentration: boolean;
