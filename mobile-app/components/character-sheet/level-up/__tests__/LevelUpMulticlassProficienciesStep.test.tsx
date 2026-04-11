@@ -21,7 +21,7 @@ function makeSelectedClass(classId: string): LevelUpWizardSelectedClass {
     };
 }
 
-function makeSkillProficiencies(overrides: Partial<Record<keyof SkillProficiencies, ProficiencyLevel>> = {}): SkillProficiencies {
+function makeSkillProficiencies(overrides: Partial<Omit<SkillProficiencies, '__typename'>> = {}): SkillProficiencies {
     return {
         __typename: 'SkillProficiencies',
         acrobatics: ProficiencyLevel.None,

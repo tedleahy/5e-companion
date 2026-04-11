@@ -2,6 +2,7 @@ import {
     createCharacterSheetDraft,
     mapCharacterSheetDraftToSaveInput,
 } from '../character-sheet/characterSheetDraft';
+import { ProficiencyLevel } from '@/types/generated_graphql_types';
 
 const CHARACTER_SHEET_CHARACTER = {
     id: 'char-1',
@@ -146,24 +147,24 @@ const CHARACTER_SHEET_CHARACTER = {
         savingThrowProficiencies: ['intelligence', 'wisdom'],
         skillProficiencies: {
             __typename: 'SkillProficiencies',
-            acrobatics: 'none',
-            animalHandling: 'none',
-            arcana: 'expert',
-            athletics: 'none',
-            deception: 'none',
-            history: 'expert',
-            insight: 'proficient',
-            intimidation: 'none',
-            investigation: 'expert',
-            medicine: 'none',
-            nature: 'proficient',
-            perception: 'proficient',
-            performance: 'none',
-            persuasion: 'none',
-            religion: 'proficient',
-            sleightOfHand: 'none',
-            stealth: 'proficient',
-            survival: 'none',
+            acrobatics: ProficiencyLevel.None,
+            animalHandling: ProficiencyLevel.None,
+            arcana: ProficiencyLevel.Expert,
+            athletics: ProficiencyLevel.None,
+            deception: ProficiencyLevel.None,
+            history: ProficiencyLevel.Expert,
+            insight: ProficiencyLevel.Proficient,
+            intimidation: ProficiencyLevel.None,
+            investigation: ProficiencyLevel.Expert,
+            medicine: ProficiencyLevel.None,
+            nature: ProficiencyLevel.Proficient,
+            perception: ProficiencyLevel.Proficient,
+            performance: ProficiencyLevel.None,
+            persuasion: ProficiencyLevel.None,
+            religion: ProficiencyLevel.Proficient,
+            sleightOfHand: ProficiencyLevel.None,
+            stealth: ProficiencyLevel.Proficient,
+            survival: ProficiencyLevel.None,
         },
         traits: {
             __typename: 'Traits',
@@ -191,7 +192,7 @@ describe('characterSheetDraft', () => {
     it('strips GraphQL typenames from local draft rows', () => {
         const draft = createCharacterSheetDraft(CHARACTER_SHEET_CHARACTER as never);
 
-        expect(draft.skillProficiencies.arcana).toBe('expert');
+        expect(draft.skillProficiencies.arcana).toBe(ProficiencyLevel.Expert);
         expect(Object.prototype.hasOwnProperty.call(draft.skillProficiencies, '__typename')).toBe(false);
         expect(draft.weapons[0]).toEqual({
             id: 'weapon-1',

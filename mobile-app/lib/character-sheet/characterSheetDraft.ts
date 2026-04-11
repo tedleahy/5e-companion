@@ -7,6 +7,7 @@ import type {
     SpellSlot,
     SpellcastingProfile,
 } from '@/types/generated_graphql_types';
+import { ProficiencyLevel } from '@/types/generated_graphql_types';
 
 /** Character detail row consumed by the character-sheet route. */
 type CharacterSheetDetail = NonNullable<CharacterSheetDetailQuery['character']>;
@@ -166,24 +167,24 @@ function persistedEntityId(id: string): string | undefined {
  */
 function emptyDraftSkillProficiencies(): CharacterSheetDraftSkillProficiencies {
     return {
-        acrobatics: 'none',
-        animalHandling: 'none',
-        arcana: 'none',
-        athletics: 'none',
-        deception: 'none',
-        history: 'none',
-        insight: 'none',
-        intimidation: 'none',
-        investigation: 'none',
-        medicine: 'none',
-        nature: 'none',
-        perception: 'none',
-        performance: 'none',
-        persuasion: 'none',
-        religion: 'none',
-        sleightOfHand: 'none',
-        stealth: 'none',
-        survival: 'none',
+        acrobatics: ProficiencyLevel.None,
+        animalHandling: ProficiencyLevel.None,
+        arcana: ProficiencyLevel.None,
+        athletics: ProficiencyLevel.None,
+        deception: ProficiencyLevel.None,
+        history: ProficiencyLevel.None,
+        insight: ProficiencyLevel.None,
+        intimidation: ProficiencyLevel.None,
+        investigation: ProficiencyLevel.None,
+        medicine: ProficiencyLevel.None,
+        nature: ProficiencyLevel.None,
+        perception: ProficiencyLevel.None,
+        performance: ProficiencyLevel.None,
+        persuasion: ProficiencyLevel.None,
+        religion: ProficiencyLevel.None,
+        sleightOfHand: ProficiencyLevel.None,
+        stealth: ProficiencyLevel.None,
+        survival: ProficiencyLevel.None,
     };
 }
 
