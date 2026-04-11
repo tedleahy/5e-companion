@@ -6,6 +6,7 @@ import {
     useLocalSearchParams,
     useRouter,
 } from 'expo-router';
+import type { SkillProficiencies } from '@/types/generated_graphql_types';
 import CharacterSheetHeader, { CHARACTER_SHEET_TABS } from '@/components/character-sheet/CharacterSheetHeader';
 import type { CharacterSheetTab } from '@/components/character-sheet/CharacterSheetHeader';
 import DeathSavesCard from '@/components/character-sheet/DeathSavesCard';
@@ -116,6 +117,16 @@ export default function CharacterByIdScreen() {
         changeTraitText,
         applyConfirmedLevelUp,
     } = useCharacterSheetDraft(character);
+    const draftSkillProficiencies = useMemo<SkillProficiencies | undefined>(() => {
+        if (!draft?.skillProficiencies) {
+            return undefined;
+        }
+
+        return {
+            __typename: 'SkillProficiencies',
+            ...draft.skillProficiencies,
+        };
+    }, [draft?.skillProficiencies]);
     const wizardCharacter = useMemo(() => {
         if (!character) {
             return null;
@@ -139,15 +150,10 @@ export default function CharacterByIdScreen() {
                 ...character.stats,
                 hp: draft?.hp ?? character.stats.hp,
                 abilityScores: draft?.abilityScores ?? character.stats.abilityScores,
-                skillProficiencies: draft?.skillProficiencies
-                    ? {
-                        __typename: 'SkillProficiencies',
-                        ...draft.skillProficiencies,
-                    }
-                    : character.stats.skillProficiencies,
+                skillProficiencies: draftSkillProficiencies ?? character.stats.skillProficiencies,
             },
         };
-    }, [character, draft?.abilityScores, draft?.classes, draft?.hp, draft?.level, draft?.skillProficiencies, draft?.spellSlots, draft?.spellbook, draft?.spellcastingProfiles]);
+    }, [character, draft?.abilityScores, draft?.classes, draft?.hp, draft?.level, draft?.spellSlots, draft?.spellbook, draft?.spellcastingProfiles, draftSkillProficiencies]);
     const allSubclassClassIds = useMemo(
         () => CLASS_OPTIONS.map((option) => option.value),
         [],
@@ -374,12 +380,7 @@ export default function CharacterByIdScreen() {
     const displayedSpeed = draft?.speed ?? character.speed;
     const displayedInitiative = draft?.initiative ?? character.initiative;
     const displayedAbilityScores = draft?.abilityScores ?? stats.abilityScores;
-    const displayedSkillProficiencies = draft?.skillProficiencies
-        ? {
-            __typename: 'SkillProficiencies',
-            ...draft.skillProficiencies,
-        }
-        : stats.skillProficiencies;
+    const displayedSkillProficiencies = draftSkillProficiencies ?? stats.skillProficiencies;
     const displayedCurrency = draft?.currency ?? stats.currency;
     const displayedTraits = draft?.traits ?? stats.traits;
     const displayedWeapons = draft?.weapons ?? character.weapons;
