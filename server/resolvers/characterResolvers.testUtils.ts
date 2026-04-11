@@ -51,51 +51,9 @@ export const characterFeatureUpdateManyMock: any = mock((_args: unknown) => Prom
 export const characterFeatureFindUniqueMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const characterFeatureDeleteManyMock: any = mock((_args: unknown) => Promise.resolve({ count: 1 }));
 export const executeRawMock: any = mock((_args: unknown) => Promise.resolve(0));
-export const transactionMock: any = mock((callback: (tx: any) => Promise<unknown>) => callback({
-    character: {
-        findFirst: characterFindFirstMock,
-        findMany: characterFindManyMock,
-        count: characterCountMock,
-        create: characterCreateMock,
-        update: characterUpdateMock,
-        deleteMany: characterDeleteManyMock,
-    },
-    characterStats: {
-        findUnique: statsFindUniqueMock,
-        update: statsUpdateMock,
-    },
-    hitDicePool: {
-        findMany: hitDicePoolFindManyMock,
-        update: hitDicePoolUpdateMock,
-    },
-    weapon: {
-        findMany: weaponFindManyMock,
-        findUnique: weaponFindUniqueMock,
-        create: weaponCreateMock,
-        update: weaponUpdateMock,
-        updateMany: weaponUpdateManyMock,
-        deleteMany: weaponDeleteManyMock,
-    },
-    inventoryItem: {
-        findMany: inventoryItemFindManyMock,
-        findUnique: inventoryItemFindUniqueMock,
-        create: inventoryItemCreateMock,
-        update: inventoryItemUpdateMock,
-        updateMany: inventoryItemUpdateManyMock,
-        deleteMany: inventoryItemDeleteManyMock,
-    },
-    characterFeature: {
-        findMany: characterFeatureFindManyMock,
-        findUnique: characterFeatureFindUniqueMock,
-        create: characterFeatureCreateMock,
-        update: characterFeatureUpdateMock,
-        updateMany: characterFeatureUpdateManyMock,
-        deleteMany: characterFeatureDeleteManyMock,
-    },
-}));
 
-mock.module('../prisma/prisma', () => ({
-    default: {
+function createMockTransactionClient() {
+    return {
         character: {
             findFirst: characterFindFirstMock,
             findMany: characterFindManyMock,
@@ -163,17 +121,45 @@ mock.module('../prisma/prisma', () => ({
             update: spellSlotUpdateMock,
             updateMany: spellSlotUpdateManyMock,
         },
+    };
+}
+
+export const transactionMock: any = mock((callback: (tx: any) => Promise<unknown>) => callback(createMockTransactionClient()));
+
+function createMockPrismaClient() {
+    return {
+        ...createMockTransactionClient(),
         $executeRaw: executeRawMock,
         $transaction: transactionMock,
+    };
+}
+
+mock.module('@prisma/adapter-pg', () => ({
+    PrismaPg: class {
+        constructor(_args: unknown) {}
     },
 }));
 
-mock.module('../lib/auth', () => ({
-    requireUser(ctx: { userId: string | null }): string {
-        if (!ctx.userId) throw new Error('UNAUTHENTICATED');
-        return ctx.userId;
+mock.module('@prisma/client', () => ({
+    PrismaClient: class {
+        constructor() {
+            return createMockPrismaClient();
+        }
     },
 }));
+
+function createAuthModuleMock() {
+    return {
+        requireUser(ctx: { userId: string | null }): string {
+            if (!ctx.userId) throw new Error('UNAUTHENTICATED');
+            return ctx.userId;
+        },
+    };
+}
+
+mock.module('../lib/auth', createAuthModuleMock);
+
+mock.module('../../lib/auth', createAuthModuleMock);
 
 export const resolvers: any = await import('./characterResolvers');
 
