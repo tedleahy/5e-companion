@@ -159,6 +159,9 @@ export default function LevelUpSpellcastingStep({
                                             key={entry.spell.id}
                                             onPress={() => setSwapOutSpellId(entry.spell.id)}
                                             style={[styles.swapRow, selected && styles.swapRowSelected]}
+                                            accessibilityRole="button"
+                                            accessibilityLabel={`Select ${entry.spell.name} to swap out`}
+                                            accessibilityState={{ selected }}
                                         >
                                             <Text style={styles.swapSpellName}>{entry.spell.name}</Text>
                                             <Text style={styles.swapSpellLevel}>{spellLevelLabel(entry.spell.level)}</Text>
@@ -281,7 +284,12 @@ function SelectionCard({
         <View style={styles.card}>
             <Text style={styles.cardLabel}>{title}</Text>
             <Text style={styles.bodyText}>{body}</Text>
-            <Pressable onPress={onPress} style={styles.actionButton}>
+            <Pressable
+                onPress={onPress}
+                style={styles.actionButton}
+                accessibilityRole="button"
+                accessibilityLabel={buttonLabel}
+            >
                 <Text style={styles.actionButtonText}>{buttonLabel}</Text>
             </Pressable>
             <Text style={styles.counterText}>{counterLabel}</Text>
@@ -312,7 +320,7 @@ function SelectionPill({ spell, onRemove }: SelectionPillProps) {
     return (
         <View style={styles.selectionPill}>
             <Text style={styles.selectionPillText}>{`${spell.name} (${spell.level === 0 ? 'Cantrip' : spellLevelLabel(spell.level)})`}</Text>
-            <Pressable onPress={onRemove} accessibilityLabel={`Remove ${spell.name}`}>
+            <Pressable onPress={onRemove} accessibilityRole="button" accessibilityLabel={`Remove ${spell.name}`}>
                 <Text style={styles.selectionPillRemove}>x</Text>
             </Pressable>
         </View>
