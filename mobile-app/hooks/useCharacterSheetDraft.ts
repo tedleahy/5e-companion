@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { applyLevelUpToDraft, type ApplyLevelUpDraftInput } from '@/lib/characterLevelUp/draftApplication';
 import {
     createBlankDraftFeature,
@@ -22,7 +22,7 @@ import type {
 import type { AbilityKey, SkillKey } from '@/lib/characterSheetUtils';
 
 /** Character detail row consumed by the character-sheet draft hook. */
-type CharacterSheetDetail = NonNullable<CharacterSheetDetailQuery['character']>;
+export type CharacterSheetDetail = NonNullable<CharacterSheetDetailQuery['character']>;
 
 /**
  * Owns local edit-mode draft state for the character-sheet route.
@@ -30,6 +30,16 @@ type CharacterSheetDetail = NonNullable<CharacterSheetDetailQuery['character']>;
 export default function useCharacterSheetDraft(character: CharacterSheetDetail | null) {
     const [draft, setDraft] = useState<CharacterSheetDraft | null>(null);
     const editMode = draft !== null;
+    const previousCharacterIdRef = useRef<string | null>(null);
+
+    useEffect(() => {
+        const currentCharacterId = character?.id ?? null;
+        if (previousCharacterIdRef.current !== currentCharacterId) {
+            // Character changed (including from null to loaded, or loaded to null)
+            setDraft(null);
+        }
+        previousCharacterIdRef.current = currentCharacterId;
+    }, [character]);
 
     /**
      * Applies a functional update to the current draft when edit mode is active.
@@ -346,3 +356,5 @@ export default function useCharacterSheetDraft(character: CharacterSheetDetail |
         applyConfirmedLevelUp,
     };
 }
+
+export type UseCharacterSheetDraftReturn = ReturnType<typeof useCharacterSheetDraft>;
