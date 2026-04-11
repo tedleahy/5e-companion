@@ -1,4 +1,3 @@
-import { ProficiencyType } from "@prisma/client";
 import type { Context } from "../..";
 import type {
     MutationCreateCharacterArgs,
@@ -24,7 +23,9 @@ import {
     deriveSpellcastingProfiles,
     deriveStartingHp,
     findStartingClassIndex,
+    PROFICIENCY_TYPE,
     resolveCharacterClasses,
+    type ProficiencyType,
     validateClassAllocations,
     type CharacterAbilityScores,
 } from "./multiclassRules";
@@ -300,9 +301,9 @@ function deriveReferenceProficiencies(
     ];
 
     for (const proficiency of referenceProficiencies) {
-        if (proficiency.type === ProficiencyType.ARMOR) armor.add(proficiency.name);
-        if (proficiency.type === ProficiencyType.WEAPON) weapons.add(proficiency.name);
-        if (proficiency.type === ProficiencyType.TOOL) tools.add(proficiency.name);
+        if (proficiency.type === PROFICIENCY_TYPE.ARMOR) armor.add(proficiency.name);
+        if (proficiency.type === PROFICIENCY_TYPE.WEAPON) weapons.add(proficiency.name);
+        if (proficiency.type === PROFICIENCY_TYPE.TOOL) tools.add(proficiency.name);
     }
 
     return {

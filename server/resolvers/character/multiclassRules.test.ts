@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { ProficiencyType } from '@prisma/client';
 import {
     deriveHitDicePools,
     deriveNamedClassProficiencies,
@@ -9,6 +8,7 @@ import {
     deriveSpellcastingProfiles,
     deriveStartingHp,
     deriveTotalLevel,
+    PROFICIENCY_TYPE,
     recoverHitDicePools,
     validateClassAllocations,
     type CharacterClassReference,
@@ -21,8 +21,8 @@ const wizardClass: CharacterClassReference = {
     hitDie: 6,
     spellcastingAbility: 'int',
     proficiencies: [
-        { srdIndex: 'saving-throw-int', name: 'INT', type: ProficiencyType.SAVING_THROW },
-        { srdIndex: 'saving-throw-wis', name: 'WIS', type: ProficiencyType.SAVING_THROW },
+        { srdIndex: 'saving-throw-int', name: 'INT', type: PROFICIENCY_TYPE.SAVING_THROW },
+        { srdIndex: 'saving-throw-wis', name: 'WIS', type: PROFICIENCY_TYPE.SAVING_THROW },
     ],
 };
 
@@ -33,13 +33,13 @@ const fighterClass: CharacterClassReference = {
     hitDie: 10,
     spellcastingAbility: null,
     proficiencies: [
-        { srdIndex: 'light-armor', name: 'Light armour', type: ProficiencyType.ARMOR },
-        { srdIndex: 'medium-armor', name: 'Medium armour', type: ProficiencyType.ARMOR },
-        { srdIndex: 'shields', name: 'Shields', type: ProficiencyType.ARMOR },
-        { srdIndex: 'simple-weapons', name: 'Simple weapons', type: ProficiencyType.WEAPON },
-        { srdIndex: 'martial-weapons', name: 'Martial weapons', type: ProficiencyType.WEAPON },
-        { srdIndex: 'saving-throw-str', name: 'STR', type: ProficiencyType.SAVING_THROW },
-        { srdIndex: 'saving-throw-con', name: 'CON', type: ProficiencyType.SAVING_THROW },
+        { srdIndex: 'light-armor', name: 'Light armour', type: PROFICIENCY_TYPE.ARMOR },
+        { srdIndex: 'medium-armor', name: 'Medium armour', type: PROFICIENCY_TYPE.ARMOR },
+        { srdIndex: 'shields', name: 'Shields', type: PROFICIENCY_TYPE.ARMOR },
+        { srdIndex: 'simple-weapons', name: 'Simple weapons', type: PROFICIENCY_TYPE.WEAPON },
+        { srdIndex: 'martial-weapons', name: 'Martial weapons', type: PROFICIENCY_TYPE.WEAPON },
+        { srdIndex: 'saving-throw-str', name: 'STR', type: PROFICIENCY_TYPE.SAVING_THROW },
+        { srdIndex: 'saving-throw-con', name: 'CON', type: PROFICIENCY_TYPE.SAVING_THROW },
     ],
 };
 
@@ -50,14 +50,14 @@ const paladinClass: CharacterClassReference = {
     hitDie: 10,
     spellcastingAbility: 'cha',
     proficiencies: [
-        { srdIndex: 'light-armor', name: 'Light armour', type: ProficiencyType.ARMOR },
-        { srdIndex: 'medium-armor', name: 'Medium armour', type: ProficiencyType.ARMOR },
-        { srdIndex: 'heavy-armor', name: 'Heavy armour', type: ProficiencyType.ARMOR },
-        { srdIndex: 'shields', name: 'Shields', type: ProficiencyType.ARMOR },
-        { srdIndex: 'simple-weapons', name: 'Simple weapons', type: ProficiencyType.WEAPON },
-        { srdIndex: 'martial-weapons', name: 'Martial weapons', type: ProficiencyType.WEAPON },
-        { srdIndex: 'saving-throw-wis', name: 'WIS', type: ProficiencyType.SAVING_THROW },
-        { srdIndex: 'saving-throw-cha', name: 'CHA', type: ProficiencyType.SAVING_THROW },
+        { srdIndex: 'light-armor', name: 'Light armour', type: PROFICIENCY_TYPE.ARMOR },
+        { srdIndex: 'medium-armor', name: 'Medium armour', type: PROFICIENCY_TYPE.ARMOR },
+        { srdIndex: 'heavy-armor', name: 'Heavy armour', type: PROFICIENCY_TYPE.ARMOR },
+        { srdIndex: 'shields', name: 'Shields', type: PROFICIENCY_TYPE.ARMOR },
+        { srdIndex: 'simple-weapons', name: 'Simple weapons', type: PROFICIENCY_TYPE.WEAPON },
+        { srdIndex: 'martial-weapons', name: 'Martial weapons', type: PROFICIENCY_TYPE.WEAPON },
+        { srdIndex: 'saving-throw-wis', name: 'WIS', type: PROFICIENCY_TYPE.SAVING_THROW },
+        { srdIndex: 'saving-throw-cha', name: 'CHA', type: PROFICIENCY_TYPE.SAVING_THROW },
     ],
 };
 
@@ -68,10 +68,10 @@ const warlockClass: CharacterClassReference = {
     hitDie: 8,
     spellcastingAbility: 'cha',
     proficiencies: [
-        { srdIndex: 'light-armor', name: 'Light armour', type: ProficiencyType.ARMOR },
-        { srdIndex: 'simple-weapons', name: 'Simple weapons', type: ProficiencyType.WEAPON },
-        { srdIndex: 'saving-throw-wis', name: 'WIS', type: ProficiencyType.SAVING_THROW },
-        { srdIndex: 'saving-throw-cha', name: 'CHA', type: ProficiencyType.SAVING_THROW },
+        { srdIndex: 'light-armor', name: 'Light armour', type: PROFICIENCY_TYPE.ARMOR },
+        { srdIndex: 'simple-weapons', name: 'Simple weapons', type: PROFICIENCY_TYPE.WEAPON },
+        { srdIndex: 'saving-throw-wis', name: 'WIS', type: PROFICIENCY_TYPE.SAVING_THROW },
+        { srdIndex: 'saving-throw-cha', name: 'CHA', type: PROFICIENCY_TYPE.SAVING_THROW },
     ],
 };
 

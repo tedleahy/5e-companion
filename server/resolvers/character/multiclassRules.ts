@@ -1,5 +1,3 @@
-import { ProficiencyType } from "@prisma/client";
-
 /**
  * Ability score record used by derived multiclass calculations.
  */
@@ -11,6 +9,15 @@ export type CharacterAbilityScores = {
     wisdom: number;
     charisma: number;
 };
+
+export const PROFICIENCY_TYPE = {
+    ARMOR: 'ARMOR',
+    WEAPON: 'WEAPON',
+    TOOL: 'TOOL',
+    SAVING_THROW: 'SAVING_THROW',
+} as const;
+
+export type ProficiencyType = (typeof PROFICIENCY_TYPE)[keyof typeof PROFICIENCY_TYPE];
 
 /**
  * Raw class row submitted when creating a character.
@@ -516,7 +523,7 @@ export function deriveSavingThrowProficiencies(
     startingClass: CharacterClassReference,
 ): Array<keyof CharacterAbilityScores> {
     const savingThrowProficiencies = (startingClass.proficiencies ?? [])
-        .filter((proficiency) => proficiency.type === ProficiencyType.SAVING_THROW)
+        .filter((proficiency) => proficiency.type === PROFICIENCY_TYPE.SAVING_THROW)
         .map((proficiency) => {
             const suffix = proficiency.srdIndex?.replace('saving-throw-', '') ?? '';
             return ABILITY_KEY_BY_SRD_INDEX[suffix];
@@ -556,9 +563,9 @@ export function deriveNamedClassProficiencies(
     for (const [index, resolvedClass] of classes.entries()) {
         if (index === startingClassIndex) {
             for (const proficiency of resolvedClass.classRef.proficiencies ?? []) {
-                if (proficiency.type === ProficiencyType.ARMOR) armor.add(proficiency.name);
-                if (proficiency.type === ProficiencyType.WEAPON) weapons.add(proficiency.name);
-                if (proficiency.type === ProficiencyType.TOOL) tools.add(proficiency.name);
+                if (proficiency.type === PROFICIENCY_TYPE.ARMOR) armor.add(proficiency.name);
+                if (proficiency.type === PROFICIENCY_TYPE.WEAPON) weapons.add(proficiency.name);
+                if (proficiency.type === PROFICIENCY_TYPE.TOOL) tools.add(proficiency.name);
             }
             continue;
         }
