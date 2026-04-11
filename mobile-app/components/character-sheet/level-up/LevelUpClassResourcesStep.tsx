@@ -1,19 +1,62 @@
 import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import type { LevelUpWizardSelectedClass } from '@/lib/characterLevelUp/types';
+import type {
+    InvocationPrerequisiteContext,
+    LevelUpInvocationState,
+    LevelUpMetamagicState,
+    LevelUpMysticArcanumState,
+    LevelUpWizardSelectedClass,
+} from '@/lib/characterLevelUp/types';
 import type { ClassResourceChange } from '@/lib/characterLevelUp/classResources';
 import { getClassResourceChanges } from '@/lib/characterLevelUp/classResources';
+import {
+    canSwapInvocation,
+    hasInvocationGain,
+    hasMetamagicGain,
+    hasMysticArcanumGain,
+    invocationGainCount,
+    metamagicGainCount,
+    mysticArcanumSpellLevel,
+} from '@/lib/characterLevelUp/advancedClassChoices';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import LevelUpInvocationPicker from './LevelUpInvocationPicker';
+import LevelUpInvocationSwapSection from './LevelUpInvocationSwapSection';
+import LevelUpMetamagicPicker from './LevelUpMetamagicPicker';
+import LevelUpMysticArcanumPicker from './LevelUpMysticArcanumPicker';
 
 type LevelUpClassResourcesStepProps = {
     selectedClass: LevelUpWizardSelectedClass;
+    invocationPrerequisiteContext: InvocationPrerequisiteContext | null;
+    invocationState: LevelUpInvocationState;
+    metamagicState: LevelUpMetamagicState;
+    mysticArcanumState: LevelUpMysticArcanumState;
+    onToggleInvocation: (invocationId: string) => void;
+    onChangeCustomInvocation: (custom: { name: string; description: string } | null) => void;
+    onChangeInvocationSwapOut: (invocationId: string | null) => void;
+    onChangeInvocationSwapIn: (invocation: { id: string; name: string; isCustom: boolean } | null) => void;
+    onToggleMetamagic: (metamagicId: string) => void;
+    onChangeCustomMetamagic: (custom: { name: string; description: string } | null) => void;
+    onChangeMysticArcanumSpell: (spell: { id: string; name: string; level: number } | null) => void;
 };
 
 /**
- * Renders the class resource updates step showing before/after values.
+ * Renders the class resource updates step showing before/after values,
+ * plus advanced pickers for warlock invocations, sorcerer metamagic,
+ * and warlock mystic arcanum.
  */
 export default function LevelUpClassResourcesStep({
     selectedClass,
+    invocationPrerequisiteContext,
+    invocationState,
+    metamagicState,
+    mysticArcanumState,
+    onToggleInvocation,
+    onChangeCustomInvocation,
+    onChangeInvocationSwapOut,
+    onChangeInvocationSwapIn,
+    onToggleMetamagic,
+    onChangeCustomMetamagic,
+    onChangeMysticArcanumSpell,
 }: LevelUpClassResourcesStepProps) {
     const changes = getClassResourceChanges(
         selectedClass.classId,
@@ -22,6 +65,16 @@ export default function LevelUpClassResourcesStep({
     );
     const changedResources = changes.filter((change) => change.changed);
     const unchangedResources = changes.filter((change) => !change.changed);
+
+    const showInvocationPicker = selectedClass.classId === 'warlock'
+        && hasInvocationGain(selectedClass.currentLevel, selectedClass.newLevel);
+    const showInvocationSwap = selectedClass.classId === 'warlock'
+        && canSwapInvocation(selectedClass.newLevel);
+    const showMetamagicPicker = selectedClass.classId === 'sorcerer'
+        && hasMetamagicGain(selectedClass.newLevel);
+    const showMysticArcanum = selectedClass.classId === 'warlock'
+        && hasMysticArcanumGain(selectedClass.newLevel);
+    const arcanumSpellLevel = mysticArcanumSpellLevel(selectedClass.newLevel);
 
     return (
         <View style={styles.section} testID="level-up-step-class_resources">
@@ -51,6 +104,41 @@ export default function LevelUpClassResourcesStep({
                         </View>
                     ))}
                 </View>
+            ) : null}
+
+            {showInvocationPicker ? (
+                <LevelUpInvocationPicker
+                    gainCount={invocationGainCount(selectedClass.currentLevel, selectedClass.newLevel)}
+                    state={invocationState}
+                    prerequisiteContext={invocationPrerequisiteContext}
+                    onToggle={onToggleInvocation}
+                    onChangeCustom={onChangeCustomInvocation}
+                />
+            ) : null}
+
+            {showInvocationSwap ? (
+                <LevelUpInvocationSwapSection
+                    state={invocationState}
+                    onChangeSwapOut={onChangeInvocationSwapOut}
+                    onChangeSwapIn={onChangeInvocationSwapIn}
+                />
+            ) : null}
+
+            {showMetamagicPicker ? (
+                <LevelUpMetamagicPicker
+                    gainCount={metamagicGainCount(selectedClass.newLevel)}
+                    state={metamagicState}
+                    onToggle={onToggleMetamagic}
+                    onChangeCustom={onChangeCustomMetamagic}
+                />
+            ) : null}
+
+            {showMysticArcanum && arcanumSpellLevel != null ? (
+                <LevelUpMysticArcanumPicker
+                    spellLevel={arcanumSpellLevel}
+                    state={mysticArcanumState}
+                    onChange={onChangeMysticArcanumSpell}
+                />
             ) : null}
         </View>
     );
