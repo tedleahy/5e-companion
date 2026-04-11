@@ -157,6 +157,7 @@ export type UseLevelUpWizardResult = {
     toggleMetamagic: (metamagicId: string) => void;
     changeCustomMetamagic: (custom: { name: string; description: string } | null) => void;
     changeMysticArcanumSpell: (spell: { id: string; name: string; level: number } | null) => void;
+    isDirty: boolean;
     goToPreviousStep: () => void;
     goToNextStep: () => void;
     resetWizard: () => void;
@@ -501,6 +502,26 @@ export default function useLevelUpWizard(
         });
     }, [nextButtonDisabled, steps.length]);
 
+    /**
+     * True when the user has entered any meaningful data beyond the initial defaults.
+     */
+    const isDirty = currentStepIndex > 0
+        || classSelection.mode === 'multiclass_picker'
+        || hitPointsState != null
+        || asiOrFeatState.mode === 'feat'
+        || Object.values(asiOrFeatState.allocations).some((v) => v > 0)
+        || subclassSelectionState.mode !== 'none'
+        || spellcastingState.learnedSpells.length > 0
+        || spellcastingState.cantripSpells.length > 0
+        || spellcastingState.swapOutSpellId != null
+        || multiclassProficiencyState.selectedSkills.length > 0
+        || invocationState.selectedInvocations.length > 0
+        || invocationState.customInvocation != null
+        || metamagicState.selectedMetamagicIds.length > 0
+        || metamagicState.customMetamagic != null
+        || mysticArcanumState.selectedSpell != null
+        || customFeatures.length > 0;
+
     const resetWizard = useCallback(() => {
         setClassSelection(createLevelUpClassSelectionState(defaultClassId));
         setHitPointsState(null);
@@ -546,6 +567,7 @@ export default function useLevelUpWizard(
         stepLabel,
         nextButtonLabel,
         nextButtonDisabled,
+        isDirty,
         selectClass,
         enterClassPicker,
         returnToCurrentClass,

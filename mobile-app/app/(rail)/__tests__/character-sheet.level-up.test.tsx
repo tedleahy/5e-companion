@@ -1,4 +1,5 @@
-import { fireEvent, screen, waitFor, within } from '@testing-library/react-native';
+import { Alert } from 'react-native';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react-native';
 import { SEARCH_SPELLS_FOR_SHEET } from '@/components/character-sheet/spells/AddSpellSheet';
 import { LEARN_SPELL, SAVE_CHARACTER_SHEET } from '@/graphql/characterSheet.operations';
 import { CHARACTERS_MOCK, MOCK_CHARACTER, SAVE_CORE_CHARACTER_MOCKS } from './mocks/character-sheet.mocks';
@@ -88,6 +89,28 @@ jest.mock('@/hooks/useAvailableSubclasses', () => ({
         };
     }),
 }));
+
+const LEVEL_20_CHARACTER_SHEET_MOCK = {
+    request: {
+        ...CHARACTERS_MOCK.request,
+    },
+    result: {
+        data: {
+            character: {
+                ...MOCK_CHARACTER,
+                level: 20,
+                classes: [
+                    {
+                        ...MOCK_CHARACTER.classes[0],
+                        level: 18,
+                    },
+                    MOCK_CHARACTER.classes[1],
+                ],
+            },
+            hasCurrentUserCharacters: true,
+        },
+    },
+};
 
 const LOW_CON_CHARACTER_SHEET_MOCK = {
     request: {
@@ -978,5 +1001,81 @@ describe('CharacterByIdScreen level-up wizard', () => {
         await waitFor(() => {
             expect(screen.getByText('Resilient')).toBeTruthy();
         });
+    });
+
+    it('closes the wizard immediately when dismissing a clean (untouched) wizard', async () => {
+        renderCharacterSheetScreen();
+
+        await enableCharacterSheetEditMode();
+        await pressAndFlush(screen.getByLabelText('Level up character'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Advance Vaelindra to Level 13')).toBeTruthy();
+        });
+
+        const alertSpy = jest.spyOn(Alert, 'alert');
+
+        fireEvent.press(screen.getByLabelText('Close level up wizard'));
+
+        await waitFor(() => {
+            expect(screen.queryByTestId('level-up-wizard-sheet')).toBeNull();
+        });
+
+        expect(alertSpy).not.toHaveBeenCalled();
+    });
+
+    it('shows a discard confirmation when dismissing a dirty wizard and respects the user choice', async () => {
+        renderCharacterSheetScreen();
+
+        await enableCharacterSheetEditMode();
+        await pressAndFlush(screen.getByLabelText('Level up character'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 1 of 5 - Choose Class')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 2 of 5 - Hit Points')).toBeTruthy();
+        });
+
+        const alertSpy = jest.spyOn(Alert, 'alert');
+
+        fireEvent.press(screen.getByLabelText('Close level up wizard'));
+
+        expect(alertSpy).toHaveBeenCalledWith(
+            'Discard level-up changes?',
+            'You have unsaved progress in the level-up wizard. Are you sure you want to discard it?',
+            expect.arrayContaining([
+                expect.objectContaining({ text: 'Keep Editing', style: 'cancel' }),
+                expect.objectContaining({ text: 'Discard', style: 'destructive' }),
+            ]),
+        );
+
+        expect(screen.getByTestId('level-up-wizard-sheet')).toBeTruthy();
+
+        const discardButton = alertSpy.mock.calls[0]![2]!.find(
+            (button: { text?: string }) => button.text === 'Discard',
+        ) as { onPress?: () => void } | undefined;
+
+        await act(async () => {
+            discardButton?.onPress?.();
+            await Promise.resolve();
+        });
+
+        expect(screen.queryByTestId('level-up-wizard-sheet')).toBeNull();
+    });
+
+    it('hides the level-up button for a level-20 character', async () => {
+        renderCharacterSheetScreen([LEVEL_20_CHARACTER_SHEET_MOCK]);
+
+        await waitFor(() => {
+            expect(screen.getByText('Vaelindra')).toBeTruthy();
+        });
+
+        await enableCharacterSheetEditMode();
+
+        expect(screen.queryByLabelText('Level up character')).toBeNull();
     });
 });

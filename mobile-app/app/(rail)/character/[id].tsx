@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { ActivityIndicator, Snackbar, Text } from 'react-native-paper';
 import {
@@ -30,6 +30,7 @@ import useAvailableSubclasses from '@/hooks/useAvailableSubclasses';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
 import useCharacterSheetData from '@/hooks/useCharacterSheetData';
 import useCharacterSheetDraft from '@/hooks/useCharacterSheetDraft';
+import { isAtMaxLevel } from '@/lib/characterLevelUp/advancedClassChoices';
 import { mapCustomFeatureDrafts } from '@/lib/characterLevelUp/subclassFeatures';
 import {
     formatCharacterClassSummary,
@@ -195,15 +196,42 @@ export default function CharacterByIdScreen() {
 
     /**
      * Opens the chunk-1 level-up sheet shell while edit mode remains active underneath.
+     * Silently refuses if the character has already reached level 20.
      */
     const handleOpenLevelUpSheet = useCallback(() => {
+        const currentLevel = draft?.level ?? character?.level ?? 0;
+
+        if (isAtMaxLevel(currentLevel)) {
+            return;
+        }
+
         setLevelUpSheetVisible(true);
-    }, []);
+    }, [character?.level, draft?.level]);
 
     /**
      * Closes the level-up sheet without affecting the underlying edit draft.
+     * Shows a discard confirmation when the wizard contains user-entered data.
      */
     const handleCloseLevelUpSheet = useCallback(() => {
+        if (levelUpWizard.isDirty) {
+            Alert.alert(
+                'Discard level-up changes?',
+                'You have unsaved progress in the level-up wizard. Are you sure you want to discard it?',
+                [
+                    { text: 'Keep Editing', style: 'cancel' },
+                    {
+                        text: 'Discard',
+                        style: 'destructive',
+                        onPress: () => {
+                            setLevelUpSheetVisible(false);
+                            levelUpWizard.resetWizard();
+                        },
+                    },
+                ],
+            );
+            return;
+        }
+
         setLevelUpSheetVisible(false);
         levelUpWizard.resetWizard();
     }, [levelUpWizard]);
