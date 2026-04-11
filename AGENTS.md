@@ -5,6 +5,46 @@ Goal
 - Features: browse/search/filter spells, create custom spells, manage characters (HP, inventory, etc).
 - Learn: React Native + GraphQL (Apollo Server), all in TypeScript.
 
+## Project Overview
+
+The D&D Companion App is a mobile tool for Dungeons & Dragons players to manage their game sessions. It consists of:
+
+- **Mobile app** (Expo React Native): fantasy-styled interface for browsing spells, creating/managing characters, tracking combat stats.
+- **Backend server** (Node.js + Apollo GraphQL): serves SRD data and persists user-created content.
+
+### Core Features
+
+**Spell Management**
+- Browse/search/filter SRD spells (level, school, class, ritual, concentration, etc.)
+- View detailed spell descriptions
+- Create custom spells that appear alongside SRD spells
+
+**Character Management**
+- Create characters via multi-step wizard (race, class, abilities, skills, background)
+- Edit character sheets with tabs for core stats, abilities, skills, features, inventory, spells
+- Track HP, death saves, hit dice, inspiration, AC, speed, initiative
+- Manage inventory (weapons, items with weight, equipped status)
+- Track spell slots and prepare/unprepare spells from character's spellbook
+- Perform rests (short/long) to recover resources
+
+**Gameplay Support**
+- Update character stats in real-time during play (HP, death saves, hit dice, conditions)
+- Toggle spell slot usage
+- Manage prepared spells
+- Track currency and equipment
+
+**User Experience**
+- Fantasy-themed UI with custom fonts and colours
+- Navigation rail for main sections (Characters, Spells, Settings)
+- Authentication via Supabase (sign-in/sign-up)
+- Responsive design for mobile screens
+
+### Data Flow
+- SRD data imported from JSON files into PostgreSQL via Prisma seeding.
+- Unified spells table stores SRD spells (source=SRD) and user custom spells (source=CUSTOM).
+- Characters belong to users (via userId) and reference SRD data by srdIndex.
+- GraphQL API provides queries and mutations for all frontend interactions.
+
 App (Mobile)
 - Expo React Native + TypeScript
 - UI: react-native-paper (Material Design components)
@@ -76,4 +116,4 @@ General instructions
 - GraphQL codegen note: `mobile-app/codegen.yml` scans `app/**/*.tsx`, `components/**/*.tsx`, and `graphql/**/*.ts`. If you add GraphQL documents elsewhere, expand the config first so generated operation types stay in sync.
 - Expo TypeScript note: if you add platform-specific files such as `Component.native.tsx` and `Component.web.tsx`, keep `mobile-app/tsconfig.json` `compilerOptions.moduleSuffixes` aligned so TypeScript resolves the same module variants that Expo/Metro does.
 - Character creation reference-data note: the server create mutation resolves class/subclass rows by SRD `srdIndex`, not display labels, so mobile create-flow option values must stay aligned with the seeded SRD reference data. Do not offer races, backgrounds, classes, or subclasses that the current seed data cannot resolve.
-- For any missing information or any step that requires user input, use the ask-user-questions skill instead of continuing on your own. During troubleshooting, continue using the ask-user-questions skill whenever user input, confirmation, or a result check is needed. Do not assume the task is complete. Continue gathering input through ask-user-questions until the user explicitly confirms the task is complete. If the work appears complete but the user has not confirmed it, ask for confirmation before ending the task.
+- For any missing information or any step that requires user input, use the ask-user-questions skill instead of continuing on your own. During troubleshooting, continue using the ask-user-questions skill whenever user input, confirmation, or a result check is needed. Do not assume the task is complete. Continue gathering input through ask-user-questions until the user explicitly confirms the task is complete.
