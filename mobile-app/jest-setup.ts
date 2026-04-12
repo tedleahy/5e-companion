@@ -73,17 +73,12 @@ jest.mock('@react-navigation/native', () => {
     };
 });
 
-// Mock BackHandler via react-native mock (preserves TurboModuleRegistry)
-jest.mock('react-native', () => {
-    const actual = jest.requireActual('react-native');
-    const mockedReactNative = Object.create(actual);
-    
-    Object.defineProperty(mockedReactNative, 'BackHandler', {
-        value: {
-            addEventListener: jest.fn(() => ({ remove: jest.fn() })),
-            removeEventListener: jest.fn(),
-        },
-    });
-    
-    return mockedReactNative;
+// BackHandler mocks are set up in beforeEach to allow per-test overrides
+beforeEach(() => {
+    const { BackHandler } = jest.requireActual('react-native');
+    jest.spyOn(BackHandler, 'addEventListener').mockImplementation(() => ({ remove: jest.fn() }));
+});
+
+afterEach(() => {
+    jest.clearAllMocks();
 });
