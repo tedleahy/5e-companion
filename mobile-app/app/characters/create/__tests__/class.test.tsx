@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen, act } from '@testing-library/react-native';
 import { PaperProvider } from 'react-native-paper';
 import StepClass from '../class';
 
@@ -12,9 +12,13 @@ jest.mock('react-native', () => {
     const actual = jest.requireActual('react-native');
 
     const ScrollView = React.forwardRef(({ children, ...props }: { children: React.ReactNode }, ref: React.Ref<any>) => {
-        React.useImperativeHandle(ref, () => ({
-            scrollTo: mockScrollTo,
-        }));
+        React.useImperativeHandle(ref, () => {
+            return {
+                scrollTo: (options: { y: number; animated: boolean }) => {
+                    mockScrollTo(options);
+                },
+            };
+        });
 
         return <actual.View {...props}>{children}</actual.View>;
     });
@@ -95,8 +99,14 @@ jest.mock('@/components/wizard/ClassAllocationRow', () => ({
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { Text, View } = require('react-native');
 
+        const handleLayout = (event: unknown) => {
+            if (onLayout) {
+                onLayout(event);
+            }
+        };
+
         return (
-            <View onLayout={onLayout} testID={`class-allocation-row-${index}`}>
+            <View onLayout={handleLayout} testID={`class-allocation-row-${index}`}>
                 <Text testID="class-allocation-row">
                     {`${index}:${classRow.classId}:${isStartingClass ? 'starting' : 'not-starting'}`}
                 </Text>
@@ -147,7 +157,7 @@ describe('StepClass', () => {
         ]);
     });
 
-    it('scrolls to the newly added class row instead of the top of the page', () => {
+    it('scrolls to the newly added class row instead of the top of the page', async () => {
         useCharacterDraft.mockImplementation(() => {
             const [draft, setDraft] = React.useState({
                 level: 3,
@@ -166,18 +176,32 @@ describe('StepClass', () => {
             };
         });
 
+        mockScrollTo.mockImplementation((options) => {
+            // No-op implementation for testing
+        });
+
         renderScreen();
 
         // Enter multiclass mode first (single-class mode doesn't show add-class buttons)
-        fireEvent.press(screen.getByText('Choose additional classes'));
+        await act(async () => {
+            fireEvent.press(screen.getByText('Choose additional classes'));
+        });
 
-        fireEvent.press(screen.getByTestId('add-class-fighter'));
-        fireEvent(screen.getByTestId('class-allocation-row-1'), 'layout', {
-            nativeEvent: {
-                layout: {
-                    y: 240,
+        await act(async () => {
+            fireEvent.press(screen.getByTestId('add-class-fighter'));
+        });
+
+        // Wait for the new row to appear
+        const newRow = screen.getByTestId('class-allocation-row-1');
+        
+        await act(async () => {
+            fireEvent(newRow, 'layout', {
+                nativeEvent: {
+                    layout: {
+                        y: 240,
+                    },
                 },
-            },
+            });
         });
 
         expect(mockScrollTo).toHaveBeenCalledWith({ y: 240, animated: true });
