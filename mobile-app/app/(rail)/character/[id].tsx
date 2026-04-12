@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, BackHandler, StyleSheet, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { ActivityIndicator, Snackbar, Text } from 'react-native-paper';
 import {
     useLocalSearchParams,
     useRouter,
 } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import type { SkillProficiencies } from '@/types/generated_graphql_types';
+import { registerUnsavedChanges, unregisterUnsavedChanges } from '@/lib/unsavedChanges';
 import CharacterSheetHeader, { CHARACTER_SHEET_TABS } from '@/components/character-sheet/CharacterSheetHeader';
 import type { CharacterSheetTab } from '@/components/character-sheet/CharacterSheetHeader';
 import DeathSavesCard from '@/components/character-sheet/DeathSavesCard';
@@ -70,6 +72,7 @@ export default function CharacterByIdScreen() {
     const [saveErrorVisible, setSaveErrorVisible] = useState(false);
     const { id } = useLocalSearchParams<{ id?: string }>();
     const router = useRouter();
+    const navigation = useNavigation();
     const characterId = normaliseCharacterId(id);
     const {
         character,
@@ -91,6 +94,7 @@ export default function CharacterByIdScreen() {
     const {
         draft,
         editMode,
+        isDirty,
         startEditing,
         clearDraft,
         buildSaveInput,
@@ -172,6 +176,74 @@ export default function CharacterByIdScreen() {
         }
     }, [editMode, levelUpSheetVisible]);
 
+    // Intercept hardware back button when there are unsaved changes
+    useEffect(() => {
+        const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+            if (editMode && isDirty) {
+                Alert.alert(
+                    'Discard changes?',
+                    'You have unsaved changes to your character sheet. Are you sure you want to discard them?',
+                    [
+                        { text: 'Keep Editing', style: 'cancel' },
+                        {
+                            text: 'Discard',
+                            style: 'destructive',
+                            onPress: () => {
+                                clearDraft();
+                                // Navigate back after discarding changes
+                                router.back();
+                            },
+                        },
+                    ],
+                );
+                // Return true to prevent default back action (wait for user choice)
+                return true;
+            }
+            return false;
+        });
+
+        return () => subscription.remove();
+    }, [editMode, isDirty, clearDraft, router]);
+
+    // Intercept navigation away when there are unsaved changes
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+            if (editMode && isDirty) {
+                // Prevent default behavior
+                e.preventDefault();
+
+                Alert.alert(
+                    'Discard changes?',
+                    'You have unsaved changes to your character sheet. Are you sure you want to discard them?',
+                    [
+                        { text: 'Keep Editing', style: 'cancel' },
+                        {
+                            text: 'Discard',
+                            style: 'destructive',
+                            onPress: () => {
+                                clearDraft();
+                                // After clearing draft, dispatch the original action
+                                navigation.dispatch(e.data.action);
+                            },
+                        },
+                    ],
+                );
+            }
+        });
+
+        return unsubscribe;
+    }, [navigation, editMode, isDirty, clearDraft]);
+
+    // Register unsaved changes handler for global navigation interception
+    useEffect(() => {
+        const handler = {
+            getIsDirty: () => isDirty,
+            discardChanges: clearDraft,
+        };
+        registerUnsavedChanges(handler);
+        return () => unregisterUnsavedChanges();
+    }, [isDirty, clearDraft]);
+
     /** Tabs visible for this character — hides Spells for non-casters. */
     const visibleTabs: readonly CharacterSheetTab[] = useMemo(() => {
         const visibleSpellcastingProfiles = draft?.spellcastingProfiles ?? character?.spellcastingProfiles ?? [];
@@ -241,6 +313,29 @@ export default function CharacterByIdScreen() {
         setLevelUpSheetVisible(false);
         levelUpWizard.resetWizard();
     }, [levelUpWizard]);
+
+    /**
+     * Handles canceling edit mode with confirmation if there are unsaved changes.
+     */
+    const handleCancelEdit = useCallback(() => {
+        if (isDirty) {
+            Alert.alert(
+                'Discard changes?',
+                'You have unsaved changes to your character sheet. Are you sure you want to discard them?',
+                [
+                    { text: 'Keep Editing', style: 'cancel' },
+                    {
+                        text: 'Discard',
+                        style: 'destructive',
+                        onPress: clearDraft,
+                    },
+                ],
+            );
+            return;
+        }
+
+        clearDraft();
+    }, [clearDraft, isDirty]);
 
     /**
      * Applies the current wizard result into the local edit draft and closes the sheet.
@@ -428,7 +523,7 @@ export default function CharacterByIdScreen() {
                     onTabPress={handleTabPress}
                     editMode={editMode}
                     onStartEdit={startEditing}
-                    onCancelEdit={clearDraft}
+                    onCancelEdit={handleCancelEdit}
                     onDoneEdit={handleDoneEdit}
                     onLevelUp={displayedLevel < 20 ? handleOpenLevelUpSheet : undefined}
                 />

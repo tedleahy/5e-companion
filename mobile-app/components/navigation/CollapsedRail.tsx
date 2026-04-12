@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
-import { usePathname, useRouter } from 'expo-router';
+import { usePathname } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import {
@@ -10,6 +10,7 @@ import {
     type NavigationItem,
     type NavigationDestination,
 } from '@/components/navigation/navigationConstants';
+import useProtectedNavigation from '@/hooks/useProtectedNavigation';
 
 type StripButtonProps = {
     item: NavigationItem;
@@ -21,22 +22,20 @@ type StripButtonProps = {
  */
 export default function CollapsedRail() {
     const navigation = useNavigation();
-    const router = useRouter();
     const pathname = usePathname();
     const insets = useSafeAreaInsets();
-
-    /**
-     * Opens the parent drawer navigator.
-     */
-    function openDrawer() {
-        navigation.dispatch(DrawerActions.openDrawer());
-    }
+    const protectedRouter = useProtectedNavigation();
 
     /**
      * Navigates to a route from the collapsed rail.
      */
-    function navigateTo(destination: NavigationDestination) {
-        router.push(destination);
+    async function navigateTo(destination: NavigationDestination) {
+        await protectedRouter.push(destination);
+    }
+
+    /** Opens the expanded navigation drawer. */
+    function openDrawer() {
+        navigation.dispatch(DrawerActions.openDrawer());
     }
 
     return (

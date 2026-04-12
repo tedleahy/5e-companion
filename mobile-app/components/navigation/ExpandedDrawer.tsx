@@ -11,6 +11,7 @@ import {
     type NavigationItem,
     type NavigationDestination,
 } from '@/components/navigation/navigationConstants';
+import useProtectedNavigation from '@/hooks/useProtectedNavigation';
 
 type DrawerItemProps = {
     item: NavigationItem;
@@ -25,12 +26,13 @@ export default function ExpandedDrawer({ navigation }: DrawerContentComponentPro
     const router = useRouter();
     const pathname = usePathname();
     const insets = useSafeAreaInsets();
+    const protectedRouter = useProtectedNavigation();
 
     /**
      * Navigates to a top-level route and closes the drawer.
      */
-    function navigateTo(destination: NavigationDestination) {
-        router.push(destination);
+    async function navigateTo(destination: NavigationDestination) {
+        await protectedRouter.push(destination);
         navigation.closeDrawer();
     }
 

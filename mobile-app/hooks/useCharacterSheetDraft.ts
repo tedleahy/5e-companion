@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { applyLevelUpToDraft, type ApplyLevelUpDraftInput } from '@/lib/characterLevelUp/draftApplication';
 import {
     createBlankDraftFeature,
@@ -31,12 +31,14 @@ export default function useCharacterSheetDraft(character: CharacterSheetDetail |
     const [draft, setDraft] = useState<CharacterSheetDraft | null>(null);
     const editMode = draft !== null;
     const previousCharacterIdRef = useRef<string | null>(null);
+    const originalDraftRef = useRef<CharacterSheetDraft | null>(null);
 
     useEffect(() => {
         const currentCharacterId = character?.id ?? null;
         if (previousCharacterIdRef.current !== currentCharacterId) {
             // Character changed (including from null to loaded, or loaded to null)
             setDraft(null);
+            originalDraftRef.current = null;
         }
         previousCharacterIdRef.current = currentCharacterId;
     }, [character]);
@@ -56,7 +58,9 @@ export default function useCharacterSheetDraft(character: CharacterSheetDetail |
      */
     function startEditing() {
         if (!character) return;
-        setDraft(createCharacterSheetDraft(character));
+        const newDraft = createCharacterSheetDraft(character);
+        setDraft(newDraft);
+        originalDraftRef.current = newDraft;
     }
 
     /**
@@ -64,6 +68,7 @@ export default function useCharacterSheetDraft(character: CharacterSheetDetail |
      */
     function clearDraft() {
         setDraft(null);
+        originalDraftRef.current = null;
     }
 
     /**
@@ -326,9 +331,21 @@ export default function useCharacterSheetDraft(character: CharacterSheetDetail |
         updateDraft((currentDraft) => applyLevelUpToDraft(currentDraft, input));
     }
 
+    /**
+     * Computes whether the current draft differs from the original saved state.
+     */
+    const isDirty = useMemo(() => {
+        if (!draft || !originalDraftRef.current) return false;
+        
+        // Simple deep equality using JSON.stringify for now
+        // This works because the draft contains only JSON-serializable values
+        return JSON.stringify(draft) !== JSON.stringify(originalDraftRef.current);
+    }, [draft]);
+
     return {
         draft,
         editMode,
+        isDirty,
         startEditing,
         clearDraft,
         buildSaveInput,

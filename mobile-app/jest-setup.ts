@@ -58,3 +58,32 @@ jest.mock('react-native-keyboard-controller', () => ({
         return React.createElement(ScrollView, { ...restProps, ref }, props.children);
     }),
 }));
+
+// Mock @react-navigation/native
+jest.mock('@react-navigation/native', () => {
+    const actual = jest.requireActual('@react-navigation/native');
+    return {
+        ...actual,
+        useNavigation: () => ({
+            addListener: jest.fn(),
+            dispatch: jest.fn(),
+            navigate: jest.fn(),
+            goBack: jest.fn(),
+        }),
+    };
+});
+
+// Mock BackHandler via react-native mock (preserves TurboModuleRegistry)
+jest.mock('react-native', () => {
+    const actual = jest.requireActual('react-native');
+    const mockedReactNative = Object.create(actual);
+    
+    Object.defineProperty(mockedReactNative, 'BackHandler', {
+        value: {
+            addEventListener: jest.fn(() => ({ remove: jest.fn() })),
+            removeEventListener: jest.fn(),
+        },
+    });
+    
+    return mockedReactNative;
+});
