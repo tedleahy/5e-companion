@@ -153,4 +153,180 @@ describe('characterLevelUp step assembly', () => {
             'summary',
         ]);
     });
+
+    it('includes class_resources step for warlock mystic arcanum levels', () => {
+        const warlockCharacter: LevelUpWizardCharacter = {
+            ...TEST_CHARACTER,
+            classes: [
+                {
+                    id: 'class-row-warlock',
+                    classId: 'warlock',
+                    className: 'Warlock',
+                    subclassId: 'fiend',
+                    subclassName: 'Fiend',
+                    level: 10,
+                    isStartingClass: true,
+                    __typename: 'CharacterClass',
+                },
+            ],
+            spellcastingProfiles: [
+                {
+                    classId: 'warlock',
+                    className: 'Warlock',
+                    subclassId: 'fiend',
+                    subclassName: 'Fiend',
+                    classLevel: 10,
+                    spellcastingAbility: 'charisma',
+                    spellSaveDC: 12,
+                    spellAttackBonus: 4,
+                    slotKind: 'PACT_MAGIC' as never,
+                    __typename: 'SpellcastingProfile',
+                },
+            ],
+            spellSlots: [
+                { __typename: 'SpellSlot', id: 'slot-pact-1', kind: 'PACT_MAGIC' as never, level: 1, total: 2, used: 0 },
+            ],
+        };
+        const selectedClass = selectedLevelUpClass(warlockCharacter, 'warlock');
+        const steps = buildLevelUpStepList(
+            selectedClass,
+            needsSubclassSelectionStep(selectedClass),
+            buildLevelUpSpellcastingSummary(warlockCharacter, selectedClass),
+        ).map((step) => step.id);
+
+        // Expect class_resources step due to mystic arcanum gain
+        expect(steps).toContain('class_resources');
+    });
+
+    it('includes class_resources step for warlock invocation gain levels', () => {
+        const warlockCharacter: LevelUpWizardCharacter = {
+            ...TEST_CHARACTER,
+            classes: [
+                {
+                    id: 'class-row-warlock',
+                    classId: 'warlock',
+                    className: 'Warlock',
+                    subclassId: 'fiend',
+                    subclassName: 'Fiend',
+                    level: 4,
+                    isStartingClass: true,
+                    __typename: 'CharacterClass',
+                },
+            ],
+            spellcastingProfiles: [
+                {
+                    classId: 'warlock',
+                    className: 'Warlock',
+                    subclassId: 'fiend',
+                    subclassName: 'Fiend',
+                    classLevel: 4,
+                    spellcastingAbility: 'charisma',
+                    spellSaveDC: 12,
+                    spellAttackBonus: 4,
+                    slotKind: 'PACT_MAGIC' as never,
+                    __typename: 'SpellcastingProfile',
+                },
+            ],
+            spellSlots: [
+                { __typename: 'SpellSlot', id: 'slot-pact-1', kind: 'PACT_MAGIC' as never, level: 1, total: 2, used: 0 },
+            ],
+        };
+        const selectedClass = selectedLevelUpClass(warlockCharacter, 'warlock');
+        const steps = buildLevelUpStepList(
+            selectedClass,
+            needsSubclassSelectionStep(selectedClass),
+            buildLevelUpSpellcastingSummary(warlockCharacter, selectedClass),
+        ).map((step) => step.id);
+
+        // Expect class_resources step due to invocation gain
+        expect(steps).toContain('class_resources');
+    });
+
+    it('includes class_resources step for warlock swap allowed (level >=3)', () => {
+        const warlockCharacter: LevelUpWizardCharacter = {
+            ...TEST_CHARACTER,
+            classes: [
+                {
+                    id: 'class-row-warlock',
+                    classId: 'warlock',
+                    className: 'Warlock',
+                    subclassId: 'fiend',
+                    subclassName: 'Fiend',
+                    level: 2,
+                    isStartingClass: true,
+                    __typename: 'CharacterClass',
+                },
+            ],
+            spellcastingProfiles: [
+                {
+                    classId: 'warlock',
+                    className: 'Warlock',
+                    subclassId: 'fiend',
+                    subclassName: 'Fiend',
+                    classLevel: 2,
+                    spellcastingAbility: 'charisma',
+                    spellSaveDC: 12,
+                    spellAttackBonus: 4,
+                    slotKind: 'PACT_MAGIC' as never,
+                    __typename: 'SpellcastingProfile',
+                },
+            ],
+            spellSlots: [
+                { __typename: 'SpellSlot', id: 'slot-pact-1', kind: 'PACT_MAGIC' as never, level: 1, total: 2, used: 0 },
+            ],
+        };
+        const selectedClass = selectedLevelUpClass(warlockCharacter, 'warlock');
+        const steps = buildLevelUpStepList(
+            selectedClass,
+            needsSubclassSelectionStep(selectedClass),
+            buildLevelUpSpellcastingSummary(warlockCharacter, selectedClass),
+        ).map((step) => step.id);
+
+        // Expect class_resources step due to swap allowed
+        expect(steps).toContain('class_resources');
+    });
+
+    it('includes class_resources step for sorcerer metamagic gain levels', () => {
+        const sorcererCharacter: LevelUpWizardCharacter = {
+            ...TEST_CHARACTER,
+            classes: [
+                {
+                    id: 'class-row-sorcerer',
+                    classId: 'sorcerer',
+                    className: 'Sorcerer',
+                    subclassId: 'draconic',
+                    subclassName: 'Draconic',
+                    level: 2,
+                    isStartingClass: true,
+                    __typename: 'CharacterClass',
+                },
+            ],
+            spellcastingProfiles: [
+                {
+                    classId: 'sorcerer',
+                    className: 'Sorcerer',
+                    subclassId: 'draconic',
+                    subclassName: 'Draconic',
+                    classLevel: 2,
+                    spellcastingAbility: 'charisma',
+                    spellSaveDC: 12,
+                    spellAttackBonus: 4,
+                    slotKind: 'STANDARD' as never,
+                    __typename: 'SpellcastingProfile',
+                },
+            ],
+            spellSlots: [
+                { __typename: 'SpellSlot', id: 'slot-standard-1', kind: 'STANDARD' as never, level: 1, total: 2, used: 0 },
+            ],
+        };
+        const selectedClass = selectedLevelUpClass(sorcererCharacter, 'sorcerer');
+        const steps = buildLevelUpStepList(
+            selectedClass,
+            needsSubclassSelectionStep(selectedClass),
+            buildLevelUpSpellcastingSummary(sorcererCharacter, selectedClass),
+        ).map((step) => step.id);
+
+        // Expect class_resources step due to metamagic gain
+        expect(steps).toContain('class_resources');
+    });
 });

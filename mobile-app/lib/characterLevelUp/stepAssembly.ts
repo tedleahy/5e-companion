@@ -2,8 +2,7 @@ import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { sortCharacterClasses } from '@/lib/characterClassSummary';
 import type { AvailableSubclassOption } from '@/lib/subclasses';
 import { hasClassResourceChanges } from './classResources';
-import type { LevelUpSpellcastingSummary } from './types';
-import type { LevelUpSubclassSelectionState } from './types';
+import { hasAdvancedClassChoices } from './advancedClassChoices';
 import {
     createLevelUpSubclassSelectionState,
     hasNewFeaturesStep,
@@ -15,6 +14,8 @@ import type {
     LevelUpWizardSelectedClass,
     LevelUpWizardStep,
     LevelUpWizardStepId,
+    LevelUpSpellcastingSummary,
+    LevelUpSubclassSelectionState,
 } from './types';
 
 /**
@@ -170,7 +171,13 @@ export function isAsiLevel(classId: string, newClassLevel: number): boolean {
 export function hasClassResourceStep(classId: string, newClassLevel: number): boolean {
     const currentLevel = newClassLevel - 1;
 
-    return hasClassResourceChanges(classId, currentLevel, newClassLevel);
+    if (hasClassResourceChanges(classId, currentLevel, newClassLevel)) {
+        return true;
+    }
+    if (hasAdvancedClassChoices(classId, currentLevel, newClassLevel)) {
+        return true;
+    }
+    return false;
 }
 
 /**

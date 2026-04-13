@@ -76,6 +76,11 @@ export function applyLevelUpToDraft(
         input.mysticArcanumState,
     );
 
+    // Remove swapped-out invocation feature if present
+    const filteredFeatures = input.invocationState.swapOutInvocationId
+        ? draft.features.filter((f) => f.id !== input.invocationState.swapOutInvocationId)
+        : draft.features;
+
     return {
         ...draft,
         level: draft.level + 1,
@@ -87,7 +92,7 @@ export function applyLevelUpToDraft(
         hp,
         skillProficiencies,
         traits,
-        features: applyLevelUpFeatures(draft.features, input.asiOrFeatState, [...input.features, ...advancedFeatures]),
+        features: applyLevelUpFeatures(filteredFeatures, input.asiOrFeatState, [...input.features, ...advancedFeatures]),
     };
 }
 
@@ -350,6 +355,19 @@ export function buildAdvancedChoiceFeatures(
             name: `Eldritch Invocation: ${trimmedCustomInvocationName}`,
             description: invocationState.customInvocation.description.trim(),
         });
+    }
+
+    // Add swapped-in invocation as a feature (SRD only for now)
+    if (invocationState.swapOutInvocationId && invocationState.swapInInvocation && !invocationState.swapInInvocation.isCustom) {
+        const srd = findSrdInvocation(invocationState.swapInInvocation.id);
+        if (srd) {
+            features.push({
+                ...base,
+                key: `invocation-swap-${srd.id}`,
+                name: `Eldritch Invocation: ${srd.name}`,
+                description: srd.fullDescription,
+            });
+        }
     }
 
     for (const metamagicId of metamagicState.selectedMetamagicIds) {
