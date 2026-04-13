@@ -9,6 +9,7 @@ import {
     createLevelUpInvocationState,
     createLevelUpMetamagicState,
     createLevelUpMysticArcanumState,
+    extractExistingInvocations,
     invocationGainCount,
     metamagicGainCount,
     setCustomInvocation,
@@ -59,6 +60,7 @@ import {
 import {
     buildLevelUpStepList,
     defaultLevelUpClassId,
+    LEVEL_UP_WIZARD_STEP_CONTENT,
     selectedLevelUpClass,
 } from '@/lib/characterLevelUp/stepAssembly';
 import {
@@ -112,6 +114,7 @@ export type UseLevelUpWizardResult = {
     multiclassProficiencyState: LevelUpMulticlassProficiencyState;
     existingSkillProficiencies: SkillProficiencies | null;
     invocationPrerequisiteContext: InvocationPrerequisiteContext | null;
+    existingInvocations: ReturnType<typeof extractExistingInvocations>;
     invocationState: LevelUpInvocationState;
     metamagicState: LevelUpMetamagicState;
     mysticArcanumState: LevelUpMysticArcanumState;
@@ -554,6 +557,7 @@ export default function useLevelUpWizard(
         multiclassProficiencyState,
         existingSkillProficiencies: character?.stats?.skillProficiencies ?? null,
         invocationPrerequisiteContext,
+        existingInvocations: character?.features ? extractExistingInvocations(character.features) : [],
         invocationState,
         metamagicState,
         mysticArcanumState,
