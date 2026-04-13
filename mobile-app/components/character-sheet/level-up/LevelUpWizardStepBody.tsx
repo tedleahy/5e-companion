@@ -48,6 +48,7 @@ export default function LevelUpWizardStepBody({
         multiclassProficiencyState,
         existingSkillProficiencies,
         invocationPrerequisiteContext,
+        existingInvocations,
         invocationState,
         metamagicState,
         mysticArcanumState,
@@ -221,6 +222,7 @@ export default function LevelUpWizardStepBody({
                 invocationState={invocationState}
                 metamagicState={metamagicState}
                 mysticArcanumState={mysticArcanumState}
+                existingInvocations={existingInvocations}
                 onToggleInvocation={toggleInvocation}
                 onChangeCustomInvocation={changeCustomInvocation}
                 onChangeInvocationSwapOut={changeInvocationSwapOut}
