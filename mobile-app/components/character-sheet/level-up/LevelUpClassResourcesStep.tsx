@@ -18,6 +18,7 @@ import {
     metamagicGainCount,
     mysticArcanumSpellLevel,
 } from '@/lib/characterLevelUp/advancedClassChoices';
+import type { SrdInvocation } from '@/lib/characterLevelUp/advancedClassChoices';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import LevelUpInvocationPicker from './LevelUpInvocationPicker';
 import LevelUpInvocationSwapSection from './LevelUpInvocationSwapSection';
@@ -30,6 +31,7 @@ type LevelUpClassResourcesStepProps = {
     invocationState: LevelUpInvocationState;
     metamagicState: LevelUpMetamagicState;
     mysticArcanumState: LevelUpMysticArcanumState;
+    existingInvocations: readonly SrdInvocation[];
     onToggleInvocation: (invocationId: string) => void;
     onChangeCustomInvocation: (custom: { name: string; description: string } | null) => void;
     onChangeInvocationSwapOut: (invocationId: string | null) => void;
@@ -50,6 +52,7 @@ export default function LevelUpClassResourcesStep({
     invocationState,
     metamagicState,
     mysticArcanumState,
+    existingInvocations,
     onToggleInvocation,
     onChangeCustomInvocation,
     onChangeInvocationSwapOut,
@@ -119,6 +122,8 @@ export default function LevelUpClassResourcesStep({
             {showInvocationSwap ? (
                 <LevelUpInvocationSwapSection
                     state={invocationState}
+                    prerequisiteContext={invocationPrerequisiteContext}
+                    existingInvocations={existingInvocations}
                     onChangeSwapOut={onChangeInvocationSwapOut}
                     onChangeSwapIn={onChangeInvocationSwapIn}
                 />

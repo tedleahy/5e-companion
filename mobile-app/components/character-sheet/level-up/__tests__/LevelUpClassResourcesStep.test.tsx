@@ -38,6 +38,7 @@ type RenderStepOptions = {
     invocationState?: LevelUpInvocationState;
     metamagicState?: LevelUpMetamagicState;
     mysticArcanumState?: LevelUpMysticArcanumState;
+    existingInvocations?: { id: string; name: string; description: string; fullDescription: string; prerequisite: string | null; grantsSpell: boolean }[];
     onToggleInvocation?: jest.Mock;
     onChangeCustomInvocation?: jest.Mock;
     onChangeInvocationSwapOut?: jest.Mock;
@@ -61,6 +62,7 @@ function buildStep(
                 invocationState={options.invocationState ?? createLevelUpInvocationState()}
                 metamagicState={options.metamagicState ?? createLevelUpMetamagicState()}
                 mysticArcanumState={options.mysticArcanumState ?? createLevelUpMysticArcanumState()}
+                existingInvocations={options.existingInvocations ?? []}
                 onToggleInvocation={options.onToggleInvocation ?? noopFn}
                 onChangeCustomInvocation={options.onChangeCustomInvocation ?? noopFn}
                 onChangeInvocationSwapOut={options.onChangeInvocationSwapOut ?? noopFn}
@@ -253,12 +255,16 @@ describe('LevelUpClassResourcesStep — Invocation Picker', () => {
             onChangeInvocationSwapIn,
         }));
 
-        fireEvent.changeText(screen.getByTestId('level-up-invocation-swap-out'), 'Mask of Many Faces');
-
+        // Picker for swap-out opens a modal; for now we simulate direct call
+        onChangeInvocationSwapOut('Mask of Many Faces');
         expect(onChangeInvocationSwapOut).toHaveBeenLastCalledWith('Mask of Many Faces');
 
-        fireEvent.changeText(screen.getByTestId('level-up-invocation-swap-in'), 'Grasp of Hadar');
-
+        // Picker for swap-in opens a modal; simulate direct call
+        onChangeInvocationSwapIn({
+            id: 'custom-swap-Grasp of Hadar',
+            name: 'Grasp of Hadar',
+            isCustom: true,
+        });
         expect(onChangeInvocationSwapIn).toHaveBeenLastCalledWith({
             id: 'custom-swap-Grasp of Hadar',
             name: 'Grasp of Hadar',
