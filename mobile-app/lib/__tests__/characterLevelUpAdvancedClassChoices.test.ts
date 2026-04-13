@@ -9,6 +9,8 @@ import {
     createLevelUpInvocationState,
     createLevelUpMetamagicState,
     createLevelUpMysticArcanumState,
+    extractExistingInvocations,
+    hasAdvancedClassChoices,
     hasInvocationGain,
     hasMetamagicGain,
     hasMysticArcanumGain,
@@ -30,16 +32,42 @@ import type { InvocationPrerequisiteContext } from '../characterLevelUp/advanced
 describe('invocationGainCount', () => {
     it('returns 2 when warlock reaches level 2 (first invocations)', () => {
         expect(invocationGainCount(1, 2)).toBe(2);
+});
+
+describe('hasAdvancedClassChoices', () => {
+    it('returns true for warlock with invocation gain', () => {
+        expect(hasAdvancedClassChoices('warlock', 1, 2)).toBe(true);
+        expect(hasAdvancedClassChoices('warlock', 4, 5)).toBe(true);
     });
 
-    it('returns 1 at invocation gain levels (5, 7, 9, 12, 15, 18)', () => {
-        expect(invocationGainCount(4, 5)).toBe(1);
-        expect(invocationGainCount(6, 7)).toBe(1);
-        expect(invocationGainCount(8, 9)).toBe(1);
-        expect(invocationGainCount(11, 12)).toBe(1);
-        expect(invocationGainCount(14, 15)).toBe(1);
-        expect(invocationGainCount(17, 18)).toBe(1);
+    it('returns true for warlock with mystic arcanum gain', () => {
+        expect(hasAdvancedClassChoices('warlock', 10, 11)).toBe(true);
+        expect(hasAdvancedClassChoices('warlock', 12, 13)).toBe(true);
+        expect(hasAdvancedClassChoices('warlock', 14, 15)).toBe(true);
+        expect(hasAdvancedClassChoices('warlock', 16, 17)).toBe(true);
     });
+
+    it('returns true for warlock with swap allowed', () => {
+        expect(hasAdvancedClassChoices('warlock', 2, 3)).toBe(true);
+        expect(hasAdvancedClassChoices('warlock', 3, 4)).toBe(true);
+    });
+
+    it('returns true for sorcerer with metamagic gain', () => {
+        expect(hasAdvancedClassChoices('sorcerer', 2, 3)).toBe(true);
+        expect(hasAdvancedClassChoices('sorcerer', 9, 10)).toBe(true);
+        expect(hasAdvancedClassChoices('sorcerer', 16, 17)).toBe(true);
+    });
+
+    it('returns false for other classes', () => {
+        expect(hasAdvancedClassChoices('barbarian', 1, 2)).toBe(false);
+        expect(hasAdvancedClassChoices('fighter', 4, 5)).toBe(false);
+    });
+
+    it('returns false for warlock with no gains and swap not allowed', () => {
+        expect(hasAdvancedClassChoices('warlock', 0, 1)).toBe(false);
+    });
+});
+
 
     it('returns 0 at levels where no invocation is gained', () => {
         expect(invocationGainCount(2, 3)).toBe(0);
@@ -502,5 +530,59 @@ describe('buildInvocationPrerequisiteContext', () => {
         const ctx = buildInvocationPrerequisiteContext(2, [], []);
         expect(ctx.knownSpellNames).toEqual([]);
         expect(ctx.featureNames).toEqual([]);
+    });
+});
+
+describe('extractExistingInvocations', () => {
+    it('returns empty array when no features have invocation prefix', () => {
+        const features = [{ name: 'Rage' }, { name: 'Unarmored Defense' }];
+        expect(extractExistingInvocations(features)).toEqual([]);
+    });
+
+    it('extracts SRD invocations from features with "Eldritch Invocation: " prefix', () => {
+        const features = [
+            { name: 'Eldritch Invocation: Agonizing Blast' },
+            { name: 'Eldritch Invocation: Armor of Shadows' },
+            { name: 'Pact Magic' },
+        ];
+        const result = extractExistingInvocations(features);
+
+        expect(result).toHaveLength(2);
+        expect(result.map((i) => i.id)).toContain('agonizing-blast');
+        expect(result.map((i) => i.id)).toContain('armor-of-shadows');
+    });
+
+    it('handles case-insensitive matching', () => {
+        const features = [
+            { name: 'eldritch invocation: devil\'s sight' },
+            { name: 'ELDRITCH INVOCATION: MASK OF MANY FACES' },
+        ];
+        const result = extractExistingInvocations(features);
+
+        expect(result).toHaveLength(2);
+        expect(result.map((i) => i.id)).toContain('devils-sight');
+        expect(result.map((i) => i.id)).toContain('mask-of-many-faces');
+    });
+
+    it('handles whitespace around the prefix', () => {
+        const features = [
+            { name: '  Eldritch Invocation:  Beast Speech  ' },
+        ];
+        const result = extractExistingInvocations(features);
+
+        expect(result).toHaveLength(1);
+        expect(result[0].id).toBe('beast-speech');
+    });
+
+    it('ignores features with similar but different prefixes', () => {
+        const features = [
+            { name: 'Invocation: Some Other Thing' },
+            { name: 'Eldritch Something: Not an Invocation' },
+        ];
+        expect(extractExistingInvocations(features)).toEqual([]);
+    });
+
+    it('returns empty array for empty features list', () => {
+        expect(extractExistingInvocations([])).toEqual([]);
     });
 });

@@ -413,6 +413,30 @@ export function hasMysticArcanumGain(newWarlockLevel: number): boolean {
 }
 
 /**
+ * Returns whether the class has any advanced choices (invocations, metamagic, mystic arcanum, or swaps)
+ * that require the class resources step to appear.
+ */
+export function hasAdvancedClassChoices(classId: string, currentLevel: number, newLevel: number): boolean {
+    if (classId === 'warlock') {
+        if (hasInvocationGain(currentLevel, newLevel)) {
+            return true;
+        }
+        if (hasMysticArcanumGain(newLevel)) {
+            return true;
+        }
+        if (canSwapInvocation(newLevel)) {
+            return true;
+        }
+    }
+    if (classId === 'sorcerer') {
+        if (hasMetamagicGain(newLevel)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * Context needed to evaluate invocation prerequisites.
  */
 export type InvocationPrerequisiteContext = {
@@ -692,6 +716,29 @@ export function canContinueFromAdvancedResources(
  */
 export function findSrdInvocation(id: string): SrdInvocation | undefined {
     return SRD_INVOCATIONS.find((inv) => inv.id === id);
+}
+
+/**
+ * Extracts existing invocation features from the character's feature list.
+ * Returns SRD invocations that the character currently has.
+ * Invocations are stored with the prefix "Eldritch Invocation: " in feature names.
+ */
+export function extractExistingInvocations(
+    features: readonly { name: string }[],
+): SrdInvocation[] {
+    const invocationPrefix = 'eldritch invocation:';
+
+    // Extract invocation names from features that have the "Eldritch Invocation: " prefix
+    const invocationFeatureNames = new Set(
+        features
+            .map((f) => f.name.trim().toLowerCase())
+            .filter((name) => name.startsWith(invocationPrefix))
+            .map((name) => name.slice(invocationPrefix.length).trim()),
+    );
+
+    return SRD_INVOCATIONS.filter((inv) =>
+        invocationFeatureNames.has(inv.name.toLowerCase()),
+    );
 }
 
 /**
