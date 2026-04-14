@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, BackHandler, StyleSheet, View } from 'react-native';
+import { BackHandler, StyleSheet, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { ActivityIndicator, Snackbar, Text } from 'react-native-paper';
 import {
@@ -28,6 +28,7 @@ import PassiveSensesCard from '@/components/character-sheet/skills/PassiveSenses
 import SpellsTab from '@/components/character-sheet/SpellsTab';
 import TraitsTab from '@/components/character-sheet/TraitsTab';
 import VitalsCard from '@/components/character-sheet/VitalsCard';
+import useConfirm from '@/hooks/useConfirm';
 import useLevelUpWizard from '@/hooks/useLevelUpWizard';
 import useAvailableSubclasses from '@/hooks/useAvailableSubclasses';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
@@ -163,6 +164,7 @@ export default function CharacterByIdScreen() {
         [],
     );
     const { availableSubclasses, availableSubclassesByClassId } = useAvailableSubclasses(allSubclassClassIds);
+    const { confirm, confirmDialogElement } = useConfirm();
     const levelUpWizard = useLevelUpWizard(wizardCharacter, levelUpSheetVisible, availableSubclasses);
     const levelUpAvailableSubclasses = availableSubclassesByClassId[levelUpWizard.selectedClass.classId] ?? [];
 
@@ -180,22 +182,16 @@ export default function CharacterByIdScreen() {
     useEffect(() => {
         const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
             if (editMode && isDirty) {
-                Alert.alert(
-                    'Discard changes?',
-                    'You have unsaved changes to your character sheet. Are you sure you want to discard them?',
-                    [
-                        { text: 'Keep Editing', style: 'cancel' },
-                        {
-                            text: 'Discard',
-                            style: 'destructive',
-                            onPress: () => {
-                                clearDraft();
-                                // Navigate back after discarding changes
-                                router.back();
-                            },
-                        },
-                    ],
-                );
+                confirm({
+                    title: 'Discard changes?',
+                    message: 'You have unsaved changes to your character sheet. Are you sure you want to discard them?',
+                    confirmLabel: 'Discard',
+                    cancelLabel: 'Keep Editing',
+                    onConfirm: () => {
+                        clearDraft();
+                        router.back();
+                    },
+                });
                 // Return true to prevent default back action (wait for user choice)
                 return true;
             }
@@ -203,7 +199,7 @@ export default function CharacterByIdScreen() {
         });
 
         return () => subscription.remove();
-    }, [editMode, isDirty, clearDraft, router]);
+    }, [editMode, isDirty, clearDraft, router, confirm]);
 
     // Intercept navigation away when there are unsaved changes
     useEffect(() => {
@@ -212,27 +208,21 @@ export default function CharacterByIdScreen() {
                 // Prevent default behavior
                 e.preventDefault();
 
-                Alert.alert(
-                    'Discard changes?',
-                    'You have unsaved changes to your character sheet. Are you sure you want to discard them?',
-                    [
-                        { text: 'Keep Editing', style: 'cancel' },
-                        {
-                            text: 'Discard',
-                            style: 'destructive',
-                            onPress: () => {
-                                clearDraft();
-                                // After clearing draft, dispatch the original action
-                                navigation.dispatch(e.data.action);
-                            },
-                        },
-                    ],
-                );
+                confirm({
+                    title: 'Discard changes?',
+                    message: 'You have unsaved changes to your character sheet. Are you sure you want to discard them?',
+                    confirmLabel: 'Discard',
+                    cancelLabel: 'Keep Editing',
+                    onConfirm: () => {
+                        clearDraft();
+                        navigation.dispatch(e.data.action);
+                    },
+                });
             }
         });
 
         return unsubscribe;
-    }, [navigation, editMode, isDirty, clearDraft]);
+    }, [navigation, editMode, isDirty, clearDraft, confirm]);
 
     // Register unsaved changes handler for global navigation interception
     useEffect(() => {
@@ -292,50 +282,40 @@ export default function CharacterByIdScreen() {
      */
     const handleCloseLevelUpSheet = useCallback(() => {
         if (levelUpWizard.isDirty) {
-            Alert.alert(
-                'Discard level-up changes?',
-                'You have unsaved progress in the level-up wizard. Are you sure you want to discard it?',
-                [
-                    { text: 'Keep Editing', style: 'cancel' },
-                    {
-                        text: 'Discard',
-                        style: 'destructive',
-                        onPress: () => {
-                            setLevelUpSheetVisible(false);
-                            levelUpWizard.resetWizard();
-                        },
-                    },
-                ],
-            );
+            confirm({
+                title: 'Discard level-up changes?',
+                message: 'You have unsaved progress in the level-up wizard. Are you sure you want to discard it?',
+                confirmLabel: 'Discard',
+                cancelLabel: 'Keep Editing',
+                onConfirm: () => {
+                    setLevelUpSheetVisible(false);
+                    levelUpWizard.resetWizard();
+                },
+            });
             return;
         }
 
         setLevelUpSheetVisible(false);
         levelUpWizard.resetWizard();
-    }, [levelUpWizard]);
+    }, [levelUpWizard, confirm]);
 
     /**
      * Handles canceling edit mode with confirmation if there are unsaved changes.
      */
     const handleCancelEdit = useCallback(() => {
         if (isDirty) {
-            Alert.alert(
-                'Discard changes?',
-                'You have unsaved changes to your character sheet. Are you sure you want to discard them?',
-                [
-                    { text: 'Keep Editing', style: 'cancel' },
-                    {
-                        text: 'Discard',
-                        style: 'destructive',
-                        onPress: clearDraft,
-                    },
-                ],
-            );
+            confirm({
+                title: 'Discard changes?',
+                message: 'You have unsaved changes to your character sheet. Are you sure you want to discard them?',
+                confirmLabel: 'Discard',
+                cancelLabel: 'Keep Editing',
+                onConfirm: clearDraft,
+            });
             return;
         }
 
         clearDraft();
-    }, [clearDraft, isDirty]);
+    }, [clearDraft, isDirty, confirm]);
 
     /**
      * Applies the current wizard result into the local edit draft and closes the sheet.
@@ -677,15 +657,16 @@ export default function CharacterByIdScreen() {
                     Failed to save — your changes are still here.
                 </Snackbar>
 
+                {confirmDialogElement}
                 <LevelUpWizardSheet
                     visible={levelUpSheetVisible}
                     characterName={character.name}
-                nextCharacterLevel={displayedLevel + 1}
-                wizard={levelUpWizard}
-                availableSubclasses={levelUpAvailableSubclasses}
-                onConfirm={handleConfirmLevelUp}
-                onClose={handleCloseLevelUpSheet}
-            />
+                    nextCharacterLevel={displayedLevel + 1}
+                    wizard={levelUpWizard}
+                    availableSubclasses={levelUpAvailableSubclasses}
+                    onConfirm={handleConfirmLevelUp}
+                    onClose={handleCloseLevelUpSheet}
+                />
             </View>
         </RailScreenShell>
     );
