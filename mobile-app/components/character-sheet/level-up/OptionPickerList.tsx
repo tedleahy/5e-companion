@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens, fantasyFonts } from '@/theme/fantasyTheme';
 import CustomEntryCard from './CustomEntryCard';
@@ -25,43 +25,53 @@ type OptionPrerequisite = {
 
 /**
  * Props for the generic option picker list.
+ * Supports single-select (radio) or multi-select (checkboxes) with optional custom entry.
  */
 type OptionPickerListProps<T extends BaseOption> = {
-    title: string;
-    gainCount: number;
+    mode: 'multi' | 'single';
     options: readonly T[];
-    selectedIds: string[];
+    selectedIds: string[]; // For single-select, use array with 0 or 1 element
     onToggle: (id: string) => void;
-    customEntry: { name: string; description: string } | null;
-    onChangeCustom: (custom: { name: string; description: string } | null) => void;
     testIdPrefix: string;
-    addCustomLabel: string;
-    customNameLabel: string;
-    customDescriptionLabel: string;
-    removeCustomLabel: string;
     getPrerequisite?: (option: T) => OptionPrerequisite | null;
+    // Multi-select only (optional)
+    title?: string;
+    gainCount?: number;
+    customEntry?: { name: string; description: string } | null;
+    onChangeCustom?: (custom: { name: string; description: string } | null) => void;
+    addCustomLabel?: string;
+    customNameLabel?: string;
+    customDescriptionLabel?: string;
+    removeCustomLabel?: string;
 };
 
 /**
- * Generic picker for selecting options from an SRD list plus a custom entry.
+ * Generic picker for selecting options from an SRD list.
+ * Supports single-select (radio) or multi-select (checkboxes) with optional custom entry.
  * Used for invocations, metamagic, and potentially other class feature pickers.
  */
 export default function OptionPickerList<T extends BaseOption>({
-    title,
-    gainCount,
+    mode,
     options,
     selectedIds,
     onToggle,
+    testIdPrefix,
+    getPrerequisite,
+    title,
+    gainCount,
     customEntry,
     onChangeCustom,
-    testIdPrefix,
     addCustomLabel,
     customNameLabel,
     customDescriptionLabel,
     removeCustomLabel,
-    getPrerequisite,
 }: OptionPickerListProps<T>) {
+    const { width } = useWindowDimensions();
+    const isTablet = width >= fantasyTokens.breakpoints.tablet;
+
     const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+    const isMulti = mode === 'multi';
     const selectedCount = selectedIds.length + (customEntry?.name.trim().length ?? 0 > 0 ? 1 : 0);
     const showCustomFields = customEntry != null;
 
@@ -90,32 +100,39 @@ export default function OptionPickerList<T extends BaseOption>({
         [options, selectedIds, getPrerequisite],
     );
 
+
     return (
-        <View style={styles.pickerSection} testID={`${testIdPrefix}-picker`}>
-            <Text style={styles.pickerTitle}>{title}</Text>
-            <Text style={styles.pickerCounter}>
-                {`${selectedCount} of ${gainCount} selected`}
-            </Text>
+        <View style={isMulti ? styles.pickerSection : undefined} testID={`${testIdPrefix}-picker`}>
+            {isMulti && (
+                <>
+                    <Text style={styles.pickerTitle}>{title}</Text>
+                    <Text style={styles.pickerCounter}>
+                        {`${selectedCount} of ${gainCount} selected`}
+                    </Text>
+                </>
+            )}
 
-            {annotatedOptions.map(({ option, isSelected, prereq }) => {
-                const isDisabled = prereq ? !prereq.met && !isSelected : false;
-                const isExpanded = expandedIds.has(option.id);
-                const hasLongerDescription = option.fullDescription.length > option.description.length + 10;
+            <View style={isTablet ? styles.optionsGrid : styles.optionsList}>
+                {annotatedOptions.map(({ option, isSelected, prereq }) => {
+                    const isDisabled = prereq ? !prereq.met && !isSelected : false;
+                    const isExpanded = expandedIds.has(option.id);
+                    const hasLongerDescription = option.fullDescription.length > option.description.length + 10;
 
-                return (
-                    <View
-                        key={option.id}
-                        style={[
-                            styles.optionCard,
-                            isSelected && styles.optionCardSelected,
-                            isDisabled && styles.optionCardDisabled,
-                        ]}
-                    >
+                    return (
+                        <View
+                            key={option.id}
+                            style={[
+                                styles.optionCard,
+                                isTablet && styles.optionCardTablet,
+                                isSelected && styles.optionCardSelected,
+                                isDisabled && styles.optionCardDisabled,
+                            ]}
+                        >
                         <Pressable
                             onPress={() => { if (!isDisabled) onToggle(option.id); }}
                             style={styles.optionToggleArea}
                             testID={`${testIdPrefix}-${option.id}`}
-                            accessibilityRole="checkbox"
+                            accessibilityRole={isMulti ? 'checkbox' : 'radio'}
                             accessibilityState={{ checked: isSelected, disabled: isDisabled }}
                             accessibilityLabel={`Select ${option.name}`}
                             disabled={isDisabled}
@@ -157,32 +174,34 @@ export default function OptionPickerList<T extends BaseOption>({
                         ) : null}
                     </View>
                 );
-            })}
+            })}</View>
 
-            {!showCustomFields ? (
-                <Pressable
-                    onPress={() => onChangeCustom({ name: '', description: '' })}
-                    style={styles.addCustomButton}
-                    testID={`${testIdPrefix}-add-custom`}
-                    accessibilityLabel={addCustomLabel}
-                >
-                    <Text style={styles.addCustomButtonText}>{addCustomLabel}</Text>
-                </Pressable>
-            ) : (
-                <CustomEntryCard
-                    firstLabel={customNameLabel}
-                    firstValue={customEntry?.name ?? ''}
-                    onFirstChange={(text) => onChangeCustom({ name: text, description: customEntry?.description ?? '' })}
-                    firstTestID={`${testIdPrefix}-custom-name`}
-                    secondLabel={customDescriptionLabel}
-                    secondValue={customEntry?.description ?? ''}
-                    onSecondChange={(text) => onChangeCustom({ name: customEntry?.name ?? '', description: text })}
-                    secondMultiline
-                    secondTestID={`${testIdPrefix}-custom-description`}
-                    onRemove={() => onChangeCustom(null)}
-                    removeLabel={removeCustomLabel}
-                    cardTestID={`${testIdPrefix}-custom-entry`}
-                />
+            {isMulti && (
+                !showCustomFields ? (
+                    <Pressable
+                        onPress={() => onChangeCustom?.({ name: '', description: '' })}
+                        style={styles.addCustomButton}
+                        testID={`${testIdPrefix}-add-custom`}
+                        accessibilityLabel={addCustomLabel}
+                    >
+                        <Text style={styles.addCustomButtonText}>{addCustomLabel}</Text>
+                    </Pressable>
+                ) : (
+                    <CustomEntryCard
+                        firstLabel={customNameLabel ?? ''}
+                        firstValue={customEntry?.name ?? ''}
+                        onFirstChange={(text) => onChangeCustom?.({ name: text, description: customEntry?.description ?? '' })}
+                        firstTestID={`${testIdPrefix}-custom-name`}
+                        secondLabel={customDescriptionLabel ?? ''}
+                        secondValue={customEntry?.description ?? ''}
+                        onSecondChange={(text) => onChangeCustom?.({ name: customEntry?.name ?? '', description: text })}
+                        secondMultiline
+                        secondTestID={`${testIdPrefix}-custom-description`}
+                        onRemove={() => onChangeCustom?.(null)}
+                        removeLabel={removeCustomLabel ?? ''}
+                        cardTestID={`${testIdPrefix}-custom-entry`}
+                    />
+                )
             )}
         </View>
     );
@@ -205,6 +224,14 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.inkLight,
         marginBottom: fantasyTokens.spacing.xs,
     },
+    optionsList: {
+        gap: fantasyTokens.spacing.sm,
+    },
+    optionsGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: fantasyTokens.spacing.sm,
+    },
     optionCard: {
         borderRadius: fantasyTokens.radii.md,
         borderWidth: 1,
@@ -213,6 +240,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: fantasyTokens.spacing.lg,
         paddingVertical: fantasyTokens.spacing.md,
         gap: fantasyTokens.spacing.xs,
+    },
+    optionCardTablet: {
+        width: '31.5%', // slightly less than 33.33% to account for gap
     },
     optionToggleArea: {
         gap: fantasyTokens.spacing.xs,
