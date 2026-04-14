@@ -40,6 +40,7 @@ export default function LevelUpInvocationPicker({
 
     return (
         <OptionPickerList
+            mode="multi"
             title="Choose Eldritch Invocations"
             gainCount={gainCount}
             options={SRD_INVOCATIONS}

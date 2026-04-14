@@ -21,6 +21,7 @@ export default function LevelUpMetamagicPicker({
 }: LevelUpMetamagicPickerProps) {
     return (
         <OptionPickerList
+            mode="multi"
             title="Choose Metamagic"
             gainCount={gainCount}
             options={SRD_METAMAGIC_OPTIONS}
