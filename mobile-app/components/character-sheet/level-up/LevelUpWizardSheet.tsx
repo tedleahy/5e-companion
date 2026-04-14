@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ElementRef } from 'react';
+import { useEffect, useRef, type ComponentRef } from 'react';
 import { Keyboard, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
@@ -31,7 +31,7 @@ export default function LevelUpWizardSheet({
     onConfirm,
     onClose,
 }: LevelUpWizardSheetProps) {
-    const scrollViewRef = useRef<ElementRef<typeof KeyboardAwareScrollView>>(null);
+    const scrollViewRef = useRef<ComponentRef<typeof KeyboardAwareScrollView>>(null);
 
     /**
      * Dismisses the active keyboard before running the supplied wizard action.
