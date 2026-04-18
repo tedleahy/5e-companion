@@ -80,9 +80,7 @@ export const AVAILABLE_SUBCLASSES_MOCK: MockLink.MockedResponse = {
  */
 export const mockUseLocalSearchParams = jest.fn(() => ({ id: 'char-1' }));
 
-type AnimatedValueLike = {
-    setValue(value: number): void;
-};
+type AnimatedValueLike = Animated.Value | Animated.ValueXY;
 
 type AnimatedCompositeLike = {
     start(callback?: (result: { finished: boolean }) => void): void;
@@ -90,9 +88,7 @@ type AnimatedCompositeLike = {
     reset?(): void;
 };
 
-type AnimatedConfigWithToValue = {
-    toValue?: number;
-};
+type AnimatedConfigWithToValue = any;
 
 jest.mock('expo-router', () => ({
     useRouter: () => ({
@@ -134,8 +130,15 @@ function applyAnimatedTarget(
     value: AnimatedValueLike,
     config?: AnimatedConfigWithToValue,
 ) {
-    if (typeof config?.toValue === 'number') {
-        value.setValue(config.toValue);
+    const toValue = config?.toValue;
+    // Skip if toValue is an Animated node (should not happen in tests)
+    if (toValue && typeof toValue === 'object' && ('__getValue' in toValue || 'interpolate' in toValue)) {
+        return;
+    }
+    if (typeof toValue === 'number') {
+        (value as Animated.Value).setValue(toValue);
+    } else if (toValue && typeof toValue === 'object' && 'x' in toValue && 'y' in toValue) {
+        (value as Animated.ValueXY).setValue(toValue);
     }
 }
 

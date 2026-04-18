@@ -73,6 +73,49 @@ jest.mock('@react-navigation/native', () => {
     };
 });
 
+// Mock Animated to run synchronously in tests
+jest.mock('react-native', () => {
+    const RN = jest.requireActual('react-native');
+    return {
+        ...RN,
+        Animated: {
+            ...RN.Animated,
+            timing: (value: any, config: any) => ({
+                start: (callback?: () => void) => {
+                    value.setValue(config.toValue);
+                    callback?.();
+                },
+                stop: () => {},
+                reset: () => {},
+            }),
+            parallel: (animations: any[]) => ({
+                start: (callback?: () => void) => {
+                    animations.forEach(anim => anim.start());
+                    callback?.();
+                },
+                stop: () => {},
+                reset: () => {},
+            }),
+            spring: (value: any, config: any) => ({
+                start: (callback?: () => void) => {
+                    value.setValue(config.toValue);
+                    callback?.();
+                },
+                stop: () => {},
+                reset: () => {},
+            }),
+            sequence: (animations: any[]) => ({
+                start: (callback?: () => void) => {
+                    animations.forEach(anim => anim.start());
+                    callback?.();
+                },
+                stop: () => {},
+                reset: () => {},
+            }),
+        },
+    };
+});
+
 // BackHandler mocks are set up in beforeEach to allow per-test overrides
 beforeEach(() => {
     const { BackHandler } = jest.requireActual('react-native');
