@@ -54,7 +54,7 @@ export default function useLevelUpWizardSheetMotion({
     const sheetHiddenTranslateYRef = useRef(sheetHiddenTranslateY);
     const backdropOpacity = useRef(new Animated.Value(0)).current;
     const scrollOffsetYRef = useRef(0);
-    const sheetCloseInFlightRef = useRef(false);
+    const isClosingRef = useRef(false);
 
     useEffect(() => {
         sheetHiddenTranslateYRef.current = sheetHiddenTranslateY;
@@ -104,17 +104,17 @@ export default function useLevelUpWizardSheetMotion({
      * If onRequestClose returns false, the close is cancelled and animation won't run.
      */
     const requestSheetClose = useCallback(() => {
-        if (sheetCloseInFlightRef.current || !isRendered) return;
+        if (isClosingRef.current || !isRendered) return;
 
         // Check with parent before starting close animation
         const shouldClose = onRequestClose();
         if (shouldClose === false) {
             // Parent cancelled the close (e.g., showing dirty confirmation)
-            sheetCloseInFlightRef.current = false;
+            isClosingRef.current = false;
             return;
         }
 
-        sheetCloseInFlightRef.current = true;
+        isClosingRef.current = true;
         scrollOffsetYRef.current = 0;
 
         animateSheetHide(
@@ -122,7 +122,7 @@ export default function useLevelUpWizardSheetMotion({
             sheetTranslateY,
             sheetHiddenTranslateYRef.current,
             () => {
-                sheetCloseInFlightRef.current = false;
+            isClosingRef.current = false;
                 setIsRendered(false);
             },
         );
@@ -140,7 +140,7 @@ export default function useLevelUpWizardSheetMotion({
      */
     const sheetDismissGesture = useMemo(() => createSheetDismissGesture({
         scrollOffsetYRef,
-        sheetCloseInFlightRef,
+        isClosingRef,
         updateDragPosition: updateSheetDragPosition,
         requestSheetClose,
         animateSheetBack,

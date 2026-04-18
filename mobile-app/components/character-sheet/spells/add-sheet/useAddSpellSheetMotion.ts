@@ -78,8 +78,8 @@ export default function useAddSpellSheetMotion({
     const detailHiddenTranslateYRef = useRef(detailHiddenTranslateY);
     const spellListScrollOffsetYRef = useRef(0);
     const detailBodyScrollOffsetYRef = useRef(0);
-    const sheetCloseInFlightRef = useRef(false);
-    const detailCloseInFlightRef = useRef(false);
+    const isClosingRef = useRef(false);
+    const isDetailClosingRef = useRef(false);
 
     useEffect(() => {
         sheetHiddenTranslateYRef.current = sheetHiddenTranslateY;
@@ -97,8 +97,8 @@ export default function useAddSpellSheetMotion({
 
     useEffect(() => {
         if (visible) {
-            sheetCloseInFlightRef.current = false;
-            detailCloseInFlightRef.current = false;
+            isClosingRef.current = false;
+            isDetailClosingRef.current = false;
             spellListScrollOffsetYRef.current = 0;
             detailBodyScrollOffsetYRef.current = 0;
             setIsRendered(true);
@@ -184,9 +184,9 @@ export default function useAddSpellSheetMotion({
      * Closes the nested spell-detail sheet with its dismiss animation.
      */
     const animateCloseSpellDetail = useCallback(() => {
-        if (detailCloseInFlightRef.current) return;
+        if (isDetailClosingRef.current) return;
 
-        detailCloseInFlightRef.current = true;
+        isDetailClosingRef.current = true;
         Animated.parallel([
             Animated.timing(detailOverlayOpacity, {
                 toValue: 0,
@@ -201,7 +201,7 @@ export default function useAddSpellSheetMotion({
                 useNativeDriver: true,
             }),
         ]).start(() => {
-            detailCloseInFlightRef.current = false;
+            isDetailClosingRef.current = false;
             detailBodyScrollOffsetYRef.current = 0;
             clearSelectedSpell();
         });
@@ -211,9 +211,9 @@ export default function useAddSpellSheetMotion({
      * Requests full sheet dismissal and notifies the parent once the animation ends.
      */
     const requestSheetClose = useCallback(() => {
-        if (sheetCloseInFlightRef.current || !isRendered) return;
+        if (isClosingRef.current || !isRendered) return;
 
-        sheetCloseInFlightRef.current = true;
+        isClosingRef.current = true;
         closeFilterPanel();
         clearSelectedSpell();
         detailOverlayOpacity.setValue(0);
@@ -226,7 +226,7 @@ export default function useAddSpellSheetMotion({
             sheetTranslateY,
             sheetHiddenTranslateYRef.current,
             () => {
-                sheetCloseInFlightRef.current = false;
+                isClosingRef.current = false;
                 setIsRendered(false);
                 onClose();
             },
@@ -264,12 +264,11 @@ export default function useAddSpellSheetMotion({
 
         return () => {
             cancelAnimationFrame(animationFrameId);
-        };
-    }, [detailModalTranslateY, detailOverlayOpacity, selectedSpellVisible]);
+};
 
-    /**
-     * Tracks spell-list scroll position for top-of-list dismiss gestures.
-     */
+/**
+ * Owns animated values, dismiss choreography, and drag gestures for Add Spell.
+ */
     const handleSpellListScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
         spellListScrollOffsetYRef.current = normaliseTopOffset(event.nativeEvent.contentOffset.y);
     }, []);
@@ -286,7 +285,7 @@ export default function useAddSpellSheetMotion({
      */
     const sheetDismissGesture = useMemo(() => createSheetDismissGesture({
         scrollOffsetYRef: spellListScrollOffsetYRef,
-        sheetCloseInFlightRef,
+        isClosingRef,
         updateDragPosition: updateSheetDragPosition,
         requestSheetClose,
         animateSheetBack,
@@ -297,7 +296,7 @@ export default function useAddSpellSheetMotion({
      */
     const detailDismissGesture = useMemo(() => createDetailDismissGesture({
         scrollOffsetYRef: detailBodyScrollOffsetYRef,
-        detailCloseInFlightRef,
+        isDetailClosingRef,
         updateDragPosition: updateDetailDragPosition,
         animateCloseSpellDetail,
         animateDetailBack,

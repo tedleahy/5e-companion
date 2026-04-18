@@ -128,14 +128,14 @@ export function updateDetailDragPosition(
  */
 export function createSheetDismissGesture(options: {
     scrollOffsetYRef: { current: number };
-    sheetCloseInFlightRef: { current: boolean };
+    isClosingRef: { current: boolean };
     updateDragPosition: (translationY: number) => void;
     requestSheetClose: () => void;
     animateSheetBack: () => void;
 }) {
     const {
         scrollOffsetYRef,
-        sheetCloseInFlightRef,
+        isClosingRef,
         updateDragPosition,
         requestSheetClose,
         animateSheetBack,
@@ -146,14 +146,14 @@ export function createSheetDismissGesture(options: {
         .activeOffsetY(6)
         .failOffsetX([-24, 24])
         .onUpdate((event) => {
-            if (sheetCloseInFlightRef.current) return;
+            if (isClosingRef.current) return;
             if (scrollOffsetYRef.current > SCROLL_TOP_TOLERANCE) return;
             if (event.translationY <= 0) return;
 
             updateDragPosition(event.translationY);
         })
         .onEnd((event) => {
-            if (sheetCloseInFlightRef.current) return;
+            if (isClosingRef.current) return;
 
             const shouldDismiss =
                 scrollOffsetYRef.current <= SCROLL_TOP_TOLERANCE
@@ -168,7 +168,7 @@ export function createSheetDismissGesture(options: {
             animateSheetBack();
         })
         .onFinalize(() => {
-            if (sheetCloseInFlightRef.current) return;
+            if (isClosingRef.current) return;
             animateSheetBack();
         });
 }
@@ -178,14 +178,14 @@ export function createSheetDismissGesture(options: {
  */
 export function createDetailDismissGesture(options: {
     scrollOffsetYRef: { current: number };
-    detailCloseInFlightRef: { current: boolean };
+    isDetailClosingRef: { current: boolean };
     updateDragPosition: (translationY: number) => void;
     animateCloseSpellDetail: () => void;
     animateDetailBack: () => void;
 }) {
     const {
         scrollOffsetYRef,
-        detailCloseInFlightRef,
+        isDetailClosingRef,
         updateDragPosition,
         animateCloseSpellDetail,
         animateDetailBack,
@@ -196,14 +196,14 @@ export function createDetailDismissGesture(options: {
         .activeOffsetY(6)
         .failOffsetX([-24, 24])
         .onUpdate((event) => {
-            if (detailCloseInFlightRef.current) return;
+            if (isDetailClosingRef.current) return;
             if (scrollOffsetYRef.current > SCROLL_TOP_TOLERANCE) return;
             if (event.translationY <= 0) return;
 
             updateDragPosition(event.translationY);
         })
         .onEnd((event) => {
-            if (detailCloseInFlightRef.current) return;
+            if (isDetailClosingRef.current) return;
 
             const shouldDismiss =
                 scrollOffsetYRef.current <= SCROLL_TOP_TOLERANCE
@@ -218,7 +218,7 @@ export function createDetailDismissGesture(options: {
             animateDetailBack();
         })
         .onFinalize(() => {
-            if (detailCloseInFlightRef.current) return;
+            if (isDetailClosingRef.current) return;
             animateDetailBack();
         });
 }
