@@ -1062,6 +1062,45 @@ describe('CharacterByIdScreen level-up wizard', () => {
         expect(screen.queryByTestId('level-up-wizard-sheet')).toBeNull();
     });
 
+    it('shows a discard confirmation when tapping backdrop on a dirty wizard', async () => {
+        renderCharacterSheetScreen();
+
+        await enableCharacterSheetEditMode();
+        await pressAndFlush(screen.getByLabelText('Level up character'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 1 of 5 - Choose Class')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Step 2 of 5 - Hit Points')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-hit-points-average-button'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-hit-points-breakdown')).toBeTruthy();
+        });
+
+        // Tap backdrop instead of close button
+        fireEvent.press(screen.getByLabelText('Dismiss level up wizard'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Discard level-up changes?')).toBeTruthy();
+        });
+
+        expect(screen.getByText('You have unsaved progress in the level-up wizard. Are you sure you want to discard it?')).toBeTruthy();
+
+        // Cancel the discard
+        await pressAndFlush(screen.getByLabelText('Keep Editing'));
+
+        // Sheet should still be visible
+        expect(screen.getByTestId('level-up-wizard-sheet')).toBeTruthy();
+        expect(screen.getByText('Step 2 of 5 - Hit Points')).toBeTruthy();
+    });
+
     it('hides the level-up button for a level-20 character', async () => {
         renderCharacterSheetScreen([LEVEL_20_CHARACTER_SHEET_MOCK]);
 

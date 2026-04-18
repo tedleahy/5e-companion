@@ -1,13 +1,15 @@
 import { useEffect, useRef, type ComponentRef } from 'react';
-import { Keyboard, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Keyboard, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Text } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { GestureDetector } from 'react-native-gesture-handler';
 import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 import type { AvailableSubclassOption } from '@/lib/subclasses';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import LevelUpWizardProgress from './LevelUpWizardProgress';
 import LevelUpWizardStepBody from './LevelUpWizardStepBody';
+import useLevelUpWizardSheetMotion from './useLevelUpWizardSheetMotion';
 
 type LevelUpWizardSheetProps = {
     visible: boolean;
@@ -32,6 +34,19 @@ export default function LevelUpWizardSheet({
     onClose,
 }: LevelUpWizardSheetProps) {
     const scrollViewRef = useRef<ComponentRef<typeof KeyboardAwareScrollView>>(null);
+    const { height: windowHeight } = useWindowDimensions();
+    const {
+        isRendered,
+        backdropOpacity,
+        sheetTranslateY,
+        requestSheetClose,
+        handleScroll,
+        sheetDismissGesture,
+    } = useLevelUpWizardSheetMotion({
+        visible,
+        windowHeight,
+        onRequestClose: onClose,
+    });
 
     /**
      * Dismisses the active keyboard before running the supplied wizard action.
@@ -49,105 +64,112 @@ export default function LevelUpWizardSheet({
         scrollViewRef.current?.scrollTo({ y: 0, animated: false });
     }, [visible, wizard.currentStep.id]);
 
-    if (!visible) {
+    if (!isRendered) {
         return null;
     }
 
     return (
         <View style={styles.overlayContainer} pointerEvents="box-none">
-            <View style={styles.backdrop}>
+            <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
                 <Pressable
                     style={styles.backdropPressable}
-                    onPress={() => dismissKeyboardAndRun(onClose)}
+                    onPress={() => dismissKeyboardAndRun(requestSheetClose)}
                     accessibilityRole="button"
                     accessibilityLabel="Dismiss level up wizard"
                 />
-            </View>
+            </Animated.View>
 
-            <View style={styles.sheet} testID="level-up-wizard-sheet">
-                <View style={styles.handleWrap}>
-                    <View style={styles.handle} />
-                </View>
-
-                <View style={styles.header}>
-                    <View style={styles.titleRow}>
-                        <Text style={styles.title}>Level Up</Text>
-                        <Pressable
-                            onPress={() => dismissKeyboardAndRun(onClose)}
-                            accessibilityRole="button"
-                            accessibilityLabel="Close level up wizard"
-                            style={styles.closeButton}
-                        >
-                            <Text style={styles.closeButtonText}>Close</Text>
-                        </Pressable>
+            <GestureDetector gesture={sheetDismissGesture}>
+                <Animated.View
+                    style={[styles.sheet, { transform: [{ translateY: sheetTranslateY }] }]}
+                    testID="level-up-wizard-sheet"
+                >
+                    <View style={styles.handleWrap}>
+                        <View style={styles.handle} />
                     </View>
 
-                    <Text style={styles.subtitle}>
-                        {`Advance ${characterName} to Level ${nextCharacterLevel}`}
-                    </Text>
-                    <Text style={styles.stepLabel}>{wizard.stepLabel}</Text>
-                    <LevelUpWizardProgress
-                        currentStep={wizard.currentStepIndex + 1}
-                        totalSteps={wizard.steps.length}
-                    />
-                </View>
+                    <View style={styles.header}>
+                        <View style={styles.titleRow}>
+                            <Text style={styles.title}>Level Up</Text>
+                            <Pressable
+                                onPress={() => dismissKeyboardAndRun(requestSheetClose)}
+                                accessibilityRole="button"
+                                accessibilityLabel="Close level up wizard"
+                                style={styles.closeButton}
+                            >
+                                <Text style={styles.closeButtonText}>Close</Text>
+                            </Pressable>
+                        </View>
 
-                <KeyboardAwareScrollView
-                    {...keyboardAwareScrollProps}
-                    ref={scrollViewRef}
-                    bottomOffset={keyboardAwareBottomOffset}
-                    style={styles.body}
-                    contentContainerStyle={styles.bodyContent}
-                    showsVerticalScrollIndicator={false}
-                >
-                    <LevelUpWizardStepBody
-                        wizard={wizard}
-                        availableSubclasses={availableSubclasses}
-                    />
-                </KeyboardAwareScrollView>
-
-                <View style={styles.footer}>
-                    <Pressable
-                        onPress={() => dismissKeyboardAndRun(wizard.goToPreviousStep)}
-                        accessibilityRole="button"
-                        accessibilityLabel="Go to previous level up step"
-                        accessibilityState={{ disabled: wizard.isFirstStep }}
-                        disabled={wizard.isFirstStep}
-                        style={[
-                            styles.footerButton,
-                            styles.backButton,
-                            wizard.isFirstStep && styles.backButtonDisabled,
-                        ]}
-                        testID="level-up-back-button"
-                    >
-                        <Text
-                            style={[
-                                styles.backButtonText,
-                                wizard.isFirstStep && styles.backButtonTextDisabled,
-                            ]}
-                        >
-                            Back
+                        <Text style={styles.subtitle}>
+                            {`Advance ${characterName} to Level ${nextCharacterLevel}`}
                         </Text>
-                    </Pressable>
+                        <Text style={styles.stepLabel}>{wizard.stepLabel}</Text>
+                        <LevelUpWizardProgress
+                            currentStep={wizard.currentStepIndex + 1}
+                            totalSteps={wizard.steps.length}
+                        />
+                    </View>
 
-                    <Pressable
-                        onPress={() => dismissKeyboardAndRun(wizard.isLastStep ? onConfirm : wizard.goToNextStep)}
-                        accessibilityRole="button"
-                        accessibilityLabel={wizard.isLastStep ? 'Confirm level up changes' : 'Go to next level up step'}
-                        accessibilityState={{ disabled: wizard.nextButtonDisabled }}
-                        disabled={wizard.nextButtonDisabled}
-                        style={[
-                            styles.footerButton,
-                            styles.nextButton,
-                            wizard.isLastStep && styles.confirmButton,
-                            wizard.nextButtonDisabled && styles.nextButtonDisabled,
-                        ]}
-                        testID="level-up-next-button"
+                    <KeyboardAwareScrollView
+                        {...keyboardAwareScrollProps}
+                        ref={scrollViewRef}
+                        bottomOffset={keyboardAwareBottomOffset}
+                        style={styles.body}
+                        contentContainerStyle={styles.bodyContent}
+                        showsVerticalScrollIndicator={false}
+                        onScroll={handleScroll}
+                        scrollEventThrottle={16}
                     >
-                        <Text style={styles.nextButtonText}>{wizard.nextButtonLabel}</Text>
-                    </Pressable>
-                </View>
-            </View>
+                        <LevelUpWizardStepBody
+                            wizard={wizard}
+                            availableSubclasses={availableSubclasses}
+                        />
+                    </KeyboardAwareScrollView>
+
+                    <View style={styles.footer}>
+                        <Pressable
+                            onPress={() => dismissKeyboardAndRun(wizard.goToPreviousStep)}
+                            accessibilityRole="button"
+                            accessibilityLabel="Go to previous level up step"
+                            accessibilityState={{ disabled: wizard.isFirstStep }}
+                            disabled={wizard.isFirstStep}
+                            style={[
+                                styles.footerButton,
+                                styles.backButton,
+                                wizard.isFirstStep && styles.backButtonDisabled,
+                            ]}
+                            testID="level-up-back-button"
+                        >
+                            <Text
+                                style={[
+                                    styles.backButtonText,
+                                    wizard.isFirstStep && styles.backButtonTextDisabled,
+                                ]}
+                            >
+                                Back
+                            </Text>
+                        </Pressable>
+
+                        <Pressable
+                            onPress={() => dismissKeyboardAndRun(wizard.isLastStep ? onConfirm : wizard.goToNextStep)}
+                            accessibilityRole="button"
+                            accessibilityLabel={wizard.isLastStep ? 'Confirm level up changes' : 'Go to next level up step'}
+                            accessibilityState={{ disabled: wizard.nextButtonDisabled }}
+                            disabled={wizard.nextButtonDisabled}
+                            style={[
+                                styles.footerButton,
+                                styles.nextButton,
+                                wizard.isLastStep && styles.confirmButton,
+                                wizard.nextButtonDisabled && styles.nextButtonDisabled,
+                            ]}
+                            testID="level-up-next-button"
+                        >
+                            <Text style={styles.nextButtonText}>{wizard.nextButtonLabel}</Text>
+                        </Pressable>
+                    </View>
+                </Animated.View>
+            </GestureDetector>
         </View>
     );
 }
