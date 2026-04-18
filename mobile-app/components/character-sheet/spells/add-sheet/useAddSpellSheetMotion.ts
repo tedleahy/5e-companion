@@ -6,24 +6,18 @@ import {
     type NativeSyntheticEvent,
 } from 'react-native';
 import { Gesture } from 'react-native-gesture-handler';
-
-/** Main-sheet dismiss drag distance threshold. */
-const SHEET_DISMISS_DRAG_DISTANCE = 88;
-
-/** Nested detail-sheet dismiss drag distance threshold. */
-const DETAIL_DISMISS_DRAG_DISTANCE = 84;
-
-/** Minimum downward velocity that counts as an intentional dismiss fling. */
-const DISMISS_DRAG_VELOCITY = 800;
-
-/** Scroll offset still treated as "at the top" for drag-to-dismiss. */
-const SCROLL_TOP_TOLERANCE = 12;
-
-/** Extra travel below the viewport when the main sheet is hidden. */
-const SHEET_HIDDEN_OFFSET = 48;
-
-/** Extra travel below the viewport when the detail sheet is hidden. */
-const DETAIL_HIDDEN_OFFSET = 48;
+import {
+    SHEET_HIDDEN_OFFSET,
+    DETAIL_HIDDEN_OFFSET,
+    normaliseTopOffset,
+    animateSheetShow,
+    animateSheetHide,
+    animateSheetBack as coreAnimateSheetBack,
+    updateSheetDragPosition as coreUpdateSheetDragPosition,
+    updateDetailDragPosition as coreUpdateDetailDragPosition,
+    createSheetDismissGesture,
+    createDetailDismissGesture,
+} from '@/hooks/useSheetMotionCore';
 
 /**
  * Props required to drive add-sheet motion and gesture state.
@@ -57,13 +51,7 @@ type UseAddSpellSheetMotionResult = {
     detailDismissGesture: ReturnType<typeof Gesture.Pan>;
 };
 
-/**
- * Treats tiny initial scroll offsets as "still at the top" for dismiss gestures.
- */
-function normaliseTopOffset(offsetY: number): number {
-    if (offsetY <= SCROLL_TOP_TOLERANCE) return 0;
-    return offsetY;
-}
+
 
 /**
  * Owns animated values, dismiss choreography, and drag gestures for Add Spell.
@@ -114,23 +102,7 @@ export default function useAddSpellSheetMotion({
             spellListScrollOffsetYRef.current = 0;
             detailBodyScrollOffsetYRef.current = 0;
             setIsRendered(true);
-            sheetTranslateY.setValue(sheetHiddenTranslateYRef.current);
-            backdropOpacity.setValue(0);
-
-            Animated.parallel([
-                Animated.timing(backdropOpacity, {
-                    toValue: 1,
-                    duration: 280,
-                    useNativeDriver: true,
-                }),
-                Animated.timing(sheetTranslateY, {
-                    toValue: 0,
-                    duration: 320,
-                    easing: Easing.out(Easing.cubic),
-                    useNativeDriver: true,
-                }),
-            ]).start();
-
+            animateSheetShow(backdropOpacity, sheetTranslateY, sheetHiddenTranslateYRef.current);
             return;
         }
 
@@ -141,21 +113,12 @@ export default function useAddSpellSheetMotion({
         detailOverlayOpacity.setValue(0);
         detailModalTranslateY.setValue(detailHiddenTranslateYRef.current);
 
-        Animated.parallel([
-            Animated.timing(backdropOpacity, {
-                toValue: 0,
-                duration: 220,
-                useNativeDriver: true,
-            }),
-            Animated.timing(sheetTranslateY, {
-                toValue: sheetHiddenTranslateYRef.current,
-                duration: 260,
-                easing: Easing.out(Easing.cubic),
-                useNativeDriver: true,
-            }),
-        ]).start(() => {
-            setIsRendered(false);
-        });
+        animateSheetHide(
+            backdropOpacity,
+            sheetTranslateY,
+            sheetHiddenTranslateYRef.current,
+            () => setIsRendered(false),
+        );
     }, [
         backdropOpacity,
         clearSelectedSpell,
@@ -181,19 +144,7 @@ export default function useAddSpellSheetMotion({
      * Animates the main sheet and backdrop back to their resting position.
      */
     const animateSheetBack = useCallback(() => {
-        Animated.parallel([
-            Animated.timing(sheetTranslateY, {
-                toValue: 0,
-                duration: 200,
-                easing: Easing.out(Easing.cubic),
-                useNativeDriver: true,
-            }),
-            Animated.timing(backdropOpacity, {
-                toValue: 1,
-                duration: 180,
-                useNativeDriver: true,
-            }),
-        ]).start();
+        coreAnimateSheetBack(backdropOpacity, sheetTranslateY);
     }, [backdropOpacity, sheetTranslateY]);
 
     /**
@@ -219,16 +170,14 @@ export default function useAddSpellSheetMotion({
      * Applies live drag positioning to the main sheet.
      */
     const updateSheetDragPosition = useCallback((translationY: number) => {
-        sheetTranslateY.setValue(translationY);
-        backdropOpacity.setValue(Math.max(0, 1 - (translationY / 420)));
+        coreUpdateSheetDragPosition(sheetTranslateY, backdropOpacity, translationY);
     }, [backdropOpacity, sheetTranslateY]);
 
     /**
      * Applies live drag positioning to the nested detail sheet.
      */
     const updateDetailDragPosition = useCallback((translationY: number) => {
-        detailModalTranslateY.setValue(translationY);
-        detailOverlayOpacity.setValue(Math.max(0, 0.55 - (translationY / 560)));
+        coreUpdateDetailDragPosition(detailModalTranslateY, detailOverlayOpacity, translationY);
     }, [detailModalTranslateY, detailOverlayOpacity]);
 
     /**
@@ -272,23 +221,16 @@ export default function useAddSpellSheetMotion({
         spellListScrollOffsetYRef.current = 0;
         detailBodyScrollOffsetYRef.current = 0;
 
-        Animated.parallel([
-            Animated.timing(backdropOpacity, {
-                toValue: 0,
-                duration: 220,
-                useNativeDriver: true,
-            }),
-            Animated.timing(sheetTranslateY, {
-                toValue: sheetHiddenTranslateYRef.current,
-                duration: 260,
-                easing: Easing.out(Easing.cubic),
-                useNativeDriver: true,
-            }),
-        ]).start(() => {
-            sheetCloseInFlightRef.current = false;
-            setIsRendered(false);
-            onClose();
-        });
+        animateSheetHide(
+            backdropOpacity,
+            sheetTranslateY,
+            sheetHiddenTranslateYRef.current,
+            () => {
+                sheetCloseInFlightRef.current = false;
+                setIsRendered(false);
+                onClose();
+            },
+        );
     }, [
         backdropOpacity,
         clearSelectedSpell,
@@ -342,70 +284,24 @@ export default function useAddSpellSheetMotion({
     /**
      * Native pan gesture for dismissing the main add-spell sheet.
      */
-    const sheetDismissGesture = useMemo(() => Gesture.Pan()
-        .runOnJS(true)
-        .activeOffsetY(6)
-        .failOffsetX([-24, 24])
-        .onUpdate((event) => {
-            if (sheetCloseInFlightRef.current) return;
-            if (spellListScrollOffsetYRef.current > SCROLL_TOP_TOLERANCE) return;
-            if (event.translationY <= 0) return;
-
-            updateSheetDragPosition(event.translationY);
-        })
-        .onEnd((event) => {
-            if (sheetCloseInFlightRef.current) return;
-
-            const shouldDismiss =
-                spellListScrollOffsetYRef.current <= SCROLL_TOP_TOLERANCE
-                && event.translationY > 0
-                && (event.translationY > SHEET_DISMISS_DRAG_DISTANCE || event.velocityY > DISMISS_DRAG_VELOCITY);
-
-            if (shouldDismiss) {
-                requestSheetClose();
-                return;
-            }
-
-            animateSheetBack();
-        })
-        .onFinalize(() => {
-            if (sheetCloseInFlightRef.current) return;
-            animateSheetBack();
-        }), [animateSheetBack, requestSheetClose, updateSheetDragPosition]);
+    const sheetDismissGesture = useMemo(() => createSheetDismissGesture({
+        scrollOffsetYRef: spellListScrollOffsetYRef,
+        sheetCloseInFlightRef,
+        updateDragPosition: updateSheetDragPosition,
+        requestSheetClose,
+        animateSheetBack,
+    }), [animateSheetBack, requestSheetClose, updateSheetDragPosition]);
 
     /**
      * Native pan gesture for dismissing the nested spell-detail sheet.
      */
-    const detailDismissGesture = useMemo(() => Gesture.Pan()
-        .runOnJS(true)
-        .activeOffsetY(6)
-        .failOffsetX([-24, 24])
-        .onUpdate((event) => {
-            if (detailCloseInFlightRef.current) return;
-            if (detailBodyScrollOffsetYRef.current > SCROLL_TOP_TOLERANCE) return;
-            if (event.translationY <= 0) return;
-
-            updateDetailDragPosition(event.translationY);
-        })
-        .onEnd((event) => {
-            if (detailCloseInFlightRef.current) return;
-
-            const shouldDismiss =
-                detailBodyScrollOffsetYRef.current <= SCROLL_TOP_TOLERANCE
-                && event.translationY > 0
-                && (event.translationY > DETAIL_DISMISS_DRAG_DISTANCE || event.velocityY > DISMISS_DRAG_VELOCITY);
-
-            if (shouldDismiss) {
-                animateCloseSpellDetail();
-                return;
-            }
-
-            animateDetailBack();
-        })
-        .onFinalize(() => {
-            if (detailCloseInFlightRef.current) return;
-            animateDetailBack();
-        }), [animateCloseSpellDetail, animateDetailBack, updateDetailDragPosition]);
+    const detailDismissGesture = useMemo(() => createDetailDismissGesture({
+        scrollOffsetYRef: detailBodyScrollOffsetYRef,
+        detailCloseInFlightRef,
+        updateDragPosition: updateDetailDragPosition,
+        animateCloseSpellDetail,
+        animateDetailBack,
+    }), [animateCloseSpellDetail, animateDetailBack, updateDetailDragPosition]);
 
     return {
         isRendered,
