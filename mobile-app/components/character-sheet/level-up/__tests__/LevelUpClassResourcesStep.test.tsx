@@ -15,6 +15,16 @@ import type {
     LevelUpMysticArcanumState,
 } from '@/lib/characterLevelUp/advancedClassChoices';
 
+const mockAddSpellSheetSpy = jest.fn();
+
+jest.mock('@/components/character-sheet/spells/AddSpellSheet', () => ({
+    __esModule: true,
+    default: (props: unknown) => {
+        mockAddSpellSheetSpy(props);
+        return null;
+    },
+}));
+
 function makeSelectedClass(classId: string, currentLevel: number, newLevel: number): LevelUpWizardSelectedClass {
     return {
         classId,
@@ -369,6 +379,10 @@ describe('LevelUpClassResourcesStep — Metamagic Picker', () => {
 });
 
 describe('LevelUpClassResourcesStep — Mystic Arcanum Picker', () => {
+    beforeEach(() => {
+        mockAddSpellSheetSpy.mockClear();
+    });
+
     it('shows the mystic arcanum picker for warlock at level 11', () => {
         renderStep('warlock', 10, 11);
 
@@ -388,16 +402,61 @@ describe('LevelUpClassResourcesStep — Mystic Arcanum Picker', () => {
         expect(screen.queryByTestId('level-up-mystic-arcanum-picker')).toBeNull();
     });
 
-    it('fires onChangeMysticArcanumSpell when entering and clearing a spell name', () => {
+    it('opens the add spell sheet with strict warlock and exact-level filters', () => {
+        renderStep('warlock', 10, 11);
+
+        fireEvent.press(screen.getByTestId('level-up-mystic-arcanum-open-picker'));
+
+        expect(mockAddSpellSheetSpy).toHaveBeenLastCalledWith(expect.objectContaining({
+            visible: true,
+            characterClassIds: ['warlock'],
+            knownSpellIds: [],
+            forcedFilters: {
+                classes: ['warlock'],
+                levels: [6],
+            },
+            selectionLimit: 1,
+            title: 'Choose Mystic Arcanum',
+            showFilterButton: false,
+        }));
+    });
+
+    it('fires onChangeMysticArcanumSpell when selecting and clearing a spell', async () => {
         const onChangeMysticArcanumSpell = jest.fn();
         const { rerender } = renderStep('warlock', 10, 11, {
             onChangeMysticArcanumSpell,
         });
 
-        fireEvent.changeText(screen.getByTestId('level-up-mystic-arcanum-spell-name'), 'Mass Suggestion');
+        fireEvent.press(screen.getByTestId('level-up-mystic-arcanum-open-picker'));
+
+        const addSpellSheetProps = mockAddSpellSheetSpy.mock.lastCall?.[0] as {
+            onSpellAdded: (spell: {
+                id: string;
+                name: string;
+                level: number;
+                schoolIndex: string;
+                classIndexes: string[];
+                castingTime: string;
+                concentration: boolean;
+                ritual: boolean;
+                range?: string | null;
+            }) => Promise<void>;
+        };
+
+        void addSpellSheetProps.onSpellAdded({
+            id: 'mass-suggestion',
+            name: 'Mass Suggestion',
+            level: 6,
+            schoolIndex: 'enchantment',
+            classIndexes: ['warlock'],
+            castingTime: '1 action',
+            concentration: false,
+            ritual: false,
+            range: '60 feet',
+        });
 
         expect(onChangeMysticArcanumSpell).toHaveBeenCalledWith({
-            id: 'arcanum-6-Mass Suggestion',
+            id: 'mass-suggestion',
             name: 'Mass Suggestion',
             level: 6,
         });
@@ -405,7 +464,7 @@ describe('LevelUpClassResourcesStep — Mystic Arcanum Picker', () => {
         rerender(buildStep('warlock', 10, 11, {
             mysticArcanumState: {
                 selectedSpell: {
-                    id: 'arcanum-6-Mass Suggestion',
+                    id: 'mass-suggestion',
                     name: 'Mass Suggestion',
                     level: 6,
                 },
@@ -413,7 +472,9 @@ describe('LevelUpClassResourcesStep — Mystic Arcanum Picker', () => {
             onChangeMysticArcanumSpell,
         }));
 
-        fireEvent.changeText(screen.getByTestId('level-up-mystic-arcanum-spell-name'), '   ');
+        expect(screen.getByText('Mystic Arcanum (6th): Mass Suggestion')).toBeTruthy();
+
+        fireEvent.press(screen.getByTestId('level-up-mystic-arcanum-clear'));
 
         expect(onChangeMysticArcanumSpell).toHaveBeenLastCalledWith(null);
     });

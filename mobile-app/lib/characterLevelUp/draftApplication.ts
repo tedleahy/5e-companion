@@ -14,7 +14,7 @@ import {
 } from './spellcasting';
 import type { LevelUpMulticlassProficiencyState } from './multiclassProficiencies';
 import { getMulticlassProficiencyGains } from './multiclassProficiencies';
-import { findSrdInvocation, findSrdMetamagic } from './advancedClassChoices';
+import { findSrdInvocation, findSrdMetamagic, formatMysticArcanumSpellLabel } from './advancedClassChoices';
 import type { LevelUpInvocationState, LevelUpMetamagicState, LevelUpMysticArcanumState } from './advancedClassChoices';
 import type {
     LevelUpAsiOrFeatState,
@@ -396,7 +396,7 @@ export function buildAdvancedChoiceFeatures(
         features.push({
             ...base,
             key: `mystic-arcanum-${mysticArcanumState.selectedSpell.level}`,
-            name: `Mystic Arcanum: ${mysticArcanumState.selectedSpell.name.trim()}`,
+            name: formatMysticArcanumSpellLabel(mysticArcanumState.selectedSpell.level, mysticArcanumState.selectedSpell.name),
             description: `${mysticArcanumState.selectedSpell.name} — once per long rest without a spell slot.`,
         });
     }

@@ -19,7 +19,7 @@ import type {
     LevelUpSpellcastingSummary,
     LevelUpWizardSelectedClass,
 } from '@/lib/characterLevelUp/types';
-import { findSrdInvocation, findSrdMetamagic } from '@/lib/characterLevelUp/advancedClassChoices';
+import { findSrdInvocation, findSrdMetamagic, formatMysticArcanumSpellLabel } from '@/lib/characterLevelUp/advancedClassChoices';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 type LevelUpSummaryStepProps = {
@@ -250,7 +250,7 @@ export default function LevelUpSummaryStep({
             {mysticArcanumState.selectedSpell ? (
                 <SummaryCard label="Mystic Arcanum" testID="level-up-summary-mystic-arcanum">
                     <Text style={styles.summaryListItem}>
-                        {`${mysticArcanumState.selectedSpell.name} (${spellLevelLabel(mysticArcanumState.selectedSpell.level)})`}
+                        {formatMysticArcanumSpellLabel(mysticArcanumState.selectedSpell.level, mysticArcanumState.selectedSpell.name)}
                     </Text>
                 </SummaryCard>
             ) : null}

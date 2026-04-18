@@ -1,3 +1,5 @@
+import { spellLevelLabel } from '@/lib/spellPresentation';
+
 /**
  * SRD Eldritch Invocation option for warlock level-up.
  */
@@ -410,6 +412,15 @@ export function mysticArcanumSpellLevel(newWarlockLevel: number): number | null 
  */
 export function hasMysticArcanumGain(newWarlockLevel: number): boolean {
     return mysticArcanumSpellLevel(newWarlockLevel) != null;
+}
+
+/**
+ * Formats a mystic arcanum spell selection in a stable, level-qualified label.
+ */
+export function formatMysticArcanumSpellLabel(spellLevel: number, spellName: string): string {
+    const normalisedLevelLabel = spellLevelLabel(spellLevel).replace(/ Level$/, '').toLowerCase();
+
+    return `Mystic Arcanum (${normalisedLevelLabel}): ${spellName.trim()}`;
 }
 
 /**

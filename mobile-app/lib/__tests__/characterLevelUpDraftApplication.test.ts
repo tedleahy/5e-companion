@@ -271,7 +271,7 @@ describe('buildAdvancedChoiceFeatures', () => {
         expect(features).toEqual([
             expect.objectContaining({
                 key: 'mystic-arcanum-6',
-                name: 'Mystic Arcanum: Mass Suggestion',
+                name: 'Mystic Arcanum (6th): Mass Suggestion',
                 description: 'Mass Suggestion — once per long rest without a spell slot.',
                 source: 'Warlock',
                 classId: 'warlock',

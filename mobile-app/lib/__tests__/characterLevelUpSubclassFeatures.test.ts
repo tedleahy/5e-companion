@@ -43,7 +43,7 @@ describe('characterLevelUp subclass features', () => {
     });
 
     it('does not treat unrelated feature names as picker-managed', () => {
-        expect(isPickerManagedFeature('Mystic Arcanum: Mass Suggestion')).toBe(false);
+        expect(isPickerManagedFeature('Mystic Arcanum (6th): Mass Suggestion')).toBe(false);
         expect(isPickerManagedFeature('Eldritch Invocation')).toBe(false);
         expect(isPickerManagedFeature('Metamagic')).toBe(false);
         expect(isPickerManagedFeature('Ability Score Improvement')).toBe(false);
