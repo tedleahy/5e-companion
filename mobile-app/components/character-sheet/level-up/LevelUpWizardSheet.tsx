@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ComponentRef } from 'react';
-import { Animated, Keyboard, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Animated, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Text } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { GestureDetector } from 'react-native-gesture-handler';
@@ -7,6 +7,7 @@ import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 import type { AvailableSubclassOption } from '@/lib/subclasses';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import useDismissKeyboardAction from '@/hooks/useDismissKeyboardAction';
 import LevelUpWizardProgress from './LevelUpWizardProgress';
 import LevelUpWizardStepBody from './LevelUpWizardStepBody';
 import useLevelUpWizardSheetMotion from './useLevelUpWizardSheetMotion';
@@ -51,10 +52,7 @@ export default function LevelUpWizardSheet({
     /**
      * Dismisses the active keyboard before running the supplied wizard action.
      */
-    function dismissKeyboardAndRun(action: () => void) {
-        Keyboard.dismiss();
-        action();
-    }
+    const dismissKeyboardAndRun = useDismissKeyboardAction();
 
     useEffect(() => {
         if (!visible) {

@@ -1,5 +1,4 @@
 import {
-    Keyboard,
     Pressable,
     SectionList,
     StyleSheet,
@@ -11,6 +10,7 @@ import { ActivityIndicator, Text } from 'react-native-paper';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { spellSchoolLabel } from '@/lib/spellPresentation';
+import useDismissKeyboardAction from '@/hooks/useDismissKeyboardAction';
 import AddCircleButton from '../AddCircleButton';
 import type { AddSpellBlockedReason, AddSpellListItem, AddSpellSection } from '../addSpell.types';
 
@@ -69,6 +69,7 @@ export default function AddSpellSectionList({
     onPrefetchSpellDetail,
     onScroll,
 }: AddSpellSectionListProps) {
+    const dismissKeyboardAndRun = useDismissKeyboardAction();
     const isEmpty = !loading && !errorMessage && sections.length === 0;
 
     return (
@@ -120,10 +121,7 @@ export default function AddSpellSectionList({
                             <AddCircleButton
                                 known={isKnown}
                                 blockedReason={blockedReason}
-                                onPress={() => {
-                                    Keyboard.dismiss();
-                                    onToggleSpellSelection(item);
-                                }}
+                                onPress={() => dismissKeyboardAndRun(() => onToggleSpellSelection(item))}
                             />
 
                             <Pressable
@@ -131,10 +129,7 @@ export default function AddSpellSectionList({
                                 onPressIn={() => {
                                     onPrefetchSpellDetail?.(item.id);
                                 }}
-                                onPress={() => {
-                                    Keyboard.dismiss();
-                                    onOpenSpellDetail(item);
-                                }}
+                                onPress={() => dismissKeyboardAndRun(() => onOpenSpellDetail(item))}
                                 disabled={isPending}
                                 accessibilityRole="button"
                                 accessibilityLabel={`Open details for ${item.name}`}
