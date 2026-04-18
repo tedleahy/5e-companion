@@ -51,8 +51,6 @@ type UseAddSpellSheetMotionResult = {
     detailDismissGesture: ReturnType<typeof Gesture.Pan>;
 };
 
-
-
 /**
  * Owns animated values, dismiss choreography, and drag gestures for Add Spell.
  */
@@ -264,11 +262,9 @@ export default function useAddSpellSheetMotion({
 
         return () => {
             cancelAnimationFrame(animationFrameId);
-};
+        };
+    }, [detailModalTranslateY, detailOverlayOpacity, selectedSpellVisible]);
 
-/**
- * Owns animated values, dismiss choreography, and drag gestures for Add Spell.
- */
     const handleSpellListScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
         spellListScrollOffsetYRef.current = normaliseTopOffset(event.nativeEvent.contentOffset.y);
     }, []);

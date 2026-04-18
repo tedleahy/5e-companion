@@ -68,7 +68,7 @@ export default function useLevelUpWizardSheetMotion({
 
     useEffect(() => {
         if (visible) {
-            sheetCloseInFlightRef.current = false;
+            isClosingRef.current = false;
             scrollOffsetYRef.current = 0;
             setIsRendered(true);
             animateSheetShow(backdropOpacity, sheetTranslateY, sheetHiddenTranslateYRef.current);

@@ -3,7 +3,6 @@ import { Animated, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { levelUpHitDieLabel } from '@/lib/characterLevelUp/chooseClass';
 import { averageLevelUpHitDieValue } from '@/lib/characterLevelUp/hitPoints';
-import type { LevelUpHitPointsState, LevelUpWizardSelectedClass } from '@/lib/characterLevelUp/types';
 import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
 import { formatSignedNumber } from '@/lib/characterSheetUtils';
 import { fantasyTokens } from '@/theme/fantasyTheme';

@@ -10,7 +10,6 @@ import {
     LEVEL_UP_ABILITY_LABELS,
     remainingLevelUpAsiPoints,
 } from '@/lib/characterLevelUp/asiOrFeat';
-import type { LevelUpAsiOrFeatState } from '@/lib/characterLevelUp/types';
 import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
