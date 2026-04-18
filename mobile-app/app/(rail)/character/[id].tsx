@@ -279,6 +279,7 @@ export default function CharacterByIdScreen() {
     /**
      * Closes the level-up sheet without affecting the underlying edit draft.
      * Shows a discard confirmation when the wizard contains user-entered data.
+     * Returns false when showing confirmation to prevent sheet animation.
      */
     const handleCloseLevelUpSheet = useCallback(() => {
         if (levelUpWizard.isDirty) {
@@ -292,11 +293,12 @@ export default function CharacterByIdScreen() {
                     levelUpWizard.resetWizard();
                 },
             });
-            return;
+            return false; // Prevent sheet close animation while showing confirmation
         }
 
         setLevelUpSheetVisible(false);
         levelUpWizard.resetWizard();
+        return undefined; // Allow close animation
     }, [levelUpWizard, confirm]);
 
     /**

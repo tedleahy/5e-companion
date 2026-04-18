@@ -28,7 +28,11 @@ const SHEET_HIDDEN_OFFSET = 48;
 type UseLevelUpWizardSheetMotionArgs = {
     visible: boolean;
     windowHeight: number;
-    onRequestClose: () => void;
+    /**
+     * Called when user requests to close. Return false to prevent closing
+     * (e.g., to show a dirty confirmation dialog).
+     */
+    onRequestClose: () => boolean | void;
 };
 
 /**
@@ -168,9 +172,18 @@ export default function useLevelUpWizardSheetMotion({
 
     /**
      * Requests full sheet dismissal and notifies the parent once the animation ends.
+     * If onRequestClose returns false, the close is cancelled and animation won't run.
      */
     const requestSheetClose = useCallback(() => {
         if (sheetCloseInFlightRef.current || !isRendered) return;
+
+        // Check with parent before starting close animation
+        const shouldClose = onRequestClose();
+        if (shouldClose === false) {
+            // Parent cancelled the close (e.g., showing dirty confirmation)
+            sheetCloseInFlightRef.current = false;
+            return;
+        }
 
         sheetCloseInFlightRef.current = true;
         scrollOffsetYRef.current = 0;
@@ -178,7 +191,6 @@ export default function useLevelUpWizardSheetMotion({
         if (IS_TEST_ENV) {
             sheetCloseInFlightRef.current = false;
             setIsRendered(false);
-            onRequestClose();
             return;
         }
 
@@ -197,7 +209,6 @@ export default function useLevelUpWizardSheetMotion({
         ]).start(() => {
             sheetCloseInFlightRef.current = false;
             setIsRendered(false);
-            onRequestClose();
         });
     }, [backdropOpacity, isRendered, onRequestClose, sheetTranslateY]);
 

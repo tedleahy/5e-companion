@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Dialog, Portal, Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
@@ -25,12 +25,15 @@ export default function ConfirmDialog({
     onConfirm,
     onCancel,
 }: ConfirmDialogProps) {
+    const { width } = useWindowDimensions();
+    const isTablet = width >= 768;
+
     return (
         <Portal>
             <Dialog
                 visible={visible}
                 onDismiss={onCancel}
-                style={styles.dialog}
+                style={[styles.dialog, isTablet && styles.dialogTablet]}
             >
                 <Dialog.Title style={styles.title}>{title}</Dialog.Title>
                 <Dialog.Content>
@@ -70,6 +73,11 @@ const styles = StyleSheet.create({
         maxWidth: 420,
         alignSelf: 'center',
         width: '90%',
+        marginHorizontal: 'auto',
+    },
+    dialogTablet: {
+        maxWidth: 480,
+        width: 480,
     },
     title: {
         ...fantasyTokens.typography.sectionTitle,
