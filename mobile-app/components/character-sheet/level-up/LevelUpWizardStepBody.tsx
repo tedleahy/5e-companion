@@ -5,7 +5,7 @@ import type {
     LevelUpAsiOrFeatState,
     LevelUpWizardStep,
 } from '@/lib/characterLevelUp/types';
-import { levelUpClassOption } from '@/lib/characterLevelUp/chooseClass';
+import { levelUpClassOption, levelUpHitDieLabel } from '@/lib/characterLevelUp/chooseClass';
 import { mapCustomFeatureDrafts } from '@/lib/characterLevelUp/subclassFeatures';
 import type { AvailableSubclassOption } from '@/lib/subclasses';
 import LevelUpAsiOrFeatStep from './LevelUpAsiOrFeatStep';
@@ -91,7 +91,7 @@ export default function LevelUpWizardStepBody({
                             <Text style={styles.currentClassIcon}>{currentClassOption?.icon ?? '\u2736'}</Text>
                             <Text style={styles.currentClassName}>{currentClass.className}</Text>
                             <Text style={styles.currentClassLevelText}>
-                                {`Level ${currentClass.currentLevel} -> ${currentClass.newLevel}`}
+                                {`Level ${currentClass.currentLevel} -> ${currentClass.newLevel} · ${levelUpHitDieLabel(currentClass.classId)} Hit Die`}
                             </Text>
                         </View>
 
@@ -134,8 +134,16 @@ export default function LevelUpWizardStepBody({
                         />
 
                         {prerequisiteWarnings.length > 0 ? (
-                            <View style={styles.warningBox} testID="level-up-multiclass-warning">
-                                <Text style={styles.warningTitle}>Prerequisite warning</Text>
+                            <View
+                                style={styles.warningBox}
+                                testID="level-up-multiclass-warning"
+                                accessibilityRole="alert"
+                                accessibilityLabel={`Prerequisite warning: ${prerequisiteWarnings.join(', ')}`}
+                            >
+                                <View style={styles.warningHeader}>
+                                    <Text style={styles.warningIcon}>⚠</Text>
+                                    <Text style={styles.warningTitle}>Prerequisite warning</Text>
+                                </View>
                                 {prerequisiteWarnings.map((warning) => (
                                     <Text key={warning} style={styles.warningText}>
                                         {warning}
@@ -373,6 +381,14 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(184,92,31,0.14)',
         padding: fantasyTokens.spacing.lg,
         gap: fantasyTokens.spacing.sm,
+    },
+    warningHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: fantasyTokens.spacing.sm,
+    },
+    warningIcon: {
+        fontSize: 18,
     },
     warningTitle: {
         ...fantasyTokens.typography.buttonLabel,

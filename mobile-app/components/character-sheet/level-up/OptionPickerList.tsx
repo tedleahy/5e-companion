@@ -134,7 +134,7 @@ export default function OptionPickerList<T extends BaseOption>({
                             testID={`${testIdPrefix}-${option.id}`}
                             accessibilityRole={isMulti ? 'checkbox' : 'radio'}
                             accessibilityState={{ checked: isSelected, disabled: isDisabled }}
-                            accessibilityLabel={`Select ${option.name}`}
+                            accessibilityLabel={`${isSelected ? 'Unselect' : 'Select'} ${option.name}${isSelected ? ', selected' : ''}${isDisabled ? ', unavailable' : ''}`}
                             disabled={isDisabled}
                         >
                             <View style={styles.optionHeader}>
@@ -166,6 +166,9 @@ export default function OptionPickerList<T extends BaseOption>({
                                 onPress={() => toggleExpanded(option.id)}
                                 hitSlop={8}
                                 testID={`${testIdPrefix}-read-more-${option.id}`}
+                                accessibilityRole="button"
+                                accessibilityLabel={`${isExpanded ? 'Show less' : 'Read more'} about ${option.name}`}
+                                accessibilityState={{ expanded: isExpanded }}
                             >
                                 <Text style={styles.readMoreText}>
                                     {isExpanded ? 'Show less' : 'Read more'}

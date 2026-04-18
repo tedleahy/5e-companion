@@ -477,7 +477,7 @@ describe('CharacterByIdScreen level-up wizard', () => {
         });
 
         expect(screen.getByTestId('level-up-current-class-card')).toBeTruthy();
-        expect(screen.getByText('Level 10 -> 11')).toBeTruthy();
+        expect(screen.getByText(/Level 10 -> 11/)).toBeTruthy();
         expect(screen.queryByTestId('level-up-class-option-fighter')).toBeNull();
         expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
     });
