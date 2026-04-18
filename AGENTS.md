@@ -83,6 +83,7 @@ Coding conventions
     - Cleaning up duplicated code is particularly something to look out for during refactor/cleanup passes
 - When you're creating or extending existing code, consider whether the file you're editing is becoming too large/specialised. If it is, consider extracting some of the logic into helper or other modules. Don't be afraid to refactor, but if it's going to complicate your current task, just make a note and mention it to me when you're finished.
 - If SRD data is required that isn't currently in the database, add it to the database seed script rather than trying to duplicate in code.
+- Never bloat app code by adding in specific things just for tests.
 
 UI style
 - Give the app a fantasy-style look and feel to it.
