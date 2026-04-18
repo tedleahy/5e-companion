@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor, act } from '@testing-library/react-native';
-import { Alert } from 'react-native';
+import { BackHandler } from 'react-native';
 import {
     CHARACTERS_MOCK,
     SAVE_CHARACTER_SHEET_FAILURE_MOCK,
@@ -13,6 +13,21 @@ import {
     openCharacterSheetTab,
 } from './character-sheet.test-utils';
 import { SAVE_CHARACTER_SHEET } from '@/graphql/characterSheet.operations';
+
+/**
+ * Returns the most recently registered hardware-back handler from the mocked BackHandler.
+ */
+function latestHardwareBackHandler(): () => boolean {
+    const addEventListenerMock = BackHandler.addEventListener as unknown as jest.Mock;
+    const lastCallIndex = addEventListenerMock.mock.calls.length - 1;
+    const handler = addEventListenerMock.mock.calls[lastCallIndex]?.[1] as (() => boolean) | undefined;
+
+    if (!handler) {
+        throw new Error('Expected hardware back handler to be registered');
+    }
+
+    return handler;
+}
 
 describe('CharacterByIdScreen edit flow', () => {
     setupCharacterSheetScreenTestHooks();
@@ -72,29 +87,17 @@ describe('CharacterByIdScreen edit flow', () => {
             expect(screen.getByDisplayValue('900')).toBeTruthy();
         });
 
-        const alertSpy = jest.spyOn(Alert, 'alert');
-
         fireEvent.press(screen.getByLabelText('Cancel character sheet edits'));
 
         await waitFor(() => {
-            expect(alertSpy).toHaveBeenCalledWith(
-                'Discard changes?',
-                'You have unsaved changes to your character sheet. Are you sure you want to discard them?',
-                expect.arrayContaining([
-                    expect.objectContaining({ text: 'Keep Editing', style: 'cancel' }),
-                    expect.objectContaining({ text: 'Discard', style: 'destructive' }),
-                ]),
-            );
+            expect(screen.getByText('Discard changes?')).toBeTruthy();
         });
 
-        const discardButton = alertSpy.mock.calls[0]![2]!.find(
-            (button: { text?: string }) => button.text === 'Discard',
-        ) as { onPress?: () => void } | undefined;
+        expect(screen.getByText('You have unsaved changes to your character sheet. Are you sure you want to discard them?')).toBeTruthy();
+        expect(screen.getByLabelText('Keep Editing')).toBeTruthy();
+        expect(screen.getByLabelText('Discard')).toBeTruthy();
 
-        await act(async () => {
-            discardButton?.onPress?.();
-            await Promise.resolve();
-        });
+        await pressAndFlush(screen.getByLabelText('Discard'));
 
         await waitFor(() => {
             expect(screen.getByLabelText('Enable character sheet edit mode')).toBeTruthy();
@@ -114,16 +117,13 @@ describe('CharacterByIdScreen edit flow', () => {
 
         await enableCharacterSheetEditMode();
 
-        const alertSpy = jest.spyOn(Alert, 'alert');
-
         fireEvent.press(screen.getByLabelText('Cancel character sheet edits'));
-
-        // No alert should be shown when there are no changes
-        expect(alertSpy).not.toHaveBeenCalled();
 
         await waitFor(() => {
             expect(screen.getByLabelText('Enable character sheet edit mode')).toBeTruthy();
         });
+
+        expect(screen.queryByText('Discard changes?')).toBeNull();
     });
 
     it('shows discard confirmation when hardware back button pressed with unsaved changes', async () => {
@@ -142,30 +142,25 @@ describe('CharacterByIdScreen edit flow', () => {
             expect(screen.getByDisplayValue('900')).toBeTruthy();
         });
 
-        const alertSpy = jest.spyOn(Alert, 'alert');
-        const { BackHandler } = require('react-native');
-
         // Simulate hardware back button press
-        // Get the most recent event listener (last call)
-        const lastCallIndex = BackHandler.addEventListener.mock.calls.length - 1;
-        const handler = BackHandler.addEventListener.mock.calls[lastCallIndex]?.[1];
-        expect(handler).toBeDefined();
+        const handler = latestHardwareBackHandler();
 
         // Call the handler (simulating back button press)
-        const shouldPreventDefault = handler();
+        let shouldPreventDefault = false;
+
+        await act(async () => {
+            shouldPreventDefault = handler();
+            await Promise.resolve();
+        });
 
         // Should return true to prevent default back action
         expect(shouldPreventDefault).toBe(true);
 
         // Should show discard confirmation
-        expect(alertSpy).toHaveBeenCalledWith(
-            'Discard changes?',
-            'You have unsaved changes to your character sheet. Are you sure you want to discard them?',
-            expect.arrayContaining([
-                expect.objectContaining({ text: 'Keep Editing', style: 'cancel' }),
-                expect.objectContaining({ text: 'Discard', style: 'destructive' }),
-            ]),
-        );
+        expect(screen.getByText('Discard changes?')).toBeTruthy();
+        expect(screen.getByText('You have unsaved changes to your character sheet. Are you sure you want to discard them?')).toBeTruthy();
+        expect(screen.getByLabelText('Keep Editing')).toBeTruthy();
+        expect(screen.getByLabelText('Discard')).toBeTruthy();
     });
 
     it('allows hardware back button without confirmation when no unsaved changes', async () => {
@@ -173,14 +168,8 @@ describe('CharacterByIdScreen edit flow', () => {
 
         await enableCharacterSheetEditMode();
 
-        const alertSpy = jest.spyOn(Alert, 'alert');
-        const { BackHandler } = require('react-native');
-
         // Simulate hardware back button press
-        // Get the most recent event listener (last call)
-        const lastCallIndex = BackHandler.addEventListener.mock.calls.length - 1;
-        const handler = BackHandler.addEventListener.mock.calls[lastCallIndex]?.[1];
-        expect(handler).toBeDefined();
+        const handler = latestHardwareBackHandler();
 
         // Call the handler (simulating back button press)
         const shouldPreventDefault = handler();
@@ -189,6 +178,6 @@ describe('CharacterByIdScreen edit flow', () => {
         expect(shouldPreventDefault).toBe(false);
 
         // Should not show discard confirmation
-        expect(alertSpy).not.toHaveBeenCalled();
+        expect(screen.queryByText('Discard changes?')).toBeNull();
     });
 });
