@@ -1,5 +1,4 @@
-import { Alert } from 'react-native';
-import { act, fireEvent, screen, waitFor, within } from '@testing-library/react-native';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react-native';
 import { SEARCH_SPELLS_FOR_SHEET } from '@/components/character-sheet/spells/AddSpellSheet';
 import { LEARN_SPELL, SAVE_CHARACTER_SHEET } from '@/graphql/characterSheet.operations';
 import type { SaveCharacterSheetMutationVariables } from '@/types/generated_graphql_types';
@@ -1015,15 +1014,13 @@ describe('CharacterByIdScreen level-up wizard', () => {
             expect(screen.getByText('Advance Vaelindra to Level 13')).toBeTruthy();
         });
 
-        const alertSpy = jest.spyOn(Alert, 'alert');
-
         fireEvent.press(screen.getByLabelText('Close level up wizard'));
 
         await waitFor(() => {
             expect(screen.queryByTestId('level-up-wizard-sheet')).toBeNull();
         });
 
-        expect(alertSpy).not.toHaveBeenCalled();
+        expect(screen.queryByText('Discard level-up changes?')).toBeNull();
     });
 
     it('shows a discard confirmation when dismissing a dirty wizard and respects the user choice', async () => {
@@ -1042,29 +1039,25 @@ describe('CharacterByIdScreen level-up wizard', () => {
             expect(screen.getByText('Step 2 of 5 - Hit Points')).toBeTruthy();
         });
 
-        const alertSpy = jest.spyOn(Alert, 'alert');
+        await pressAndFlush(screen.getByTestId('level-up-hit-points-average-button'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-hit-points-breakdown')).toBeTruthy();
+        });
 
         fireEvent.press(screen.getByLabelText('Close level up wizard'));
 
-        expect(alertSpy).toHaveBeenCalledWith(
-            'Discard level-up changes?',
-            'You have unsaved progress in the level-up wizard. Are you sure you want to discard it?',
-            expect.arrayContaining([
-                expect.objectContaining({ text: 'Keep Editing', style: 'cancel' }),
-                expect.objectContaining({ text: 'Discard', style: 'destructive' }),
-            ]),
-        );
+        await waitFor(() => {
+            expect(screen.getByText('Discard level-up changes?')).toBeTruthy();
+        });
+
+        expect(screen.getByText('You have unsaved progress in the level-up wizard. Are you sure you want to discard it?')).toBeTruthy();
+        expect(screen.getByLabelText('Keep Editing')).toBeTruthy();
+        expect(screen.getByLabelText('Discard')).toBeTruthy();
 
         expect(screen.getByTestId('level-up-wizard-sheet')).toBeTruthy();
 
-        const discardButton = alertSpy.mock.calls[0]![2]!.find(
-            (button: { text?: string }) => button.text === 'Discard',
-        ) as { onPress?: () => void } | undefined;
-
-        await act(async () => {
-            discardButton?.onPress?.();
-            await Promise.resolve();
-        });
+        await pressAndFlush(screen.getByLabelText('Discard'));
 
         expect(screen.queryByTestId('level-up-wizard-sheet')).toBeNull();
     });
