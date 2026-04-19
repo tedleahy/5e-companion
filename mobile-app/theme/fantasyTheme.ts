@@ -2,10 +2,15 @@ import type { TextStyle } from 'react-native';
 import { configureFonts, MD3DarkTheme, MD3LightTheme, MD3Theme } from 'react-native-paper';
 import type { MD3TypescaleKey } from 'react-native-paper';
 
+/**
+ * MD3-compatible font weight type (string literals only, not numeric).
+ */
+type MD3FontWeight = 'normal' | 'bold' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900' | undefined;
+
 type FantasyPaperType = {
     fontFamily: string;
     letterSpacing: number;
-    fontWeight?: TextStyle['fontWeight'];
+    fontWeight?: MD3FontWeight;
     lineHeight: number;
     fontSize: number;
     fontStyle?: TextStyle['fontStyle'];
