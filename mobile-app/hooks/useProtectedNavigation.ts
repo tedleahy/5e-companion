@@ -1,5 +1,5 @@
 import { Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { useCallback } from 'react';
 import { hasUnsavedChanges, discardUnsavedChanges } from '@/lib/unsavedChanges';
 
@@ -35,7 +35,7 @@ async function confirmDiscardChanges(): Promise<boolean> {
 export default function useProtectedNavigation() {
     const router = useRouter();
 
-    const push = useCallback(async (href: string) => {
+    const push = useCallback(async (href: Href) => {
         if (hasUnsavedChanges()) {
             const shouldDiscard = await confirmDiscardChanges();
             if (!shouldDiscard) {
@@ -46,7 +46,7 @@ export default function useProtectedNavigation() {
         router.push(href);
     }, [router]);
 
-    const replace = useCallback(async (href: string) => {
+    const replace = useCallback(async (href: Href) => {
         if (hasUnsavedChanges()) {
             const shouldDiscard = await confirmDiscardChanges();
             if (!shouldDiscard) {
