@@ -1,0 +1,80 @@
+name: E2E tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  playwright:
+    name: Playwright E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install server dependencies
+        working-directory: server
+        run: bun install --frozen-lockfile
+
+      - name: Install mobile-app dependencies
+        working-directory: mobile-app
+        run: yarn install --frozen-lockfile
+
+      - name: Install root dev dependencies (Supabase CLI wrapper)
+        run: bun install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('mobile-app/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Install Playwright browsers
+        working-directory: mobile-app
+        run: npx playwright install --with-deps chromium
+
+      - name: Generate Prisma client
+        working-directory: server
+        run: bunx prisma generate
+
+      - name: Start local Supabase
+        run: bunx supabase start
+
+      - name: Run Playwright tests
+        working-directory: mobile-app
+        env:
+          CI: 'true'
+        run: yarn e2e
+
+      - name: Stop local Supabase
+        if: always()
+        run: bunx supabase stop || true
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: mobile-app/playwright-report/
+          retention-days: 14
