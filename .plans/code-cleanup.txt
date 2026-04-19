@@ -1,0 +1,25 @@
+[x] Split mobile-app/lib/dndHelpers.ts into multiple different files in lib/helpers, handling different scopes
+[] Styles are duplicated across multiple components, what's a good way to handle this
+    - tailwind? might create an even worse mess
+
+[] Character creation
+    [x] No uppercase for name input - confusing when the name gets displayed title case later
+    [] Review page - When you hit 'edit', it takes you back to the right page. When you do that,
+        it should have a '-> review' button next to 'continue', to go straight back to review
+    [] All crimson section headings should be made bold and much bigger
+    [x] Bug - adding pagerview seems to have broken swiping the add spell sheet down to dismiss it (and the spell details modal)
+    [] Skills tab - don't allow setting expertise? check under what circumstances you get expertise
+
+[] Character Sheet
+    [] Core tab
+        'Proficiency' wrapping
+    [] Traits tab
+        [] Proficiencies & Languages - if none are present, it should still appear, just with
+            "You don't have any proficiencies or languages yet. Hit the 'Edit' button in the top
+            right to add some."
+    [] Big - 'Level Up' feature
+        should walk you through all the steps of levelling up
+
+[] Data gathering
+    [] Class features for each class
+    [] Level up process for each class

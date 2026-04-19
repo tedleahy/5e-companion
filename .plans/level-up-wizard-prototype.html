@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Character Codex — Level-Up Wizard Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Cinzel:wght@400;500;600;700&family=Spectral:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --parchment: #f0e6d0;
+    --parchment-light: #f5eedc;
+    --parchment-dark: #e8dcc4;
+    --claret: #8c1d38;
+    --claret-light: #a62b4a;
+    --gold: #c4a265;
+    --gold-light: #d4b87a;
+    --gold-dark: #a88a50;
+    --dark-bg: #2a1f14;
+    --dark-bg-light: #3a2e20;
+    --text-primary: #2a1f14;
+    --text-secondary: #6b5d4f;
+    --text-light: #8a7b6b;
+    --card-bg: #f5eedc;
+    --card-border: #e0d5c0;
+    --divider: #d4c9b4;
+    --success: #2d6a4f;
+    --warning: #b85c1f;
+    --danger: #8c1d38;
+    --overlay: rgba(20, 14, 8, 0.6);
+    --sheet-radius: 20px;
+    --edit-banner-bg: #3a2e20;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Spectral', Georgia, serif;
+    background: var(--dark-bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Simulated iPad Character Sheet (background) ── */
+  .ipad-frame {
+    width: 100%;
+    max-width: 820px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  .sheet-header {
+    background: var(--dark-bg);
+    padding: 20px 24px 0;
+    text-align: center;
+    position: relative;
+  }
+
+  .sheet-header .label {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .sheet-header .char-name {
+    font-family: 'Almendra', serif;
+    font-size: 36px;
+    color: var(--parchment);
+    margin: 4px 0;
+  }
+
+  .sheet-header .char-info {
+    font-family: 'Spectral', serif;
+    font-size: 14px;
+    color: var(--gold-dark);
+    margin-bottom: 16px;
+  }
+
+  .header-buttons {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn-done, .btn-cancel {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    padding: 8px 16px;
+    border: 1px solid var(--gold);
+    border-radius: 6px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+
+  .btn-done {
+    background: var(--dark-bg-light);
+    color: var(--parchment);
+  }
+
+  .btn-cancel {
+    background: transparent;
+    color: var(--gold-dark);
+  }
+
+  /* Edit banner */
+  .edit-banner {
+    background: var(--edit-banner-bg);
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-align: center;
+    padding: 10px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .edit-banner .dot {
+    width: 8px;
+    height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+  }
+
+  /* Level Up Button */
+  .level-up-btn {
+    position: absolute;
+    top: 16px;
+    left: 20px;
+    background: var(--claret);
+    color: var(--parchment);
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border: 1px solid var(--claret-light);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .level-up-btn:hover {
+    background: var(--claret-light);
+    transform: translateY(-1px);
+  }
+
+  .level-up-btn .arrow {
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  /* Tab bar */
+  .tab-bar {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    padding: 12px 0 0;
+    background: var(--dark-bg);
+  }
+
+  .tab-bar span {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--gold-dark);
+    padding-bottom: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+
+  .tab-bar span.active {
+    color: var(--parchment);
+    border-bottom: 2px solid var(--gold);
+  }
+
+  /* Simulated content area */
+  .sheet-content {
+    background: var(--dark-bg);
+    padding: 20px;
+    min-height: 60vh;
+  }
+
+  .placeholder-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .placeholder-card .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--claret);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .placeholder-content {
+    height: 60px;
+    background: var(--parchment-dark);
+    border-radius: 8px;
+    opacity: 0.4;
+  }
+
+  /* ══════════════════════════════════════════
+     BOTTOM SHEET OVERLAY & CONTAINER
+     ══════════════════════════════════════════ */
+
+  .sheet-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--overlay);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .sheet-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .bottom-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    width: 100%;
+    max-width: 820px;
+    height: 82vh;
+    background: var(--parchment);
+    border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
+    z-index: 101;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+    overflow: hidden;
+  }
+
+  .bottom-sheet.visible {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── Sheet handle ── */
+  .sheet-handle {
+    display: flex;
+    justify-content: center;
+    padding: 12px 0 8px;
+    flex-shrink: 0;
+  }
+
+  .sheet-handle .grip {
+    width: 40px;
+    height: 4px;
+    background: var(--divider);
+    border-radius: 2px;
+  }
+
+  /* ── Sheet header area ── */
+  .wizard-header {
+    padding: 0 24px 16px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--divider);
+  }
+
+  .wizard-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .wizard-title {
+    font-family: 'Almendra', serif;
+    font-size: 26px;
+    color: var(--text-primary);
+  }
+
+  .wizard-subtitle {
+    font-family: 'Spectral', serif;
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+
+  /* ── Progress indicator ── */
+  .progress-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .progress-step {
+    height: 3px;
+    flex: 1;
+    background: var(--divider);
+    border-radius: 2px;
+    transition: background 0.3s ease;
+  }
+
+  .progress-step.completed {
+    background: var(--claret);
+  }
+
+  .progress-step.current {
+    background: var(--gold);
+  }
+
+  .step-label {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* ── Scrollable content area ── */
+  .wizard-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ── Footer navigation ── */
+  .wizard-footer {
+    flex-shrink: 0;
+    padding: 16px 24px;
+    border-top: 1px solid var(--divider);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--parchment-light);
+  }
+
+  .btn-back {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    background: none;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-back:hover {
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+  }
+
+  .btn-back:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  .btn-next {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--parchment);
+    background: var(--claret);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-next:hover {
+    background: var(--claret-light);
+  }
+
+  .btn-next.confirm {
+    background: var(--success);
+  }
+
+  .btn-next.confirm:hover {
+    background: #357a5b;
+  }
+
+  /* ══════════════════════════════════════════
+     STEP CONTENT STYLES
+     ══════════════════════════════════════════ */
+
+  .step-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .step-content.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Current class context ── */
+  .current-class-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--dark-bg);
+    color: var(--parchment);
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  .current-class-badge .level {
+    color: var(--gold);
+  }
+
+  /* ── Class selection grid ── */
+  .class-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .class-option {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .class-option:hover {
+    border-color: var(--gold);
+    background: #f8f2e4;
+  }
+
+  .class-option.selected {
+    border-color: var(--claret);
+    background: #faf0e8;
+    box-shadow: 0 0 0 1px var(--claret);
+  }
+
+  .class-option .class-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--parchment-dark);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .class-option.selected .class-icon {
+    background: var(--claret);
+    color: var(--parchment);
+  }
+
+  .class-option .class-name {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--text-primary);
+  }
+
+  .class-option .class-hit-die {
+    font-family: 'Spectral', serif;
+    font-size: 12px;
+    color: var(--text-light);
+    margin-top: 2px;
+  }
+
+  /* Multiclass prereq warning */
+  .prereq-warning {
+    background: #fef3e2;
+    border: 1px solid #e8c87a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 16px;
+    display: none;
+    font-size: 14px;
+    color: var(--warning);
+  }
+
+  .prereq-warning.visible {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .prereq-warning .icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── Hit Points step ── */
+  .hp-section {
+    text-align: center;
+  }
+
+  .hit-die-display {
+    margin: 20px 0;
+  }
+
+  .die-visual {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 16px;
+    background: var(--card-bg);
+    border: 3px solid var(--divider);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Almendra', serif;
+    font-size: 48px;
+    color: var(--text-light);
+    position: relative;
+    transition: all 0.3s;
+  }
+
+  .die-visual.rolled {
+    border-color: var(--claret);
+    color: var(--claret);
+    background: #faf0e8;
+  }
+
+  .die-visual .die-label {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: var(--dark-bg);
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border-radius: 12px;
+  }
+
+  .roll-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    background: var(--claret);
+    color: var(--parchment);
+    border: none;
+    border-radius: 10px;
+    padding: 14px 40px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 12px;
+  }
+
+  .roll-btn:hover {
+    background: var(--claret-light);
+    transform: translateY(-1px);
+  }
+
+  .roll-btn:active {
+    transform: translateY(0);
+  }
+
+  .average-option {
+    font-family: 'Spectral', serif;
+    font-size: 14px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: var(--divider);
+    text-underline-offset: 3px;
+  }
+
+  .average-option:hover {
+    color: var(--text-primary);
+  }
+
+  .hp-calculation {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 24px;
+    display: none;
+  }
+
+  .hp-calculation.visible {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .hp-calc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 15px;
+  }
+
+  .hp-calc-row.total {
+    border-top: 2px solid var(--divider);
+    margin-top: 8px;
+    padding-top: 12px;
+    font-weight: 600;
+    font-size: 17px;
+  }
+
+  .hp-calc-row .value {
+    font-family: 'Almendra', serif;
+    font-size: 20px;
+    color: var(--claret);
+  }
+
+  .hp-calc-row.total .value {
+    font-size: 24px;
+    color: var(--success);
+  }
+
+  /* ── ASI / Feat step ── */
+  .choice-cards {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .choice-card {
+    flex: 1;
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+
+  .choice-card:hover {
+    border-color: var(--gold);
+  }
+
+  .choice-card.selected {
+    border-color: var(--claret);
+    background: #faf0e8;
+  }
+
+  .choice-card .choice-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+
+  .choice-card .choice-title {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+
+  .choice-card .choice-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+  }
+
+  /* ASI selectors */
+  .asi-panel {
+    display: none;
+    margin-top: 16px;
+  }
+
+  .asi-panel.visible { display: block; }
+
+  .asi-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--divider);
+  }
+
+  .asi-row:last-child { border-bottom: none; }
+
+  .asi-ability-name {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    width: 120px;
+  }
+
+  .asi-current {
+    font-family: 'Almendra', serif;
+    font-size: 20px;
+    color: var(--text-secondary);
+    width: 40px;
+    text-align: center;
+  }
+
+  .asi-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .asi-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+  }
+
+  .asi-btn:hover {
+    border-color: var(--gold);
+    color: var(--text-primary);
+  }
+
+  .asi-btn:disabled {
+    opacity: 0.2;
+    cursor: default;
+  }
+
+  .asi-increase {
+    font-family: 'Almendra', serif;
+    font-size: 18px;
+    color: var(--success);
+    width: 30px;
+    text-align: center;
+  }
+
+  .asi-remaining {
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--text-light);
+    text-transform: uppercase;
+    padding: 12px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+
+  .asi-remaining .count {
+    font-family: 'Almendra', serif;
+    font-size: 22px;
+    color: var(--claret);
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  /* Feat panel */
+  .feat-panel {
+    display: none;
+    margin-top: 16px;
+  }
+
+  .feat-panel.visible { display: block; }
+
+  .feat-input {
+    width: 100%;
+    font-family: 'Spectral', serif;
+    font-size: 16px;
+    padding: 12px 16px;
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    background: var(--parchment-light);
+    color: var(--text-primary);
+    outline: none;
+    margin-bottom: 12px;
+  }
+
+  .feat-input::placeholder {
+    color: var(--text-light);
+  }
+
+  .feat-textarea {
+    width: 100%;
+    font-family: 'Spectral', serif;
+    font-size: 14px;
+    padding: 12px 16px;
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    background: var(--parchment-light);
+    color: var(--text-primary);
+    outline: none;
+    min-height: 80px;
+    resize: vertical;
+  }
+
+  /* ── Subclass step ── */
+  .subclass-option {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .subclass-option:hover {
+    border-color: var(--gold);
+  }
+
+  .subclass-option.selected {
+    border-color: var(--claret);
+    background: #faf0e8;
+  }
+
+  .subclass-option .sub-name {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .subclass-option .sub-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .subclass-option .srd-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: var(--dark-bg);
+    color: var(--gold);
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* ── Features step ── */
+  .feature-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--claret);
+  }
+
+  .feature-card .feature-name {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+
+  .feature-card .feature-source {
+    font-family: 'Spectral', serif;
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 8px;
+  }
+
+  .feature-card .feature-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .new-badge {
+    display: inline-block;
+    background: var(--success);
+    color: #fff;
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* ── Spellcasting step ── */
+  .spell-slots-comparison {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .slot-compare {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 12px 14px;
+    text-align: center;
+    flex: 1;
+    min-width: 80px;
+  }
+
+  .slot-compare .slot-level {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-light);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .slot-compare .slot-change {
+    font-family: 'Almendra', serif;
+    font-size: 18px;
+    color: var(--text-secondary);
+  }
+
+  .slot-compare .slot-change .new-val {
+    color: var(--success);
+    font-weight: 700;
+  }
+
+  .slot-compare.changed {
+    border: 2px solid var(--gold);
+  }
+
+  .spells-known-section {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+  }
+
+  .spells-section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--claret);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .open-spell-picker-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--parchment-dark);
+    border: 2px dashed var(--gold);
+    border-radius: 10px;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold-dark);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .open-spell-picker-btn:hover {
+    border-color: var(--claret);
+    color: var(--claret);
+    background: #f5eedc;
+  }
+
+  /* ── Summary step ── */
+  .summary-section {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+  }
+
+  .summary-section .summary-label {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--text-light);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .summary-section .summary-value {
+    font-family: 'Spectral', serif;
+    font-size: 16px;
+    color: var(--text-primary);
+  }
+
+  .summary-section .summary-value .highlight {
+    color: var(--success);
+    font-weight: 600;
+  }
+
+  .summary-section .summary-value .old {
+    color: var(--text-light);
+    text-decoration: line-through;
+    margin-right: 6px;
+  }
+
+  .summary-features {
+    list-style: none;
+    padding: 0;
+  }
+
+  .summary-features li {
+    padding: 6px 0;
+    font-size: 14px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--divider);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .summary-features li:last-child {
+    border-bottom: none;
+  }
+
+  .summary-features li .bullet {
+    width: 6px;
+    height: 6px;
+    background: var(--claret);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .level-change-banner {
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .level-change-banner .from-to {
+    font-family: 'Almendra', serif;
+    font-size: 28px;
+    color: var(--text-primary);
+  }
+
+  .level-change-banner .arrow-icon {
+    color: var(--gold);
+    margin: 0 12px;
+    font-size: 24px;
+  }
+
+  .level-change-banner .new-level {
+    color: var(--claret);
+  }
+
+  /* ── Die rolling animation ── */
+  @keyframes dieRoll {
+    0% { transform: rotateZ(0deg) scale(1); }
+    25% { transform: rotateZ(15deg) scale(1.1); }
+    50% { transform: rotateZ(-10deg) scale(1.05); }
+    75% { transform: rotateZ(5deg) scale(1.02); }
+    100% { transform: rotateZ(0deg) scale(1); }
+  }
+
+  .die-visual.rolling {
+    animation: dieRoll 0.5s ease;
+    border-color: var(--gold);
+  }
+
+  /* ── Section divider ── */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .section-divider .line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--divider), transparent);
+  }
+
+  .section-divider .text {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--text-light);
+    text-transform: uppercase;
+  }
+
+  /* Custom text input with gold border for edit mode */
+  .custom-input {
+    width: 100%;
+    font-family: 'Spectral', serif;
+    font-size: 15px;
+    padding: 10px 14px;
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    background: var(--parchment-light);
+    color: var(--text-primary);
+    outline: none;
+  }
+
+  .custom-input::placeholder {
+    color: var(--text-light);
+  }
+
+  .info-note {
+    font-size: 13px;
+    color: var(--text-light);
+    font-style: italic;
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+
+  /* Multiclass toggle button */
+  .multiclass-toggle-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    background: none;
+    border: 2px solid var(--card-border);
+    border-radius: 10px;
+    padding: 14px 28px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .multiclass-toggle-btn:hover {
+    border-color: var(--gold);
+    color: var(--text-primary);
+    background: var(--card-bg);
+  }
+
+  /* Back to single class link-button */
+  .back-to-single-btn {
+    font-family: 'Spectral', serif;
+    font-size: 15px;
+    color: var(--claret);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 0;
+    transition: color 0.2s;
+  }
+
+  .back-to-single-btn:hover {
+    color: var(--claret-light);
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ SIMULATED IPAD CHARACTER SHEET (EDIT MODE) ═══ -->
+<div class="ipad-frame">
+  <div class="sheet-header">
+    <div class="label">Character Sheet</div>
+    <div class="char-name">Vaelindra</div>
+    <div class="char-info">Level 12 · Evocation Wizard · High Elf · Chaotic Good</div>
+
+    <button class="level-up-btn" onclick="openWizard()">
+      <span class="arrow">⬆</span> Level Up
+    </button>
+
+    <div class="header-buttons">
+      <button class="btn-done">Done</button>
+      <button class="btn-cancel">Cancel</button>
+    </div>
+  </div>
+
+  <div class="edit-banner">
+    <span class="dot"></span>
+    Editing — Tap any highlighted field to change it
+  </div>
+
+  <div class="tab-bar">
+    <span class="active">Core</span>
+    <span>Abilities</span>
+    <span>Spells</span>
+    <span>Gear</span>
+    <span>Traits</span>
+    <span>Features</span>
+  </div>
+
+  <div class="sheet-content">
+    <div class="placeholder-card">
+      <div class="section-title">Vitals</div>
+      <div class="placeholder-content"></div>
+    </div>
+    <div class="placeholder-card">
+      <div class="section-title">Passive Senses</div>
+      <div class="placeholder-content"></div>
+    </div>
+    <div class="placeholder-card">
+      <div class="section-title">Death Saves</div>
+      <div class="placeholder-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BOTTOM SHEET OVERLAY ═══ -->
+<div class="sheet-overlay" id="overlay" onclick="closeWizard()"></div>
+
+<!-- ═══ LEVEL-UP WIZARD BOTTOM SHEET ═══ -->
+<div class="bottom-sheet" id="wizardSheet">
+  <div class="sheet-handle"><div class="grip"></div></div>
+
+  <div class="wizard-header">
+    <div class="wizard-title-row">
+      <div class="wizard-title">Level Up</div>
+    </div>
+    <div class="wizard-subtitle">Advance Vaelindra to Level 13</div>
+    <div class="step-label" id="stepLabel">Step 1 of 7</div>
+    <div class="progress-bar" id="progressBar">
+      <!-- filled dynamically -->
+    </div>
+  </div>
+
+  <div class="wizard-body" id="wizardBody">
+
+    <!-- ═══ STEP 1: CHOOSE CLASS ═══ -->
+    <div class="step-content active" id="step1">
+
+      <!-- ── Default: Continue with current class ── -->
+      <div id="singleClassView">
+        <p style="font-size: 15px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
+          You're adding a level to your current class. Tap Next to continue.
+        </p>
+
+        <div class="class-option selected" style="max-width: 320px; margin: 0 auto 24px; pointer-events: none;">
+          <div class="class-icon" style="background: var(--claret); color: var(--parchment);">📖</div>
+          <div>
+            <div class="class-name">Wizard</div>
+            <div class="class-hit-die">Level 12 → 13 · d6 Hit Die</div>
+          </div>
+        </div>
+
+        <div class="section-divider">
+          <div class="line"></div>
+          <div class="text">or</div>
+          <div class="line"></div>
+        </div>
+
+        <p style="font-size: 14px; color: var(--text-secondary); text-align: center; margin: 16px 0 16px; line-height: 1.5;">
+          Want to gain a level in a different class instead?
+        </p>
+
+        <div style="text-align: center;">
+          <button class="multiclass-toggle-btn" onclick="showMulticlassPicker()">Choose a Class to Multiclass</button>
+        </div>
+      </div>
+
+      <!-- ── Expanded: Multiclass picker ── -->
+      <div id="multiclassView" style="display: none;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <button class="back-to-single-btn" onclick="showSingleClassView()">← Back to Wizard</button>
+        </div>
+
+        <p style="font-size: 15px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5;">
+          Choose a new class to multiclass into. This will add a level in the selected class instead of Wizard.
+        </p>
+
+        <div class="class-grid">
+          <div class="class-option" onclick="selectClass(this, 'Barbarian')">
+            <div class="class-icon">⚔</div>
+            <div><div class="class-name">Barbarian</div><div class="class-hit-die">d12</div></div>
+          </div>
+          <div class="class-option" onclick="selectClass(this, 'Bard')">
+            <div class="class-icon">🎵</div>
+            <div><div class="class-name">Bard</div><div class="class-hit-die">d8</div></div>
+          </div>
+          <div class="class-option" onclick="selectClass(this, 'Cleric')">
+            <div class="class-icon">✝</div>
+            <div><div class="class-name">Cleric</div><div class="class-hit-die">d8</div></div>
+          </div>
+          <div class="class-option" onclick="selectClass(this, 'Druid')">
+            <div class="class-icon">🌿</div>
+            <div><div class="class-name">Druid</div><div class="class-hit-die">d8</div></div>
+          </div>
+          <div class="class-option" onclick="selectClass(this, 'Fighter')">
+            <div class="class-icon">🛡</div>
+            <div><div class="class-name">Fighter</div><div class="class-hit-die">d10</div></div>
+          </div>
+          <div class="class-option" onclick="selectClass(this, 'Monk')">
+            <div class="class-icon">👊</div>
+            <div><div class="class-name">Monk</div><div class="class-hit-die">d8</div></div>
+          </div>
+          <div class="class-option" onclick="selectClass(this, 'Paladin')">
+            <div class="class-icon">⚜</div>
+            <div><div class="class-name">Paladin</div><div class="class-hit-die">d10</div></div>
+          </div>
+          <div class="class-option" onclick="selectClass(this, 'Ranger')">
+            <div class="class-icon">🏹</div>
+            <div><div class="class-name">Ranger</div><div class="class-hit-die">d10</div></div>
+          </div>
+          <div class="class-option" onclick="selectClass(this, 'Rogue')">
+            <div class="class-icon">🗡</div>
+            <div><div class="class-name">Rogue</div><div class="class-hit-die">d8</div></div>
+          </div>
+          <div class="class-option" onclick="selectClass(this, 'Sorcerer')">
+            <div class="class-icon">✦</div>
+            <div><div class="class-name">Sorcerer</div><div class="class-hit-die">d6</div></div>
+          </div>
+          <div class="class-option" onclick="selectClass(this, 'Warlock')">
+            <div class="class-icon">🔮</div>
+            <div><div class="class-name">Warlock</div><div class="class-hit-die">d8</div></div>
+          </div>
+          <div class="class-option" onclick="selectClass(this, 'Wizard')">
+            <div class="class-icon">📖</div>
+            <div><div class="class-name">Wizard</div><div class="class-hit-die">d6</div></div>
+          </div>
+        </div>
+
+        <div class="prereq-warning" id="prereqWarning">
+          <span class="icon">⚠</span>
+          <div>
+            <strong>Multiclass Prerequisites</strong><br>
+            <span id="prereqText">You need STR 13 to multiclass into Barbarian. Vaelindra has STR 8.</span>
+            <br><span style="font-size: 12px; color: var(--text-light); margin-top: 4px; display: block;">You can still proceed with DM approval.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ STEP 2: HIT POINTS ═══ -->
+    <div class="step-content" id="step2">
+      <div class="hp-section">
+        <p style="font-size: 15px; color: var(--text-secondary); margin-bottom: 8px; line-height: 1.5;">
+          Roll your hit die to determine HP gained this level.
+        </p>
+
+        <div class="hit-die-display">
+          <div class="die-visual" id="dieVisual">
+            <span id="dieValue">d6</span>
+            <span class="die-label">d6</span>
+          </div>
+        </div>
+
+        <button class="roll-btn" id="rollBtn" onclick="rollHitDie()">Roll Hit Die</button>
+        <br>
+        <span class="average-option" onclick="takeAverage()">or take the average (4)</span>
+
+        <div class="hp-calculation" id="hpCalc">
+          <div class="hp-calc-row">
+            <span>Hit Die Roll</span>
+            <span class="value" id="hpRollValue">—</span>
+          </div>
+          <div class="hp-calc-row">
+            <span>Constitution Modifier</span>
+            <span class="value" style="color: var(--text-primary);">+2</span>
+          </div>
+          <div class="hp-calc-row total">
+            <span>HP Gained</span>
+            <span class="value" id="hpTotalValue">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ STEP 3: ASI / FEAT (shown for level 12 → 13, simulated for demo at this step) ═══ -->
+    <div class="step-content" id="step3">
+      <p style="font-size: 15px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5;">
+        At this level you gain an Ability Score Improvement. You can increase your ability scores or take a feat.
+      </p>
+
+      <div class="choice-cards">
+        <div class="choice-card selected" id="asiChoice" onclick="selectAsiOrFeat('asi')">
+          <div class="choice-icon">📊</div>
+          <div class="choice-title">Ability Scores</div>
+          <div class="choice-desc">+2 to one score, or +1 to two scores</div>
+        </div>
+        <div class="choice-card" id="featChoice" onclick="selectAsiOrFeat('feat')">
+          <div class="choice-icon">⭐</div>
+          <div class="choice-title">Feat</div>
+          <div class="choice-desc">Gain a new feat and its benefits</div>
+        </div>
+      </div>
+
+      <!-- ASI Panel -->
+      <div class="asi-panel visible" id="asiPanel">
+        <div class="asi-remaining">
+          <span class="count" id="asiRemaining">2</span>
+          Points remaining
+        </div>
+
+        <div class="asi-row">
+          <span class="asi-ability-name">Strength</span>
+          <span class="asi-current">8</span>
+          <div class="asi-controls">
+            <button class="asi-btn" onclick="adjustAsi(this, -1)">−</button>
+            <span class="asi-increase" id="str-inc"></span>
+            <button class="asi-btn" onclick="adjustAsi(this, 1)">+</button>
+          </div>
+        </div>
+        <div class="asi-row">
+          <span class="asi-ability-name">Dexterity</span>
+          <span class="asi-current">16</span>
+          <div class="asi-controls">
+            <button class="asi-btn" onclick="adjustAsi(this, -1)">−</button>
+            <span class="asi-increase" id="dex-inc"></span>
+            <button class="asi-btn" onclick="adjustAsi(this, 1)">+</button>
+          </div>
+        </div>
+        <div class="asi-row">
+          <span class="asi-ability-name">Constitution</span>
+          <span class="asi-current">14</span>
+          <div class="asi-controls">
+            <button class="asi-btn" onclick="adjustAsi(this, -1)">−</button>
+            <span class="asi-increase" id="con-inc"></span>
+            <button class="asi-btn" onclick="adjustAsi(this, 1)">+</button>
+          </div>
+        </div>
+        <div class="asi-row">
+          <span class="asi-ability-name">Intelligence</span>
+          <span class="asi-current">20</span>
+          <div class="asi-controls">
+            <button class="asi-btn" onclick="adjustAsi(this, -1)">−</button>
+            <span class="asi-increase" id="int-inc"></span>
+            <button class="asi-btn" onclick="adjustAsi(this, 1)" disabled title="Already at 20">+</button>
+          </div>
+        </div>
+        <div class="asi-row">
+          <span class="asi-ability-name">Wisdom</span>
+          <span class="asi-current">13</span>
+          <div class="asi-controls">
+            <button class="asi-btn" onclick="adjustAsi(this, -1)">−</button>
+            <span class="asi-increase" id="wis-inc"></span>
+            <button class="asi-btn" onclick="adjustAsi(this, 1)">+</button>
+          </div>
+        </div>
+        <div class="asi-row">
+          <span class="asi-ability-name">Charisma</span>
+          <span class="asi-current">11</span>
+          <div class="asi-controls">
+            <button class="asi-btn" onclick="adjustAsi(this, -1)">−</button>
+            <span class="asi-increase" id="cha-inc"></span>
+            <button class="asi-btn" onclick="adjustAsi(this, 1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feat Panel -->
+      <div class="feat-panel" id="featPanel">
+        <input type="text" class="feat-input" placeholder="Feat name (e.g. War Caster)">
+        <textarea class="feat-textarea" placeholder="Describe the feat's benefits..."></textarea>
+
+        <div class="section-divider">
+          <div class="line"></div>
+          <div class="text">Optional</div>
+          <div class="line"></div>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">
+          Some feats include an ability score increase:
+        </p>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <select class="custom-input" style="flex: 1;">
+            <option value="">No ability increase</option>
+            <option>Strength +1</option>
+            <option>Dexterity +1</option>
+            <option>Constitution +1</option>
+            <option>Intelligence +1</option>
+            <option>Wisdom +1</option>
+            <option>Charisma +1</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ STEP 4: NEW CLASS FEATURES ═══ -->
+    <div class="step-content" id="step4">
+      <p style="font-size: 15px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5;">
+        The following features are gained at Wizard level 13. These will be added to your Features tab.
+      </p>
+
+      <div class="feature-card">
+        <div class="feature-name">
+          7th Level Spell Slot <span class="new-badge">New</span>
+        </div>
+        <div class="feature-source">Wizard 13</div>
+        <div class="feature-desc">
+          You gain access to 7th-level spell slots. You can now prepare and cast spells of 7th level from the wizard spell list.
+        </div>
+      </div>
+
+      <div class="info-note">
+        No additional subclass features at this level. Evocation Wizard gains its next feature at level 14 (Overchannel).
+      </div>
+    </div>
+
+    <!-- ═══ STEP 5: SPELLCASTING UPDATES ═══ -->
+    <div class="step-content" id="step5">
+      <div class="spells-section-title">Spell Slot Changes</div>
+      <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">
+        Your available spell slots have changed:
+      </p>
+
+      <div class="spell-slots-comparison">
+        <div class="slot-compare">
+          <div class="slot-level">1st</div>
+          <div class="slot-change">4</div>
+        </div>
+        <div class="slot-compare">
+          <div class="slot-level">2nd</div>
+          <div class="slot-change">3</div>
+        </div>
+        <div class="slot-compare">
+          <div class="slot-level">3rd</div>
+          <div class="slot-change">3</div>
+        </div>
+        <div class="slot-compare">
+          <div class="slot-level">4th</div>
+          <div class="slot-change">3</div>
+        </div>
+        <div class="slot-compare">
+          <div class="slot-level">5th</div>
+          <div class="slot-change">2</div>
+        </div>
+        <div class="slot-compare">
+          <div class="slot-level">6th</div>
+          <div class="slot-change">1</div>
+        </div>
+        <div class="slot-compare changed">
+          <div class="slot-level">7th</div>
+          <div class="slot-change">0 → <span class="new-val">1</span></div>
+        </div>
+      </div>
+
+      <div class="section-divider">
+        <div class="line"></div>
+        <div class="text">New Spells</div>
+        <div class="line"></div>
+      </div>
+
+      <div class="spells-known-section">
+        <div class="spells-section-title">Learn New Spells</div>
+        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">
+          As a Wizard, you learn 2 new spells of any level you can cast (1st–7th) and add them to your spellbook.
+        </p>
+        <button class="open-spell-picker-btn" onclick="alert('This would open the existing Add Spell bottom sheet, filtered to Wizard spells of levels 1–7')">
+          + Choose 2 New Spells
+        </button>
+        <p class="info-note">0 of 2 spells selected</p>
+      </div>
+    </div>
+
+    <!-- ═══ STEP 6: PROFICIENCY UPDATES (multiclass only - hidden in this demo) ═══ -->
+    <div class="step-content" id="step6" style="display: none;">
+      <!-- Would show multiclass proficiency gains -->
+    </div>
+
+    <!-- ═══ STEP 7: SUMMARY ═══ -->
+    <div class="step-content" id="step7">
+      <div class="level-change-banner">
+        <span class="from-to">
+          Wizard 12
+          <span class="arrow-icon">→</span>
+          <span class="new-level">Wizard 13</span>
+        </span>
+      </div>
+
+      <div class="summary-section">
+        <div class="summary-label">Hit Points</div>
+        <div class="summary-value">
+          <span class="old">85</span>
+          <span class="highlight">→ 91</span>
+          <span style="color: var(--text-light); font-size: 14px;"> (+6)</span>
+        </div>
+      </div>
+
+      <div class="summary-section">
+        <div class="summary-label">Ability Score Improvement</div>
+        <div class="summary-value">
+          Wisdom 13 → <span class="highlight">14</span>,
+          Charisma 11 → <span class="highlight">12</span>
+        </div>
+      </div>
+
+      <div class="summary-section">
+        <div class="summary-label">New Spell Slots</div>
+        <div class="summary-value">
+          7th Level: 0 → <span class="highlight">1</span>
+        </div>
+      </div>
+
+      <div class="summary-section">
+        <div class="summary-label">New Spells Learned</div>
+        <ul class="summary-features">
+          <li><span class="bullet"></span> Finger of Death (7th)</li>
+          <li><span class="bullet"></span> Arcane Sword (7th)</li>
+        </ul>
+      </div>
+
+      <div class="summary-section">
+        <div class="summary-label">New Features</div>
+        <ul class="summary-features">
+          <li><span class="bullet"></span> 7th Level Spell Slot</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ FOOTER NAVIGATION ═══ -->
+  <div class="wizard-footer">
+    <button class="btn-back" id="backBtn" onclick="prevStep()" disabled>Back</button>
+    <button class="btn-next" id="nextBtn" onclick="nextStep()">Next</button>
+  </div>
+</div>
+
+<script>
+  // ── Wizard State ──
+  const STEPS = [1, 2, 3, 4, 5, 7]; // skipping 6 (proficiency - multiclass only)
+  let currentStepIndex = 0;
+  let selectedClass = 'Wizard';
+  let asiPoints = 2;
+
+  const stepNames = {
+    1: 'Choose Class',
+    2: 'Hit Points',
+    3: 'Ability Score Improvement',
+    4: 'New Features',
+    5: 'Spellcasting',
+    7: 'Summary'
+  };
+
+  function openWizard() {
+    document.getElementById('overlay').classList.add('visible');
+    document.getElementById('wizardSheet').classList.add('visible');
+    currentStepIndex = 0;
+    selectedClass = 'Wizard';
+    // Reset to single class view
+    document.getElementById('singleClassView').style.display = '';
+    document.getElementById('multiclassView').style.display = 'none';
+    updateStep();
+  }
+
+  function closeWizard() {
+    document.getElementById('overlay').classList.remove('visible');
+    document.getElementById('wizardSheet').classList.remove('visible');
+  }
+
+  function showMulticlassPicker() {
+    document.getElementById('singleClassView').style.display = 'none';
+    document.getElementById('multiclassView').style.display = '';
+    // Clear any previous selection
+    document.querySelectorAll('#multiclassView .class-option').forEach(o => {
+      o.classList.remove('selected');
+      o.querySelector('.class-icon').style.background = '';
+      o.querySelector('.class-icon').style.color = '';
+    });
+    document.getElementById('prereqWarning').classList.remove('visible');
+    selectedClass = null;
+    // Disable Next until they pick something
+    document.getElementById('nextBtn').disabled = true;
+    document.getElementById('nextBtn').style.opacity = '0.4';
+  }
+
+  function showSingleClassView() {
+    document.getElementById('multiclassView').style.display = 'none';
+    document.getElementById('singleClassView').style.display = '';
+    selectedClass = 'Wizard';
+    document.getElementById('nextBtn').disabled = false;
+    document.getElementById('nextBtn').style.opacity = '1';
+  }
+
+  function updateStep() {
+    const step = STEPS[currentStepIndex];
+    const total = STEPS.length;
+
+    // Update step label
+    document.getElementById('stepLabel').textContent =
+      `Step ${currentStepIndex + 1} of ${total} — ${stepNames[step]}`;
+
+    // Update progress bar
+    const progressBar = document.getElementById('progressBar');
+    progressBar.innerHTML = STEPS.map((_, i) => {
+      let cls = 'progress-step';
+      if (i < currentStepIndex) cls += ' completed';
+      else if (i === currentStepIndex) cls += ' current';
+      return `<div class="${cls}"></div>`;
+    }).join('');
+
+    // Show/hide steps
+    document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+    document.getElementById(`step${step}`).classList.add('active');
+
+    // Update buttons
+    const backBtn = document.getElementById('backBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    backBtn.disabled = currentStepIndex === 0;
+
+    if (currentStepIndex === STEPS.length - 1) {
+      nextBtn.textContent = 'Confirm Level Up';
+      nextBtn.classList.add('confirm');
+    } else {
+      nextBtn.textContent = 'Next';
+      nextBtn.classList.remove('confirm');
+    }
+
+    // Scroll to top
+    document.getElementById('wizardBody').scrollTop = 0;
+  }
+
+  function nextStep() {
+    if (currentStepIndex === STEPS.length - 1) {
+      // Confirm!
+      alert('Level up confirmed! Vaelindra is now Wizard 13.');
+      closeWizard();
+      return;
+    }
+    currentStepIndex++;
+    updateStep();
+  }
+
+  function prevStep() {
+    if (currentStepIndex > 0) {
+      currentStepIndex--;
+      updateStep();
+    }
+  }
+
+  // ── Class Selection ──
+  function selectClass(el, className) {
+    document.querySelectorAll('#multiclassView .class-option').forEach(o => {
+      o.classList.remove('selected');
+      o.querySelector('.class-icon').style.background = '';
+      o.querySelector('.class-icon').style.color = '';
+    });
+    el.classList.add('selected');
+    el.querySelector('.class-icon').style.background = 'var(--claret)';
+    el.querySelector('.class-icon').style.color = 'var(--parchment)';
+    selectedClass = className;
+
+    // Re-enable Next
+    document.getElementById('nextBtn').disabled = false;
+    document.getElementById('nextBtn').style.opacity = '1';
+
+    // Show prereq warning for multiclass
+    const prereqWarning = document.getElementById('prereqWarning');
+    if (className !== 'Wizard') {
+      const prereqs = {
+        'Barbarian': 'You need STR 13 to multiclass into Barbarian. Vaelindra has STR 8.',
+        'Bard': 'You need CHA 13 to multiclass into Bard. Vaelindra has CHA 11.',
+        'Cleric': 'Requires WIS 13. Vaelindra has WIS 13. ✓ Prerequisite met.',
+        'Druid': 'Requires WIS 13. Vaelindra has WIS 13. ✓ Prerequisite met.',
+        'Fighter': 'Requires STR 13 or DEX 13. Vaelindra has DEX 16. ✓ Prerequisite met.',
+        'Monk': 'Requires DEX 13 and WIS 13. Vaelindra has DEX 16, WIS 13. ✓ Prerequisites met.',
+        'Paladin': 'You need STR 13 and CHA 13 to multiclass into Paladin. Vaelindra has STR 8 and CHA 11.',
+        'Ranger': 'Requires DEX 13 and WIS 13. Vaelindra has DEX 16, WIS 13. ✓ Prerequisites met.',
+        'Rogue': 'Requires DEX 13. Vaelindra has DEX 16. ✓ Prerequisite met.',
+        'Sorcerer': 'You need CHA 13 to multiclass into Sorcerer. Vaelindra has CHA 11.',
+        'Warlock': 'You need CHA 13 to multiclass into Warlock. Vaelindra has CHA 11.',
+      };
+      document.getElementById('prereqText').textContent = prereqs[className];
+      prereqWarning.classList.add('visible');
+    } else {
+      prereqWarning.classList.remove('visible');
+    }
+  }
+
+  // ── Hit Die Roll ──
+  function rollHitDie() {
+    const die = document.getElementById('dieVisual');
+    const dieVal = document.getElementById('dieValue');
+    const rollBtn = document.getElementById('rollBtn');
+
+    // Animate
+    die.classList.remove('rolled');
+    die.classList.add('rolling');
+
+    // Quick random animation
+    let rolls = 0;
+    const interval = setInterval(() => {
+      dieVal.textContent = Math.floor(Math.random() * 6) + 1;
+      rolls++;
+      if (rolls > 8) {
+        clearInterval(interval);
+        const finalRoll = Math.floor(Math.random() * 6) + 1;
+        dieVal.textContent = finalRoll;
+        die.classList.remove('rolling');
+        die.classList.add('rolled');
+        rollBtn.textContent = 'Re-Roll';
+
+        showHpCalc(finalRoll);
+      }
+    }, 80);
+  }
+
+  function takeAverage() {
+    const die = document.getElementById('dieVisual');
+    const dieVal = document.getElementById('dieValue');
+    dieVal.textContent = '4';
+    die.classList.add('rolled');
+    document.getElementById('rollBtn').textContent = 'Re-Roll';
+    showHpCalc(4);
+  }
+
+  function showHpCalc(roll) {
+    const calc = document.getElementById('hpCalc');
+    document.getElementById('hpRollValue').textContent = roll;
+    document.getElementById('hpTotalValue').textContent = `+${roll + 2}`;
+    calc.classList.add('visible');
+  }
+
+  // ── ASI / Feat Selection ──
+  function selectAsiOrFeat(choice) {
+    const asiCard = document.getElementById('asiChoice');
+    const featCard = document.getElementById('featChoice');
+    const asiPanel = document.getElementById('asiPanel');
+    const featPanel = document.getElementById('featPanel');
+
+    if (choice === 'asi') {
+      asiCard.classList.add('selected');
+      featCard.classList.remove('selected');
+      asiPanel.classList.add('visible');
+      featPanel.classList.remove('visible');
+    } else {
+      featCard.classList.add('selected');
+      asiCard.classList.remove('selected');
+      featPanel.classList.add('visible');
+      asiPanel.classList.remove('visible');
+    }
+  }
+
+  function adjustAsi(btn, delta) {
+    const row = btn.closest('.asi-row');
+    const incEl = row.querySelector('.asi-increase');
+    let current = parseInt(incEl.textContent.replace('+', '')) || 0;
+    let newVal = current + delta;
+
+    if (newVal < 0) return;
+    if (delta > 0 && asiPoints <= 0) return;
+    if (newVal > 2) return;
+
+    // Check cap 20
+    const currentScore = parseInt(row.querySelector('.asi-current').textContent);
+    if (currentScore + newVal > 20) return;
+
+    asiPoints -= delta;
+    incEl.textContent = newVal > 0 ? `+${newVal}` : '';
+    document.getElementById('asiRemaining').textContent = asiPoints;
+  }
+
+  // Initialize
+  updateStep();
+</script>
+
+</body>
+</html>

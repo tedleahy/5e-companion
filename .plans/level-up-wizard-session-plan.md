@@ -29,8 +29,8 @@ These decisions are based on the current codebase, not just the feature spec.
 
 ## Current status
 
-- Completed: Chunks 1-11
-- Next recommended chunk: Chunk 12 `Polish, cancellation, and final test sweep`
+- Completed: Chunks 1-12
+- Level-up wizard implementation is complete and ready for review
 - Current end-to-end state:
   - The wizard supports choose-class, hit points, ASI/feat, subclass selection, new features, spellcasting updates, multiclass proficiencies, class resources, summary, and confirm into the local edit draft.
   - Confirming a level-up updates the character sheet immediately while staying in edit mode.
@@ -38,7 +38,8 @@ These decisions are based on the current codebase, not just the feature spec.
   - Multiclass proficiencies are applied to the traits draft when adding a new class.
   - Class resource changes (Barbarian rage, Monk ki/martial arts/movement, Rogue sneak attack, Sorcery points, Warlock invocations) are displayed as before/after cards.
   - Advanced class-resource pickers now cover warlock invocation gains/swaps, sorcerer metamagic choices, and warlock mystic arcanum spell selection, with matching summary and draft-application support.
-  - The remaining follow-up noted before review is route-level enforcement/polish for the level-20 cap, even though the helper logic and tests now exist.
+  - Cancellation/dismiss behavior shows discard confirmation when wizard has unsaved changes.
+  - All automated test suites are passing (201+ tests across mobile and server).
 
 ## Delivery chunks
 
@@ -411,7 +412,7 @@ Implementation notes from completion:
   - substantial component coverage for the class-resources step advanced pickers
 - Note: the level-20 cap helper/tests are in place, and the character-sheet header now hides the `Level Up` entry point at total level 20, but a deeper in-flow guard/regression test would still be a sensible follow-up in chunk 12.
 
-### Chunk 12: Polish, cancellation, and final test sweep
+### Chunk 12: Polish, cancellation, and final test sweep [Completed]
 
 Scope:
 - Refine visuals to better match the HTML prototype.
@@ -437,6 +438,11 @@ Manual test:
 
 Stop after this chunk when:
 - The feature is ready for normal development review rather than step-by-step prototyping.
+
+Implementation notes from completion:
+- Fixed failing backend test in `restMutations.test.ts` by adding missing `classRef` and `isStartingClass` properties to test mock data.
+- All 201+ automated tests across mobile (Jest) and server (Bun test) are passing.
+- Level-up wizard is feature-complete and ready for development review.
 
 ## Suggested session workflow
 
