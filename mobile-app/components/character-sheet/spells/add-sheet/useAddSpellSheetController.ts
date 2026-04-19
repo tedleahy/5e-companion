@@ -21,7 +21,7 @@ import {
     defaultFilterForClasses,
     type AddSpellFilterState,
 } from '../SpellFilterState';
-import type { AddSpellListItem } from '../addSpell.types';
+import type { AddSpellBlockedReason, AddSpellListItem } from '../addSpell.types';
 
 /**
  * Props required to drive the add-sheet controller.
@@ -30,8 +30,11 @@ type UseAddSpellSheetControllerArgs = {
     visible: boolean;
     characterClassIds: string[];
     knownSpellIds: string[];
-    onSpellAdded: (spellId: string) => Promise<void>;
-    onSpellRemoved: (spellId: string) => Promise<void>;
+    blockedSpellIds?: string[];
+    forcedFilters?: Partial<AddSpellFilterState>;
+    selectionLimit?: number;
+    onSpellAdded: (spell: AddSpellListItem) => Promise<void>;
+    onSpellRemoved: (spell: AddSpellListItem) => Promise<void>;
 };
 
 /**
@@ -56,6 +59,8 @@ type UseAddSpellSheetControllerResult = {
     selectedSpellDetailLoading: boolean;
     selectedSpellDetailErrorMessage?: string;
     isKnownSpell: (spellId: string) => boolean;
+    blockedReasonForSpell: (spellId: string) => AddSpellBlockedReason | null;
+    isBlockedSpell: (spellId: string) => boolean;
     clearActionErrorMessage: () => void;
     toggleSpellSelection: (spell: AddSpellListItem) => Promise<void>;
     openFilterPanel: () => void;
@@ -76,6 +81,34 @@ const SEARCH_DEBOUNCE_MS = 300;
 const MAX_SHEET_RESULTS = 500;
 
 /**
+ * Applies forced class/level filters without allowing the caller to override them.
+ */
+function mergeForcedFilters(
+    filters: AddSpellFilterState,
+    forcedFilters?: Partial<AddSpellFilterState>,
+): AddSpellFilterState {
+    if (!forcedFilters) {
+        return filters;
+    }
+
+    return {
+        ...filters,
+        ...forcedFilters,
+        classes: forcedFilters.classes ?? filters.classes,
+        levels: forcedFilters.levels ?? filters.levels,
+        schools: forcedFilters.schools ?? filters.schools,
+        components: forcedFilters.components ?? filters.components,
+        rangeCategories: forcedFilters.rangeCategories ?? filters.rangeCategories,
+        durationCategories: forcedFilters.durationCategories ?? filters.durationCategories,
+        castingTimeCategories: forcedFilters.castingTimeCategories ?? filters.castingTimeCategories,
+        ritual: forcedFilters.ritual ?? filters.ritual,
+        concentration: forcedFilters.concentration ?? filters.concentration,
+        hasHigherLevel: forcedFilters.hasHigherLevel ?? filters.hasHigherLevel,
+        hasMaterial: forcedFilters.hasMaterial ?? filters.hasMaterial,
+    };
+}
+
+/**
  * Owns add-sheet search, filters, queries, and optimistic spell-selection state.
  *
  * This keeps data and mutation logic out of the animated sheet shell so the
@@ -85,6 +118,9 @@ export default function useAddSpellSheetController({
     visible,
     characterClassIds,
     knownSpellIds,
+    blockedSpellIds = [],
+    forcedFilters,
+    selectionLimit,
     onSpellAdded,
     onSpellRemoved,
 }: UseAddSpellSheetControllerArgs): UseAddSpellSheetControllerResult {
@@ -101,10 +137,14 @@ export default function useAddSpellSheetController({
         sessionChangesCount,
         actionErrorMessage,
         isKnownSpell,
+        blockedReasonForSpell,
+        isBlockedSpell,
         clearActionErrorMessage,
         toggleSpellSelection,
     } = useAddSpellSelection({
         knownSpellIds,
+        blockedSpellIds,
+        selectionLimit,
         onSpellAdded,
         onSpellRemoved,
     });
@@ -122,12 +162,16 @@ export default function useAddSpellSheetController({
         prefetchedSpellDetailIdsRef.current.clear();
     }, [visible]);
 
-    const activeFilterCount = useMemo(() => countActiveFilters(appliedFilters), [appliedFilters]);
-    const activeFilterChips = useMemo(() => buildActiveFilterChips(appliedFilters), [appliedFilters]);
+    const effectiveFilters = useMemo(
+        () => mergeForcedFilters(appliedFilters, forcedFilters),
+        [appliedFilters, forcedFilters],
+    );
+    const activeFilterCount = useMemo(() => countActiveFilters(effectiveFilters), [effectiveFilters]);
+    const activeFilterChips = useMemo(() => buildActiveFilterChips(effectiveFilters), [effectiveFilters]);
 
     const filterInput = useMemo(() => {
-        return buildAddSpellFilterInput(appliedFilters, debouncedSearchQuery);
-    }, [appliedFilters, debouncedSearchQuery]);
+        return buildAddSpellFilterInput(effectiveFilters, debouncedSearchQuery);
+    }, [debouncedSearchQuery, effectiveFilters]);
 
     const queryVariables = useMemo<AddSpellSheetSpellsQueryVariables>(() => ({
         pagination: {
@@ -267,6 +311,8 @@ export default function useAddSpellSheetController({
         selectedSpellDetailLoading,
         selectedSpellDetailErrorMessage: selectedSpellDetailError?.message,
         isKnownSpell,
+        blockedReasonForSpell,
+        isBlockedSpell,
         clearActionErrorMessage,
         toggleSpellSelection,
         openFilterPanel,

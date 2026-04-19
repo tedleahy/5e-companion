@@ -31,7 +31,7 @@ type AbilitiesTabProps = {
         skillKey: SkillDefinition['key'],
         level: ProficiencyLevel,
         nextSkillProficiencies: SkillProficienciesInput,
-    ) => Promise<void>;
+    ) => Promise<void> | void;
     onUpdateSavingThrowProficiencies?: (
         ability: AbilityKey,
         nextSavingThrowProficiencies: AbilityKey[],

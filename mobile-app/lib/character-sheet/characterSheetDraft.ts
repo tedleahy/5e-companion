@@ -1,7 +1,13 @@
 import type {
+    CharacterClass,
+    CharacterSpellbookEntryFieldsFragment,
     CharacterSheetDetailQuery,
     SaveCharacterSheetInput,
+    SkillProficiencies,
+    SpellSlot,
+    SpellcastingProfile,
 } from '@/types/generated_graphql_types';
+import { ProficiencyLevel } from '@/types/generated_graphql_types';
 
 /** Character detail row consumed by the character-sheet route. */
 type CharacterSheetDetail = NonNullable<CharacterSheetDetailQuery['character']>;
@@ -31,6 +37,9 @@ export type CharacterSheetDraftCurrency = {
     gp: number;
     pp: number;
 };
+
+/** Local skill proficiency draft state used while editing the character sheet. */
+export type CharacterSheetDraftSkillProficiencies = Omit<SkillProficiencies, '__typename'>;
 
 /** Local traits draft state used while editing the character sheet. */
 export type CharacterSheetDraftTraits = {
@@ -73,16 +82,37 @@ export type CharacterSheetDraftFeature = {
     usesMax: number | null;
     usesRemaining: number | null;
     recharge: string | null;
+    customSubclassFeature: {
+        classId: string;
+        level: number;
+    } | null;
+};
+
+/** Draft-only custom subclass payload persisted until the sheet is saved. */
+export type CharacterSheetDraftCustomSubclass = {
+    name: string;
+    description: string;
+};
+
+/** Local class row used while editing the character sheet. */
+export type CharacterSheetDraftClass = Omit<CharacterClass, '__typename'> & {
+    customSubclass: CharacterSheetDraftCustomSubclass | null;
 };
 
 /** Local editable character-sheet draft state. */
 export type CharacterSheetDraft = {
+    level: number;
+    classes: CharacterSheetDraftClass[];
+    spellcastingProfiles: SpellcastingProfile[];
+    spellSlots: SpellSlot[];
+    spellbook: CharacterSpellbookEntryFieldsFragment[];
     ac: number;
     speed: number;
     initiative: number;
     conditions: string[];
     hp: CharacterSheetDraftHp;
     abilityScores: CharacterSheetDraftAbilityScores;
+    skillProficiencies: CharacterSheetDraftSkillProficiencies;
     currency: CharacterSheetDraftCurrency;
     traits: CharacterSheetDraftTraits;
     weapons: CharacterSheetDraftWeapon[];
@@ -133,10 +163,71 @@ function persistedEntityId(id: string): string | undefined {
 }
 
 /**
+ * Returns the default empty skill-proficiency map for local draft state.
+ */
+function emptyDraftSkillProficiencies(): CharacterSheetDraftSkillProficiencies {
+    return {
+        acrobatics: ProficiencyLevel.None,
+        animalHandling: ProficiencyLevel.None,
+        arcana: ProficiencyLevel.None,
+        athletics: ProficiencyLevel.None,
+        deception: ProficiencyLevel.None,
+        history: ProficiencyLevel.None,
+        insight: ProficiencyLevel.None,
+        intimidation: ProficiencyLevel.None,
+        investigation: ProficiencyLevel.None,
+        medicine: ProficiencyLevel.None,
+        nature: ProficiencyLevel.None,
+        perception: ProficiencyLevel.None,
+        performance: ProficiencyLevel.None,
+        persuasion: ProficiencyLevel.None,
+        religion: ProficiencyLevel.None,
+        sleightOfHand: ProficiencyLevel.None,
+        stealth: ProficiencyLevel.None,
+        survival: ProficiencyLevel.None,
+    };
+}
+
+/**
+ * Removes GraphQL typename metadata from skill proficiencies for draft editing.
+ */
+function createDraftSkillProficiencies(
+    skillProficiencies: SkillProficiencies | null | undefined,
+): CharacterSheetDraftSkillProficiencies {
+    if (!skillProficiencies) {
+        return emptyDraftSkillProficiencies();
+    }
+
+    const { __typename: _typename, ...draftSkillProficiencies } = skillProficiencies;
+
+    return draftSkillProficiencies;
+}
+
+/**
  * Builds editable local draft state from one loaded character.
  */
 export function createCharacterSheetDraft(character: CharacterSheetDetail): CharacterSheetDraft {
     return {
+        level: character.level,
+        classes: character.classes.map((classRow) => ({
+            id: classRow.id,
+            classId: classRow.classId,
+            className: classRow.className,
+            subclassId: classRow.subclassId ?? null,
+            subclassName: classRow.subclassName ?? null,
+            customSubclass: null,
+            level: classRow.level,
+            isStartingClass: classRow.isStartingClass,
+        })),
+        spellcastingProfiles: character.spellcastingProfiles.map((profile) => ({ ...profile })),
+        spellSlots: character.spellSlots.map((spellSlot) => ({ ...spellSlot })),
+        spellbook: character.spellbook.map((entry) => ({
+            ...entry,
+            spell: {
+                ...entry.spell,
+                classIndexes: [...entry.spell.classIndexes],
+            },
+        })),
         hp: {
             current: character.stats?.hp.current ?? 0,
             max: character.stats?.hp.max ?? 0,
@@ -153,6 +244,7 @@ export function createCharacterSheetDraft(character: CharacterSheetDetail): Char
             wisdom: character.stats?.abilityScores.wisdom ?? 10,
             charisma: character.stats?.abilityScores.charisma ?? 10,
         },
+        skillProficiencies: createDraftSkillProficiencies(character.stats?.skillProficiencies ?? null),
         currency: {
             cp: character.stats?.currency.cp ?? 0,
             sp: character.stats?.currency.sp ?? 0,
@@ -195,6 +287,7 @@ export function createCharacterSheetDraft(character: CharacterSheetDetail): Char
             recharge: feature.recharge ?? null,
             usesMax: feature.usesMax ?? null,
             usesRemaining: feature.usesRemaining ?? null,
+            customSubclassFeature: null,
         })),
     };
 }
@@ -239,6 +332,7 @@ export function createBlankDraftFeature(source: string): CharacterSheetDraftFeat
         recharge: null,
         usesMax: null,
         usesRemaining: null,
+        customSubclassFeature: null,
     };
 }
 
@@ -255,8 +349,22 @@ export function mapCharacterSheetDraftToSaveInput(
         conditions: draft.conditions,
         hp: draft.hp,
         abilityScores: draft.abilityScores,
+        skillProficiencies: draft.skillProficiencies,
         currency: draft.currency,
         traits: draft.traits,
+        classes: draft.classes.map((classRow) => ({
+            id: persistedEntityId(classRow.id),
+            classId: classRow.classId,
+            subclassId: classRow.subclassId ?? null,
+            customSubclass: classRow.customSubclass
+                ? {
+                    name: classRow.customSubclass.name,
+                    description: classRow.customSubclass.description,
+                }
+                : null,
+            level: classRow.level,
+            isStartingClass: classRow.isStartingClass,
+        })),
         weapons: draft.weapons.map((weapon) => ({
             id: persistedEntityId(weapon.id),
             name: weapon.name,
@@ -281,6 +389,12 @@ export function mapCharacterSheetDraftToSaveInput(
             recharge: feature.recharge ?? null,
             usesMax: feature.usesMax ?? null,
             usesRemaining: feature.usesRemaining ?? null,
+            customSubclassFeature: feature.customSubclassFeature
+                ? {
+                    classId: feature.customSubclassFeature.classId,
+                    level: feature.customSubclassFeature.level,
+                }
+                : null,
         })),
     };
 }

@@ -1,4 +1,4 @@
-import { ProficiencyType } from "@prisma/client";
+import { FeatureKind, ProficiencyType } from "@prisma/client";
 import type { Context } from "../..";
 import type {
     MutationCreateCharacterArgs,
@@ -24,10 +24,16 @@ import {
     deriveSpellcastingProfiles,
     deriveStartingHp,
     findStartingClassIndex,
-    resolveCharacterClasses,
     validateClassAllocations,
     type CharacterAbilityScores,
 } from "./multiclassRules";
+import {
+    loadVisibleSubclassReferences,
+    mapSubclassReferencesBySelectionValue,
+    materialiseResolvedCharacterClasses,
+    normaliseCustomSubclassInput,
+    type SubmittedCharacterClassAllocation,
+} from "./subclassReferences";
 
 /**
  * Creates a multiclass-aware character and nested stats row with server-derived rules.
@@ -51,7 +57,13 @@ export async function createCharacter(
         ...characterFields
     } = input;
 
-    const subclassIds = classes
+    const submittedClasses: SubmittedCharacterClassAllocation[] = classes.map((classRow) => ({
+        classId: classRow.classId,
+        subclassId: classRow.subclassId ?? null,
+        customSubclass: normaliseCustomSubclassInput(classRow.customSubclass),
+        level: classRow.level,
+    }));
+    const subclassSelectionValues = submittedClasses
         .map((classRow) => classRow.subclassId)
         .filter((subclassId): subclassId is string => subclassId !== null && subclassId !== undefined);
 
@@ -59,22 +71,16 @@ export async function createCharacter(
         prisma.class.findMany({
             where: {
                 srdIndex: {
-                    in: classes.map((classRow) => classRow.classId),
+                    in: submittedClasses.map((classRow) => classRow.classId),
                 },
             },
             include: {
                 proficiencies: true,
             },
         }),
-        subclassIds.length === 0
+        subclassSelectionValues.length === 0
             ? Promise.resolve([])
-            : prisma.subclass.findMany({
-                  where: {
-                      srdIndex: {
-                          in: subclassIds,
-                      },
-                  },
-              }),
+            : loadVisibleSubclassReferences(userId, subclassSelectionValues),
         prisma.race.findFirst({
             where: {
                 OR: [
@@ -120,106 +126,122 @@ export async function createCharacter(
         }
     }
 
-    const subclassRefsBySrdIndex = new Map<string, (typeof subclassRefs)[number]>();
-    for (const subclassRef of subclassRefs) {
-        if (subclassRef.srdIndex) {
-            subclassRefsBySrdIndex.set(subclassRef.srdIndex, subclassRef);
-        }
-    }
+    const subclassRefsBySelectionValue = mapSubclassReferencesBySelectionValue(subclassRefs);
 
-    validateClassAllocations(classes, classRefsBySrdIndex, subclassRefsBySrdIndex, startingClassId);
-
-    const resolvedClasses = resolveCharacterClasses(classes, classRefsBySrdIndex, subclassRefsBySrdIndex);
-    const startingClassIndex = findStartingClassIndex(
-        resolvedClasses.map((resolvedClass) => resolvedClass.classRow),
+    validateClassAllocations(
+        submittedClasses,
+        classRefsBySrdIndex,
+        subclassRefsBySelectionValue,
         startingClassId,
     );
-    const totalLevel = resolvedClasses.reduce((total, resolvedClass) => total + resolvedClass.classRow.level, 0);
-    const proficiencyBonus = deriveProficiencyBonus(totalLevel);
-    const startingHp = deriveStartingHp(
-        resolvedClasses,
-        startingClassIndex,
-        abilityScores as CharacterAbilityScores,
-    );
-    const savingThrowProficiencies = deriveSavingThrowProficiencies(
-        resolvedClasses[startingClassIndex]!.classRef,
-    );
-    const hitDicePools = deriveHitDicePools(resolvedClasses);
-    const spellSlots = deriveSpellSlots(resolvedClasses);
-    const spellcastingProfiles = deriveSpellcastingProfiles(
-        resolvedClasses,
-        abilityScores as CharacterAbilityScores,
-        proficiencyBonus,
-    );
-    const singleSpellcastingProfile = spellcastingProfiles.length === 1 ? spellcastingProfiles[0] : null;
-    const namedClassProficiencies = deriveNamedClassProficiencies(resolvedClasses, startingClassIndex);
+
     const namedReferenceProficiencies = deriveReferenceProficiencies(raceRef, backgroundRef);
     const languageNames = deriveLanguageNames(raceRef, backgroundRef);
 
-    return await prisma.character.create({
-        data: {
-            ...characterFields,
-            ownerUserId: userId,
-            race: raceRef.name,
-            alignment: characterFields.alignment,
-            background: backgroundRef.name,
-            raceId: raceRef.id,
-            backgroundId: backgroundRef.id,
+    return await prisma.$transaction(async (tx) => {
+        const resolvedClasses = await materialiseResolvedCharacterClasses(
+            tx,
+            userId,
+            submittedClasses,
+            classRefsBySrdIndex,
+            subclassRefsBySelectionValue,
+        );
+        const startingClassIndex = findStartingClassIndex(
+            resolvedClasses.map((resolvedClass) => resolvedClass.classRow),
+            startingClassId,
+        );
+        const totalLevel = resolvedClasses.reduce((total, resolvedClass) => total + resolvedClass.classRow.level, 0);
+        const proficiencyBonus = deriveProficiencyBonus(totalLevel);
+        const startingHp = deriveStartingHp(
+            resolvedClasses,
+            startingClassIndex,
+            abilityScores as CharacterAbilityScores,
+        );
+        const savingThrowProficiencies = deriveSavingThrowProficiencies(
+            resolvedClasses[startingClassIndex]!.classRef,
+        );
+        const hitDicePools = deriveHitDicePools(resolvedClasses);
+        const spellSlots = deriveSpellSlots(resolvedClasses);
+        const spellcastingProfiles = deriveSpellcastingProfiles(
+            resolvedClasses,
+            abilityScores as CharacterAbilityScores,
             proficiencyBonus,
-            spellcastingAbility: singleSpellcastingProfile?.spellcastingAbility ?? null,
-            spellSaveDC: singleSpellcastingProfile?.spellSaveDC ?? null,
-            spellAttackBonus: singleSpellcastingProfile?.spellAttackBonus ?? null,
-            stats: {
-                create: {
-                    abilityScores,
-                    hp: {
-                        current: startingHp,
-                        max: startingHp,
-                        temp: 0,
+        );
+        const classAndSubclassFeatures = await loadClassAndSubclassFeatures(
+            tx,
+            resolvedClasses,
+        );
+        const singleSpellcastingProfile = spellcastingProfiles.length === 1 ? spellcastingProfiles[0] : null;
+        const namedClassProficiencies = deriveNamedClassProficiencies(resolvedClasses, startingClassIndex);
+
+        return await tx.character.create({
+            data: {
+                ...characterFields,
+                ownerUserId: userId,
+                race: raceRef.name,
+                alignment: characterFields.alignment,
+                background: backgroundRef.name,
+                raceId: raceRef.id,
+                backgroundId: backgroundRef.id,
+                proficiencyBonus,
+                spellcastingAbility: singleSpellcastingProfile?.spellcastingAbility ?? null,
+                spellSaveDC: singleSpellcastingProfile?.spellSaveDC ?? null,
+                spellAttackBonus: singleSpellcastingProfile?.spellAttackBonus ?? null,
+                stats: {
+                    create: {
+                        abilityScores,
+                        hp: {
+                            current: startingHp,
+                            max: startingHp,
+                            temp: 0,
+                        },
+                        deathSaves: { successes: 0, failures: 0 },
+                        savingThrowProficiencies,
+                        skillProficiencies: { ...DEFAULT_SKILL_PROFICIENCIES, ...skillProficiencies },
+                        traits: {
+                            ...DEFAULT_TRAITS,
+                            ...(traits ?? {}),
+                            armorProficiencies: mergeNamedValues(
+                                namedClassProficiencies.armor,
+                                namedReferenceProficiencies.armor,
+                            ),
+                            weaponProficiencies: mergeNamedValues(
+                                namedClassProficiencies.weapons,
+                                namedReferenceProficiencies.weapons,
+                            ),
+                            toolProficiencies: mergeNamedValues(
+                                namedClassProficiencies.tools,
+                                namedReferenceProficiencies.tools,
+                            ),
+                            languages: languageNames,
+                        },
+                        currency: currency ?? DEFAULT_CURRENCY,
                     },
-                    deathSaves: { successes: 0, failures: 0 },
-                    savingThrowProficiencies,
-                    skillProficiencies: { ...DEFAULT_SKILL_PROFICIENCIES, ...skillProficiencies },
-                    traits: {
-                        ...DEFAULT_TRAITS,
-                        ...(traits ?? {}),
-                        armorProficiencies: mergeNamedValues(
-                            namedClassProficiencies.armor,
-                            namedReferenceProficiencies.armor,
-                        ),
-                        weaponProficiencies: mergeNamedValues(
-                            namedClassProficiencies.weapons,
-                            namedReferenceProficiencies.weapons,
-                        ),
-                        toolProficiencies: mergeNamedValues(
-                            namedClassProficiencies.tools,
-                            namedReferenceProficiencies.tools,
-                        ),
-                        languages: languageNames,
-                    },
-                    currency: currency ?? DEFAULT_CURRENCY,
+                },
+                classes: {
+                    create: resolvedClasses.map((resolvedClass, index) => ({
+                        classId: resolvedClass.classRef.id,
+                        subclassId: resolvedClass.subclassRef?.id ?? null,
+                        level: resolvedClass.classRow.level,
+                        isStartingClass: index === startingClassIndex,
+                    })),
+                },
+                hitDicePools: {
+                    create: hitDicePools.map((hitDicePool) => ({
+                        classId: classRefsBySrdIndex.get(hitDicePool.classId)!.id,
+                        total: hitDicePool.total,
+                        remaining: hitDicePool.remaining,
+                        die: hitDicePool.die,
+                    })),
+                },
+                spellSlots: {
+                    create: spellSlots,
+                },
+                features: {
+                    create: classAndSubclassFeatures,
                 },
             },
-            classes: {
-                create: resolvedClasses.map((resolvedClass, index) => ({
-                    classId: resolvedClass.classRef.id,
-                    subclassId: resolvedClass.subclassRef?.id ?? null,
-                    level: resolvedClass.classRow.level,
-                    isStartingClass: index === startingClassIndex,
-                })),
-            },
-            hitDicePools: {
-                create: hitDicePools.map((hitDicePool) => ({
-                    classId: classRefsBySrdIndex.get(hitDicePool.classId)!.id,
-                    total: hitDicePool.total,
-                    remaining: hitDicePool.remaining,
-                    die: hitDicePool.die,
-                })),
-            },
-            spellSlots: {
-                create: spellSlots,
-            },
-        },
+        });
     });
 }
 
@@ -334,6 +356,105 @@ function deriveLanguageNames(
     }
 
     return mergeNamedValues(Array.from(languageNames));
+}
+
+/**
+ * Loads all class and subclass feature definitions available to the created character.
+ */
+async function loadClassAndSubclassFeatures(
+    tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
+    resolvedClasses: Awaited<ReturnType<typeof materialiseResolvedCharacterClasses>>,
+) {
+    const filters = resolvedClasses.flatMap((resolvedClass) => {
+        const classFilters: Array<{
+            kind: FeatureKind;
+            classId?: string;
+            subclassId?: string;
+            level: { lte: number };
+        }> = [
+            {
+                kind: FeatureKind.CLASS_FEATURE,
+                classId: resolvedClass.classRef.id,
+                level: { lte: resolvedClass.classRow.level },
+            },
+        ];
+
+        if (resolvedClass.subclassRef) {
+            classFilters.push({
+                kind: FeatureKind.SUBCLASS_FEATURE,
+                subclassId: resolvedClass.subclassRef.id,
+                level: { lte: resolvedClass.classRow.level },
+            });
+        }
+
+        return classFilters;
+    });
+
+    if (filters.length === 0) {
+        return [];
+    }
+
+    const featureDefinitions = await tx.feature.findMany({
+        where: {
+            OR: filters,
+        },
+        orderBy: [{ level: "asc" }, { name: "asc" }],
+    });
+
+    return featureDefinitions.map((feature) => {
+        const resolvedClass = resolvedClasses.find((candidate) => (
+            (feature.kind === FeatureKind.SUBCLASS_FEATURE && candidate.subclassRef?.id === feature.subclassId)
+            || (feature.kind === FeatureKind.CLASS_FEATURE && candidate.classRef.id === feature.classId)
+        ));
+
+        if (!resolvedClass) {
+            throw new Error(`Could not match feature ${feature.name} to a created class row.`);
+        }
+
+        return mapFeatureDefinitionToCharacterFeature(feature, resolvedClass);
+    });
+}
+
+/**
+ * Converts one persisted feature definition into a nested CharacterFeature create.
+ */
+function mapFeatureDefinitionToCharacterFeature(
+    feature: {
+        id: string;
+        name: string;
+        description: string[];
+        sourceLabel: string | null;
+        kind: FeatureKind;
+        level: number | null;
+        classId: string | null;
+        subclassId: string | null;
+    },
+    resolvedClass: Awaited<ReturnType<typeof materialiseResolvedCharacterClasses>>[number],
+) {
+    const description = feature.description.join("\n\n") || "No description available.";
+    const source = feature.sourceLabel
+        ?? (feature.kind === FeatureKind.SUBCLASS_FEATURE && resolvedClass.subclassRef && feature.level != null
+            ? `${resolvedClass.subclassRef.name} ${resolvedClass.classRef.name} ${feature.level}`
+            : feature.kind === FeatureKind.CLASS_FEATURE && feature.level != null
+                ? `${resolvedClass.classRef.name} ${feature.level}`
+                : "Feature");
+    const baseFeature = {
+        featureId: feature.id,
+        name: feature.name,
+        source,
+        description,
+    };
+
+    if (feature.name.toLowerCase() === "arcane recovery") {
+        return {
+            ...baseFeature,
+            usesMax: 1,
+            usesRemaining: 1,
+            recharge: "long",
+        };
+    }
+
+    return baseFeature;
 }
 
 /**

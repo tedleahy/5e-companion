@@ -2,10 +2,15 @@ import type { TextStyle } from 'react-native';
 import { configureFonts, MD3DarkTheme, MD3LightTheme, MD3Theme } from 'react-native-paper';
 import type { MD3TypescaleKey } from 'react-native-paper';
 
+/**
+ * MD3-compatible font weight type (string literals only, not numeric).
+ */
+type MD3FontWeight = 'normal' | 'bold' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900' | undefined;
+
 type FantasyPaperType = {
     fontFamily: string;
     letterSpacing: number;
-    fontWeight?: TextStyle['fontWeight'];
+    fontWeight?: MD3FontWeight;
     lineHeight: number;
     fontSize: number;
     fontStyle?: TextStyle['fontStyle'];
@@ -152,6 +157,7 @@ export const fantasyTokens = {
     typography: fantasyTypography,
     colors: {
         parchment: '#f6e9cf',
+        parchmentLight: '#f5eedc',
         parchmentDeep: '#f0e0c0',
         cardBg: '#f0e0bc',
         inkDark: '#2b1c11',
@@ -161,10 +167,14 @@ export const fantasyTokens = {
         gold: '#c4a470',
         goldLight: '#e8b84b',
         goldDark: '#9e845b',
+        claret: '#8c1d38',
+        claretLight: '#a62b4a',
         crimson: '#7b1e1e',
         crimsonSoft: 'rgba(123, 30, 30, 0.2)',
+        success: '#2d6a4f',
         night: '#1f1711',
         divider: 'rgba(139,90,43,0.3)',
+        sheetDivider: '#d4c9b4',
         accordionBg: '#e8d4a8',
         accordionBorder: 'rgba(139,90,43,0.22)',
         rowOpenBg: 'rgba(139,90,43,0.06)',

@@ -18,6 +18,15 @@ jest.mock('expo-router', () => ({
     usePathname: () => mockUsePathname(),
 }));
 
+jest.mock('@/hooks/useProtectedNavigation', () => ({
+    __esModule: true,
+    default: () => ({
+        push: mockPush,
+        replace: mockReplace,
+        back: jest.fn(),
+    }),
+}));
+
 jest.mock('react-native-safe-area-context', () => ({
     useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }),
 }));
@@ -60,13 +69,15 @@ describe('ExpandedDrawer', () => {
         expect(screen.getByLabelText('Open Characters').props.accessibilityState.selected).toBe(false);
     });
 
-    it('navigates to settings and closes the drawer', () => {
+    it('navigates to settings and closes the drawer', async () => {
         render(<ExpandedDrawer {...buildDrawerProps()} />);
 
         fireEvent.press(screen.getByTestId('drawer-item-settings'));
 
-        expect(mockPush).toHaveBeenCalledWith('/settings');
-        expect(mockCloseDrawer).toHaveBeenCalled();
+        await waitFor(() => {
+            expect(mockPush).toHaveBeenCalledWith('/settings');
+            expect(mockCloseDrawer).toHaveBeenCalled();
+        });
     });
 
     it('signs out and redirects to sign-in', async () => {

@@ -9,12 +9,13 @@ import {
 import { ActivityIndicator, Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { spellLevelLabel, spellSchoolLabel } from '@/lib/spellPresentation';
-import type { AddSpellDetail } from './addSpell.types';
+import type { AddSpellBlockedReason, AddSpellDetail } from './addSpell.types';
 
 type SpellDetailModalProps = {
     spell: AddSpellDetail | null;
     spellName: string;
     known: boolean;
+    blockedReason?: AddSpellBlockedReason | null;
     loading: boolean;
     errorMessage?: string;
     onRetry: () => void;
@@ -67,6 +68,7 @@ export default function SpellDetailModal({
     spell,
     spellName,
     known,
+    blockedReason = null,
     loading,
     errorMessage,
     onRetry,
@@ -76,6 +78,10 @@ export default function SpellDetailModal({
     const stats = spell ? buildDetailStats(spell) : [];
     const showLoadingState = loading && !spell;
     const showErrorState = !loading && !spell && errorMessage != null;
+    const blocked = blockedReason != null;
+    const blockedButtonLabel = blockedReason === 'selection_limit'
+        ? 'Selection limit reached'
+        : 'Already in spellbook';
 
     return (
         <View style={styles.container}>
@@ -166,7 +172,13 @@ export default function SpellDetailModal({
             )}
 
             <View style={styles.bottomBar}>
-                {spell && !known && (
+                {spell && blocked && !known && (
+                    <View style={[styles.addButton, styles.loadingButton]} accessibilityLabel={blockedButtonLabel}>
+                        <Text style={styles.loadingButtonText}>{blockedButtonLabel}</Text>
+                    </View>
+                )}
+
+                {spell && !known && !blocked && (
                     <Pressable
                         onPress={onToggleSelection}
                         style={styles.addButton}

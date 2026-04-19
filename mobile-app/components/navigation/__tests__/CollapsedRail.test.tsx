@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import CollapsedRail from '@/components/navigation/CollapsedRail';
 
 const mockDispatch = jest.fn();
@@ -13,6 +13,15 @@ jest.mock('expo-router', () => ({
         back: jest.fn(),
     }),
     usePathname: () => mockUsePathname(),
+}));
+
+jest.mock('@/hooks/useProtectedNavigation', () => ({
+    __esModule: true,
+    default: () => ({
+        push: mockPush,
+        replace: jest.fn(),
+        back: jest.fn(),
+    }),
 }));
 
 jest.mock('@react-navigation/native', () => {
@@ -50,12 +59,14 @@ describe('CollapsedRail', () => {
         expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: 'OPEN_DRAWER' }));
     });
 
-    it('navigates to spells from quick action', () => {
+    it('navigates to spells from quick action', async () => {
         render(<CollapsedRail />);
 
         fireEvent.press(screen.getByTestId('collapsed-rail-spells'));
 
-        expect(mockPush).toHaveBeenCalledWith('/spells');
+        await waitFor(() => {
+            expect(mockPush).toHaveBeenCalledWith('/spells');
+        });
     });
 
     it('marks the active destination as selected', () => {

@@ -2,6 +2,7 @@ export {
     character,
     hasCurrentUserCharacters,
     currentUserCharacters,
+    availableSubclasses,
 } from "./character/queries";
 
 export {

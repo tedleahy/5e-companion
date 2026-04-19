@@ -1,8 +1,12 @@
 import type { Context } from "../..";
-import type { QueryCharacterArgs } from "../../generated/graphql";
+import type {
+    QueryAvailableSubclassesArgs,
+    QueryCharacterArgs,
+} from "../../generated/graphql";
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
 import { CHARACTER_DETAIL_INCLUDE, CHARACTER_LIST_INCLUDE } from "./detailLoad";
+import { availableSubclassesForUser } from "./subclassReferences";
 
 /**
  * Query resolver for a single owned character by id.
@@ -52,4 +56,17 @@ export async function currentUserCharacters(
         where: { ownerUserId: userId },
         orderBy: { createdAt: 'asc' },
     });
+}
+
+/**
+ * Query resolver for the subclasses visible to the current user.
+ */
+export async function availableSubclasses(
+    _parent: unknown,
+    { classIds }: QueryAvailableSubclassesArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+
+    return await availableSubclassesForUser(userId, classIds ?? null);
 }

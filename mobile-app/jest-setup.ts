@@ -1,5 +1,3 @@
-import '@testing-library/jest-native/extend-expect';
-
 // Mock expo-router
 jest.mock('expo-router', () => ({
     useRouter: () => ({
@@ -58,3 +56,99 @@ jest.mock('react-native-keyboard-controller', () => ({
         return React.createElement(ScrollView, { ...restProps, ref }, props.children);
     }),
 }));
+
+// Mock @react-navigation/native
+jest.mock('@react-navigation/native', () => {
+    const actual = jest.requireActual('@react-navigation/native');
+    return {
+        ...actual,
+        useNavigation: () => ({
+            addListener: jest.fn(),
+            dispatch: jest.fn(),
+            navigate: jest.fn(),
+            goBack: jest.fn(),
+        }),
+    };
+});
+
+// Mock Animated to run synchronously in tests.
+// NOTE: We mutate RN.Animated in place instead of spreading ...RN, because the react-native
+// index uses lazy getters (DevMenu, SettingsManager, etc.) that call TurboModuleRegistry.getEnforcing
+// at access time and throw under Jest. Spreading triggers every getter and breaks the test suite.
+jest.mock('react-native', () => {
+    const RN = jest.requireActual('react-native');
+    const done = { finished: true };
+    const syncAnim = {
+        timing: (value: any, config: any) => ({
+            start: (callback?: (result: { finished: boolean }) => void) => {
+                value.setValue(config.toValue);
+                callback?.(done);
+            },
+            stop: () => {},
+            reset: () => {},
+        }),
+        parallel: (animations: any[]) => ({
+            start: (callback?: (result: { finished: boolean }) => void) => {
+                animations.forEach(anim => anim.start());
+                callback?.(done);
+            },
+            stop: () => {},
+            reset: () => {},
+        }),
+        spring: (value: any, config: any) => ({
+            start: (callback?: (result: { finished: boolean }) => void) => {
+                value.setValue(config.toValue);
+                callback?.(done);
+            },
+            stop: () => {},
+            reset: () => {},
+        }),
+        sequence: (animations: any[]) => ({
+            start: (callback?: (result: { finished: boolean }) => void) => {
+                animations.forEach(anim => anim.start());
+                callback?.(done);
+            },
+            stop: () => {},
+            reset: () => {},
+        }),
+        // Loop wraps an inner animation; the real impl reads _isUsingNativeDriver()
+        // on it, which our mocked timing/spring don't expose. Return a no-op that
+        // just fires the callback once so consumers like Paper's ActivityIndicator
+        // don't crash.
+        loop: (_animation: any, _config?: any) => ({
+            start: (callback?: (result: { finished: boolean }) => void) => {
+                callback?.(done);
+            },
+            stop: () => {},
+            reset: () => {},
+        }),
+    };
+    Object.assign(RN.Animated, syncAnim);
+    // Replace the built-in Animated wrapper components (Animated.Text, Animated.View,
+    // etc.) and createAnimatedComponent() with plain pass-throughs so that setValue()
+    // on a subscribed Animated.Value doesn't dispatch a reducer action into a
+    // component outside the originating act scope. Without this, Paper components
+    // that animate on prop change (HelperText, TextInput label, Snackbar, ...)
+    // produce "An update to Animated(Text) inside a test was not wrapped in act"
+    // warnings even though the tests themselves are correctly scoped.
+    RN.Animated.createAnimatedComponent = (Component: any) => Component;
+    Object.defineProperties(RN.Animated, {
+        Text: { value: RN.Text, configurable: true, writable: true },
+        View: { value: RN.View, configurable: true, writable: true },
+        ScrollView: { value: RN.ScrollView, configurable: true, writable: true },
+        Image: { value: RN.Image, configurable: true, writable: true },
+        FlatList: { value: RN.FlatList, configurable: true, writable: true },
+        SectionList: { value: RN.SectionList, configurable: true, writable: true },
+    });
+    return RN;
+});
+
+// BackHandler mocks are set up in beforeEach to allow per-test overrides
+beforeEach(() => {
+    const { BackHandler } = jest.requireActual('react-native');
+    jest.spyOn(BackHandler, 'addEventListener').mockImplementation(() => ({ remove: jest.fn() }));
+});
+
+afterEach(() => {
+    jest.clearAllMocks();
+});

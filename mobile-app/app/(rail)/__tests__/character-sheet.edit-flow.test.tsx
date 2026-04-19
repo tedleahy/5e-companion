@@ -1,5 +1,5 @@
-import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { fireEvent, screen, waitFor, act } from '@testing-library/react-native';
+import { BackHandler } from 'react-native';
 import {
     CHARACTERS_MOCK,
     SAVE_CHARACTER_SHEET_FAILURE_MOCK,
@@ -13,6 +13,21 @@ import {
     openCharacterSheetTab,
 } from './character-sheet.test-utils';
 import { SAVE_CHARACTER_SHEET } from '@/graphql/characterSheet.operations';
+
+/**
+ * Returns the most recently registered hardware-back handler from the mocked BackHandler.
+ */
+function latestHardwareBackHandler(): () => boolean {
+    const addEventListenerMock = BackHandler.addEventListener as unknown as jest.Mock;
+    const lastCallIndex = addEventListenerMock.mock.calls.length - 1;
+    const handler = addEventListenerMock.mock.calls[lastCallIndex]?.[1] as (() => boolean) | undefined;
+
+    if (!handler) {
+        throw new Error('Expected hardware back handler to be registered');
+    }
+
+    return handler;
+}
 
 describe('CharacterByIdScreen edit flow', () => {
     setupCharacterSheetScreenTestHooks();
@@ -75,6 +90,16 @@ describe('CharacterByIdScreen edit flow', () => {
         fireEvent.press(screen.getByLabelText('Cancel character sheet edits'));
 
         await waitFor(() => {
+            expect(screen.getByText('Discard changes?')).toBeTruthy();
+        });
+
+        expect(screen.getByText('You have unsaved changes to your character sheet. Are you sure you want to discard them?')).toBeTruthy();
+        expect(screen.getByLabelText('Keep Editing')).toBeTruthy();
+        expect(screen.getByLabelText('Discard')).toBeTruthy();
+
+        await pressAndFlush(screen.getByLabelText('Discard'));
+
+        await waitFor(() => {
             expect(screen.getByLabelText('Enable character sheet edit mode')).toBeTruthy();
         });
 
@@ -85,5 +110,74 @@ describe('CharacterByIdScreen edit flow', () => {
         });
 
         expect(screen.queryByDisplayValue('900')).toBeNull();
+    });
+
+    it('exits edit mode immediately when Cancel pressed with no changes', async () => {
+        renderCharacterSheetScreen();
+
+        await enableCharacterSheetEditMode();
+
+        fireEvent.press(screen.getByLabelText('Cancel character sheet edits'));
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Enable character sheet edit mode')).toBeTruthy();
+        });
+
+        expect(screen.queryByText('Discard changes?')).toBeNull();
+    });
+
+    it('shows discard confirmation when hardware back button pressed with unsaved changes', async () => {
+        renderCharacterSheetScreen();
+
+        await enableCharacterSheetEditMode();
+        await openCharacterSheetTab('Gear');
+
+        await waitFor(() => {
+            expect(screen.getByTestId('currency-gp-amount')).toBeTruthy();
+        });
+
+        fireEvent.changeText(screen.getByTestId('currency-gp-amount'), '900');
+
+        await waitFor(() => {
+            expect(screen.getByDisplayValue('900')).toBeTruthy();
+        });
+
+        // Simulate hardware back button press
+        const handler = latestHardwareBackHandler();
+
+        // Call the handler (simulating back button press)
+        let shouldPreventDefault = false;
+
+        await act(async () => {
+            shouldPreventDefault = handler();
+            await Promise.resolve();
+        });
+
+        // Should return true to prevent default back action
+        expect(shouldPreventDefault).toBe(true);
+
+        // Should show discard confirmation
+        expect(screen.getByText('Discard changes?')).toBeTruthy();
+        expect(screen.getByText('You have unsaved changes to your character sheet. Are you sure you want to discard them?')).toBeTruthy();
+        expect(screen.getByLabelText('Keep Editing')).toBeTruthy();
+        expect(screen.getByLabelText('Discard')).toBeTruthy();
+    });
+
+    it('allows hardware back button without confirmation when no unsaved changes', async () => {
+        renderCharacterSheetScreen();
+
+        await enableCharacterSheetEditMode();
+
+        // Simulate hardware back button press
+        const handler = latestHardwareBackHandler();
+
+        // Call the handler (simulating back button press)
+        const shouldPreventDefault = handler();
+
+        // Should return false to allow default back action (no changes)
+        expect(shouldPreventDefault).toBe(false);
+
+        // Should not show discard confirmation
+        expect(screen.queryByText('Discard changes?')).toBeNull();
     });
 });

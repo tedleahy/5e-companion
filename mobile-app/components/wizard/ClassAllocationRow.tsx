@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import type { LayoutChangeEvent } from 'react-native';
 import { RadioButton, Text } from 'react-native-paper';
 import { ParchmentPanel } from '@/components/FantasyPrimitives';
+import NumericStepper from '@/components/wizard/NumericStepper';
 import {
     classLabel,
     formatClassRowLabel,
@@ -67,35 +68,17 @@ export default function ClassAllocationRow({
                             Level {classRow.level}
                         </Text>
                     ) : (
-                        <View style={styles.levelStepper}>
-                            <Pressable
-                                accessibilityRole="button"
-                                disabled={!canDecreaseLevel}
-                                onPress={onDecreaseLevel}
-                                style={({ pressed }) => [
-                                    styles.levelButton,
-                                    !canDecreaseLevel && styles.levelButtonDisabled,
-                                    pressed && canDecreaseLevel && styles.levelButtonPressed,
-                                ]}
-                                testID={`class-row-level-down-${index}`}
-                            >
-                                <Text style={styles.levelButtonText}>{'\u2212'}</Text>
-                            </Pressable>
-                            <Text style={styles.levelValue}>{classRow.level}</Text>
-                            <Pressable
-                                accessibilityRole="button"
-                                disabled={!canIncreaseLevel}
-                                onPress={onIncreaseLevel}
-                                style={({ pressed }) => [
-                                    styles.levelButton,
-                                    !canIncreaseLevel && styles.levelButtonDisabled,
-                                    pressed && canIncreaseLevel && styles.levelButtonPressed,
-                                ]}
-                                testID={`class-row-level-up-${index}`}
-                            >
-                                <Text style={styles.levelButtonText}>+</Text>
-                            </Pressable>
-                        </View>
+                        <NumericStepper
+                            value={classRow.level}
+                            canDecrease={canDecreaseLevel}
+                            canIncrease={canIncreaseLevel}
+                            decrementLabel={`Decrease level for ${formatClassRowLabel(classRow)}`}
+                            incrementLabel={`Increase level for ${formatClassRowLabel(classRow)}`}
+                            decrementTestID={`class-row-level-down-${index}`}
+                            incrementTestID={`class-row-level-up-${index}`}
+                            onDecrease={onDecreaseLevel}
+                            onIncrease={onIncreaseLevel}
+                        />
                     )}
                 </View>
 
@@ -227,39 +210,6 @@ const styles = StyleSheet.create({
     className: {
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.title,
-        color: fantasyTokens.colors.inkDark,
-    },
-    levelStepper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'rgba(201,146,42,0.2)',
-        borderRadius: 10,
-        overflow: 'hidden',
-    },
-    levelButton: {
-        width: 36,
-        height: 36,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'rgba(201,146,42,0.08)',
-    },
-    levelButtonPressed: {
-        backgroundColor: 'rgba(201,146,42,0.16)',
-    },
-    levelButtonDisabled: {
-        opacity: 0.35,
-    },
-    levelButtonText: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.bodyLarge,
-        color: fantasyTokens.colors.inkDark,
-    },
-    levelValue: {
-        minWidth: 42,
-        textAlign: 'center',
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.bodyLarge,
         color: fantasyTokens.colors.inkDark,
     },
     startingRow: {

@@ -1,5 +1,4 @@
 import {
-    Keyboard,
     Pressable,
     SectionList,
     StyleSheet,
@@ -11,14 +10,16 @@ import { ActivityIndicator, Text } from 'react-native-paper';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { spellSchoolLabel } from '@/lib/spellPresentation';
+import useDismissKeyboardAction from '@/hooks/useDismissKeyboardAction';
 import AddCircleButton from '../AddCircleButton';
-import type { AddSpellListItem, AddSpellSection } from '../addSpell.types';
+import type { AddSpellBlockedReason, AddSpellListItem, AddSpellSection } from '../addSpell.types';
 
 type AddSpellSectionListProps = {
     sections: AddSpellSection[];
     loading: boolean;
     errorMessage?: string;
     isKnownSpell: (spellId: string) => boolean;
+    blockedReasonForSpell: (spellId: string) => AddSpellBlockedReason | null;
     pendingSpellIds: Set<string>;
     onToggleSpellSelection: (spell: AddSpellListItem) => void;
     onOpenSpellDetail: (spell: AddSpellListItem) => void;
@@ -39,6 +40,21 @@ function spellMetaLabel(spell: AddSpellListItem): string {
 }
 
 /**
+ * Maps a blocked reason to its inline list hint.
+ */
+function blockedHintText(reason: AddSpellBlockedReason | null): string | null {
+    if (reason === 'known') {
+        return 'Already in your spellbook';
+    }
+
+    if (reason === 'selection_limit') {
+        return 'Selection limit reached';
+    }
+
+    return null;
+}
+
+/**
  * Renders grouped add-sheet spell rows with loading and empty/error states.
  */
 export default function AddSpellSectionList({
@@ -46,12 +62,14 @@ export default function AddSpellSectionList({
     loading,
     errorMessage,
     isKnownSpell,
+    blockedReasonForSpell,
     pendingSpellIds,
     onToggleSpellSelection,
     onOpenSpellDetail,
     onPrefetchSpellDetail,
     onScroll,
 }: AddSpellSectionListProps) {
+    const dismissKeyboardAndRun = useDismissKeyboardAction();
     const isEmpty = !loading && !errorMessage && sections.length === 0;
 
     return (
@@ -93,16 +111,17 @@ export default function AddSpellSectionList({
                 )}
                 renderItem={({ item }) => {
                     const isKnown = isKnownSpell(item.id);
+                    const blockedReason = blockedReasonForSpell(item.id);
+                    const isBlocked = blockedReason != null;
                     const isPending = pendingSpellIds.has(item.id);
+                    const blockedHint = blockedHintText(blockedReason);
 
                     return (
-                        <View style={[styles.spellRow, isKnown && styles.spellRowKnown]}>
+                        <View style={[styles.spellRow, (isKnown || isBlocked) && styles.spellRowKnown]}>
                             <AddCircleButton
                                 known={isKnown}
-                                onPress={() => {
-                                    Keyboard.dismiss();
-                                    onToggleSpellSelection(item);
-                                }}
+                                blockedReason={blockedReason}
+                                onPress={() => dismissKeyboardAndRun(() => onToggleSpellSelection(item))}
                             />
 
                             <Pressable
@@ -110,10 +129,7 @@ export default function AddSpellSectionList({
                                 onPressIn={() => {
                                     onPrefetchSpellDetail?.(item.id);
                                 }}
-                                onPress={() => {
-                                    Keyboard.dismiss();
-                                    onOpenSpellDetail(item);
-                                }}
+                                onPress={() => dismissKeyboardAndRun(() => onOpenSpellDetail(item))}
                                 disabled={isPending}
                                 accessibilityRole="button"
                                 accessibilityLabel={`Open details for ${item.name}`}
@@ -121,6 +137,9 @@ export default function AddSpellSectionList({
                                 <View style={styles.spellInfo}>
                                     <Text style={styles.spellName}>{item.name}</Text>
                                     <Text numberOfLines={1} style={styles.spellMeta}>{spellMetaLabel(item)}</Text>
+                                    {blockedHint ? (
+                                        <Text style={styles.blockedHint}>{blockedHint}</Text>
+                                    ) : null}
 
                                     {(item.ritual || item.concentration) && (
                                         <View style={styles.tagRow}>
@@ -255,6 +274,14 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.label,
         fontStyle: 'italic',
         marginTop: 1,
+    },
+    blockedHint: {
+        color: 'rgba(245,230,200,0.28)',
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: fantasyTokens.fontSizes.utility,
+        marginTop: 3,
+        textTransform: 'uppercase',
+        letterSpacing: 1.1,
     },
     tagRow: {
         flexDirection: 'row',

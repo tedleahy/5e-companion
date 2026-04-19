@@ -37,6 +37,27 @@ export type AbilityScoresInput = {
   wisdom: Scalars['Int']['input'];
 };
 
+export type AvailableSubclass = {
+  __typename?: 'AvailableSubclass';
+  classId: Scalars['String']['output'];
+  className: Scalars['String']['output'];
+  description: Array<Scalars['String']['output']>;
+  features: Array<AvailableSubclassFeature>;
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  value: Scalars['String']['output'];
+};
+
+export type AvailableSubclassFeature = {
+  __typename?: 'AvailableSubclassFeature';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  level: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+};
+
 export type Character = {
   __typename?: 'Character';
   ac: Scalars['Int']['output'];
@@ -105,6 +126,7 @@ export type CharacterStats = {
 
 export type CreateCharacterClassInput = {
   classId: Scalars['String']['input'];
+  customSubclass?: InputMaybe<CustomSubclassInput>;
   level: Scalars['Int']['input'];
   subclassId?: InputMaybe<Scalars['String']['input']>;
 };
@@ -140,6 +162,11 @@ export type CurrencyInput = {
   gp: Scalars['Int']['input'];
   pp: Scalars['Int']['input'];
   sp: Scalars['Int']['input'];
+};
+
+export type CustomSubclassInput = {
+  description: Scalars['String']['input'];
+  name: Scalars['String']['input'];
 };
 
 export type DeathSaves = {
@@ -346,11 +373,17 @@ export enum ProficiencyLevel {
 
 export type Query = {
   __typename?: 'Query';
+  availableSubclasses: Array<AvailableSubclass>;
   character?: Maybe<Character>;
   currentUserCharacters: Array<Character>;
   hasCurrentUserCharacters: Scalars['Boolean']['output'];
   spell?: Maybe<Spell>;
   spells: Array<Spell>;
+};
+
+
+export type QueryAvailableSubclassesArgs = {
+  classIds?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 
@@ -369,7 +402,17 @@ export type QuerySpellsArgs = {
   pagination?: InputMaybe<SpellPagination>;
 };
 
+export type SaveCharacterSheetClassInput = {
+  classId: Scalars['String']['input'];
+  customSubclass?: InputMaybe<CustomSubclassInput>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  isStartingClass: Scalars['Boolean']['input'];
+  level: Scalars['Int']['input'];
+  subclassId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type SaveCharacterSheetFeatureInput = {
+  customSubclassFeature?: InputMaybe<SaveCustomSubclassFeatureInput>;
   description: Scalars['String']['input'];
   id?: InputMaybe<Scalars['ID']['input']>;
   name: Scalars['String']['input'];
@@ -382,12 +425,14 @@ export type SaveCharacterSheetFeatureInput = {
 export type SaveCharacterSheetInput = {
   abilityScores: AbilityScoresInput;
   ac: Scalars['Int']['input'];
+  classes: Array<SaveCharacterSheetClassInput>;
   conditions: Array<Scalars['String']['input']>;
   currency: CurrencyInput;
   features: Array<SaveCharacterSheetFeatureInput>;
   hp: HpInput;
   initiative: Scalars['Int']['input'];
   inventory: Array<SaveCharacterSheetInventoryItemInput>;
+  skillProficiencies: SkillProficienciesInput;
   speed: Scalars['Int']['input'];
   traits: TraitsInput;
   weapons: Array<SaveCharacterSheetWeaponInput>;
@@ -409,6 +454,11 @@ export type SaveCharacterSheetWeaponInput = {
   id?: InputMaybe<Scalars['ID']['input']>;
   name: Scalars['String']['input'];
   type: Scalars['String']['input'];
+};
+
+export type SaveCustomSubclassFeatureInput = {
+  classId: Scalars['String']['input'];
+  level: Scalars['Int']['input'];
 };
 
 export type SavingThrowProficienciesInput = {
@@ -648,6 +698,8 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   AbilityScores: ResolverTypeWrapper<AbilityScores>;
   AbilityScoresInput: AbilityScoresInput;
+  AvailableSubclass: ResolverTypeWrapper<AvailableSubclass>;
+  AvailableSubclassFeature: ResolverTypeWrapper<AvailableSubclassFeature>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Character: ResolverTypeWrapper<PrismaCharacter>;
   CharacterClass: ResolverTypeWrapper<CharacterClass>;
@@ -658,6 +710,7 @@ export type ResolversTypes = {
   CreateCharacterInput: CreateCharacterInput;
   Currency: ResolverTypeWrapper<Currency>;
   CurrencyInput: CurrencyInput;
+  CustomSubclassInput: CustomSubclassInput;
   DeathSaves: ResolverTypeWrapper<DeathSaves>;
   DeathSavesInput: DeathSavesInput;
   FeatureInput: FeatureInput;
@@ -673,10 +726,12 @@ export type ResolversTypes = {
   Mutation: ResolverTypeWrapper<{}>;
   ProficiencyLevel: ProficiencyLevel;
   Query: ResolverTypeWrapper<{}>;
+  SaveCharacterSheetClassInput: SaveCharacterSheetClassInput;
   SaveCharacterSheetFeatureInput: SaveCharacterSheetFeatureInput;
   SaveCharacterSheetInput: SaveCharacterSheetInput;
   SaveCharacterSheetInventoryItemInput: SaveCharacterSheetInventoryItemInput;
   SaveCharacterSheetWeaponInput: SaveCharacterSheetWeaponInput;
+  SaveCustomSubclassFeatureInput: SaveCustomSubclassFeatureInput;
   SavingThrowProficienciesInput: SavingThrowProficienciesInput;
   SkillProficiencies: ResolverTypeWrapper<SkillProficiencies>;
   SkillProficienciesInput: SkillProficienciesInput;
@@ -698,6 +753,8 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   AbilityScores: AbilityScores;
   AbilityScoresInput: AbilityScoresInput;
+  AvailableSubclass: AvailableSubclass;
+  AvailableSubclassFeature: AvailableSubclassFeature;
   Boolean: Scalars['Boolean']['output'];
   Character: PrismaCharacter;
   CharacterClass: CharacterClass;
@@ -708,6 +765,7 @@ export type ResolversParentTypes = {
   CreateCharacterInput: CreateCharacterInput;
   Currency: Currency;
   CurrencyInput: CurrencyInput;
+  CustomSubclassInput: CustomSubclassInput;
   DeathSaves: DeathSaves;
   DeathSavesInput: DeathSavesInput;
   FeatureInput: FeatureInput;
@@ -722,10 +780,12 @@ export type ResolversParentTypes = {
   InventoryItemInput: InventoryItemInput;
   Mutation: {};
   Query: {};
+  SaveCharacterSheetClassInput: SaveCharacterSheetClassInput;
   SaveCharacterSheetFeatureInput: SaveCharacterSheetFeatureInput;
   SaveCharacterSheetInput: SaveCharacterSheetInput;
   SaveCharacterSheetInventoryItemInput: SaveCharacterSheetInventoryItemInput;
   SaveCharacterSheetWeaponInput: SaveCharacterSheetWeaponInput;
+  SaveCustomSubclassFeatureInput: SaveCustomSubclassFeatureInput;
   SavingThrowProficienciesInput: SavingThrowProficienciesInput;
   SkillProficiencies: SkillProficiencies;
   SkillProficienciesInput: SkillProficienciesInput;
@@ -749,6 +809,27 @@ export type AbilityScoresResolvers<ContextType = Context, ParentType extends Res
   intelligence?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   strength?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   wisdom?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AvailableSubclassResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AvailableSubclass'] = ResolversParentTypes['AvailableSubclass']> = {
+  classId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  className?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  features?: Resolver<Array<ResolversTypes['AvailableSubclassFeature']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isCustom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  srdIndex?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AvailableSubclassFeatureResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AvailableSubclassFeature'] = ResolversParentTypes['AvailableSubclassFeature']> = {
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  level?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -883,6 +964,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
 };
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  availableSubclasses?: Resolver<Array<ResolversTypes['AvailableSubclass']>, ParentType, ContextType, Partial<QueryAvailableSubclassesArgs>>;
   character?: Resolver<Maybe<ResolversTypes['Character']>, ParentType, ContextType, RequireFields<QueryCharacterArgs, 'id'>>;
   currentUserCharacters?: Resolver<Array<ResolversTypes['Character']>, ParentType, ContextType>;
   hasCurrentUserCharacters?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -976,6 +1058,8 @@ export type WeaponResolvers<ContextType = Context, ParentType extends ResolversP
 
 export type Resolvers<ContextType = Context> = {
   AbilityScores?: AbilityScoresResolvers<ContextType>;
+  AvailableSubclass?: AvailableSubclassResolvers<ContextType>;
+  AvailableSubclassFeature?: AvailableSubclassFeatureResolvers<ContextType>;
   Character?: CharacterResolvers<ContextType>;
   CharacterClass?: CharacterClassResolvers<ContextType>;
   CharacterFeature?: CharacterFeatureResolvers<ContextType>;

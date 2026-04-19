@@ -4,7 +4,10 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import type { LayoutChangeEvent } from 'react-native';
 import { Text } from 'react-native-paper';
 import ClassAllocationRow from '@/components/wizard/ClassAllocationRow';
+import ClassOptionGrid from '@/components/wizard/ClassOptionGrid';
+import NumericStepper from '@/components/wizard/NumericStepper';
 import OptionGrid from '@/components/wizard/OptionGrid';
+import useAvailableSubclasses from '@/hooks/useAvailableSubclasses';
 import {
     availableClassOptions,
     createCharacterClassDraft,
@@ -14,7 +17,6 @@ import {
     sanitiseCharacterClassRow,
     validateCharacterClassDraft,
 } from '@/lib/characterCreation/multiclass';
-import { CLASS_OPTIONS, SUBCLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
@@ -32,6 +34,10 @@ export default function StepClass() {
 
     const selectedClass = draft.classes[0];
     const selectedClassId = selectedClass?.classId ?? '';
+    const selectedSubclassClassIds = draft.classes
+        .map((classRow) => classRow.classId)
+        .filter((classId) => classId.trim().length > 0);
+    const { subclassOptionItemsByClassId } = useAvailableSubclasses(selectedSubclassClassIds);
 
     /* ── multiclass helpers (reused from previous implementation) ── */
 
@@ -40,6 +46,7 @@ export default function StepClass() {
         draft.classes,
         draft.level,
         draft.startingClassId,
+        subclassOptionItemsByClassId,
     );
     const remainingLevelsCount = remainingClassLevels(draft.classes, draft.level);
     const displayClassRows = draft.classes.map((classRow, originalIndex) => ({
@@ -119,7 +126,10 @@ export default function StepClass() {
     }
 
     function updateClasses(nextClasses: typeof draft.classes, nextStartingClassId = draft.startingClassId) {
-        const sanitisedClasses = nextClasses.map(sanitiseCharacterClassRow);
+        const sanitisedClasses = nextClasses.map((classRow) => sanitiseCharacterClassRow(
+            classRow,
+            subclassOptionItemsByClassId,
+        ));
         updateDraft({
             classes: sanitisedClasses,
             startingClassId: normaliseStartingClassId(sanitisedClasses, nextStartingClassId),
@@ -184,8 +194,10 @@ export default function StepClass() {
 
     /* ── subclass options for single-class mode ── */
 
-    const singleSubclassOptions = SUBCLASS_OPTIONS[selectedClassId] ?? [];
-    const singleSubclassUnlocked = selectedClass ? isSubclassUnlocked(selectedClass) : false;
+    const singleSubclassOptions = subclassOptionItemsByClassId[selectedClassId] ?? [];
+    const singleSubclassUnlocked = selectedClass
+        ? isSubclassUnlocked(selectedClass, subclassOptionItemsByClassId)
+        : false;
 
     /* ── render ── */
 
@@ -195,21 +207,16 @@ export default function StepClass() {
 
             {/* ── Level stepper (both modes) ── */}
             <Text style={fantasyTokens.text.formLabel}>Starting Level</Text>
-            <View style={styles.stepper}>
-                <Pressable
-                    onPress={() => adjustLevel(-1)}
-                    style={({ pressed }) => [styles.stepperBtn, pressed && styles.stepperBtnPressed]}
-                >
-                    <Text style={styles.stepperBtnText}>{'\u2212'}</Text>
-                </Pressable>
-                <Text style={styles.stepperVal}>{draft.level}</Text>
-                <Pressable
-                    onPress={() => adjustLevel(1)}
-                    style={({ pressed }) => [styles.stepperBtn, pressed && styles.stepperBtnPressed]}
-                >
-                    <Text style={styles.stepperBtnText}>+</Text>
-                </Pressable>
-            </View>
+            <NumericStepper
+                value={draft.level}
+                canDecrease={draft.level > 1}
+                canIncrease={draft.level < 20}
+                decrementLabel="Decrease starting level"
+                incrementLabel="Increase starting level"
+                tone="night"
+                onDecrease={() => adjustLevel(-1)}
+                onIncrease={() => adjustLevel(1)}
+            />
             <Text style={styles.hint}>Most campaigns start at level 1. Check with your DM.</Text>
 
             <View style={styles.divider} />
@@ -217,8 +224,7 @@ export default function StepClass() {
             {!multiclassMode ? (
                 /* ── Single-class mode ── */
                 <>
-                    <OptionGrid
-                        options={CLASS_OPTIONS}
+                    <ClassOptionGrid
                         selected={selectedClassId}
                         onSelect={handleSelectSingleClass}
                     />
@@ -308,8 +314,8 @@ export default function StepClass() {
                             onSelectStartingClass={() => updateDraft({ startingClassId: classRow.classId })}
                             onSelectSubclass={(subclassId) => handleSelectSubclass(classRow.originalIndex, subclassId)}
                             showStartingClassSelector={draft.classes.length > 1}
-                            subclassOptions={SUBCLASS_OPTIONS[classRow.classId] ?? []}
-                            subclassUnlocked={isSubclassUnlocked(classRow)}
+                            subclassOptions={subclassOptionItemsByClassId[classRow.classId] ?? []}
+                            subclassUnlocked={isSubclassUnlocked(classRow, subclassOptionItemsByClassId)}
                         />
                     ))}
 
@@ -320,25 +326,12 @@ export default function StepClass() {
                                     Add another class
                                 </Text>
                             )}
-                            <View style={styles.addGrid}>
-                                {availableClasses.map((classOption) => (
-                                    <Pressable
-                                        key={classOption.value}
-                                        onPress={() => handleAddClass(classOption.value)}
-                                        style={({ pressed }) => [
-                                            styles.addCard,
-                                            pressed && styles.addCardPressed,
-                                        ]}
-                                        testID={`add-class-${classOption.value}`}
-                                    >
-                                        <Text style={styles.addIcon}>{classOption.icon}</Text>
-                                        <Text style={styles.addName}>{classOption.label}</Text>
-                                        {classOption.hint ? (
-                                            <Text style={styles.addHint}>{classOption.hint}</Text>
-                                        ) : null}
-                                    </Pressable>
-                                ))}
-                            </View>
+                            <ClassOptionGrid
+                                options={availableClasses}
+                                selected=""
+                                onSelect={handleAddClass}
+                                getOptionTestId={(option) => `add-class-${option.value}`}
+                            />
                         </View>
                     ) : null}
 
@@ -386,37 +379,6 @@ const styles = StyleSheet.create({
     },
 
     /* Level stepper */
-    stepper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: 'rgba(240,224,188,0.06)',
-        borderWidth: 1,
-        borderColor: 'rgba(201,146,42,0.2)',
-        borderRadius: 10,
-        overflow: 'hidden',
-    },
-    stepperBtn: {
-        width: 44,
-        height: 44,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    stepperBtnPressed: {
-        backgroundColor: 'rgba(201,146,42,0.08)',
-    },
-    stepperBtnText: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.title,
-        color: 'rgba(201,146,42,0.5)',
-    },
-    stepperVal: {
-        flex: 1,
-        textAlign: 'center',
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.titleLarge,
-        fontWeight: '700',
-        color: fantasyTokens.colors.parchment,
-    },
     hint: {
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.label,
@@ -537,44 +499,6 @@ const styles = StyleSheet.create({
     addSection: {
         marginTop: 6,
     },
-    addGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-    },
-    addCard: {
-        width: '48%',
-        backgroundColor: 'rgba(240,224,188,0.06)',
-        borderWidth: 1.5,
-        borderColor: 'rgba(201,146,42,0.2)',
-        borderRadius: 12,
-        paddingVertical: 14,
-        paddingHorizontal: 12,
-        alignItems: 'center',
-    },
-    addCardPressed: {
-        backgroundColor: 'rgba(201,146,42,0.12)',
-    },
-    addIcon: {
-        fontSize: fantasyTokens.fontSizes.headline,
-        marginBottom: 6,
-    },
-    addName: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.utility,
-        letterSpacing: 1,
-        textTransform: 'uppercase',
-        color: fantasyTokens.colors.parchment,
-    },
-    addHint: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.caption,
-        fontStyle: 'italic',
-        color: 'rgba(245,230,200,0.35)',
-        marginTop: 3,
-        textAlign: 'center',
-    },
-
     /* Validation errors */
     errorBox: {
         marginTop: 16,

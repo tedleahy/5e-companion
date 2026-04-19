@@ -100,8 +100,8 @@ describe('characterResolvers — longRest', () => {
             { id: 'hd-2', characterId: 'char-1', classId: 'class-warlock-id', total: 3, remaining: 1 },
         ]);
         characterClassFindManyMock.mockResolvedValueOnce([
-            { classId: 'class-wizard-id', level: 9 },
-            { classId: 'class-warlock-id', level: 3 },
+            { classId: 'class-wizard-id', level: 9, isStartingClass: true, classRef: { name: 'Wizard' } },
+            { classId: 'class-warlock-id', level: 3, isStartingClass: false, classRef: { name: 'Warlock' } },
         ]);
         statsUpdateMock.mockResolvedValueOnce({});
         hitDicePoolUpdateMock.mockResolvedValue({});

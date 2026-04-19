@@ -35,6 +35,7 @@ type SrdClass = {
 type SrdSubclass = {
     index: string;
     name: string;
+    desc: string[];
     class: SrdReference;
 };
 
@@ -201,6 +202,7 @@ async function seedSubclasses(subclasses: SrdSubclass[]) {
             where: { srdIndex: subclass.index },
             update: {
                 name: subclass.name,
+                description: subclass.desc ?? null,
                 classRef: {
                     connect: { srdIndex: subclass.class.index },
                 },
@@ -210,6 +212,7 @@ async function seedSubclasses(subclasses: SrdSubclass[]) {
             create: {
                 srdIndex: subclass.index,
                 name: subclass.name,
+                description: subclass.desc ?? null,
                 classRef: {
                     connect: { srdIndex: subclass.class.index },
                 },

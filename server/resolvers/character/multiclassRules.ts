@@ -18,6 +18,10 @@ export type CharacterAbilityScores = {
 export type CharacterClassAllocation = {
     classId: string;
     subclassId?: string | null;
+    customSubclass?: {
+        name: string;
+        description: string;
+    } | null;
     level: number;
 };
 
@@ -42,6 +46,7 @@ export type CharacterClassReference = {
  */
 export type CharacterSubclassReference = {
     id: string;
+    ownerUserId?: string | null;
     srdIndex: string | null;
     name: string;
     classId: string;
@@ -396,7 +401,7 @@ export function findStartingClassIndex(
 export function validateClassAllocations(
     classRows: CharacterClassAllocation[],
     classRefsBySrdIndex: Map<string, CharacterClassReference>,
-    subclassRefsBySrdIndex: Map<string, CharacterSubclassReference>,
+    subclassRefsBySelectionValue: Map<string, CharacterSubclassReference>,
     startingClassId: string,
 ) {
     if (classRows.length === 0) {
@@ -427,7 +432,11 @@ export function validateClassAllocations(
 
         const unlockLevel = SUBCLASS_UNLOCK_LEVEL_BY_CLASS_SRD_INDEX[classRow.classId] ?? 3;
 
-        if (!classRow.subclassId) {
+        if (classRow.subclassId && classRow.customSubclass) {
+            throw new Error(`Class ${classRow.classId} cannot submit both subclassId and customSubclass.`);
+        }
+
+        if (!classRow.subclassId && !classRow.customSubclass) {
             if (classRow.level >= unlockLevel) {
                 throw new Error(`Class ${classRow.classId} requires a subclass at level ${unlockLevel}.`);
             }
@@ -435,7 +444,25 @@ export function validateClassAllocations(
             continue;
         }
 
-        const subclassRef = subclassRefsBySrdIndex.get(classRow.subclassId);
+        if (classRow.customSubclass) {
+            if (classRow.level < unlockLevel) {
+                throw new Error(
+                    `Custom subclass ${classRow.customSubclass.name} requires ${classRow.classId} level ${unlockLevel}.`,
+                );
+            }
+
+            if (classRow.customSubclass.name.trim().length === 0) {
+                throw new Error(`Custom subclass for ${classRow.classId} must include a name.`);
+            }
+
+            if (classRow.customSubclass.description.trim().length === 0) {
+                throw new Error(`Custom subclass ${classRow.customSubclass.name} must include a description.`);
+            }
+
+            continue;
+        }
+
+        const subclassRef = subclassRefsBySelectionValue.get(classRow.subclassId);
         if (!subclassRef) {
             throw new Error(`Unknown subclass: ${classRow.subclassId}`);
         }
@@ -462,7 +489,7 @@ export function validateClassAllocations(
 export function resolveCharacterClasses(
     classRows: CharacterClassAllocation[],
     classRefsBySrdIndex: Map<string, CharacterClassReference>,
-    subclassRefsBySrdIndex: Map<string, CharacterSubclassReference>,
+    subclassRefsBySelectionValue: Map<string, CharacterSubclassReference>,
 ): ResolvedCharacterClass[] {
     return classRows.map((classRow) => {
         const classRef = classRefsBySrdIndex.get(classRow.classId);
@@ -471,7 +498,7 @@ export function resolveCharacterClasses(
         }
 
         const subclassRef = classRow.subclassId
-            ? subclassRefsBySrdIndex.get(classRow.subclassId) ?? null
+            ? subclassRefsBySelectionValue.get(classRow.subclassId) ?? null
             : null;
 
         return {
@@ -628,7 +655,7 @@ export function deriveSpellcastingProfiles(
             return {
                 classId: resolvedClass.classRow.classId,
                 className: resolvedClass.classRef.name,
-                subclassId: resolvedClass.subclassRef?.srdIndex ?? null,
+                subclassId: resolvedClass.subclassRef?.srdIndex ?? resolvedClass.subclassRef?.id ?? null,
                 subclassName: resolvedClass.subclassRef?.name ?? null,
                 classLevel: resolvedClass.classRow.level,
                 spellcastingAbility,

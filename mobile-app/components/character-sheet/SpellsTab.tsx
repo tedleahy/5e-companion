@@ -111,8 +111,8 @@ export default function SpellsTab({
                     onClose={() => setAddSheetVisible(false)}
                     characterClassIds={characterClassIds}
                     knownSpellIds={knownSpellIds}
-                    onSpellAdded={handleSpellAdded}
-                    onSpellRemoved={handleSpellRemoved}
+                    onSpellAdded={async (spell) => handleSpellAdded(spell.id)}
+                    onSpellRemoved={async (spell) => handleSpellRemoved(spell.id)}
             />
         </View>
     );

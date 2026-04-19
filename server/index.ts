@@ -34,6 +34,7 @@ const resolvers: Resolvers = {
         character: characterResolvers.character,
         hasCurrentUserCharacters: characterResolvers.hasCurrentUserCharacters,
         currentUserCharacters: characterResolvers.currentUserCharacters,
+        availableSubclasses: characterResolvers.availableSubclasses,
     },
 
     Mutation: {
@@ -80,8 +81,9 @@ const resolvers: Resolvers = {
 };
 
 const server = new ApolloServer<Context>({ typeDefs, resolvers });
+const port = Number(process.env.PORT ?? 4000);
 const { url } = await startStandaloneServer(server, {
-    listen: { port: 4000 },
+    listen: { port },
     context,
 });
 

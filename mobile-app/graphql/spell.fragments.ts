@@ -9,6 +9,7 @@ export const SPELL_LIST_FIELDS_FRAGMENT = gql`
         name
         level
         schoolIndex
+        classIndexes
         castingTime
         range
         concentration

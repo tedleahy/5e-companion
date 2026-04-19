@@ -1,4 +1,3 @@
-import React from 'react';
 import { screen, waitFor } from '@testing-library/react-native';
 import {
     EMPTY_MOCK,
@@ -41,11 +40,13 @@ describe('CharacterByIdScreen screen states', () => {
     });
 
     it('shows an invalid-link state when the route id is blank', async () => {
-        mockUseLocalSearchParams.mockReturnValueOnce({ id: '   ' });
+        mockUseLocalSearchParams.mockReturnValue({ id: '   ' });
 
         renderCharacterSheetScreen([]);
 
-        expect(screen.getByText('Invalid character link.')).toBeTruthy();
+        await waitFor(() => {
+            expect(screen.getByText('Invalid character link.')).toBeTruthy();
+        });
     });
 
     it('shows error state on network error', async () => {

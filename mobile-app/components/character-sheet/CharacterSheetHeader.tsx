@@ -53,12 +53,13 @@ export default function CharacterSheetHeader({
     onLevelUp,
     tabs = CHARACTER_SHEET_TABS,
 }: CharacterSheetHeaderProps) {
-    const subtitle = `Level ${level}\n${classSummary} · ${race} · ${alignment}`;
+    let subtitle = `Level ${level}\n${classSummary} · ${race}`;
+    if (alignment) subtitle += ` · ${alignment}`;
 
     return (
         <View style={styles.header}>
             <View style={styles.topRow}>
-                <View style={styles.headerText}>
+                <View style={styles.titleWrap}>
                     <Text style={styles.sheetTitle}>Character Sheet</Text>
                 </View>
 
@@ -98,19 +99,22 @@ export default function CharacterSheetHeader({
             <View style={styles.topRow}>
                 <View style={styles.headerText}>
                     <Text style={styles.charName}>{name}</Text>
-                    <Text style={styles.charSubtitle}>{subtitle}</Text>
-                    {onLevelUp && editMode && (
-                        <Pressable
-                            onPress={onLevelUp}
-                            style={styles.levelUpButton}
-                            accessibilityRole="button"
-                            accessibilityLabel="Level up character"
-                        >
-                            <Text style={styles.levelUpText}>Level Up ↑</Text>
-                        </Pressable>
-                    )}
+                    <Text style={styles.charSubtitle} testID="character-sheet-header-subtitle">
+                        {subtitle}
+                    </Text>
                 </View>
             </View>
+
+            {(onLevelUp && editMode) && (
+                <Pressable
+                    onPress={onLevelUp}
+                    style={styles.levelUpButton}
+                    accessibilityRole="button"
+                    accessibilityLabel="Level up character"
+                >
+                    <Text style={styles.levelUpText}>↑ Level Up</Text>
+                </Pressable>
+            )}
 
             <View style={styles.tabBar}>
                 {tabs.map((tab) => {
@@ -149,13 +153,15 @@ const styles = StyleSheet.create({
         borderBottomColor: 'rgba(201,146,42,0.2)',
     },
     topRow: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
+        minHeight: 40,
+        justifyContent: 'center',
     },
     headerText: {
         alignItems: 'center',
-        flex: 1,
+    },
+    titleWrap: {
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     sheetTitle: {
         ...fantasyTokens.typography.sectionLabel,
@@ -191,9 +197,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 8,
         position: 'absolute',
+        flexDirection: 'row',
         top: 0,
         right: 0,
-        marginBottom: 8,
     },
     editButton: {
         borderWidth: 1,
@@ -256,20 +262,18 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 2,
     },
     levelUpButton: {
-        marginTop: 8,
         borderWidth: 1,
-        borderColor: 'rgba(42,122,42,0.4)',
-        backgroundColor: 'rgba(42,122,42,0.12)',
+        borderColor: fantasyTokens.colors.claretLight,
+        backgroundColor: fantasyTokens.colors.claret,
         borderRadius: 8,
         paddingHorizontal: 14,
-        paddingVertical: 5,
+        paddingVertical: 8,
+        alignSelf: 'center',
+        marginTop: 10,
     },
     levelUpText: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.utility,
-        letterSpacing: 1.5,
-        textTransform: 'uppercase',
-        color: '#4caf50',
+        ...fantasyTokens.typography.buttonLabel,
+        color: fantasyTokens.colors.parchment,
         fontWeight: '600',
     },
 });

@@ -2,6 +2,7 @@ import {
     createCharacterSheetDraft,
     mapCharacterSheetDraftToSaveInput,
 } from '../character-sheet/characterSheetDraft';
+import { ProficiencyLevel } from '@/types/generated_graphql_types';
 
 const CHARACTER_SHEET_CHARACTER = {
     id: 'char-1',
@@ -146,24 +147,24 @@ const CHARACTER_SHEET_CHARACTER = {
         savingThrowProficiencies: ['intelligence', 'wisdom'],
         skillProficiencies: {
             __typename: 'SkillProficiencies',
-            acrobatics: 'none',
-            animalHandling: 'none',
-            arcana: 'expert',
-            athletics: 'none',
-            deception: 'none',
-            history: 'expert',
-            insight: 'proficient',
-            intimidation: 'none',
-            investigation: 'expert',
-            medicine: 'none',
-            nature: 'proficient',
-            perception: 'proficient',
-            performance: 'none',
-            persuasion: 'none',
-            religion: 'proficient',
-            sleightOfHand: 'none',
-            stealth: 'proficient',
-            survival: 'none',
+            acrobatics: ProficiencyLevel.None,
+            animalHandling: ProficiencyLevel.None,
+            arcana: ProficiencyLevel.Expert,
+            athletics: ProficiencyLevel.None,
+            deception: ProficiencyLevel.None,
+            history: ProficiencyLevel.Expert,
+            insight: ProficiencyLevel.Proficient,
+            intimidation: ProficiencyLevel.None,
+            investigation: ProficiencyLevel.Expert,
+            medicine: ProficiencyLevel.None,
+            nature: ProficiencyLevel.Proficient,
+            perception: ProficiencyLevel.Proficient,
+            performance: ProficiencyLevel.None,
+            persuasion: ProficiencyLevel.None,
+            religion: ProficiencyLevel.Proficient,
+            sleightOfHand: ProficiencyLevel.None,
+            stealth: ProficiencyLevel.Proficient,
+            survival: ProficiencyLevel.None,
         },
         traits: {
             __typename: 'Traits',
@@ -191,6 +192,8 @@ describe('characterSheetDraft', () => {
     it('strips GraphQL typenames from local draft rows', () => {
         const draft = createCharacterSheetDraft(CHARACTER_SHEET_CHARACTER as never);
 
+        expect(draft.skillProficiencies.arcana).toBe(ProficiencyLevel.Expert);
+        expect(Object.prototype.hasOwnProperty.call(draft.skillProficiencies, '__typename')).toBe(false);
         expect(draft.weapons[0]).toEqual({
             id: 'weapon-1',
             name: 'Dagger',
@@ -203,6 +206,16 @@ describe('characterSheetDraft', () => {
 
     it('maps draft-only ids to creates in the save input', () => {
         const draft = createCharacterSheetDraft(CHARACTER_SHEET_CHARACTER as never);
+        draft.classes.push({
+            id: 'draft-class-123',
+            classId: 'fighter',
+            className: 'Fighter',
+            subclassId: null,
+            subclassName: null,
+            customSubclass: null,
+            level: 1,
+            isStartingClass: false,
+        });
         draft.weapons.push({
             id: 'draft-weapon-123',
             name: 'Quarterstaff',
@@ -213,6 +226,32 @@ describe('characterSheetDraft', () => {
 
         const input = mapCharacterSheetDraftToSaveInput(draft);
 
+        expect(input.classes).toEqual([
+            {
+                id: 'character-class-1',
+                classId: 'wizard',
+                subclassId: 'school-of-evocation',
+                customSubclass: null,
+                level: 10,
+                isStartingClass: true,
+            },
+            {
+                id: 'character-class-2',
+                classId: 'warlock',
+                subclassId: 'fiend',
+                customSubclass: null,
+                level: 2,
+                isStartingClass: false,
+            },
+            {
+                id: undefined,
+                classId: 'fighter',
+                subclassId: null,
+                customSubclass: null,
+                level: 1,
+                isStartingClass: false,
+            },
+        ]);
         expect(input.weapons).toEqual([
             {
                 id: 'weapon-1',
@@ -229,6 +268,38 @@ describe('characterSheetDraft', () => {
                 type: 'melee',
             },
         ]);
+        expect(input.features).toEqual([
+            {
+                id: 'feature-1',
+                name: 'Arcane Recovery',
+                source: 'Wizard 1',
+                description: 'Recover spell slots on a long rest.',
+                recharge: 'long',
+                usesMax: 1,
+                usesRemaining: 1,
+                customSubclassFeature: null,
+            },
+        ]);
+        expect(input.skillProficiencies).toEqual({
+            acrobatics: 'none',
+            animalHandling: 'none',
+            arcana: 'expert',
+            athletics: 'none',
+            deception: 'none',
+            history: 'expert',
+            insight: 'proficient',
+            intimidation: 'none',
+            investigation: 'expert',
+            medicine: 'none',
+            nature: 'proficient',
+            perception: 'proficient',
+            performance: 'none',
+            persuasion: 'none',
+            religion: 'proficient',
+            sleightOfHand: 'none',
+            stealth: 'proficient',
+            survival: 'none',
+        });
     });
 
     it('omits derived spellcasting values when mapping save input', () => {

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { applyLevelUpToDraft, type ApplyLevelUpDraftInput } from '@/lib/characterLevelUp/draftApplication';
 import {
     createBlankDraftFeature,
     createBlankDraftInventoryItem,
@@ -15,12 +16,13 @@ import {
 } from '@/lib/character-sheet/characterSheetDraft';
 import type {
     CharacterSheetDetailQuery,
+    ProficiencyLevel,
     SaveCharacterSheetInput,
 } from '@/types/generated_graphql_types';
-import type { AbilityKey } from '@/lib/characterSheetUtils';
+import type { AbilityKey, SkillKey } from '@/lib/characterSheetUtils';
 
 /** Character detail row consumed by the character-sheet draft hook. */
-type CharacterSheetDetail = NonNullable<CharacterSheetDetailQuery['character']>;
+export type CharacterSheetDetail = NonNullable<CharacterSheetDetailQuery['character']>;
 
 /**
  * Owns local edit-mode draft state for the character-sheet route.
@@ -28,6 +30,18 @@ type CharacterSheetDetail = NonNullable<CharacterSheetDetailQuery['character']>;
 export default function useCharacterSheetDraft(character: CharacterSheetDetail | null) {
     const [draft, setDraft] = useState<CharacterSheetDraft | null>(null);
     const editMode = draft !== null;
+    const previousCharacterIdRef = useRef<string | null>(null);
+    const originalDraftRef = useRef<CharacterSheetDraft | null>(null);
+
+    useEffect(() => {
+        const currentCharacterId = character?.id ?? null;
+        if (previousCharacterIdRef.current !== currentCharacterId) {
+            // Character changed (including from null to loaded, or loaded to null)
+            setDraft(null);
+            originalDraftRef.current = null;
+        }
+        previousCharacterIdRef.current = currentCharacterId;
+    }, [character]);
 
     /**
      * Applies a functional update to the current draft when edit mode is active.
@@ -44,7 +58,9 @@ export default function useCharacterSheetDraft(character: CharacterSheetDetail |
      */
     function startEditing() {
         if (!character) return;
-        setDraft(createCharacterSheetDraft(character));
+        const newDraft = createCharacterSheetDraft(character);
+        setDraft(newDraft);
+        originalDraftRef.current = newDraft;
     }
 
     /**
@@ -52,6 +68,7 @@ export default function useCharacterSheetDraft(character: CharacterSheetDetail |
      */
     function clearDraft() {
         setDraft(null);
+        originalDraftRef.current = null;
     }
 
     /**
@@ -72,6 +89,19 @@ export default function useCharacterSheetDraft(character: CharacterSheetDetail |
             abilityScores: {
                 ...currentDraft.abilityScores,
                 [ability]: value,
+            },
+        }));
+    }
+
+    /**
+     * Updates one draft skill proficiency level.
+     */
+    function changeSkillProficiency(skill: SkillKey, level: ProficiencyLevel) {
+        updateDraft((currentDraft) => ({
+            ...currentDraft,
+            skillProficiencies: {
+                ...currentDraft.skillProficiencies,
+                [skill]: level,
             },
         }));
     }
@@ -294,13 +324,33 @@ export default function useCharacterSheetDraft(character: CharacterSheetDetail |
         }));
     }
 
+    /**
+     * Applies a confirmed level-up into the current local edit draft.
+     */
+    function applyConfirmedLevelUp(input: ApplyLevelUpDraftInput) {
+        updateDraft((currentDraft) => applyLevelUpToDraft(currentDraft, input));
+    }
+
+    /**
+     * Computes whether the current draft differs from the original saved state.
+     */
+    const isDirty = useMemo(() => {
+        if (!draft || !originalDraftRef.current) return false;
+        
+        // Simple deep equality using JSON.stringify for now
+        // This works because the draft contains only JSON-serializable values
+        return JSON.stringify(draft) !== JSON.stringify(originalDraftRef.current);
+    }, [draft]);
+
     return {
         draft,
         editMode,
+        isDirty,
         startEditing,
         clearDraft,
         buildSaveInput,
         changeAbilityScore,
+        changeSkillProficiency,
         changeHp,
         changeAc,
         changeSpeed,
@@ -320,5 +370,8 @@ export default function useCharacterSheetDraft(character: CharacterSheetDetail |
         changeTraitTag,
         removeTraitTag,
         changeTraitText,
+        applyConfirmedLevelUp,
     };
 }
+
+export type UseCharacterSheetDraftReturn = ReturnType<typeof useCharacterSheetDraft>;

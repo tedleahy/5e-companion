@@ -5,6 +5,46 @@ Goal
 - Features: browse/search/filter spells, create custom spells, manage characters (HP, inventory, etc).
 - Learn: React Native + GraphQL (Apollo Server), all in TypeScript.
 
+## Project Overview
+
+The D&D Companion App is a mobile tool for Dungeons & Dragons players to manage their game sessions. It consists of:
+
+- **Mobile app** (Expo React Native): fantasy-styled interface for browsing spells, creating/managing characters, tracking combat stats.
+- **Backend server** (Node.js + Apollo GraphQL): serves SRD data and persists user-created content.
+
+### Core Features
+
+**Spell Management**
+- Browse/search/filter SRD spells (level, school, class, ritual, concentration, etc.)
+- View detailed spell descriptions
+- Create custom spells that appear alongside SRD spells
+
+**Character Management**
+- Create characters via multi-step wizard (race, class, abilities, skills, background)
+- Edit character sheets with tabs for core stats, abilities, skills, features, inventory, spells
+- Track HP, death saves, hit dice, inspiration, AC, speed, initiative
+- Manage inventory (weapons, items with weight, equipped status)
+- Track spell slots and prepare/unprepare spells from character's spellbook
+- Perform rests (short/long) to recover resources
+
+**Gameplay Support**
+- Update character stats in real-time during play (HP, death saves, hit dice, conditions)
+- Toggle spell slot usage
+- Manage prepared spells
+- Track currency and equipment
+
+**User Experience**
+- Fantasy-themed UI with custom fonts and colours
+- Navigation rail for main sections (Characters, Spells, Settings)
+- Authentication via Supabase (sign-in/sign-up)
+- Responsive design for mobile screens
+
+### Data Flow
+- SRD data imported from JSON files into PostgreSQL via Prisma seeding.
+- Unified spells table stores SRD spells (source=SRD) and user custom spells (source=CUSTOM).
+- Characters belong to users (via userId) and reference SRD data by srdIndex.
+- GraphQL API provides queries and mutations for all frontend interactions.
+
 App (Mobile)
 - Expo React Native + TypeScript
 - UI: react-native-paper (Material Design components)
@@ -42,9 +82,24 @@ Coding conventions
 - Keep code DRY wherever possible, provided that doing so does not make the code less readable.
     - Cleaning up duplicated code is particularly something to look out for during refactor/cleanup passes
 - When you're creating or extending existing code, consider whether the file you're editing is becoming too large/specialised. If it is, consider extracting some of the logic into helper or other modules. Don't be afraid to refactor, but if it's going to complicate your current task, just make a note and mention it to me when you're finished.
+- If SRD data is required that isn't currently in the database, add it to the database seed script rather than trying to duplicate in code.
+- Never bloat app code by adding in specific things just for tests.
 
 UI style
 - Give the app a fantasy-style look and feel to it.
+
+Running tests
+- All commands below are safe to run without a live database; neither Jest nor `bun test` touches Postgres for the current suites.
+- **Mobile app (Jest + jest-expo)**: run from `mobile-app/`. The `test` script sets `NODE_OPTIONS='--no-experimental-webstorage'` which is required — don't drop it.
+    - Full suite: `yarn test` (from `mobile-app/`) or `bun app:test` (from repo root).
+    - Single file or pattern: `yarn test <substring>`, e.g. `yarn test FilterSwitch`, `yarn test character-sheet.core-tab`. Passes through to Jest's positional test-path pattern.
+    - Watch mode: `yarn test --watch <substring>`.
+    - Avoid literal `app/(rail)/...` paths on the CLI; `zsh` globs the parentheses. Use a substring of the test file name instead (see the shell/testing note below).
+- **Backend (bun test)**: run from `server/`.
+    - Full suite: `bun test` (from `server/`) or `bun server:test` (from repo root).
+    - Single file: `bun test lib/spellFilters.test.ts` (paths are relative to `server/`).
+    - Filter by test name: `bun test --test-name-pattern "longRest"`.
+- The mobile Jest setup lives in `mobile-app/jest-setup.ts`. If you need to add global mocks, mutate `jest.requireActual('react-native')` in place rather than spreading it — RN 0.81's index uses lazy getters (`DevMenu`, `SettingsManager`, etc.) that call `TurboModuleRegistry.getEnforcing` and throw under Jest as soon as they're accessed.
 
 Git Commits
 - Don't commit anything unless you're explicitly told to.
@@ -70,7 +125,9 @@ General instructions
 - Local DB note: `bun db:migrate -- <name>` requires PostgreSQL running at `localhost:5432`. If the database is down, Prisma cannot generate a migration from a live shadow database, so fall back to writing the migration SQL manually and leave final migration validation until the DB is available.
 - Prisma permissions note: if a Prisma command needs host/Docker/network access that the sandbox cannot use, pause and ask me to run it manually rather than retrying inside the sandbox. This especially applies to migration and other DB-connected Prisma commands.
 - React Native testing note: `SectionList` virtualizes rows, so off-screen items may not exist in the test tree. In tests, filter/search first or scroll before asserting/pressing deep list rows.
+- React Native testing note: do not add production/runtime conditionals just to satisfy Jest or suppress `act(...)` warnings. Fix animation/timing issues in the test harness, mocks, timers, or assertions instead.
 - Spellbook testing note: prepared/unprepared toggles are in the spell row accordion actions (`character-spell-prepare-*`), so tests should open the row (`character-spell-row-*`) before pressing prepare/unprepare.
 - GraphQL codegen note: `mobile-app/codegen.yml` scans `app/**/*.tsx`, `components/**/*.tsx`, and `graphql/**/*.ts`. If you add GraphQL documents elsewhere, expand the config first so generated operation types stay in sync.
 - Expo TypeScript note: if you add platform-specific files such as `Component.native.tsx` and `Component.web.tsx`, keep `mobile-app/tsconfig.json` `compilerOptions.moduleSuffixes` aligned so TypeScript resolves the same module variants that Expo/Metro does.
 - Character creation reference-data note: the server create mutation resolves class/subclass rows by SRD `srdIndex`, not display labels, so mobile create-flow option values must stay aligned with the seeded SRD reference data. Do not offer races, backgrounds, classes, or subclasses that the current seed data cannot resolve.
+- For any missing information or any step that requires user input, use the ask-user-questions skill instead of continuing on your own. During troubleshooting, continue using the ask-user-questions skill whenever user input, confirmation, or a result check is needed. Do not assume the task is complete. Continue gathering input through ask-user-questions until the user explicitly confirms the task is complete.

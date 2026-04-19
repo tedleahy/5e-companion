@@ -1,4 +1,3 @@
-import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import {

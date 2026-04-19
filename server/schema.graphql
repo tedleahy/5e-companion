@@ -74,6 +74,25 @@ type CharacterClass {
     isStartingClass: Boolean!
 }
 
+type AvailableSubclass {
+    id: ID!
+    value: String!
+    srdIndex: String
+    classId: String!
+    className: String!
+    name: String!
+    description: [String!]!
+    isCustom: Boolean!
+    features: [AvailableSubclassFeature!]!
+}
+
+type AvailableSubclassFeature {
+    id: ID!
+    name: String!
+    description: String!
+    level: Int!
+}
+
 type CharacterStats {
     id: ID!
     abilityScores: AbilityScores!
@@ -254,7 +273,13 @@ input UpdateCharacterInput {
 input CreateCharacterClassInput {
     classId: String!
     subclassId: String
+    customSubclass: CustomSubclassInput
     level: Int!
+}
+
+input CustomSubclassInput {
+    name: String!
+    description: String!
 }
 
 input AbilityScoresInput {
@@ -377,6 +402,21 @@ input SaveCharacterSheetFeatureInput {
     usesMax: Int
     usesRemaining: Int
     recharge: String
+    customSubclassFeature: SaveCustomSubclassFeatureInput
+}
+
+input SaveCustomSubclassFeatureInput {
+    classId: String!
+    level: Int!
+}
+
+input SaveCharacterSheetClassInput {
+    id: ID
+    classId: String!
+    subclassId: String
+    customSubclass: CustomSubclassInput
+    level: Int!
+    isStartingClass: Boolean!
 }
 
 input SaveCharacterSheetInput {
@@ -386,8 +426,10 @@ input SaveCharacterSheetInput {
     conditions: [String!]!
     hp: HPInput!
     abilityScores: AbilityScoresInput!
+    skillProficiencies: SkillProficienciesInput!
     currency: CurrencyInput!
     traits: TraitsInput!
+    classes: [SaveCharacterSheetClassInput!]!
     weapons: [SaveCharacterSheetWeaponInput!]!
     inventory: [SaveCharacterSheetInventoryItemInput!]!
     features: [SaveCharacterSheetFeatureInput!]!
@@ -403,6 +445,7 @@ type Query {
     character(id: ID!): Character
     hasCurrentUserCharacters: Boolean!
     currentUserCharacters: [Character!]!
+    availableSubclasses(classIds: [String!]): [AvailableSubclass!]!
 }
 
 type Mutation {

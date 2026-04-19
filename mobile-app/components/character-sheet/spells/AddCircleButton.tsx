@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, type ViewStyle } from 'react-native';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import type { AddSpellBlockedReason } from './addSpell.types';
 
 type AddCircleButtonProps = {
     known: boolean;
+    blockedReason?: AddSpellBlockedReason | null;
     onPress: () => void;
     style?: ViewStyle;
 };
@@ -14,14 +16,18 @@ const GOLD_BG = 'rgba(201,146,42,0.08)';
 const GREEN_BORDER = 'rgba(42,122,42,0.50)';
 const GREEN_TEXT = '#4a9a4a';
 const GREEN_BG = 'rgba(42,122,42,0.12)';
+const BLOCKED_BORDER = 'rgba(245,230,200,0.12)';
+const BLOCKED_TEXT = 'rgba(245,230,200,0.22)';
+const BLOCKED_BG = 'rgba(245,230,200,0.04)';
 
 /**
  * Circular add action for the Add Spell list row.
  */
-export default function AddCircleButton({ known, onPress, style }: AddCircleButtonProps) {
+export default function AddCircleButton({ known, blockedReason = null, onPress, style }: AddCircleButtonProps) {
     const scale = useRef(new Animated.Value(1)).current;
     const knownProgress = useRef(new Animated.Value(known ? 1 : 0)).current;
     const previousKnown = useRef(known);
+    const blocked = blockedReason != null;
 
     useEffect(() => {
         if (previousKnown.current === known) return;
@@ -57,7 +63,11 @@ export default function AddCircleButton({ known, onPress, style }: AddCircleButt
         previousKnown.current = known;
     }, [known, knownProgress, scale]);
 
-    const animatedStyle = {
+    const animatedStyle = blocked ? {
+        borderColor: BLOCKED_BORDER,
+        backgroundColor: BLOCKED_BG,
+        transform: [{ scale }],
+    } : {
         borderColor: knownProgress.interpolate({
             inputRange: [0, 1],
             outputRange: [GOLD_BORDER, GREEN_BORDER],
@@ -69,20 +79,30 @@ export default function AddCircleButton({ known, onPress, style }: AddCircleButt
         transform: [{ scale }],
     };
 
-    const textStyle = {
+    const textStyle = blocked ? {
+        color: BLOCKED_TEXT,
+    } : {
         color: knownProgress.interpolate({
             inputRange: [0, 1],
             outputRange: [GOLD_TEXT, GREEN_TEXT],
         }),
     };
 
-    const icon = known ? '\u2713' : '+';
+    const icon = blocked ? '\u2014' : known ? '\u2713' : '+';
+    const accessibilityLabel = blockedReason === 'selection_limit'
+        ? 'Selection limit reached'
+        : blocked
+            ? 'Spell already known'
+            : known
+                ? 'Remove spell'
+                : 'Add spell';
 
     return (
         <Pressable
             onPress={onPress}
             accessibilityRole="button"
-            accessibilityLabel={known ? 'Remove spell' : 'Add spell'}
+            accessibilityLabel={accessibilityLabel}
+            disabled={blocked}
             style={style}
         >
             <Animated.View style={[styles.circle, animatedStyle]}>

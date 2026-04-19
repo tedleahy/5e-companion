@@ -208,6 +208,7 @@ export const MOCK_CHARACTER = {
                 name: 'Fireball',
                 level: 3,
                 schoolIndex: 'evocation',
+                classIndexes: ['wizard', 'sorcerer'],
                 castingTime: '1 action',
                 range: '150 feet',
                 concentration: false,
@@ -223,6 +224,7 @@ export const MOCK_CHARACTER = {
                 name: 'Detect Magic',
                 level: 1,
                 schoolIndex: 'divination',
+                classIndexes: ['wizard', 'cleric'],
                 castingTime: '1 action',
                 range: 'Self',
                 concentration: true,
@@ -238,6 +240,7 @@ export const MOCK_CHARACTER = {
                 name: "Bigby's Hand",
                 level: 5,
                 schoolIndex: 'evocation',
+                classIndexes: ['wizard'],
                 castingTime: '1 action',
                 range: '120 feet',
                 concentration: true,
@@ -332,6 +335,8 @@ export const MOCK_CHARACTER = {
     },
 };
 
+const { __typename: _skillTypeName, ...INITIAL_SKILL_INPUT } = MOCK_CHARACTER.stats.skillProficiencies;
+
 export const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
     {
         request: {
@@ -356,6 +361,7 @@ export const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
                         wisdom: 13,
                         charisma: 11,
                     },
+                    skillProficiencies: INITIAL_SKILL_INPUT,
                     currency: {
                         cp: 0,
                         sp: 14,
@@ -373,6 +379,24 @@ export const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
                         toolProficiencies: [],
                         languages: ['Common', 'Elvish', 'Draconic'],
                     },
+                    classes: [
+                        {
+                            id: 'character-class-1',
+                            classId: 'wizard',
+                            subclassId: 'school-of-evocation',
+                            customSubclass: null,
+                            level: 10,
+                            isStartingClass: true,
+                        },
+                        {
+                            id: 'character-class-2',
+                            classId: 'warlock',
+                            subclassId: 'fiend',
+                            customSubclass: null,
+                            level: 2,
+                            isStartingClass: false,
+                        },
+                    ],
                     weapons: [
                         {
                             id: 'attack-1',
@@ -443,6 +467,7 @@ export const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
                             usesMax: 1,
                             usesRemaining: 1,
                             recharge: 'long',
+                            customSubclassFeature: null,
                         },
                         {
                             id: 'feature-2',
@@ -452,6 +477,7 @@ export const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
                             usesMax: null,
                             usesRemaining: null,
                             recharge: null,
+                            customSubclassFeature: null,
                         },
                         {
                             id: 'feature-3',
@@ -461,6 +487,7 @@ export const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
                             usesMax: null,
                             usesRemaining: null,
                             recharge: null,
+                            customSubclassFeature: null,
                         },
                     ],
                 },
@@ -486,8 +513,6 @@ export const SAVE_CHARACTER_SHEET_FAILURE_MOCK: MockLink.MockedResponse = {
     },
     error: new Error('Network error'),
 };
-
-const { __typename: _skillTypeName, ...INITIAL_SKILL_INPUT } = MOCK_CHARACTER.stats.skillProficiencies;
 
 export const CHARACTERS_MOCK: MockLink.MockedResponse = {
     request: {

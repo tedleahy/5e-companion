@@ -9,8 +9,11 @@ import {
     classFindManyMock,
     clearAllCharacterResolverMocks,
     fakeCharacter,
+    featureFindManyMock,
     resolvers,
     raceFindFirstMock,
+    subclassCreateMock,
+    subclassFindFirstMock,
     subclassFindManyMock,
     unauthedCtx,
 } from './characterResolvers.testUtils';
@@ -66,6 +69,7 @@ describe('characterResolvers — createCharacter', () => {
             languages: [],
             languageChoiceCount: 2,
         });
+        featureFindManyMock.mockResolvedValueOnce([]);
 
         const input = {
             name: 'Vaelindra',
@@ -127,6 +131,7 @@ describe('characterResolvers — createCharacter', () => {
         ]);
         raceFindFirstMock.mockResolvedValueOnce({ id: 'race-elf-id', name: 'Elf', languages: [], traits: [] });
         backgroundFindFirstMock.mockResolvedValueOnce({ id: 'background-acolyte-id', name: 'Acolyte', proficiencies: [], languages: [], languageChoiceCount: null });
+        featureFindManyMock.mockResolvedValueOnce([]);
 
         expect(resolvers.createCharacter({}, {
             input: {
@@ -143,6 +148,121 @@ describe('characterResolvers — createCharacter', () => {
                 skillProficiencies: {},
             },
         } as any, authedCtx)).rejects.toThrow('requires wizard level 2');
+    });
+
+    test('creates and attaches a new owned custom subclass when the input provides one', async () => {
+        characterCreateMock.mockResolvedValueOnce({ id: 'char-new', ownerUserId: 'user-abc' });
+        classFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'class-wizard-id',
+                srdIndex: 'wizard',
+                name: 'Wizard',
+                hitDie: 6,
+                spellcastingAbility: 'int',
+                proficiencies: [],
+            },
+        ]);
+        raceFindFirstMock.mockResolvedValueOnce({
+            id: 'race-elf-id',
+            name: 'Elf',
+            languages: [{ name: 'Common' }, { name: 'Elvish' }],
+            traits: [],
+        });
+        backgroundFindFirstMock.mockResolvedValueOnce({
+            id: 'background-acolyte-id',
+            name: 'Acolyte',
+            proficiencies: [],
+            languages: [],
+            languageChoiceCount: 2,
+        });
+        subclassFindFirstMock.mockResolvedValueOnce(null);
+        subclassCreateMock.mockResolvedValueOnce({
+            id: 'custom-subclass-id',
+            srdIndex: null,
+            ownerUserId: 'user-abc',
+            name: 'School of Glass',
+            description: ['A delicate art of mirrored wards and refractions.'],
+            classId: 'class-wizard-id',
+        });
+        featureFindManyMock.mockReset();
+        featureFindManyMock.mockImplementation(() => Promise.resolve([
+            {
+                id: 'feature-arcane-recovery',
+                name: 'Arcane Recovery',
+                description: ['Recover spell slots on a short rest.'],
+                sourceLabel: 'Wizard 1',
+                kind: 'CLASS_FEATURE',
+                level: 1,
+                classId: 'class-wizard-id',
+                subclassId: null,
+            },
+            {
+                id: 'feature-refraction-shield',
+                name: 'Refraction Shield',
+                description: ['Bend light to turn aside attacks.'],
+                sourceLabel: 'School of Glass Wizard 2',
+                kind: 'SUBCLASS_FEATURE',
+                level: 2,
+                classId: 'class-wizard-id',
+                subclassId: 'custom-subclass-id',
+            },
+        ]));
+
+        await resolvers.createCharacter({}, {
+            input: {
+                name: 'Vaelindra',
+                race: 'elf',
+                classes: [
+                    {
+                        classId: 'wizard',
+                        level: 2,
+                        customSubclass: {
+                            name: 'School of Glass',
+                            description: 'A delicate art of mirrored wards and refractions.',
+                        },
+                    },
+                ],
+                startingClassId: 'wizard',
+                alignment: 'Chaotic Good',
+                background: 'acolyte',
+                ac: 12,
+                speed: 30,
+                initiative: 2,
+                abilityScores: { strength: 8, dexterity: 14, constitution: 14, intelligence: 16, wisdom: 10, charisma: 10 },
+                skillProficiencies: {},
+            },
+        } as any, authedCtx);
+
+        expect(subclassCreateMock).toHaveBeenCalledWith({
+            data: {
+                ownerUserId: 'user-abc',
+                name: 'School of Glass',
+                description: ['A delicate art of mirrored wards and refractions.'],
+                classId: 'class-wizard-id',
+            },
+        });
+        const callArgs = characterCreateMock.mock.calls[0]![0] as Record<string, any>;
+        expect(callArgs.data.classes.create).toEqual([
+            { classId: 'class-wizard-id', subclassId: 'custom-subclass-id', level: 2, isStartingClass: true },
+        ]);
+        expect(featureFindManyMock).toHaveBeenCalledTimes(1);
+        expect(callArgs.data.features.create).toEqual([
+            {
+                featureId: 'feature-arcane-recovery',
+                name: 'Arcane Recovery',
+                source: 'Wizard 1',
+                description: 'Recover spell slots on a short rest.',
+                usesMax: 1,
+                usesRemaining: 1,
+                recharge: 'long',
+            },
+            {
+                featureId: 'feature-refraction-shield',
+                name: 'Refraction Shield',
+                source: 'School of Glass Wizard 2',
+                description: 'Bend light to turn aside attacks.',
+            },
+        ]);
     });
 });
 

@@ -235,6 +235,30 @@ export const UPDATE_INVENTORY_ITEM = gql`
 `;
 
 /**
+ * Loads the subclasses available to the current user for one or more classes.
+ */
+export const GET_AVAILABLE_SUBCLASSES = gql`
+    query AvailableSubclasses($classIds: [String!]) {
+        availableSubclasses(classIds: $classIds) {
+            id
+            value
+            srdIndex
+            classId
+            className
+            name
+            description
+            isCustom
+            features {
+                id
+                name
+                description
+                level
+            }
+        }
+    }
+`;
+
+/**
  * Creates a new character with the full initial sheet data.
  */
 export const CREATE_CHARACTER = gql`
