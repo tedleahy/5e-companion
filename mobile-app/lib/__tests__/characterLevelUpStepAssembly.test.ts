@@ -6,6 +6,7 @@ import {
 import { buildLevelUpSpellcastingSummary } from '@/lib/characterLevelUp/spellcasting';
 import { needsSubclassSelectionStep } from '@/lib/characterLevelUp/subclassFeatures';
 import type { LevelUpWizardCharacter } from '@/lib/characterLevelUp/types';
+import { ProficiencyLevel } from '@/types/generated_graphql_types';
 
 /**
  * Shared character fixture for step-assembly tests.
@@ -67,6 +68,7 @@ const TEST_CHARACTER: LevelUpWizardCharacter = {
         { __typename: 'SpellSlot', id: 'slot-pact-1', kind: 'PACT_MAGIC' as never, level: 1, total: 2, used: 0 },
     ],
     spellbook: [],
+    features: [],
     stats: {
         hp: {
             __typename: 'HP',
@@ -82,6 +84,27 @@ const TEST_CHARACTER: LevelUpWizardCharacter = {
             wisdom: 13,
             charisma: 11,
             __typename: 'AbilityScores',
+        },
+        skillProficiencies: {
+            acrobatics: ProficiencyLevel.None,
+            animalHandling: ProficiencyLevel.None,
+            arcana: ProficiencyLevel.None,
+            athletics: ProficiencyLevel.None,
+            deception: ProficiencyLevel.None,
+            history: ProficiencyLevel.None,
+            insight: ProficiencyLevel.None,
+            intimidation: ProficiencyLevel.None,
+            investigation: ProficiencyLevel.None,
+            medicine: ProficiencyLevel.None,
+            nature: ProficiencyLevel.None,
+            perception: ProficiencyLevel.None,
+            performance: ProficiencyLevel.None,
+            persuasion: ProficiencyLevel.None,
+            religion: ProficiencyLevel.None,
+            sleightOfHand: ProficiencyLevel.None,
+            stealth: ProficiencyLevel.None,
+            survival: ProficiencyLevel.None,
+            __typename: 'SkillProficiencies',
         },
     },
 };
