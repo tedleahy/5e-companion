@@ -1,0 +1,64 @@
+name: Unit tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  server:
+    name: Server (bun test)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install server dependencies
+        working-directory: server
+        run: bun install --frozen-lockfile
+
+      - name: Generate Prisma client
+        working-directory: server
+        # We import prisma types in the test suite, which requires generating a prisma client.
+        # DATABASE_URL is required by `server/prisma.config.ts`, but we don't actually connect
+        # to it, we just generate the client.
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+        run: bunx prisma generate
+
+      - name: Run server unit tests
+        working-directory: server
+        run: bun test
+
+  mobile:
+    name: Mobile (jest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+          cache-dependency-path: mobile-app/yarn.lock
+
+      - name: Install mobile-app dependencies
+        working-directory: mobile-app
+        run: yarn install --frozen-lockfile
+
+      - name: Run mobile unit tests
+        working-directory: mobile-app
+        run: yarn test
