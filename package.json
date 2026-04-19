@@ -18,6 +18,14 @@
         "app:add": "cd mobile-app && yarn add",
         "app:codegen": "cd mobile-app && yarn run codegen",
         "app:test": "cd mobile-app && yarn run test",
-        "app:lint": "cd mobile-app && yarn expo lint"
+        "app:e2e": "cd mobile-app && yarn run e2e",
+        "app:lint": "cd mobile-app && yarn expo lint",
+        "e2e:up": "bunx supabase start",
+        "e2e:down": "bunx supabase stop",
+        "e2e:status": "bunx supabase status",
+        "e2e:reset": "bunx supabase db reset"
+    },
+    "devDependencies": {
+        "supabase": "^2.92.1"
     }
 }
