@@ -1,5 +1,3 @@
-import '@testing-library/jest-native/extend-expect';
-
 // Mock expo-router
 jest.mock('expo-router', () => ({
     useRouter: () => ({
@@ -73,47 +71,49 @@ jest.mock('@react-navigation/native', () => {
     };
 });
 
-// Mock Animated to run synchronously in tests
+// Mock Animated to run synchronously in tests.
+// NOTE: We mutate RN.Animated in place instead of spreading ...RN, because the react-native
+// index uses lazy getters (DevMenu, SettingsManager, etc.) that call TurboModuleRegistry.getEnforcing
+// at access time and throw under Jest. Spreading triggers every getter and breaks the test suite.
 jest.mock('react-native', () => {
     const RN = jest.requireActual('react-native');
-    return {
-        ...RN,
-        Animated: {
-            ...RN.Animated,
-            timing: (value: any, config: any) => ({
-                start: (callback?: () => void) => {
-                    value.setValue(config.toValue);
-                    callback?.();
-                },
-                stop: () => {},
-                reset: () => {},
-            }),
-            parallel: (animations: any[]) => ({
-                start: (callback?: () => void) => {
-                    animations.forEach(anim => anim.start());
-                    callback?.();
-                },
-                stop: () => {},
-                reset: () => {},
-            }),
-            spring: (value: any, config: any) => ({
-                start: (callback?: () => void) => {
-                    value.setValue(config.toValue);
-                    callback?.();
-                },
-                stop: () => {},
-                reset: () => {},
-            }),
-            sequence: (animations: any[]) => ({
-                start: (callback?: () => void) => {
-                    animations.forEach(anim => anim.start());
-                    callback?.();
-                },
-                stop: () => {},
-                reset: () => {},
-            }),
-        },
+    const done = { finished: true };
+    const syncAnim = {
+        timing: (value: any, config: any) => ({
+            start: (callback?: (result: { finished: boolean }) => void) => {
+                value.setValue(config.toValue);
+                callback?.(done);
+            },
+            stop: () => {},
+            reset: () => {},
+        }),
+        parallel: (animations: any[]) => ({
+            start: (callback?: (result: { finished: boolean }) => void) => {
+                animations.forEach(anim => anim.start());
+                callback?.(done);
+            },
+            stop: () => {},
+            reset: () => {},
+        }),
+        spring: (value: any, config: any) => ({
+            start: (callback?: (result: { finished: boolean }) => void) => {
+                value.setValue(config.toValue);
+                callback?.(done);
+            },
+            stop: () => {},
+            reset: () => {},
+        }),
+        sequence: (animations: any[]) => ({
+            start: (callback?: (result: { finished: boolean }) => void) => {
+                animations.forEach(anim => anim.start());
+                callback?.(done);
+            },
+            stop: () => {},
+            reset: () => {},
+        }),
     };
+    Object.assign(RN.Animated, syncAnim);
+    return RN;
 });
 
 // BackHandler mocks are set up in beforeEach to allow per-test overrides
