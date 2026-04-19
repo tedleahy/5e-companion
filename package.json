@@ -18,6 +18,7 @@
         "app:add": "cd mobile-app && yarn add",
         "app:codegen": "cd mobile-app && yarn run codegen",
         "app:test": "cd mobile-app && yarn run test",
+        "app:e2e": "cd mobile-app && yarn run e2e",
         "app:lint": "cd mobile-app && yarn expo lint"
     }
 }

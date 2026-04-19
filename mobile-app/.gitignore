@@ -45,3 +45,8 @@ app-example
 
 # jest coverage
 /coverage
+
+# playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/

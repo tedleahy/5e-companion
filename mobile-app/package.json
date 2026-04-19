@@ -11,7 +11,10 @@
         "web-local": "expo start --web --localhost",
         "lint": "expo lint",
         "codegen": "graphql-codegen --config codegen.yml",
-        "test": "NODE_OPTIONS='--no-experimental-webstorage' jest"
+        "test": "NODE_OPTIONS='--no-experimental-webstorage' jest",
+        "e2e": "playwright test",
+        "e2e:ui": "playwright test --ui",
+        "e2e:report": "playwright show-report"
     },
     "dependencies": {
         "@apollo/client": "^4.1.2",
@@ -56,6 +59,7 @@
         "@graphql-codegen/cli": "^6.1.1",
         "@graphql-codegen/typescript": "^5.0.7",
         "@graphql-codegen/typescript-operations": "^5.0.7",
+        "@playwright/test": "^1.59.1",
         "@testing-library/jest-native": "^5.4.3",
         "@testing-library/react-native": "^13.3.3",
         "@types/jest": "29.5.14",
