@@ -27,5 +27,7 @@ export function isCreateCharacterStepComplete(
         case CREATE_CHARACTER_ROUTES.skills:
         case CREATE_CHARACTER_ROUTES.review:
             return true;
+        default:
+            return false;
     }
 }
