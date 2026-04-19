@@ -88,6 +88,19 @@ Coding conventions
 UI style
 - Give the app a fantasy-style look and feel to it.
 
+Running tests
+- All commands below are safe to run without a live database; neither Jest nor `bun test` touches Postgres for the current suites.
+- **Mobile app (Jest + jest-expo)**: run from `mobile-app/`. The `test` script sets `NODE_OPTIONS='--no-experimental-webstorage'` which is required — don't drop it.
+    - Full suite: `yarn test` (from `mobile-app/`) or `bun app:test` (from repo root).
+    - Single file or pattern: `yarn test <substring>`, e.g. `yarn test FilterSwitch`, `yarn test character-sheet.core-tab`. Passes through to Jest's positional test-path pattern.
+    - Watch mode: `yarn test --watch <substring>`.
+    - Avoid literal `app/(rail)/...` paths on the CLI; `zsh` globs the parentheses. Use a substring of the test file name instead (see the shell/testing note below).
+- **Backend (bun test)**: run from `server/`.
+    - Full suite: `bun test` (from `server/`) or `bun server:test` (from repo root).
+    - Single file: `bun test lib/spellFilters.test.ts` (paths are relative to `server/`).
+    - Filter by test name: `bun test --test-name-pattern "longRest"`.
+- The mobile Jest setup lives in `mobile-app/jest-setup.ts`. If you need to add global mocks, mutate `jest.requireActual('react-native')` in place rather than spreading it — RN 0.81's index uses lazy getters (`DevMenu`, `SettingsManager`, etc.) that call `TurboModuleRegistry.getEnforcing` and throw under Jest as soon as they're accessed.
+
 Git Commits
 - Don't commit anything unless you're explicitly told to.
 - Group changes into commits and write detailed commit messages for each of them.
