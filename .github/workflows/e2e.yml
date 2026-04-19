@@ -55,12 +55,22 @@ jobs:
         working-directory: mobile-app
         run: npx playwright install --with-deps chromium
 
+      - name: Start local Supabase
+        run: bunx supabase start
+
+      - name: Export DATABASE_URL from local Supabase
+        # `server/prisma.config.ts` reads DATABASE_URL at parse time via
+        # `env('DATABASE_URL')`, so every `prisma` invocation (including
+        # `generate`) needs it set even though generation doesn't actually
+        # connect. The Supabase CLI emits it as DB_URL; we rename it to
+        # DATABASE_URL so subsequent Prisma steps pick it up.
+        run: |
+          DB_URL=$(bunx supabase status -o env | grep '^DB_URL=' | cut -d'"' -f2)
+          echo "DATABASE_URL=$DB_URL" >> "$GITHUB_ENV"
+
       - name: Generate Prisma client
         working-directory: server
         run: bunx prisma generate
-
-      - name: Start local Supabase
-        run: bunx supabase start
 
       - name: Run Playwright tests
         working-directory: mobile-app
