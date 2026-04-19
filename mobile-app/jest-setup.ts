@@ -124,6 +124,22 @@ jest.mock('react-native', () => {
         }),
     };
     Object.assign(RN.Animated, syncAnim);
+    // Replace the built-in Animated wrapper components (Animated.Text, Animated.View,
+    // etc.) and createAnimatedComponent() with plain pass-throughs so that setValue()
+    // on a subscribed Animated.Value doesn't dispatch a reducer action into a
+    // component outside the originating act scope. Without this, Paper components
+    // that animate on prop change (HelperText, TextInput label, Snackbar, ...)
+    // produce "An update to Animated(Text) inside a test was not wrapped in act"
+    // warnings even though the tests themselves are correctly scoped.
+    RN.Animated.createAnimatedComponent = (Component: any) => Component;
+    Object.defineProperties(RN.Animated, {
+        Text: { value: RN.Text, configurable: true, writable: true },
+        View: { value: RN.View, configurable: true, writable: true },
+        ScrollView: { value: RN.ScrollView, configurable: true, writable: true },
+        Image: { value: RN.Image, configurable: true, writable: true },
+        FlatList: { value: RN.FlatList, configurable: true, writable: true },
+        SectionList: { value: RN.SectionList, configurable: true, writable: true },
+    });
     return RN;
 });
 
