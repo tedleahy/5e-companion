@@ -128,7 +128,7 @@ export function levelUpSrdSubclassOption(classId: string): LevelUpSrdSubclassOpt
     return {
         classId: subclass.classId,
         subclassId: subclass.subclassId,
-        name: subclassDisplayName(subclass.subclassId, subclass.name),
+        name: subclassDisplayName(subclass.subclassId, subclass.name) ?? subclass.name,
         category: subclass.category,
         description: subclass.description,
         icon,
@@ -448,14 +448,14 @@ function mapGeneratedFeature(
  * Builds any new spell-slot-level unlocks that the prototype surfaces as features.
  */
 function spellSlotUnlockFeatures(selectedClass: LevelUpWizardSelectedClass): LevelUpFeature[] {
-    const slotProgression = LEVEL_UP_SPELL_SLOTS_BY_CLASS[selectedClass.classId];
+    const slotProgression = (LEVEL_UP_SPELL_SLOTS_BY_CLASS as Record<string, Record<string, readonly number[]>>)[selectedClass.classId];
 
     if (!slotProgression) {
         return [];
     }
 
-    const previousSlots = slotProgression[selectedClass.currentLevel as keyof typeof slotProgression] ?? [];
-    const nextSlots = slotProgression[selectedClass.newLevel as keyof typeof slotProgression] ?? [];
+    const previousSlots = slotProgression[String(selectedClass.currentLevel)] ?? [];
+    const nextSlots = slotProgression[String(selectedClass.newLevel)] ?? [];
     const features: LevelUpFeature[] = [];
 
     for (let slotIndex = 0; slotIndex < nextSlots.length; slotIndex += 1) {
