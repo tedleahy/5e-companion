@@ -2,7 +2,6 @@ import 'dotenv/config';
 import prisma from './prisma';
 import seedAbilityScores from './seeds/seedAbilityScores';
 import seedRaces from './seeds/seedRaces';
-import seedCustomSpells from './seeds/seedCustomSpells';
 import seedSpells from './seeds/seedSpells';
 import seedCharacterReferenceData from './seeds/seedCharacterReferenceData';
 import seedE2ECharacter from './seeds/seedE2ECharacter';
@@ -40,7 +39,6 @@ async function ensureSrdSeedData(): Promise<void> {
 
     console.log('[e2e-setup] SRD tables empty — running full SRD seed (this may take ~30s)…');
     const srdSpellNames = await seedSpells();
-    await seedCustomSpells(srdSpellNames);
     await seedAbilityScores();
     await seedRaces();
     await seedCharacterReferenceData();
