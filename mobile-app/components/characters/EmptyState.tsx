@@ -17,22 +17,22 @@ const RUNE_ROTATION_DURATION_MS = 60000;
 /** Duration for a single glow pulse cycle. */
 const GLOW_PULSE_DURATION_MS = 4000;
 /** Vertical rise distance used by floating particles. */
-const PARTICLE_FLOAT_DISTANCE = 84;
+const PARTICLE_FLOAT_DISTANCE = 97;
 /** Wizard illustration width in the empty-state scene. */
-const WIZARD_ILLUSTRATION_WIDTH = 200;
+const WIZARD_ILLUSTRATION_WIDTH = 231;
 /** Wizard illustration height in the empty-state scene. */
-const WIZARD_ILLUSTRATION_HEIGHT = 220;
+const WIZARD_ILLUSTRATION_HEIGHT = 254;
 
 /**
  * Static particle layout metadata used for the atmospheric background effect.
  */
 const PARTICLE_CONFIG = [
-    { key: 'p1', left: '42%', top: '55%', delayMs: 0, size: 2 },
-    { key: 'p2', left: '55%', top: '48%', delayMs: 1200, size: 3 },
-    { key: 'p3', left: '38%', top: '42%', delayMs: 2400, size: 2 },
-    { key: 'p4', left: '60%', top: '52%', delayMs: 800, size: 2 },
-    { key: 'p5', left: '48%', top: '60%', delayMs: 3000, size: 3 },
-    { key: 'p6', left: '35%', top: '50%', delayMs: 1800, size: 2 },
+    { key: 'p1', left: '42%', top: '55%', delayMs: 0, size: 3 },
+    { key: 'p2', left: '55%', top: '48%', delayMs: 1200, size: 4 },
+    { key: 'p3', left: '38%', top: '42%', delayMs: 2400, size: 3 },
+    { key: 'p4', left: '60%', top: '52%', delayMs: 800, size: 3 },
+    { key: 'p5', left: '48%', top: '60%', delayMs: 3000, size: 4 },
+    { key: 'p6', left: '35%', top: '50%', delayMs: 1800, size: 3 },
 ] as const;
 
 /**
@@ -292,33 +292,33 @@ const styles = StyleSheet.create({
     },
     glow: {
         position: 'absolute',
-        width: 300,
-        height: 300,
+        width: 347,
+        height: 347,
         borderRadius: 999,
         backgroundColor: 'rgba(201,146,42,0.08)',
     },
     runeCircle: {
         position: 'absolute',
-        width: 300,
-        height: 300,
+        width: 347,
+        height: 347,
         alignItems: 'center',
         justifyContent: 'center',
         opacity: 0.17,
     },
     outerRuneRing: {
         position: 'absolute',
-        width: 280,
-        height: 280,
-        borderRadius: 140,
+        width: 324,
+        height: 324,
+        borderRadius: 162,
         borderWidth: 1,
         borderColor: 'rgba(201,146,42,0.75)',
         borderStyle: 'dashed',
     },
     innerRuneRing: {
         position: 'absolute',
-        width: 238,
-        height: 238,
-        borderRadius: 119,
+        width: 276,
+        height: 276,
+        borderRadius: 138,
         borderWidth: 1,
         borderColor: 'rgba(201,146,42,0.55)',
         borderStyle: 'dashed',
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
         letterSpacing: 1.2,
         fontFamily: fantasyTokens.fonts.regular,
         textAlign: 'center',
-        maxWidth: 240,
+        maxWidth: 278,
         transform: [{ rotate: '-8deg' }],
     },
     particle: {
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
     },
     ornamentRow: {
         width: '100%',
-        maxWidth: 232,
+        maxWidth: 268,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
