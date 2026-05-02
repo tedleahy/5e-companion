@@ -282,10 +282,12 @@ const styles = StyleSheet.create({
     },
     scene: {
         flex: 1,
-        justifyContent: 'space-between',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     illustrationArea: {
-        flex: 1,
+        width: 387,
+        height: 387,
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
@@ -351,6 +353,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 28,
         gap: fantasyTokens.spacing.sm,
+        marginTop: 20,
     },
     ornamentRow: {
         width: '100%',
