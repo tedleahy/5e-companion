@@ -1,7 +1,5 @@
-import { useEffect, useRef } from 'react';
 import {
     Animated,
-    Easing,
     Pressable,
     StyleSheet,
     View,
@@ -11,38 +9,92 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { useEmptyStateAnimations } from './useEmptyStateAnimations';
 
-/** Duration for one full rune-circle rotation. */
-const RUNE_ROTATION_DURATION_MS = 60000;
-/** Duration for a single glow pulse cycle. */
-const GLOW_PULSE_DURATION_MS = 4000;
-/** Vertical rise distance used by floating particles. */
-const PARTICLE_FLOAT_DISTANCE = 97;
-/** Wizard illustration width in the empty-state scene. */
-const WIZARD_ILLUSTRATION_WIDTH = 231;
-/** Wizard illustration height in the empty-state scene. */
-const WIZARD_ILLUSTRATION_HEIGHT = 254;
+/** Floating asset stage width in the empty-state scene. */
+const FLOATING_ASSET_STAGE_WIDTH = 292;
+/** Floating asset stage height in the empty-state scene. */
+const FLOATING_ASSET_STAGE_HEIGHT = 292;
 
-/**
- * Static particle layout metadata used for the atmospheric background effect.
- */
-const PARTICLE_CONFIG = [
-    { key: 'p1', left: '42%', top: '55%', delayMs: 0, size: 3 },
-    { key: 'p2', left: '55%', top: '48%', delayMs: 1200, size: 4 },
-    { key: 'p3', left: '38%', top: '42%', delayMs: 2400, size: 3 },
-    { key: 'p4', left: '60%', top: '52%', delayMs: 800, size: 3 },
-    { key: 'p5', left: '48%', top: '60%', delayMs: 3000, size: 4 },
-    { key: 'p6', left: '35%', top: '50%', delayMs: 1800, size: 3 },
+const FIRST_CHARACTER_ANIMATION_ASSETS = [
+    {
+        key: 'arrow',
+        source: require('../../assets/images/first-character-create-animation/archery-arrow-svgrepo-com.svg'),
+        left: 25,
+        top: 69,
+        size: 58,
+        driftX: 92,
+        driftY: 82,
+        delayMs: 0,
+        durationMs: 2800,
+    },
+    {
+        key: 'axe',
+        source: require('../../assets/images/first-character-create-animation/axe-hatchet-svgrepo-com.svg'),
+        left: 194,
+        top: 41,
+        size: 62,
+        driftX: 76,
+        driftY: 96,
+        delayMs: 900,
+        durationMs: 3200,
+    },
+    {
+        key: 'crystal-ball',
+        source: require('../../assets/images/first-character-create-animation/culture-glass-ball-looking-svgrepo-com.svg'),
+        left: 110,
+        top: 96,
+        size: 74,
+        driftX: 66,
+        driftY: 62,
+        delayMs: 400,
+        durationMs: 3000,
+    },
+    {
+        key: 'spell-dust',
+        source: require('../../assets/images/first-character-create-animation/dust-spell-witchcraft-wizard-halloween-svgrepo-com.svg'),
+        left: 48,
+        top: 178,
+        size: 65,
+        driftX: 86,
+        driftY: 72,
+        delayMs: 1300,
+        durationMs: 3400,
+    },
+    {
+        key: 'magic-flame',
+        source: require('../../assets/images/first-character-create-animation/fantasy-fire-flame-show-magic-svgrepo-com.svg'),
+        left: 202,
+        top: 169,
+        size: 66,
+        driftX: 80,
+        driftY: 86,
+        delayMs: 700,
+        durationMs: 3100,
+    },
+    {
+        key: 'sword',
+        source: require('../../assets/images/first-character-create-animation/sword-svgrepo-com.svg'),
+        left: 135,
+        top: 10,
+        size: 72,
+        driftX: 64,
+        driftY: 90,
+        delayMs: 1700,
+        durationMs: 3500,
+    },
+    {
+        key: 'spell-book',
+        source: require('../../assets/images/first-character-create-animation/weapon-fantasy-spell-book-magig-svgrepo-com.svg'),
+        left: 122,
+        top: 208,
+        size: 78,
+        driftX: 72,
+        driftY: 66,
+        delayMs: 1100,
+        durationMs: 3300,
+    },
 ] as const;
-
-/**
- * Animated values backing each floating particle.
- */
-type ParticleAnimationState = {
-    translateY: Animated.Value;
-    opacity: Animated.Value;
-    scale: Animated.Value;
-};
 
 /**
  * Full-screen characters empty state shown when the signed-in user has no characters yet.
@@ -50,129 +102,15 @@ type ParticleAnimationState = {
 export default function EmptyState() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
-    const runeRotation = useRef(new Animated.Value(0)).current;
-    const glowScale = useRef(new Animated.Value(1)).current;
-    const glowOpacity = useRef(new Animated.Value(0.65)).current;
-    const particlesRef = useRef<ParticleAnimationState[]>(
-        PARTICLE_CONFIG.map(() => ({
-            translateY: new Animated.Value(0),
-            opacity: new Animated.Value(0),
-            scale: new Animated.Value(1),
-        }))
-    );
-
-    useEffect(() => {
-        const runningAnimations: Animated.CompositeAnimation[] = [];
-
-        runeRotation.setValue(0);
-        const runeAnimation = Animated.loop(
-            Animated.timing(runeRotation, {
-                toValue: 1,
-                duration: RUNE_ROTATION_DURATION_MS,
-                easing: Easing.linear,
-                useNativeDriver: true,
-            })
-        );
-        runeAnimation.start();
-        runningAnimations.push(runeAnimation);
-
-        const glowAnimation = Animated.loop(
-            Animated.sequence([
-                Animated.parallel([
-                    Animated.timing(glowScale, {
-                        toValue: 1.08,
-                        duration: GLOW_PULSE_DURATION_MS / 2,
-                        easing: Easing.inOut(Easing.ease),
-                        useNativeDriver: true,
-                    }),
-                    Animated.timing(glowOpacity, {
-                        toValue: 1,
-                        duration: GLOW_PULSE_DURATION_MS / 2,
-                        easing: Easing.inOut(Easing.ease),
-                        useNativeDriver: true,
-                    }),
-                ]),
-                Animated.parallel([
-                    Animated.timing(glowScale, {
-                        toValue: 1,
-                        duration: GLOW_PULSE_DURATION_MS / 2,
-                        easing: Easing.inOut(Easing.ease),
-                        useNativeDriver: true,
-                    }),
-                    Animated.timing(glowOpacity, {
-                        toValue: 0.65,
-                        duration: GLOW_PULSE_DURATION_MS / 2,
-                        easing: Easing.inOut(Easing.ease),
-                        useNativeDriver: true,
-                    }),
-                ]),
-            ])
-        );
-        glowAnimation.start();
-        runningAnimations.push(glowAnimation);
-
-        particlesRef.current.forEach((particle, index) => {
-            const config = PARTICLE_CONFIG[index];
-
-            particle.translateY.setValue(0);
-            particle.opacity.setValue(0);
-            particle.scale.setValue(1);
-
-            const particleAnimation = Animated.loop(
-                Animated.sequence([
-                    Animated.delay(config.delayMs),
-                    Animated.parallel([
-                        Animated.timing(particle.translateY, {
-                            toValue: -PARTICLE_FLOAT_DISTANCE,
-                            duration: 4600,
-                            easing: Easing.out(Easing.quad),
-                            useNativeDriver: true,
-                        }),
-                        Animated.sequence([
-                            Animated.timing(particle.opacity, {
-                                toValue: 0.68,
-                                duration: 900,
-                                useNativeDriver: true,
-                            }),
-                            Animated.timing(particle.opacity, {
-                                toValue: 0,
-                                duration: 3700,
-                                useNativeDriver: true,
-                            }),
-                        ]),
-                        Animated.timing(particle.scale, {
-                            toValue: 0.5,
-                            duration: 4600,
-                            easing: Easing.out(Easing.quad),
-                            useNativeDriver: true,
-                        }),
-                    ]),
-                    Animated.timing(particle.translateY, {
-                        toValue: 0,
-                        duration: 0,
-                        useNativeDriver: true,
-                    }),
-                    Animated.timing(particle.scale, {
-                        toValue: 1,
-                        duration: 0,
-                        useNativeDriver: true,
-                    }),
-                ])
-            );
-
-            particleAnimation.start();
-            runningAnimations.push(particleAnimation);
-        });
-
-        return () => {
-            runningAnimations.forEach((animation) => animation.stop());
-        };
-    }, [glowOpacity, glowScale, runeRotation]);
-
-    const runeSpin = runeRotation.interpolate({
-        inputRange: [0, 1],
-        outputRange: ['0deg', '360deg'],
-    });
+    const {
+        runeSpin,
+        glowScale,
+        glowOpacity,
+        particlesRef,
+        particleConfig,
+        floatingAssetsRef,
+        assetSpins,
+    } = useEmptyStateAnimations(FIRST_CHARACTER_ANIMATION_ASSETS);
 
     return (
         <View style={styles.container}>
@@ -196,8 +134,8 @@ export default function EmptyState() {
                         ]}
                     />
 
-                    {PARTICLE_CONFIG.map((particle, index) => {
-                        const animatedParticle = particlesRef.current[index];
+                    {particleConfig.map((particle, index) => {
+                        const animatedParticle = particlesRef[index];
 
                         return (
                             <Animated.View
@@ -233,13 +171,44 @@ export default function EmptyState() {
                         <Text style={styles.runeText}>✦ · CODEX ARCANUM · ✦ · NOMEN EST OMEN ·</Text>
                     </Animated.View>
 
-                    <View style={styles.figureContainer}>
-                        <Image
-                            source={require('../../assets/illustrations/wizard.svg')}
-                            style={styles.figureImage}
-                            contentFit="contain"
-                            accessible={false}
-                        />
+                    <View style={styles.figureContainer} pointerEvents="none">
+                        {FIRST_CHARACTER_ANIMATION_ASSETS.map((asset, index) => {
+                            const animatedAsset = floatingAssetsRef[index];
+
+                            return (
+                                <Animated.View
+                                    key={asset.key}
+                                    collapsable={false}
+                                    needsOffscreenAlphaCompositing
+                                    style={[
+                                        styles.floatingAsset,
+                                        {
+                                            left: asset.left,
+                                            top: asset.top,
+                                            width: asset.size,
+                                            height: asset.size,
+                                            opacity: animatedAsset.opacity,
+                                            transform: [
+                                                { translateX: animatedAsset.translateX },
+                                                { translateY: animatedAsset.translateY },
+                                                { rotate: assetSpins[index] },
+                                                { scale: animatedAsset.scale },
+                                            ],
+                                        },
+                                    ]}
+                                >
+                                    <Image
+                                        source={asset.source}
+                                        style={styles.floatingAssetImage}
+                                        contentFit="contain"
+                                        tintColor={fantasyTokens.colors.gold}
+                                        cachePolicy="none"
+                                        transition={null}
+                                        accessible={false}
+                                    />
+                                </Animated.View>
+                            );
+                        })}
                     </View>
                 </View>
 
@@ -340,14 +309,21 @@ const styles = StyleSheet.create({
         backgroundColor: fantasyTokens.colors.gold,
     },
     figureContainer: {
-        width: WIZARD_ILLUSTRATION_WIDTH,
-        height: WIZARD_ILLUSTRATION_HEIGHT,
+        width: FLOATING_ASSET_STAGE_WIDTH,
+        height: FLOATING_ASSET_STAGE_HEIGHT,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    figureImage: {
-        width: WIZARD_ILLUSTRATION_WIDTH,
-        height: WIZARD_ILLUSTRATION_HEIGHT,
+    floatingAsset: {
+        position: 'absolute',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'transparent',
+        overflow: 'hidden',
+    },
+    floatingAssetImage: {
+        width: '100%',
+        height: '100%',
     },
     bottomContent: {
         alignItems: 'center',
