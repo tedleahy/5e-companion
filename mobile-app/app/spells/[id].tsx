@@ -32,7 +32,11 @@ const GET_SPELL = gql`
 export default function SpellDetails() {
     const { id } = useLocalSearchParams<{ id?: string }>();
 
-    const { data, loading, error } = useQuery<SpellQuery, SpellQueryVariables>(GET_SPELL, {
+    const {
+        data,
+        loading,
+        error,
+    } = useQuery<SpellQuery, SpellQueryVariables>(GET_SPELL, {
         variables: { id: id ?? '' },
         skip: !id,
     });
