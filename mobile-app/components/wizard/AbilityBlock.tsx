@@ -29,7 +29,13 @@ export default function AbilityBlock({ ability, score, onIncrement, onDecrement,
                 >
                     <Text style={styles.btnText}>{'\u2212'}</Text>
                 </Pressable>
-                <Text style={styles.value}>{score}</Text>
+                <Text
+                    style={styles.value}
+                    accessibilityRole="text"
+                    accessibilityLabel={`${ABILITY_ABBREVIATIONS[ability]} score ${score}`}
+                >
+                    {score}
+                </Text>
                 {racialBonus != null && racialBonus !== 0 && (
                     <Text style={styles.bonusTag}>+{racialBonus}</Text>
                 )}
@@ -48,6 +54,8 @@ export default function AbilityBlock({ ability, score, onIncrement, onDecrement,
                         isPositive && styles.modTextPositive,
                         isNegative && styles.modTextNegative,
                     ]}
+                    accessibilityRole="text"
+                    accessibilityLabel={`${ABILITY_ABBREVIATIONS[ability]} modifier ${modStr}`}
                 >
                     {modStr}
                 </Text>
