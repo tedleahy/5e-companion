@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo } from 'react';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import {
     Alert,
     Animated,
@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { usePathname, useRouter } from 'expo-router';
-import { useMutation } from '@apollo/client/react';
+import { useMutation, ApolloError } from '@apollo/client/react';
 import useAvailableSubclasses from '@/hooks/useAvailableSubclasses';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
@@ -42,6 +42,16 @@ export default function WizardShell({ children }: Props) {
     }>(CREATE_CHARACTER, {
         refetchQueries: [{ query: GET_CURRENT_USER_CHARACTER_ROSTER }],
     });
+
+    const [displayError, setDisplayError] = useState<ApolloError | null>(null);
+
+    useEffect(() => {
+        setDisplayError(null);
+    }, [pathname]);
+
+    useEffect(() => {
+        setDisplayError(createError ?? null);
+    }, [createError]);
 
     // Validation: is the current step complete enough to proceed?
     const canContinue = useMemo(
@@ -147,7 +157,7 @@ export default function WizardShell({ children }: Props) {
             <View style={styles.content}>{children}</View>
 
             {/* Error message */}
-            {createError && (
+            {displayError && (
                 <View style={styles.errorContainer}>
                     <Text style={styles.errorText}>
                         Failed to create character. Please try again.
