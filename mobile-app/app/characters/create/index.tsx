@@ -50,6 +50,9 @@ export default function StepIdentity() {
                 selected={draft.race}
                 onSelect={(value) => updateDraft({ race: value })}
             />
+            {draft.race === '' && (
+                <Text style={styles.errorHint}>Your character needs a race</Text>
+            )}
         </KeyboardAwareScrollView>
     );
 }

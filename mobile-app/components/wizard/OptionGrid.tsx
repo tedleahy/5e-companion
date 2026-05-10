@@ -34,7 +34,10 @@ export default function OptionGrid({
                 const isSelected = item.value === selected;
                 return (
                     <Pressable
-                        onPress={() => onSelect(item.value)}
+                        onPress={() => {
+                            if (item.value === selected) return;
+                            onSelect(item.value);
+                        }}
                         style={[
                             styles.card,
                             isParchmentTone ? styles.cardParchment : styles.cardNight,
