@@ -2,6 +2,8 @@
     "name": "dnd-companion-app",
     "private": true,
     "scripts": {
+        "setup": "bun init-envs && bun app:i && bun app:codegen && bun server:i && bun server:codegen && bun db:generate",
+        "init-envs": "cp mobile-app/.env.example mobile-app/.env && cp server/.env.example server/.env",
         "db:reset": "cd server && bun run reset-db",
         "db:migrate": "cd server && bunx prisma migrate dev --name",
         "db:generate": "cd server && bunx prisma generate",

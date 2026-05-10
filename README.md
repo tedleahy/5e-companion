@@ -21,15 +21,18 @@ At some point I'll get round to fixing that and removing the dependency on yarn.
 Once they're installed, from the project root, run:
 
 ```bash
-# Install deps
-bun server:i
-bun app:i
+# Install deps, generate graphql & prisma types, and prisma client
+bun setup
+
+# Now edit the .env files to add your real credentials
+$EDITOR mobile-app/.env
+$EDITOR server/.env
 
 # Start the postgres database
 docker compose up
 
 # Seed it with the SRD data
-bunx prisma db seed
+bun db:seed
 
 # Start the API server
 bun server:start
