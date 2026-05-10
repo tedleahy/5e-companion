@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react-native';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react-native';
 import { PaperProvider } from 'react-native-paper';
 import { View, Text } from 'react-native';
 import WizardShell from '../WizardShell';
@@ -133,6 +133,78 @@ describe('WizardShell', () => {
 
         await waitFor(() => {
             expect(screen.queryByText('Failed to create character. Please try again.')).toBeNull();
+        });
+    });
+
+    it('navigates directly when Cancel is pressed with no draft data', async () => {
+        mockHasDraftData.mockReturnValue(false);
+
+        renderShell('/characters/create');
+
+        const cancelBtn = screen.getByText('Cancel');
+        fireEvent.press(cancelBtn);
+
+        await waitFor(() => {
+            expect(mockReplace).toHaveBeenCalledWith('/characters');
+        });
+    });
+
+    it('shows confirmation dialog when Cancel is pressed with draft data', async () => {
+        mockHasDraftData.mockReturnValue(true);
+
+        renderShell('/characters/create');
+
+        const cancelBtn = screen.getByText('Cancel');
+        fireEvent.press(cancelBtn);
+
+        await waitFor(() => {
+            expect(screen.getByText('Abandon Character?')).toBeTruthy();
+            expect(screen.getByText('Your progress will be lost.')).toBeTruthy();
+            expect(screen.getByText('Keep Editing')).toBeTruthy();
+            expect(screen.getByText('Abandon')).toBeTruthy();
+        });
+    });
+
+    it('closes dialog and stays on page when Keep Editing is pressed', async () => {
+        mockHasDraftData.mockReturnValue(true);
+
+        renderShell('/characters/create');
+
+        const cancelBtn = screen.getByText('Cancel');
+        fireEvent.press(cancelBtn);
+
+        await waitFor(() => {
+            expect(screen.getByText('Abandon Character?')).toBeTruthy();
+        });
+
+        const keepEditingBtn = screen.getByText('Keep Editing');
+        fireEvent.press(keepEditingBtn);
+
+        await waitFor(() => {
+            expect(screen.queryByText('Abandon Character?')).toBeNull();
+        });
+
+        expect(mockReplace).not.toHaveBeenCalled();
+    });
+
+    it('resets draft and navigates when Abandon is pressed', async () => {
+        mockHasDraftData.mockReturnValue(true);
+
+        renderShell('/characters/create');
+
+        const cancelBtn = screen.getByText('Cancel');
+        fireEvent.press(cancelBtn);
+
+        await waitFor(() => {
+            expect(screen.getByText('Abandon Character?')).toBeTruthy();
+        });
+
+        const abandonBtn = screen.getByText('Abandon');
+        fireEvent.press(abandonBtn);
+
+        await waitFor(() => {
+            expect(mockResetDraft).toHaveBeenCalled();
+            expect(mockReplace).toHaveBeenCalledWith('/characters');
         });
     });
 });

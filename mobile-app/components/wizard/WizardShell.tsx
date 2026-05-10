@@ -1,6 +1,5 @@
 import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import {
-    Alert,
     Animated,
     Pressable,
     StyleSheet,
@@ -10,6 +9,7 @@ import { Text, ActivityIndicator } from 'react-native-paper';
 import { usePathname, useRouter } from 'expo-router';
 import { useMutation, ApolloError } from '@apollo/client/react';
 import useAvailableSubclasses from '@/hooks/useAvailableSubclasses';
+import useConfirm from '@/hooks/useConfirm';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { buildCreateCharacterInput } from '@/lib/characterCreation/buildCreateCharacterInput';
@@ -26,6 +26,7 @@ export default function WizardShell({ children }: Props) {
     const pathname = usePathname();
     const router = useRouter();
     const { draft, resetDraft, hasDraftData } = useCharacterDraft();
+    const { confirm, confirmDialogElement } = useConfirm();
     const { subclassOptionItemsByClassId } = useAvailableSubclasses(
         draft.classes.map((classRow) => classRow.classId),
     );
@@ -68,21 +69,16 @@ export default function WizardShell({ children }: Props) {
 
     function handleCancel() {
         if (hasDraftData()) {
-            Alert.alert(
-                'Abandon Character?',
-                'Your progress will be lost.',
-                [
-                    { text: 'Keep Editing', style: 'cancel' },
-                    {
-                        text: 'Abandon',
-                        style: 'destructive',
-                        onPress: () => {
-                            resetDraft();
-                            router.replace('/characters');
-                        },
-                    },
-                ],
-            );
+            confirm({
+                title: 'Abandon Character?',
+                message: 'Your progress will be lost.',
+                cancelLabel: 'Keep Editing',
+                confirmLabel: 'Abandon',
+                onConfirm: () => {
+                    resetDraft();
+                    router.replace('/characters');
+                },
+            });
         } else {
             router.replace('/characters');
         }
@@ -116,6 +112,7 @@ export default function WizardShell({ children }: Props) {
 
     return (
         <View style={styles.container}>
+            {confirmDialogElement}
             {/* Top bar */}
             <View style={styles.header}>
                 <View style={styles.nav}>
