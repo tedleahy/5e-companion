@@ -59,21 +59,30 @@ export default function StepReview() {
                 </View>
             </Pressable>
             <ParchmentPanel style={styles.card}>
-                <DetailRow label="Summary" value={formatDraftClassSummary(draft.classes, draft.startingClassId)} />
-                <DetailRow label="Starting Class" value={startingClass ? classLabel(startingClass.classId) : 'Not set'} />
-                <View style={styles.classList}>
-                    {displayClassRows.map((classRow, index) => (
-                        <View key={`${classRow.classId || 'class'}-${index}`} style={styles.classListRow}>
-                            <View>
-                                <Text style={styles.classListValue}>{formatClassRowLabel(classRow)}</Text>
-                                <Text style={styles.classListMeta}>
-                                    Level {classRow.level}
-                                    {classRow.classId === draft.startingClassId ? ' - starting class' : ''}
-                                </Text>
-                            </View>
+                {draft.classes.length === 1 ? (
+                    <DetailRow
+                        label="Class"
+                        value={`${formatClassRowLabel(draft.classes[0])} — Level ${draft.classes[0].level}`}
+                    />
+                ) : (
+                    <>
+                        <DetailRow label="Summary" value={formatDraftClassSummary(draft.classes, draft.startingClassId)} />
+                        <DetailRow label="Starting Class" value={startingClass ? classLabel(startingClass.classId) : 'Not set'} />
+                        <View style={styles.classList}>
+                            {displayClassRows.map((classRow, index) => (
+                                <View key={`${classRow.classId || 'class'}-${index}`} style={styles.classListRow}>
+                                    <View>
+                                        <Text style={styles.classListValue}>{formatClassRowLabel(classRow)}</Text>
+                                        <Text style={styles.classListMeta}>
+                                            Level {classRow.level}
+                                            {classRow.classId === draft.startingClassId ? ' - starting class' : ''}
+                                        </Text>
+                                    </View>
+                                </View>
+                            ))}
                         </View>
-                    ))}
-                </View>
+                    </>
+                )}
             </ParchmentPanel>
 
             <Pressable onPress={() => router.push(CREATE_CHARACTER_ROUTES.abilities)}>

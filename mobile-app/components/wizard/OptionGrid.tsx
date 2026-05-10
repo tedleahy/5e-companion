@@ -30,8 +30,9 @@ export default function OptionGrid({
             scrollEnabled={false}
             columnWrapperStyle={styles.row}
             contentContainerStyle={styles.grid}
-            renderItem={({ item }) => {
+            renderItem={({ item, index }) => {
                 const isSelected = item.value === selected;
+                const isLastOrphan = index === options.length - 1 && options.length % 2 !== 0;
                 return (
                     <Pressable
                         onPress={() => {
@@ -43,6 +44,7 @@ export default function OptionGrid({
                             isParchmentTone ? styles.cardParchment : styles.cardNight,
                             isSelected && styles.cardSelected,
                             isSelected && isParchmentTone && styles.cardSelectedParchment,
+                            isLastOrphan && styles.cardOrphan,
                         ]}
                         testID={getOptionTestId?.(item)}
                         accessibilityRole="button"
@@ -106,6 +108,9 @@ const styles = StyleSheet.create({
     cardSelectedParchment: {
         borderColor: fantasyTokens.colors.claret,
         backgroundColor: fantasyTokens.colors.parchmentDeep,
+    },
+    cardOrphan: {
+        maxWidth: '50%',
     },
     icon: {
         fontSize: fantasyTokens.fontSizes.headline,
