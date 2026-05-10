@@ -43,7 +43,7 @@ export default function RailScreenShell({ children }: RailScreenShellProps) {
     return (
         <View style={styles.compactContainer}>
             <View style={styles.content}>{children}</View>
-            <View style={styles.compactOverlay} pointerEvents="box-none">
+            <View style={[styles.compactOverlay, { pointerEvents: 'box-none' }]}>
                 <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Open navigation drawer"

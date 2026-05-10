@@ -142,9 +142,7 @@ const styles = StyleSheet.create({
     headerPanel: {
         padding: fantasyTokens.spacing.lg,
         borderRadius: fantasyTokens.radii.lg,
-        shadowColor: '#000',
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
+        boxShadow: '0 0 8px rgba(0,0,0,0.2)',
     },
     kicker: {
         fontSize: fantasyTokens.fontSizes.label,

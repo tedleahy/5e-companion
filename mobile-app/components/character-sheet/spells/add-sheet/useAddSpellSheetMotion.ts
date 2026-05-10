@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     Animated,
     Easing,
+    Platform,
     type NativeScrollEvent,
     type NativeSyntheticEvent,
 } from 'react-native';
@@ -134,7 +135,7 @@ export default function useAddSpellSheetMotion({
             damping: 20,
             stiffness: 200,
             mass: 0.9,
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
         }).start();
     }, [filterPanelOpen, filterPanelTranslateX, windowWidth]);
 
@@ -154,12 +155,12 @@ export default function useAddSpellSheetMotion({
                 toValue: 0,
                 duration: 180,
                 easing: Easing.out(Easing.cubic),
-                useNativeDriver: true,
+                useNativeDriver: Platform.OS !== 'web',
             }),
             Animated.timing(detailOverlayOpacity, {
                 toValue: 0.55,
                 duration: 180,
-                useNativeDriver: true,
+                useNativeDriver: Platform.OS !== 'web',
             }),
         ]).start();
     }, [detailModalTranslateY, detailOverlayOpacity]);
@@ -190,13 +191,13 @@ export default function useAddSpellSheetMotion({
                 toValue: 0,
                 duration: 220,
                 easing: Easing.out(Easing.cubic),
-                useNativeDriver: true,
+                useNativeDriver: Platform.OS !== 'web',
             }),
             Animated.timing(detailModalTranslateY, {
                 toValue: detailHiddenTranslateY,
                 duration: 260,
                 easing: Easing.out(Easing.cubic),
-                useNativeDriver: true,
+                useNativeDriver: Platform.OS !== 'web',
             }),
         ]).start(() => {
             isDetailClosingRef.current = false;
@@ -249,13 +250,13 @@ export default function useAddSpellSheetMotion({
                     toValue: 0.55,
                     duration: 280,
                     easing: Easing.out(Easing.cubic),
-                    useNativeDriver: true,
+                    useNativeDriver: Platform.OS !== 'web',
                 }),
                 Animated.timing(detailModalTranslateY, {
                     toValue: 0,
                     duration: 320,
                     easing: Easing.out(Easing.cubic),
-                    useNativeDriver: true,
+                    useNativeDriver: Platform.OS !== 'web',
                 }),
             ]).start();
         });

@@ -365,9 +365,7 @@ const styles = StyleSheet.create({
     },
     slotCardChanged: {
         borderColor: fantasyTokens.colors.gold,
-        shadowColor: fantasyTokens.colors.gold,
-        shadowOpacity: 0.12,
-        shadowRadius: 4,
+        boxShadow: '0 0 4px rgba(201,146,42,0.12)',
     },
     slotLevelText: {
         ...fantasyTokens.typography.buttonLabel,

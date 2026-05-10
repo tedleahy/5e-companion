@@ -223,10 +223,7 @@ export const fantasyTokens = {
         borderColor: 'rgba(201,146,42,0.55)',
         backgroundColor: 'rgba(201,146,42,0.07)',
         borderRadius: 6,
-        shadowColor: 'rgba(201,146,42,0.18)',
-        shadowOffset: { width: 0, height: 0 },
-        shadowRadius: 4,
-        shadowOpacity: 1,
+        boxShadow: '0 0 4px rgba(201,146,42,0.18)',
         elevation: 0,
     },
     addButton: {

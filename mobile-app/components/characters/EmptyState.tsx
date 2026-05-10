@@ -171,7 +171,7 @@ export default function EmptyState() {
                         <Text style={styles.runeText}>✦ · CODEX ARCANUM · ✦ · NOMEN EST OMEN ·</Text>
                     </Animated.View>
 
-                    <View style={styles.figureContainer} pointerEvents="none">
+                    <View style={[styles.figureContainer, { pointerEvents: 'none' }]}>
                         {FIRST_CHARACTER_ANIMATION_ASSETS.map((asset, index) => {
                             const animatedAsset = floatingAssetsRef[index];
 
@@ -377,13 +377,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         gap: fantasyTokens.spacing.sm,
         backgroundColor: fantasyTokens.colors.crimson,
-        shadowColor: fantasyTokens.colors.crimson,
-        shadowOpacity: 0.45,
-        shadowRadius: 14,
-        shadowOffset: {
-            width: 0,
-            height: 6,
-        },
+        boxShadow: '0 6px 14px rgba(123,30,30,0.45)',
     },
     ctaButtonPressed: {
         backgroundColor: '#9f2121',

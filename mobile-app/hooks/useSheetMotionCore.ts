@@ -1,4 +1,4 @@
-import { Animated, Easing } from 'react-native';
+import { Animated, Easing, Platform } from 'react-native';
 import { Gesture } from 'react-native-gesture-handler';
 
 /** Sheet dismiss drag distance threshold. */
@@ -42,13 +42,13 @@ export function animateSheetShow(
         Animated.timing(backdropOpacity, {
             toValue: 1,
             duration: 280,
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
         }),
         Animated.timing(sheetTranslateY, {
             toValue: 0,
             duration: 320,
             easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
         }),
     ]).start();
 }
@@ -66,13 +66,13 @@ export function animateSheetHide(
         Animated.timing(backdropOpacity, {
             toValue: 0,
             duration: 220,
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
         }),
         Animated.timing(sheetTranslateY, {
             toValue: sheetHiddenTranslateY,
             duration: 260,
             easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
         }),
     ]).start(onComplete);
 }
@@ -89,12 +89,12 @@ export function animateSheetBack(
             toValue: 0,
             duration: 200,
             easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
         }),
         Animated.timing(backdropOpacity, {
             toValue: 1,
             duration: 180,
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
         }),
     ]).start();
 }

@@ -1,6 +1,6 @@
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, View } from 'react-native';
+import { Animated, Easing, Platform, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 
 /**
@@ -25,13 +25,13 @@ export default function EditModeBanner({ visible }: EditModeBannerProps) {
                     toValue: 1,
                     duration: 900,
                     easing: Easing.inOut(Easing.ease),
-                    useNativeDriver: true,
+                    useNativeDriver: Platform.OS !== 'web',
                 }),
                 Animated.timing(pulse, {
                     toValue: 0.4,
                     duration: 900,
                     easing: Easing.inOut(Easing.ease),
-                    useNativeDriver: true,
+                    useNativeDriver: Platform.OS !== 'web',
                 }),
             ]),
         );

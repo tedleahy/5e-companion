@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { Animated, Easing } from 'react-native';
+import { Animated, Easing, Platform } from 'react-native';
 import {
     type AssetConfig,
     createPhysicsStates,
@@ -10,6 +10,7 @@ import {
 
 const RUNE_ROTATION_DURATION_MS = 60000;
 const GLOW_PULSE_DURATION_MS = 4000;
+const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 const PARTICLE_FLOAT_DISTANCE = 97;
 const FLOATING_ASSET_STAGE_WIDTH = 292;
 const FLOATING_ASSET_STAGE_HEIGHT = 292;
@@ -119,7 +120,7 @@ export function useEmptyStateAnimations(assetConfigs: readonly AssetConfig[]) {
                 toValue: 1,
                 duration: RUNE_ROTATION_DURATION_MS,
                 easing: Easing.linear,
-                useNativeDriver: true,
+                useNativeDriver: USE_NATIVE_DRIVER,
             })
         );
         runeAnimation.start();
@@ -133,13 +134,13 @@ export function useEmptyStateAnimations(assetConfigs: readonly AssetConfig[]) {
                         toValue: 1.08,
                         duration: GLOW_PULSE_DURATION_MS / 2,
                         easing: Easing.inOut(Easing.ease),
-                        useNativeDriver: true,
+                        useNativeDriver: USE_NATIVE_DRIVER,
                     }),
                     Animated.timing(glowOpacity, {
                         toValue: 1,
                         duration: GLOW_PULSE_DURATION_MS / 2,
                         easing: Easing.inOut(Easing.ease),
-                        useNativeDriver: true,
+                        useNativeDriver: USE_NATIVE_DRIVER,
                     }),
                 ]),
                 Animated.parallel([
@@ -147,13 +148,13 @@ export function useEmptyStateAnimations(assetConfigs: readonly AssetConfig[]) {
                         toValue: 1,
                         duration: GLOW_PULSE_DURATION_MS / 2,
                         easing: Easing.inOut(Easing.ease),
-                        useNativeDriver: true,
+                        useNativeDriver: USE_NATIVE_DRIVER,
                     }),
                     Animated.timing(glowOpacity, {
                         toValue: 0.65,
                         duration: GLOW_PULSE_DURATION_MS / 2,
                         easing: Easing.inOut(Easing.ease),
-                        useNativeDriver: true,
+                        useNativeDriver: USE_NATIVE_DRIVER,
                     }),
                 ]),
             ])
@@ -177,36 +178,36 @@ export function useEmptyStateAnimations(assetConfigs: readonly AssetConfig[]) {
                             toValue: -PARTICLE_FLOAT_DISTANCE,
                             duration: 4600,
                             easing: Easing.out(Easing.quad),
-                            useNativeDriver: true,
+                            useNativeDriver: USE_NATIVE_DRIVER,
                         }),
                         Animated.sequence([
                             Animated.timing(particle.opacity, {
                                 toValue: 0.68,
                                 duration: 900,
-                                useNativeDriver: true,
+                                useNativeDriver: USE_NATIVE_DRIVER,
                             }),
                             Animated.timing(particle.opacity, {
                                 toValue: 0,
                                 duration: 3700,
-                                useNativeDriver: true,
+                                useNativeDriver: USE_NATIVE_DRIVER,
                             }),
                         ]),
                         Animated.timing(particle.scale, {
                             toValue: 0.5,
                             duration: 4600,
                             easing: Easing.out(Easing.quad),
-                            useNativeDriver: true,
+                            useNativeDriver: USE_NATIVE_DRIVER,
                         }),
                     ]),
                     Animated.timing(particle.translateY, {
                         toValue: 0,
                         duration: 0,
-                        useNativeDriver: true,
+                        useNativeDriver: USE_NATIVE_DRIVER,
                     }),
                     Animated.timing(particle.scale, {
                         toValue: 1,
                         duration: 0,
-                        useNativeDriver: true,
+                        useNativeDriver: USE_NATIVE_DRIVER,
                     }),
                 ])
             );
@@ -231,7 +232,7 @@ export function useEmptyStateAnimations(assetConfigs: readonly AssetConfig[]) {
                     toValue: 0.92,
                     duration: 1800,
                     easing: Easing.out(Easing.quad),
-                    useNativeDriver: true,
+                    useNativeDriver: USE_NATIVE_DRIVER,
                 }),
             ]);
 

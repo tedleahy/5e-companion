@@ -123,7 +123,7 @@ export default function AddSpellSheet({
 
     return (
         <Portal>
-            <View style={styles.overlayContainer} pointerEvents="box-none">
+            <View style={[styles.overlayContainer, { pointerEvents: 'box-none' }]}>
                 <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
                     <Pressable style={styles.backdropPressable} onPress={requestSheetClose} accessibilityLabel="Close add spell sheet" />
                 </Animated.View>
@@ -246,9 +246,7 @@ const styles = StyleSheet.create({
         borderRightWidth: 1,
         borderColor: 'rgba(201,146,42,0.2)',
         overflow: 'hidden',
-        shadowColor: '#000',
-        shadowOpacity: 0.5,
-        shadowRadius: 12,
+        boxShadow: '0 0 12px rgba(0,0,0,0.5)',
         elevation: 20,
     },
     divider: {

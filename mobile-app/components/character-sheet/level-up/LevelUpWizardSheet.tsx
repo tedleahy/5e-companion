@@ -67,7 +67,7 @@ export default function LevelUpWizardSheet({
     }
 
     return (
-        <View style={styles.overlayContainer} pointerEvents="box-none">
+        <View style={[styles.overlayContainer, { pointerEvents: 'box-none' }]}>
             <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
                 <Pressable
                     style={styles.backdropPressable}
@@ -198,9 +198,7 @@ const styles = StyleSheet.create({
         borderRightWidth: 1,
         borderColor: fantasyTokens.colors.sheetDivider,
         overflow: 'hidden',
-        shadowColor: '#000',
-        shadowOpacity: 0.22,
-        shadowRadius: 12,
+        boxShadow: '0 0 12px rgba(0,0,0,0.22)',
         elevation: 20,
     },
     handleWrap: {
