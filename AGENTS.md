@@ -187,6 +187,10 @@ Single flat section on purpose — easier to add to. Grouped by area.
 - **Never spread `jest.requireActual('react-native')`** when adding global mocks. Mutate it in place. RN 0.81's index has lazy getters (`DevMenu`, `SettingsManager`, …) that call `TurboModuleRegistry.getEnforcing` and throw under Jest the moment they're touched.
 - **Don't suppress `act(...)` warnings** with production code changes. Fix timers, mocks, or assertions instead.
 
+## Bun server testing
+
+- **Don't install partial `mock.module('../prisma/prisma')` fakes in individual test files.** Bun test file ordering can differ between local and GitHub Actions, so a partial Prisma fake from one suite can leak into another. Reuse the shared resolver test Prisma mock and extend it when a new delegate is needed.
+
 ## Spellbook test harness
 
 - **Prepare/unprepare toggles** live inside the spell row's accordion actions (`character-spell-prepare-*`). Open the row (`character-spell-row-*`) before pressing.

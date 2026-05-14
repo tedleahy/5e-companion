@@ -34,6 +34,7 @@ export const inventoryItemFindManyMock: any = mock((_args: unknown) => Promise.r
 export const characterFeatureFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const spellSlotFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const characterSpellFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
+export const spellFindManyMock: any = mock((_args: unknown) => Promise.resolve([] as unknown[]));
 
 // spellbook + mutation mocks
 export const characterSpellUpsertMock: any = mock((_args: unknown) => Promise.resolve({}));
@@ -196,6 +197,9 @@ function createMockTransactionClient() {
             update: spellSlotUpdateMock,
             updateMany: spellSlotUpdateManyMock,
         },
+        spell: {
+            findMany: spellFindManyMock,
+        },
     };
 }
 
@@ -219,6 +223,10 @@ mock.module('@prisma/client', () => ({
             return createMockPrismaClient();
         }
     },
+}));
+
+mock.module('../prisma/prisma', () => ({
+    default: createMockPrismaClient(),
 }));
 
 function createAuthModuleMock() {
@@ -419,6 +427,7 @@ export function clearAllCharacterResolverMocks() {
     characterFeatureFindManyMock.mockClear();
     spellSlotFindManyMock.mockClear();
     characterSpellFindManyMock.mockClear();
+    spellFindManyMock.mockClear();
     characterSpellUpsertMock.mockClear();
     characterSpellDeleteManyMock.mockClear();
     characterSpellUpdateMock.mockClear();

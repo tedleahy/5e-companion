@@ -1,33 +1,9 @@
-import { describe, expect, test, mock, beforeEach } from 'bun:test';
+import { describe, expect, test, beforeEach } from 'bun:test';
+import { spellFindManyMock as findManyMock } from './characterResolvers.testUtils';
 
 // ---------------------------------------------------------------------------
-// Mock modules so we never hit a real database or need env vars.
-//
-// Bun's `mock.module()` intercepts `import` calls at the module level.
-// When spellsResolver.ts does `import prisma from "../prisma/prisma"`, it
-// will receive the fake object we return here instead of the real Prisma
-// client.  This is conceptually similar to Jest's `jest.mock()`.
-//
-// We also mock the auth module because it has a top-level call to
-// `createRemoteJWKSet(new URL(...))` that requires SUPABASE_URL to be set.
-// Our mock re-implements just the `requireUser` function that the resolver
-// actually calls.
+// characterResolvers.testUtils installs the shared Prisma and auth module mocks.
 // ---------------------------------------------------------------------------
-const findManyMock = mock((_args: unknown) => Promise.resolve([] as unknown[]));
-
-mock.module('../prisma/prisma', () => ({
-    default: {
-        spell: { findMany: findManyMock },
-    },
-}));
-
-mock.module('../lib/auth', () => ({
-    requireUser(ctx: { userId: string | null }): string {
-        if (!ctx.userId) throw new Error('UNAUTHENTICATED');
-        return ctx.userId;
-    },
-}));
-
 // Import the resolver *after* setting up the mock so it picks up the fake.
 const { default: spellsResolver } = await import('./spellsResolver');
 
