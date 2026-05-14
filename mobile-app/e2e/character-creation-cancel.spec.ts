@@ -12,7 +12,8 @@ test.describe('Character creation — Cancel confirmation', () => {
         await page.goto('/characters/create');
 
         // Fill in a name to create draft data
-        const nameField = page.locator('input[type="text"]');
+        await expect(page.getByText('Who are you?')).toBeVisible();
+        const nameField = page.getByPlaceholder('e.g. Vaelindra Stormveil');
         await nameField.fill('E2E Test Hero');
 
         // Click Cancel — should show the confirmation dialog

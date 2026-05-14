@@ -191,6 +191,10 @@ Single flat section on purpose — easier to add to. Grouped by area.
 
 - **Don't install partial `mock.module('../prisma/prisma')` fakes in individual test files.** Bun test file ordering can differ between local and GitHub Actions, so a partial Prisma fake from one suite can leak into another. Reuse the shared resolver test Prisma mock and extend it when a new delegate is needed.
 
+## E2E / React Native Web
+
+- **Don't target plain RN `TextInput` fields with `input[type="text"]` in Playwright.** React Native Web may omit the `type` attribute. Prefer accessible labels, placeholders, or stable `testID` selectors.
+
 ## Spellbook test harness
 
 - **Prepare/unprepare toggles** live inside the spell row's accordion actions (`character-spell-prepare-*`). Open the row (`character-spell-row-*`) before pressing.
