@@ -12,6 +12,9 @@ jobs:
     name: Server (bun test)
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      # Prisma config is parsed by server tests, but unit tests mock database access.
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
 
     steps:
       - name: Checkout
@@ -29,10 +32,7 @@ jobs:
       - name: Generate Prisma client
         working-directory: server
         # We import prisma types in the test suite, which requires generating a prisma client.
-        # DATABASE_URL is required by `server/prisma.config.ts`, but we don't actually connect
-        # to it, we just generate the client.
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+        # DATABASE_URL is required by `server/prisma.config.ts`, but we don't actually connect to it.
         run: bunx prisma generate
 
       - name: Run server unit tests
