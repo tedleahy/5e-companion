@@ -32,6 +32,7 @@ flowchart LR
 | --- | --- |
 | `mobile-app/app/characters/create/_layout.tsx` | Wraps the wizard in `CharacterDraftProvider` + `WizardShell` |
 | `mobile-app/app/characters/create/{index,class,abilities,background,skills,review}.tsx` | Step screens |
+| `mobile-app/app/characters/create/race.tsx` | Redirects to the identity step; kept so direct navigation to the old route does not break |
 | `mobile-app/store/characterDraft.tsx` | Draft context + all mutator helpers |
 | `mobile-app/lib/characterCreation/` | Pure business logic: multiclass, options, class rules, ability rules, race rules, buildCreateCharacterInput, routes, step completion |
 | `mobile-app/components/wizard/` | Shared wizard pieces (shell, option grid, alignment grid, class-allocation row, ability modes) |

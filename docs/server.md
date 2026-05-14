@@ -4,7 +4,7 @@ Bun + Apollo Server 5 GraphQL API under `server/`.
 
 ## Entry point
 
-[`@/home/ted/projects/5e-companion/server/index.ts:1-91`](../server/index.ts) does three things:
+[`@/home/ted/projects/5e-companion/server/index.ts:1-90`](../server/index.ts) does three things:
 
 1. Loads `schema.graphql` (single file) with `loadFilesSync`.
 2. Builds a `context()` function that reads `Authorization: Bearer <jwt>`, verifies it against Supabase's JWKS, and exposes `{ userId }` on every resolver.
@@ -16,13 +16,13 @@ Bun + Apollo Server 5 GraphQL API under `server/`.
 export type Context = { userId: string | null };
 ```
 
-- Verified in [`@/home/ted/projects/5e-companion/server/lib/auth.ts:1-21`](../server/lib/auth.ts) using `jose.createRemoteJWKSet` against `${SUPABASE_URL}/auth/v1/.well-known/jwks.json`.
+- Verified in [`@/home/ted/projects/5e-companion/server/lib/auth.ts:1-20`](../server/lib/auth.ts) using `jose.createRemoteJWKSet` against `${SUPABASE_URL}/auth/v1/.well-known/jwks.json`.
 - Every resolver that needs a user calls `requireUser(ctx)` (throws `'UNAUTHENTICATED'` when absent).
-- Invalid tokens become `{ userId: null }` rather than a 401 — resolvers decide whether a given operation is public. (Today every query/mutation requires a user.)
+- Invalid tokens become `{ userId: null }` rather than a 401 — resolvers decide whether a given operation is public. Character operations and the spell list require a user; `Query.spell` currently does not.
 
 ## Schema layout
 
-Single file: [`@/home/ted/projects/5e-companion/server/schema.graphql:1-480`](../server/schema.graphql).
+Single file: [`@/home/ted/projects/5e-companion/server/schema.graphql:1-479`](../server/schema.graphql).
 
 Three concern-blocks inside it:
 
@@ -38,8 +38,8 @@ Single `ApolloServer` object wiring; resolvers are modularised by file:
 
 | File | Contents |
 | --- | --- |
-| `resolvers/spellsResolver.ts` | `Query.spells` — filter + pagination, selects only queried fields via `buildSpellSelect(info)` |
-| `resolvers/spellResolver.ts` | `Query.spell` by id |
+| `resolvers/spellsResolver.ts` | `Query.spells` — requires auth, filter + pagination, selects only queried fields via `buildSpellSelect(info)` |
+| `resolvers/spellResolver.ts` | `Query.spell` by id; currently public because it does not call `requireUser(ctx)` |
 | `resolvers/characterResolvers.ts` | Barrel re-exporting the `character/*` modules |
 | `resolvers/character/queries.ts` | `character`, `hasCurrentUserCharacters`, `currentUserCharacters`, `availableSubclasses` |
 | `resolvers/character/lifecycleMutations.ts` | `createCharacter`, `updateCharacter`, `deleteCharacter`, `toggleInspiration` |

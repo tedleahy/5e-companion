@@ -35,7 +35,7 @@ This is a short, actionable summary. The source of truth is [`../AGENTS.md`](../
 
 - Use `@/…` imports (configured in `tsconfig.json` + Jest `moduleNameMapper`).
 - Pull colours/spacing from `theme/fantasyTheme.ts`'s `fantasyTokens`.
-- Use `useProtectedNavigation` + `useSessionGuard` for auth-gated routing.
+- Use the root auth gate in `app/_layout.tsx` for app-wide redirects, and `useProtectedNavigation` / `useSessionGuard` for focused protected navigation or screen-level checks.
 - Platform forks via `Foo.web.tsx` / `Foo.native.tsx` — keep `tsconfig.json` `moduleSuffixes` in sync.
 - Regenerate GraphQL types with `bun app:codegen` after any schema or operation change.
 

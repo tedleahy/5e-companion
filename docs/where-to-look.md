@@ -6,11 +6,11 @@ Task → file map. Scan for your task, then open the file(s) in the right column
 
 | Task | Files |
 | --- | --- |
-| Change the root providers (Apollo, Paper, fonts, safe area) | [`@/home/ted/projects/5e-companion/mobile-app/app/_layout.tsx:1-85`](../mobile-app/app/_layout.tsx) |
+| Change the root providers (Apollo, Paper, fonts, safe area) | [`@/home/ted/projects/5e-companion/mobile-app/app/_layout.tsx:1-158`](../mobile-app/app/_layout.tsx) |
 | Add a main app destination | `mobile-app/app/(rail)/<new>.tsx` + add to `components/navigation/navigationConstants.ts` (`DRAWER_SCREENS` + optional nav item) |
-| Change the drawer vs rail behaviour | [`@/home/ted/projects/5e-companion/mobile-app/app/(rail)/_layout.tsx:1-50`](../mobile-app/app/(rail)/_layout.tsx) + `components/navigation/` |
+| Change the drawer vs rail behaviour | [`@/home/ted/projects/5e-companion/mobile-app/app/(rail)/_layout.tsx:1-49`](../mobile-app/app/(rail)/_layout.tsx) + `components/navigation/` |
 | Add an unauthenticated screen | `mobile-app/app/(auth)/<name>.tsx` |
-| Change route animations | `Stack.Screen` entries in [`@/home/ted/projects/5e-companion/mobile-app/app/_layout.tsx:43-60`](../mobile-app/app/_layout.tsx) |
+| Change route animations | `Stack.Screen` entries in [`@/home/ted/projects/5e-companion/mobile-app/app/_layout.tsx:117-134`](../mobile-app/app/_layout.tsx) |
 
 ## Authentication
 
@@ -18,9 +18,9 @@ Task → file map. Scan for your task, then open the file(s) in the right column
 | --- | --- |
 | Change how the mobile app signs in / out | `mobile-app/app/(auth)/sign-in.tsx`, `sign-up.tsx`, `@/home/ted/projects/5e-companion/mobile-app/lib/supabase.ts` |
 | Change how the mobile app persists the session | [`@/home/ted/projects/5e-companion/mobile-app/lib/supabase.ts:56-95`](../mobile-app/lib/supabase.ts) (native vs web storage) |
-| Redirect-on-no-session behaviour | [`@/home/ted/projects/5e-companion/mobile-app/hooks/useSessionGuard.ts`](../mobile-app/hooks/useSessionGuard.ts) |
+| Redirect-on-no-session behaviour | Root gate in [`@/home/ted/projects/5e-companion/mobile-app/app/_layout.tsx`](../mobile-app/app/_layout.tsx) + focused checks in [`@/home/ted/projects/5e-companion/mobile-app/hooks/useSessionGuard.ts`](../mobile-app/hooks/useSessionGuard.ts) |
 | Attach JWT to GraphQL requests | [`@/home/ted/projects/5e-companion/mobile-app/app/apolloClient.ts:8-18`](../mobile-app/app/apolloClient.ts) |
-| Verify JWT server-side | [`@/home/ted/projects/5e-companion/server/lib/auth.ts:1-21`](../server/lib/auth.ts) |
+| Verify JWT server-side | [`@/home/ted/projects/5e-companion/server/lib/auth.ts:1-20`](../server/lib/auth.ts) |
 
 Deep dive: [`features/auth.md`](./features/auth.md).
 
@@ -56,7 +56,7 @@ Deep dive: [`features/spells.md`](./features/spells.md).
 
 | Task | Files |
 | --- | --- |
-| Change a step screen | `mobile-app/app/characters/create/<index|class|abilities|background|skills|review>.tsx` |
+| Change a step screen | `mobile-app/app/characters/create/<index|class|abilities|background|skills|review>.tsx` (`race.tsx` is only a redirect to identity) |
 | Change the wizard shell (progress, back/cancel, continue gating) | `mobile-app/components/wizard/WizardShell.tsx` |
 | Change draft state shape | `mobile-app/store/characterDraft.tsx` + `mobile-app/lib/characterCreation/` |
 | Change server create behaviour | [`@/home/ted/projects/5e-companion/server/resolvers/character/lifecycleMutations.ts`](../server/resolvers/character/lifecycleMutations.ts) + `multiclassRules.ts` + `subclassReferences.ts` |

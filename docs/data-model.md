@@ -1,6 +1,6 @@
 # Data Model
 
-Source of truth: [`@/home/ted/projects/5e-companion/server/prisma/schema.prisma:1-499`](../server/prisma/schema.prisma).
+Source of truth: [`@/home/ted/projects/5e-companion/server/prisma/schema.prisma:1-498`](../server/prisma/schema.prisma).
 
 ## Two halves of the schema
 
@@ -68,7 +68,7 @@ See [`@/home/ted/projects/5e-companion/server/prisma/schema.prisma:37-70`](../se
 
 - Single `Spell` table.
 - `source: SpellSource` discriminates between `SRD` and `CUSTOM`.
-- `srdIndex` is `@unique` (so re-running the seed is idempotent for SRD rows) and null for custom spells.
+- `srdIndex` is `@unique` (so re-running the seed is idempotent for SRD rows) and null for seeded custom spells.
 - `classIndexes` and `subclassIndexes` are `String[]` with GIN indexes so class/subclass filters stay fast.
 - `raw: Json?` preserves the original SRD object for fields we don't model explicitly yet.
 - `damageAtSlotLevel: Json?` is deliberately JSON — the shape is flexible per-spell and not worth fully normalising.
@@ -106,13 +106,13 @@ The reference tables are normalised rather than JSON — `AGENTS.md` is explicit
 - `Feature` is polymorphic — optional FKs to any of `classId`, `subclassId`, `raceId`, `subraceId`, `backgroundId`, `traitId`, `featId`. `FeatureKind` enum tags the owner. When adding feature data, set exactly one of these plus `kind`.
 - `Proficiency.type: ProficiencyType` (ARMOR / WEAPON / TOOL / SKILL / SAVING_THROW / OTHER) — filter on this when rendering starting proficiencies.
 
-All reference tables support user-owned rows via `ownerUserId` (null for SRD). Custom subclasses created during character creation end up here.
+Most reference tables support user-owned rows via `ownerUserId` (null for SRD). Custom subclasses created during character creation end up here. `Spell` is the exception today: custom spells are distinguished by `source=CUSTOM`, but they are not user-owned because the model has no `ownerUserId`.
 
 ## Seeding
 
 Run from repo root: `bun db:seed` (or `bunx prisma db seed` from `server/`).
 
-Order in [`@/home/ted/projects/5e-companion/server/prisma/seed.ts:1-14`](../server/prisma/seed.ts):
+Order in [`@/home/ted/projects/5e-companion/server/prisma/seed.ts:1-13`](../server/prisma/seed.ts):
 
 1. `seedSpells` — SRD spells
 2. `seedCustomSpells` — a curated set of custom spells used for dev
@@ -121,7 +121,7 @@ Order in [`@/home/ted/projects/5e-companion/server/prisma/seed.ts:1-14`](../serv
 5. `seedCharacterReferenceData` — classes, subclasses, backgrounds, feats, features, traits, languages, proficiencies
 6. `seedCharacter` — a dev character so the app has something to load locally
 
-Seeders are idempotent — keyed on `srdIndex`. If SRD data is missing for a feature you're building, **extend the seed** rather than hard-coding in app code (see `AGENTS.md`).
+SRD seeders are idempotent — keyed on `srdIndex`. `seedCustomSpells` filters out spells whose names duplicate SRD spells, but custom rows have `srdIndex: null`, so do not assume the custom-spell seed has the same idempotency guarantee unless a unique key is added. If SRD data is missing for a feature you're building, **extend the seed** rather than hard-coding in app code (see `AGENTS.md`).
 
 ## Migrations
 

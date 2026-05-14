@@ -68,7 +68,7 @@ bun server:start        # bun --watch index.ts → http://localhost:4000
 bun app:start           # expo start  (web/ios/android/go from the menu)
 ```
 
-The mobile app auto-redirects `/` → `/characters`. The drawer route is gated by `useSessionGuard`, so if you don't have a session you'll be kicked to `/(auth)/sign-in`.
+The mobile app auto-redirects `/` → `/characters`. The root layout checks Supabase session state and redirects unauthenticated users to `/(auth)/sign-in`; selected screens also use `useSessionGuard` for focused checks.
 
 ## Resetting the database
 

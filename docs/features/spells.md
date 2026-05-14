@@ -38,7 +38,7 @@ Single `Spell` table — see [`data-model.md`](../data-model.md) and [`@/home/te
 
 Entry: [`@/home/ted/projects/5e-companion/server/resolvers/spellsResolver.ts:32-61`](../../server/resolvers/spellsResolver.ts).
 
-1. **Auth** — `requireUser(ctx)` (the roster is user-scoped because custom spells belong to a user).
+1. **Auth** — `requireUser(ctx)`. The spell list currently requires a signed-in user, even though the `Spell` table itself is not owner-scoped.
 2. **Where clause** — `buildWhere(filter)` in [`@/home/ted/projects/5e-companion/server/lib/spellFilters.ts`](../../server/lib/spellFilters.ts). It maps:
    - Exact arrays: `levels`, `classes`, `schools`, `components` → Prisma `in` / `hasSome`.
    - Booleans: `ritual`, `concentration`, `hasMaterial`, `hasHigherLevel`.
@@ -85,9 +85,9 @@ The Apollo cache has `Character.spellbook: { merge: false }` (see [`@/home/ted/p
 
 ## Custom spells
 
-Stored in the same table with `source=CUSTOM` and `ownerUserId` set. The public `Query.spells` resolver filters to `{ source: SRD } OR { source: CUSTOM, ownerUserId: userId }` (today implicitly via the seeded dev user + auth — confirm current behaviour in `spellFilters.ts` before relying on it).
+Stored in the same `Spell` table with `source=CUSTOM`, but **not currently owner-scoped**: the Prisma model has no `ownerUserId` column on `Spell`, and `Query.spells` applies only the requested filters from `buildWhere(filter)`.
 
-To add a new custom spell during dev: extend `server/prisma/seeds/seedCustomSpells.ts` (or add a dedicated "create custom spell" mutation — not implemented yet).
+To add a new custom spell during dev: extend `server/prisma/seeds/seedCustomSpells.ts` (or add a dedicated "create custom spell" mutation — not implemented yet). If user-created custom spells become a product feature, add ownership to the schema and update the query filters before exposing them.
 
 ## Tests
 

@@ -22,7 +22,7 @@ Monorepo, two deployable pieces plus shared data:
 | Layer | Choice | Notes |
 | --- | --- | --- |
 | Mobile UI | **Expo** (`expo@~54`) + React Native 0.81 + TypeScript | `expo-router` for file-based routing; `react-native-paper` for Material components |
-| Mobile data | **Apollo Client 4** | In-memory cache with field policies (see [`@/home/ted/projects/5e-companion/mobile-app/app/apolloClient.ts:1-46`](../mobile-app/app/apolloClient.ts)) |
+| Mobile data | **Apollo Client 4** | In-memory cache with field policies (see [`@/home/ted/projects/5e-companion/mobile-app/app/apolloClient.ts:1-45`](../mobile-app/app/apolloClient.ts)) |
 | API | **Apollo Server 5** standalone | Runs on Bun (`bun --watch index.ts`) |
 | Database | **PostgreSQL 18** via Docker | `server/docker-compose.yml` |
 | ORM | **Prisma 7** | Schema at `server/prisma/schema.prisma` |

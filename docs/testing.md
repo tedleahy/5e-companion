@@ -4,7 +4,7 @@ Three suites, three runners. All are safe to run without a live Postgres — uni
 
 ## Mobile unit tests — Jest (jest-expo)
 
-- **Config**: [`@/home/ted/projects/5e-companion/mobile-app/jest.config.js:1-20`](../mobile-app/jest.config.js).
+- **Config**: [`@/home/ted/projects/5e-companion/mobile-app/jest.config.js:1-19`](../mobile-app/jest.config.js).
 - **Setup**: `mobile-app/jest-setup.ts` — global mocks (Expo font, navigation, etc.). See the RN 0.81 note below before adding mocks.
 - **Preset**: `jest-expo`, matches `**/?(*.)+(test).[jt]s?(x)`.
 - **Path alias**: `@/*` maps to the mobile-app root (e.g. `@/lib/supabase`).
@@ -48,7 +48,7 @@ bun test --test-name-pattern "longRest"   # Filter by test name
 
 ## End-to-end tests — Playwright
 
-- **Config**: [`@/home/ted/projects/5e-companion/mobile-app/playwright.config.ts:1-93`](../mobile-app/playwright.config.ts).
+- **Config**: [`@/home/ted/projects/5e-companion/mobile-app/playwright.config.ts:1-94`](../mobile-app/playwright.config.ts).
 - **Tests**: `mobile-app/e2e/*.spec.ts`.
 - Runs against the **Expo web** build + a local GraphQL server + local Supabase.
 

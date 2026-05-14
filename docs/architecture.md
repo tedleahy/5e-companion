@@ -42,14 +42,14 @@ sequenceDiagram
 
 Key files:
 
-- Apollo client + auth link: [`@/home/ted/projects/5e-companion/mobile-app/app/apolloClient.ts:1-46`](../mobile-app/app/apolloClient.ts)
-- Server entry + resolver wiring: [`@/home/ted/projects/5e-companion/server/index.ts:1-91`](../server/index.ts)
-- JWT verification: [`@/home/ted/projects/5e-companion/server/lib/auth.ts:1-21`](../server/lib/auth.ts)
+- Apollo client + auth link: [`@/home/ted/projects/5e-companion/mobile-app/app/apolloClient.ts:1-45`](../mobile-app/app/apolloClient.ts)
+- Server entry + resolver wiring: [`@/home/ted/projects/5e-companion/server/index.ts:1-90`](../server/index.ts)
+- JWT verification: [`@/home/ted/projects/5e-companion/server/lib/auth.ts:1-20`](../server/lib/auth.ts)
 - Example resolver using `requireUser`: [`@/home/ted/projects/5e-companion/server/resolvers/character/queries.ts:14-25`](../server/resolvers/character/queries.ts)
 
 ## GraphQL schema shape
 
-Schema lives in a single file: [`@/home/ted/projects/5e-companion/server/schema.graphql:1-480`](../server/schema.graphql).
+Schema lives in a single file: [`@/home/ted/projects/5e-companion/server/schema.graphql:1-479`](../server/schema.graphql).
 
 Resolvers are split by domain and wired up in `server/index.ts`:
 
@@ -115,10 +115,10 @@ The `(rail)` group is a drawer-based navigation container; `(auth)` is a paralle
 ## Auth at a glance
 
 - User signs in via Supabase (`@supabase/supabase-js`) from the mobile app.
-- Supabase issues a JWT; the mobile app stores it via a runtime-appropriate adapter (`SecureStore` + `AsyncStorage` on native, `localStorage` on web) — see [`@/home/ted/projects/5e-companion/mobile-app/lib/supabase.ts:1-109`](../mobile-app/lib/supabase.ts).
+- Supabase issues a JWT; the mobile app stores it via a runtime-appropriate adapter (`SecureStore` + `AsyncStorage` on native, `localStorage` on web) — see [`@/home/ted/projects/5e-companion/mobile-app/lib/supabase.ts:1-108`](../mobile-app/lib/supabase.ts).
 - Apollo `SetContextLink` attaches the JWT to every request.
 - The server resolves the JWT against Supabase's JWKS to get a `userId`, exposed on `Context.userId` and enforced with `requireUser(ctx)`.
-- The mobile app uses `useSessionGuard()` to redirect unauthenticated users — [`@/home/ted/projects/5e-companion/mobile-app/hooks/useSessionGuard.ts:1-106`](../mobile-app/hooks/useSessionGuard.ts).
+- The root layout performs the main auth gate and redirects based on Supabase session state — [`@/home/ted/projects/5e-companion/mobile-app/app/_layout.tsx`](../mobile-app/app/_layout.tsx). `useSessionGuard()` still exists for focused screen-level checks and manual re-checks — [`@/home/ted/projects/5e-companion/mobile-app/hooks/useSessionGuard.ts`](../mobile-app/hooks/useSessionGuard.ts).
 
 See [`features/auth.md`](./features/auth.md).
 

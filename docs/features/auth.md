@@ -48,13 +48,15 @@ sequenceDiagram
 
 - [`@/home/ted/projects/5e-companion/mobile-app/app/apolloClient.ts:8-18`](../../mobile-app/app/apolloClient.ts) — `SetContextLink` reads the current session from Supabase and adds `Authorization: Bearer <access_token>` to every request. If there's no session, no header is attached (so requests from `(auth)` screens don't carry a bogus token).
 
-- [`@/home/ted/projects/5e-companion/mobile-app/hooks/useSessionGuard.ts`](../../mobile-app/hooks/useSessionGuard.ts) — used by protected screens to (a) check for a session on mount and (b) allow manual re-checks (e.g. after sign-in). When there's no session it `router.replace('/(auth)/sign-in')` by default.
+- [`@/home/ted/projects/5e-companion/mobile-app/app/_layout.tsx`](../../mobile-app/app/_layout.tsx) — performs the app-wide auth gate: checks the stored session on mount, listens for Supabase auth-state changes, and redirects between protected routes and `/(auth)/sign-in`.
 
-- `mobile-app/app/(auth)/sign-in.tsx` and `sign-up.tsx` — Supabase email/password flows. They don't call `useSessionGuard` themselves; instead they call `supabase.auth.signIn…` directly and then navigate on success.
+- [`@/home/ted/projects/5e-companion/mobile-app/hooks/useSessionGuard.ts`](../../mobile-app/hooks/useSessionGuard.ts) — still used for focused screen-level checks and manual re-checks (e.g. after sign-in). When configured to redirect and there's no session it `router.replace('/(auth)/sign-in')`.
+
+- `mobile-app/app/(auth)/sign-in.tsx` and `sign-up.tsx` — Supabase email/password flows. They call `useSessionGuard({ runOnMount: false, shouldRedirectOnInvalidSession: false })` for a manual post-submit session check, then navigate on success.
 
 ### Server (`server/`)
 
-- [`@/home/ted/projects/5e-companion/server/lib/auth.ts:1-21`](../../server/lib/auth.ts):
+- [`@/home/ted/projects/5e-companion/server/lib/auth.ts:1-20`](../../server/lib/auth.ts):
 
   ```ts
   const jwks = createRemoteJWKSet(new URL(`${SUPABASE_ISSUER}/.well-known/jwks.json`));
@@ -66,7 +68,7 @@ sequenceDiagram
 
 - `requireUser(ctx)` — throws `'UNAUTHENTICATED'` when `ctx.userId` is null. Call this at the top of any resolver that needs a user.
 
-- [`@/home/ted/projects/5e-companion/server/index.ts:20-28`](../../server/index.ts) — the context factory catches any verification error, logs it, and falls through with `{ userId: null }`, letting resolvers decide. Today every query/mutation requires a user.
+- [`@/home/ted/projects/5e-companion/server/index.ts:20-28`](../../server/index.ts) — the context factory catches any verification error, logs it, and falls through with `{ userId: null }`, letting resolvers decide. User-owned character operations and the spell list require a user; `Query.spell` currently does not call `requireUser`.
 
 Env var:
 ```ini
@@ -79,7 +81,8 @@ Only the URL is needed — the server verifies signatures against Supabase's pub
 
 - Every user-owned row has `ownerUserId: String` and every query/mutation that touches it filters by `ownerUserId = requireUser(ctx)`.
 - `Character` is the primary ownership root; nested rows are deleted via `onDelete: Cascade`.
-- SRD reference rows have `ownerUserId: null`; user-owned extras (custom subclasses, custom spells) coexist in the same tables with a non-null `ownerUserId`.
+- SRD reference rows have `ownerUserId: null`; user-owned extras such as custom subclasses coexist in the same tables with a non-null `ownerUserId`.
+- Custom spells are an exception today: they use `Spell.source = CUSTOM`, but `Spell` has no `ownerUserId` column yet, so seeded custom spells are shared reference-like rows.
 
 ## E2E auth setup
 

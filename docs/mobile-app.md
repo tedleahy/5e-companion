@@ -33,6 +33,7 @@ mobile-app/app/
 │   └── create/                       # Multi-step create-character wizard
 │       ├── _layout.tsx
 │       ├── index.tsx                 # Identity (name + race)
+│       ├── race.tsx                  # Redirect → identity (kept for compatibility)
 │       ├── class.tsx
 │       ├── abilities.tsx
 │       ├── background.tsx
@@ -45,9 +46,9 @@ mobile-app/app/
 Two route groups at the top level:
 
 - `(auth)` — sign-in/up screens. No session required.
-- `(rail)` — the authenticated drawer app. The layout in [`@/home/ted/projects/5e-companion/mobile-app/app/(rail)/_layout.tsx:1-50`](../mobile-app/app/(rail)/_layout.tsx) mounts an `expo-router/drawer` with a custom `ExpandedDrawer` on mobile and uses a collapsed rail on tablet widths (see `components/navigation/`).
+- `(rail)` — the authenticated drawer app. The layout in [`@/home/ted/projects/5e-companion/mobile-app/app/(rail)/_layout.tsx:1-49`](../mobile-app/app/(rail)/_layout.tsx) mounts an `expo-router/drawer` with a custom `ExpandedDrawer` on mobile and uses a collapsed rail on tablet widths (see `components/navigation/`).
 
-The root stack in [`@/home/ted/projects/5e-companion/mobile-app/app/_layout.tsx:36-66`](../mobile-app/app/_layout.tsx) defines screen-to-screen transitions; note `characters/create` and `spells/[id]` use `slide_from_right`.
+The root stack in [`@/home/ted/projects/5e-companion/mobile-app/app/_layout.tsx:117-134`](../mobile-app/app/_layout.tsx) defines screen-to-screen transitions; note `characters/create` and `spells/[id]` use `slide_from_right`.
 
 ## Providers
 
@@ -67,7 +68,7 @@ Any screen can assume these are available. The character-creation wizard wraps i
 
 ## Apollo client
 
-- Created in [`@/home/ted/projects/5e-companion/mobile-app/app/apolloClient.ts:1-46`](../mobile-app/app/apolloClient.ts).
+- Created in [`@/home/ted/projects/5e-companion/mobile-app/app/apolloClient.ts:1-45`](../mobile-app/app/apolloClient.ts).
 - Two links: `authLink` (adds `Authorization: Bearer <jwt>` from the current Supabase session) → `httpLink` (points at `EXPO_PUBLIC_API_URL`).
 - Cache has **one field policy**: `Character.spellbook` uses `merge: false`, because the server returns the full snapshot on any spellbook change and partial merging would clobber deletions.
 - Shared GraphQL documents live in `mobile-app/graphql/` (primarily `characterSheet.operations.ts` + `spell.fragments.ts`). One-shot queries/mutations are colocated in their screen.
@@ -87,7 +88,8 @@ No Redux, Zustand, Jotai, etc.
 ## Navigation helpers
 
 - `hooks/useProtectedNavigation.ts` — navigate only if a session exists.
-- `hooks/useSessionGuard.ts` — redirect to `/(auth)/sign-in` when there's no session; used at the root of protected routes.
+- `app/_layout.tsx` — app-wide auth gate; checks the stored Supabase session, listens for auth-state changes, and redirects between auth/protected routes.
+- `hooks/useSessionGuard.ts` — focused screen-level session checks and manual re-checks, including post-sign-in checks.
 - `components/navigation/navigationConstants.ts` — single list of drawer destinations plus the `isNavigationDestinationActive()` helper that knows `/character/:id` should count as the "Characters" section.
 
 ## Theming
