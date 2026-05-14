@@ -16,6 +16,7 @@ Each doc is short and cross-links to the code; it does not duplicate the code. P
 - [`data-model.md`](./data-model.md) — Prisma schema, SRD ingestion, unified spells
 - [`mobile-app.md`](./mobile-app.md) — Expo Router layout, navigation, Apollo, theme, platform forks
 - [`server.md`](./server.md) — Apollo Server, GraphQL schema, resolver structure, auth context
+- [`deployment.md`](./deployment.md) — Hetzner VPS, Docker Compose, Caddy, production env, deploy flow
 - [`testing.md`](./testing.md) — Jest (mobile), Bun test (server), Playwright (e2e), gotchas
 - [`conventions.md`](./conventions.md) — code style, commits, review habits (summarises `AGENTS.md`)
 

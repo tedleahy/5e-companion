@@ -102,3 +102,9 @@ Deep dive: [`features/level-up-wizard.md`](./features/level-up-wizard.md).
 | Configure local Supabase | `supabase/config.toml` + `bun e2e:up` |
 | Change mobile env vars | `mobile-app/.env` (`EXPO_PUBLIC_*`) |
 | Change server env vars | `server/.env` |
+
+## Deployment
+
+| Task | Files |
+| --- | --- |
+| Understand or update the production API deployment | [`deployment.md`](./deployment.md) + `deploy/docker-compose.prod.yml` + `deploy/Caddyfile` + `server/Dockerfile` |

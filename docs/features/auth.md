@@ -21,7 +21,7 @@ sequenceDiagram
     UI->>Apollo: navigate to /(rail)/characters
     Apollo->>Store: getSession() (via authLink)
     Store-->>Apollo: access_token
-    Apollo->>Server: POST /graphql<br/>Authorization: Bearer <jwt>
+    Apollo->>Server: POST /<br/>Authorization: Bearer <jwt>
     Server->>JWKS: fetch (cached by jose)
     JWKS-->>Server: public keys
     Server->>Server: jwtVerify(token, JWKS)

@@ -27,7 +27,7 @@ sequenceDiagram
     Apollo->>Auth: SetContextLink runs
     Auth->>Supa: getSession()
     Supa-->>Auth: { access_token }
-    Auth->>Server: POST /graphql<br/>Authorization: Bearer <JWT>
+    Auth->>Server: POST /<br/>Authorization: Bearer <JWT>
     Server->>Ctx: headers.authorization
     Ctx->>Ctx: jwtVerify(token, JWKS)
     Ctx-->>Server: { userId }
@@ -129,5 +129,4 @@ See [`features/auth.md`](./features/auth.md).
 | Local dev | Postgres via `docker compose up` in `server/` | Supabase cloud (user's own) via `.env` | `bun server:start` + `bun app:start` |
 | Local e2e | Local Supabase Postgres | Local Supabase (`bun e2e:up`) | Playwright boots server + Expo web; see `mobile-app/playwright.config.ts` |
 | CI | ephemeral Postgres-less (prisma `generate` only) for unit tests; local Supabase stack for e2e | — | `.github/workflows/unit-tests.yml`, `.github/workflows/e2e.yml` |
-
-No production deployment exists yet.
+| Production API | PostgreSQL 18 container on a Hetzner VPS | Supabase cloud via `SUPABASE_URL` | Docker Compose stack with Bun API behind Caddy; see [`deployment.md`](./deployment.md) |

@@ -12,6 +12,7 @@ Monorepo, two deployable pieces plus shared data:
 | --- | --- |
 | `mobile-app/` | Expo React Native app (iOS, Android, Web) |
 | `server/` | Apollo GraphQL server (Bun runtime) + Prisma + PostgreSQL |
+| `deploy/` | Production Docker Compose + Caddy config for the Hetzner API VPS |
 | `srd-json-files/` | Source-of-truth SRD JSON (spells, classes, features, etc.) consumed by the seed |
 | `supabase/` | Local Supabase stack config (used for auth + e2e) |
 | `.github/workflows/` | CI: unit tests, lint, Playwright e2e |
@@ -75,4 +76,4 @@ See [`architecture.md`](./architecture.md) for the request lifecycle and more de
 - Not multi-user collaborative — each character belongs to a single `ownerUserId`.
 - No Monster manual, encounter tracker, or dice-rolling UI.
 - Not offline-first — Apollo cache only, no persistence.
-- No deployment — runs locally against local Postgres + local Supabase.
+- Mobile distribution is not documented yet. The API is deployed separately; see [`deployment.md`](./deployment.md).
