@@ -1,5 +1,6 @@
 srd-json-files/5e-Spells-Custom.json
 .windsurfrules
+.codex
 
 # Root-level dependencies (Supabase CLI)
 node_modules/
