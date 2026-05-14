@@ -22,7 +22,7 @@ function toRecord(abilityScore: AbilityScore) {
 
 export default async function seedAbilityScores() {
     try {
-        const relativeFilePath = '../../../srd-json-files/5e-SRD-Ability-Scores.json';
+        const relativeFilePath = '../../srd-json-files/5e-SRD-Ability-Scores.json';
         const filePath = new URL(relativeFilePath, import.meta.url).pathname;
         const abilityScores = (await Bun.file(filePath).json()) as AbilityScore[];
 

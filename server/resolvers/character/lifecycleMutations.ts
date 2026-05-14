@@ -1,4 +1,4 @@
-import { FeatureKind, ProficiencyType } from "@prisma/client";
+import type { FeatureKind } from "@prisma/client";
 import type { Context } from "../..";
 import type {
     MutationCreateCharacterArgs,
@@ -24,6 +24,8 @@ import {
     deriveSpellcastingProfiles,
     deriveStartingHp,
     findStartingClassIndex,
+    PROFICIENCY_TYPE,
+    type ProficiencyType,
     validateClassAllocations,
     type CharacterAbilityScores,
 } from "./multiclassRules";
@@ -34,6 +36,15 @@ import {
     normaliseCustomSubclassInput,
     type SubmittedCharacterClassAllocation,
 } from "./subclassReferences";
+
+const FEATURE_KIND = {
+    CLASS_FEATURE: "CLASS_FEATURE",
+    SUBCLASS_FEATURE: "SUBCLASS_FEATURE",
+    TRAIT_FEATURE: "TRAIT_FEATURE",
+    BACKGROUND_FEATURE: "BACKGROUND_FEATURE",
+    FEAT_FEATURE: "FEAT_FEATURE",
+    CUSTOM_FEATURE: "CUSTOM_FEATURE",
+} as const satisfies Record<FeatureKind, FeatureKind>;
 
 /**
  * Creates a multiclass-aware character and nested stats row with server-derived rules.
@@ -322,9 +333,9 @@ function deriveReferenceProficiencies(
     ];
 
     for (const proficiency of referenceProficiencies) {
-        if (proficiency.type === ProficiencyType.ARMOR) armor.add(proficiency.name);
-        if (proficiency.type === ProficiencyType.WEAPON) weapons.add(proficiency.name);
-        if (proficiency.type === ProficiencyType.TOOL) tools.add(proficiency.name);
+        if (proficiency.type === PROFICIENCY_TYPE.ARMOR) armor.add(proficiency.name);
+        if (proficiency.type === PROFICIENCY_TYPE.WEAPON) weapons.add(proficiency.name);
+        if (proficiency.type === PROFICIENCY_TYPE.TOOL) tools.add(proficiency.name);
     }
 
     return {
@@ -373,7 +384,7 @@ async function loadClassAndSubclassFeatures(
             level: { lte: number };
         }> = [
             {
-                kind: FeatureKind.CLASS_FEATURE,
+                kind: FEATURE_KIND.CLASS_FEATURE,
                 classId: resolvedClass.classRef.id,
                 level: { lte: resolvedClass.classRow.level },
             },
@@ -381,7 +392,7 @@ async function loadClassAndSubclassFeatures(
 
         if (resolvedClass.subclassRef) {
             classFilters.push({
-                kind: FeatureKind.SUBCLASS_FEATURE,
+                kind: FEATURE_KIND.SUBCLASS_FEATURE,
                 subclassId: resolvedClass.subclassRef.id,
                 level: { lte: resolvedClass.classRow.level },
             });
@@ -403,8 +414,8 @@ async function loadClassAndSubclassFeatures(
 
     return featureDefinitions.map((feature) => {
         const resolvedClass = resolvedClasses.find((candidate) => (
-            (feature.kind === FeatureKind.SUBCLASS_FEATURE && candidate.subclassRef?.id === feature.subclassId)
-            || (feature.kind === FeatureKind.CLASS_FEATURE && candidate.classRef.id === feature.classId)
+            (feature.kind === FEATURE_KIND.SUBCLASS_FEATURE && candidate.subclassRef?.id === feature.subclassId)
+            || (feature.kind === FEATURE_KIND.CLASS_FEATURE && candidate.classRef.id === feature.classId)
         ));
 
         if (!resolvedClass) {
@@ -433,9 +444,9 @@ function mapFeatureDefinitionToCharacterFeature(
 ) {
     const description = feature.description.join("\n\n") || "No description available.";
     const source = feature.sourceLabel
-        ?? (feature.kind === FeatureKind.SUBCLASS_FEATURE && resolvedClass.subclassRef && feature.level != null
+        ?? (feature.kind === FEATURE_KIND.SUBCLASS_FEATURE && resolvedClass.subclassRef && feature.level != null
             ? `${resolvedClass.subclassRef.name} ${resolvedClass.classRef.name} ${feature.level}`
-            : feature.kind === FeatureKind.CLASS_FEATURE && feature.level != null
+            : feature.kind === FEATURE_KIND.CLASS_FEATURE && feature.level != null
                 ? `${resolvedClass.classRef.name} ${feature.level}`
                 : "Feature");
     const baseFeature = {

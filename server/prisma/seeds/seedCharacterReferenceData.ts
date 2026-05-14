@@ -557,16 +557,16 @@ export default async function seedCharacterReferenceData() {
             languages,
             proficiencies,
         ] = await Promise.all([
-            loadJson<SrdClass[]>('../../../srd-json-files/5e-SRD-Classes.json'),
-            loadJson<SrdSubclass[]>('../../../srd-json-files/5e-SRD-Subclasses.json'),
-            loadJson<SrdBackground[]>('../../../srd-json-files/5e-SRD-Backgrounds.json'),
-            loadJson<SrdSubrace[]>('../../../srd-json-files/5e-SRD-Subraces.json'),
-            loadJson<SrdTrait[]>('../../../srd-json-files/5e-SRD-Traits.json'),
-            loadJson<SrdFeat[]>('../../../srd-json-files/5e-SRD-Feats.json'),
-            loadJson<SrdFeature[]>('../../../srd-json-files/5e-SRD-Features.json'),
-            loadJson<SrdRace[]>('../../../srd-json-files/5e-SRD-Races.json'),
-            loadJson<SrdLanguage[]>('../../../srd-json-files/5e-SRD-Languages.json'),
-            loadJson<SrdProficiency[]>('../../../srd-json-files/5e-SRD-Proficiencies.json'),
+            loadJson<SrdClass[]>('../../srd-json-files/5e-SRD-Classes.json'),
+            loadJson<SrdSubclass[]>('../../srd-json-files/5e-SRD-Subclasses.json'),
+            loadJson<SrdBackground[]>('../../srd-json-files/5e-SRD-Backgrounds.json'),
+            loadJson<SrdSubrace[]>('../../srd-json-files/5e-SRD-Subraces.json'),
+            loadJson<SrdTrait[]>('../../srd-json-files/5e-SRD-Traits.json'),
+            loadJson<SrdFeat[]>('../../srd-json-files/5e-SRD-Feats.json'),
+            loadJson<SrdFeature[]>('../../srd-json-files/5e-SRD-Features.json'),
+            loadJson<SrdRace[]>('../../srd-json-files/5e-SRD-Races.json'),
+            loadJson<SrdLanguage[]>('../../srd-json-files/5e-SRD-Languages.json'),
+            loadJson<SrdProficiency[]>('../../srd-json-files/5e-SRD-Proficiencies.json'),
         ]);
 
         await seedLanguages(languages);

@@ -61,7 +61,7 @@ function toSrdSpellRecord(spell: SrdSpell) {
 export default async function seedSpells(): Promise<Set<string>> {
     try {
         // --- Seed SRD spells ---
-        const srdFilePath = new URL('../../../srd-json-files/5e-SRD-Spells.json', import.meta.url).pathname;
+        const srdFilePath = new URL('../../srd-json-files/5e-SRD-Spells.json', import.meta.url).pathname;
         const srdSpells = (await Bun.file(srdFilePath).json()) as SrdSpell[];
 
         console.log(`Loaded ${srdSpells.length} spells from SRD JSON.`);

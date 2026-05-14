@@ -1,5 +1,4 @@
-import { FeatureKind } from "@prisma/client";
-import type { Prisma } from "@prisma/client";
+import type { FeatureKind, Prisma } from "@prisma/client";
 import prisma from "../../prisma/prisma";
 import type {
     AvailableSubclass,
@@ -12,6 +11,15 @@ import type {
     CharacterSubclassReference,
     ResolvedCharacterClass,
 } from "./multiclassRules";
+
+const FEATURE_KIND = {
+    CLASS_FEATURE: "CLASS_FEATURE",
+    SUBCLASS_FEATURE: "SUBCLASS_FEATURE",
+    TRAIT_FEATURE: "TRAIT_FEATURE",
+    BACKGROUND_FEATURE: "BACKGROUND_FEATURE",
+    FEAT_FEATURE: "FEAT_FEATURE",
+    CUSTOM_FEATURE: "CUSTOM_FEATURE",
+} as const satisfies Record<FeatureKind, FeatureKind>;
 
 /**
  * Submitted custom-subclass payload after whitespace normalisation.
@@ -120,7 +128,7 @@ export async function availableSubclassesForUser(
             classRef: true,
             features: {
                 where: {
-                    kind: FeatureKind.SUBCLASS_FEATURE,
+                    kind: FEATURE_KIND.SUBCLASS_FEATURE,
                 },
                 orderBy: [
                     { level: "asc" },
@@ -289,7 +297,7 @@ export async function findOrCreateOwnedCustomSubclassFeature(
     const existingFeature = await tx.feature.findFirst({
         where: {
             ownerUserId: userId,
-            kind: FeatureKind.SUBCLASS_FEATURE,
+            kind: FEATURE_KIND.SUBCLASS_FEATURE,
             subclassId: subclassRef.id,
             level: feature.level,
             name: feature.name,
@@ -321,7 +329,7 @@ export async function findOrCreateOwnedCustomSubclassFeature(
             name: feature.name,
             description: [feature.description],
             level: feature.level,
-            kind: FeatureKind.SUBCLASS_FEATURE,
+            kind: FEATURE_KIND.SUBCLASS_FEATURE,
             sourceLabel,
             classId: resolvedClass.classRef.id,
             subclassId: subclassRef.id,

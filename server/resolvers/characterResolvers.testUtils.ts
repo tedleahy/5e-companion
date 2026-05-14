@@ -118,8 +118,8 @@ export const transactionMock: any = mock((callback: (tx: any) => Promise<unknown
     },
 }));
 
-mock.module('../prisma/prisma', () => ({
-    default: {
+function createMockTransactionClient() {
+    return {
         character: {
             findFirst: characterFindFirstMock,
             findMany: characterFindManyMock,
@@ -196,17 +196,43 @@ mock.module('../prisma/prisma', () => ({
             update: spellSlotUpdateMock,
             updateMany: spellSlotUpdateManyMock,
         },
+    };
+}
+
+function createMockPrismaClient() {
+    return {
+        ...createMockTransactionClient(),
         $executeRaw: executeRawMock,
         $transaction: transactionMock,
+    };
+}
+
+mock.module('@prisma/adapter-pg', () => ({
+    PrismaPg: class {
+        constructor(_args: unknown) {}
     },
 }));
 
-mock.module('../lib/auth', () => ({
-    requireUser(ctx: { userId: string | null }): string {
-        if (!ctx.userId) throw new Error('UNAUTHENTICATED');
-        return ctx.userId;
+mock.module('@prisma/client', () => ({
+    PrismaClient: class {
+        constructor() {
+            return createMockPrismaClient();
+        }
     },
 }));
+
+function createAuthModuleMock() {
+    return {
+        requireUser(ctx: { userId: string | null }): string {
+            if (!ctx.userId) throw new Error('UNAUTHENTICATED');
+            return ctx.userId;
+        },
+    };
+}
+
+mock.module('../lib/auth', createAuthModuleMock);
+
+mock.module('../../lib/auth', createAuthModuleMock);
 
 export const resolvers: any = await import('./characterResolvers');
 

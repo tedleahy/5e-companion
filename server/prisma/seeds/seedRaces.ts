@@ -49,7 +49,7 @@ function toRecord(race: Race) {
 
 export default async function seedRaces() {
     try {
-        const relativeFilePath = '../../../srd-json-files/5e-SRD-Races.json';
+        const relativeFilePath = '../../srd-json-files/5e-SRD-Races.json';
         const filePath = new URL(relativeFilePath, import.meta.url).pathname;
         const races = (await Bun.file(filePath).json()) as Race[];
 

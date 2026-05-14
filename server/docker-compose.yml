@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_USER: ted
       POSTGRES_PASSWORD: dnd_password
-      POSTGRES_DB: dnd_companion
+      POSTGRES_DB: 5e_companion
     ports:
       - "5432:5432"
     volumes:

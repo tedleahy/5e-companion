@@ -62,7 +62,7 @@ function toCustomSpellRecord(spell: CustomSpell) {
 
 export default async function seedCustomSpells(srdSpellNames: Set<string>) {
     try {
-        const customFilePath = new URL('../../../srd-json-files/5e-Spells-Custom.json', import.meta.url).pathname;
+        const customFilePath = new URL('../../srd-json-files/5e-Spells-Custom.json', import.meta.url).pathname;
         const customSpells = (await Bun.file(customFilePath).json()) as CustomSpell[];
 
         const uniqueCustom = customSpells.filter((s) => !srdSpellNames.has(s.name.toLowerCase()));
