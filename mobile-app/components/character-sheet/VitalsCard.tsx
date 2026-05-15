@@ -75,8 +75,10 @@ export default function VitalsCard({
                         <Text style={styles.vitalSub}>+{hp.temp} temp</Text>
                     )}
                 </View>
+                
+                <View style={styles.divider} />
 
-                <View style={[styles.vitalBlock, styles.vitalBlockBorder, editMode && styles.vitalBlockEditable]}>
+                <View style={[styles.vitalBlock, editMode && styles.vitalBlockEditable]}>
                     <InlineField
                         value={String(ac)}
                         onChangeText={(value: string) => onChangeAc(parseNumericInput(value))}
@@ -88,7 +90,9 @@ export default function VitalsCard({
                     <Text style={styles.vitalLabel}>Armour Class</Text>
                 </View>
 
-                <View style={[styles.vitalBlock, styles.vitalBlockBorder, editMode && styles.vitalBlockEditable]}>
+                <View style={styles.divider} />
+
+                <View style={[styles.vitalBlock, editMode && styles.vitalBlockEditable]}>
                     <InlineField
                         value={String(speed)}
                         onChangeText={(value: string) => onChangeSpeed(parseNumericInput(value))}
@@ -156,9 +160,10 @@ const styles = StyleSheet.create({
         paddingVertical: 4,
         borderRadius: 6,
     },
-    vitalBlockBorder: {
-        borderLeftWidth: 1,
-        borderLeftColor: fantasyTokens.colors.divider,
+    divider: {
+        width: 1,
+        backgroundColor: fantasyTokens.colors.divider,
+        height: 60,
     },
     vitalValue: {
         fontFamily: fantasyTokens.fonts.regular,
@@ -180,6 +185,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         gap: 2,
         minHeight: 40,
+        maxWidth: '100%',
     },
     hpMain: {
         fontFamily: fantasyTokens.fonts.regular,

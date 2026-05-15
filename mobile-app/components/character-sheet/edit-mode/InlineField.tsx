@@ -91,6 +91,7 @@ const styles = StyleSheet.create({
         minHeight: 30,
         color: fantasyTokens.colors.inkDark,
         fontFamily: fantasyTokens.fonts.regular,
+        maxWidth: '100%',
     },
     input: {
         color: fantasyTokens.colors.inkDark,
