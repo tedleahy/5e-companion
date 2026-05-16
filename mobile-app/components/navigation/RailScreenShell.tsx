@@ -43,17 +43,14 @@ export default function RailScreenShell({ children }: RailScreenShellProps) {
     return (
         <View style={styles.compactContainer}>
             <View style={styles.content}>{children}</View>
-            <View style={[styles.compactOverlay, { pointerEvents: 'box-none' }]}>
+            <View style={[styles.compactOverlay]}>
                 <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Open navigation drawer"
                     onPress={openDrawer}
                     style={({ pressed }) => [
                         styles.compactMenuButton,
-                        {
-                            top: 0,
-                            left: insets.left + fantasyTokens.spacing.sm,
-                        },
+                        { left: insets.left + fantasyTokens.spacing.sm },
                         pressed && styles.compactMenuButtonPressed,
                     ]}
                     testID="rail-shell-menu"
@@ -80,12 +77,15 @@ const styles = StyleSheet.create({
         minWidth: 0,
     },
     compactOverlay: {
-        ...StyleSheet.absoluteFillObject,
+        position: 'absolute',
+        top: fantasyTokens.spacing.sm,
+        left: 0,
     },
     compactMenuButton: {
         position: 'absolute',
-        width: 36,
-        height: 36,
+        top: 0,
+        width: 32,
+        height: 32,
         borderRadius: 10,
         backgroundColor: fantasyTokens.rail.background,
         borderWidth: 1,
@@ -99,6 +99,5 @@ const styles = StyleSheet.create({
     compactMenuIcon: {
         color: fantasyTokens.colors.gold,
         fontSize: fantasyTokens.fontSizes.title,
-        marginTop: -1,
     },
 });
