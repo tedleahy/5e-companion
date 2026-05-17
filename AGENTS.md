@@ -16,7 +16,7 @@ A D&D 5e companion app. Two deployables plus seed data:
 
 Full overview: [`docs/overview.md`](./docs/README.md), architecture: [`docs/architecture.md`](./docs/architecture.md), data model: [`docs/data-model.md`](./docs/data-model.md), auth: [`docs/features/auth.md`](./docs/features/auth.md).
 
-Secondary goal: learn React Native + GraphQL/Apollo. When explaining, assume I know React (web) and REST APIs; assume I don't know GraphQL internals or native-only concerns.
+Whenever you've finished a task that changes behaviour described in the docs, update those docs to accurately reflect the new behaviour.
 
 ---
 
@@ -78,10 +78,10 @@ Write detailed, grouped commit messages. Examples of the style:
 - `chore: document x in AGENTS.md`
 - `bug(mobile): fixed bug where x was happening`
 - `bug(api): fixed bug where x was happening`
+- `bug(web): fixed bug where x was happening`
 
 Rules:
 
-- Scope with `(mobile)` or `(api)` where applicable.
 - Add bullet points on separate lines for extra detail.
 - **Don't commit markdown or txt files**, except `AGENTS.md` and anything under `docs/`.
 
