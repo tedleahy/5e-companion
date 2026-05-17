@@ -1,11 +1,17 @@
 import 'dotenv/config';
 import { ApolloServer } from '@apollo/server';
-import {
-    startStandaloneServer,
-    type StandaloneServerContextFunctionArgument,
-} from '@apollo/server/standalone';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { expressMiddleware, type ExpressContextFunctionArgument } from '@as-integrations/express5';
 import { loadFilesSync } from '@graphql-tools/load-files';
+import cors from 'cors';
+import express from 'express';
+import http from 'http';
 import { getUserIdFromAuthHeader } from './lib/auth';
+import {
+    createCorsOptions,
+    createCorsOriginGuard,
+    resolveAllowedOrigins,
+} from './lib/corsPolicy';
 import type { Resolvers } from './generated/graphql';
 import spellsResolver from './resolvers/spellsResolver';
 import spellResolver from './resolvers/spellResolver';
@@ -47,9 +53,30 @@ function validateEnvironment(): void {
 }
 
 /**
+ * Starts the HTTP server and rejects if the port cannot be bound.
+ */
+async function listen(httpServer: http.Server, port: number): Promise<void> {
+    await new Promise<void>((resolve, reject) => {
+        function handleError(error: Error): void {
+            httpServer.off('listening', handleListening);
+            reject(error);
+        }
+
+        function handleListening(): void {
+            httpServer.off('error', handleError);
+            resolve();
+        }
+
+        httpServer.once('error', handleError);
+        httpServer.once('listening', handleListening);
+        httpServer.listen(port);
+    });
+}
+
+/**
  * Creates the Apollo context from the incoming HTTP request.
  */
-async function context({ req }: StandaloneServerContextFunctionArgument): Promise<Context> {
+async function context({ req }: ExpressContextFunctionArgument): Promise<Context> {
     try {
         const userId = await getUserIdFromAuthHeader(req.headers.authorization);
         return { userId };
@@ -114,11 +141,28 @@ const resolvers: Resolvers = {
 
 validateEnvironment();
 
-const server = new ApolloServer<Context>({ typeDefs, resolvers });
-const port = Number(process.env.PORT ?? 4000);
-const { url } = await startStandaloneServer(server, {
-    listen: { port: resolvePort() },
-    context,
+const app = express();
+const httpServer = http.createServer(app);
+const server = new ApolloServer<Context>({
+    typeDefs,
+    resolvers,
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
+const port = resolvePort();
+const allowedOrigins = resolveAllowedOrigins();
 
-console.log(`GraphQL running at ${url}`);
+app.disable('x-powered-by');
+
+await server.start();
+
+app.use(
+    '/',
+    createCorsOriginGuard(allowedOrigins),
+    cors(createCorsOptions(allowedOrigins)),
+    express.json(),
+    expressMiddleware(server, { context }),
+);
+
+await listen(httpServer, port);
+
+console.log(`GraphQL server listening on port ${port}`);
