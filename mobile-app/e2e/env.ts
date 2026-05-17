@@ -45,6 +45,7 @@ export function e2eEnv(): NodeJS.ProcessEnv {
         EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: stack.publishableKey,
         EXPO_PUBLIC_API_URL: E2E_API_URL,
         PORT: String(E2E_SERVER_PORT),
+        CORS_ALLOWED_ORIGINS: E2E_WEB_BASE_URL,
     };
 }
 
