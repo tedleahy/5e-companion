@@ -43,7 +43,8 @@ sequenceDiagram
 Key files:
 
 - Apollo client + auth link: [`@/home/ted/projects/5e-companion/mobile-app/app/apolloClient.ts:1-45`](../mobile-app/app/apolloClient.ts)
-- Server entry + resolver wiring: [`@/home/ted/projects/5e-companion/server/index.ts:1-90`](../server/index.ts)
+- Server entry and resolver wiring: [`@/home/ted/projects/5e-companion/server/index.ts:1-168`](../server/index.ts)
+- API CORS policy: [`@/home/ted/projects/5e-companion/server/lib/corsPolicy.ts:1-117`](../server/lib/corsPolicy.ts)
 - JWT verification: [`@/home/ted/projects/5e-companion/server/lib/auth.ts:1-20`](../server/lib/auth.ts)
 - Example resolver using `requireUser`: [`@/home/ted/projects/5e-companion/server/resolvers/character/queries.ts:14-25`](../server/resolvers/character/queries.ts)
 
@@ -55,7 +56,9 @@ Resolvers are split by domain and wired up in `server/index.ts`:
 
 ```mermaid
 flowchart TB
-    idx["server/index.ts<br/>ApolloServer({ typeDefs, resolvers })"]
+    cors["lib/corsPolicy.ts<br/>allowed origins + guard"]
+    idx["server/index.ts<br/>Express<br/>ApolloServer({ typeDefs, resolvers })"]
+    idx --> cors
     idx --> spells["resolvers/spellsResolver.ts<br/>+ spellResolver.ts"]
     idx --> charR["resolvers/characterResolvers.ts<br/>(barrel)"]
     charR --> qs["character/queries.ts"]

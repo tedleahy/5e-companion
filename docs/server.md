@@ -4,11 +4,11 @@ Bun + Apollo Server 5 GraphQL API under `server/`.
 
 ## Entry point
 
-[`@/home/ted/projects/5e-companion/server/index.ts:1-90`](../server/index.ts) does three things:
+[`@/home/ted/projects/5e-companion/server/index.ts:1-168`](../server/index.ts) does three things:
 
 1. Loads `schema.graphql` (single file) with `loadFilesSync`.
 2. Builds a `context()` function that reads `Authorization: Bearer <jwt>`, verifies it against Supabase's JWKS, and exposes `{ userId }` on every resolver.
-3. Wires up `Query`, `Mutation`, and `Character` type resolvers into a single `Resolvers` object, then runs `startStandaloneServer` on `PORT` (default `4000`).
+3. Wires up `Query`, `Mutation`, and `Character` type resolvers into a single `Resolvers` object, then mounts Apollo on a minimal Express API at `/` with CORS middleware and listens on `PORT` (default `4000`).
 
 ## Context + auth
 
@@ -19,6 +19,17 @@ export type Context = { userId: string | null };
 - Verified in [`@/home/ted/projects/5e-companion/server/lib/auth.ts:1-20`](../server/lib/auth.ts) using `jose.createRemoteJWKSet` against `${SUPABASE_URL}/auth/v1/.well-known/jwks.json`.
 - Every resolver that needs a user calls `requireUser(ctx)` (throws `'UNAUTHENTICATED'` when absent).
 - Invalid tokens become `{ userId: null }` rather than a 401 — resolvers decide whether a given operation is public. Character operations and the spell list require a user; `Query.spell` currently does not.
+
+## CORS
+
+Browser origins are controlled by `CORS_ALLOWED_ORIGINS`, a comma-separated list of exact origins such as `http://localhost:8081` or `https://app.example.com`.
+
+- When `CORS_ALLOWED_ORIGINS` is set, only those browser origins receive CORS headers.
+- When it is unset outside production, the server allows the local Expo web origins `http://localhost:8081`, `http://127.0.0.1:8081`, `http://localhost:19006`, and `http://127.0.0.1:19006`.
+- When `NODE_ENV=production` or `BUN_ENV=production` and `CORS_ALLOWED_ORIGINS` is unset, browser origins are denied rather than falling back to `*`.
+- Requests without an `Origin` header, such as native app or server-to-server requests, do not need CORS headers.
+
+The CORS allow-list parser and Express guard live in [`@/home/ted/projects/5e-companion/server/lib/corsPolicy.ts:1-117`](../server/lib/corsPolicy.ts).
 
 ## Schema layout
 
@@ -94,3 +105,4 @@ bun db:reset            # migrate reset + generate + seed
 | `DATABASE_URL` | Postgres connection string |
 | `SUPABASE_URL` | Used to build the JWKS endpoint |
 | `PORT` | Optional, defaults to `4000` |
+| `CORS_ALLOWED_ORIGINS` | Optional comma-separated browser origins allowed by CORS |

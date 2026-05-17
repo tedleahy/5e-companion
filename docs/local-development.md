@@ -34,11 +34,14 @@ Create env files:
 DATABASE_URL=postgresql://ted:dnd_password@localhost:5432/dnd_companion
 SUPABASE_URL=https://<your-project>.supabase.co
 # PORT=4000   # optional
+# CORS_ALLOWED_ORIGINS=http://localhost:8081,http://127.0.0.1:8081   # optional
 ```
 
 `DATABASE_URL` matches the credentials in `server/docker-compose.yml` (`ted` / `dnd_password` / `dnd_companion`). Change the compose file if you want different creds.
 
 `SUPABASE_URL` should point at a Supabase project you control — the server uses it to fetch JWKS for JWT verification.
+
+`CORS_ALLOWED_ORIGINS` is optional for local development. If you omit it, the server allows the standard local Expo web origins and still denies wildcard browser access.
 
 ### `mobile-app/.env`
 

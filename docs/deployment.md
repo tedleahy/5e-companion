@@ -11,7 +11,7 @@ flowchart LR
 
     subgraph vps["Hetzner VPS"]
         caddy["caddy<br/>ports 80 / 443"]
-        api["api<br/>Bun + Apollo Server<br/>port 4000"]
+        api["api<br/>Bun + Express + Apollo Server<br/>port 4000"]
         db[("db<br/>PostgreSQL 18")]
         volume[("postgres_data<br/>Docker volume")]
     end
@@ -37,7 +37,7 @@ Key files:
 | Service | Image / build | Public? | Role |
 | --- | --- | --- | --- |
 | `db` | `postgres:18` | No | Stores Prisma-managed app data and seeded SRD content. |
-| `api` | Built from `server/Dockerfile` | No | Runs `bun run start`, validates env, serves Apollo GraphQL on port `4000`. |
+| `api` | Built from `server/Dockerfile` | No | Runs `bun run start`, validates env, serves Express + Apollo GraphQL on port `4000`. |
 | `caddy` | `caddy:2` | Yes, ports `80` and `443` | Terminates HTTPS and reverse-proxies requests to `api:4000`. |
 
 Only Caddy publishes host ports. The API and database are reachable by service name inside Docker (`api`, `db`) but are not exposed directly to the internet.
@@ -50,7 +50,7 @@ The production mobile app should set:
 EXPO_PUBLIC_API_URL=https://api.5e-companion.com/
 ```
 
-The trailing slash matters only for consistency with local config. The current server uses Apollo's `startStandaloneServer(...)`, so GraphQL is served at the HTTP root path. Do not point the mobile app at `/graphql` unless the server bootstrap is changed deliberately.
+The trailing slash matters only for consistency with local config. GraphQL is served at the HTTP root path by the Express API. Do not point the mobile app at `/graphql` unless the server bootstrap is changed deliberately.
 
 Production requests flow like this:
 
@@ -71,13 +71,16 @@ Copy [`deploy/.env.prod.example`](../deploy/.env.prod.example) to `deploy/.env.p
 | `POSTGRES_USER` | Postgres + API | Database user. |
 | `POSTGRES_PASSWORD` | Postgres + API | Database password. |
 | `SUPABASE_URL` | API | Supabase project URL used to fetch JWKS for JWT verification. |
+| `CORS_ALLOWED_ORIGINS` | API | Comma-separated browser origins allowed to call the GraphQL API. Native clients usually send no `Origin` header. |
 
 The API container receives:
 
 ```ini
 PORT=4000
+NODE_ENV=production
 DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
 SUPABASE_URL=${SUPABASE_URL}
+CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
 ```
 
 `DATABASE_URL` deliberately points at the Compose service name `db`, not `localhost`. Inside a container, `localhost` would refer to that same container rather than the Postgres service.
