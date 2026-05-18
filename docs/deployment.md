@@ -7,7 +7,7 @@ The live API is deployed to a single Hetzner VPS using Docker Compose. This is i
 ```mermaid
 flowchart LR
     mobile["Expo app"]
-    internet["HTTPS<br/>api.5e-companion.com"]
+    cloudflare["Cloudflare proxy<br/>DNS + edge controls"]
 
     subgraph vps["Hetzner VPS"]
         caddy["caddy<br/>ports 80 / 443"]
@@ -16,7 +16,7 @@ flowchart LR
         volume[("postgres_data<br/>Docker volume")]
     end
 
-    mobile --> internet --> caddy
+    mobile --> cloudflare --> caddy
     caddy --> api
     api --> db
     db --> volume
@@ -55,10 +55,11 @@ The trailing slash matters only for consistency with local config. GraphQL is se
 Production requests flow like this:
 
 1. The Expo app sends GraphQL requests to `https://api.5e-companion.com/`.
-2. DNS points `api.5e-companion.com` at the Hetzner VPS.
-3. Caddy receives the HTTPS request, manages TLS certificates automatically, and proxies to `api:4000`.
-4. The Bun API verifies Supabase JWTs using `SUPABASE_URL`, then resolves GraphQL operations through Prisma.
-5. Prisma connects to Postgres using the Compose-injected `DATABASE_URL`.
+2. Cloudflare proxies the `api.5e-companion.com` DNS record and applies any edge controls before forwarding to the origin.
+3. The VPS firewall allows inbound `80` and `443` only from Cloudflare source IP ranges, so direct-origin requests to the VPS IP should not reach Caddy.
+4. Caddy receives the HTTPS request, manages TLS certificates automatically, and proxies to `api:4000`.
+5. The Bun API verifies Supabase JWTs using `SUPABASE_URL`, then resolves GraphQL operations through Prisma.
+6. Prisma connects to Postgres using the Compose-injected `DATABASE_URL`.
 
 ## GraphQL production hardening
 
@@ -73,7 +74,7 @@ GRAPHQL_RATE_LIMIT_MAX_REQUESTS=120
 GRAPHQL_RATE_LIMIT_WINDOW_MS=60000
 ```
 
-The limiter uses Express's client IP detection, and the API trusts one reverse-proxy hop so Caddy's forwarded headers identify the client. If Cloudflare proxying is added in front of Caddy, revisit the proxy trust settings and origin protection together. Keep origin protection on the roadmap: if the VPS accepts direct traffic, an attacker can still bypass future edge controls even though the API-side limiter continues to run.
+The limiter uses Express's client IP detection, and the API trusts one reverse-proxy hop so Caddy's forwarded headers identify the client. Cloudflare edge controls reduce traffic before it reaches the VPS, while the API-side limiter remains a fallback inside the origin.
 
 Cloudflare WAF or rate limiting can still be added later to stop abusive traffic before it reaches the VPS. Start with a conservative rule in log or simulate mode, then enforce once normal mobile traffic is understood.
 
@@ -86,6 +87,29 @@ curl -sS https://api.5e-companion.com/ \
 ```
 
 Production should reject that introspection query. Authenticated app queries should continue to work, and repeated GraphQL requests over the configured API limit should return `429 Too Many Requests`.
+
+## Origin protection
+
+Cloudflare can only enforce WAF and edge rate-limit rules for traffic that passes through Cloudflare. The production origin is protected by a VPS firewall allowlist:
+
+- allow inbound `80` and `443` from Cloudflare IPv4 and IPv6 ranges only;
+- allow inbound `22` only from trusted administrator IPs where practical;
+- do not expose `4000` or `5432` on the host;
+- keep the `api.5e-companion.com` DNS record proxied in Cloudflare, not DNS-only.
+
+After firewall changes, verify both paths from outside the VPS:
+
+```bash
+curl -i --max-time 10 "https://api.5e-companion.com/" \
+  -H 'content-type: application/json' \
+  --data '{"query":"query { __typename }"}'
+
+curl -i --max-time 10 --resolve "api.5e-companion.com:443:<VPS_IP>" "https://api.5e-companion.com/" \
+  -H 'content-type: application/json' \
+  --data '{"query":"query { __typename }"}'
+```
+
+The normal hostname request should succeed with Cloudflare response headers such as `cf-ray`. The direct-origin request should time out or be refused. If the direct-origin request returns a GraphQL response, traffic can bypass Cloudflare and any edge WAF or rate-limit rules.
 
 ## Environment
 
