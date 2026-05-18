@@ -172,6 +172,7 @@ export default function SpellSearch() {
                     </View>
                     <Button
                         mode="outlined"
+                        accessibilityLabel="Open spell filters"
                         onPress={() => setDrawerVisible(true)}
                         style={styles.filterButton}
                         textColor={fantasyTokens.colors.parchment}

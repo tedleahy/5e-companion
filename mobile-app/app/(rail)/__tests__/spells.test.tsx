@@ -96,6 +96,9 @@ const SCHOOL_FILTERED_SPELLS_MOCK: MockLink.MockedResponse = {
     },
 };
 
+/**
+ * Renders the spell search screen with the supplied Apollo mocks.
+ */
 function renderScreen(mocks: MockLink.MockedResponse[] = [SPELLS_MOCK]) {
     return render(
         <MockedProvider mocks={mocks}>
@@ -151,7 +154,7 @@ describe('SpellSearch screen', () => {
 
     it('renders the filter button', async () => {
         renderScreen();
-        expect(screen.getByText('filter')).toBeTruthy();
+        expect(screen.getByLabelText('Open spell filters')).toBeTruthy();
 
         await waitFor(() => {
             expect(screen.getByText('Fireball')).toBeTruthy();
@@ -165,7 +168,7 @@ describe('SpellSearch screen', () => {
             expect(screen.getByText('Fireball')).toBeTruthy();
         });
 
-        fireEvent.press(screen.getByText('filter'));
+        fireEvent.press(screen.getByLabelText('Open spell filters'));
         await waitFor(() => {
             expect(screen.getByText('Abjuration')).toBeTruthy();
         });
