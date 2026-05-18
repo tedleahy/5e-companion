@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { ApolloServer } from '@apollo/server';
+import { ApolloServerPluginLandingPageDisabled } from '@apollo/server/plugin/disabled';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { expressMiddleware, type ExpressContextFunctionArgument } from '@as-integrations/express5';
 import { loadFilesSync } from '@graphql-tools/load-files';
@@ -12,6 +13,7 @@ import {
     createCorsOriginGuard,
     resolveAllowedOrigins,
 } from './lib/corsPolicy';
+import { createGraphqlRateLimiter } from './lib/graphqlRateLimit';
 import type { Resolvers } from './generated/graphql';
 import spellsResolver from './resolvers/spellsResolver';
 import spellResolver from './resolvers/spellResolver';
@@ -143,15 +145,23 @@ validateEnvironment();
 
 const app = express();
 const httpServer = http.createServer(app);
+const isProduction = process.env.NODE_ENV === 'production';
 const server = new ApolloServer<Context>({
     typeDefs,
     resolvers,
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    introspection: !isProduction,
+    plugins: [
+        ApolloServerPluginDrainHttpServer({ httpServer }),
+        ...(isProduction ? [ApolloServerPluginLandingPageDisabled()] : []),
+    ],
 });
 const port = resolvePort();
 const allowedOrigins = resolveAllowedOrigins();
+const graphQlRateLimiter = createGraphqlRateLimiter();
 
 app.disable('x-powered-by');
+// Caddy is the single reverse-proxy hop in production, so req.ip reflects the forwarded client.
+app.set('trust proxy', 1);
 
 await server.start();
 
@@ -159,6 +169,7 @@ app.use(
     '/',
     createCorsOriginGuard(allowedOrigins),
     cors(createCorsOptions(allowedOrigins)),
+    graphQlRateLimiter,
     express.json(),
     expressMiddleware(server, { context }),
 );

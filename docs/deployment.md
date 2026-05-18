@@ -60,6 +60,33 @@ Production requests flow like this:
 4. The Bun API verifies Supabase JWTs using `SUPABASE_URL`, then resolves GraphQL operations through Prisma.
 5. Prisma connects to Postgres using the Compose-injected `DATABASE_URL`.
 
+## GraphQL production hardening
+
+The API serves GraphQL at the HTTP root path. In production, `NODE_ENV=production` disables schema introspection and the Apollo landing page so anonymous users cannot browse the schema through Apollo's developer tooling. Local development keeps introspection enabled for GraphQL codegen and debugging.
+
+The API also applies an in-memory rate limit to GraphQL execution requests before JSON parsing or Apollo execution. This covers normal `POST` requests and GraphQL `GET` queries while letting CORS preflight through. It is the free-tier fallback when Cloudflare rate limiting is unavailable. It is process-local, so it protects this single-VPS deployment but would need shared storage, such as Redis, if the API is horizontally scaled.
+
+The production defaults allow `120` GraphQL requests per client address per `60000` ms window. Tune them in `deploy/.env.prod` with:
+
+```ini
+GRAPHQL_RATE_LIMIT_MAX_REQUESTS=120
+GRAPHQL_RATE_LIMIT_WINDOW_MS=60000
+```
+
+The limiter uses Express's client IP detection, and the API trusts one reverse-proxy hop so Caddy's forwarded headers identify the client. If Cloudflare proxying is added in front of Caddy, revisit the proxy trust settings and origin protection together. Keep origin protection on the roadmap: if the VPS accepts direct traffic, an attacker can still bypass future edge controls even though the API-side limiter continues to run.
+
+Cloudflare WAF or rate limiting can still be added later to stop abusive traffic before it reaches the VPS. Start with a conservative rule in log or simulate mode, then enforce once normal mobile traffic is understood.
+
+After deployment, verify the behaviour with:
+
+```bash
+curl -sS https://api.5e-companion.com/ \
+  -H 'content-type: application/json' \
+  --data '{"query":"query { __schema { queryType { fields { name } } } }"}'
+```
+
+Production should reject that introspection query. Authenticated app queries should continue to work, and repeated GraphQL requests over the configured API limit should return `429 Too Many Requests`.
+
 ## Environment
 
 Copy [`deploy/.env.prod.example`](../deploy/.env.prod.example) to `deploy/.env.prod` on the server and fill in production values:
@@ -72,6 +99,8 @@ Copy [`deploy/.env.prod.example`](../deploy/.env.prod.example) to `deploy/.env.p
 | `POSTGRES_PASSWORD` | Postgres + API | Database password. |
 | `SUPABASE_URL` | API | Supabase project URL used to fetch JWKS for JWT verification. |
 | `CORS_ALLOWED_ORIGINS` | API | Comma-separated browser origins allowed to call the GraphQL API. Native clients usually send no `Origin` header. |
+| `GRAPHQL_RATE_LIMIT_MAX_REQUESTS` | API | Maximum GraphQL execution requests per client address in each rate-limit window. |
+| `GRAPHQL_RATE_LIMIT_WINDOW_MS` | API | GraphQL rate-limit window length in milliseconds. |
 
 The API container receives:
 
@@ -81,6 +110,8 @@ NODE_ENV=production
 DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
 SUPABASE_URL=${SUPABASE_URL}
 CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+GRAPHQL_RATE_LIMIT_MAX_REQUESTS=${GRAPHQL_RATE_LIMIT_MAX_REQUESTS:-120}
+GRAPHQL_RATE_LIMIT_WINDOW_MS=${GRAPHQL_RATE_LIMIT_WINDOW_MS:-60000}
 ```
 
 `DATABASE_URL` deliberately points at the Compose service name `db`, not `localhost`. Inside a container, `localhost` would refer to that same container rather than the Postgres service.
