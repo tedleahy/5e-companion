@@ -18,7 +18,7 @@ export type Context = { userId: string | null };
 
 - Verified in [`@/home/ted/projects/5e-companion/server/lib/auth.ts:1-20`](../server/lib/auth.ts) using `jose.createRemoteJWKSet` against `${SUPABASE_URL}/auth/v1/.well-known/jwks.json`.
 - Every resolver that needs a user calls `requireUser(ctx)` (throws `'UNAUTHENTICATED'` when absent).
-- Invalid tokens become `{ userId: null }` rather than a 401 — resolvers decide whether a given operation is public. Character operations and the spell list require a user; `Query.spell` currently does not.
+- Invalid tokens become `{ userId: null }` rather than a 401 — resolvers decide whether a given operation is public. Character operations and spell queries require a user.
 
 ## CORS
 
@@ -50,7 +50,7 @@ Single `ApolloServer` object wiring; resolvers are modularised by file:
 | File | Contents |
 | --- | --- |
 | `resolvers/spellsResolver.ts` | `Query.spells` — requires auth, filter + pagination, selects only queried fields via `buildSpellSelect(info)` |
-| `resolvers/spellResolver.ts` | `Query.spell` by id; currently public because it does not call `requireUser(ctx)` |
+| `resolvers/spellResolver.ts` | `Query.spell` by id; requires auth before reading SRD spell detail |
 | `resolvers/characterResolvers.ts` | Barrel re-exporting the `character/*` modules |
 | `resolvers/character/queries.ts` | `character`, `hasCurrentUserCharacters`, `currentUserCharacters`, `availableSubclasses` |
 | `resolvers/character/lifecycleMutations.ts` | `createCharacter`, `updateCharacter`, `deleteCharacter`, `toggleInspiration` |

@@ -35,6 +35,8 @@ export const characterFeatureFindManyMock: any = mock((_args: unknown) => Promis
 export const spellSlotFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const characterSpellFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const spellFindManyMock: any = mock((_args: unknown) => Promise.resolve([] as unknown[]));
+/** Mock for single spell detail lookups. */
+export const spellFindUniqueMock: any = mock((_args: unknown) => Promise.resolve(null));
 
 // spellbook + mutation mocks
 export const characterSpellUpsertMock: any = mock((_args: unknown) => Promise.resolve({}));
@@ -199,6 +201,7 @@ function createMockTransactionClient() {
         },
         spell: {
             findMany: spellFindManyMock,
+            findUnique: spellFindUniqueMock,
         },
     };
 }
@@ -428,6 +431,7 @@ export function clearAllCharacterResolverMocks() {
     spellSlotFindManyMock.mockClear();
     characterSpellFindManyMock.mockClear();
     spellFindManyMock.mockClear();
+    spellFindUniqueMock.mockClear();
     characterSpellUpsertMock.mockClear();
     characterSpellDeleteManyMock.mockClear();
     characterSpellUpdateMock.mockClear();
