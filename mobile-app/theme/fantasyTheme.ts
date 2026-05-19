@@ -203,6 +203,7 @@ export const fantasyTokens = {
     },
     breakpoints: {
         tablet: 768,
+        laptop: 1024,
     },
     rail: {
         collapsedWidth: 48,

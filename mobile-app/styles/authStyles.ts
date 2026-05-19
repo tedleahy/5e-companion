@@ -2,6 +2,10 @@ import { StyleSheet } from 'react-native';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 export const styles = StyleSheet.create({
+    screen: {
+        flex: 1,
+        backgroundColor: fantasyTokens.colors.night,
+    },
     page: {
         flexGrow: 1,
         padding: fantasyTokens.spacing.lg,

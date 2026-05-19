@@ -7,7 +7,9 @@ import {
 } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { usePathname, useRouter } from 'expo-router';
-import { useMutation, ApolloError } from '@apollo/client/react';
+import type { ErrorLike } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
+import MainContentFrame from '@/components/layout/MainContentFrame';
 import useAvailableSubclasses from '@/hooks/useAvailableSubclasses';
 import useConfirm from '@/hooks/useConfirm';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -44,7 +46,7 @@ export default function WizardShell({ children }: Props) {
         refetchQueries: [{ query: GET_CURRENT_USER_CHARACTER_ROSTER }],
     });
 
-    const [displayError, setDisplayError] = useState<ApolloError | null>(null);
+    const [displayError, setDisplayError] = useState<ErrorLike | null>(null);
 
     useEffect(() => {
         setDisplayError(null);
@@ -113,75 +115,77 @@ export default function WizardShell({ children }: Props) {
     return (
         <View style={styles.container}>
             {confirmDialogElement}
-            {/* Top bar */}
-            <View style={styles.header}>
-                <View style={styles.nav}>
-                    <Pressable
-                        onPress={handleBack}
-                        style={{ opacity: isFirstStep ? 0 : 1 }}
-                        disabled={isFirstStep}
-                        hitSlop={8}
-                    >
-                        <Text style={styles.backBtn}>{'\u25C0'} Back</Text>
-                    </Pressable>
-                    <Text style={styles.stepIndicator}>Step {currentStep + 1} of {totalSteps}</Text>
-                    <Pressable onPress={handleCancel} hitSlop={8}>
-                        <Text style={styles.cancelBtn}>Cancel</Text>
-                    </Pressable>
+            <MainContentFrame style={styles.contentInner}>
+                {/* Top bar */}
+                <View style={styles.header}>
+                    <View style={styles.nav}>
+                        <Pressable
+                            onPress={handleBack}
+                            style={{ opacity: isFirstStep ? 0 : 1 }}
+                            disabled={isFirstStep}
+                            hitSlop={8}
+                        >
+                            <Text style={styles.backBtn}>{'\u25C0'} Back</Text>
+                        </Pressable>
+                        <Text style={styles.stepIndicator}>Step {currentStep + 1} of {totalSteps}</Text>
+                        <Pressable onPress={handleCancel} hitSlop={8}>
+                            <Text style={styles.cancelBtn}>Cancel</Text>
+                        </Pressable>
+                    </View>
+
+                    {/* Progress bar */}
+                    <View style={styles.progressTrack}>
+                        <Animated.View style={[styles.progressFill, { width: `${progressWidth}%` }]} />
+                    </View>
+
+                    {/* Step dots */}
+                    <View style={styles.stepDots}>
+                        {Array.from({ length: totalSteps }, (_, i) => (
+                            <View
+                                key={i}
+                                style={[
+                                    styles.dot,
+                                    i < currentStep && styles.dotDone,
+                                    i === currentStep && styles.dotActive,
+                                ]}
+                            />
+                        ))}
+                    </View>
                 </View>
 
-                {/* Progress bar */}
-                <View style={styles.progressTrack}>
-                    <Animated.View style={[styles.progressFill, { width: `${progressWidth}%` }]} />
-                </View>
+                {/* Content */}
+                <View style={styles.content}>{children}</View>
 
-                {/* Step dots */}
-                <View style={styles.stepDots}>
-                    {Array.from({ length: totalSteps }, (_, i) => (
-                        <View
-                            key={i}
-                            style={[
-                                styles.dot,
-                                i < currentStep && styles.dotDone,
-                                i === currentStep && styles.dotActive,
-                            ]}
-                        />
-                    ))}
-                </View>
-            </View>
-
-            {/* Content */}
-            <View style={styles.content}>{children}</View>
-
-            {/* Error message */}
-            {displayError && (
-                <View style={styles.errorContainer}>
-                    <Text style={styles.errorText}>
-                        Failed to create character. Please try again.
-                    </Text>
-                </View>
-            )}
-
-            {/* Footer CTA */}
-            <View style={styles.footer}>
-                <Pressable
-                    onPress={handleNext}
-                    disabled={!canContinue || creating}
-                    style={({ pressed }) => [
-                        styles.ctaBtn,
-                        !canContinue && styles.ctaDisabled,
-                        pressed && canContinue && styles.ctaPressed,
-                    ]}
-                >
-                    {creating ? (
-                        <ActivityIndicator size="small" color={fantasyTokens.colors.parchment} />
-                    ) : (
-                        <Text style={[styles.ctaText, !canContinue && styles.ctaTextDisabled]}>
-                            {ctaLabel}
+                {/* Error message */}
+                {displayError && (
+                    <View style={styles.errorContainer}>
+                        <Text style={styles.errorText}>
+                            Failed to create character. Please try again.
                         </Text>
-                    )}
-                </Pressable>
-            </View>
+                    </View>
+                )}
+
+                {/* Footer CTA */}
+                <View style={styles.footer}>
+                    <Pressable
+                        onPress={handleNext}
+                        disabled={!canContinue || creating}
+                        style={({ pressed }) => [
+                            styles.ctaBtn,
+                            !canContinue && styles.ctaDisabled,
+                            pressed && canContinue && styles.ctaPressed,
+                        ]}
+                    >
+                        {creating ? (
+                            <ActivityIndicator size="small" color={fantasyTokens.colors.parchment} />
+                        ) : (
+                            <Text style={[styles.ctaText, !canContinue && styles.ctaTextDisabled]}>
+                                {ctaLabel}
+                            </Text>
+                        )}
+                    </Pressable>
+                </View>
+            </MainContentFrame>
         </View>
     );
 }
@@ -190,6 +194,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: fantasyTokens.colors.night,
+    },
+    contentInner: {
+        flex: 1,
+        width: '100%',
+        minWidth: 0,
     },
     header: {
         paddingHorizontal: 20,

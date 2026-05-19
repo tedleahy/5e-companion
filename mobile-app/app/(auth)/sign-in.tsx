@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Button, Card, Divider, HelperText, Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
+import MainContentFrame from '@/components/layout/MainContentFrame';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import TextField from '@/components/TextField';
 import { supabase } from '@/lib/supabase';
@@ -33,71 +34,77 @@ export default function SignIn() {
     }
 
     return (
-        <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
-            <View style={styles.header}>
-                <Text variant="headlineMedium" style={styles.title}>
-                    Sign in
-                </Text>
-                <Text variant="bodyMedium" style={styles.subtitle}>
-                    Welcome back, adventurer.
-                </Text>
-            </View>
-
-            <Card style={styles.card} mode="outlined">
-                <Card.Content>
-                    <Text variant="titleMedium" style={styles.sectionTitle}>
-                        Sign into your account
+        <ScrollView
+            style={styles.screen}
+            contentContainerStyle={styles.page}
+            keyboardShouldPersistTaps="handled"
+        >
+            <MainContentFrame>
+                <View style={styles.header}>
+                    <Text variant="headlineMedium" style={styles.title}>
+                        Sign in
                     </Text>
-                    <Divider style={styles.divider} />
+                    <Text variant="bodyMedium" style={styles.subtitle}>
+                        Welcome back, adventurer.
+                    </Text>
+                </View>
 
-                    <TextField
-                        label="Email"
-                        value={email}
-                        onChangeText={(text: string) => {
-                            setEmail(text);
-                            setInvalidLogin(false);
-                        }}
-                        keyboardType="email-address"
-                    />
+                <Card style={styles.card} mode="outlined">
+                    <Card.Content>
+                        <Text variant="titleMedium" style={styles.sectionTitle}>
+                            Sign into your account
+                        </Text>
+                        <Divider style={styles.divider} />
 
-                    <TextField
-                        label="Password"
-                        value={password}
-                        onChangeText={(text: string) => {
-                            setPassword(text);
-                            setInvalidLogin(false);
-                        }}
-                        secureTextEntry
-                    />
+                        <TextField
+                            label="Email"
+                            value={email}
+                            onChangeText={(text: string) => {
+                                setEmail(text);
+                                setInvalidLogin(false);
+                            }}
+                            keyboardType="email-address"
+                        />
 
-                    <HelperText
-                        style={styles.errorText}
-                        type="error"
-                        visible={invalidLogin}
-                    >
-                        Invalid email or password. Please try again.
-                    </HelperText>
+                        <TextField
+                            label="Password"
+                            value={password}
+                            onChangeText={(text: string) => {
+                                setPassword(text);
+                                setInvalidLogin(false);
+                            }}
+                            secureTextEntry
+                        />
 
-                    <Button
-                        mode="contained"
-                        style={styles.primaryButton}
-                        contentStyle={styles.primaryButtonContent}
-                        buttonColor={fantasyTokens.colors.crimson}
-                        textColor={fantasyTokens.colors.parchment}
-                        onPress={handleSignIn}
-                    >
-                        Sign In
-                    </Button>
-                    <Button
-                        mode="outlined"
-                        style={styles.secondaryButton}
-                        textColor={fantasyTokens.colors.goldDark}
-                        onPress={() => router.push('/(auth)/sign-up')}
-                    >
-                        Forge a new account
-                    </Button>
-                </Card.Content>
-            </Card>
+                        <HelperText
+                            style={styles.errorText}
+                            type="error"
+                            visible={invalidLogin}
+                        >
+                            Invalid email or password. Please try again.
+                        </HelperText>
+
+                        <Button
+                            mode="contained"
+                            style={styles.primaryButton}
+                            contentStyle={styles.primaryButtonContent}
+                            buttonColor={fantasyTokens.colors.crimson}
+                            textColor={fantasyTokens.colors.parchment}
+                            onPress={handleSignIn}
+                        >
+                            Sign In
+                        </Button>
+                        <Button
+                            mode="outlined"
+                            style={styles.secondaryButton}
+                            textColor={fantasyTokens.colors.goldDark}
+                            onPress={() => router.push('/(auth)/sign-up')}
+                        >
+                            Forge a new account
+                        </Button>
+                    </Card.Content>
+                </Card>
+            </MainContentFrame>
         </ScrollView>
     );
 }

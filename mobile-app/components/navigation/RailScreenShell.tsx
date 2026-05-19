@@ -1,7 +1,14 @@
 import type { ReactNode } from 'react';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
-import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import {
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
+    useWindowDimensions,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MainContentFrame from '@/components/layout/MainContentFrame';
 import CollapsedRail from '@/components/navigation/CollapsedRail';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
@@ -35,14 +42,18 @@ export default function RailScreenShell({ children }: RailScreenShellProps) {
         return (
             <View style={styles.container}>
                 <CollapsedRail />
-                <View style={styles.content}>{children}</View>
+                <View style={styles.content}>
+                    <MainContentFrame style={styles.contentInner}>{children}</MainContentFrame>
+                </View>
             </View>
         );
     }
 
     return (
         <View style={styles.compactContainer}>
-            <View style={styles.content}>{children}</View>
+            <View style={styles.content}>
+                <MainContentFrame style={styles.contentInner}>{children}</MainContentFrame>
+            </View>
             <View style={[styles.compactOverlay]}>
                 <Pressable
                     accessibilityRole="button"
@@ -74,6 +85,11 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
+        minWidth: 0,
+    },
+    contentInner: {
+        flex: 1,
+        width: '100%',
         minWidth: 0,
     },
     compactOverlay: {
