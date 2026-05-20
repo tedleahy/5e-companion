@@ -30,7 +30,7 @@ _layout.tsx
 |---|---|---|
 | `index.tsx` | 1 - Identity | Character name (text input) and race selection via `OptionGrid` from `RACE_OPTIONS` |
 | `race.tsx` | — | Redirect to identity step. Kept in place so Expo Router doesn't break if navigated to directly |
-| `class.tsx` | 2 - Class | Level stepper (1-20), single-class selection via `OptionGrid` by default. Inline subclass picker when unlocked. For characters level 2+, offers a "Choose additional classes" prompt to enter multiclass mode with full allocation UI |
+| `class.tsx` | 2 - Class | Level stepper (1-20), single-class selection via `OptionGrid` by default. Inline subclass picker when unlocked, with automatic scroll into the subclass section after selecting a class that requires one. For characters level 2+, offers a "Choose additional classes" prompt to enter multiclass mode with full allocation UI |
 | `abilities.tsx` | 3 - Abilities | Toggle between Roll (4d6 drop lowest) and Point Buy modes. Also handles ASI (Ability Score Increase) allocation for higher levels |
 | `background.tsx` | 4 - Background | Background selection (`OptionGrid`), alignment (3x3 grid), and personality trait text fields (traits, ideals, bonds, flaws) |
 | `skills.tsx` | 5 - Skills | Saving throws (display-only, from starting class), background skills (locked), class skill picks (capped by `pick` count). Long-press for expertise toggle |
@@ -100,7 +100,7 @@ Default draft starts with level 1, all scores 10, roll mode, empty everything el
 
 ## Single-Class / Multiclass System
 
-The class step defaults to **single-class mode**: the user picks one class from a tile grid, and it automatically receives all of the character's levels.
+The class step defaults to **single-class mode**: the user picks one class from a tile grid, and it automatically receives all of the character's levels. If that class is already at its subclass unlock level, the screen scrolls to the inline subclass picker once it renders.
 
 For characters level 2+, a prompt appears below the selected class offering to "Choose additional classes". Pressing it enters **multiclass mode**, which shows:
 

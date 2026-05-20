@@ -206,4 +206,42 @@ describe('StepClass', () => {
 
         expect(mockScrollTo).toHaveBeenCalledWith({ y: 240, animated: true });
     });
+
+    it('scrolls to the subclass section after selecting a class with an unlocked subclass choice', async () => {
+        useCharacterDraft.mockImplementation(() => {
+            const [draft, setDraft] = React.useState({
+                level: 2,
+                classes: [],
+                startingClassId: '',
+            });
+
+            return {
+                draft,
+                updateDraft: (nextDraft: Partial<typeof draft>) => {
+                    mockUpdateDraft(nextDraft);
+                    setDraft((currentDraft) => ({ ...currentDraft, ...nextDraft }));
+                },
+            };
+        });
+
+        renderScreen();
+
+        await act(async () => {
+            fireEvent.press(screen.getByTestId('option-wizard'));
+        });
+
+        const subclassSection = screen.getByTestId('single-subclass-section');
+
+        await act(async () => {
+            fireEvent(subclassSection, 'layout', {
+                nativeEvent: {
+                    layout: {
+                        y: 320,
+                    },
+                },
+            });
+        });
+
+        expect(mockScrollTo).toHaveBeenCalledWith({ y: 320, animated: true });
+    });
 });

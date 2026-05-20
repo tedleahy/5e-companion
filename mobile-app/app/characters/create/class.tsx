@@ -56,6 +56,7 @@ export default function StepClass() {
 
     const scrollViewRef = useRef<ScrollView>(null);
     const [pendingScrollIndex, setPendingScrollIndex] = useState<number | null>(null);
+    const [shouldScrollToSingleSubclass, setShouldScrollToSingleSubclass] = useState(false);
 
     /* ── level stepper ── */
 
@@ -82,6 +83,7 @@ export default function StepClass() {
 
     function handleSelectSingleClass(classId: string) {
         const classRow = createCharacterClassDraft(classId, draft.level);
+        setShouldScrollToSingleSubclass(isSubclassUnlocked(classRow));
         updateDraft({
             classes: [classRow],
             startingClassId: classId,
@@ -121,7 +123,7 @@ export default function StepClass() {
 
     /* ── multiclass row handlers ── */
 
-    function scrollToClassRow(event: LayoutChangeEvent) {
+    function scrollToLayout(event: LayoutChangeEvent) {
         scrollViewRef.current?.scrollTo({ y: event.nativeEvent.layout.y, animated: true });
     }
 
@@ -147,8 +149,14 @@ export default function StepClass() {
 
     function handleClassRowLayout(index: number, event: LayoutChangeEvent) {
         if (pendingScrollIndex !== index) return;
-        scrollToClassRow(event);
+        scrollToLayout(event);
         setPendingScrollIndex(null);
+    }
+
+    function handleSingleSubclassSectionLayout(event: LayoutChangeEvent) {
+        if (!shouldScrollToSingleSubclass) return;
+        scrollToLayout(event);
+        setShouldScrollToSingleSubclass(false);
     }
 
     function handleChangeClassLevel(index: number, delta: number) {
@@ -231,7 +239,11 @@ export default function StepClass() {
 
                     {/* Inline subclass picker when unlocked */}
                     {selectedClassId !== '' && singleSubclassUnlocked && singleSubclassOptions.length > 0 && (
-                        <View style={styles.subclassSection}>
+                        <View
+                            style={styles.subclassSection}
+                            testID="single-subclass-section"
+                            onLayout={handleSingleSubclassSectionLayout}
+                        >
                             <Text style={styles.sectionLabel}>Subclass</Text>
                             <OptionGrid
                                 options={singleSubclassOptions}
