@@ -1,4 +1,4 @@
-import { FlatList, Pressable, StyleSheet } from 'react-native';
+import { FlatList, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { OptionItem } from '@/lib/characterCreation/options';
@@ -12,6 +12,24 @@ type Props = {
     getOptionAccessibilityLabel?: (option: OptionItem) => string | undefined;
 };
 
+/**
+ * Returns the number of option columns for the current viewport.
+ */
+function getOptionGridColumnCount(width: number) {
+    if (width >= fantasyTokens.breakpoints.laptop) {
+        return 4;
+    }
+
+    if (width >= fantasyTokens.breakpoints.tablet) {
+        return 3;
+    }
+
+    return 2;
+}
+
+/**
+ * Renders selectable wizard options in a responsive grid.
+ */
 export default function OptionGrid({
     options,
     selected,
@@ -20,19 +38,29 @@ export default function OptionGrid({
     getOptionTestId,
     getOptionAccessibilityLabel,
 }: Props) {
+    const { width } = useWindowDimensions();
+    const columnCount = getOptionGridColumnCount(width);
+    const incompleteFinalRowCount = options.length % columnCount;
     const isParchmentTone = tone === 'parchment';
+    const columnWidthStyle = columnCount === 4
+        ? styles.cardQuarter
+        : columnCount === 3
+            ? styles.cardThird
+            : styles.cardHalf;
 
     return (
         <FlatList
+            key={columnCount}
             data={options}
             keyExtractor={(item) => item.value}
-            numColumns={2}
+            numColumns={columnCount}
             scrollEnabled={false}
             columnWrapperStyle={styles.row}
             contentContainerStyle={styles.grid}
             renderItem={({ item, index }) => {
                 const isSelected = item.value === selected;
-                const isLastOrphan = index === options.length - 1 && options.length % 2 !== 0;
+                const isInIncompleteFinalRow = incompleteFinalRowCount !== 0 &&
+                    index >= options.length - incompleteFinalRowCount;
                 return (
                     <Pressable
                         onPress={() => {
@@ -44,7 +72,7 @@ export default function OptionGrid({
                             isParchmentTone ? styles.cardParchment : styles.cardNight,
                             isSelected && styles.cardSelected,
                             isSelected && isParchmentTone && styles.cardSelectedParchment,
-                            isLastOrphan && styles.cardOrphan,
+                            isInIncompleteFinalRow && columnWidthStyle,
                         ]}
                         testID={getOptionTestId?.(item)}
                         accessibilityRole="button"
@@ -109,8 +137,14 @@ const styles = StyleSheet.create({
         borderColor: fantasyTokens.colors.claret,
         backgroundColor: fantasyTokens.colors.parchmentDeep,
     },
-    cardOrphan: {
+    cardHalf: {
         maxWidth: '50%',
+    },
+    cardThird: {
+        maxWidth: '33.3333%',
+    },
+    cardQuarter: {
+        maxWidth: '25%',
     },
     icon: {
         fontSize: fantasyTokens.fontSizes.headline,
