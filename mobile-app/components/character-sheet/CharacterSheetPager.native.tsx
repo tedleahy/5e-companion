@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useRef } from 'react';
+import { Children, forwardRef, useImperativeHandle, useRef } from 'react';
 import type { ForwardedRef } from 'react';
 import PagerView from 'react-native-pager-view';
 import type {
@@ -14,6 +14,7 @@ function CharacterSheetPager(
     ref: ForwardedRef<CharacterSheetPagerHandle>,
 ) {
     const pagerRef = useRef<PagerView>(null);
+    const pages = Children.toArray(children);
 
     useImperativeHandle(ref, () => ({
         setPage(page: number) {
@@ -29,7 +30,7 @@ function CharacterSheetPager(
             ref={pagerRef}
             {...props}
         >
-            {children}
+            {pages}
         </PagerView>
     );
 }

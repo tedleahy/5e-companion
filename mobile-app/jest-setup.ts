@@ -36,8 +36,19 @@ jest.mock('react-native-pager-view', () => ({
         const { children, initialPage, onPageSelected, style, ...rest } = props;
         const React = require('react');
         const { View } = require('react-native');
+        const childList = Array.isArray(children)
+            ? children
+            : children === null || children === undefined || typeof children === 'boolean'
+                ? []
+                : [children];
         void initialPage;
         void onPageSelected;
+        childList.forEach((child) => {
+            if (child === null || child === undefined || typeof child === 'boolean') {
+                throw new TypeError('Cannot read property \'props\' of null');
+            }
+            void child.props;
+        });
         React.useImperativeHandle(ref, () => ({
             setPage: jest.fn(),
             setPageWithoutAnimation: jest.fn(),
