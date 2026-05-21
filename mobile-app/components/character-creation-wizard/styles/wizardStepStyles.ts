@@ -33,7 +33,7 @@ export const wizardStepStyles = StyleSheet.create({
     },
     sectionLabel: {
         fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.utility,
+        fontSize: fantasyTokens.fontSizes.body,
         letterSpacing: 2.5,
         textTransform: 'uppercase',
         color: fantasyTokens.colors.crimson,

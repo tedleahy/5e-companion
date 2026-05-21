@@ -3,8 +3,8 @@ import { Text } from 'react-native-paper';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { ABILITY_ABBREVIATIONS, ABILITY_KEYS, type AbilityKey } from '@/lib/characterSheetUtils';
 import { asiPointsForLevel } from '@/lib/characterCreation/abilityRules';
-import { wizardStepStyles } from '@/components/character-creation-wizard/wizardStepStyles';
-import { sharedStyles } from '@/components/character-creation-wizard/abilitiesShared';
+import { wizardStepStyles } from '@/components/character-creation-wizard/styles/wizardStepStyles';
+import { sharedStyles } from '@/components/character-creation-wizard/styles/abilitiesShared';
 import RollAbilityMode from '@/components/character-creation-wizard/RollAbilityMode';
 import PointBuyAbilityMode from '@/components/character-creation-wizard/PointBuyAbilityMode';
 

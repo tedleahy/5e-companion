@@ -6,7 +6,7 @@ import { ABILITY_KEYS, type AbilityKey } from '@/lib/characterSheetUtils';
 import { POINT_BUY_COSTS, POINT_BUY_MAX, POINT_BUY_MIN, POINT_BUY_TOTAL, pointBuySpent } from '@/lib/characterCreation/abilityRules';
 import { RACE_ABILITY_BONUSES } from '@/lib/characterCreation/raceRules';
 import AbilityBlock from '@/components/character-creation-wizard/AbilityBlock';
-import { sharedStyles } from './abilitiesShared';
+import { sharedStyles } from './styles/abilitiesShared';
 
 export default function PointBuyAbilityMode() {
     const { draft, setAbilityScore } = useCharacterDraft();

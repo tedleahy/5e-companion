@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { ALIGNMENT_OPTIONS } from '@/lib/characterCreation/options';
+import { wizardStepStyles } from './styles/wizardStepStyles';
 
 type Props = {
     selected: string | null;
@@ -30,7 +31,7 @@ export default function AlignmentGrid({ selected, onSelect }: Props) {
         <View>
             {/* Header row with label and skip/undo */}
             <View style={styles.headerRow}>
-                <Text style={styles.sectionLabel}>Alignment</Text>
+                <Text style={wizardStepStyles.sectionLabel}>Alignment</Text>
                 <Pressable onPress={handleSkipToggle} hitSlop={8}>
                     <Text style={styles.skipBtn}>{skipped ? 'Undo' : 'Skip'}</Text>
                 </Pressable>
@@ -71,14 +72,6 @@ const styles = StyleSheet.create({
         alignItems: 'baseline',
         justifyContent: 'space-between',
         marginBottom: 8,
-    },
-    sectionLabel: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.utility,
-        letterSpacing: 2.5,
-        textTransform: 'uppercase',
-        color: fantasyTokens.colors.crimson,
-        opacity: 0.75,
     },
     skipBtn: {
         fontFamily: fantasyTokens.fonts.regular,

@@ -10,7 +10,7 @@ import {
     startingClassRow,
 } from '@/lib/characterCreation/multiclass';
 import AbilityBlock from '@/components/character-creation-wizard/AbilityBlock';
-import { sharedStyles } from './abilitiesShared';
+import { sharedStyles } from './styles/abilitiesShared';
 
 export default function RollAbilityMode() {
     const { draft, setAbilityScore, setAllAbilityScores } = useCharacterDraft();

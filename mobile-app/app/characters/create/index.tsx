@@ -6,7 +6,7 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { RACE_OPTIONS } from '@/lib/characterCreation/options';
 import OptionGrid from '@/components/character-creation-wizard/OptionGrid';
-import { wizardStepStyles } from '@/components/character-creation-wizard/wizardStepStyles';
+import { wizardStepStyles } from '@/components/character-creation-wizard/styles/wizardStepStyles';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 
 export default function StepIdentity() {

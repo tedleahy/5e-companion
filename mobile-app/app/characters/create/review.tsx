@@ -15,7 +15,7 @@ import {
     sortClassRowsForDisplay,
     startingClassRow,
 } from '@/lib/characterCreation/multiclass';
-import { wizardStepStyles } from '@/components/character-creation-wizard/wizardStepStyles';
+import { wizardStepStyles } from '@/components/character-creation-wizard/styles/wizardStepStyles';
 
 export default function StepReview() {
     const { draft } = useCharacterDraft();

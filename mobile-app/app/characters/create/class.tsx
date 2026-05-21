@@ -20,7 +20,7 @@ import {
 } from '@/lib/characterCreation/multiclass';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { fantasyTokens } from '@/theme/fantasyTheme';
-import { wizardStepStyles } from '@/components/character-creation-wizard/wizardStepStyles';
+import { wizardStepStyles } from '@/components/character-creation-wizard/styles/wizardStepStyles';
 
 /**
  * Class selection step for the create-character wizard.

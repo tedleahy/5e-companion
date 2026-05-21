@@ -7,7 +7,7 @@ import { BACKGROUND_OPTIONS } from '@/lib/characterCreation/options';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 import OptionGrid from '@/components/character-creation-wizard/OptionGrid';
 import AlignmentGrid from '@/components/character-creation-wizard/AlignmentGrid';
-import { wizardStepStyles } from '@/components/character-creation-wizard/wizardStepStyles';
+import { wizardStepStyles } from '@/components/character-creation-wizard/styles/wizardStepStyles';
 
 export default function StepBackground() {
     const { draft, updateDraft } = useCharacterDraft();
