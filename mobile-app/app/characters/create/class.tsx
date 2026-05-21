@@ -24,7 +24,8 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
  * Class selection step for the create-character wizard.
  *
  * Defaults to single-class mode (pick one class from a grid).
- * For characters level 2+, offers an opt-in toggle to multiclass mode.
+ * A toggle button lets eligible characters (level 2+ with a class selected) switch
+ * to multiclass mode.
  */
 export default function StepClass() {
     const { draft, updateDraft } = useCharacterDraft();
@@ -229,6 +230,21 @@ export default function StepClass() {
 
             <View style={styles.divider} />
 
+            {/* Multiclass toggle — hidden when ineligible in single-class mode */}
+            {(multiclassMode || (selectedClassId !== '' && draft.level > 1)) && (
+                <Pressable
+                    onPress={multiclassMode ? exitMulticlassMode : enterMulticlassMode}
+                    style={({ pressed }) => [
+                        styles.singleClassBtn,
+                        pressed && styles.singleClassBtnPressed,
+                    ]}
+                >
+                    <Text style={styles.singleClassBtnText}>
+                        {multiclassMode ? 'Use a single class' : 'Multiclass'}
+                    </Text>
+                </Pressable>
+            )}
+
             {!multiclassMode ? (
                 /* ── Single-class mode ── */
                 <>
@@ -252,39 +268,10 @@ export default function StepClass() {
                             />
                         </View>
                     )}
-
-                    {/* Multiclass prompt (only when level > 1 and a class is selected) */}
-                    {selectedClassId !== '' && draft.level > 1 && (
-                        <View style={styles.multiclassPrompt}>
-                            <Text style={styles.multiclassHeading}>Want to multiclass?</Text>
-                            <Text style={styles.multiclassBody}>
-                                If you like, you can split your levels between multiple classes.
-                            </Text>
-                            <Pressable
-                                onPress={enterMulticlassMode}
-                                style={({ pressed }) => [
-                                    styles.multiclassBtn,
-                                    pressed && styles.multiclassBtnPressed,
-                                ]}
-                            >
-                                <Text style={styles.multiclassBtnText}>Choose additional classes</Text>
-                            </Pressable>
-                        </View>
-                    )}
                 </>
             ) : (
                 /* ── Multiclass mode ── */
                 <>
-                    <Pressable
-                        onPress={exitMulticlassMode}
-                        style={({ pressed }) => [
-                            styles.singleClassBtn,
-                            pressed && styles.singleClassBtnPressed,
-                        ]}
-                    >
-                        <Text style={styles.singleClassBtnText}>Use a single class</Text>
-                    </Pressable>
-
                     {draft.classes.length > 0 && (
                         <View style={styles.summaryCard}>
                             <View style={styles.summaryHeader}>
@@ -413,47 +400,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
 
-    /* Multiclass prompt (single-class mode) */
-    multiclassPrompt: {
-        marginTop: 20,
-        borderWidth: 1,
-        borderColor: 'rgba(201,146,42,0.15)',
-        backgroundColor: 'rgba(240,224,188,0.04)',
-        borderRadius: 14,
-        padding: 16,
-    },
-    multiclassHeading: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.bodyLarge,
-        fontWeight: '700',
-        color: fantasyTokens.colors.parchment,
-        marginBottom: 4,
-    },
-    multiclassBody: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.label,
-        fontStyle: 'italic',
-        color: 'rgba(245,230,200,0.45)',
-        marginBottom: 12,
-    },
-    multiclassBtn: {
-        backgroundColor: 'rgba(201,146,42,0.12)',
-        borderWidth: 1,
-        borderColor: 'rgba(201,146,42,0.3)',
-        borderRadius: 10,
-        paddingVertical: 10,
-        alignItems: 'center',
-    },
-    multiclassBtnPressed: {
-        backgroundColor: 'rgba(201,146,42,0.2)',
-    },
-    multiclassBtnText: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.body,
-        color: fantasyTokens.colors.gold,
-    },
-
-    /* "Use a single class" button (multiclass mode) */
+    /* Multiclass toggle button */
     singleClassBtn: {
         backgroundColor: 'rgba(201,146,42,0.08)',
         borderWidth: 1,

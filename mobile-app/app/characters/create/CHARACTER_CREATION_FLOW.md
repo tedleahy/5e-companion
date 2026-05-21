@@ -30,7 +30,7 @@ _layout.tsx
 |---|---|---|
 | `index.tsx` | 1 - Identity | Character name (text input) and race selection via `OptionGrid` from `RACE_OPTIONS` |
 | `race.tsx` | — | Redirect to identity step. Kept in place so Expo Router doesn't break if navigated to directly |
-| `class.tsx` | 2 - Class | Level stepper (1-20), single-class selection via `OptionGrid` by default. Inline subclass picker when unlocked, with automatic scroll into the subclass section after selecting a class that requires one. For characters level 2+, offers a "Choose additional classes" prompt to enter multiclass mode with full allocation UI |
+| `class.tsx` | 2 - Class | Level stepper (1-20), single-class selection via `OptionGrid` by default. Inline subclass picker when unlocked, with automatic scroll into the subclass section after selecting a class that requires one. A "Multiclass" toggle button appears when a class is selected and level is 2+; pressing it enters multiclass mode with full allocation UI |
 | `abilities.tsx` | 3 - Abilities | Toggle between Roll (4d6 drop lowest) and Point Buy modes. Also handles ASI (Ability Score Increase) allocation for higher levels |
 | `background.tsx` | 4 - Background | Background selection (`OptionGrid`), alignment (3x3 grid), and personality trait text fields (traits, ideals, bonds, flaws) |
 | `skills.tsx` | 5 - Skills | Saving throws (display-only, from starting class), background skills (locked), class skill picks (capped by `pick` count). Long-press for expertise toggle |
@@ -102,12 +102,12 @@ Default draft starts with level 1, all scores 10, roll mode, empty everything el
 
 The class step defaults to **single-class mode**: the user picks one class from a tile grid, and it automatically receives all of the character's levels. If that class is already at its subclass unlock level, the screen scrolls to the inline subclass picker once it renders.
 
-For characters level 2+, a prompt appears below the selected class offering to "Choose additional classes". Pressing it enters **multiclass mode**, which shows:
+When a class is selected and the character is level 2+, a **"Multiclass"** toggle button is shown above the class grid. Pressing it enters **multiclass mode**, which shows:
 
 - An allocation summary card (total levels, remaining to allocate)
 - `ClassAllocationRow` components for each class
 - An "Add another class" grid of available classes
-- A "Use a single class" button at the top to return to single-class mode (keeps the starting class, gives it all levels)
+- The toggle button changes to **"Use a single class"**; pressing it returns to single-class mode (keeps the starting class, gives it all levels)
 
 Multiclass rules:
 - Each class is a row with `classId`, `subclassId`, and `level`

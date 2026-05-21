@@ -184,7 +184,7 @@ describe('StepClass', () => {
 
         // Enter multiclass mode first (single-class mode doesn't show add-class buttons)
         await act(async () => {
-            fireEvent.press(screen.getByText('Choose additional classes'));
+            fireEvent.press(screen.getByText('Multiclass'));
         });
 
         await act(async () => {
