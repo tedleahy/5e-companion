@@ -2,7 +2,8 @@
 import { useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import type { LayoutChangeEvent } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Switch, Text } from 'react-native-paper';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import ClassAllocationRow from '@/components/wizard/ClassAllocationRow';
 import ClassOptionGrid from '@/components/wizard/ClassOptionGrid';
 import NumericStepper from '@/components/wizard/NumericStepper';
@@ -32,6 +33,7 @@ export default function StepClass() {
     const [multiclassMode, setMulticlassMode] = useState(
         () => draft.classes.length > 1,
     );
+    const [showMulticlassInfo, setShowMulticlassInfo] = useState(false);
 
     const selectedClass = draft.classes[0];
     const selectedClassId = selectedClass?.classId ?? '';
@@ -119,6 +121,14 @@ export default function StepClass() {
                 classes: [sanitised],
                 startingClassId: sanitised.classId,
             });
+        }
+    }
+
+    function handleToggleMulticlass(enabled: boolean) {
+        if (enabled) {
+            enterMulticlassMode();
+        } else {
+            exitMulticlassMode();
         }
     }
 
@@ -232,17 +242,41 @@ export default function StepClass() {
 
             {/* Multiclass toggle — hidden when ineligible in single-class mode */}
             {(multiclassMode || (selectedClassId !== '' && draft.level > 1)) && (
-                <Pressable
-                    onPress={multiclassMode ? exitMulticlassMode : enterMulticlassMode}
-                    style={({ pressed }) => [
-                        styles.singleClassBtn,
-                        pressed && styles.singleClassBtnPressed,
-                    ]}
-                >
-                    <Text style={styles.singleClassBtnText}>
-                        {multiclassMode ? 'Use a single class' : 'Multiclass'}
-                    </Text>
-                </Pressable>
+                <View style={styles.multiclassToggleWrap}>
+                    <View style={styles.multiclassToggleRow}>
+                        <View style={styles.multiclassLeftColumn}>
+                            <View style={styles.multiclassLabelGroup}>
+                                <Text style={styles.multiclassLabel}>Multiclass</Text>
+                                <Pressable
+                                    onPress={() => setShowMulticlassInfo((prev) => !prev)}
+                                    style={styles.infoBtn}
+                                    hitSlop={8}
+                                >
+                                    <Ionicons
+                                        name="information-circle-outline"
+                                        size={18}
+                                        color="rgba(245,230,200,0.5)"
+                                    />
+                                </Pressable>
+                            </View>
+                            {showMulticlassInfo && (
+                                <Text style={styles.multiclassInfo}>
+                                    Multiclassing lets you split your character levels between multiple classes,
+                                    mixing abilities and features from each.
+                                    {'\n'}
+                                    For new players, it's recommended to just choose a single class to start with.
+                                </Text>
+                            )}
+                        </View>
+                        <View style={styles.switchWrap}>
+                            <Switch
+                                value={multiclassMode}
+                                onValueChange={handleToggleMulticlass}
+                                color={fantasyTokens.colors.crimson}
+                            />
+                        </View>
+                    </View>
+                </View>
             )}
 
             {!multiclassMode ? (
@@ -400,23 +434,41 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
 
-    /* Multiclass toggle button */
-    singleClassBtn: {
-        backgroundColor: 'rgba(201,146,42,0.08)',
-        borderWidth: 1,
-        borderColor: 'rgba(201,146,42,0.2)',
-        borderRadius: 10,
-        paddingVertical: 10,
-        alignItems: 'center',
+    /* Multiclass toggle */
+    multiclassToggleWrap: {
         marginBottom: 14,
     },
-    singleClassBtnPressed: {
-        backgroundColor: 'rgba(201,146,42,0.16)',
+    multiclassToggleRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
-    singleClassBtnText: {
+    multiclassLeftColumn: {
+        flex: 1,
+        paddingRight: 12,
+    },
+    switchWrap: {
+        flexShrink: 0,
+    },
+    multiclassLabelGroup: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    multiclassLabel: {
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.body,
-        color: 'rgba(245,230,200,0.6)',
+        color: fantasyTokens.colors.parchment,
+    },
+    infoBtn: {
+        padding: 2,
+    },
+    multiclassInfo: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: fantasyTokens.fontSizes.label,
+        fontStyle: 'italic',
+        color: 'rgba(245,230,200,0.45)',
+        marginTop: 2,
     },
 
     /* Multiclass allocation summary */

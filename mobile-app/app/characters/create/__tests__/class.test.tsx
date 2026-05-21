@@ -184,7 +184,7 @@ describe('StepClass', () => {
 
         // Enter multiclass mode first (single-class mode doesn't show add-class buttons)
         await act(async () => {
-            fireEvent.press(screen.getByText('Multiclass'));
+            fireEvent(screen.getByRole('switch'), 'valueChange', true);
         });
 
         await act(async () => {
