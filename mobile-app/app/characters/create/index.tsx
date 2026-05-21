@@ -6,6 +6,7 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { RACE_OPTIONS } from '@/lib/characterCreation/options';
 import OptionGrid from '@/components/wizard/OptionGrid';
+import { wizardStepStyles } from '@/components/wizard/wizardStepStyles';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 
 export default function StepIdentity() {
@@ -17,13 +18,13 @@ export default function StepIdentity() {
         <KeyboardAwareScrollView
             {...keyboardAwareScrollProps}
             bottomOffset={keyboardAwareBottomOffset}
-            style={styles.scroll}
-            contentContainerStyle={styles.container}
+            style={wizardStepStyles.scroll}
+            contentContainerStyle={wizardStepStyles.container}
         >
-            <Text style={styles.heading}>Who are you?</Text>
-            <Text style={styles.sub}>Every legend begins with a name.</Text>
+            <Text style={wizardStepStyles.heading}>Who are you?</Text>
+            <Text style={wizardStepStyles.sub}>Every legend begins with a name.</Text>
 
-            <View style={styles.field}>
+            <View style={wizardStepStyles.field}>
                 <Text style={fantasyTokens.text.formLabel}>
                     Character Name
                 </Text>
@@ -41,9 +42,9 @@ export default function StepIdentity() {
                 )}
             </View>
 
-            <View style={styles.divider} />
-            <Text style={styles.heading}>Choose your race.</Text>
-            <Text style={styles.sub}>Your lineage shapes who you are.</Text>
+            <View style={wizardStepStyles.divider} />
+            <Text style={wizardStepStyles.heading}>Choose your race.</Text>
+            <Text style={wizardStepStyles.sub}>Your lineage shapes who you are.</Text>
 
             <OptionGrid
                 options={RACE_OPTIONS}
@@ -58,34 +59,6 @@ export default function StepIdentity() {
 }
 
 const styles = StyleSheet.create({
-    scroll: {
-        flex: 1,
-    },
-    container: {
-        padding: 20,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: 'rgba(201,146,42,0.12)',
-        marginVertical: 16,
-    },
-    heading: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.headline,
-        fontWeight: '700',
-        color: fantasyTokens.colors.parchment,
-        marginBottom: 4,
-    },
-    sub: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.body,
-        fontStyle: 'italic',
-        color: 'rgba(201,146,42,0.5)',
-        marginBottom: 20,
-    },
-    field: {
-        marginBottom: 16,
-    },
     input: {
         backgroundColor: 'rgba(240,224,188,0.06)',
         borderWidth: 1,

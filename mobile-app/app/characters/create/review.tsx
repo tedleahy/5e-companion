@@ -15,6 +15,7 @@ import {
     sortClassRowsForDisplay,
     startingClassRow,
 } from '@/lib/characterCreation/multiclass';
+import { wizardStepStyles } from '@/components/wizard/wizardStepStyles';
 
 export default function StepReview() {
     const { draft } = useCharacterDraft();
@@ -34,13 +35,13 @@ export default function StepReview() {
     const displayClassRows = sortClassRowsForDisplay(draft.classes, draft.startingClassId);
 
     return (
-        <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
-            <Text style={styles.heading}>Ready to begin?</Text>
-            <Text style={styles.sub}>Review your character before entering the world.</Text>
+        <ScrollView style={wizardStepStyles.scroll} contentContainerStyle={wizardStepStyles.container}>
+            <Text style={wizardStepStyles.heading}>Ready to begin?</Text>
+            <Text style={wizardStepStyles.sub}>Review your character before entering the world.</Text>
 
             <Pressable onPress={() => router.push(CREATE_CHARACTER_ROUTES.identity)}>
                 <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionLabel}>Identity</Text>
+                    <Text style={wizardStepStyles.sectionLabel}>Identity</Text>
                     <Text style={styles.editHint}>Edit {'\u203A'}</Text>
                 </View>
             </Pressable>
@@ -54,7 +55,7 @@ export default function StepReview() {
 
             <Pressable onPress={() => router.push(CREATE_CHARACTER_ROUTES.class)}>
                 <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionLabel}>Class Composition</Text>
+                    <Text style={wizardStepStyles.sectionLabel}>Class Composition</Text>
                     <Text style={styles.editHint}>Edit {'\u203A'}</Text>
                 </View>
             </Pressable>
@@ -87,7 +88,7 @@ export default function StepReview() {
 
             <Pressable onPress={() => router.push(CREATE_CHARACTER_ROUTES.abilities)}>
                 <View style={[styles.sectionHeader, styles.sectionGap]}>
-                    <Text style={styles.sectionLabel}>Ability Scores</Text>
+                    <Text style={wizardStepStyles.sectionLabel}>Ability Scores</Text>
                     <Text style={styles.editHint}>Edit {'\u203A'}</Text>
                 </View>
             </Pressable>
@@ -109,7 +110,7 @@ export default function StepReview() {
             {/* Skills & Proficiencies — tap to edit */}
             <Pressable onPress={() => router.push(CREATE_CHARACTER_ROUTES.skills)}>
                 <View style={[styles.sectionHeader, styles.sectionGap]}>
-                    <Text style={styles.sectionLabel}>Proficiencies</Text>
+                    <Text style={wizardStepStyles.sectionLabel}>Proficiencies</Text>
                     <Text style={styles.editHint}>Edit {'\u203A'}</Text>
                 </View>
             </Pressable>
@@ -163,40 +164,10 @@ export default function StepReview() {
 }
 
 const styles = StyleSheet.create({
-    scroll: {
-        flex: 1,
-    },
-    container: {
-        padding: 20,
-        paddingBottom: 40,
-    },
-    heading: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.headline,
-        fontWeight: '700',
-        color: fantasyTokens.colors.parchment,
-        marginBottom: 4,
-    },
-    sub: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.body,
-        fontStyle: 'italic',
-        color: 'rgba(201,146,42,0.5)',
-        marginBottom: 20,
-    },
     sectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-    },
-    sectionLabel: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.utility,
-        letterSpacing: 2.5,
-        textTransform: 'uppercase',
-        color: fantasyTokens.colors.crimson,
-        opacity: 0.8,
-        marginBottom: 8,
     },
     editHint: {
         fontFamily: fantasyTokens.fonts.regular,

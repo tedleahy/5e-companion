@@ -20,6 +20,7 @@ import {
 } from '@/lib/characterCreation/multiclass';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { wizardStepStyles } from '@/components/wizard/wizardStepStyles';
 
 /**
  * Class selection step for the create-character wizard.
@@ -221,8 +222,8 @@ export default function StepClass() {
     /* ── render ── */
 
     return (
-        <ScrollView ref={scrollViewRef} style={styles.scroll} contentContainerStyle={styles.container}>
-            <Text style={styles.heading}>Choose your class and level.</Text>
+        <ScrollView ref={scrollViewRef} style={wizardStepStyles.scroll} contentContainerStyle={wizardStepStyles.container}>
+            <Text style={wizardStepStyles.heading}>Choose your class and level.</Text>
 
             {/* ── Level stepper (both modes) ── */}
             <Text style={fantasyTokens.text.formLabel}>Starting Level</Text>
@@ -238,7 +239,7 @@ export default function StepClass() {
             />
             <Text style={styles.hint}>Most campaigns start at level 1. Check with your DM.</Text>
 
-            <View style={styles.divider} />
+            <View style={wizardStepStyles.divider} />
 
             {/* Multiclass toggle — hidden when ineligible in single-class mode */}
             {(multiclassMode || (selectedClassId !== '' && draft.level > 1)) && (
@@ -321,7 +322,7 @@ export default function StepClass() {
                                     <Text style={styles.summaryHint}>
                                         {remainingLevelsCount} level{remainingLevelsCount === 1 ? '' : 's'} still to allocate.
                                     </Text>
-                                    <Text style={styles.sub}>
+                                    <Text style={wizardStepStyles.sub}>
                                         You can either increase the levels in the
                                         class{draft.classes.length > 1 ? 'es' : ''} you've chosen, or take levels in
                                         additional classes.
@@ -384,33 +385,6 @@ export default function StepClass() {
 }
 
 const styles = StyleSheet.create({
-    scroll: {
-        flex: 1,
-    },
-    container: {
-        padding: 20,
-        paddingBottom: 40,
-    },
-    heading: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.headline,
-        fontWeight: '700',
-        color: fantasyTokens.colors.parchment,
-        marginBottom: 4,
-    },
-    sub: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.body,
-        fontStyle: 'italic',
-        color: 'rgba(201,146,42,0.5)',
-        marginBottom: 20,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: 'rgba(201,146,42,0.12)',
-        marginVertical: 16,
-    },
-
     /* Level stepper */
     hint: {
         fontFamily: fantasyTokens.fonts.regular,

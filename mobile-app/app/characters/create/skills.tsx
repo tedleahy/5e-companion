@@ -13,6 +13,7 @@ import {
     startingClassRow,
 } from '@/lib/characterCreation/multiclass';
 import ProficiencyItem from '@/components/wizard/ProficiencyItem';
+import { wizardStepStyles } from '@/components/wizard/wizardStepStyles';
 
 export default function StepSkills() {
     const { draft, toggleSkillProficiency, toggleExpertise } = useCharacterDraft();
@@ -33,15 +34,15 @@ export default function StepSkills() {
     const atClassLimit = classPickCount >= classPickLimit;
 
     return (
-        <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
-            <Text style={styles.heading}>Choose your skills.</Text>
-            <Text style={styles.sub}>
+        <ScrollView style={wizardStepStyles.scroll} contentContainerStyle={wizardStepStyles.container}>
+            <Text style={wizardStepStyles.heading}>Choose your skills.</Text>
+            <Text style={wizardStepStyles.sub}>
                 Select the proficiencies that suit your character&apos;s background and class.
             </Text>
 
             {savingThrows.length > 0 && (
                 <>
-                    <Text style={styles.sectionLabel}>Saving Throw Proficiencies</Text>
+                    <Text style={wizardStepStyles.sectionLabel}>Saving Throw Proficiencies</Text>
                     <Text style={styles.savingThrowNote}>
                         Granted by your starting class ({classLabel(startingClassId)})
                     </Text>
@@ -59,7 +60,7 @@ export default function StepSkills() {
 
             {backgroundSkills.length > 0 && (
                 <>
-                    <Text style={styles.sectionLabel}>
+                    <Text style={wizardStepStyles.sectionLabel}>
                         Background Skills ({draft.background})
                     </Text>
                     <View style={styles.list}>
@@ -79,7 +80,7 @@ export default function StepSkills() {
 
             {classOptions.length > 0 && (
                 <>
-                    <Text style={[styles.sectionLabel, backgroundSkills.length > 0 && styles.sectionGap]}>
+                    <Text style={[wizardStepStyles.sectionLabel, backgroundSkills.length > 0 && styles.sectionGap]}>
                         Class Skills — Pick {classPickLimit}
                         {classPickLimit > 0 && ` (${classPickCount}/${classPickLimit})`}
                     </Text>
@@ -123,36 +124,6 @@ export default function StepSkills() {
 }
 
 const styles = StyleSheet.create({
-    scroll: {
-        flex: 1,
-    },
-    container: {
-        padding: 20,
-        paddingBottom: 40,
-    },
-    heading: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.headline,
-        fontWeight: '700',
-        color: fantasyTokens.colors.parchment,
-        marginBottom: 4,
-    },
-    sub: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.body,
-        fontStyle: 'italic',
-        color: 'rgba(201,146,42,0.5)',
-        marginBottom: 20,
-    },
-    sectionLabel: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.utility,
-        letterSpacing: 2.5,
-        textTransform: 'uppercase',
-        color: fantasyTokens.colors.crimson,
-        opacity: 0.75,
-        marginBottom: 8,
-    },
     savingThrowNote: {
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.caption,

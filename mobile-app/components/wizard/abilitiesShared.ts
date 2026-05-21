@@ -2,26 +2,6 @@ import { StyleSheet } from 'react-native';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 export const sharedStyles = StyleSheet.create({
-    scroll: {
-        flex: 1,
-    },
-    container: {
-        padding: 20,
-    },
-    heading: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.headline,
-        fontWeight: '700',
-        color: fantasyTokens.colors.parchment,
-        marginBottom: 4,
-    },
-    sub: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.body,
-        fontStyle: 'italic',
-        color: 'rgba(201,146,42,0.5)',
-        marginBottom: 20,
-    },
     modeToggle: {
         flexDirection: 'row',
         borderRadius: 10,

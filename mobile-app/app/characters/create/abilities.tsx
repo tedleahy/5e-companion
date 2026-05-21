@@ -3,6 +3,7 @@ import { Text } from 'react-native-paper';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { ABILITY_ABBREVIATIONS, ABILITY_KEYS, type AbilityKey } from '@/lib/characterSheetUtils';
 import { asiPointsForLevel } from '@/lib/characterCreation/abilityRules';
+import { wizardStepStyles } from '@/components/wizard/wizardStepStyles';
 import { sharedStyles } from '@/components/wizard/abilitiesShared';
 import RollAbilityMode from '@/components/wizard/RollAbilityMode';
 import PointBuyAbilityMode from '@/components/wizard/PointBuyAbilityMode';
@@ -39,9 +40,9 @@ export default function StepAbilities() {
     }
 
     return (
-        <ScrollView style={sharedStyles.scroll} contentContainerStyle={sharedStyles.container}>
-            <Text style={sharedStyles.heading}>Set your abilities.</Text>
-            <Text style={sharedStyles.sub}>Six scores, six aspects of your soul.</Text>
+        <ScrollView style={wizardStepStyles.scroll} contentContainerStyle={wizardStepStyles.container}>
+            <Text style={wizardStepStyles.heading}>Set your abilities.</Text>
+            <Text style={wizardStepStyles.sub}>Six scores, six aspects of your soul.</Text>
 
             {/* Mode toggle */}
             <View style={sharedStyles.modeToggle}>

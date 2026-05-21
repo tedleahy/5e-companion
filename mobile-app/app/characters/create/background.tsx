@@ -7,6 +7,7 @@ import { BACKGROUND_OPTIONS } from '@/lib/characterCreation/options';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 import OptionGrid from '@/components/wizard/OptionGrid';
 import AlignmentGrid from '@/components/wizard/AlignmentGrid';
+import { wizardStepStyles } from '@/components/wizard/wizardStepStyles';
 
 export default function StepBackground() {
     const { draft, updateDraft } = useCharacterDraft();
@@ -15,11 +16,11 @@ export default function StepBackground() {
         <KeyboardAwareScrollView
             {...keyboardAwareScrollProps}
             bottomOffset={keyboardAwareBottomOffset}
-            style={styles.scroll}
-            contentContainerStyle={styles.container}
+            style={wizardStepStyles.scroll}
+            contentContainerStyle={wizardStepStyles.container}
         >
-            <Text style={styles.heading}>Background &amp; alignment.</Text>
-            <Text style={styles.sub}>Your history and your moral compass.</Text>
+            <Text style={wizardStepStyles.heading}>Background &amp; alignment.</Text>
+            <Text style={wizardStepStyles.sub}>Your history and your moral compass.</Text>
 
             {/* Background */}
             <Text style={styles.fieldLabel}>Background</Text>
@@ -29,7 +30,7 @@ export default function StepBackground() {
                 onSelect={(value) => updateDraft({ background: value })}
             />
 
-            <View style={styles.divider} />
+            <View style={wizardStepStyles.divider} />
 
             {/* Alignment */}
             <AlignmentGrid
@@ -37,12 +38,12 @@ export default function StepBackground() {
                 onSelect={(value) => updateDraft({ alignment: value })}
             />
 
-            <View style={styles.divider} />
+            <View style={wizardStepStyles.divider} />
 
             {/* Personality */}
-            <Text style={styles.sectionLabel}>Personality</Text>
+            <Text style={wizardStepStyles.sectionLabel}>Personality</Text>
 
-            <View style={styles.field}>
+            <View style={wizardStepStyles.field}>
                 <Text style={styles.fieldLabel}>Personality Traits</Text>
                 <TextInput
                     style={styles.textarea}
@@ -55,7 +56,7 @@ export default function StepBackground() {
                 />
             </View>
 
-            <View style={styles.field}>
+            <View style={wizardStepStyles.field}>
                 <Text style={styles.fieldLabel}>Ideals</Text>
                 <TextInput
                     style={[styles.textarea, styles.textareaSmall]}
@@ -68,7 +69,7 @@ export default function StepBackground() {
                 />
             </View>
 
-            <View style={styles.field}>
+            <View style={wizardStepStyles.field}>
                 <Text style={styles.fieldLabel}>Bonds</Text>
                 <TextInput
                     style={[styles.textarea, styles.textareaSmall]}
@@ -81,7 +82,7 @@ export default function StepBackground() {
                 />
             </View>
 
-            <View style={styles.field}>
+            <View style={wizardStepStyles.field}>
                 <Text style={styles.fieldLabel}>Flaws</Text>
                 <TextInput
                     style={[styles.textarea, styles.textareaSmall]}
@@ -98,44 +99,6 @@ export default function StepBackground() {
 }
 
 const styles = StyleSheet.create({
-    scroll: {
-        flex: 1,
-    },
-    container: {
-        padding: 20,
-        paddingBottom: 40,
-    },
-    heading: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.headline,
-        fontWeight: '700',
-        color: fantasyTokens.colors.parchment,
-        marginBottom: 4,
-    },
-    sub: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.body,
-        fontStyle: 'italic',
-        color: 'rgba(201,146,42,0.5)',
-        marginBottom: 20,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: 'rgba(201,146,42,0.12)',
-        marginVertical: 16,
-    },
-    sectionLabel: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.utility,
-        letterSpacing: 2.5,
-        textTransform: 'uppercase',
-        color: fantasyTokens.colors.crimson,
-        opacity: 0.75,
-        marginBottom: 8,
-    },
-    field: {
-        marginBottom: 16,
-    },
     fieldLabel: {
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.utility,
