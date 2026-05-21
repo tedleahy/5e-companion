@@ -4,10 +4,10 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import type { LayoutChangeEvent } from 'react-native';
 import { Switch, Text } from 'react-native-paper';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import ClassAllocationRow from '@/components/wizard/ClassAllocationRow';
-import ClassOptionGrid from '@/components/wizard/ClassOptionGrid';
-import NumericStepper from '@/components/wizard/NumericStepper';
-import OptionGrid from '@/components/wizard/OptionGrid';
+import ClassAllocationRow from '@/components/character-creation-wizard/ClassAllocationRow';
+import ClassOptionGrid from '@/components/character-creation-wizard/ClassOptionGrid';
+import NumericStepper from '@/components/character-creation-wizard/NumericStepper';
+import OptionGrid from '@/components/character-creation-wizard/OptionGrid';
 import useAvailableSubclasses from '@/hooks/useAvailableSubclasses';
 import {
     availableClassOptions,
@@ -20,7 +20,7 @@ import {
 } from '@/lib/characterCreation/multiclass';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { fantasyTokens } from '@/theme/fantasyTheme';
-import { wizardStepStyles } from '@/components/wizard/wizardStepStyles';
+import { wizardStepStyles } from '@/components/character-creation-wizard/wizardStepStyles';
 
 /**
  * Class selection step for the create-character wizard.

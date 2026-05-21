@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Menu, Text, TextInput } from 'react-native-paper';
-import NumericStepper from '@/components/wizard/NumericStepper';
+import NumericStepper from '@/components/character-creation-wizard/NumericStepper';
 import { ABILITY_KEYS, type AbilityKey } from '@/lib/characterSheetUtils';
 import {
     canDecreaseLevelUpAbilityScore,

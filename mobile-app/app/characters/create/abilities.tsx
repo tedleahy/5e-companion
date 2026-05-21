@@ -3,10 +3,10 @@ import { Text } from 'react-native-paper';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { ABILITY_ABBREVIATIONS, ABILITY_KEYS, type AbilityKey } from '@/lib/characterSheetUtils';
 import { asiPointsForLevel } from '@/lib/characterCreation/abilityRules';
-import { wizardStepStyles } from '@/components/wizard/wizardStepStyles';
-import { sharedStyles } from '@/components/wizard/abilitiesShared';
-import RollAbilityMode from '@/components/wizard/RollAbilityMode';
-import PointBuyAbilityMode from '@/components/wizard/PointBuyAbilityMode';
+import { wizardStepStyles } from '@/components/character-creation-wizard/wizardStepStyles';
+import { sharedStyles } from '@/components/character-creation-wizard/abilitiesShared';
+import RollAbilityMode from '@/components/character-creation-wizard/RollAbilityMode';
+import PointBuyAbilityMode from '@/components/character-creation-wizard/PointBuyAbilityMode';
 
 export default function StepAbilities() {
     const { draft, updateDraft, setAllAbilityScores } = useCharacterDraft();

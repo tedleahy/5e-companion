@@ -9,7 +9,7 @@ import {
     classLabel,
     startingClassRow,
 } from '@/lib/characterCreation/multiclass';
-import AbilityBlock from '@/components/wizard/AbilityBlock';
+import AbilityBlock from '@/components/character-creation-wizard/AbilityBlock';
 import { sharedStyles } from './abilitiesShared';
 
 export default function RollAbilityMode() {

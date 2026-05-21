@@ -5,9 +5,9 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { BACKGROUND_OPTIONS } from '@/lib/characterCreation/options';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
-import OptionGrid from '@/components/wizard/OptionGrid';
-import AlignmentGrid from '@/components/wizard/AlignmentGrid';
-import { wizardStepStyles } from '@/components/wizard/wizardStepStyles';
+import OptionGrid from '@/components/character-creation-wizard/OptionGrid';
+import AlignmentGrid from '@/components/character-creation-wizard/AlignmentGrid';
+import { wizardStepStyles } from '@/components/character-creation-wizard/wizardStepStyles';
 
 export default function StepBackground() {
     const { draft, updateDraft } = useCharacterDraft();

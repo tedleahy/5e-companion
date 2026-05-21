@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
 import { PaperProvider } from 'react-native-paper';
-import ClassAllocationRow from '@/components/wizard/ClassAllocationRow';
+import ClassAllocationRow from '@/components/character-creation-wizard/ClassAllocationRow';
 
 /**
  * Renders UI with the Paper theme provider used by the app.

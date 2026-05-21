@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import ClassOptionGrid from '@/components/wizard/ClassOptionGrid';
+import ClassOptionGrid from '@/components/character-creation-wizard/ClassOptionGrid';
 import type {
     LevelUpAsiOrFeatState,
     LevelUpWizardStep,

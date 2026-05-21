@@ -51,7 +51,7 @@ jest.mock('@/hooks/useAvailableSubclasses', () => ({
     })),
 }));
 
-jest.mock('@/components/wizard/OptionGrid', () => ({
+jest.mock('@/components/character-creation-wizard/OptionGrid', () => ({
     __esModule: true,
     default: ({
         options,
@@ -83,7 +83,7 @@ jest.mock('@/components/wizard/OptionGrid', () => ({
     },
 }));
 
-jest.mock('@/components/wizard/ClassAllocationRow', () => ({
+jest.mock('@/components/character-creation-wizard/ClassAllocationRow', () => ({
     __esModule: true,
     default: ({
         classRow,
@@ -193,7 +193,7 @@ describe('StepClass', () => {
 
         // Wait for the new row to appear
         const newRow = screen.getByTestId('class-allocation-row-1');
-        
+
         await act(async () => {
             fireEvent(newRow, 'layout', {
                 nativeEvent: {

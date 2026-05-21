@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { PaperProvider } from 'react-native-paper';
-import NumericStepper from '@/components/wizard/NumericStepper';
+import NumericStepper from '@/components/character-creation-wizard/NumericStepper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 /**

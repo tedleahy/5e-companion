@@ -1,4 +1,4 @@
-import OptionGrid from '@/components/wizard/OptionGrid';
+import OptionGrid from '@/components/character-creation-wizard/OptionGrid';
 import { CLASS_OPTIONS, type OptionItem } from '@/lib/characterCreation/options';
 
 type ClassOptionGridProps = {

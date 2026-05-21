@@ -12,8 +12,8 @@ import {
     classLabel,
     startingClassRow,
 } from '@/lib/characterCreation/multiclass';
-import ProficiencyItem from '@/components/wizard/ProficiencyItem';
-import { wizardStepStyles } from '@/components/wizard/wizardStepStyles';
+import ProficiencyItem from '@/components/character-creation-wizard/ProficiencyItem';
+import { wizardStepStyles } from '@/components/character-creation-wizard/wizardStepStyles';
 
 export default function StepSkills() {
     const { draft, toggleSkillProficiency, toggleExpertise } = useCharacterDraft();

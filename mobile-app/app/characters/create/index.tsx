@@ -5,8 +5,8 @@ import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { RACE_OPTIONS } from '@/lib/characterCreation/options';
-import OptionGrid from '@/components/wizard/OptionGrid';
-import { wizardStepStyles } from '@/components/wizard/wizardStepStyles';
+import OptionGrid from '@/components/character-creation-wizard/OptionGrid';
+import { wizardStepStyles } from '@/components/character-creation-wizard/wizardStepStyles';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 
 export default function StepIdentity() {

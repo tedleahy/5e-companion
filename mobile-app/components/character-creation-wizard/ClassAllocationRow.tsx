@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import type { LayoutChangeEvent } from 'react-native';
 import { RadioButton, Text } from 'react-native-paper';
 import { ParchmentPanel } from '@/components/FantasyPrimitives';
-import NumericStepper from '@/components/wizard/NumericStepper';
+import NumericStepper from '@/components/character-creation-wizard/NumericStepper';
 import {
     classLabel,
     formatClassRowLabel,

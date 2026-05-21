@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { CharacterDraftProvider } from '@/store/characterDraft';
-import WizardShell from '@/components/wizard/WizardShell';
+import WizardShell from '@/components/character-creation-wizard/WizardShell';
 
 export default function WizardLayout() {
     return (
