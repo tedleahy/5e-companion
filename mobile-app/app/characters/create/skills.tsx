@@ -93,6 +93,7 @@ export default function StepSkills() {
                             return (
                                 <ProficiencyItem
                                     key={skill.key}
+                                    testID={`create-skill-class-${skill.key}`}
                                     name={skill.label}
                                     abilityAbbr={ABILITY_ABBREVIATIONS[skill.ability]}
                                     selected={isSelected}

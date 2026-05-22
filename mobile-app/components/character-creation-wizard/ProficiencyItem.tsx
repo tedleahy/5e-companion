@@ -11,15 +11,17 @@ type Props = {
     locked?: boolean;
     /** If true, the item is greyed out and not toggleable. */
     disabled?: boolean;
+    testID?: string;
 };
 
 export default function ProficiencyItem({
-    name, abilityAbbr, selected, onToggle, locked, disabled,
+    name, abilityAbbr, selected, onToggle, locked, disabled, testID,
 }: Props) {
     const isInteractive = !locked && !disabled;
 
     return (
         <Pressable
+            testID={testID}
             onPress={isInteractive ? onToggle : undefined}
             style={[
                 styles.item,
