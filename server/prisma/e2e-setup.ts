@@ -1,4 +1,6 @@
 import 'dotenv/config';
+import fs from 'node:fs';
+import path from 'node:path';
 import prisma from './prisma';
 import seedAbilityScores from './seeds/seedAbilityScores';
 import seedRaces from './seeds/seedRaces';
@@ -23,6 +25,22 @@ import seedE2ECharacter from './seeds/seedE2ECharacter';
  *   - E2E_TEST_EMAIL                  Email for the test user
  *   - E2E_TEST_PASSWORD               Password for the test user
  */
+
+/** Fixed name written by {@link seedE2ECharacter} for Scenario 1 specs. */
+const E2E_SEED_CHARACTER_NAME = 'E2E Test Fighter';
+
+const E2E_SEED_STATE_FILE = path.resolve(
+    import.meta.dirname,
+    '../../mobile-app/e2e/.seed/state.json',
+);
+
+/**
+ * Persists seeded ids for Playwright specs that need a stable character reference.
+ */
+function writeSeedState(payload: { userId: string; characterId: string; characterName: string }): void {
+    fs.mkdirSync(path.dirname(E2E_SEED_STATE_FILE), { recursive: true });
+    fs.writeFileSync(E2E_SEED_STATE_FILE, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+}
 
 function requireEnv(name: string): string {
     const value = process.env[name];
@@ -119,6 +137,7 @@ async function main() {
     await ensureSrdSeedData();
     const userId = await ensureTestUser(supabaseUrl, serviceRoleKey, email, password);
     const { characterId } = await seedE2ECharacter(userId);
+    writeSeedState({ userId, characterId, characterName: E2E_SEED_CHARACTER_NAME });
     console.log(`[e2e-setup] Seeded fresh test character (id: ${characterId}) for user ${userId}.`);
 
     // Emit the IDs on the last line for the caller to parse if it wants them.

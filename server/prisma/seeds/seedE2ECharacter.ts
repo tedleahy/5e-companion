@@ -3,6 +3,13 @@ import prisma from '../prisma';
 /** Fixed slug used to identify the e2e test character so it can be re-seeded idempotently. */
 const E2E_CHARACTER_NAME = 'E2E Test Fighter';
 
+/** Name prefixes used by Playwright specs that submit newly-created characters. */
+const E2E_CREATED_CHARACTER_PREFIXES = [
+    'E2E Wizard',
+    'E2E Fighter',
+    'E2E Review',
+] as const;
+
 /**
  * Creates (or replaces) a Fighter level 4 character owned by the supplied Supabase
  * user id. The character is intentionally minimal — just enough for the Level-Up
@@ -19,11 +26,16 @@ export default async function seedE2ECharacter(ownerUserId: string): Promise<{ c
         throw new Error('Missing Class reference: fighter. Run the main SRD seed first.');
     }
 
-    // Remove any previously seeded e2e character so the test starts clean.
+    // Remove characters created by prior e2e runs so the shared test user stays clean.
     await prisma.character.deleteMany({
         where: {
             ownerUserId,
-            name: E2E_CHARACTER_NAME,
+            OR: [
+                { name: { startsWith: E2E_CHARACTER_NAME } },
+                ...E2E_CREATED_CHARACTER_PREFIXES.map((prefix) => ({
+                    name: { startsWith: prefix },
+                })),
+            ],
         },
     });
 

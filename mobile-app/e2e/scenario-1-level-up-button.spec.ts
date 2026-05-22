@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { readE2ESeedState } from './seedState';
 
 /**
  * Scenario 1, check 1: the `Level Up` button must only be visible when the
@@ -10,19 +11,18 @@ import { expect, test } from '@playwright/test';
 
 test.describe('Scenario 1 — Level Up button visibility', () => {
     test('Level Up button appears only in edit mode', async ({ page }) => {
-        await page.goto('/');
+        const { characterId } = readE2ESeedState();
 
-        // Open the seeded e2e Fighter from the roster.
-        const characterTile = page.getByRole('button', { name: /Open E2E Test Fighter/i });
-        await expect(characterTile).toBeVisible({ timeout: 15_000 });
-        await characterTile.click();
+        // Open the freshly seeded e2e Fighter by id so duplicate legacy names
+        // on the roster cannot confuse the selector.
+        await page.goto(`/character/${characterId}`);
 
         const levelUpButton = page.getByRole('button', { name: 'Level up character' });
         const editButton = page.getByRole('button', { name: 'Enable character sheet edit mode' });
         const cancelButton = page.getByRole('button', { name: 'Cancel character sheet edits' });
 
         // Sheet opens in read-only mode — Level Up must be hidden.
-        await expect(editButton).toBeVisible();
+        await expect(editButton).toBeVisible({ timeout: 15_000 });
         await expect(levelUpButton).toBeHidden();
 
         // Enter edit mode — Level Up becomes visible.
