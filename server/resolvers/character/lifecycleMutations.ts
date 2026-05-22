@@ -427,32 +427,30 @@ async function loadClassAndSubclassFeatures(
             level: true,
             classId: true,
             subclassId: true,
-            parentFeatureId: true,
             chooseCount: true,
+            raw: true,
         },
         orderBy: [{ level: "asc" }, { name: "asc" }],
     });
 
     const featureChoicesByParent = groupSubmittedFeatureChoices(submittedFeatureChoices);
-    const choiceParentIds = new Set(
-        featureDefinitions
-            .filter((feature) => feature.chooseCount != null)
-            .map((feature) => feature.id),
-    );
     const choiceParentsBySrdIndex = new Map(
         featureDefinitions
-            .filter((feature) => feature.chooseCount != null && feature.srdIndex)
+            .filter((feature) => (feature.chooseCount != null || isDynamicChoiceParentFeature(feature)) && feature.srdIndex)
             .map((feature) => [feature.srdIndex as string, feature]),
     );
-    const choiceChildrenByParentId = new Map<string, typeof featureDefinitions>();
+    const choiceParentSrdIndexes = new Set(choiceParentsBySrdIndex.keys());
+    const choiceChildrenByParentSrdIndex = new Map<string, typeof featureDefinitions>();
 
     for (const feature of featureDefinitions) {
-        if (!feature.parentFeatureId || !choiceParentIds.has(feature.parentFeatureId)) {
+        const parentSrdIndex = getFeatureParentSrdIndex(feature);
+
+        if (!parentSrdIndex || !choiceParentSrdIndexes.has(parentSrdIndex)) {
             continue;
         }
 
-        const existingChildren = choiceChildrenByParentId.get(feature.parentFeatureId) ?? [];
-        choiceChildrenByParentId.set(feature.parentFeatureId, [...existingChildren, feature]);
+        const existingChildren = choiceChildrenByParentSrdIndex.get(parentSrdIndex) ?? [];
+        choiceChildrenByParentSrdIndex.set(parentSrdIndex, [...existingChildren, feature]);
     }
 
     for (const parentSrdIndex of featureChoicesByParent.keys()) {
@@ -462,11 +460,13 @@ async function loadClassAndSubclassFeatures(
     }
 
     const grantedDefinitions = featureDefinitions.flatMap((feature) => {
-        if (feature.parentFeatureId && choiceParentIds.has(feature.parentFeatureId)) {
+        const parentSrdIndex = getFeatureParentSrdIndex(feature);
+
+        if (parentSrdIndex && choiceParentSrdIndexes.has(parentSrdIndex)) {
             return [];
         }
 
-        if (feature.chooseCount == null) {
+        if (feature.chooseCount == null && !isDynamicChoiceParentFeature(feature)) {
             return [feature];
         }
 
@@ -475,7 +475,7 @@ async function loadClassAndSubclassFeatures(
         }
 
         const selectedChildIndexes = featureChoicesByParent.get(feature.srdIndex) ?? [];
-        const requiredChoiceCount = feature.chooseCount;
+        const requiredChoiceCount = feature.chooseCount ?? resolveDynamicChoiceCount(feature, resolvedClasses);
 
         if (selectedChildIndexes.length !== requiredChoiceCount) {
             throw new Error(
@@ -483,7 +483,7 @@ async function loadClassAndSubclassFeatures(
             );
         }
 
-        const availableChildren = choiceChildrenByParentId.get(feature.id) ?? [];
+        const availableChildren = choiceChildrenByParentSrdIndex.get(feature.srdIndex) ?? [];
         const selectedChildren = selectedChildIndexes.map((selectedChildSrdIndex) => {
             const matchedChild = availableChildren.find((child) => child.srdIndex === selectedChildSrdIndex);
 
@@ -513,6 +513,64 @@ async function loadClassAndSubclassFeatures(
 
         return mapFeatureDefinitionToCharacterFeature(feature, resolvedClass);
     });
+}
+
+/**
+ * Reads the SRD parent feature index from the raw API payload.
+ */
+function getFeatureParentSrdIndex(feature: { raw?: unknown }): string | null {
+    const raw = feature.raw;
+
+    if (!raw || typeof raw !== "object" || !("parent" in raw)) {
+        return null;
+    }
+
+    const parent = (raw as { parent?: unknown }).parent;
+
+    if (!parent || typeof parent !== "object" || !("index" in parent)) {
+        return null;
+    }
+
+    const parentIndex = (parent as { index?: unknown }).index;
+    return typeof parentIndex === "string" && parentIndex.trim().length > 0 ? parentIndex : null;
+}
+
+/**
+ * Returns true for SRD choice parents whose choice count is derived from class tables.
+ */
+function isDynamicChoiceParentFeature(feature: { srdIndex: string | null; name: string }): boolean {
+    return feature.srdIndex === "eldritch-invocations" || feature.name === "Eldritch Invocations";
+}
+
+/**
+ * Resolves a dynamic parent feature's required choice count for this character.
+ */
+function resolveDynamicChoiceCount(
+    feature: { srdIndex: string | null; name: string; classId: string | null },
+    resolvedClasses: Awaited<ReturnType<typeof materialiseResolvedCharacterClasses>>,
+): number {
+    if (!isDynamicChoiceParentFeature(feature)) {
+        throw new Error(`Feature choice parent ${feature.name} is missing a choice count.`);
+    }
+
+    const resolvedClass = resolvedClasses.find((candidate) => candidate.classRef.id === feature.classId);
+    const classLevel = resolvedClass?.classRow.level ?? 0;
+
+    return eldritchInvocationsKnownAtLevel(classLevel);
+}
+
+/**
+ * Returns the total Eldritch Invocations known for a Warlock class level.
+ */
+function eldritchInvocationsKnownAtLevel(level: number): number {
+    if (level < 2) return 0;
+    if (level >= 18) return 8;
+    if (level >= 15) return 7;
+    if (level >= 12) return 6;
+    if (level >= 9) return 5;
+    if (level >= 7) return 4;
+    if (level >= 5) return 3;
+    return 2;
 }
 
 /**

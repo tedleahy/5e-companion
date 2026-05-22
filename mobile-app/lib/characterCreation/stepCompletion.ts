@@ -39,8 +39,15 @@ export function isCreateCharacterStepComplete(
  * Returns true when every required create-flow feature choice has been selected.
  */
 function hasCompletedFeatureChoices(draft: CharacterDraft): boolean {
-    const requiredParents = getCreateFeatureChoiceGroups(draft.classes).map((group) => group.parentSrdIndex);
-    const chosenParents = new Set(draft.featureChoices.map((choice) => choice.parentSrdIndex));
+    const featureChoiceGroups = getCreateFeatureChoiceGroups(draft.classes);
 
-    return requiredParents.every((parentSrdIndex) => chosenParents.has(parentSrdIndex));
+    return featureChoiceGroups.every((group) => {
+        const selectedChildSrdIndexes = draft.featureChoices
+            .filter((choice) => choice.parentSrdIndex === group.parentSrdIndex)
+            .map((choice) => choice.chosenChildSrdIndex);
+        const uniqueSelectedChildCount = new Set(selectedChildSrdIndexes).size;
+
+        return selectedChildSrdIndexes.length === group.chooseCount
+            && uniqueSelectedChildCount === group.chooseCount;
+    });
 }

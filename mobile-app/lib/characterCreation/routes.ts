@@ -29,16 +29,17 @@ const BASE_CREATE_CHARACTER_STEP_ROUTES: readonly CreateCharacterRoute[] = [
 export function getCreateCharacterStepRoutes(draft: Pick<CharacterDraft, 'classes'>): CreateCharacterRoute[] {
     const routes = [...BASE_CREATE_CHARACTER_STEP_ROUTES];
 
-    if (getCreateFeatureChoiceGroups(draft.classes).length > 0) {
-        routes.push(CREATE_CHARACTER_ROUTES.features);
-    }
-
     routes.push(
         CREATE_CHARACTER_ROUTES.abilities,
         CREATE_CHARACTER_ROUTES.background,
         CREATE_CHARACTER_ROUTES.skills,
-        CREATE_CHARACTER_ROUTES.review,
     );
+
+    if (getCreateFeatureChoiceGroups(draft.classes).length > 0) {
+        routes.push(CREATE_CHARACTER_ROUTES.features);
+    }
+
+    routes.push(CREATE_CHARACTER_ROUTES.review);
 
     return routes;
 }

@@ -15,6 +15,7 @@ import {
     sortClassRowsForDisplay,
     startingClassRow,
 } from '@/lib/characterCreation/multiclass';
+import { getCreateFeatureChoiceGroups } from '@/lib/srdFeatureChoices';
 import { wizardStepStyles } from '@/components/character-creation-wizard/styles/wizardStepStyles';
 
 export default function StepReview() {
@@ -33,6 +34,7 @@ export default function StepReview() {
     const startingClass = startingClassRow(draft.classes, draft.startingClassId);
     const savingThrows = CLASS_SAVING_THROWS[startingClass?.classId ?? ''] ?? [];
     const displayClassRows = sortClassRowsForDisplay(draft.classes, draft.startingClassId);
+    const featureChoiceGroups = getCreateFeatureChoiceGroups(draft.classes);
 
     return (
         <ScrollView style={wizardStepStyles.scroll} contentContainerStyle={wizardStepStyles.container}>
@@ -147,9 +149,37 @@ export default function StepReview() {
                     </View>
                 )}
             </View>
+            {featureChoiceGroups.length > 0 ? (
+                <>
+                    <Pressable onPress={() => router.push(CREATE_CHARACTER_ROUTES.features)}>
+                        <View style={[styles.sectionHeader, styles.sectionGap]}>
+                            <Text style={wizardStepStyles.sectionLabel}>Additional Class Benefits</Text>
+                            <Text style={styles.editHint}>Edit {'\u203A'}</Text>
+                        </View>
+                    </Pressable>
+                    <ParchmentPanel style={styles.card}>
+                        {featureChoiceGroups.map((group) => {
+                            const selectedNames = draft.featureChoices
+                                .filter((choice) => choice.parentSrdIndex === group.parentSrdIndex)
+                                .map((choice) => group.options.find(
+                                    (option) => option.childSrdIndex === choice.chosenChildSrdIndex,
+                                )?.name)
+                                .filter((name): name is string => name != null);
+
+                            return (
+                                <DetailRow
+                                    key={group.parentSrdIndex}
+                                    label={group.parentFeature.name}
+                                    value={selectedNames.length > 0 ? selectedNames.join(', ') : 'Not selected'}
+                                />
+                            );
+                        })}
+                    </ParchmentPanel>
+                </>
+            ) : null}
             <View style={styles.noteBox}>
                 <Text style={styles.noteText}>
-                    Spells, equipment, features and the rest can all be filled in from your character
+                    Spells, equipment and the rest can all be filled in from your character
                     sheet after creation.
                 </Text>
             </View>

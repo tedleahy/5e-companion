@@ -319,6 +319,7 @@ describe('characterResolvers — createCharacter', () => {
                 subclassId: null,
                 parentFeatureId: 'feature-pact-boon',
                 chooseCount: null,
+                raw: { parent: { index: 'pact-boon' } },
             },
             {
                 id: 'feature-pact-chain',
@@ -332,6 +333,7 @@ describe('characterResolvers — createCharacter', () => {
                 subclassId: null,
                 parentFeatureId: 'feature-pact-boon',
                 chooseCount: null,
+                raw: { parent: { index: 'pact-boon' } },
             },
             {
                 id: 'feature-pact-tome',
@@ -345,6 +347,7 @@ describe('characterResolvers — createCharacter', () => {
                 subclassId: null,
                 parentFeatureId: 'feature-pact-boon',
                 chooseCount: null,
+                raw: { parent: { index: 'pact-boon' } },
             },
         ]);
 
@@ -381,6 +384,141 @@ describe('characterResolvers — createCharacter', () => {
                 name: 'Pact of the Chain',
                 source: 'Warlock 3',
                 description: 'Summon a special familiar.',
+            },
+        ]);
+    });
+
+    test('grants only selected dynamic Eldritch Invocation choices', async () => {
+        characterCreateMock.mockResolvedValueOnce({ id: 'char-new', ownerUserId: 'user-abc' });
+        classFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'class-warlock-id',
+                srdIndex: 'warlock',
+                name: 'Warlock',
+                hitDie: 8,
+                spellcastingAbility: 'cha',
+                proficiencies: [],
+            },
+        ]);
+        subclassFindManyMock.mockResolvedValueOnce([
+            { id: 'subclass-fiend-id', srdIndex: 'fiend', name: 'Fiend', classId: 'class-warlock-id' },
+        ]);
+        raceFindFirstMock.mockResolvedValueOnce({
+            id: 'race-human-id',
+            name: 'Human',
+            languages: [{ name: 'Common' }],
+            traits: [],
+        });
+        backgroundFindFirstMock.mockResolvedValueOnce({
+            id: 'background-acolyte-id',
+            name: 'Acolyte',
+            proficiencies: [],
+            languages: [],
+            languageChoiceCount: null,
+        });
+        featureFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'feature-eldritch-invocations',
+                srdIndex: 'eldritch-invocations',
+                name: 'Eldritch Invocations',
+                description: ['Choose two invocations.'],
+                sourceLabel: 'Warlock 2',
+                kind: 'CLASS_FEATURE',
+                level: 2,
+                classId: 'class-warlock-id',
+                subclassId: null,
+                parentFeatureId: null,
+                chooseCount: null,
+            },
+            {
+                id: 'feature-armor-of-shadows',
+                srdIndex: 'eldritch-invocation-armor-of-shadows',
+                name: 'Eldritch Invocation: Armor of Shadows',
+                description: ['Cast mage armor at will.'],
+                sourceLabel: 'Warlock 2',
+                kind: 'CLASS_FEATURE',
+                level: 2,
+                classId: 'class-warlock-id',
+                subclassId: null,
+                parentFeatureId: 'feature-eldritch-invocations',
+                chooseCount: null,
+                raw: { parent: { index: 'eldritch-invocations' } },
+            },
+            {
+                id: 'feature-beast-speech',
+                srdIndex: 'eldritch-invocation-beast-speech',
+                name: 'Eldritch Invocation: Beast Speech',
+                description: ['Cast speak with animals at will.'],
+                sourceLabel: 'Warlock 2',
+                kind: 'CLASS_FEATURE',
+                level: 2,
+                classId: 'class-warlock-id',
+                subclassId: null,
+                parentFeatureId: 'feature-eldritch-invocations',
+                chooseCount: null,
+                raw: { parent: { index: 'eldritch-invocations' } },
+            },
+            {
+                id: 'feature-devils-sight',
+                srdIndex: 'eldritch-invocation-devils-sight',
+                name: "Eldritch Invocation: Devil's Sight",
+                description: ['See normally in darkness.'],
+                sourceLabel: 'Warlock 2',
+                kind: 'CLASS_FEATURE',
+                level: 2,
+                classId: 'class-warlock-id',
+                subclassId: null,
+                parentFeatureId: 'feature-eldritch-invocations',
+                chooseCount: null,
+                raw: { parent: { index: 'eldritch-invocations' } },
+            },
+        ]);
+
+        await resolvers.createCharacter({}, {
+            input: {
+                name: 'Nyx',
+                race: 'human',
+                classes: [{ classId: 'warlock', subclassId: 'fiend', level: 2 }],
+                featureChoices: [
+                    {
+                        parentSrdIndex: 'eldritch-invocations',
+                        chosenChildSrdIndex: 'eldritch-invocation-armor-of-shadows',
+                    },
+                    {
+                        parentSrdIndex: 'eldritch-invocations',
+                        chosenChildSrdIndex: 'eldritch-invocation-beast-speech',
+                    },
+                ],
+                startingClassId: 'warlock',
+                alignment: 'Neutral',
+                background: 'acolyte',
+                ac: 12,
+                speed: 30,
+                initiative: 2,
+                abilityScores: { strength: 8, dexterity: 14, constitution: 14, intelligence: 10, wisdom: 10, charisma: 16 },
+                skillProficiencies: {},
+            },
+        } as any, authedCtx);
+
+        const callArgs = characterCreateMock.mock.calls[0]![0] as Record<string, any>;
+        expect(callArgs.data.features.create).toEqual([
+            {
+                featureId: 'feature-eldritch-invocations',
+                name: 'Eldritch Invocations',
+                source: 'Warlock 2',
+                description: 'Choose two invocations.',
+            },
+            {
+                featureId: 'feature-armor-of-shadows',
+                name: 'Eldritch Invocation: Armor of Shadows',
+                source: 'Warlock 2',
+                description: 'Cast mage armor at will.',
+            },
+            {
+                featureId: 'feature-beast-speech',
+                name: 'Eldritch Invocation: Beast Speech',
+                source: 'Warlock 2',
+                description: 'Cast speak with animals at will.',
             },
         ]);
     });
@@ -438,6 +576,7 @@ describe('characterResolvers — createCharacter', () => {
                 subclassId: null,
                 parentFeatureId: 'feature-pact-boon',
                 chooseCount: null,
+                raw: { parent: { index: 'pact-boon' } },
             },
         ]);
 

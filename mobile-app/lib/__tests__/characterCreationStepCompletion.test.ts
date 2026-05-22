@@ -101,10 +101,54 @@ describe('characterCreationStepCompletion', () => {
                 level: 3,
                 classes: [{ classId: 'warlock', subclassId: 'fiend', level: 3 }],
                 startingClassId: 'warlock',
+                featureChoices: [
+                    {
+                        parentSrdIndex: 'eldritch-invocations',
+                        chosenChildSrdIndex: 'eldritch-invocation-armor-of-shadows',
+                    },
+                    {
+                        parentSrdIndex: 'eldritch-invocations',
+                        chosenChildSrdIndex: 'eldritch-invocation-beast-speech',
+                    },
+                    {
+                        parentSrdIndex: 'pact-boon',
+                        chosenChildSrdIndex: 'pact-of-the-chain',
+                    },
+                ],
+            }),
+        )).toBe(true);
+    });
+
+    it('requires every pick for multi-choice class benefits', () => {
+        expect(isCreateCharacterStepComplete(
+            CREATE_CHARACTER_ROUTES.features,
+            createDraft({
+                level: 2,
+                classes: [{ classId: 'warlock', subclassId: 'fiend', level: 2 }],
+                startingClassId: 'warlock',
                 featureChoices: [{
-                    parentSrdIndex: 'pact-boon',
-                    chosenChildSrdIndex: 'pact-of-the-chain',
+                    parentSrdIndex: 'eldritch-invocations',
+                    chosenChildSrdIndex: 'eldritch-invocation-armor-of-shadows',
                 }],
+            }),
+        )).toBe(false);
+
+        expect(isCreateCharacterStepComplete(
+            CREATE_CHARACTER_ROUTES.features,
+            createDraft({
+                level: 2,
+                classes: [{ classId: 'warlock', subclassId: 'fiend', level: 2 }],
+                startingClassId: 'warlock',
+                featureChoices: [
+                    {
+                        parentSrdIndex: 'eldritch-invocations',
+                        chosenChildSrdIndex: 'eldritch-invocation-armor-of-shadows',
+                    },
+                    {
+                        parentSrdIndex: 'eldritch-invocations',
+                        chosenChildSrdIndex: 'eldritch-invocation-beast-speech',
+                    },
+                ],
             }),
         )).toBe(true);
     });

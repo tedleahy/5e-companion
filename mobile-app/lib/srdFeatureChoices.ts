@@ -1,4 +1,9 @@
 import type { CharacterClassDraft } from '@/lib/characterCreation/multiclass';
+import {
+    invocationGainCount,
+    SRD_INVOCATIONS,
+    SRD_METAMAGIC_OPTIONS,
+} from '@/lib/characterLevelUp/advancedClassChoices';
 import type { LevelUpWizardSelectedClass } from '@/lib/characterLevelUp/types';
 import { LEVEL_UP_SRD_FEATURES } from '@/lib/characterLevelUp/levelUpSrdData.generated';
 
@@ -7,6 +12,8 @@ type GeneratedSrdFeature = (typeof LEVEL_UP_SRD_FEATURES)[number];
 export type SrdFeatureChoiceOptionDefinition = {
     childSrdIndex: string;
     name: string;
+    subclassId?: string | null;
+    prerequisite?: string | null;
 };
 
 export type SrdFeatureChoiceDefinition = {
@@ -15,7 +22,9 @@ export type SrdFeatureChoiceDefinition = {
     classId: string;
     level: number;
     subclassId: string | null;
-    chooseCount: number;
+    chooseCount: number | ((classLevel: number) => number);
+    allowUnavailableOptions?: boolean;
+    createOnly?: boolean;
     options: readonly SrdFeatureChoiceOptionDefinition[];
 };
 
@@ -34,6 +43,7 @@ export type ResolvedSrdFeatureChoiceOption = {
     childSrdIndex: string;
     name: string;
     description: string;
+    prerequisite: string | null;
 };
 
 export type ResolvedSrdFeatureChoiceGroup = {
@@ -78,6 +88,22 @@ const SRD_FEATURE_CHOICE_DEFINITIONS: readonly SrdFeatureChoiceDefinition[] = [
         ],
     },
     {
+        parentSrdIndex: 'additional-fighting-style',
+        parentName: 'Additional Fighting Style',
+        classId: 'fighter',
+        level: 10,
+        subclassId: 'champion',
+        chooseCount: 1,
+        options: [
+            { childSrdIndex: 'fighter-fighting-style-archery', name: 'Fighting Style: Archery', subclassId: null },
+            { childSrdIndex: 'fighter-fighting-style-defense', name: 'Fighting Style: Defense', subclassId: null },
+            { childSrdIndex: 'fighter-fighting-style-dueling', name: 'Fighting Style: Dueling', subclassId: null },
+            { childSrdIndex: 'fighter-fighting-style-great-weapon-fighting', name: 'Fighting Style: Great Weapon Fighting', subclassId: null },
+            { childSrdIndex: 'fighter-fighting-style-protection', name: 'Fighting Style: Protection', subclassId: null },
+            { childSrdIndex: 'fighter-fighting-style-two-weapon-fighting', name: 'Fighting Style: Two-Weapon Fighting', subclassId: null },
+        ],
+    },
+    {
         parentSrdIndex: 'paladin-fighting-style',
         parentName: 'Fighting Style',
         classId: 'paladin',
@@ -117,6 +143,60 @@ const SRD_FEATURE_CHOICE_DEFINITIONS: readonly SrdFeatureChoiceDefinition[] = [
             { childSrdIndex: 'hunters-prey-giant-killer', name: 'Giant Killer' },
             { childSrdIndex: 'hunters-prey-horde-breaker', name: 'Horde Breaker' },
         ],
+    },
+    {
+        parentSrdIndex: 'metamagic-1',
+        parentName: 'Metamagic',
+        classId: 'sorcerer',
+        level: 3,
+        subclassId: null,
+        chooseCount: 2,
+        createOnly: true,
+        options: SRD_METAMAGIC_OPTIONS.map((option) => ({
+            childSrdIndex: `metamagic-${option.id}`,
+            name: `Metamagic: ${option.name}`,
+        })),
+    },
+    {
+        parentSrdIndex: 'metamagic-2',
+        parentName: 'Metamagic',
+        classId: 'sorcerer',
+        level: 10,
+        subclassId: null,
+        chooseCount: 1,
+        createOnly: true,
+        options: SRD_METAMAGIC_OPTIONS.map((option) => ({
+            childSrdIndex: `metamagic-${option.id}`,
+            name: `Metamagic: ${option.name}`,
+        })),
+    },
+    {
+        parentSrdIndex: 'metamagic-3',
+        parentName: 'Metamagic',
+        classId: 'sorcerer',
+        level: 17,
+        subclassId: null,
+        chooseCount: 1,
+        createOnly: true,
+        options: SRD_METAMAGIC_OPTIONS.map((option) => ({
+            childSrdIndex: `metamagic-${option.id}`,
+            name: `Metamagic: ${option.name}`,
+        })),
+    },
+    {
+        parentSrdIndex: 'eldritch-invocations',
+        parentName: 'Eldritch Invocations',
+        classId: 'warlock',
+        level: 2,
+        subclassId: null,
+        chooseCount: (classLevel) => invocationGainCount(0, classLevel),
+        allowUnavailableOptions: true,
+        createOnly: true,
+        options: SRD_INVOCATIONS.map((option) => ({
+            childSrdIndex: `eldritch-invocation-${option.id}`,
+            name: `Eldritch Invocation: ${option.name}`,
+            prerequisite: option.prerequisite,
+        })),
     },
     {
         parentSrdIndex: 'pact-boon',
@@ -202,7 +282,7 @@ export function getCreateFeatureChoiceGroups(
             .filter((definition) => definition.classId === classRow.classId)
             .filter((definition) => definition.level <= classRow.level)
             .filter((definition) => definition.subclassId == null || definition.subclassId === normaliseSubclassId(classRow.subclassId))
-            .map(resolveFeatureChoiceDefinition)
+            .map((definition) => resolveFeatureChoiceDefinition(definition, classRow.level))
             .filter((group): group is ResolvedSrdFeatureChoiceGroup => group !== null)
     ));
 }
@@ -215,9 +295,10 @@ export function getLevelUpFeatureChoiceGroups(
 ): ResolvedSrdFeatureChoiceGroup[] {
     return SRD_FEATURE_CHOICE_DEFINITIONS
         .filter((definition) => definition.classId === selectedClass.classId)
+        .filter((definition) => !definition.createOnly)
         .filter((definition) => definition.level === selectedClass.newLevel)
         .filter((definition) => definition.subclassId == null || definition.subclassId === normaliseSubclassId(selectedClass.subclassId))
-        .map(resolveFeatureChoiceDefinition)
+        .map((definition) => resolveFeatureChoiceDefinition(definition, selectedClass.newLevel))
         .filter((group): group is ResolvedSrdFeatureChoiceGroup => group !== null);
 }
 
@@ -226,18 +307,35 @@ export function getLevelUpFeatureChoiceGroups(
  */
 export function reconcileCreateFeatureChoices(
     featureChoices: readonly { parentSrdIndex: string; chosenChildSrdIndex: string }[],
-    applicableGroups: readonly Pick<ResolvedSrdFeatureChoiceGroup, 'parentSrdIndex' | 'options'>[],
+    applicableGroups: readonly Pick<ResolvedSrdFeatureChoiceGroup, 'parentSrdIndex' | 'chooseCount' | 'options'>[],
 ): Array<{ parentSrdIndex: string; chosenChildSrdIndex: string }> {
-    const validOptionsByParent = new Map(
+    const groupsByParent = new Map(
         applicableGroups.map((group) => [
             group.parentSrdIndex,
-            new Set(group.options.map((option) => option.childSrdIndex)),
+            {
+                chooseCount: group.chooseCount,
+                validOptions: new Set(group.options.map((option) => option.childSrdIndex)),
+            },
         ]),
     );
+    const seenChoicesByParent = new Map<string, Set<string>>();
 
     return featureChoices.filter((choice) => {
-        const validOptions = validOptionsByParent.get(choice.parentSrdIndex);
-        return validOptions?.has(choice.chosenChildSrdIndex) ?? false;
+        const group = groupsByParent.get(choice.parentSrdIndex);
+
+        if (!group?.validOptions.has(choice.chosenChildSrdIndex)) {
+            return false;
+        }
+
+        const seenChoices = seenChoicesByParent.get(choice.parentSrdIndex) ?? new Set<string>();
+
+        if (seenChoices.has(choice.chosenChildSrdIndex) || seenChoices.size >= group.chooseCount) {
+            return false;
+        }
+
+        seenChoices.add(choice.chosenChildSrdIndex);
+        seenChoicesByParent.set(choice.parentSrdIndex, seenChoices);
+        return true;
     });
 }
 
@@ -246,6 +344,7 @@ export function reconcileCreateFeatureChoices(
  */
 function resolveFeatureChoiceDefinition(
     definition: SrdFeatureChoiceDefinition,
+    classLevel: number,
 ): ResolvedSrdFeatureChoiceGroup | null {
     const parentFeature = findGeneratedFeature(
         definition.classId,
@@ -259,11 +358,14 @@ function resolveFeatureChoiceDefinition(
     }
 
     const options = definition.options.flatMap((option) => {
-        const feature = findGeneratedFeature(
+        const optionSubclassId = option.subclassId === undefined
+            ? definition.subclassId
+            : option.subclassId;
+        const feature = findGeneratedFeatureAtOrBelow(
             definition.classId,
-            definition.level,
+            classLevel,
             option.name,
-            definition.subclassId,
+            optionSubclassId,
         );
 
         if (!feature) {
@@ -274,16 +376,19 @@ function resolveFeatureChoiceDefinition(
             childSrdIndex: option.childSrdIndex,
             name: option.name,
             description: feature.description,
+            prerequisite: option.prerequisite ?? null,
         }];
     });
 
-    if (options.length !== definition.options.length) {
+    if (options.length === 0 || (!definition.allowUnavailableOptions && options.length !== definition.options.length)) {
         return null;
     }
 
     return {
         parentSrdIndex: definition.parentSrdIndex,
-        chooseCount: definition.chooseCount,
+        chooseCount: typeof definition.chooseCount === 'function'
+            ? definition.chooseCount(classLevel)
+            : definition.chooseCount,
         parentFeature: {
             srdIndex: definition.parentSrdIndex,
             name: parentFeature.name,
@@ -310,6 +415,23 @@ function findGeneratedFeature(
     return LEVEL_UP_SRD_FEATURES.find((feature) => (
         feature.classId === classId
         && feature.level === level
+        && feature.name === name
+        && feature.subclassId === subclassId
+    )) ?? null;
+}
+
+/**
+ * Finds one generated feature entry available at or before the given class level.
+ */
+function findGeneratedFeatureAtOrBelow(
+    classId: string,
+    maxLevel: number,
+    name: string,
+    subclassId: string | null,
+): GeneratedSrdFeature | null {
+    return LEVEL_UP_SRD_FEATURES.find((feature) => (
+        feature.classId === classId
+        && feature.level <= maxLevel
         && feature.name === name
         && feature.subclassId === subclassId
     )) ?? null;

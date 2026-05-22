@@ -17,17 +17,17 @@ describe('characterCreationRoutes', () => {
         ]);
     });
 
-    it('inserts the feature-choice route after class selection when choices are required', () => {
+    it('inserts the additional class benefits route after skills when choices are required', () => {
         expect(getCreateCharacterStepRoutes({
             ...createDefaultDraft(),
             classes: [{ classId: 'warlock', subclassId: 'fiend', level: 3 }],
         })).toEqual([
             CREATE_CHARACTER_ROUTES.identity,
             CREATE_CHARACTER_ROUTES.class,
-            CREATE_CHARACTER_ROUTES.features,
             CREATE_CHARACTER_ROUTES.abilities,
             CREATE_CHARACTER_ROUTES.background,
             CREATE_CHARACTER_ROUTES.skills,
+            CREATE_CHARACTER_ROUTES.features,
             CREATE_CHARACTER_ROUTES.review,
         ]);
     });
