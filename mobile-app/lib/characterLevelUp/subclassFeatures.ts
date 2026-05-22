@@ -3,10 +3,12 @@ import { SUBCLASS_UNLOCK_LEVEL_BY_CLASS } from '@/lib/characterCreation/classRul
 import type { AvailableSubclassOption } from '@/lib/subclasses';
 import type {
     LevelUpCustomFeatureDraft,
+    LevelUpFeatureChoiceGroup,
     LevelUpFeature,
     LevelUpSubclassSelectionState,
     LevelUpWizardSelectedClass,
 } from './types';
+import { getLevelUpFeatureChoiceGroups as getResolvedLevelUpFeatureChoiceGroups } from '@/lib/srdFeatureChoices';
 import {
     LEVEL_UP_SPELL_SLOTS_BY_CLASS,
     LEVEL_UP_SRD_FEATURES,
@@ -274,11 +276,16 @@ export function resolveSelectedClassSubclass(
  */
 export function getLevelUpFeatures(selectedClass: LevelUpWizardSelectedClass): LevelUpFeature[] {
     const selectedSubclassId = normaliseLevelUpSubclassId(selectedClass.subclassId);
+    const featureChoiceGroups = getLevelUpFeatureChoiceGroups(selectedClass);
+    const choiceChildNames = new Set(
+        featureChoiceGroups.flatMap((group) => group.options.map((option) => option.name)),
+    );
     const classFeatures = LEVEL_UP_SRD_FEATURES
         .filter((feature) => feature.classId === selectedClass.classId && feature.level === selectedClass.newLevel)
         .filter((feature) => shouldIncludeFeature(feature, selectedSubclassId))
         .filter((feature) => !isPickerManagedFeature(feature.name))
-        .map((feature) => mapGeneratedFeature(feature));
+        .filter((feature) => !choiceChildNames.has(feature.name))
+        .map((feature) => mapGeneratedFeature(feature, featureChoiceGroups));
     const customSubclassFeatures = selectedClass.subclassIsCustom
         ? selectedClass.subclassFeatures
             .filter((feature) => feature.level === selectedClass.newLevel)
@@ -311,6 +318,49 @@ export function getLevelUpFeatures(selectedClass: LevelUpWizardSelectedClass): L
 }
 
 /**
+ * Returns any simple feature-choice groups unlocked at the selected class level.
+ */
+export function getLevelUpFeatureChoiceGroups(
+    selectedClass: LevelUpWizardSelectedClass,
+): LevelUpFeatureChoiceGroup[] {
+    return getResolvedLevelUpFeatureChoiceGroups(selectedClass).map((group) => {
+        const subclassName = group.parentFeature.subclassId
+            ? subclassDisplayName(group.parentFeature.subclassId, group.parentFeature.subclassName)
+            : null;
+        const parentFeature = mapResolvedFeatureChoiceFeature(group.parentFeature);
+
+        return {
+            parentSrdIndex: group.parentSrdIndex,
+            chooseCount: group.chooseCount,
+            parentFeature,
+            options: group.options.map((option) => ({
+                childSrdIndex: option.childSrdIndex,
+                name: option.name,
+                description: option.description,
+                feature: {
+                    key: `${group.parentSrdIndex}-${option.childSrdIndex}`,
+                    srdIndex: option.childSrdIndex,
+                    parentSrdIndex: group.parentSrdIndex,
+                    name: option.name,
+                    description: option.description,
+                    source: featureSourceLabel(
+                        group.parentFeature.className,
+                        group.parentFeature.level,
+                        subclassName,
+                    ),
+                    classId: group.parentFeature.classId,
+                    level: group.parentFeature.level,
+                    subclassId: group.parentFeature.subclassId,
+                    subclassName,
+                    kind: group.parentFeature.subclassId ? 'subclass' : 'class',
+                    customSubclassFeature: null,
+                },
+            })),
+        };
+    });
+}
+
+/**
  * Returns true for SRD feature names that represent individual picker-managed
  * choices (e.g. "Eldritch Invocation: Agonizing Blast", "Metamagic: Careful Spell").
  * These are excluded from the auto-added feature list because the level-up
@@ -332,10 +382,17 @@ export function hasNewFeaturesStep(selectedClass: LevelUpWizardSelectedClass): b
  */
 export function canContinueFromNewFeatures(
     customFeatures: readonly LevelUpCustomFeatureDraft[],
+    featureChoiceGroups: readonly LevelUpFeatureChoiceGroup[],
+    selectedFeatureChoices: Readonly<Record<string, string>>,
 ): boolean {
-    return customFeatures.every((feature) => (
+    const customFeaturesComplete = customFeatures.every((feature) => (
         feature.name.trim().length > 0 && feature.description.trim().length > 0
     ));
+    const requiredChoicesMade = featureChoiceGroups.every((group) => (
+        selectedFeatureChoices[group.parentSrdIndex] != null
+    ));
+
+    return customFeaturesComplete && requiredChoicesMade;
 }
 
 /**
@@ -358,6 +415,8 @@ export function mapCustomFeatureDrafts(
 ): LevelUpFeature[] {
     return customFeatures.map((feature) => ({
         key: feature.id,
+        srdIndex: null,
+        parentSrdIndex: null,
         name: feature.name.trim(),
         description: feature.description.trim(),
         source: featureSourceLabel(
@@ -375,6 +434,20 @@ export function mapCustomFeatureDrafts(
             level: selectedClass.newLevel,
         },
     }));
+}
+
+/**
+ * Maps selected child feature choices into persisted level-up features.
+ */
+export function mapSelectedFeatureChoiceFeatures(
+    featureChoiceGroups: readonly LevelUpFeatureChoiceGroup[],
+    selectedFeatureChoices: Readonly<Record<string, string>>,
+): LevelUpFeature[] {
+    return featureChoiceGroups.flatMap((group) => {
+        const selectedChildSrdIndex = selectedFeatureChoices[group.parentSrdIndex];
+        const selectedOption = group.options.find((option) => option.childSrdIndex === selectedChildSrdIndex);
+        return selectedOption ? [selectedOption.feature] : [];
+    });
 }
 
 /**
@@ -425,13 +498,62 @@ function shouldIncludeFeature(
  */
 function mapGeneratedFeature(
     feature: GeneratedSrdFeature,
+    featureChoiceGroups: readonly LevelUpFeatureChoiceGroup[] = [],
 ): LevelUpFeature {
+    const featureChoiceParent = featureChoiceGroups.find((group) => (
+        group.parentFeature.classId === feature.classId
+        && group.parentFeature.level === feature.level
+        && group.parentFeature.name === feature.name
+        && group.parentFeature.subclassId === feature.subclassId
+    ));
+
+    if (featureChoiceParent) {
+        return featureChoiceParent.parentFeature;
+    }
+
     const subclassName = feature.subclassId
         ? subclassDisplayName(feature.subclassId, feature.subclassName)
         : null;
 
     return {
         key: `${feature.classId}-${feature.level}-${feature.subclassId ?? 'base'}-${feature.name}`,
+        srdIndex: null,
+        parentSrdIndex: null,
+        name: feature.name,
+        description: feature.description,
+        source: featureSourceLabel(feature.className, feature.level, subclassName),
+        classId: feature.classId,
+        level: feature.level,
+        subclassId: feature.subclassId,
+        subclassName,
+        kind: feature.subclassId ? 'subclass' : 'class',
+        customSubclassFeature: null,
+    };
+}
+
+/**
+ * Converts one shared SRD feature-choice entry into the wizard's feature shape.
+ */
+function mapResolvedFeatureChoiceFeature(
+    feature: {
+        srdIndex: string;
+        name: string;
+        description: string;
+        classId: string;
+        className: string;
+        level: number;
+        subclassId: string | null;
+        subclassName: string | null;
+    },
+): LevelUpFeature {
+    const subclassName = feature.subclassId
+        ? subclassDisplayName(feature.subclassId, feature.subclassName)
+        : null;
+
+    return {
+        key: `${feature.classId}-${feature.level}-${feature.srdIndex}`,
+        srdIndex: feature.srdIndex,
+        parentSrdIndex: null,
         name: feature.name,
         description: feature.description,
         source: featureSourceLabel(feature.className, feature.level, subclassName),
@@ -470,6 +592,8 @@ function spellSlotUnlockFeatures(selectedClass: LevelUpWizardSelectedClass): Lev
 
         features.push({
             key: `${selectedClass.classId}-${selectedClass.newLevel}-slot-${slotLevel}`,
+            srdIndex: null,
+            parentSrdIndex: null,
             name: `${ordinal(slotLevel)} Level Spell Slot`,
             description: `You gain access to ${ordinal(slotLevel).toLowerCase()}-level spell slots for ${selectedClass.className}.`,
             source: featureSourceLabel(selectedClass.className, selectedClass.newLevel, null),

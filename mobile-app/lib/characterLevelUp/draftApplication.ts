@@ -329,6 +329,8 @@ export function buildAdvancedChoiceFeatures(
         subclassId: selectedClass.subclassId,
         subclassName: selectedClass.subclassName,
         kind: 'class' as const,
+        srdIndex: null,
+        parentSrdIndex: null,
         customSubclassFeature: null,
     };
 
@@ -339,6 +341,8 @@ export function buildAdvancedChoiceFeatures(
             features.push({
                 ...base,
                 key: `invocation-${srd.id}`,
+                srdIndex: null,
+                parentSrdIndex: null,
                 name: `Eldritch Invocation: ${srd.name}`,
                 description: srd.fullDescription,
             });
@@ -352,6 +356,8 @@ export function buildAdvancedChoiceFeatures(
         features.push({
             ...base,
             key: `invocation-custom-${customInvocationKey}`,
+            srdIndex: null,
+            parentSrdIndex: null,
             name: `Eldritch Invocation: ${trimmedCustomInvocationName}`,
             description: invocationState.customInvocation.description.trim(),
         });
@@ -364,6 +370,8 @@ export function buildAdvancedChoiceFeatures(
             features.push({
                 ...base,
                 key: `invocation-swap-${srd.id}`,
+                srdIndex: null,
+                parentSrdIndex: null,
                 name: `Eldritch Invocation: ${srd.name}`,
                 description: srd.fullDescription,
             });
@@ -377,6 +385,8 @@ export function buildAdvancedChoiceFeatures(
             features.push({
                 ...base,
                 key: `metamagic-${srd.id}`,
+                srdIndex: null,
+                parentSrdIndex: null,
                 name: `Metamagic: ${srd.name}`,
                 description: srd.fullDescription,
             });
@@ -387,6 +397,8 @@ export function buildAdvancedChoiceFeatures(
         features.push({
             ...base,
             key: `metamagic-custom-${metamagicState.customMetamagic.name}`,
+            srdIndex: null,
+            parentSrdIndex: null,
             name: `Metamagic: ${metamagicState.customMetamagic.name.trim()}`,
             description: metamagicState.customMetamagic.description.trim(),
         });
@@ -396,6 +408,8 @@ export function buildAdvancedChoiceFeatures(
         features.push({
             ...base,
             key: `mystic-arcanum-${mysticArcanumState.selectedSpell.level}`,
+            srdIndex: null,
+            parentSrdIndex: null,
             name: formatMysticArcanumSpellLabel(mysticArcanumState.selectedSpell.level, mysticArcanumState.selectedSpell.name),
             description: `${mysticArcanumState.selectedSpell.name} — once per long rest without a spell slot.`,
         });

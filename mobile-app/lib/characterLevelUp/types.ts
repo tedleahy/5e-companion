@@ -152,6 +152,8 @@ export type LevelUpCustomFeatureDraft = {
  */
 export type LevelUpFeature = {
     key: string;
+    srdIndex: string | null;
+    parentSrdIndex: string | null;
     name: string;
     description: string;
     source: string;
@@ -164,6 +166,26 @@ export type LevelUpFeature = {
         classId: string;
         level: number;
     } | null;
+};
+
+/**
+ * One available child option inside a level-up feature-choice group.
+ */
+export type LevelUpFeatureChoiceOption = {
+    childSrdIndex: string;
+    name: string;
+    description: string;
+    feature: LevelUpFeature;
+};
+
+/**
+ * One level-up feature that asks the user to choose from child options.
+ */
+export type LevelUpFeatureChoiceGroup = {
+    parentSrdIndex: string;
+    chooseCount: number;
+    parentFeature: LevelUpFeature;
+    options: LevelUpFeatureChoiceOption[];
 };
 
 /**

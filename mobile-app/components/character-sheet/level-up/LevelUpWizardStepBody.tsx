@@ -6,7 +6,10 @@ import type {
     LevelUpWizardStep,
 } from '@/lib/characterLevelUp/types';
 import { levelUpClassOption, levelUpHitDieLabel } from '@/lib/characterLevelUp/chooseClass';
-import { mapCustomFeatureDrafts } from '@/lib/characterLevelUp/subclassFeatures';
+import {
+    mapCustomFeatureDrafts,
+    mapSelectedFeatureChoiceFeatures,
+} from '@/lib/characterLevelUp/subclassFeatures';
 import type { AvailableSubclassOption } from '@/lib/subclasses';
 import LevelUpAsiOrFeatStep from './LevelUpAsiOrFeatStep';
 import LevelUpClassResourcesStep from './LevelUpClassResourcesStep';
@@ -53,6 +56,8 @@ export default function LevelUpWizardStepBody({
         metamagicState,
         mysticArcanumState,
         newFeatures,
+        featureChoiceGroups,
+        selectedFeatureChoices,
         customFeatures,
         currentStep,
         selectClass,
@@ -65,6 +70,7 @@ export default function LevelUpWizardStepBody({
         addCustomFeature,
         changeCustomFeature,
         removeCustomFeature,
+        selectFeatureChoice,
         toggleMulticlassSkill,
         toggleInvocation,
         changeCustomInvocation,
@@ -199,7 +205,10 @@ export default function LevelUpWizardStepBody({
             <LevelUpNewFeaturesStep
                 selectedClass={selectedClass}
                 features={newFeatures}
+                featureChoiceGroups={featureChoiceGroups}
+                selectedFeatureChoices={selectedFeatureChoices}
                 customFeatures={customFeatures}
+                onSelectFeatureChoice={selectFeatureChoice}
                 onAddCustomFeature={addCustomFeature}
                 onChangeCustomFeature={changeCustomFeature}
                 onRemoveCustomFeature={removeCustomFeature}
@@ -253,6 +262,7 @@ export default function LevelUpWizardStepBody({
                 asiOrFeatState={stepRequiresAsiOrFeat(currentStep, asiOrFeatState)}
                 features={[
                     ...newFeatures,
+                    ...mapSelectedFeatureChoiceFeatures(featureChoiceGroups, selectedFeatureChoices),
                     ...mapCustomFeatureDrafts(selectedClass, customFeatures),
                 ]}
                 spellcastingState={spellcastingState}

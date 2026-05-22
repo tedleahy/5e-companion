@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
 import type {
     LevelUpCustomFeatureDraft,
+    LevelUpFeatureChoiceGroup,
     LevelUpFeature,
     LevelUpWizardSelectedClass,
 } from '@/lib/characterLevelUp/types';
@@ -11,7 +12,10 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
 type LevelUpNewFeaturesStepProps = {
     selectedClass: LevelUpWizardSelectedClass;
     features: LevelUpFeature[];
+    featureChoiceGroups: LevelUpFeatureChoiceGroup[];
+    selectedFeatureChoices: Record<string, string>;
     customFeatures: LevelUpCustomFeatureDraft[];
+    onSelectFeatureChoice: (parentSrdIndex: string, chosenChildSrdIndex: string) => void;
     onAddCustomFeature: () => void;
     onChangeCustomFeature: (featureId: string, changes: Partial<LevelUpCustomFeatureDraft>) => void;
     onRemoveCustomFeature: (featureId: string) => void;
@@ -23,7 +27,10 @@ type LevelUpNewFeaturesStepProps = {
 export default function LevelUpNewFeaturesStep({
     selectedClass,
     features,
+    featureChoiceGroups,
+    selectedFeatureChoices,
     customFeatures,
+    onSelectFeatureChoice,
     onAddCustomFeature,
     onChangeCustomFeature,
     onRemoveCustomFeature,
@@ -46,6 +53,14 @@ export default function LevelUpNewFeaturesStep({
                     </View>
                     <Text style={styles.featureSource}>{feature.source}</Text>
                     <Text style={styles.featureDescription}>{feature.description}</Text>
+
+                    {feature.srdIndex ? (
+                        renderFeatureChoiceGroup(
+                            featureChoiceGroups.find((group) => group.parentSrdIndex === feature.srdIndex) ?? null,
+                            selectedFeatureChoices,
+                            onSelectFeatureChoice,
+                        )
+                    ) : null}
                 </View>
             ))}
 
@@ -132,6 +147,64 @@ export default function LevelUpNewFeaturesStep({
 }
 
 /**
+ * Renders the inline picker for one parent/child feature-choice group.
+ */
+function renderFeatureChoiceGroup(
+    group: LevelUpFeatureChoiceGroup | null,
+    selectedFeatureChoices: Readonly<Record<string, string>>,
+    onSelectFeatureChoice: (parentSrdIndex: string, chosenChildSrdIndex: string) => void,
+) {
+    if (!group) {
+        return null;
+    }
+
+    const selectedChildSrdIndex = selectedFeatureChoices[group.parentSrdIndex] ?? null;
+    const selectedOption = group.options.find((option) => option.childSrdIndex === selectedChildSrdIndex) ?? null;
+
+    return (
+        <View style={styles.choiceSection}>
+            <Text style={styles.choicePrompt}>
+                Choose {group.chooseCount === 1 ? 'one option' : `${group.chooseCount} options`}:
+            </Text>
+
+            <View style={styles.choiceOptionList}>
+                {group.options.map((option) => {
+                    const selected = option.childSrdIndex === selectedChildSrdIndex;
+
+                    return (
+                        <Pressable
+                            key={option.childSrdIndex}
+                            onPress={() => onSelectFeatureChoice(group.parentSrdIndex, option.childSrdIndex)}
+                            accessibilityRole="radio"
+                            accessibilityState={{ checked: selected }}
+                            style={[
+                                styles.choiceOptionCard,
+                                selected && styles.choiceOptionCardSelected,
+                            ]}
+                            testID={`level-up-feature-choice-${group.parentSrdIndex}-${option.childSrdIndex}`}
+                        >
+                            <View style={styles.choiceOptionHeader}>
+                                <View style={[styles.choiceRadioDot, selected && styles.choiceRadioDotSelected]} />
+                                <Text style={styles.choiceOptionName}>{option.name}</Text>
+                            </View>
+                            <Text style={styles.choiceOptionDescription}>{option.description}</Text>
+                        </Pressable>
+                    );
+                })}
+            </View>
+
+            {selectedOption ? (
+                <View style={styles.choicePreview}>
+                    <Text style={styles.choicePreviewTitle}>Chosen Feature</Text>
+                    <Text style={styles.choicePreviewName}>{selectedOption.name}</Text>
+                    <Text style={styles.choicePreviewDescription}>{selectedOption.description}</Text>
+                </View>
+            ) : null}
+        </View>
+    );
+}
+
+/**
  * Styles for the new-features step.
  */
 const styles = StyleSheet.create({
@@ -178,6 +251,72 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.inkSoft,
     },
     featureDescription: {
+        ...fantasyTokens.typography.body,
+        color: fantasyTokens.colors.inkLight,
+    },
+    choiceSection: {
+        marginTop: fantasyTokens.spacing.md,
+        gap: fantasyTokens.spacing.sm,
+    },
+    choicePrompt: {
+        ...fantasyTokens.typography.buttonLabel,
+        color: fantasyTokens.colors.inkSoft,
+    },
+    choiceOptionList: {
+        gap: fantasyTokens.spacing.sm,
+    },
+    choiceOptionCard: {
+        gap: fantasyTokens.spacing.xs,
+        borderRadius: fantasyTokens.radii.md,
+        borderWidth: 1,
+        borderColor: fantasyTokens.colors.sheetDivider,
+        backgroundColor: 'rgba(212,201,180,0.22)',
+        padding: fantasyTokens.spacing.md,
+    },
+    choiceOptionCardSelected: {
+        borderColor: fantasyTokens.colors.claret,
+        backgroundColor: 'rgba(140,29,56,0.08)',
+    },
+    choiceOptionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: fantasyTokens.spacing.sm,
+    },
+    choiceRadioDot: {
+        width: 14,
+        height: 14,
+        borderRadius: 999,
+        borderWidth: 1,
+        borderColor: fantasyTokens.colors.inkSoft,
+    },
+    choiceRadioDotSelected: {
+        backgroundColor: fantasyTokens.colors.claret,
+        borderColor: fantasyTokens.colors.claret,
+    },
+    choiceOptionName: {
+        ...fantasyTokens.typography.buttonLabel,
+        color: fantasyTokens.colors.inkDark,
+        flex: 1,
+    },
+    choiceOptionDescription: {
+        ...fantasyTokens.typography.bodySmall,
+        color: fantasyTokens.colors.inkLight,
+    },
+    choicePreview: {
+        gap: fantasyTokens.spacing.xs,
+        borderRadius: fantasyTokens.radii.md,
+        backgroundColor: 'rgba(212,201,180,0.28)',
+        padding: fantasyTokens.spacing.md,
+    },
+    choicePreviewTitle: {
+        ...fantasyTokens.typography.buttonLabel,
+        color: fantasyTokens.colors.inkSoft,
+    },
+    choicePreviewName: {
+        ...fantasyTokens.typography.cardTitle,
+        color: fantasyTokens.colors.inkDark,
+    },
+    choicePreviewDescription: {
         ...fantasyTokens.typography.body,
         color: fantasyTokens.colors.inkLight,
     },

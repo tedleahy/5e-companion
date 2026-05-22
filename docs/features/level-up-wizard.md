@@ -49,7 +49,7 @@ Rules by condition:
 | `hit_points` | Always |
 | `asi_or_feat` | `ASI_LEVELS_BY_CLASS_ID[classId].includes(newLevel)` |
 | `subclass_selection` | Class has no subclass yet and this level unlocks it |
-| `new_features` | The class gains at least one feature at this level (SRD + custom) |
+| `new_features` | The class gains at least one feature at this level (SRD + custom), including inline parent/child feature choices like Pact Boon or Hunter's Prey |
 | `spellcasting_updates` | New spell slots, spells known/prepared, cantrips, swaps |
 | `multiclass_proficiencies` | This is a brand-new class being added |
 | `class_resources` | Resource progression changes (Rage uses, Sorcery Points, etc.) or advanced choices (invocations, metamagic, mystic arcanum) |
@@ -68,7 +68,7 @@ All state is held locally by `useLevelUpWizard` via many `useState` hooks — **
 | `spellcastingState` | `spellcasting.ts` |
 | `multiclassProficiencyState` | `multiclassProficiencies.ts` |
 | `invocationState`, `metamagicState`, `mysticArcanumState` | `advancedClassChoices.ts` |
-| `customFeatures` | in-hook, shaped by `subclassFeatures.ts` draft types |
+| `featureChoiceSelections`, `customFeatures` | in-hook, shaped by `subclassFeatures.ts` draft types |
 
 Each module exports:
 
@@ -76,7 +76,7 @@ Each module exports:
 - Pure transition functions (`toggle…`, `setX…`, `increment…`).
 - A `canContinueFrom…()` predicate the hook uses to gate the "Continue" button.
 
-The hook wires callbacks and memoises derived values (`steps`, `selectedClass`, `spellcastingSummary`, `newFeatures`, …). Steps and derived state recompute as the class or other inputs change.
+The hook wires callbacks and memoises derived values (`steps`, `selectedClass`, `spellcastingSummary`, `newFeatures`, `featureChoiceGroups`, …). Steps and derived state recompute as the class or other inputs change.
 
 ## Applying the draft to the sheet
 
@@ -90,6 +90,15 @@ The sheet draft layer lives in:
 - `mobile-app/lib/character-sheet/`
 
 The draft then gets persisted via the `saveCharacterSheet` mutation when the user saves the sheet — the level-up wizard itself does **not** talk to the server.
+
+## Feature-choice handling
+
+The `new_features` step now handles two cases:
+
+- Plain gained features are shown as read-only cards and added directly to the draft.
+- Parent/child SRD feature groups (for example `Pact Boon`, `Fighting Style`, `Circle of the Land`, and the Hunter subclass pickers) render the parent feature card plus an inline child picker. The user must choose a child before continuing.
+
+When the level-up is confirmed, the draft keeps the parent feature row and adds only the selected child feature row. Unchosen child options are never appended to the sheet draft.
 
 ## Adding a new step
 

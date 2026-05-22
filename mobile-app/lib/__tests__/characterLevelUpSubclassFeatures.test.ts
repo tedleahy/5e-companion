@@ -2,9 +2,11 @@ import {
     canContinueFromNewFeatures,
     canContinueFromSubclassSelection,
     getLevelUpFeatures,
+    getLevelUpFeatureChoiceGroups,
     isPickerManagedFeature,
     isSubclassChoiceLevel,
     mapCustomFeatureDrafts,
+    mapSelectedFeatureChoiceFeatures,
 } from '@/lib/characterLevelUp/subclassFeatures';
 import type { LevelUpWizardSelectedClass } from '@/lib/characterLevelUp/types';
 
@@ -74,6 +76,40 @@ describe('characterLevelUp subclass features', () => {
         ]));
     });
 
+    it('keeps parent choice features in the feature list while exposing child options separately', () => {
+        const selectedClass = createSelectedClass({
+            classId: 'warlock',
+            className: 'Warlock',
+            currentLevel: 2,
+            newLevel: 3,
+            subclassId: 'fiend',
+            subclassName: 'Fiend',
+        });
+
+        expect(getLevelUpFeatures(selectedClass)).toEqual(expect.arrayContaining([
+            expect.objectContaining({ name: 'Pact Boon' }),
+        ]));
+        expect(getLevelUpFeatures(selectedClass)).toEqual(expect.arrayContaining([
+            expect.objectContaining({ name: 'Pact Boon', srdIndex: 'pact-boon' }),
+        ]));
+        expect(getLevelUpFeatures(selectedClass)).toEqual(expect.not.arrayContaining([
+            expect.objectContaining({ name: 'Pact of the Blade' }),
+            expect.objectContaining({ name: 'Pact of the Chain' }),
+            expect.objectContaining({ name: 'Pact of the Tome' }),
+        ]));
+
+        expect(getLevelUpFeatureChoiceGroups(selectedClass)).toEqual([
+            expect.objectContaining({
+                parentSrdIndex: 'pact-boon',
+                options: expect.arrayContaining([
+                    expect.objectContaining({ childSrdIndex: 'pact-of-the-chain', name: 'Pact of the Chain' }),
+                    expect.objectContaining({ childSrdIndex: 'pact-of-the-blade', name: 'Pact of the Blade' }),
+                    expect.objectContaining({ childSrdIndex: 'pact-of-the-tome', name: 'Pact of the Tome' }),
+                ]),
+            }),
+        ]);
+    });
+
     it('includes persisted custom subclass features for owned subclasses at the current level', () => {
         expect(getLevelUpFeatures(createSelectedClass({
             currentLevel: 1,
@@ -110,13 +146,25 @@ describe('characterLevelUp subclass features', () => {
     });
 
     it('requires drafted custom subclass features to be complete before continuing', () => {
-        expect(canContinueFromNewFeatures([])).toBe(true);
+        expect(canContinueFromNewFeatures([], [], {})).toBe(true);
         expect(canContinueFromNewFeatures([
             { id: 'feature-1', name: 'Runic Ward', description: 'Create a brief shield of force.' },
-        ])).toBe(true);
+        ], [], {})).toBe(true);
         expect(canContinueFromNewFeatures([
             { id: 'feature-1', name: 'Runic Ward', description: '' },
-        ])).toBe(false);
+        ], [], {})).toBe(false);
+        expect(canContinueFromNewFeatures(
+            [],
+            getLevelUpFeatureChoiceGroups(createSelectedClass({
+                classId: 'warlock',
+                className: 'Warlock',
+                currentLevel: 2,
+                newLevel: 3,
+                subclassId: 'fiend',
+                subclassName: 'Fiend',
+            })),
+            {},
+        )).toBe(false);
     });
 
     it('maps custom subclass features into persisted feature rows', () => {
@@ -146,6 +194,27 @@ describe('characterLevelUp subclass features', () => {
                     classId: 'wizard',
                     level: 2,
                 },
+            }),
+        ]);
+    });
+
+    it('maps selected child feature choices into persisted level-up features', () => {
+        const choiceGroups = getLevelUpFeatureChoiceGroups(createSelectedClass({
+            classId: 'warlock',
+            className: 'Warlock',
+            currentLevel: 2,
+            newLevel: 3,
+            subclassId: 'fiend',
+            subclassName: 'Fiend',
+        }));
+
+        expect(mapSelectedFeatureChoiceFeatures(choiceGroups, {
+            'pact-boon': 'pact-of-the-chain',
+        })).toEqual([
+            expect.objectContaining({
+                srdIndex: 'pact-of-the-chain',
+                parentSrdIndex: 'pact-boon',
+                name: 'Pact of the Chain',
             }),
         ]);
     });

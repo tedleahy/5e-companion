@@ -349,6 +349,8 @@ describe('applyLevelUpToDraft', () => {
             features: [
                 {
                     key: 'wizard-11-slot-6',
+                    srdIndex: null,
+                    parentSrdIndex: null,
                     name: '6th Level Spell Slot',
                     description: 'You gain access to 6th-level spell slots for Wizard.',
                     source: 'Wizard 11',

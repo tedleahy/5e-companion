@@ -35,7 +35,10 @@ import RailScreenShell from '@/components/navigation/RailScreenShell';
 import useCharacterSheetData from '@/hooks/useCharacterSheetData';
 import useCharacterSheetDraft from '@/hooks/useCharacterSheetDraft';
 import { isAtMaxLevel } from '@/lib/characterLevelUp/advancedClassChoices';
-import { mapCustomFeatureDrafts } from '@/lib/characterLevelUp/subclassFeatures';
+import {
+    mapCustomFeatureDrafts,
+    mapSelectedFeatureChoiceFeatures,
+} from '@/lib/characterLevelUp/subclassFeatures';
 import {
     formatCharacterClassSummary,
     hasSpellcastingProfiles,
@@ -340,6 +343,10 @@ export default function CharacterByIdScreen() {
             mysticArcanumState: levelUpWizard.mysticArcanumState,
             features: [
                 ...levelUpWizard.newFeatures,
+                ...mapSelectedFeatureChoiceFeatures(
+                    levelUpWizard.featureChoiceGroups,
+                    levelUpWizard.selectedFeatureChoices,
+                ),
                 ...mapCustomFeatureDrafts(levelUpWizard.selectedClass, levelUpWizard.customFeatures),
             ],
         });
