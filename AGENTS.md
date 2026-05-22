@@ -48,6 +48,7 @@ Whenever you've finished a task that changes behaviour described in the docs, up
 
 - **Every resolver that touches user data** calls `requireUser(ctx)` and scopes queries by `ownerUserId`. No exceptions today.
 - **Resolve SRD entities by `srdIndex`**, never by DB id or display label. The mobile app's option values (races, classes, subclasses, backgrounds) must stay aligned with seeded SRD data — otherwise `createCharacter` and friends can't resolve them.
+- **Keep SRD parent/child feature choices aligned across seed + mobile helpers.** If you change SRD feature groups like Pact Boon, Fighting Style, Circle of the Land, or Hunter choices, update both `server/prisma/seeds/seedCharacterReferenceData.ts` and `mobile-app/lib/srdFeatureChoices.ts`.
 - **Reuse `reconcileSheetCollection.ts`** when adding a new character-sheet collection to `saveCharacterSheet` — don't hand-roll diff logic.
 - **Prefer promoting `Spell.raw` JSON fields** to typed columns + indexes when you need to filter/sort on them, rather than reading JSON at query time.
 

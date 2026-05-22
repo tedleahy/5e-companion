@@ -276,6 +276,8 @@ model Feature {
     sourceLabel     String?
     sourceBook      String?
     raw             Json?
+    parentFeatureId String?
+    chooseCount     Int?
     classId         String?
     subclassId      String?
     raceId          String?
@@ -283,6 +285,8 @@ model Feature {
     backgroundId    String?
     traitId         String?
     featId          String?
+    parentFeature   Feature?         @relation("FeatureParentChild", fields: [parentFeatureId], references: [id], onDelete: SetNull)
+    childFeatures   Feature[]        @relation("FeatureParentChild")
     classRef        Class?           @relation("ClassFeatures", fields: [classId], references: [id], onDelete: SetNull)
     subclassRef     Subclass?        @relation("SubclassFeatures", fields: [subclassId], references: [id], onDelete: SetNull)
     raceRef         Race?            @relation("RaceFeatures", fields: [raceId], references: [id], onDelete: SetNull)
@@ -295,6 +299,7 @@ model Feature {
     @@index([ownerUserId])
     @@index([name])
     @@index([kind])
+    @@index([parentFeatureId])
     @@index([classId])
     @@index([subclassId])
     @@index([raceId])

@@ -104,6 +104,8 @@ The reference tables are normalised rather than JSON — `AGENTS.md` is explicit
 - `Subclass` → belongs to a `Class`, carries `description: String[]`.
 - `Background` → many-to-many to `Proficiency` and `Language`, plus the background `Feature`.
 - `Feature` is polymorphic — optional FKs to any of `classId`, `subclassId`, `raceId`, `subraceId`, `backgroundId`, `traitId`, `featId`. `FeatureKind` enum tags the owner. When adding feature data, set exactly one of these plus `kind`.
+- `Feature.parentFeatureId` models SRD parent/child feature trees such as Pact Boon, Fighting Style, Circle of the Land, and Hunter choices. `Feature.chooseCount` is only populated for parent features that use SRD `feature_specific.subfeature_options`.
+- `CharacterFeature` stores the resolved result of those choices on the character sheet: the parent feature row plus only the chosen child feature rows, not every child option.
 - `Proficiency.type: ProficiencyType` (ARMOR / WEAPON / TOOL / SKILL / SAVING_THROW / OTHER) — filter on this when rendering starting proficiencies.
 
 Most reference tables support user-owned rows via `ownerUserId` (null for SRD). Custom subclasses created during character creation end up here. `Spell` is the exception today: custom spells are distinguished by `source=CUSTOM`, but they are not user-owned because the model has no `ownerUserId`.

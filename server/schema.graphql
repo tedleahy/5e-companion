@@ -246,6 +246,7 @@ input CreateCharacterInput {
     name: String!
     race: String!
     classes: [CreateCharacterClassInput!]!
+    featureChoices: [FeatureChoiceInput!]
     startingClassId: String!
     alignment: String!
     background: String!
@@ -275,6 +276,11 @@ input CreateCharacterClassInput {
     subclassId: String
     customSubclass: CustomSubclassInput
     level: Int!
+}
+
+input FeatureChoiceInput {
+    parentSrdIndex: String!
+    chosenChildSrdIndex: String!
 }
 
 input CustomSubclassInput {

@@ -264,6 +264,199 @@ describe('characterResolvers — createCharacter', () => {
             },
         ]);
     });
+
+    test('grants only the chosen child feature for parent/child class feature choices', async () => {
+        characterCreateMock.mockResolvedValueOnce({ id: 'char-new', ownerUserId: 'user-abc' });
+        classFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'class-warlock-id',
+                srdIndex: 'warlock',
+                name: 'Warlock',
+                hitDie: 8,
+                spellcastingAbility: 'cha',
+                proficiencies: [],
+            },
+        ]);
+        subclassFindManyMock.mockResolvedValueOnce([
+            { id: 'subclass-fiend-id', srdIndex: 'fiend', name: 'Fiend', classId: 'class-warlock-id' },
+        ]);
+        raceFindFirstMock.mockResolvedValueOnce({
+            id: 'race-human-id',
+            name: 'Human',
+            languages: [{ name: 'Common' }],
+            traits: [],
+        });
+        backgroundFindFirstMock.mockResolvedValueOnce({
+            id: 'background-acolyte-id',
+            name: 'Acolyte',
+            proficiencies: [],
+            languages: [],
+            languageChoiceCount: null,
+        });
+        featureFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'feature-pact-boon',
+                srdIndex: 'pact-boon',
+                name: 'Pact Boon',
+                description: ['Choose one pact boon.'],
+                sourceLabel: 'Warlock 3',
+                kind: 'CLASS_FEATURE',
+                level: 3,
+                classId: 'class-warlock-id',
+                subclassId: null,
+                parentFeatureId: null,
+                chooseCount: 1,
+            },
+            {
+                id: 'feature-pact-blade',
+                srdIndex: 'pact-of-the-blade',
+                name: 'Pact of the Blade',
+                description: ['Create a pact weapon.'],
+                sourceLabel: 'Warlock 3',
+                kind: 'CLASS_FEATURE',
+                level: 3,
+                classId: 'class-warlock-id',
+                subclassId: null,
+                parentFeatureId: 'feature-pact-boon',
+                chooseCount: null,
+            },
+            {
+                id: 'feature-pact-chain',
+                srdIndex: 'pact-of-the-chain',
+                name: 'Pact of the Chain',
+                description: ['Summon a special familiar.'],
+                sourceLabel: 'Warlock 3',
+                kind: 'CLASS_FEATURE',
+                level: 3,
+                classId: 'class-warlock-id',
+                subclassId: null,
+                parentFeatureId: 'feature-pact-boon',
+                chooseCount: null,
+            },
+            {
+                id: 'feature-pact-tome',
+                srdIndex: 'pact-of-the-tome',
+                name: 'Pact of the Tome',
+                description: ['Receive a Book of Shadows.'],
+                sourceLabel: 'Warlock 3',
+                kind: 'CLASS_FEATURE',
+                level: 3,
+                classId: 'class-warlock-id',
+                subclassId: null,
+                parentFeatureId: 'feature-pact-boon',
+                chooseCount: null,
+            },
+        ]);
+
+        await resolvers.createCharacter({}, {
+            input: {
+                name: 'Nyx',
+                race: 'human',
+                classes: [{ classId: 'warlock', subclassId: 'fiend', level: 3 }],
+                featureChoices: [{
+                    parentSrdIndex: 'pact-boon',
+                    chosenChildSrdIndex: 'pact-of-the-chain',
+                }],
+                startingClassId: 'warlock',
+                alignment: 'Neutral',
+                background: 'acolyte',
+                ac: 12,
+                speed: 30,
+                initiative: 2,
+                abilityScores: { strength: 8, dexterity: 14, constitution: 14, intelligence: 10, wisdom: 10, charisma: 16 },
+                skillProficiencies: {},
+            },
+        } as any, authedCtx);
+
+        const callArgs = characterCreateMock.mock.calls[0]![0] as Record<string, any>;
+        expect(callArgs.data.features.create).toEqual([
+            {
+                featureId: 'feature-pact-boon',
+                name: 'Pact Boon',
+                source: 'Warlock 3',
+                description: 'Choose one pact boon.',
+            },
+            {
+                featureId: 'feature-pact-chain',
+                name: 'Pact of the Chain',
+                source: 'Warlock 3',
+                description: 'Summon a special familiar.',
+            },
+        ]);
+    });
+
+    test('rejects createCharacter when a required parent/child feature choice is missing', async () => {
+        classFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'class-warlock-id',
+                srdIndex: 'warlock',
+                name: 'Warlock',
+                hitDie: 8,
+                spellcastingAbility: 'cha',
+                proficiencies: [],
+            },
+        ]);
+        subclassFindManyMock.mockResolvedValueOnce([
+            { id: 'subclass-fiend-id', srdIndex: 'fiend', name: 'Fiend', classId: 'class-warlock-id' },
+        ]);
+        raceFindFirstMock.mockResolvedValueOnce({
+            id: 'race-human-id',
+            name: 'Human',
+            languages: [{ name: 'Common' }],
+            traits: [],
+        });
+        backgroundFindFirstMock.mockResolvedValueOnce({
+            id: 'background-acolyte-id',
+            name: 'Acolyte',
+            proficiencies: [],
+            languages: [],
+            languageChoiceCount: null,
+        });
+        featureFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'feature-pact-boon',
+                srdIndex: 'pact-boon',
+                name: 'Pact Boon',
+                description: ['Choose one pact boon.'],
+                sourceLabel: 'Warlock 3',
+                kind: 'CLASS_FEATURE',
+                level: 3,
+                classId: 'class-warlock-id',
+                subclassId: null,
+                parentFeatureId: null,
+                chooseCount: 1,
+            },
+            {
+                id: 'feature-pact-chain',
+                srdIndex: 'pact-of-the-chain',
+                name: 'Pact of the Chain',
+                description: ['Summon a special familiar.'],
+                sourceLabel: 'Warlock 3',
+                kind: 'CLASS_FEATURE',
+                level: 3,
+                classId: 'class-warlock-id',
+                subclassId: null,
+                parentFeatureId: 'feature-pact-boon',
+                chooseCount: null,
+            },
+        ]);
+
+        expect(resolvers.createCharacter({}, {
+            input: {
+                name: 'Nyx',
+                race: 'human',
+                classes: [{ classId: 'warlock', subclassId: 'fiend', level: 3 }],
+                startingClassId: 'warlock',
+                alignment: 'Neutral',
+                background: 'acolyte',
+                ac: 12,
+                speed: 30,
+                initiative: 2,
+                abilityScores: { strength: 8, dexterity: 14, constitution: 14, intelligence: 10, wisdom: 10, charisma: 16 },
+                skillProficiencies: {},
+            },
+        } as any, authedCtx)).rejects.toThrow('Pact Boon requires 1 choice');
+    });
 });
 
 describe('characterResolvers — updateCharacter', () => {

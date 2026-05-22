@@ -93,6 +93,12 @@ type SrdFeature = {
     desc?: string[];
     class?: SrdReference;
     subclass?: SrdReference;
+    parent?: SrdReference;
+    feature_specific?: {
+        subfeature_options?: {
+            choose?: number;
+        };
+    };
 };
 
 type SrdRace = {
@@ -421,6 +427,8 @@ async function seedFeatures(
                 sourceLabel: classFeatureSourceLabel(feature),
                 sourceBook: 'SRD',
                 raw: feature as Prisma.InputJsonValue,
+                parentFeature: { disconnect: true },
+                chooseCount: feature.feature_specific?.subfeature_options?.choose ?? null,
                 classRef: feature.class
                     ? { connect: { srdIndex: feature.class.index } }
                     : { disconnect: true },
@@ -437,12 +445,28 @@ async function seedFeatures(
                 sourceLabel: classFeatureSourceLabel(feature),
                 sourceBook: 'SRD',
                 raw: feature as Prisma.InputJsonValue,
+                chooseCount: feature.feature_specific?.subfeature_options?.choose ?? null,
                 classRef: feature.class
                     ? { connect: { srdIndex: feature.class.index } }
                     : undefined,
                 subclassRef: feature.subclass
                     ? { connect: { srdIndex: feature.subclass.index } }
                     : undefined,
+            },
+        });
+    }
+
+    for (const feature of features) {
+        if (!feature.parent) {
+            continue;
+        }
+
+        await prisma.feature.update({
+            where: { srdIndex: feature.index },
+            data: {
+                parentFeature: {
+                    connect: { srdIndex: feature.parent.index },
+                },
             },
         });
     }

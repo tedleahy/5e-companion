@@ -46,6 +46,11 @@ const FEATURE_KIND = {
     CUSTOM_FEATURE: "CUSTOM_FEATURE",
 } as const satisfies Record<FeatureKind, FeatureKind>;
 
+type SubmittedFeatureChoice = {
+    parentSrdIndex: string;
+    chosenChildSrdIndex: string;
+};
+
 /**
  * Creates a multiclass-aware character and nested stats row with server-derived rules.
  */
@@ -61,6 +66,7 @@ export async function createCharacter(
         skillProficiencies,
         traits,
         currency,
+        featureChoices,
         classes,
         startingClassId,
         race,
@@ -181,6 +187,7 @@ export async function createCharacter(
         const classAndSubclassFeatures = await loadClassAndSubclassFeatures(
             tx,
             resolvedClasses,
+            featureChoices ?? [],
         );
         const singleSpellcastingProfile = spellcastingProfiles.length === 1 ? spellcastingProfiles[0] : null;
         const namedClassProficiencies = deriveNamedClassProficiencies(resolvedClasses, startingClassIndex);
@@ -375,6 +382,7 @@ function deriveLanguageNames(
 async function loadClassAndSubclassFeatures(
     tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
     resolvedClasses: Awaited<ReturnType<typeof materialiseResolvedCharacterClasses>>,
+    submittedFeatureChoices: SubmittedFeatureChoice[],
 ) {
     const filters = resolvedClasses.flatMap((resolvedClass) => {
         const classFilters: Array<{
@@ -409,10 +417,91 @@ async function loadClassAndSubclassFeatures(
         where: {
             OR: filters,
         },
+        select: {
+            id: true,
+            srdIndex: true,
+            name: true,
+            description: true,
+            sourceLabel: true,
+            kind: true,
+            level: true,
+            classId: true,
+            subclassId: true,
+            parentFeatureId: true,
+            chooseCount: true,
+        },
         orderBy: [{ level: "asc" }, { name: "asc" }],
     });
 
-    return featureDefinitions.map((feature) => {
+    const featureChoicesByParent = groupSubmittedFeatureChoices(submittedFeatureChoices);
+    const choiceParentIds = new Set(
+        featureDefinitions
+            .filter((feature) => feature.chooseCount != null)
+            .map((feature) => feature.id),
+    );
+    const choiceParentsBySrdIndex = new Map(
+        featureDefinitions
+            .filter((feature) => feature.chooseCount != null && feature.srdIndex)
+            .map((feature) => [feature.srdIndex as string, feature]),
+    );
+    const choiceChildrenByParentId = new Map<string, typeof featureDefinitions>();
+
+    for (const feature of featureDefinitions) {
+        if (!feature.parentFeatureId || !choiceParentIds.has(feature.parentFeatureId)) {
+            continue;
+        }
+
+        const existingChildren = choiceChildrenByParentId.get(feature.parentFeatureId) ?? [];
+        choiceChildrenByParentId.set(feature.parentFeatureId, [...existingChildren, feature]);
+    }
+
+    for (const parentSrdIndex of featureChoicesByParent.keys()) {
+        if (!choiceParentsBySrdIndex.has(parentSrdIndex)) {
+            throw new Error(`Unexpected feature choice parent: ${parentSrdIndex}`);
+        }
+    }
+
+    const grantedDefinitions = featureDefinitions.flatMap((feature) => {
+        if (feature.parentFeatureId && choiceParentIds.has(feature.parentFeatureId)) {
+            return [];
+        }
+
+        if (feature.chooseCount == null) {
+            return [feature];
+        }
+
+        if (!feature.srdIndex) {
+            throw new Error(`Feature choice parent ${feature.name} is missing an SRD index.`);
+        }
+
+        const selectedChildIndexes = featureChoicesByParent.get(feature.srdIndex) ?? [];
+        const requiredChoiceCount = feature.chooseCount;
+
+        if (selectedChildIndexes.length !== requiredChoiceCount) {
+            throw new Error(
+                `${feature.name} requires ${requiredChoiceCount} choice${requiredChoiceCount === 1 ? '' : 's'}.`,
+            );
+        }
+
+        const availableChildren = choiceChildrenByParentId.get(feature.id) ?? [];
+        const selectedChildren = selectedChildIndexes.map((selectedChildSrdIndex) => {
+            const matchedChild = availableChildren.find((child) => child.srdIndex === selectedChildSrdIndex);
+
+            if (!matchedChild) {
+                throw new Error(`Invalid choice ${selectedChildSrdIndex} for feature ${feature.name}.`);
+            }
+
+            return matchedChild;
+        });
+
+        if (new Set(selectedChildren.map((child) => child.id)).size !== selectedChildren.length) {
+            throw new Error(`${feature.name} choices must be unique.`);
+        }
+
+        return [feature, ...selectedChildren];
+    });
+
+    return grantedDefinitions.map((feature) => {
         const resolvedClass = resolvedClasses.find((candidate) => (
             (feature.kind === FEATURE_KIND.SUBCLASS_FEATURE && candidate.subclassRef?.id === feature.subclassId)
             || (feature.kind === FEATURE_KIND.CLASS_FEATURE && candidate.classRef.id === feature.classId)
@@ -481,4 +570,27 @@ function mergeNamedValues(...valueSets: string[][]): string[] {
     }
 
     return values;
+}
+
+/**
+ * Groups repeated submitted feature-choice rows by parent SRD index.
+ */
+function groupSubmittedFeatureChoices(
+    submittedFeatureChoices: SubmittedFeatureChoice[],
+): Map<string, string[]> {
+    const groupedChoices = new Map<string, string[]>();
+
+    for (const choice of submittedFeatureChoices) {
+        const parentSrdIndex = choice.parentSrdIndex.trim();
+        const chosenChildSrdIndex = choice.chosenChildSrdIndex.trim();
+
+        if (parentSrdIndex.length === 0 || chosenChildSrdIndex.length === 0) {
+            continue;
+        }
+
+        const existingChoices = groupedChoices.get(parentSrdIndex) ?? [];
+        groupedChoices.set(parentSrdIndex, [...existingChoices, chosenChildSrdIndex]);
+    }
+
+    return groupedChoices;
 }
