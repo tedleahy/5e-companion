@@ -2,6 +2,7 @@ import type { CharacterDraft } from '@/store/characterDraft';
 import { CREATE_CHARACTER_ROUTES, type CreateCharacterRoute } from '@/lib/characterCreation/routes';
 import { validateCharacterClassDraft } from '@/lib/characterCreation/multiclass';
 import { SUBCLASS_OPTIONS, type OptionItem } from '@/lib/characterCreation/options';
+import { getCreateFeatureChoiceGroups } from '@/lib/srdFeatureChoices';
 
 /**
  * Returns whether the current create-character step is complete enough to continue.
@@ -21,6 +22,8 @@ export function isCreateCharacterStepComplete(
                 draft.startingClassId,
                 subclassOptionsByClassId,
             ).isValid;
+        case CREATE_CHARACTER_ROUTES.features:
+            return hasCompletedFeatureChoices(draft);
         case CREATE_CHARACTER_ROUTES.background:
             return draft.background !== '';
         case CREATE_CHARACTER_ROUTES.abilities:
@@ -30,4 +33,14 @@ export function isCreateCharacterStepComplete(
         default:
             return false;
     }
+}
+
+/**
+ * Returns true when every required create-flow feature choice has been selected.
+ */
+function hasCompletedFeatureChoices(draft: CharacterDraft): boolean {
+    const requiredParents = getCreateFeatureChoiceGroups(draft.classes).map((group) => group.parentSrdIndex);
+    const chosenParents = new Set(draft.featureChoices.map((choice) => choice.parentSrdIndex));
+
+    return requiredParents.every((parentSrdIndex) => chosenParents.has(parentSrdIndex));
 }

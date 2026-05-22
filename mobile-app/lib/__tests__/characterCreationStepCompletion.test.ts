@@ -84,6 +84,31 @@ describe('characterCreationStepCompletion', () => {
         )).toBe(true);
     });
 
+    it('requires every unlocked feature choice before the feature step can continue', () => {
+        expect(isCreateCharacterStepComplete(
+            CREATE_CHARACTER_ROUTES.features,
+            createDraft({
+                level: 3,
+                classes: [{ classId: 'warlock', subclassId: 'fiend', level: 3 }],
+                startingClassId: 'warlock',
+                featureChoices: [],
+            }),
+        )).toBe(false);
+
+        expect(isCreateCharacterStepComplete(
+            CREATE_CHARACTER_ROUTES.features,
+            createDraft({
+                level: 3,
+                classes: [{ classId: 'warlock', subclassId: 'fiend', level: 3 }],
+                startingClassId: 'warlock',
+                featureChoices: [{
+                    parentSrdIndex: 'pact-boon',
+                    chosenChildSrdIndex: 'pact-of-the-chain',
+                }],
+            }),
+        )).toBe(true);
+    });
+
     it('requires a background on the background route', () => {
         expect(isCreateCharacterStepComplete(
             CREATE_CHARACTER_ROUTES.background,

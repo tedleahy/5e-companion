@@ -4,11 +4,19 @@ import {
     normaliseStartingClassId,
     type CharacterClassDraft,
 } from '@/lib/characterCreation/multiclass';
+import {
+    getCreateFeatureChoiceGroups,
+    reconcileCreateFeatureChoices,
+} from '@/lib/srdFeatureChoices';
 
 export type CharacterDraft = {
     name: string;
     race: string;
     classes: CharacterClassDraft[];
+    featureChoices: Array<{
+        parentSrdIndex: string;
+        chosenChildSrdIndex: string;
+    }>;
     startingClassId: string;
     level: number;
     abilityScores: Record<AbilityKey, number>;
@@ -44,6 +52,7 @@ export function createDefaultDraft(): CharacterDraft {
         name: '',
         race: '',
         classes: [],
+        featureChoices: [],
         startingClassId: '',
         level: 1,
         abilityScores: { ...DEFAULT_SCORES },
@@ -84,6 +93,13 @@ export function CharacterDraftProvider({ children }: { children: ReactNode }) {
                 nextDraft.startingClassId = normaliseStartingClassId(
                     nextDraft.classes,
                     nextDraft.startingClassId,
+                );
+            }
+
+            if (patch.classes || patch.featureChoices) {
+                nextDraft.featureChoices = reconcileCreateFeatureChoices(
+                    nextDraft.featureChoices,
+                    getCreateFeatureChoiceGroups(nextDraft.classes),
                 );
             }
 

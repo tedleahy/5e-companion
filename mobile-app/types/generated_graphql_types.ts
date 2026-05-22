@@ -134,6 +134,7 @@ export type CreateCharacterInput = {
   background: Scalars['String']['input'];
   classes: Array<CreateCharacterClassInput>;
   currency?: InputMaybe<CurrencyInput>;
+  featureChoices?: InputMaybe<Array<FeatureChoiceInput>>;
   initiative: Scalars['Int']['input'];
   name: Scalars['String']['input'];
   race: Scalars['String']['input'];
@@ -174,6 +175,11 @@ export type DeathSaves = {
 export type DeathSavesInput = {
   failures: Scalars['Int']['input'];
   successes: Scalars['Int']['input'];
+};
+
+export type FeatureChoiceInput = {
+  chosenChildSrdIndex: Scalars['String']['input'];
+  parentSrdIndex: Scalars['String']['input'];
 };
 
 export type FeatureInput = {

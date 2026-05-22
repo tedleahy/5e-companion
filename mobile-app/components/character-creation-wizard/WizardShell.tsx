@@ -33,7 +33,7 @@ export default function WizardShell({ children }: Props) {
         draft.classes.map((classRow) => classRow.classId),
     );
 
-    const stepRoutes = useMemo(() => getCreateCharacterStepRoutes(draft.level), [draft.level]);
+    const stepRoutes = useMemo(() => getCreateCharacterStepRoutes(draft), [draft]);
     const totalSteps = stepRoutes.length;
     const currentStep = deriveCreateCharacterStepIndex(pathname, stepRoutes);
     const currentRoute = stepRoutes[currentStep];

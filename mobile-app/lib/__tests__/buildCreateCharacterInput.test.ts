@@ -36,4 +36,25 @@ describe('buildCreateCharacterInput', () => {
 
         expect(input.classes).toEqual([{ classId: 'fighter', level: 1 }]);
     });
+
+    it('includes selected SRD parent/child feature choices in the mutation input', () => {
+        const input = buildCreateCharacterInput({
+            ...createDefaultDraft(),
+            name: 'Nyx',
+            race: 'Human',
+            level: 3,
+            classes: [{ classId: 'warlock', subclassId: 'fiend', level: 3 }],
+            featureChoices: [{
+                parentSrdIndex: 'pact-boon',
+                chosenChildSrdIndex: 'pact-of-the-chain',
+            }],
+            startingClassId: 'warlock',
+            background: 'Acolyte',
+        });
+
+        expect(input.featureChoices).toEqual([{
+            parentSrdIndex: 'pact-boon',
+            chosenChildSrdIndex: 'pact-of-the-chain',
+        }]);
+    });
 });

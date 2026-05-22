@@ -9,7 +9,10 @@ Multi-step Expo Router wizard at `mobile-app/app/characters/create/` that collec
 ```mermaid
 flowchart LR
     idx["1. Identity<br/>(name + race)"] --> cls["2. Class<br/>(single / multiclass)"]
-    cls --> ab["3. Abilities<br/>(roll / point-buy)"]
+    cls --> fc{"feature choices?"}
+    fc -->|yes| feat["3. Features<br/>(choose parent/child options)"]
+    fc -->|no| ab["3. Abilities<br/>(roll / point-buy)"]
+    feat --> ab
     ab --> bg["4. Background<br/>+ alignment"]
     bg --> sk["5. Skills"]
     sk --> rv["6. Review → Create"]
@@ -23,6 +26,7 @@ flowchart LR
 - A shared `WizardShell` renders the header (progress bar + step dots), footer (Continue CTA), and handles back/cancel.
 - Step-gating rules live in `mobile-app/lib/characterCreation/stepCompletion.ts`.
 - Submission shapes the draft into `CreateCharacterInput` via `mobile-app/lib/characterCreation/buildCreateCharacterInput.ts`.
+- When the selected class rows unlock SRD parent/child feature choices (for example Pact Boon or Fighting Style), the wizard inserts a conditional `features` step before abilities and sends `featureChoices` to `createCharacter`.
 
 ## Key files
 
@@ -31,7 +35,7 @@ flowchart LR
 | File | Role |
 | --- | --- |
 | `mobile-app/app/characters/create/_layout.tsx` | Wraps the wizard in `CharacterDraftProvider` + `WizardShell` |
-| `mobile-app/app/characters/create/{index,class,abilities,background,skills,review}.tsx` | Step screens |
+| `mobile-app/app/characters/create/{index,class,features,abilities,background,skills,review}.tsx` | Step screens |
 | `mobile-app/app/characters/create/race.tsx` | Redirects to the identity step; kept so direct navigation to the old route does not break |
 | `mobile-app/store/characterDraft.tsx` | Draft context + all mutator helpers |
 | `mobile-app/lib/characterCreation/` | Pure business logic: multiclass, options, class rules, ability rules, race rules, buildCreateCharacterInput, routes, step completion |

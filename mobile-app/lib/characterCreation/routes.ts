@@ -1,10 +1,13 @@
 import type { Href } from 'expo-router';
+import type { CharacterDraft } from '@/store/characterDraft';
+import { getCreateFeatureChoiceGroups } from '@/lib/srdFeatureChoices';
 
 /** Typed route constants for the character-creation wizard flow. */
 export const CREATE_CHARACTER_ROUTES = {
     identity: '/characters/create',
     race: '/characters/create/race',
     class: '/characters/create/class',
+    features: '/characters/create/features',
     abilities: '/characters/create/abilities',
     background: '/characters/create/background',
     skills: '/characters/create/skills',
@@ -18,17 +21,26 @@ export type CreateCharacterRoute = (typeof CREATE_CHARACTER_ROUTES)[keyof typeof
 const BASE_CREATE_CHARACTER_STEP_ROUTES: readonly CreateCharacterRoute[] = [
     CREATE_CHARACTER_ROUTES.identity,
     CREATE_CHARACTER_ROUTES.class,
-    CREATE_CHARACTER_ROUTES.abilities,
-    CREATE_CHARACTER_ROUTES.background,
-    CREATE_CHARACTER_ROUTES.skills,
-    CREATE_CHARACTER_ROUTES.review,
 ];
 
 /**
  * Returns the typed route order for the create-character wizard.
  */
-export function getCreateCharacterStepRoutes(_level: number): CreateCharacterRoute[] {
-    return [...BASE_CREATE_CHARACTER_STEP_ROUTES];
+export function getCreateCharacterStepRoutes(draft: Pick<CharacterDraft, 'classes'>): CreateCharacterRoute[] {
+    const routes = [...BASE_CREATE_CHARACTER_STEP_ROUTES];
+
+    if (getCreateFeatureChoiceGroups(draft.classes).length > 0) {
+        routes.push(CREATE_CHARACTER_ROUTES.features);
+    }
+
+    routes.push(
+        CREATE_CHARACTER_ROUTES.abilities,
+        CREATE_CHARACTER_ROUTES.background,
+        CREATE_CHARACTER_ROUTES.skills,
+        CREATE_CHARACTER_ROUTES.review,
+    );
+
+    return routes;
 }
 
 /**

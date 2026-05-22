@@ -72,6 +72,7 @@ export function buildCreateCharacterInput(
             ...(classRow.subclassId ? { subclassId: classRow.subclassId } : {}),
             level: classRow.level,
         })),
+        featureChoices: draft.featureChoices,
         startingClassId: draft.startingClassId,
         alignment: draft.alignment ?? '',
         background: draft.background,
