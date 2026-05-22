@@ -35,14 +35,14 @@ _layout.tsx
 | `features.tsx` | 3 - Features (conditional) | Inserted only when the selected SRD classes/subclasses unlock parent/child feature choices (for example Pact Boon, Circle of the Land, Fighting Style, Hunter's Prey). Renders one card per parent feature and requires a single child selection for each before continuing |
 | `abilities.tsx` | 3/4 - Abilities | Toggle between Roll (4d6 drop lowest) and Point Buy modes. Also handles ASI (Ability Score Increase) allocation for higher levels |
 | `background.tsx` | 4/5 - Background | Background selection (`OptionGrid`), alignment (3x3 grid), and personality trait text fields (traits, ideals, bonds, flaws) |
-| `skills.tsx` | 5/6 - Skills | Saving throws (display-only, from starting class), background skills (locked), class skill picks (capped by `pick` count). Long-press for expertise toggle |
+| `skills.tsx` | 5/6 - Skills | Saving throws (display-only, from starting class), background skills (locked), class skill picks (capped by `pick` count) |
 | `review.tsx` | Final step - Review | Read-only summary of all choices. Each section is tappable to jump back to its step for editing. "Create Character" triggers the GraphQL mutation |
 
 ### State management
 
 | File | Purpose |
 |---|---|
-| `store/characterDraft.tsx` | `CharacterDraftProvider` context + `useCharacterDraft()` hook. Holds the full `CharacterDraft` type, including `featureChoices`. Provides `updateDraft()` (partial merge), `setAbilityScore()`, `setAllAbilityScores()`, `toggleSkillProficiency()`, `toggleExpertise()`, `resetDraft()`, `hasDraftData()` |
+| `store/characterDraft.tsx` | `CharacterDraftProvider` context + `useCharacterDraft()` hook. Holds the full `CharacterDraft` type, including `featureChoices`. Provides `updateDraft()` (partial merge), `setAbilityScore()`, `setAllAbilityScores()`, `toggleSkillProficiency()`, `resetDraft()`, `hasDraftData()` |
 
 ### Wizard infrastructure
 
@@ -61,7 +61,7 @@ _layout.tsx
 | `classRules.ts` | Static D&D rule data: `HIT_DIE_MAP`, armour/weapon proficiencies, `BACKGROUND_SKILL_PROFICIENCIES`, `CLASS_SKILL_OPTIONS` (with `pick` count), `CLASS_SAVING_THROWS`, `CLASS_SPELLCASTING_ABILITY_MAP`, `CLASS_ABILITY_PRIORITY`, `SUBCLASS_UNLOCK_LEVEL_BY_CLASS` |
 | `abilityRules.ts` | Point buy cost table, ASI level thresholds, `roll4d6DropLowest()`, `rollAllAbilityScores()`, `suggestAbilityScores()` (reorders rolled scores by class priority), `asiPointsForLevel()`, `proficiencyBonusForLevel()` |
 | `raceRules.ts` | `RACE_ABILITY_BONUSES`, `RACE_SPEED_MAP`, `applyRacialBonuses()` |
-| `buildCreateCharacterInput.ts` | Converts `CharacterDraft` to `CreateCharacterInput` for the GraphQL mutation. Applies ASI + racial bonuses to ability scores, computes AC/initiative/speed, builds skill proficiency map with expertise levels |
+| `buildCreateCharacterInput.ts` | Converts `CharacterDraft` to `CreateCharacterInput` for the GraphQL mutation. Applies ASI + racial bonuses to ability scores, computes AC/initiative/speed, builds skill proficiency map |
 | `srdFeatureChoices.ts` | Shared SRD parent/child feature-choice definitions used by both the create flow and the level-up wizard |
 
 ### Reusable wizard components (`components/wizard/`)
@@ -74,7 +74,7 @@ _layout.tsx
 | `RollAbilityMode` | Abilities step (roll mode: 4d6 drop lowest, drag to reorder, suggest button) |
 | `PointBuyAbilityMode` | Abilities step (point buy mode: increment/decrement within budget) |
 | `AbilityBlock` | Used by both ability modes to render a single ability score |
-| `ProficiencyItem` | Skills step (toggleable skill row with expertise long-press) |
+| `ProficiencyItem` | Skills step (toggleable skill row) |
 
 ## CharacterDraft Shape
 
@@ -95,7 +95,6 @@ type CharacterDraft = {
     flaws: string;
     skillProficiencies: SkillKey[];
     asiAllocations: Record<AbilityKey, number>;  // ASI points distributed
-    expertiseSkills: SkillKey[];                  // skills with double proficiency
     abilityMode: 'roll' | 'pointBuy';
 };
 ```

@@ -84,7 +84,7 @@ Write detailed, grouped commit messages. Examples of the style:
 Rules:
 
 - Add bullet points on separate lines for extra detail.
-- **Don't commit markdown or txt files**, except `AGENTS.md` and anything under `docs/`.
+- **Don't commit markdown or txt files** located in the root of the project, except `AGENTS.md`.
 
 ---
 
