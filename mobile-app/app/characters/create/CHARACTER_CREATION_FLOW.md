@@ -16,10 +16,11 @@ _layout.tsx
                  ├─ index.tsx      ← Step 1: Identity (name + race)
                  ├─ race.tsx       ← (redirect to identity — kept for Expo Router)
                  ├─ class.tsx      ← Step 2: Class selection (level stepper, single-class default, multiclass opt-in)
-                 ├─ abilities.tsx  ← Step 3: Ability scores
-                 ├─ background.tsx ← Step 4: Background, alignment, personality
-                 ├─ skills.tsx     ← Step 5: Skill proficiencies
-                 └─ review.tsx     ← Step 6: Review + create
+                 ├─ features.tsx   ← Step 3 (conditional): Parent/child feature choices
+                 ├─ abilities.tsx  ← Step 3/4: Ability scores
+                 ├─ background.tsx ← Step 4/5: Background, alignment, personality
+                 ├─ skills.tsx     ← Step 5/6: Skill proficiencies
+                 └─ review.tsx     ← Final step: Review + create
 ```
 
 ## Key Files
@@ -31,24 +32,25 @@ _layout.tsx
 | `index.tsx` | 1 - Identity | Character name (text input) and race selection via `OptionGrid` from `RACE_OPTIONS` |
 | `race.tsx` | — | Redirect to identity step. Kept in place so Expo Router doesn't break if navigated to directly |
 | `class.tsx` | 2 - Class | Level stepper (1-20), single-class selection via `OptionGrid` by default. Inline subclass picker when unlocked, with automatic scroll into the subclass section after selecting a class that requires one. A "Multiclass" switch (with an info button that reveals an explanation) appears when a class is selected and level is 2+; toggling it on enters multiclass mode with full allocation UI |
-| `abilities.tsx` | 3 - Abilities | Toggle between Roll (4d6 drop lowest) and Point Buy modes. Also handles ASI (Ability Score Increase) allocation for higher levels |
-| `background.tsx` | 4 - Background | Background selection (`OptionGrid`), alignment (3x3 grid), and personality trait text fields (traits, ideals, bonds, flaws) |
-| `skills.tsx` | 5 - Skills | Saving throws (display-only, from starting class), background skills (locked), class skill picks (capped by `pick` count). Long-press for expertise toggle |
-| `review.tsx` | 6 - Review | Read-only summary of all choices. Each section is tappable to jump back to its step for editing. "Create Character" triggers the GraphQL mutation |
+| `features.tsx` | 3 - Features (conditional) | Inserted only when the selected SRD classes/subclasses unlock parent/child feature choices (for example Pact Boon, Circle of the Land, Fighting Style, Hunter's Prey). Renders one card per parent feature and requires a single child selection for each before continuing |
+| `abilities.tsx` | 3/4 - Abilities | Toggle between Roll (4d6 drop lowest) and Point Buy modes. Also handles ASI (Ability Score Increase) allocation for higher levels |
+| `background.tsx` | 4/5 - Background | Background selection (`OptionGrid`), alignment (3x3 grid), and personality trait text fields (traits, ideals, bonds, flaws) |
+| `skills.tsx` | 5/6 - Skills | Saving throws (display-only, from starting class), background skills (locked), class skill picks (capped by `pick` count). Long-press for expertise toggle |
+| `review.tsx` | Final step - Review | Read-only summary of all choices. Each section is tappable to jump back to its step for editing. "Create Character" triggers the GraphQL mutation |
 
 ### State management
 
 | File | Purpose |
 |---|---|
-| `store/characterDraft.tsx` | `CharacterDraftProvider` context + `useCharacterDraft()` hook. Holds the full `CharacterDraft` type. Provides `updateDraft()` (partial merge), `setAbilityScore()`, `setAllAbilityScores()`, `toggleSkillProficiency()`, `toggleExpertise()`, `resetDraft()`, `hasDraftData()` |
+| `store/characterDraft.tsx` | `CharacterDraftProvider` context + `useCharacterDraft()` hook. Holds the full `CharacterDraft` type, including `featureChoices`. Provides `updateDraft()` (partial merge), `setAbilityScore()`, `setAllAbilityScores()`, `toggleSkillProficiency()`, `toggleExpertise()`, `resetDraft()`, `hasDraftData()` |
 
 ### Wizard infrastructure
 
 | File | Purpose |
 |---|---|
 | `components/wizard/WizardShell.tsx` | Wraps all steps. Manages navigation (back/next/cancel), progress bar, step dots. Calls `isCreateCharacterStepComplete()` to gate the Continue button. On the last step, calls `buildCreateCharacterInput()` then fires `CREATE_CHARACTER` GraphQL mutation. On success, navigates to `/character/{id}` |
-| `lib/characterCreation/routes.ts` | Defines `CREATE_CHARACTER_ROUTES` constant (typed `Href` values), `getCreateCharacterStepRoutes()` (returns ordered route array — race is excluded from step order), and `deriveCreateCharacterStepIndex()` (maps pathname to step index) |
-| `lib/characterCreation/stepCompletion.ts` | `isCreateCharacterStepComplete(route, draft)` — per-step validation that gates the Continue button. Identity requires a name and race, class requires full validation, background requires a selection. Abilities, skills, and review always pass |
+| `lib/characterCreation/routes.ts` | Defines `CREATE_CHARACTER_ROUTES` constant (typed `Href` values), `getCreateCharacterStepRoutes()` (returns the ordered route array, inserting `features` only when needed), and `deriveCreateCharacterStepIndex()` (maps pathname to step index) |
+| `lib/characterCreation/stepCompletion.ts` | `isCreateCharacterStepComplete(route, draft)` — per-step validation that gates the Continue button. Identity requires a name and race, class requires full validation, `features` requires every unlocked parent/child choice, background requires a selection. Abilities, skills, and review always pass |
 
 ### Business logic (`lib/characterCreation/`)
 
@@ -60,6 +62,7 @@ _layout.tsx
 | `abilityRules.ts` | Point buy cost table, ASI level thresholds, `roll4d6DropLowest()`, `rollAllAbilityScores()`, `suggestAbilityScores()` (reorders rolled scores by class priority), `asiPointsForLevel()`, `proficiencyBonusForLevel()` |
 | `raceRules.ts` | `RACE_ABILITY_BONUSES`, `RACE_SPEED_MAP`, `applyRacialBonuses()` |
 | `buildCreateCharacterInput.ts` | Converts `CharacterDraft` to `CreateCharacterInput` for the GraphQL mutation. Applies ASI + racial bonuses to ability scores, computes AC/initiative/speed, builds skill proficiency map with expertise levels |
+| `srdFeatureChoices.ts` | Shared SRD parent/child feature-choice definitions used by both the create flow and the level-up wizard |
 
 ### Reusable wizard components (`components/wizard/`)
 
@@ -80,6 +83,7 @@ type CharacterDraft = {
     name: string;
     race: string;                           // e.g. "Elf", "Human"
     classes: CharacterClassDraft[];          // array of { classId, subclassId, level }
+    featureChoices: Array<{ parentSrdIndex: string; chosenChildSrdIndex: string }>;
     startingClassId: string;                 // which class is the "starting class"
     level: number;                           // total character level (1-20)
     abilityScores: Record<AbilityKey, number>;
@@ -131,6 +135,7 @@ The WizardShell's Continue button is disabled until `isCreateCharacterStepComple
 |---|---|
 | Identity | `name.trim().length > 0 && race !== ''` |
 | Class | `validateCharacterClassDraft().isValid` — checks: at least one class, no empty/duplicate rows, levels fully allocated, valid subclass selections, starting class set, level-1 characters must have exactly one class |
+| Features | Every applicable parent feature has a chosen child option |
 | Abilities | Always passes |
 | Background | `background !== ''` |
 | Skills | Always passes |
@@ -143,6 +148,7 @@ The WizardShell's Continue button is disabled until `isCreateCharacterStepComple
    - Applies ASI allocations + racial bonuses to ability scores
    - Computes AC (10 + DEX mod), initiative (DEX mod), speed (from race)
    - Builds full skill proficiency map (None/Proficient/Expert)
+   - Includes `featureChoices` for any selected SRD parent/child feature groups
    - Includes personality traits only if any are filled
    - Sorts and sanitises class rows
 3. Fires `CREATE_CHARACTER` GraphQL mutation with the input
