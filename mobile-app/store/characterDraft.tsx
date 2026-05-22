@@ -29,8 +29,6 @@ export type CharacterDraft = {
     skillProficiencies: SkillKey[];
     /** Per-ability ASI points allocated from levelling. */
     asiAllocations: Record<AbilityKey, number>;
-    /** Skills with expertise (double proficiency bonus). */
-    expertiseSkills: SkillKey[];
     /** Method used to determine ability scores. */
     abilityMode: 'roll' | 'pointBuy';
 };
@@ -64,7 +62,6 @@ export function createDefaultDraft(): CharacterDraft {
         flaws: '',
         skillProficiencies: [],
         asiAllocations: { strength: 0, dexterity: 0, constitution: 0, intelligence: 0, wisdom: 0, charisma: 0 },
-        expertiseSkills: [],
         abilityMode: 'roll',
     };
 }
@@ -75,7 +72,6 @@ type DraftContextValue = {
     setAbilityScore: (key: AbilityKey, value: number) => void;
     setAllAbilityScores: (scores: Record<AbilityKey, number>) => void;
     toggleSkillProficiency: (key: SkillKey) => void;
-    toggleExpertise: (key: SkillKey) => void;
     resetDraft: () => void;
     hasDraftData: () => boolean;
 };
@@ -126,21 +122,6 @@ export function CharacterDraftProvider({ children }: { children: ReactNode }) {
                 skillProficiencies: has
                     ? prev.skillProficiencies.filter((k) => k !== key)
                     : [...prev.skillProficiencies, key],
-                // Remove expertise if skill is being de-selected
-                expertiseSkills: has ? prev.expertiseSkills.filter((k) => k !== key) : prev.expertiseSkills,
-            };
-        });
-    }, []);
-
-    const toggleExpertise = useCallback((key: SkillKey) => {
-        setDraft((prev) => {
-            if (!prev.skillProficiencies.includes(key)) return prev;
-            const has = prev.expertiseSkills.includes(key);
-            return {
-                ...prev,
-                expertiseSkills: has
-                    ? prev.expertiseSkills.filter((k) => k !== key)
-                    : [...prev.expertiseSkills, key],
             };
         });
     }, []);
@@ -168,11 +149,10 @@ export function CharacterDraftProvider({ children }: { children: ReactNode }) {
             setAbilityScore,
             setAllAbilityScores,
             toggleSkillProficiency,
-            toggleExpertise,
             resetDraft,
             hasDraftData,
         }),
-        [draft, updateDraft, setAbilityScore, setAllAbilityScores, toggleSkillProficiency, toggleExpertise, resetDraft, hasDraftData],
+        [draft, updateDraft, setAbilityScore, setAllAbilityScores, toggleSkillProficiency, resetDraft, hasDraftData],
     );
 
     return <DraftContext.Provider value={value}>{children}</DraftContext.Provider>;

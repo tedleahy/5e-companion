@@ -16,7 +16,7 @@ import ProficiencyItem from '@/components/character-creation-wizard/ProficiencyI
 import { wizardStepStyles } from '@/components/character-creation-wizard/styles/wizardStepStyles';
 
 export default function StepSkills() {
-    const { draft, toggleSkillProficiency, toggleExpertise } = useCharacterDraft();
+    const { draft, toggleSkillProficiency } = useCharacterDraft();
     const startingClass = startingClassRow(draft.classes, draft.startingClassId);
     const startingClassId = startingClass?.classId ?? '';
     const savingThrows = CLASS_SAVING_THROWS[startingClassId] ?? [];
@@ -90,7 +90,6 @@ export default function StepSkills() {
                         ).map((skill) => {
                             const isSelected = draft.skillProficiencies.includes(skill.key);
                             const isDisabled = !isSelected && atClassLimit;
-                            const isExpert = draft.expertiseSkills.includes(skill.key);
                             return (
                                 <ProficiencyItem
                                     key={skill.key}
@@ -98,16 +97,11 @@ export default function StepSkills() {
                                     abilityAbbr={ABILITY_ABBREVIATIONS[skill.ability]}
                                     selected={isSelected}
                                     disabled={isDisabled}
-                                    expertise={isExpert}
                                     onToggle={() => toggleSkillProficiency(skill.key)}
-                                    onToggleExpertise={() => toggleExpertise(skill.key)}
                                 />
                             );
                         })}
                     </View>
-                    <Text style={styles.expertiseHint}>
-                        Long-press a selected skill to toggle expertise.
-                    </Text>
                     {draft.classes.length > 1 ? (
                         <Text style={styles.multiclassHint}>
                             Extra multiclass proficiencies are derived on the server when the character is created.
@@ -156,13 +150,6 @@ const styles = StyleSheet.create({
     },
     list: {
         gap: 6,
-    },
-    expertiseHint: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.caption,
-        fontStyle: 'italic',
-        color: 'rgba(106,79,212,0.45)',
-        marginTop: 6,
     },
     multiclassHint: {
         fontFamily: fantasyTokens.fonts.regular,

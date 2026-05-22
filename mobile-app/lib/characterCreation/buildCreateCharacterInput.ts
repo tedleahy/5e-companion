@@ -17,21 +17,12 @@ import { ProficiencyLevel, type CreateCharacterInput } from '@/types/generated_g
 function buildSkillProficiencies(draft: CharacterDraft): CreateCharacterInput['skillProficiencies'] {
     const backgroundSkills = BACKGROUND_SKILL_PROFICIENCIES[draft.background] ?? [];
     const allProficientSkills = new Set([...draft.skillProficiencies, ...backgroundSkills]);
-    const expertiseSkills = new Set(draft.expertiseSkills);
     const skillProficiencies: Record<string, ProficiencyLevel> = {};
 
     for (const skill of SKILL_DEFINITIONS) {
-        if (expertiseSkills.has(skill.key)) {
-            skillProficiencies[skill.key] = ProficiencyLevel.Expert;
-            continue;
-        }
-
-        if (allProficientSkills.has(skill.key)) {
-            skillProficiencies[skill.key] = ProficiencyLevel.Proficient;
-            continue;
-        }
-
-        skillProficiencies[skill.key] = ProficiencyLevel.None;
+        skillProficiencies[skill.key] = allProficientSkills.has(skill.key)
+            ? ProficiencyLevel.Proficient
+            : ProficiencyLevel.None;
     }
 
     return skillProficiencies as CreateCharacterInput['skillProficiencies'];

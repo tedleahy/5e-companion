@@ -136,20 +136,14 @@ export default function StepReview() {
                     <Text style={styles.profNone}>None selected</Text>
                 ) : (
                     <View style={styles.profTable}>
-                        {proficientSkillDefs.map((skill) => {
-                            const isExpert = draft.expertiseSkills.includes(skill.key);
-                            return (
-                                <View key={skill.key} style={styles.profRow}>
-                                    <Text style={styles.profSkillName}>{skill.label}</Text>
-                                    <Text style={styles.profSkillAbility}>
-                                        {ABILITY_ABBREVIATIONS[skill.ability]}
-                                    </Text>
-                                    {isExpert && (
-                                        <Text style={styles.profExpertTag}>EXP</Text>
-                                    )}
-                                </View>
-                            );
-                        })}
+                        {proficientSkillDefs.map((skill) => (
+                            <View key={skill.key} style={styles.profRow}>
+                                <Text style={styles.profSkillName}>{skill.label}</Text>
+                                <Text style={styles.profSkillAbility}>
+                                    {ABILITY_ABBREVIATIONS[skill.ability]}
+                                </Text>
+                            </View>
+                        ))}
                     </View>
                 )}
             </View>
@@ -297,13 +291,6 @@ const styles = StyleSheet.create({
         letterSpacing: 1,
         color: 'rgba(201,146,42,0.4)',
         marginRight: 8,
-    },
-    profExpertTag: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.utility,
-        letterSpacing: 1,
-        color: 'rgba(106,79,212,0.7)',
-        textTransform: 'uppercase',
     },
     noteBox: {
         marginTop: 14,
