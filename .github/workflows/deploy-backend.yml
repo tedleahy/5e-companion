@@ -1,0 +1,126 @@
+name: Deploy backend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - server/**
+      - deploy/**
+      - .github/scripts/**
+      - .github/workflows/deploy-backend.yml
+      - .github/workflows/e2e.yml
+      - .github/workflows/lint.yml
+      - .github/workflows/unit-tests.yml
+      - bun.lock
+      - package.json
+  workflow_dispatch:
+
+concurrency:
+  group: production-backend
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    name: Unit tests
+    uses: ./.github/workflows/unit-tests.yml
+
+  lint:
+    name: Lint
+    uses: ./.github/workflows/lint.yml
+
+  e2e:
+    name: E2E tests
+    uses: ./.github/workflows/e2e.yml
+
+  build-api-image:
+    name: Build API image
+    needs:
+      - unit-tests
+      - lint
+      - e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      api_image: ${{ steps.build.outputs.api_image }}
+      head_sha: ${{ steps.ref.outputs.head_sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || github.sha }}
+
+      - name: Resolve deploy ref
+        id: ref
+        run: echo "head_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push API image
+        id: build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_SHA: ${{ steps.ref.outputs.head_sha }}
+        run: bash .github/scripts/build-api-image.sh
+
+  deploy:
+    name: Deploy to Hetzner VPS
+    needs: build-api-image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      deployments: write
+    environment:
+      name: production
+      url: ${{ vars.PRODUCTION_API_URL }}
+
+    steps:
+      - name: Checkout deploy scripts
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ needs.build-api-image.outputs.head_sha }}
+
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.DEPLOY_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          test -s ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/deploy_key
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Deploy over SSH
+        env:
+          API_IMAGE: ${{ needs.build-api-image.outputs.api_image }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          GHCR_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+          GHCR_USERNAME: ${{ secrets.GHCR_READ_USERNAME }}
+          HEAD_SHA: ${{ needs.build-api-image.outputs.head_sha }}
+          PRODUCTION_API_URL: ${{ vars.PRODUCTION_API_URL }}
+        run: |
+          {
+            printf 'export API_IMAGE=%q\n' "$API_IMAGE"
+            printf 'export DEPLOY_PATH=%q\n' "$DEPLOY_PATH"
+            printf 'export GHCR_TOKEN=%q\n' "${GHCR_TOKEN:-}"
+            printf 'export GHCR_USERNAME=%q\n' "${GHCR_USERNAME:-}"
+            printf 'export HEAD_SHA=%q\n' "$HEAD_SHA"
+            printf 'export PRODUCTION_API_URL=%q\n' "${PRODUCTION_API_URL:-}"
+            cat deploy/scripts/deploy-backend.sh
+          } | ssh \
+              -i ~/.ssh/deploy_key \
+              -o BatchMode=yes \
+              -o IdentitiesOnly=yes \
+              -o StrictHostKeyChecking=yes \
+              "${DEPLOY_USER}@${DEPLOY_HOST}" \
+              'bash -seuo pipefail'
+
+      - name: Cleanup SSH
+        if: always()
+        run: rm -rf ~/.ssh/deploy_key

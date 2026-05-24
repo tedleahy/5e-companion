@@ -37,7 +37,7 @@ Key files:
 | Service | Image / build | Public? | Role |
 | --- | --- | --- | --- |
 | `db` | `postgres:18` | No | Stores Prisma-managed app data and seeded SRD content. |
-| `api` | Built from `server/Dockerfile` | No | Runs `bun run start`, validates env, serves Express + Apollo GraphQL on port `4000`. |
+| `api` | CI-pushed GHCR image for automatic deploys; `server/Dockerfile` build fallback for manual updates | No | Runs `bun run start`, validates env, serves Express + Apollo GraphQL on port `4000`. |
 | `caddy` | `caddy:2` | Yes, ports `80` and `443` | Terminates HTTPS and reverse-proxies requests to `api:4000`. |
 
 Only Caddy publishes host ports. The API and database are reachable by service name inside Docker (`api`, `db`) but are not exposed directly to the internet.
@@ -165,13 +165,47 @@ This sequence starts Postgres first, applies Prisma migrations, seeds SRD/refere
 
 ## Updating the API
 
-For normal backend updates:
+### Automatic deploy (push to `main`)
+
+[`.github/workflows/deploy-backend.yml`](../.github/workflows/deploy-backend.yml) runs on pushes to `main` that change backend deploy paths (`server/**`, `deploy/**`, GitHub workflow files, or deploy helper scripts). It calls the same reusable **Unit tests**, **Lint**, and **E2E tests** workflows used by normal CI, then deploys only if all three pass.
+
+After CI passes, the workflow builds `server/Dockerfile`, pushes an immutable API image to GitHub Container Registry as `ghcr.io/<owner>/<repo>-api:<commit-sha>`, then SSHs to the VPS. The VPS deploy script resets the server clone to the exact pushed commit, skips the deploy if that commit is no longer `origin/main`, pulls the exact image built by CI, runs Prisma migrations, brings the Docker Compose stack up, waits for the API container health check, and optionally verifies the public API URL when `PRODUCTION_API_URL` is configured as a GitHub environment or repository variable. The normal **Lint** workflow also runs `actionlint` over `.github/workflows/*.yml`.
+
+Required GitHub Actions secrets:
+
+| Secret | Purpose |
+| --- | --- |
+| `DEPLOY_HOST` | VPS IP or hostname |
+| `DEPLOY_USER` | SSH user on the VPS (for example `deploy`) |
+| `DEPLOY_SSH_KEY` | Private SSH key for that user |
+| `DEPLOY_KNOWN_HOSTS` | Pinned SSH host key entry for the VPS |
+| `DEPLOY_PATH` | Absolute path to the repo clone on the VPS (for example `/opt/5e-companion`) |
+| `GHCR_READ_USERNAME` | GitHub username or bot account that can read the API image package |
+| `GHCR_READ_TOKEN` | Token for `GHCR_READ_USERNAME` with package read access |
+
+Generate `DEPLOY_KNOWN_HOSTS` from a trusted machine after verifying the VPS host key:
+
+```bash
+ssh-keyscan -H <vps-host-or-ip>
+```
+
+Create a **`production`** environment in GitHub (**Settings → Environments**) and store the deploy secrets there rather than as repository-wide secrets. Configure the environment to allow deployments from `main` only; add required reviewers and disable administrator bypass if production deploys should always require review. Add `PRODUCTION_API_URL` as an environment or repository variable if you want the deployment record to link to the live API and the workflow to run a public GraphQL smoke test after the container is healthy.
+
+Manual deploy from the Actions tab: run **Deploy backend** via **workflow_dispatch**. This deploys the latest `main` commit and skips only the path filter; the reusable CI workflows still run before the image is built and deployed.
+
+On the VPS, use a dedicated deploy user with key-only SSH access and no password login. The user needs Docker access and a git clone with `deploy/.env.prod` present. Treat Docker access as root-equivalent on a normal Docker Engine host; prefer rootless Docker or narrowly scoped service commands if you harden this later.
+
+### Manual update
+
+For ad-hoc updates or debugging on the VPS:
 
 ```bash
 docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env.prod build api
 docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env.prod run --rm api bun run db:deploy
 docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env.prod up -d
 ```
+
+Automatic deploys do not build on the VPS. They set `API_IMAGE` for Docker Compose and run `pull`, `run --no-build`, and `up --no-build` so production uses the exact image built by GitHub Actions.
 
 Run `db:seed` only when seed data has changed or the database has been reset. The seed scripts are the source of SRD/reference data in production; do not hard-code missing reference data in the mobile app.
 
