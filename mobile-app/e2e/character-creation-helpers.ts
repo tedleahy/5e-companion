@@ -133,7 +133,12 @@ export async function submitCharacterCreation(page: Page, characterName: string)
     await page.getByText(/Create Character/).click();
     await expect(page).toHaveURL(/\/character\/[^/]+$/, { timeout: 20_000 });
     await expect(page.getByText('Character Sheet')).toBeVisible();
-    await expect(page.getByText(characterName, { exact: true })).toBeVisible();
+    await expect(
+        page
+            .getByTestId('character-sheet-header-subtitle')
+            .locator('..')
+            .getByText(characterName, { exact: true }),
+    ).toBeVisible();
 }
 
 /**
