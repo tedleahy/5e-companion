@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import {
@@ -72,6 +72,9 @@ export default function AbilityScoresAndSkillsCard({
     editMode = false,
     onChangeAbilityScore,
 }: AbilityScoresAndSkillsCardProps) {
+    const { width } = useWindowDimensions();
+    const useGridLayout = width >= fantasyTokens.breakpoints.tablet;
+
     const abilityRows = ABILITY_KEYS.map((ability) => {
         const skills = skillsByAbility?.[ability] ?? SKILLS_BY_ABILITY[ability];
         return { ability, skills };
@@ -79,6 +82,168 @@ export default function AbilityScoresAndSkillsCard({
         if (!hideAbilitiesWithoutSkills) return true;
         return row.skills.length > 0;
     });
+
+    const renderAbilityBlock = (
+        row: { ability: AbilityKey; skills: SkillDefinition[] },
+        index: number,
+    ) => {
+        const { ability, skills } = row;
+        const score = abilityScores[ability];
+        const mod = abilityModifier(score);
+        const label = ability.charAt(0).toUpperCase() + ability.slice(1);
+        const saveProficient = savingThrowProficiencies.includes(ability);
+        const saveMod = savingThrowModifier(score, saveProficient, proficiencyBonus);
+        const savingThrowContent = (
+            <>
+                <ProficiencyDot
+                    level={
+                        saveProficient
+                            ? ProficiencyLevel.Proficient
+                            : ProficiencyLevel.None
+                    }
+                />
+                <Text style={[styles.skillName, saveProficient && styles.skillNameEmphasis]}>
+                    Saving Throw
+                </Text>
+                <Text
+                    testID={`ability-saves-mod-${ability}`}
+                    style={[
+                        styles.skillMod,
+                        saveMod > 0 && styles.skillModPositive,
+                        saveMod < 0 && styles.skillModNegative,
+                    ]}
+                >
+                    {formatSignedNumber(saveMod)}
+                </Text>
+            </>
+        );
+
+        const abilityCardEl = (
+            <View style={useGridLayout ? styles.abilityColumnGrid : styles.abilityColumn}>
+                <View style={styles.abilityCard}>
+                    <Text
+                        style={styles.abilityLabel}
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                        minimumFontScale={0.75}
+                    >
+                        {label}
+                    </Text>
+                    <InlineField
+                        value={String(score)}
+                        onChangeText={(value: string) => {
+                            if (!onChangeAbilityScore) return;
+                            onChangeAbilityScore(ability, parseAbilityScoreInput(value));
+                        }}
+                        editMode={editMode}
+                        style={styles.abilityScore}
+                        keyboardType="number-pad"
+                        align="center"
+                    />
+                    <View style={styles.modPill}>
+                        <Text style={styles.abilityMod}>
+                            {formatSignedNumber(mod)}
+                        </Text>
+                    </View>
+                </View>
+            </View>
+        );
+
+        const skillsEl = (
+            <View style={styles.skillsColumn}>
+                {onPressSavingThrow ? (
+                    <Pressable
+                        onPress={() => onPressSavingThrow(ability)}
+                        style={[styles.skillRow, styles.skillRowPressable]}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Toggle saving throw proficiency for ${label}`}
+                        testID={`skills-tab-saving-throw-row-${ability}`}
+                    >
+                        {savingThrowContent}
+                    </Pressable>
+                ) : (
+                    <View style={styles.skillRow}>
+                        {savingThrowContent}
+                    </View>
+                )}
+
+                {skills.map((skill) => {
+                    const profLevel = skillProficiencies[skill.key];
+                    const skillModValue = skillModifier(
+                        abilityScores[skill.ability],
+                        profLevel,
+                        proficiencyBonus,
+                    );
+                    const skillContent = (
+                        <>
+                            <ProficiencyDot level={profLevel} />
+                            <Text
+                                style={[
+                                    styles.skillName,
+                                    profLevel !== ProficiencyLevel.None && styles.skillNameEmphasis,
+                                ]}
+                            >
+                                {skill.label}
+                            </Text>
+                            <Text
+                                testID={`ability-skills-mod-${skill.key}`}
+                                style={[
+                                    styles.skillMod,
+                                    skillModValue > 0 && styles.skillModPositive,
+                                    skillModValue < 0 && styles.skillModNegative,
+                                    profLevel === ProficiencyLevel.Expert && styles.skillModExpert,
+                                ]}
+                            >
+                                {formatSignedNumber(skillModValue)}
+                            </Text>
+                        </>
+                    );
+
+                    if (onPressSkill) {
+                        return (
+                            <Pressable
+                                key={skill.key}
+                                onPress={() => onPressSkill(skill.key)}
+                                style={[styles.skillRow, styles.skillRowPressable]}
+                                accessibilityRole="button"
+                                accessibilityLabel={`Cycle proficiency for ${skill.label}`}
+                                testID={`skills-tab-row-${skill.key}`}
+                            >
+                                {skillContent}
+                            </Pressable>
+                        );
+                    }
+                    return (
+                        <View key={skill.key} style={styles.skillRow}>
+                            {skillContent}
+                        </View>
+                    );
+                })}
+            </View>
+        );
+
+        if (useGridLayout) {
+            return (
+                <View key={ability} style={styles.gridCell}>
+                    {abilityCardEl}
+                    {skillsEl}
+                </View>
+            );
+        }
+
+        return (
+            <View
+                key={ability}
+                style={[
+                    styles.abilityRow,
+                    index < abilityRows.length - 1 && styles.abilityRowDivider,
+                ]}
+            >
+                {abilityCardEl}
+                {skillsEl}
+            </View>
+        );
+    };
 
     return (
         <SheetCard index={cardIndex}>
@@ -92,155 +257,14 @@ export default function AbilityScoresAndSkillsCard({
                     />
                 </View>
             )}
-            <View style={styles.list}>
+            <View style={useGridLayout ? styles.grid : styles.list}>
                 {abilityRows.length === 0 && (
                     <View style={styles.emptyState}>
                         <Text style={styles.emptyText}>{emptyStateText}</Text>
                     </View>
                 )}
 
-                {abilityRows.map((row, index) => {
-                    const { ability, skills } = row;
-                    const score = abilityScores[ability];
-                    const mod = abilityModifier(score);
-                    const label = ability.charAt(0).toUpperCase() + ability.slice(1);
-                    const saveProficient = savingThrowProficiencies.includes(ability);
-                    const saveMod = savingThrowModifier(score, saveProficient, proficiencyBonus);
-                    const savingThrowContent = (
-                        <>
-                            <ProficiencyDot
-                                level={
-                                    saveProficient
-                                        ? ProficiencyLevel.Proficient
-                                        : ProficiencyLevel.None
-                                }
-                            />
-                            <Text style={[styles.skillName, saveProficient && styles.skillNameEmphasis]}>
-                                Saving Throw
-                            </Text>
-                            <Text
-                                testID={`ability-saves-mod-${ability}`}
-                                style={[
-                                    styles.skillMod,
-                                    saveMod > 0 && styles.skillModPositive,
-                                    saveMod < 0 && styles.skillModNegative,
-                                ]}
-                            >
-                                {formatSignedNumber(saveMod)}
-                            </Text>
-                        </>
-                    );
-
-                    return (
-                        <View
-                            key={ability}
-                            style={[
-                                styles.abilityRow,
-                                index < abilityRows.length - 1 && styles.abilityRowDivider,
-                            ]}
-                        >
-                            <View style={styles.abilityColumn}>
-                                <View style={styles.abilityCard}>
-                                    <Text
-                                        style={styles.abilityLabel}
-                                        numberOfLines={1}
-                                        adjustsFontSizeToFit
-                                        minimumFontScale={0.75}
-                                    >
-                                        {label}
-                                    </Text>
-                                    <InlineField
-                                        value={String(score)}
-                                        onChangeText={(value: string) => {
-                                            if (!onChangeAbilityScore) return;
-                                            onChangeAbilityScore(ability, parseAbilityScoreInput(value));
-                                        }}
-                                        editMode={editMode}
-                                        style={styles.abilityScore}
-                                        keyboardType="number-pad"
-                                        align="center"
-                                    />
-                                    <View style={styles.modPill}>
-                                        <Text style={styles.abilityMod}>
-                                            {formatSignedNumber(mod)}
-                                        </Text>
-                                    </View>
-                                </View>
-                            </View>
-
-                            <View style={styles.skillsColumn}>
-                                {onPressSavingThrow ? (
-                                    <Pressable
-                                        onPress={() => onPressSavingThrow(ability)}
-                                        style={[styles.skillRow, styles.skillRowPressable]}
-                                        accessibilityRole="button"
-                                        accessibilityLabel={`Toggle saving throw proficiency for ${label}`}
-                                        testID={`skills-tab-saving-throw-row-${ability}`}
-                                    >
-                                        {savingThrowContent}
-                                    </Pressable>
-                                ) : (
-                                    <View style={styles.skillRow}>
-                                        {savingThrowContent}
-                                    </View>
-                                )}
-
-                                {skills.map((skill) => {
-                                    const profLevel = skillProficiencies[skill.key];
-                                    const skillModValue = skillModifier(
-                                        abilityScores[skill.ability],
-                                        profLevel,
-                                        proficiencyBonus,
-                                    );
-                                    const skillContent = (
-                                        <>
-                                            <ProficiencyDot level={profLevel} />
-                                            <Text
-                                                style={[
-                                                    styles.skillName,
-                                                    profLevel !== ProficiencyLevel.None && styles.skillNameEmphasis,
-                                                ]}
-                                            >
-                                                {skill.label}
-                                            </Text>
-                                            <Text
-                                                testID={`ability-skills-mod-${skill.key}`}
-                                                style={[
-                                                    styles.skillMod,
-                                                    skillModValue > 0 && styles.skillModPositive,
-                                                    skillModValue < 0 && styles.skillModNegative,
-                                                    profLevel === ProficiencyLevel.Expert && styles.skillModExpert,
-                                                ]}
-                                            >
-                                                {formatSignedNumber(skillModValue)}
-                                            </Text>
-                                        </>
-                                    );
-
-                                    if (onPressSkill) {
-                                        return (
-                                            <Pressable
-                                                key={skill.key}
-                                                onPress={() => onPressSkill(skill.key)}
-                                                style={[styles.skillRow, styles.skillRowPressable]}
-                                                accessibilityRole="button"
-                                                accessibilityLabel={`Cycle proficiency for ${skill.label}`}
-                                                testID={`skills-tab-row-${skill.key}`}
-                                            >
-                                                {skillContent}
-                                            </Pressable>
-                                        );
-                                    }
-                                    return (
-                                        <View key={skill.key} style={styles.skillRow}>
-                                            {skillContent}
-                                        </View>
-                                    );
-                                })}
-                            </View>
-                        </View>
-                    );
-                })}
+                {abilityRows.map((row, index) => renderAbilityBlock(row, index))}
             </View>
 
             <View style={styles.legend}>
@@ -260,6 +284,17 @@ const styles = StyleSheet.create({
         paddingHorizontal: 18,
         paddingBottom: 16,
     },
+    grid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        paddingHorizontal: 10,
+        paddingBottom: 16,
+    },
+    gridCell: {
+        width: '33.333%',
+        paddingHorizontal: 8,
+        paddingVertical: 10,
+    },
     abilityRow: {
         flexDirection: 'row',
         paddingVertical: 12,
@@ -273,6 +308,10 @@ const styles = StyleSheet.create({
         width: 125,
         alignItems: 'center',
         justifyContent: 'flex-start',
+    },
+    abilityColumnGrid: {
+        alignItems: 'center',
+        marginBottom: 10,
     },
     abilityCard: {
         width: '100%',
