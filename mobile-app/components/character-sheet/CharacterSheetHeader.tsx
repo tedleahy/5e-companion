@@ -67,20 +67,20 @@ export default function CharacterSheetHeader({
                     {editMode ? (
                         <>
                             <Pressable
-                                onPress={onDoneEdit}
-                                style={styles.editButtonActive}
-                                accessibilityRole="button"
-                                accessibilityLabel="Save character sheet edits"
-                            >
-                                <Text style={styles.editButtonText}>Done</Text>
-                            </Pressable>
-                            <Pressable
                                 onPress={onCancelEdit}
                                 style={styles.cancelButton}
                                 accessibilityRole="button"
                                 accessibilityLabel="Cancel character sheet edits"
                             >
                                 <Text style={styles.cancelButtonText}>Cancel</Text>
+                            </Pressable>
+                            <Pressable
+                                onPress={onDoneEdit}
+                                style={styles.editButtonActive}
+                                accessibilityRole="button"
+                                accessibilityLabel="Save character sheet edits"
+                            >
+                                <Text style={styles.editButtonText}>Done</Text>
                             </Pressable>
                         </>
                     ) : (
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 8,
         position: 'absolute',
-        flexDirection: 'row',
+        flexDirection: 'column',
         top: 0,
         right: 0,
     },
