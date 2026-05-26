@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
         borderBottomColor: fantasyTokens.colors.divider,
     },
     abilityColumn: {
-        width: 104,
+        width: 125,
         alignItems: 'center',
         justifyContent: 'flex-start',
     },

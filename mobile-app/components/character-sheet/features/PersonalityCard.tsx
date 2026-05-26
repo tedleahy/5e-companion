@@ -66,11 +66,12 @@ export default function PersonalityCard({
         <SheetCard index={index}>
             <SectionLabel>Personality & Background</SectionLabel>
 
-            <View style={styles.backgroundRow}>
-                <Text style={styles.backgroundText}>{background}</Text>
-            </View>
-
             <View style={styles.content}>
+                <View style={styles.traitBlock}>
+                    <Text style={styles.traitLabel}>Background</Text>
+                    <Text style={styles.traitText}>{background}</Text>
+                </View>
+
                 <TraitBlock
                     label="Personality Traits"
                     text={traits.personality}

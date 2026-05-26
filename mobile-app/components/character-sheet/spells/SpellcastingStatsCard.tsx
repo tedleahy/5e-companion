@@ -37,9 +37,11 @@ export default function SpellcastingStatsCard({
                 {spellcastingProfiles.map((profile) => (
                     <View key={`${profile.slotKind}-${profile.classId}`} style={styles.profileBlock}>
                         <View style={styles.profileHeader}>
-                            <Text style={styles.profileName}>{profile.className}</Text>
                             {spellcastingProfiles.length > 1 && (
-                                <Text style={styles.profileKind}>{spellSlotKindLabel(profile.slotKind)}</Text>
+                                <>
+                                    <Text style={styles.profileName}>{profile.className}</Text>
+                                    <Text style={styles.profileKind}>{spellSlotKindLabel(profile.slotKind)}</Text>
+                                </>
                             )}
                         </View>
                         <View style={styles.row}>

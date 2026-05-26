@@ -50,8 +50,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         minHeight: 44,
         paddingHorizontal: 14,
-        borderBottomWidth: 1,
-        borderBottomColor: fantasyTokens.colors.divider,
     },
     title: {
         ...fantasyTokens.typography.sectionLabel,

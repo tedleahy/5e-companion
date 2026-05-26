@@ -3,9 +3,9 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import InlineField from '../edit-mode/InlineField';
-import SectionHeader from '../edit-mode/SectionHeader';
 import SheetCard from '../SheetCard';
 import RemoveButton from '../edit-mode/RemoveButton';
+import SectionLabel from '../SectionLabel';
 
 type TraitTagField =
     | 'armorProficiencies'
@@ -113,10 +113,7 @@ export default function ProficienciesCard({
 }: ProficienciesCardProps) {
     return (
         <SheetCard index={index}>
-            <SectionHeader title="Proficiencies & Languages" editMode={false} />
-            {!editMode && (
-                <Text style={styles.readOnlyHint}>Tap Edit to modify</Text>
-            )}
+            <SectionLabel>Proficiencies & Languages</SectionLabel>
             <View style={styles.block}>
                 <ProficiencyRow
                     field="armorProficiencies"
