@@ -89,5 +89,6 @@ export function subclassOptionItems(
         label: subclass.name,
         icon: subclass.icon,
         hint: subclass.hint ?? (subclass.isCustom ? 'Your custom subclass' : undefined),
+        description: subclass.description || undefined,
     }));
 }

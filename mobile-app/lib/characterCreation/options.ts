@@ -3,6 +3,7 @@ export type OptionItem = {
     label: string;
     icon: string;
     hint?: string;
+    description?: string;
 };
 
 /** Race options shown in the character creation wizard. */
