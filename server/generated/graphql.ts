@@ -37,6 +37,17 @@ export type AbilityScoresInput = {
   wisdom: Scalars['Int']['input'];
 };
 
+export type AvailableBackground = {
+  __typename?: 'AvailableBackground';
+  description: Scalars['String']['output'];
+  featureName?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  value: Scalars['String']['output'];
+};
+
 export type AvailableSubclass = {
   __typename?: 'AvailableSubclass';
   classId: Scalars['String']['output'];
@@ -379,6 +390,7 @@ export enum ProficiencyLevel {
 
 export type Query = {
   __typename?: 'Query';
+  availableBackgrounds: Array<AvailableBackground>;
   availableSubclasses: Array<AvailableSubclass>;
   character?: Maybe<Character>;
   currentUserCharacters: Array<Character>;
@@ -704,6 +716,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   AbilityScores: ResolverTypeWrapper<AbilityScores>;
   AbilityScoresInput: AbilityScoresInput;
+  AvailableBackground: ResolverTypeWrapper<AvailableBackground>;
   AvailableSubclass: ResolverTypeWrapper<AvailableSubclass>;
   AvailableSubclassFeature: ResolverTypeWrapper<AvailableSubclassFeature>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
@@ -760,6 +773,7 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   AbilityScores: AbilityScores;
   AbilityScoresInput: AbilityScoresInput;
+  AvailableBackground: AvailableBackground;
   AvailableSubclass: AvailableSubclass;
   AvailableSubclassFeature: AvailableSubclassFeature;
   Boolean: Scalars['Boolean']['output'];
@@ -817,6 +831,17 @@ export type AbilityScoresResolvers<ContextType = Context, ParentType extends Res
   intelligence?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   strength?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   wisdom?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AvailableBackgroundResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AvailableBackground'] = ResolversParentTypes['AvailableBackground']> = {
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  featureName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isCustom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  srdIndex?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -972,6 +997,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
 };
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  availableBackgrounds?: Resolver<Array<ResolversTypes['AvailableBackground']>, ParentType, ContextType>;
   availableSubclasses?: Resolver<Array<ResolversTypes['AvailableSubclass']>, ParentType, ContextType, Partial<QueryAvailableSubclassesArgs>>;
   character?: Resolver<Maybe<ResolversTypes['Character']>, ParentType, ContextType, RequireFields<QueryCharacterArgs, 'id'>>;
   currentUserCharacters?: Resolver<Array<ResolversTypes['Character']>, ParentType, ContextType>;
@@ -1066,6 +1092,7 @@ export type WeaponResolvers<ContextType = Context, ParentType extends ResolversP
 
 export type Resolvers<ContextType = Context> = {
   AbilityScores?: AbilityScoresResolvers<ContextType>;
+  AvailableBackground?: AvailableBackgroundResolvers<ContextType>;
   AvailableSubclass?: AvailableSubclassResolvers<ContextType>;
   AvailableSubclassFeature?: AvailableSubclassFeatureResolvers<ContextType>;
   Character?: CharacterResolvers<ContextType>;

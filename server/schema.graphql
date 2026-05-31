@@ -93,6 +93,16 @@ type AvailableSubclassFeature {
     level: Int!
 }
 
+type AvailableBackground {
+    id: ID!
+    value: String!
+    srdIndex: String
+    name: String!
+    description: String!
+    featureName: String
+    isCustom: Boolean!
+}
+
 type CharacterStats {
     id: ID!
     abilityScores: AbilityScores!
@@ -452,6 +462,7 @@ type Query {
     hasCurrentUserCharacters: Boolean!
     currentUserCharacters: [Character!]!
     availableSubclasses(classIds: [String!]): [AvailableSubclass!]!
+    availableBackgrounds: [AvailableBackground!]!
 }
 
 type Mutation {

@@ -3,6 +3,7 @@ export {
     hasCurrentUserCharacters,
     currentUserCharacters,
     availableSubclasses,
+    availableBackgrounds,
 } from "./character/queries";
 
 export {

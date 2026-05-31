@@ -7,6 +7,7 @@ import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
 import { CHARACTER_DETAIL_INCLUDE, CHARACTER_LIST_INCLUDE } from "./detailLoad";
 import { availableSubclassesForUser } from "./subclassReferences";
+import { availableBackgroundsForUser } from "./backgroundReferences";
 
 /**
  * Query resolver for a single owned character by id.
@@ -69,4 +70,17 @@ export async function availableSubclasses(
     const userId = requireUser(ctx);
 
     return await availableSubclassesForUser(userId, classIds ?? null);
+}
+
+/**
+ * Query resolver for the backgrounds visible to the current user.
+ */
+export async function availableBackgrounds(
+    _parent: unknown,
+    _args: unknown,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+
+    return await availableBackgroundsForUser(userId);
 }

@@ -96,6 +96,7 @@ const resolvers: Resolvers = {
         hasCurrentUserCharacters: characterResolvers.hasCurrentUserCharacters,
         currentUserCharacters: characterResolvers.currentUserCharacters,
         availableSubclasses: characterResolvers.availableSubclasses,
+        availableBackgrounds: characterResolvers.availableBackgrounds,
     },
 
     Mutation: {
