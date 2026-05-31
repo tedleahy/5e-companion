@@ -2,7 +2,7 @@
 
 Onboarding documentation for the **D&D 5e Companion** project. These docs are written to let a new agent or developer go from "never seen this repo" to "making effective changes" in under 30 minutes.
 
-Each doc is short and cross-links to the code; it does not duplicate the code. Pair these with [`AGENTS.md`](../AGENTS.md) (project rules + running commands) at the repo root.
+Each doc is short and cross-links to the code; it does not duplicate the code. [`AGENTS.md`](../AGENTS.md) at the repo root is injected into agent sessions (hard rules + gotchas + minimal commands); use `docs/` for setup, style, and feature depth.
 
 ## Start here
 
@@ -18,7 +18,7 @@ Each doc is short and cross-links to the code; it does not duplicate the code. P
 - [`server.md`](./server.md) — Apollo Server, GraphQL schema, resolver structure, auth context
 - [`deployment.md`](./deployment.md) — Hetzner VPS, Docker Compose, Caddy, production env, deploy flow
 - [`testing.md`](./testing.md) — Jest (mobile), Bun test (server), Playwright (e2e), gotchas
-- [`conventions.md`](./conventions.md) — code style, commits, review habits (summarises `AGENTS.md`)
+- [`conventions.md`](./conventions.md) — canonical code style, commits, and workflow (hard rules in `AGENTS.md`)
 
 ## Features
 

@@ -130,7 +130,7 @@ High-reuse components live at `components/` (flat), with folders for sub-domains
 | `components/spell-list/` | SpellList subcomponents |
 | `components/characters/` | Character roster cards |
 
-Before adding a new component, **grep for the thing you're about to build** — `AGENTS.md` is explicit about reusing/extending existing components.
+Before adding a new component, **grep for the thing you're about to build** — see [`conventions.md`](./conventions.md).
 
 ## Testing (pointer)
 

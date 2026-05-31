@@ -78,7 +78,7 @@ The TypeScript types for the GraphQL schema are **generated**:
 - Server types: `server/generated/graphql.ts` via `bun server:codegen` (`server/codegen.yml`). Prisma models are mapped in via `mappers:` so resolver return types stay type-safe.
 - Mobile types: `mobile-app/types/generated_graphql_types.ts` via `bun app:codegen` (`mobile-app/codegen.yml`).
 
-Regenerate both after any schema change. The mobile config scans `app/**/*.tsx`, `components/**/*.tsx`, and `graphql/**/*.ts` for operations — if you add GraphQL docs elsewhere, extend the config first (see `AGENTS.md`).
+Regenerate both after any schema change. The mobile config scans `app/**/*.tsx`, `components/**/*.tsx`, and `graphql/**/*.ts` for operations — if you add GraphQL docs elsewhere, extend the config first (see [`AGENTS.md`](../AGENTS.md) § Gotchas).
 
 ## Data flow for SRD content
 

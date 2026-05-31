@@ -1,6 +1,8 @@
 # Testing
 
-Three suites, three runners. All are safe to run without a live Postgres — unit tests mock Prisma; e2e brings up local Supabase.
+Canonical reference for test commands, CI, and harness gotchas. [`AGENTS.md`](../AGENTS.md) lists minimal test commands; read this doc when writing, fixing, or running tests.
+
+Three suites, three runners. All unit suites are safe without live Postgres — Prisma is mocked; e2e brings up local Supabase.
 
 ## Mobile unit tests — Jest (jest-expo)
 
@@ -19,13 +21,13 @@ yarn test --watch <name>     # Watch mode
 
 The `test` script sets `NODE_OPTIONS='--no-experimental-webstorage'`. **Don't drop that flag** — required for RN 0.81 under Jest.
 
-### Gotchas (from `AGENTS.md` — keep in sync if anything changes)
+### Gotchas
 
-- **Route-group parentheses** (`app/(rail)/...`) are zsh globs. Prefer `yarn test character-sheet.test.tsx` over literal route-group paths.
-- **`SectionList` virtualises rows** — off-screen items won't exist in the test tree. Filter/search before asserting, or scroll first.
-- **Spellbook prepared toggles** live in the accordion actions (`character-spell-prepare-*`). Open the row (`character-spell-row-*`) in the test before pressing prepare/unprepare.
-- **`jest.requireActual('react-native')`**: if you extend RN mocks, mutate the actual module in place — **do not spread it**. RN 0.81's index has lazy getters (`DevMenu`, `SettingsManager`, etc.) that call `TurboModuleRegistry.getEnforcing` and throw under Jest the moment you touch them.
-- **Don't add production conditionals to suppress `act(...)` warnings**. Fix the test harness, timers, or assertions instead.
+- **Route-group parentheses** (`app/(rail)/...`, `app/(auth)/...`) are **zsh globs**. Quote them in shell commands; prefer `yarn test character-sheet.test.tsx` or `bun app:test character-sheet` over literal route-group paths.
+- **`SectionList` virtualises rows** — off-screen items aren't in the test tree. Filter/search first (or scroll) before asserting on or pressing deep list rows. Same applies to spell lists — see [`features/spells.md`](./features/spells.md).
+- **`jest.requireActual('react-native')`**: if you extend RN mocks, **mutate the actual module in place — do not spread it**. RN 0.81's index has lazy getters (`DevMenu`, `SettingsManager`, …) that call `TurboModuleRegistry.getEnforcing` and throw under Jest the moment they're touched.
+- **Don't suppress `act(...)` warnings** with production code changes. Fix timers, mocks, or assertions instead.
+- **Spellbook prepare/unprepare toggles** live inside the spell row's accordion actions (`character-spell-prepare-*`). Open the row (`character-spell-row-*`) before pressing.
 
 ## Server unit tests — `bun test`
 
@@ -41,10 +43,11 @@ bun test lib/spellFilters.test.ts         # Single file (path relative to server
 bun test --test-name-pattern "longRest"   # Filter by test name
 ```
 
-### Notes
+### Gotchas
 
-- **No DB connection** required — tests mock Prisma. Do not introduce tests that require a live Postgres unless absolutely necessary.
-- `DATABASE_URL` is still required by `server/prisma.config.ts` at parse time (because `env('DATABASE_URL')` is evaluated when the config loads). In CI the unit-tests workflow sets a dummy URL — see `.github/workflows/unit-tests.yml`.
+- **Don't install partial `mock.module('../prisma/prisma')` fakes in individual test files.** Bun test file ordering can differ between local and GitHub Actions, so a partial Prisma fake from one suite can leak into another. Reuse the shared resolver test Prisma mock and extend it when a new delegate is needed.
+- **No DB connection** required — tests mock Prisma. Do not introduce tests that require live Postgres unless absolutely necessary.
+- `DATABASE_URL` is still required by `server/prisma.config.ts` at parse time. In CI the unit-tests workflow sets a dummy URL — see `.github/workflows/unit-tests.yml`.
 
 ## End-to-end tests — Playwright
 
@@ -76,6 +79,10 @@ bun e2e:down
 bun e2e:reset        # reset local Supabase DB
 ```
 
+### Gotchas
+
+- **Don't target plain RN `TextInput` fields with `input[type="text"]` in Playwright.** React Native Web may omit the `type` attribute. Prefer accessible labels, placeholders, or stable `testID` selectors.
+
 ### When to add e2e
 
 Prefer unit tests. Add an e2e spec only for flows that can't be meaningfully covered by unit tests — e.g. the auth cookie round trip, or cross-provider UI interactions. Each spec increases CI runtime noticeably.
@@ -88,8 +95,9 @@ Prefer unit tests. Add an e2e spec only for flows that can't be meaningfully cov
 
 All three run on Ubuntu, Node 24 + Bun latest.
 
-## General testing discipline (from user rules)
+## General testing discipline
 
 - **Design/update tests before major implementation work** — never delete or weaken a test without explicit direction.
 - **Don't bloat app code just for tests**. If something is only there to make tests pass, refactor the test or the harness instead.
+- **Don't add production conditionals just to satisfy Jest** — fix the harness, timers, mocks, or assertions instead.
 - If you can't run a test locally, share the exact copy-pastable command for the user.

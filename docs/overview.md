@@ -16,7 +16,7 @@ Monorepo, two deployable pieces plus shared data:
 | `srd-json-files/` | Source-of-truth SRD JSON (spells, classes, features, etc.) consumed by the seed |
 | `supabase/` | Local Supabase stack config (used for auth + e2e) |
 | `.github/workflows/` | CI: unit tests, lint, Playwright e2e |
-| `AGENTS.md` | Project rules, conventions, and running-commands cheat sheet |
+| `AGENTS.md` | Injected agent rules, hard constraints, and minimal command cheat sheet |
 
 ## Tech stack
 

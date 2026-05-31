@@ -1,6 +1,6 @@
 # Local Development
 
-Minimal setup to run the full stack locally and start making changes. Commands are copy-pastable.
+Canonical setup guide — install, env files, day-to-day commands, and troubleshooting. [`AGENTS.md`](../AGENTS.md) has a minimal command cheat sheet for agents.
 
 ## Prerequisites
 

@@ -1,8 +1,8 @@
 # AGENTS.md
 
-Rules and gotchas for working on this repo. Long-form project docs live in [`docs/`](./docs/README.md) — **read `docs/README.md` first**, then come back here.
+Injected project rules and gotchas. Long-form docs live in [`docs/`](./docs/README.md) — use them for setup, architecture, and feature flows.
 
-When you hit a new pain point that costs time, add a rule or gotcha to the relevant section below so the next session doesn't repeat it.
+When you hit a new pain point that costs time, add it here (hard rules / cross-cutting gotchas) or to the relevant doc under `docs/` (area-specific detail).
 
 ---
 
@@ -14,47 +14,25 @@ A D&D 5e companion app. Two deployables plus seed data:
 - **Server** (`server/`) — Bun + Apollo Server 5 + Prisma + PostgreSQL. JWT verification via Supabase JWKS.
 - **SRD seed data** (`srd-json-files/`) — imported into Postgres by `server/prisma/seeds/*.ts`.
 
-Full overview: [`docs/overview.md`](./docs/README.md), architecture: [`docs/architecture.md`](./docs/architecture.md), data model: [`docs/data-model.md`](./docs/data-model.md), auth: [`docs/features/auth.md`](./docs/features/auth.md).
+Full overview: [`docs/overview.md`](./docs/overview.md), architecture: [`docs/architecture.md`](./docs/architecture.md), data model: [`docs/data-model.md`](./docs/data-model.md), auth: [`docs/features/auth.md`](./docs/features/auth.md).
 
 Whenever you've finished a task that changes behaviour described in the docs, update those docs to accurately reflect the new behaviour.
 
 ---
 
-# Rules
+# Hard rules
 
-## Coding conventions
+Full style guide: [`docs/conventions.md`](./docs/conventions.md). Non-negotiables:
 
-- **TypeScript everywhere.**
-- **JSDoc** every function, class, and exported constant.
-- **British English** in names, comments, and docs (`initialise`, `normalise`) — but don't fight React Native APIs like `color`.
-- **Function declarations** over const arrows, except one-liners: `function foo() { … }` vs `const foo = (x) => x + 1;`.
-- **async/await in try/catch**, not `.then().catch()`.
-- **One component per file** where practical.
-- **Check for existing components before writing a new one** — the sheet/spells/wizard areas have a lot of reusable pieces.
-- **DRY, but not at the cost of readability.** Refactor-passes are the right time to collapse duplication.
-- **Don't create single-use named functions/variables** unless the name adds clarity or testability. Extracting for either reason is fine.
-- **Files getting too big or too specialised?** Split them. If the split would derail the current task, note it and surface when you're done.
-- **If SRD data is missing**, extend `server/prisma/seeds/*.ts` — never hard-code SRD lookup tables in app code.
-- **Never add production conditionals just to satisfy tests.** Fix the test harness, mocks, or timers instead.
-- **Never bloat app code for tests.**
-
-## UI / theming
-
-- **Fantasy-style look and feel** throughout.
-- **Pull colours, spacing, motion from `mobile-app/theme/fantasyTheme.ts`** (`fantasyTokens`) — don't inline hex values or magic numbers.
-- Use `react-native-paper` primitives where they fit.
-
-## Server patterns
-
-- **Every resolver that touches user data** calls `requireUser(ctx)` and scopes queries by `ownerUserId`. No exceptions today.
-- **Resolve SRD entities by `srdIndex`**, never by DB id or display label. The mobile app's option values (races, classes, subclasses, backgrounds) must stay aligned with seeded SRD data — otherwise `createCharacter` and friends can't resolve them.
-- **Keep SRD parent/child feature choices aligned across seed + mobile helpers.** If you change SRD feature groups like Pact Boon, Fighting Style, Circle of the Land, or Hunter choices, update both `server/prisma/seeds/seedCharacterReferenceData.ts` and `mobile-app/lib/srdFeatureChoices.ts`.
-- **Reuse `reconcileSheetCollection.ts`** when adding a new character-sheet collection to `saveCharacterSheet` — don't hand-roll diff logic.
-- **Prefer promoting `Spell.raw` JSON fields** to typed columns + indexes when you need to filter/sort on them, rather than reading JSON at query time.
-
-## Apollo client gotchas
-
-- **`Character.spellbook` has `merge: false`** in `mobile-app/app/apolloClient.ts`. If you add a mutation that returns a partial spellbook, either update the field policy or make the mutation return the full snapshot — otherwise cached deletions will reappear.
+- **`requireUser(ctx)`** and scope by `ownerUserId` on every resolver that touches user data.
+- **Resolve SRD entities by `srdIndex`**, never DB id or display label. Mobile create-flow option values must match seeded SRD data.
+- **Keep SRD parent/child feature choices aligned** across `server/prisma/seeds/seedCharacterReferenceData.ts` and `mobile-app/lib/srdFeatureChoices.ts` when changing Pact Boon, Fighting Style, Circle of the Land, Hunter choices, etc.
+- **Extend `server/prisma/seeds/*.ts`** for missing SRD data — never hard-code lookup tables in app code.
+- **Reuse `reconcileSheetCollection.ts`** for new character-sheet collections in `saveCharacterSheet` — don't hand-roll diff logic.
+- **`Character.spellbook` has `merge: false`** in `mobile-app/app/apolloClient.ts` — partial mutation responses need an updated field policy or a full spellbook snapshot.
+- **Never add production conditionals for tests**; never bloat app code for tests. Fix harness, mocks, or timers instead.
+- **Fantasy theme via `fantasyTokens`** (`mobile-app/theme/fantasyTheme.ts`) — no inline hex or magic spacing numbers.
+- **Don't commit unless explicitly told.** Don't commit root-level markdown/txt except `AGENTS.md`.
 
 ## After schema / GraphQL changes
 
@@ -64,151 +42,70 @@ Whenever you've finished a task that changes behaviour described in the docs, up
 
 ## Agent workflow
 
-- **Prefix shell commands with `rtk`** where the RTK proxy is available — saves tokens on noisy commands (`rtk bun test`, `rtk git status`, `rtk yarn test <name>`).
-- **Use the `ask-user-questions` skill** whenever information is missing or a result needs confirming. Keep using it through troubleshooting. Do not assume a task is complete — wait for explicit confirmation.
-- **Don't commit anything unless explicitly told to.**
-- **Run `tsc --noEmit` in both `server/` and `mobile-app/` before considering a task done.** Fix any new type errors you introduced — pre-existing errors in unrelated files can be ignored, but anything in files you touched or created must compile cleanly.
+- **Prefix shell commands with `rtk`** where the RTK proxy is available.
+- **Use the `ask-user-questions` skill** when information is missing or a result needs confirming. Do not assume a task is complete — wait for explicit confirmation.
+- **Run `tsc --noEmit` in both `server/` and `mobile-app/`** before considering a task done. Fix type errors in files you touched; ignore pre-existing errors elsewhere.
 
 ## Git commits
 
-Write detailed, grouped commit messages. Examples of the style:
-
-- `feat(mobile): Added x screen to y tab, allowing user to do z`
-- `feat(api): Updated spell resolvers to expose x for the y feature`
-- `refactor(mobile): Split x component out`
-- `refactor(api): Moved x resolvers into their own file`
-- `chore: document x in AGENTS.md`
-- `bug(mobile): fixed bug where x was happening`
-- `bug(api): fixed bug where x was happening`
-- `bug(web): fixed bug where x was happening`
-
-Rules:
-
-- Add bullet points on separate lines for extra detail.
-- **Don't commit markdown or txt files** located in the root of the project, except `AGENTS.md`.
+Examples: `feat(mobile): …`, `feat(api): …`, `refactor(mobile): …`, `bug(api): …`. Add bullet details on separate lines. See [`docs/conventions.md`](./docs/conventions.md) for full commit conventions.
 
 ---
 
-# Running the stack
+# Commands
 
-Prerequisites: Bun (latest), Yarn, Docker, optional Supabase CLI (for e2e).
-
-## Dev stack
+Full setup, sample `.env` files, and troubleshooting: [`docs/local-development.md`](./docs/local-development.md).
 
 ```bash
 # One-off
-bun server:i && bun app:i && bun i          # install deps
-docker compose -f server/docker-compose.yml up -d   # start Postgres
-bun db:seed                                  # seed SRD + dev character
+bun server:i && bun app:i && bun i
+docker compose -f server/docker-compose.yml up -d
+bun db:seed
 
 # Every day
-bun server:start    # Apollo Server at :4000 (watch mode)
-bun app:start       # Expo dev server
+bun server:start    # :4000
+bun app:start
 ```
 
-## Database
-
 ```bash
-bun db:migrate -- <short_name>   # prisma migrate dev --name <short_name>
-bun db:generate                  # prisma generate
-bun db:seed                      # prisma db seed
-bun db:reset                     # full reset + seed
-```
-
-**Always** run Prisma via these root scripts — `bunx prisma` from the repo root doesn't find the schema because of `server/prisma.config.ts`. Seeding and migrations need `DATABASE_URL` set.
-
-## Codegen
-
-```bash
-bun server:codegen    # server/generated/graphql.ts (typescript + typescript-resolvers)
-bun app:codegen       # mobile-app/types/generated_graphql_types.ts (typescript-operations)
+bun db:migrate -- <short_name>   # always via root scripts, not bunx prisma
+bun db:generate
+bun db:seed
+bun db:reset
+bun server:codegen
+bun app:codegen
 ```
 
 ## Tests
 
-All suites are safe to run without a live Postgres (Jest and `bun test` mock Prisma).
+Writing or debugging tests → **[`docs/testing.md`](./docs/testing.md)** (canonical gotchas).
 
 ```bash
-# Mobile (Jest + jest-expo)
-bun app:test                    # full suite
-bun app:test <substring>        # by filename substring, e.g. `bun app:test FilterSwitch`
-# From mobile-app/: yarn test [--watch] [<substring>]
-
-# Server (bun test)
-bun server:test                 # full suite
-# From server/: bun test lib/spellFilters.test.ts
-# From server/: bun test --test-name-pattern "longRest"
-
-# E2E (Playwright against Expo web + local Supabase)
-bun e2e:up                      # start local Supabase
-bun app:e2e                     # run Playwright suites
-bun e2e:down                    # stop local Supabase
-bun e2e:reset                   # reset local Supabase DB
+bun server:test
+bun app:test
+bun app:test <substring>        # e.g. FilterSwitch — avoid zsh globbing on (rail) paths
+bun e2e:up && bun app:e2e && bun e2e:down
 ```
-
-The mobile `test` script sets `NODE_OPTIONS='--no-experimental-webstorage'` — required for RN 0.81 under Jest. Don't drop it.
-
-## Environment variables
-
-### `server/.env`
-
-| Var | Purpose |
-| --- | --- |
-| `DATABASE_URL` | Postgres connection string. Read at parse time by `prisma.config.ts`, so every Prisma invocation needs it. |
-| `SUPABASE_URL` | Used to fetch JWKS for JWT verification. |
-| `PORT` | Optional; default `4000`. |
-
-### `mobile-app/.env`
-
-| Var | Purpose |
-| --- | --- |
-| `EXPO_PUBLIC_API_URL` | Apollo HTTP link target. |
-| `EXPO_PUBLIC_SUPABASE_URL` | Supabase project URL. |
-| `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase anon key. |
-
-`EXPO_PUBLIC_*` is baked into the bundle at build time. Restart Metro with `--clear` if you change them and see stale values.
 
 ---
 
 # Gotchas
 
-Single flat section on purpose — easier to add to. Grouped by area.
-
-## Shell / test paths
-
-- **Route-group parentheses** (`app/(rail)/...`, `app/(auth)/...`) are globs in `zsh`. Quote them in shell commands, and prefer a substring filename pattern like `bun app:test character-sheet.test.tsx` over literal route-group paths in Jest.
+Area-specific detail lives in `docs/`; add cross-cutting items here.
 
 ## Prisma / DB
 
-- **`bun db:migrate` needs Postgres running** at `localhost:5432` (or whatever your `DATABASE_URL` points at) — Prisma requires a live shadow DB. If the DB is unreachable, write migration SQL by hand in a new folder under `server/prisma/migrations/` and validate once the DB is back.
-- **Sandbox permissions**: if a Prisma command needs Docker/host/network access that a sandbox can't provide, stop and ask me to run it manually. Don't retry blindly.
-
-## React Native testing
-
-- **`SectionList` virtualises rows** — off-screen items aren't in the test tree. Filter/search first (or scroll) before asserting on or pressing deep list rows.
-- **Never spread `jest.requireActual('react-native')`** when adding global mocks. Mutate it in place. RN 0.81's index has lazy getters (`DevMenu`, `SettingsManager`, …) that call `TurboModuleRegistry.getEnforcing` and throw under Jest the moment they're touched.
-- **Don't suppress `act(...)` warnings** with production code changes. Fix timers, mocks, or assertions instead.
-
-## Bun server testing
-
-- **Don't install partial `mock.module('../prisma/prisma')` fakes in individual test files.** Bun test file ordering can differ between local and GitHub Actions, so a partial Prisma fake from one suite can leak into another. Reuse the shared resolver test Prisma mock and extend it when a new delegate is needed.
-
-## E2E / React Native Web
-
-- **Don't target plain RN `TextInput` fields with `input[type="text"]` in Playwright.** React Native Web may omit the `type` attribute. Prefer accessible labels, placeholders, or stable `testID` selectors.
-
-## Spellbook test harness
-
-- **Prepare/unprepare toggles** live inside the spell row's accordion actions (`character-spell-prepare-*`). Open the row (`character-spell-row-*`) before pressing.
+- **`bun db:migrate` needs Postgres running** — Prisma requires a live shadow DB. If unreachable, write migration SQL by hand under `server/prisma/migrations/` and validate once the DB is back.
+- **Sandbox permissions**: if Prisma needs Docker/host/network access a sandbox can't provide, stop and ask the user to run the command manually.
 
 ## GraphQL codegen
 
-- **`mobile-app/codegen.yml` scans** `app/**/*.tsx`, `components/**/*.tsx`, and `graphql/**/*.ts`. If you add GraphQL documents elsewhere, extend the config first.
+- **`mobile-app/codegen.yml` scans** `app/**/*.tsx`, `components/**/*.tsx`, and `graphql/**/*.ts`. Extend the config before adding GraphQL documents elsewhere.
 
 ## Expo TypeScript / platform forks
 
-- If you add `Component.native.tsx` + `Component.web.tsx`, keep `mobile-app/tsconfig.json`'s `compilerOptions.moduleSuffixes` aligned so TypeScript resolves the same variants Expo/Metro does.
+- `Component.native.tsx` + `Component.web.tsx` — keep `mobile-app/tsconfig.json` `compilerOptions.moduleSuffixes` aligned with Metro.
 
 ## Character creation reference-data
 
-- The server `createCharacter` mutation resolves class/subclass/race/background rows by `srdIndex`. The mobile create-flow option values must match seeded SRD data — do not offer races/classes/subclasses/backgrounds that the current seed can't resolve. See [`docs/features/character-creation.md`](./docs/features/character-creation.md) and `mobile-app/app/characters/create/CHARACTER_CREATION_FLOW.md`.
+- `createCharacter` resolves class/subclass/race/background by `srdIndex`. Do not offer options the current seed can't resolve. See [`docs/features/character-creation.md`](./docs/features/character-creation.md) and `mobile-app/app/characters/create/CHARACTER_CREATION_FLOW.md`.

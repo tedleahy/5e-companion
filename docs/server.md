@@ -84,17 +84,7 @@ Single `ApolloServer` object wiring; resolvers are modularised by file:
 
 ## Scripts
 
-Run via root `package.json`, never `bunx prisma` directly (see `AGENTS.md`):
-
-```bash
-bun server:start        # bun --watch index.ts
-bun server:test         # bun test
-bun server:codegen      # graphql-codegen from server/codegen.yml
-bun db:migrate -- <name>
-bun db:generate
-bun db:seed
-bun db:reset            # migrate reset + generate + seed
-```
+Commands and env setup: [`local-development.md`](./local-development.md). Always run Prisma via root `package.json` scripts, never `bunx prisma` directly (`server/prisma.config.ts`).
 
 ## Environment variables
 

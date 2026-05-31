@@ -62,14 +62,14 @@ Entry: [`@/home/ted/projects/5e-companion/server/resolvers/spellsResolver.ts:32-
 - **List**: `mobile-app/components/SpellList.tsx` — a configurable SectionList grouping by level.
 - **Filter drawer**: `mobile-app/components/SpellFilterDrawer.tsx` uses `lib/spellFilters.ts` option tables (`CLASS_OPTIONS`, `LEVEL_OPTIONS`, `SCHOOL_OPTIONS`, etc.) and `FilterChipGroup` / `FilterSwitch`.
 - **Detail**: `mobile-app/app/spells/[id].tsx` + `components/character-sheet/spells/SpellDetailModal.tsx`.
-- **Virtualisation gotcha**: `SectionList` virtualises rows — in tests, apply the filter/search first so assertions hit rendered rows (`AGENTS.md`).
+- **Virtualisation gotcha**: `SectionList` virtualises rows — in tests, apply the filter/search first so assertions hit rendered rows (see [`testing.md`](../testing.md)).
 
 ## Character spellbook
 
 - **Card**: [`@/home/ted/projects/5e-companion/mobile-app/components/character-sheet/spells/SpellbookCard.tsx`](../../mobile-app/components/character-sheet/spells/SpellbookCard.tsx).
 - **Add-spell sheet**: `AddSpellSheet.tsx` + `add-sheet/` subfolder — search/filter over all spells available to the character's classes.
 - **Slots**: `SpellSlotsCard.tsx` + server `toggleSpellSlot` mutation.
-- **Prepared toggle**: lives in the spell row's accordion actions (`character-spell-prepare-*`). Tests must expand the row (`character-spell-row-*`) before asserting (`AGENTS.md`).
+- **Prepared toggle**: lives in the spell row's accordion actions (`character-spell-prepare-*`). Tests must expand the row (`character-spell-row-*`) before asserting (see [`testing.md`](../testing.md)).
 - **Known-caster classes** (bard, ranger, sorcerer, warlock) short-circuit the "prepared" concept — see the `KNOWN_CASTER_CLASS_IDS` set in `SpellbookCard.tsx`.
 
 ## Spellbook mutations

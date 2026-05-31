@@ -8,35 +8,22 @@ Consequently there's a lot of extremely questionable code in here. ye be warned
 
 ---
 
-- Frontend: React Native with [Expo](https://docs.expo.dev/) for web, ios, and android targets
-- Backend: [Apollo](https://www.apollographql.com/docs/) GraphQL API
-
----
+- **Frontend:** React Native with [Expo](https://docs.expo.dev/) for web, iOS, and Android
+- **Backend:** [Apollo](https://www.apollographql.com/docs/) GraphQL API (Bun + Prisma + PostgreSQL)
 
 ## Setup
-First, install bun and yarn.<br>
-Why both? I had issues getting the expo app working with bun, so that uses yarn simply because it worked out of the box and was faster to build/install than npm.<br>
-At some point I'll get round to fixing that and removing the dependency on yarn.
 
-Once they're installed, from the project root, run:
+Install **Bun** and **Yarn** (Expo still uses Yarn in this repo). Then follow **[`docs/local-development.md`](docs/local-development.md)** for env files, Postgres, seeding, and running the server + Expo dev server.
+
+Quick start after prerequisites:
 
 ```bash
-# Install deps, generate graphql & prisma types, and prisma client
-bun setup
-
-# Now edit the .env files to add your real credentials
-$EDITOR mobile-app/.env
-$EDITOR server/.env
-
-# Start the postgres database
-docker compose up
-
-# Seed it with the SRD data
+bun setup                                    # install + codegen (optional one-off)
+# edit server/.env and mobile-app/.env — see docs/local-development.md
+docker compose -f server/docker-compose.yml up -d
 bun db:seed
-
-# Start the API server
 bun server:start
-
-# Start up the expo server to allow you to run the app on your device (or web)
 bun app:start
 ```
+
+Agent rules: [`AGENTS.md`](AGENTS.md). Full docs index: [`docs/README.md`](docs/README.md).
