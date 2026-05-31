@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { FlatList, Modal, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import InfoModal from '@/components/InfoModal';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { OptionItem } from '@/lib/characterCreation/options';
 
@@ -79,7 +80,7 @@ export default function OptionGrid({
                                 isSelected && isParchmentTone && styles.cardSelectedParchment,
                                 isInIncompleteFinalRow && columnWidthStyle,
                             ]}
-                            testID={getOptionTestId?.(item)}
+                            testID={getOptionTestId?.(item) ?? `option-${item.value}`}
                             accessibilityRole="button"
                             accessibilityLabel={getOptionAccessibilityLabel?.(item)}
                         >
@@ -125,32 +126,12 @@ export default function OptionGrid({
                 }}
             />
 
-            <Modal
+            <InfoModal
                 visible={descriptionToShow !== null}
-                transparent
-                animationType="fade"
-                onRequestClose={() => setDescriptionToShow(null)}
-            >
-                <Pressable
-                    style={styles.tooltipBackdrop}
-                    onPress={() => setDescriptionToShow(null)}
-                >
-                    <Pressable style={styles.tooltipCard}>
-                        <Text style={styles.tooltipTitle}>{descriptionToShow?.label}</Text>
-                        <View style={styles.tooltipBody}>
-                            <Text style={styles.tooltipText}>{descriptionToShow?.text}</Text>
-                        </View>
-                        <Pressable
-                            onPress={() => setDescriptionToShow(null)}
-                            style={styles.tooltipClose}
-                            accessibilityLabel="Close"
-                            accessibilityRole="button"
-                        >
-                            <Text style={styles.tooltipCloseText}>Close</Text>
-                        </Pressable>
-                    </Pressable>
-                </Pressable>
-            </Modal>
+                title={descriptionToShow?.label ?? ''}
+                body={descriptionToShow?.text ?? ''}
+                onClose={() => setDescriptionToShow(null)}
+            />
         </>
     );
 }
@@ -235,54 +216,5 @@ const styles = StyleSheet.create({
         top: 6,
         right: 6,
         zIndex: 1,
-    },
-    tooltipBackdrop: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.6)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 24,
-    },
-    tooltipCard: {
-        backgroundColor: fantasyTokens.colors.parchmentLight,
-        borderRadius: 14,
-        borderWidth: 1.5,
-        borderColor: fantasyTokens.colors.gold,
-        padding: 20,
-        maxWidth: 380,
-        width: '100%',
-        maxHeight: '60%',
-    },
-    tooltipTitle: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.title,
-        color: fantasyTokens.colors.inkDark,
-        marginBottom: 10,
-        textAlign: 'center',
-    },
-    tooltipBody: {
-        marginBottom: 14,
-    },
-    tooltipText: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.body,
-        color: fantasyTokens.colors.inkLight,
-        lineHeight: 22,
-    },
-    tooltipClose: {
-        alignSelf: 'center',
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.gold,
-        backgroundColor: 'rgba(201,146,42,0.1)',
-        paddingVertical: 8,
-        paddingHorizontal: 24,
-    },
-    tooltipCloseText: {
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.utility,
-        letterSpacing: 1,
-        textTransform: 'uppercase',
-        color: fantasyTokens.colors.goldDark,
     },
 });
