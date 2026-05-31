@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import {
+    clickOptionGridItem,
     completeAbilitiesStep,
     completeBackgroundStep,
     completeClassStep,
@@ -118,7 +119,7 @@ test.describe('Character creation — step gating', () => {
         await continueButton.click({ force: true });
         await expect(page.getByText(CREATE_STEP_HEADINGS.background)).toBeVisible();
 
-        await page.getByRole('button', { name: /Acolyte/i }).click();
+        await clickOptionGridItem(page, 'Acolyte', { value: 'acolyte' });
         await continueButton.click();
         await expect(page.getByText(CREATE_STEP_HEADINGS.skills)).toBeVisible();
     });

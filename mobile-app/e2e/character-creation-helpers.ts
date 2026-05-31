@@ -23,14 +23,40 @@ export function uniqueCharacterName(prefix: string): string {
  * Clicks an OptionGrid tile whose accessible name includes the given label.
  *
  * RN Web exposes icon + label + hint as one button name (for example
- * "Human +1 all stats").  This matches the label inside the composite name
- * while treating hyphenated race names like "Half-Elf" as one token, so
- * selecting "Elf" does not also match "Half-Elf".
+ * "Human +1 all stats"). Tiles with info buttons nest a second button whose
+ * label also contains the option name; when multiple role matches exist,
+ * this helper clicks the tile (`option-{value}`) rather than the info control.
  */
-export async function clickOptionGridItem(page: Page, label: string): Promise<void> {
+export async function clickOptionGridItem(
+    page: Page,
+    label: string,
+    options: { value?: string } = {},
+): Promise<void> {
+    if (options.value) {
+        await page.getByTestId(`option-${options.value}`).click();
+        return;
+    }
+
     const escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const namePattern = new RegExp(`(^|[^A-Za-z0-9-])${escapedLabel}($|[^A-Za-z0-9-])`, 'i');
-    await page.getByRole('button', { name: namePattern }).click();
+    const roleMatches = page.getByRole('button', { name: namePattern });
+    const roleCount = await roleMatches.count();
+
+    if (roleCount === 1) {
+        await roleMatches.click();
+        return;
+    }
+
+    for (let index = 0; index < roleCount; index += 1) {
+        const candidate = roleMatches.nth(index);
+        const testId = await candidate.getAttribute('data-testid');
+        if (testId?.startsWith('option-') && !testId.startsWith('option-info-')) {
+            await candidate.click();
+            return;
+        }
+    }
+
+    await roleMatches.first().click();
 }
 
 /**
@@ -83,7 +109,7 @@ export async function completeBackgroundStep(
     const background = options.background ?? 'Acolyte';
 
     await expect(page.getByText(CREATE_STEP_HEADINGS.background)).toBeVisible();
-    await clickOptionGridItem(page, background);
+    await clickOptionGridItem(page, background, { value: 'acolyte' });
 
     if (options.alignment) {
         await page.getByText(options.alignment, { exact: true }).click();
