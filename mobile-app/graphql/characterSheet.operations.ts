@@ -259,6 +259,23 @@ export const GET_AVAILABLE_SUBCLASSES = gql`
 `;
 
 /**
+ * Loads the backgrounds available to the current user.
+ */
+export const GET_AVAILABLE_BACKGROUNDS = gql`
+    query AvailableBackgrounds {
+        availableBackgrounds {
+            id
+            value
+            srdIndex
+            name
+            description
+            featureName
+            isCustom
+        }
+    }
+`;
+
+/**
  * Creates a new character with the full initial sheet data.
  */
 export const CREATE_CHARACTER = gql`

@@ -35,11 +35,6 @@ export const CLASS_OPTIONS: OptionItem[] = [
     { value: 'barbarian', label: 'Barbarian', icon: '\u{1F4AA}', hint: 'Strength' },
 ];
 
-/** Background options supported by the current SRD-backed seed data. */
-export const BACKGROUND_OPTIONS: OptionItem[] = [
-    { value: 'Acolyte', label: 'Acolyte', icon: '\u{1F64F}' },
-];
-
 /**
  * SRD subclass options keyed by class SRD index.
  * Each entry uses the same OptionItem shape for consistency with OptionGrid.

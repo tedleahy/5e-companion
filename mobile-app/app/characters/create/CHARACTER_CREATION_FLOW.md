@@ -33,7 +33,7 @@ _layout.tsx
 | `race.tsx` | — | Redirect to identity step. Kept in place so Expo Router doesn't break if navigated to directly |
 | `class.tsx` | 2 - Class | Level stepper (1-20), single-class selection via `OptionGrid` by default. Inline subclass picker when unlocked, with automatic scroll into the subclass section after selecting a class that requires one. A "Multiclass" switch (with an info button that reveals an explanation) appears when a class is selected and level is 2+; toggling it on enters multiclass mode with full allocation UI |
 | `abilities.tsx` | 3 - Abilities | Toggle between Roll (4d6 drop lowest) and Point Buy modes. Also handles ASI (Ability Score Increase) allocation for higher levels |
-| `background.tsx` | 4 - Background | Background selection (`OptionGrid`), alignment (3x3 grid), and personality trait text fields (traits, ideals, bonds, flaws) |
+| `background.tsx` | 4 - Background | Background selection via `OptionGrid` from `useAvailableBackgrounds()` (includes info button with feature description), alignment (3x3 grid), and personality trait text fields (traits, ideals, bonds, flaws) |
 | `skills.tsx` | 5 - Skills | Saving throws (display-only, from starting class), background skills (locked), class skill picks (capped by `pick` count) |
 | `features.tsx` | 6 - Additional Class Benefits (conditional) | Inserted after skills when the selected SRD classes/subclasses unlock parent/child feature choices (for example Eldritch Invocations, Metamagic, Pact Boon, Circle of the Land, Fighting Style, Hunter's Prey). Renders one card per parent feature and requires the configured number of child selections before continuing |
 | `review.tsx` | Final step - Review | Read-only summary of all choices. Each section is tappable to jump back to its step for editing. "Create Character" triggers the GraphQL mutation |
@@ -57,7 +57,7 @@ _layout.tsx
 | File | Purpose |
 |---|---|
 | `multiclass.ts` | Core multiclass logic. Types: `CharacterClassDraft`, `CharacterClassDraftValidation`. Functions for creating/sanitising class rows, computing remaining levels, checking subclass unlock, sorting for display, normalising starting class ID, formatting labels, and full validation (`validateCharacterClassDraft`) |
-| `options.ts` | Static data: `RACE_OPTIONS`, `CLASS_OPTIONS`, `BACKGROUND_OPTIONS`, `SUBCLASS_OPTIONS`, `ALIGNMENT_OPTIONS`. All use the `OptionItem` shape (`value`, `label`, `icon`, `hint?`) |
+| `options.ts` | Static data: `RACE_OPTIONS`, `CLASS_OPTIONS`, `SUBCLASS_OPTIONS`, `ALIGNMENT_OPTIONS`. All use the `OptionItem` shape (`value`, `label`, `icon`, `hint?`, `description?`) |
 | `classRules.ts` | Static D&D rule data: `HIT_DIE_MAP`, armour/weapon proficiencies, `BACKGROUND_SKILL_PROFICIENCIES`, `CLASS_SKILL_OPTIONS` (with `pick` count), `CLASS_SAVING_THROWS`, `CLASS_SPELLCASTING_ABILITY_MAP`, `CLASS_ABILITY_PRIORITY`, `SUBCLASS_UNLOCK_LEVEL_BY_CLASS` |
 | `abilityRules.ts` | Point buy cost table, ASI level thresholds, `roll4d6DropLowest()`, `rollAllAbilityScores()`, `suggestAbilityScores()` (reorders rolled scores by class priority), `asiPointsForLevel()`, `proficiencyBonusForLevel()` |
 | `raceRules.ts` | `RACE_ABILITY_BONUSES`, `RACE_SPEED_MAP`, `applyRacialBonuses()` |

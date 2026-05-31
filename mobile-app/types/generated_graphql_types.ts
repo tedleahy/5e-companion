@@ -33,6 +33,17 @@ export type AbilityScoresInput = {
   wisdom: Scalars['Int']['input'];
 };
 
+export type AvailableBackground = {
+  __typename?: 'AvailableBackground';
+  description: Scalars['String']['output'];
+  featureName?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  value: Scalars['String']['output'];
+};
+
 export type AvailableSubclass = {
   __typename?: 'AvailableSubclass';
   classId: Scalars['String']['output'];
@@ -375,6 +386,7 @@ export enum ProficiencyLevel {
 
 export type Query = {
   __typename?: 'Query';
+  availableBackgrounds: Array<AvailableBackground>;
   availableSubclasses: Array<AvailableSubclass>;
   character?: Maybe<Character>;
   currentUserCharacters: Array<Character>;
@@ -696,6 +708,11 @@ export type AvailableSubclassesQueryVariables = Exact<{
 
 
 export type AvailableSubclassesQuery = { __typename?: 'Query', availableSubclasses: Array<{ __typename?: 'AvailableSubclass', id: string, value: string, srdIndex?: string | null, classId: string, className: string, name: string, description: Array<string>, isCustom: boolean, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> }> };
+
+export type AvailableBackgroundsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AvailableBackgroundsQuery = { __typename?: 'Query', availableBackgrounds: Array<{ __typename?: 'AvailableBackground', id: string, value: string, srdIndex?: string | null, name: string, description: string, featureName?: string | null, isCustom: boolean }> };
 
 export type CreateCharacterMutationVariables = Exact<{
   input: CreateCharacterInput;

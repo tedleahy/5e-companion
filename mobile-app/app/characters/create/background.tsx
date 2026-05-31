@@ -3,7 +3,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
-import { BACKGROUND_OPTIONS } from '@/lib/characterCreation/options';
+import useAvailableBackgrounds from '@/hooks/useAvailableBackgrounds';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 import OptionGrid from '@/components/character-creation-wizard/OptionGrid';
 import AlignmentGrid from '@/components/character-creation-wizard/AlignmentGrid';
@@ -11,6 +11,7 @@ import { wizardStepStyles } from '@/components/character-creation-wizard/styles/
 
 export default function StepBackground() {
     const { draft, updateDraft } = useCharacterDraft();
+    const { backgroundOptions } = useAvailableBackgrounds();
 
     return (
         <KeyboardAwareScrollView
@@ -25,7 +26,7 @@ export default function StepBackground() {
             {/* Background */}
             <Text style={styles.fieldLabel}>Background</Text>
             <OptionGrid
-                options={BACKGROUND_OPTIONS}
+                options={backgroundOptions}
                 selected={draft.background}
                 onSelect={(value) => updateDraft({ background: value })}
             />
