@@ -98,6 +98,7 @@ export default function SignIn() {
                             mode="outlined"
                             style={styles.secondaryButton}
                             textColor={fantasyTokens.colors.goldDark}
+                            rippleColor="rgba(158, 132, 92, 0.3)"
                             onPress={() => router.push('/(auth)/sign-up')}
                         >
                             Forge a new account
