@@ -50,12 +50,13 @@ export const CLASS_WEAPON_PROFICIENCIES: Record<string, string[]> = {
 
 /** Background skill proficiencies that are auto-selected and locked. */
 export const BACKGROUND_SKILL_PROFICIENCIES: Record<string, SkillKey[]> = {
+    acolyte: ['insight', 'religion'],
+    Acolyte: ['insight', 'religion'],
     Sage: ['arcana', 'history'],
     Soldier: ['athletics', 'intimidation'],
     Noble: ['history', 'persuasion'],
     Outlander: ['athletics', 'survival'],
     Entertainer: ['acrobatics', 'performance'],
-    Acolyte: ['insight', 'religion'],
 };
 
 /**

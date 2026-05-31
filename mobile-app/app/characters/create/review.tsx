@@ -16,11 +16,15 @@ import {
     startingClassRow,
 } from '@/lib/characterCreation/multiclass';
 import { getCreateFeatureChoiceGroups } from '@/lib/srdFeatureChoices';
+import useAvailableBackgrounds from '@/hooks/useAvailableBackgrounds';
 import { wizardStepStyles } from '@/components/character-creation-wizard/styles/wizardStepStyles';
 
 export default function StepReview() {
     const { draft } = useCharacterDraft();
     const router = useRouter();
+    const { backgroundOptions } = useAvailableBackgrounds();
+    const backgroundLabel = backgroundOptions.find((background) => background.value === draft.background)?.label
+        ?? draft.background;
 
     const scoresWithAsi = ABILITY_KEYS.reduce((scores, key) => {
         scores[key] = draft.abilityScores[key] + (draft.asiAllocations[key] ?? 0);
@@ -51,7 +55,7 @@ export default function StepReview() {
                 <DetailRow label="Name" value={draft.name} />
                 <DetailRow label="Race" value={draft.race} />
                 <DetailRow label="Level" value={String(draft.level)} />
-                <DetailRow label="Background" value={draft.background} />
+                <DetailRow label="Background" value={backgroundLabel} />
                 <DetailRow label="Alignment" value={draft.alignment || 'Not set'} />
             </ParchmentPanel>
 
