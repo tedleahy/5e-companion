@@ -40,7 +40,9 @@ export default function TraitsTab({
     onChangeTraitTag,
     onRemoveTraitTag,
 }: TraitsTabProps) {
-    const proficienciesAndLanguages = deriveProficienciesAndLanguages(traits);
+    const proficienciesAndLanguages = deriveProficienciesAndLanguages(traits, {
+        preserveDraftEntries: editMode,
+    });
     const hasProficienciesData =
         proficienciesAndLanguages.armor.length > 0
         || proficienciesAndLanguages.weapons.length > 0

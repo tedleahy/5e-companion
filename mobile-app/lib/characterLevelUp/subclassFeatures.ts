@@ -291,6 +291,8 @@ export function getLevelUpFeatures(selectedClass: LevelUpWizardSelectedClass): L
             .filter((feature) => feature.level === selectedClass.newLevel)
             .map((feature) => ({
                 key: feature.id,
+                srdIndex: null,
+                parentSrdIndex: null,
                 name: feature.name,
                 description: feature.description,
                 source: featureSourceLabel(

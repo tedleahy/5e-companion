@@ -11,10 +11,10 @@ export const DEVELOPMENT_ALLOWED_ORIGINS = [
     'http://127.0.0.1:19006',
 ];
 
-type CorsPolicyEnvironment = Pick<
+type CorsPolicyEnvironment = Partial<Pick<
     NodeJS.ProcessEnv,
     'BUN_ENV' | 'CORS_ALLOWED_ORIGINS' | 'NODE_ENV'
->;
+>>;
 
 /**
  * Returns whether the server is running with production defaults.

@@ -103,13 +103,23 @@ export function availableUses(feature: FeatureRow): number {
  */
 export function deriveProficienciesAndLanguages(
     traits: CharacterTraitsData,
+    options: { preserveDraftEntries?: boolean } = {},
 ): ProficienciesAndLanguages {
+    const valueMapper = options.preserveDraftEntries ? draftValues : normalizedValues;
+
     return {
-        armor: normalizedValues(traits.armorProficiencies),
-        weapons: normalizedValues(traits.weaponProficiencies),
-        tools: normalizedValues(traits.toolProficiencies),
-        languages: normalizedValues(traits.languages),
+        armor: valueMapper(traits.armorProficiencies),
+        weapons: valueMapper(traits.weaponProficiencies),
+        tools: valueMapper(traits.toolProficiencies),
+        languages: valueMapper(traits.languages),
     };
+}
+
+/**
+ * Preserves editable draft rows exactly so empty added rows remain visible.
+ */
+function draftValues(values: string[] | null | undefined): string[] {
+    return values ? [...values] : [];
 }
 
 /**
