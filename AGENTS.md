@@ -67,6 +67,7 @@ Whenever you've finished a task that changes behaviour described in the docs, up
 - **Prefix shell commands with `rtk`** where the RTK proxy is available — saves tokens on noisy commands (`rtk bun test`, `rtk git status`, `rtk yarn test <name>`).
 - **Use the `ask-user-questions` skill** whenever information is missing or a result needs confirming. Keep using it through troubleshooting. Do not assume a task is complete — wait for explicit confirmation.
 - **Don't commit anything unless explicitly told to.**
+- **Run `tsc --noEmit` in both `server/` and `mobile-app/` before considering a task done.** Fix any new type errors you introduced — pre-existing errors in unrelated files can be ignored, but anything in files you touched or created must compile cleanly.
 
 ## Git commits
 
