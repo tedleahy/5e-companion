@@ -115,6 +115,7 @@ Details: [`testing.md`](./testing.md).
 - **`prisma` can't find the schema** — run migrations via `bun db:migrate` (root script) rather than `bunx prisma migrate` directly. The root script wraps `cd server && bunx prisma …` so `prisma.config.ts` resolves correctly.
 - **`DATABASE_URL` not set** — `server/prisma.config.ts` reads it at parse time, so even `prisma generate` needs it in the env. Export it inline or make sure `server/.env` exists.
 - **Expo web shows old API URL** — kill Metro and restart with `--clear`, e.g. `yarn web --clear`, so the new `EXPO_PUBLIC_*` env vars are baked into a fresh bundle.
+- **Expo web calls `127.0.0.1:4010` during normal development** — remove `mobile-app/.env.development.local` if it was left behind by an interrupted e2e run, then restart Metro with `--clear`. Expo loads that file ahead of `mobile-app/.env`.
 - **Supabase session not persisting on web** — check the browser's `localStorage`. The mobile app deliberately no-ops storage during SSR; client-side storage only activates once `window.localStorage` is available.
 - **Sandboxed Prisma commands failing** — if you're in a restricted env and Prisma needs Docker/host access, stop and ask the user to run the command manually (per `AGENTS.md`).
 

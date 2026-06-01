@@ -58,7 +58,7 @@ bun test --test-name-pattern "longRest"   # Filter by test name
 ### Flow (handled by the config)
 
 1. `globalSetup.ts` migrates the local Supabase Postgres and seeds a test user + character.
-2. `playwright.config.ts` starts two web servers: the GraphQL server on `4010` and Expo web on `8081`, both pointed at the local Supabase stack.
+2. `playwright.config.ts` starts two web servers: the GraphQL server on `4010` and Expo web on `8081`, both pointed at the local Supabase stack. During the run, `globalSetup.ts` writes a generated `mobile-app/.env.development.local` so Expo bakes the e2e URLs into the web bundle; `globalTeardown.ts` removes that generated file and restores any developer-owned backup.
 3. The `setup` project runs `auth.setup.ts` once, performs a real UI sign-in, and saves auth storage state to `e2e/.auth/user.json`.
 4. Other specs reuse that storage state via `storageState`.
 

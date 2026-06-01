@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawn, type SpawnOptions } from 'node:child_process';
 import {
+    E2E_DEV_LOCAL_ENV_MARKER,
     E2E_TEST_USER,
     e2eDevLocalEnvFileContents,
     e2eEnv,
@@ -21,6 +22,11 @@ const MOBILE_APP_ROOT = path.resolve(__dirname, '..');
 const DEV_LOCAL_ENV_FILE = path.join(MOBILE_APP_ROOT, '.env.development.local');
 const DEV_LOCAL_ENV_BACKUP = path.join(MOBILE_APP_ROOT, '.env.development.local.e2e-backup');
 
+function isGeneratedDevLocalEnvFile(filePath: string): boolean {
+    if (!fs.existsSync(filePath)) return false;
+    return fs.readFileSync(filePath, 'utf8').includes(E2E_DEV_LOCAL_ENV_MARKER);
+}
+
 /**
  * Writes `mobile-app/.env.development.local` with the e2e URLs so the Expo
  * bundle points at the local Supabase stack. If the developer already has
@@ -29,7 +35,14 @@ const DEV_LOCAL_ENV_BACKUP = path.join(MOBILE_APP_ROOT, '.env.development.local.
  */
 function writeDevLocalEnvFile(): void {
     if (fs.existsSync(DEV_LOCAL_ENV_FILE)) {
-        fs.renameSync(DEV_LOCAL_ENV_FILE, DEV_LOCAL_ENV_BACKUP);
+        if (!isGeneratedDevLocalEnvFile(DEV_LOCAL_ENV_FILE)) {
+            if (fs.existsSync(DEV_LOCAL_ENV_BACKUP)) {
+                throw new Error(
+                    `Refusing to overwrite ${DEV_LOCAL_ENV_BACKUP}; remove it or restore it before running e2e tests.`,
+                );
+            }
+            fs.renameSync(DEV_LOCAL_ENV_FILE, DEV_LOCAL_ENV_BACKUP);
+        }
     }
     fs.writeFileSync(DEV_LOCAL_ENV_FILE, e2eDevLocalEnvFileContents(), 'utf8');
 }
