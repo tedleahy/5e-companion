@@ -5,6 +5,7 @@ import {
     characterFeatureDeleteManyMock,
     characterFeatureFindManyMock,
     characterFeatureUpdateMock,
+    characterClassFindManyMock,
     characterFindFirstMock,
     characterUpdateMock,
     classFindManyMock,
@@ -88,6 +89,10 @@ function mockClassReferenceLookups() {
         fakeCharacterClasses[0]!.classRef,
         fakeCharacterClasses[1]!.classRef,
     ]);
+    characterClassFindManyMock.mockResolvedValueOnce([
+        { subclassId: fakeCharacterClasses[0]!.subclassId },
+        { subclassId: fakeCharacterClasses[1]!.subclassId },
+    ]);
     subclassFindManyMock.mockResolvedValueOnce([
         fakeCharacterClasses[0]!.subclassRef,
         fakeCharacterClasses[1]!.subclassRef,
@@ -100,6 +105,129 @@ describe('characterResolvers — saveCharacterSheet', () => {
     test('throws UNAUTHENTICATED when userId is null', () => {
         expect(resolvers.saveCharacterSheet({}, { characterId: 'char-1', input: {} as any }, unauthedCtx))
             .rejects.toThrow('UNAUTHENTICATED');
+    });
+
+    test('rejects archived custom subclass ids that are not already attached to the character', () => {
+        characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
+        classFindManyMock.mockResolvedValueOnce([
+            fakeCharacterClasses[0]!.classRef,
+        ]);
+        characterClassFindManyMock.mockResolvedValueOnce([
+            { subclassId: 'other-subclass-id' },
+        ]);
+        subclassFindManyMock.mockResolvedValueOnce([]);
+
+        expect(resolvers.saveCharacterSheet({}, {
+            characterId: 'char-1',
+            input: {
+                ac: 12,
+                speed: 30,
+                initiative: 2,
+                conditions: [],
+                hp: { current: 10, max: 10, temp: 0 },
+                abilityScores: fakeStats.abilityScores,
+                skillProficiencies: BASE_SAVE_SKILL_PROFICIENCIES,
+                currency: fakeStats.currency,
+                traits: fakeStats.traits,
+                classes: [
+                    {
+                        classId: 'wizard',
+                        subclassId: 'archived-custom-id',
+                        level: 2,
+                        isStartingClass: true,
+                    },
+                ],
+                weapons: [],
+                inventory: [],
+                features: [],
+            },
+        } as any, authedCtx)).rejects.toThrow('Unknown subclass: archived-custom-id');
+
+        const args = subclassFindManyMock.mock.calls[0]![0] as Record<string, any>;
+        expect(args.where.AND[0].OR).toEqual([
+            { ownerUserId: null },
+            { ownerUserId: 'user-abc', archivedAt: null },
+            {
+                ownerUserId: 'user-abc',
+                archivedAt: { not: null },
+                id: { in: ['other-subclass-id'] },
+            },
+        ]);
+    });
+
+    test('allows sheet saves to preserve an archived custom subclass already attached to the character', async () => {
+        const archivedSubclass = {
+            id: 'archived-custom-id',
+            srdIndex: null,
+            ownerUserId: 'user-abc',
+            name: 'School of Glass',
+            classId: 'class-wizard-id',
+            archivedAt: new Date('2026-06-01T00:00:00.000Z'),
+        };
+
+        characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
+        classFindManyMock.mockResolvedValueOnce([
+            fakeCharacterClasses[0]!.classRef,
+        ]);
+        characterClassFindManyMock.mockResolvedValueOnce([
+            { subclassId: 'archived-custom-id' },
+        ]);
+        subclassFindManyMock.mockResolvedValueOnce([archivedSubclass]);
+        characterUpdateMock.mockResolvedValueOnce({
+            ...fakeCharacter,
+            proficiencyBonus: 2,
+        });
+        statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
+        statsUpdateMock.mockResolvedValueOnce({ ...fakeStats });
+        hitDicePoolFindManyMock.mockResolvedValueOnce([]);
+        spellSlotFindManyMock.mockResolvedValueOnce([]);
+        weaponFindManyMock.mockResolvedValueOnce([]);
+        inventoryItemFindManyMock.mockResolvedValueOnce([]);
+        characterFeatureFindManyMock.mockResolvedValueOnce([]);
+
+        await resolvers.saveCharacterSheet({}, {
+            characterId: 'char-1',
+            input: {
+                ac: 12,
+                speed: 30,
+                initiative: 2,
+                conditions: [],
+                hp: { current: 10, max: 10, temp: 0 },
+                abilityScores: fakeStats.abilityScores,
+                skillProficiencies: BASE_SAVE_SKILL_PROFICIENCIES,
+                currency: fakeStats.currency,
+                traits: fakeStats.traits,
+                classes: [
+                    {
+                        classId: 'wizard',
+                        subclassId: 'archived-custom-id',
+                        level: 2,
+                        isStartingClass: true,
+                    },
+                ],
+                weapons: [],
+                inventory: [],
+                features: [],
+            },
+        } as any, authedCtx);
+
+        expect(characterUpdateMock).toHaveBeenCalledWith(
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    classes: {
+                        deleteMany: {},
+                        create: [
+                            {
+                                classId: 'class-wizard-id',
+                                subclassId: 'archived-custom-id',
+                                level: 2,
+                                isStartingClass: true,
+                            },
+                        ],
+                    },
+                }),
+            }),
+        );
     });
 
     test('saves the full editable sheet inside one transaction and re-derives level-up data', async () => {
@@ -488,6 +616,17 @@ describe('characterResolvers — saveCharacterSheet', () => {
             },
         } as any, authedCtx);
 
+        expect(subclassFindFirstMock).toHaveBeenCalledWith({
+            where: {
+                ownerUserId: 'user-abc',
+                classId: 'class-wizard-id',
+                name: {
+                    equals: 'School of Glass',
+                    mode: 'insensitive',
+                },
+                archivedAt: null,
+            },
+        });
         expect(subclassCreateMock).toHaveBeenCalledWith({
             data: {
                 ownerUserId: 'user-abc',

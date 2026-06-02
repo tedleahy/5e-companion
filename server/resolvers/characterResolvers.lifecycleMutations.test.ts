@@ -150,6 +150,44 @@ describe('characterResolvers — createCharacter', () => {
         } as any, authedCtx)).rejects.toThrow('requires wizard level 2');
     });
 
+    test('rejects archived custom subclass ids for new characters', async () => {
+        classFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'class-wizard-id',
+                srdIndex: 'wizard',
+                name: 'Wizard',
+                hitDie: 6,
+                spellcastingAbility: 'int',
+                proficiencies: [],
+            },
+        ]);
+        subclassFindManyMock.mockResolvedValueOnce([]);
+        raceFindFirstMock.mockResolvedValueOnce({ id: 'race-elf-id', name: 'Elf', languages: [], traits: [] });
+        backgroundFindFirstMock.mockResolvedValueOnce({ id: 'background-acolyte-id', name: 'Acolyte', proficiencies: [], languages: [], languageChoiceCount: null });
+
+        expect(resolvers.createCharacter({}, {
+            input: {
+                name: 'Vaelindra',
+                race: 'elf',
+                classes: [{ classId: 'wizard', subclassId: 'archived-custom-id', level: 2 }],
+                startingClassId: 'wizard',
+                alignment: 'Chaotic Good',
+                background: 'acolyte',
+                ac: 12,
+                speed: 30,
+                initiative: 2,
+                abilityScores: { strength: 8, dexterity: 14, constitution: 14, intelligence: 16, wisdom: 10, charisma: 10 },
+                skillProficiencies: {},
+            },
+        } as any, authedCtx)).rejects.toThrow('Unknown subclass: archived-custom-id');
+
+        const args = subclassFindManyMock.mock.calls[0]![0] as Record<string, any>;
+        expect(args.where.AND[0].OR).toEqual([
+            { ownerUserId: null },
+            { ownerUserId: 'user-abc', archivedAt: null },
+        ]);
+    });
+
     test('creates and attaches a new owned custom subclass when the input provides one', async () => {
         characterCreateMock.mockResolvedValueOnce({ id: 'char-new', ownerUserId: 'user-abc' });
         classFindManyMock.mockResolvedValueOnce([
@@ -233,6 +271,17 @@ describe('characterResolvers — createCharacter', () => {
             },
         } as any, authedCtx);
 
+        expect(subclassFindFirstMock).toHaveBeenCalledWith({
+            where: {
+                ownerUserId: 'user-abc',
+                classId: 'class-wizard-id',
+                name: {
+                    equals: 'School of Glass',
+                    mode: 'insensitive',
+                },
+                archivedAt: null,
+            },
+        });
         expect(subclassCreateMock).toHaveBeenCalledWith({
             data: {
                 ownerUserId: 'user-abc',

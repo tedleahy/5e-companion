@@ -132,7 +132,7 @@ describe('characterResolvers — queries', () => {
                 {
                     OR: [
                         { ownerUserId: null },
-                        { ownerUserId: 'user-abc' },
+                        { ownerUserId: 'user-abc', archivedAt: null },
                     ],
                 },
                 {
@@ -233,6 +233,74 @@ describe('characterResolvers — queries', () => {
                 isCustom: true,
             },
         ]);
+    });
+
+    test('customSubclasses throws UNAUTHENTICATED when userId is null', () => {
+        expect(resolvers.customSubclasses({}, {}, unauthedCtx))
+            .rejects.toThrow('UNAUTHENTICATED');
+    });
+
+    test('customSubclasses returns only active user-owned rows, not SRD rows', async () => {
+        subclassFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'custom-subclass-id',
+                srdIndex: null,
+                ownerUserId: 'user-abc',
+                name: 'School of Glass',
+                description: ['A delicate art of mirrored wards.'],
+                classId: 'class-wizard-id',
+                classRef: {
+                    id: 'class-wizard-id',
+                    srdIndex: 'wizard',
+                    name: 'Wizard',
+                },
+                features: [],
+                _count: { characterClasses: 2 },
+            },
+        ]);
+
+        const result = await resolvers.customSubclasses(
+            {},
+            { classIds: ['wizard'] },
+            authedCtx,
+        );
+
+        expect(subclassFindManyMock).toHaveBeenCalledTimes(1);
+        const args = subclassFindManyMock.mock.calls[0]![0] as Record<string, any>;
+        expect(args.where).toEqual({
+            ownerUserId: 'user-abc',
+            archivedAt: null,
+            classRef: {
+                srdIndex: {
+                    in: ['wizard'],
+                },
+            },
+        });
+        expect(result).toEqual([
+            {
+                id: 'custom-subclass-id',
+                value: 'custom-subclass-id',
+                classId: 'wizard',
+                className: 'Wizard',
+                name: 'School of Glass',
+                description: ['A delicate art of mirrored wards.'],
+                features: [],
+                characterUsageCount: 2,
+            },
+        ]);
+    });
+
+    test('customSubclasses returns all active custom rows when no classIds filter', async () => {
+        subclassFindManyMock.mockResolvedValueOnce([]);
+
+        const result = await resolvers.customSubclasses({}, {}, authedCtx);
+
+        const args = subclassFindManyMock.mock.calls[0]![0] as Record<string, any>;
+        expect(args.where).toEqual({
+            ownerUserId: 'user-abc',
+            archivedAt: null,
+        });
+        expect(result).toEqual([]);
     });
 
     test('availableBackgrounds throws UNAUTHENTICATED when userId is null', () => {
