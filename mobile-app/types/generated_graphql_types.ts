@@ -172,6 +172,18 @@ export type CurrencyInput = {
   sp: Scalars['Int']['input'];
 };
 
+export type CustomSubclass = {
+  __typename?: 'CustomSubclass';
+  characterUsageCount: Scalars['Int']['output'];
+  classId: Scalars['String']['output'];
+  className: Scalars['String']['output'];
+  description: Array<Scalars['String']['output']>;
+  features: Array<AvailableSubclassFeature>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
 export type CustomSubclassInput = {
   description: Scalars['String']['input'];
   name: Scalars['String']['input'];
@@ -250,9 +262,17 @@ export type InventoryItemInput = {
   weight?: InputMaybe<Scalars['Float']['input']>;
 };
 
+export type ManagedCustomSubclassInput = {
+  classId: Scalars['String']['input'];
+  description: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  archiveCustomSubclass: Scalars['Boolean']['output'];
   createCharacter: Character;
+  createCustomSubclass: CustomSubclass;
   deleteCharacter: Scalars['Boolean']['output'];
   forgetSpell: Scalars['Boolean']['output'];
   learnSpell: CharacterSpell;
@@ -265,6 +285,7 @@ export type Mutation = {
   toggleSpellSlot: SpellSlot;
   unprepareSpell: CharacterSpell;
   updateCharacter: Character;
+  updateCustomSubclass: CustomSubclass;
   updateDeathSaves: CharacterStats;
   updateHitDice: CharacterStats;
   updateInventoryItem: InventoryItem;
@@ -273,8 +294,18 @@ export type Mutation = {
 };
 
 
+export type MutationArchiveCustomSubclassArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationCreateCharacterArgs = {
   input: CreateCharacterInput;
+};
+
+
+export type MutationCreateCustomSubclassArgs = {
+  input: ManagedCustomSubclassInput;
 };
 
 
@@ -348,6 +379,12 @@ export type MutationUpdateCharacterArgs = {
 };
 
 
+export type MutationUpdateCustomSubclassArgs = {
+  id: Scalars['ID']['input'];
+  input: ManagedCustomSubclassInput;
+};
+
+
 export type MutationUpdateDeathSavesArgs = {
   characterId: Scalars['ID']['input'];
   input: DeathSavesInput;
@@ -390,6 +427,7 @@ export type Query = {
   availableSubclasses: Array<AvailableSubclass>;
   character?: Maybe<Character>;
   currentUserCharacters: Array<Character>;
+  customSubclasses: Array<CustomSubclass>;
   hasCurrentUserCharacters: Scalars['Boolean']['output'];
   spell?: Maybe<Spell>;
   spells: Array<Spell>;
@@ -403,6 +441,11 @@ export type QueryAvailableSubclassesArgs = {
 
 export type QueryCharacterArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryCustomSubclassesArgs = {
+  classIds?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 
