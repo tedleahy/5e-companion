@@ -3,8 +3,15 @@ export {
     hasCurrentUserCharacters,
     currentUserCharacters,
     availableSubclasses,
+    customSubclasses,
     availableBackgrounds,
 } from "./character/queries";
+
+export {
+    createCustomSubclass,
+    updateCustomSubclass,
+    archiveCustomSubclass,
+} from "./character/customSubclassManager";
 
 export {
     createCharacter,

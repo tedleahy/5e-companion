@@ -2,12 +2,14 @@ import type { Context } from "../..";
 import type {
     QueryAvailableSubclassesArgs,
     QueryCharacterArgs,
+    QueryCustomSubclassesArgs,
 } from "../../generated/graphql";
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
 import { CHARACTER_DETAIL_INCLUDE, CHARACTER_LIST_INCLUDE } from "./detailLoad";
 import { availableSubclassesForUser } from "./subclassReferences";
 import { availableBackgroundsForUser } from "./backgroundReferences";
+import { customSubclasses as customSubclassesQuery } from "./customSubclassManager";
 
 /**
  * Query resolver for a single owned character by id.
@@ -70,6 +72,17 @@ export async function availableSubclasses(
     const userId = requireUser(ctx);
 
     return await availableSubclassesForUser(userId, classIds ?? null);
+}
+
+/**
+ * Query resolver for the current user's custom subclasses.
+ */
+export async function customSubclasses(
+    _parent: unknown,
+    args: QueryCustomSubclassesArgs,
+    ctx: Context,
+) {
+    return customSubclassesQuery(_parent, args, ctx);
 }
 
 /**
