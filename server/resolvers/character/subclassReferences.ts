@@ -141,7 +141,7 @@ export async function availableSubclassesForUser(
                 {
                     OR: [
                         { ownerUserId: null },
-                        { ownerUserId: userId },
+                        { ownerUserId: userId, archivedAt: null },
                     ],
                 },
                 ...(classIds && classIds.length > 0
@@ -201,19 +201,31 @@ export async function availableSubclassesForUser(
 export async function loadVisibleSubclassReferences(
     userId: string,
     subclassSelectionValues: string[],
+    options: { allowedArchivedSubclassIds?: string[] } = {},
 ): Promise<CharacterSubclassReference[]> {
     if (subclassSelectionValues.length === 0) {
         return [];
+    }
+
+    const allowedArchivedSubclassIds = options.allowedArchivedSubclassIds ?? [];
+    const visibleOwnerFilters: Prisma.SubclassWhereInput[] = [
+        { ownerUserId: null },
+        { ownerUserId: userId, archivedAt: null },
+    ];
+
+    if (allowedArchivedSubclassIds.length > 0) {
+        visibleOwnerFilters.push({
+            ownerUserId: userId,
+            archivedAt: { not: null },
+            id: { in: allowedArchivedSubclassIds },
+        });
     }
 
     return await prisma.subclass.findMany({
         where: {
             AND: [
                 {
-                    OR: [
-                        { ownerUserId: null },
-                        { ownerUserId: userId },
-                    ],
+                    OR: visibleOwnerFilters,
                 },
                 {
                     OR: [
@@ -247,7 +259,11 @@ export async function findOrCreateOwnedCustomSubclass(
         where: {
             ownerUserId: userId,
             classId: classRef.id,
-            name: customSubclass.name,
+            name: {
+                equals: customSubclass.name,
+                mode: "insensitive",
+            },
+            archivedAt: null,
         },
     });
 
