@@ -148,12 +148,14 @@ model Subclass {
     classRef        Class       @relation(fields: [classId], references: [id], onDelete: Cascade)
     sourceBook      String?
     raw             Json?
+    archivedAt      DateTime?
     features        Feature[]   @relation("SubclassFeatures")
     characterClasses CharacterClass[]
 
     @@index([ownerUserId])
     @@index([classId])
     @@index([name])
+    @@index([archivedAt])
 }
 
 model Background {
