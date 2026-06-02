@@ -119,3 +119,4 @@ When the level-up is confirmed, the draft keeps the parent feature row and adds 
 - **Invocation prerequisite context** is recomputed whenever `selectedClass` or character data changes. If you rely on it, read from `invocationPrerequisiteContext` rather than rebuilding.
 - **The wizard resets on `visible` transitions** — see the `useEffect` in `useLevelUpWizard.ts` that blanks every sub-state when `visible` flips.
 - **Custom subclasses and custom features** are first-class here — the wizard can produce a `customSubclass` or custom features that then round-trip via `draftApplication.ts` → `saveCharacterSheet`.
+- **Archived custom subclasses are not future choices** — archived user-owned subclasses are hidden from level-up selection and direct submissions are rejected unless `saveCharacterSheet` is preserving an archived subclass already attached to that same character.

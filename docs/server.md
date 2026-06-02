@@ -62,9 +62,16 @@ Single `ApolloServer` object wiring; resolvers are modularised by file:
 | `resolvers/character/fieldResolvers.ts` | Derived `Character.*` fields (level, proficiency bonus, classes, spellcastingProfiles, stats, weapons, inventory, features, spellSlots, spellbook) + `CharacterStats.hitDicePools` |
 | `resolvers/character/multiclassRules.ts` | Pure rules: proficiency bonus, hit-dice pools, spell slots (multiclass formula), spellcasting profiles, validation |
 | `resolvers/character/subclassReferences.ts` | Loads the visible subclasses (SRD + user-owned) and materialises custom subclasses on create/save |
+| `resolvers/character/customSubclassManager.ts` | Manager query/mutations for reusable custom subclasses |
 | `resolvers/character/reconcileSheetCollection.ts` | Generic insert/update/delete helper used by `saveCharacterSheet` |
 | `resolvers/character/detailLoad.ts` | Shared Prisma `include` objects for list/detail queries |
 | `resolvers/character/helpers.ts` | Shared defaults + `findOwnedCharacter` guard |
+
+## User-Owned Reference Rows
+
+Reference tables can mix SRD rows and user-owned rows. SRD rows use `ownerUserId: null`; user-owned rows set `ownerUserId` and every resolver that touches them must call `requireUser(ctx)` and scope by that id.
+
+Custom subclasses are the main user-owned reference type today. Active custom subclass lookups filter `archivedAt: null`, and manager + inline creation paths treat duplicate names as case-insensitive per user/class. Archiving a custom subclass hides it from future create and level-up selections, but existing characters keep their subclass relation; `saveCharacterSheet` may preserve an archived subclass id only when it was already attached to that same character.
 
 ## Shared library
 
