@@ -32,10 +32,6 @@ export default function AddSpellSheetHeader({
 }: AddSpellSheetHeaderProps) {
     return (
         <View style={styles.headerDragZone}>
-            <View style={styles.handleRow}>
-                <View style={styles.handle} />
-            </View>
-
             <View style={styles.titleRow}>
                 <View>
                     <Text style={styles.title}>{title}</Text>
@@ -92,27 +88,9 @@ const styles = StyleSheet.create({
     headerDragZone: {
         flexShrink: 0,
     },
-    handleRow: {
-        paddingTop: 16,
-        paddingHorizontal: fantasyTokens.spacing.md,
-        alignItems: 'center',
-        position: 'relative',
-        minHeight: 40,
-        paddingBottom: 6,
-    },
-    handle: {
-        position: 'absolute',
-        top: 8,
-        left: '50%',
-        marginLeft: -18,
-        width: 36,
-        height: 4,
-        borderRadius: 2,
-        backgroundColor: 'rgba(201,146,42,0.2)',
-    },
     titleRow: {
         paddingHorizontal: fantasyTokens.spacing.md,
-        paddingTop: 6,
+        paddingTop: fantasyTokens.spacing.sm,
         paddingBottom: 10,
     },
     title: {
