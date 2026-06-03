@@ -3,6 +3,7 @@
  */
 export const NAV_DESTINATIONS = {
     characters: '/characters',
+    subclasses: '/subclasses',
     spells: '/spells',
     settings: '/settings',
 } as const;
@@ -17,6 +18,7 @@ export type NavigationDestination = (typeof NAV_DESTINATIONS)[keyof typeof NAV_D
  */
 export const DRAWER_SCREEN_NAMES = {
     characters: 'characters',
+    subclasses: 'subclasses',
     spells: 'spells',
     settings: 'settings',
 } as const;
@@ -34,6 +36,7 @@ export type DrawerScreenConfig = {
  */
 export const DRAWER_SCREENS: DrawerScreenConfig[] = [
     { name: DRAWER_SCREEN_NAMES.characters, title: 'My Characters' },
+    { name: DRAWER_SCREEN_NAMES.subclasses, title: 'Custom Subclasses' },
     { name: DRAWER_SCREEN_NAMES.spells, title: 'All Spells' },
     { name: DRAWER_SCREEN_NAMES.settings, title: 'Settings' },
 ];
@@ -57,6 +60,12 @@ export const LIBRARY_NAV_ITEMS: NavigationItem[] = [
         label: 'Characters',
         icon: '👤',
         collapsedAccessibilityLabel: 'Open characters',
+    },
+    {
+        destination: NAV_DESTINATIONS.subclasses,
+        label: 'Subclasses',
+        icon: '✨',
+        collapsedAccessibilityLabel: 'Open custom subclasses',
     },
     {
         destination: NAV_DESTINATIONS.spells,
@@ -94,6 +103,10 @@ export function isNavigationDestinationActive(
     }
 
     if (destination === NAV_DESTINATIONS.spells) {
+        return pathname === destination || pathname.startsWith(`${destination}/`);
+    }
+
+    if (destination === NAV_DESTINATIONS.subclasses) {
         return pathname === destination || pathname.startsWith(`${destination}/`);
     }
 

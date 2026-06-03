@@ -54,6 +54,7 @@ describe('ExpandedDrawer', () => {
         render(<ExpandedDrawer {...buildDrawerProps()} />);
 
         expect(screen.getByText('Characters')).toBeTruthy();
+        expect(screen.getByText('Subclasses')).toBeTruthy();
         expect(screen.getByText('All Spells')).toBeTruthy();
         expect(screen.getByText('Settings')).toBeTruthy();
         expect(screen.getByText('Sign Out')).toBeTruthy();
@@ -61,12 +62,23 @@ describe('ExpandedDrawer', () => {
     });
 
     it('highlights the active destination', () => {
-        mockUsePathname.mockReturnValue('/spells');
+        mockUsePathname.mockReturnValue('/subclasses');
 
         render(<ExpandedDrawer {...buildDrawerProps()} />);
 
-        expect(screen.getByLabelText('Open All Spells').props.accessibilityState.selected).toBe(true);
+        expect(screen.getByLabelText('Open Subclasses').props.accessibilityState.selected).toBe(true);
         expect(screen.getByLabelText('Open Characters').props.accessibilityState.selected).toBe(false);
+    });
+
+    it('navigates to subclasses and closes the drawer', async () => {
+        render(<ExpandedDrawer {...buildDrawerProps()} />);
+
+        fireEvent.press(screen.getByTestId('drawer-item-subclasses'));
+
+        await waitFor(() => {
+            expect(mockPush).toHaveBeenCalledWith('/subclasses');
+            expect(mockCloseDrawer).toHaveBeenCalled();
+        });
     });
 
     it('navigates to settings and closes the drawer', async () => {
