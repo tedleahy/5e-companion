@@ -18,7 +18,14 @@ import {
 type UseBottomSheetMotionArgs = {
     visible: boolean;
     windowHeight: number;
-    onRequestClose: () => boolean | void;
+    /**
+     * Called before the dismiss animation. Return false to abort (e.g. while saving).
+     */
+    onRequestClose?: () => boolean | void;
+    /**
+     * Called after a user-initiated dismiss animation completes.
+     */
+    onClose?: () => void;
 };
 
 type UseBottomSheetMotionResult = {
@@ -37,6 +44,7 @@ export default function useBottomSheetMotion({
     visible,
     windowHeight,
     onRequestClose,
+    onClose,
 }: UseBottomSheetMotionArgs): UseBottomSheetMotionResult {
     const sheetHiddenTranslateY = windowHeight + SHEET_HIDDEN_OFFSET;
     const [isRendered, setIsRendered] = useState(visible);
@@ -86,8 +94,7 @@ export default function useBottomSheetMotion({
     const requestSheetClose = useCallback(() => {
         if (isClosingRef.current || !isRendered) return;
 
-        const shouldClose = onRequestClose();
-        if (shouldClose === false) {
+        if (onRequestClose?.() === false) {
             animateSheetBack();
             return;
         }
@@ -102,9 +109,10 @@ export default function useBottomSheetMotion({
             () => {
                 isClosingRef.current = false;
                 setIsRendered(false);
+                onClose?.();
             },
         );
-    }, [animateSheetBack, backdropOpacity, isRendered, onRequestClose, sheetTranslateY]);
+    }, [animateSheetBack, backdropOpacity, isRendered, onClose, onRequestClose, sheetTranslateY]);
 
     const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
         scrollOffsetYRef.current = normaliseTopOffset(event.nativeEvent.contentOffset.y);
