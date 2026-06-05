@@ -40,7 +40,6 @@ export default function SubclassManagerCard({
         <View style={styles.card} testID="subclass-manager-card">
             <View style={styles.cardHeader}>
                 <View style={styles.cardTitleGroup}>
-                    <Text style={styles.sectionLabel}>Subclass Manager</Text>
                     <Text style={styles.cardTitle}>Your Subclasses</Text>
                 </View>
                 <Pressable
@@ -98,10 +97,6 @@ const styles = StyleSheet.create({
     cardTitleGroup: {
         flex: 1,
         minWidth: 0,
-    },
-    sectionLabel: {
-        ...fantasyTokens.typography.eyebrow,
-        color: fantasyTokens.colors.crimson,
     },
     cardTitle: {
         ...fantasyTokens.typography.sectionTitle,
