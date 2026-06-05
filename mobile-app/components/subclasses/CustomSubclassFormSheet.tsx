@@ -19,9 +19,6 @@ type CustomSubclassFormSheetProps = {
     onSave: () => void;
 };
 
-const NAME_MAX_LENGTH = 100;
-const DESCRIPTION_MAX_LENGTH = 5000;
-
 /**
  * Modal sheet for creating and editing reusable custom subclasses.
  */
@@ -52,11 +49,8 @@ export default function CustomSubclassFormSheet({
     } = useBottomSheetMotion({
         visible,
         windowHeight,
-        onRequestClose: () => {
-            if (pending) return false;
-            onClose();
-            return undefined;
-        },
+        onRequestClose: () => (pending ? false : undefined),
+        onClose,
     });
 
     const title = mode === 'edit' ? 'Edit Subclass' : 'Create Subclass';
@@ -67,6 +61,7 @@ export default function CustomSubclassFormSheet({
             backdropOpacity={backdropOpacity}
             sheetTranslateY={sheetTranslateY}
             sheetDismissGesture={sheetDismissGesture}
+            sheetStyle={{ height: '80%' }}
             onRequestClose={requestSheetClose}
             closeAccessibilityLabel="Close custom subclass form"
             testID="custom-subclass-form-sheet"
@@ -81,25 +76,26 @@ export default function CustomSubclassFormSheet({
             >
                 <View style={styles.headerRow}>
                     <View style={styles.headerText}>
-                        <Text style={styles.sheetLabel}>Custom Subclass</Text>
                         <Text style={styles.sheetTitle}>{title}</Text>
                     </View>
                 </View>
 
-                <TextInput
-                    label="Subclass name"
-                    value={draft.name}
-                    onChangeText={(name) => onChangeDraft({ ...draft, name })}
-                    maxLength={NAME_MAX_LENGTH}
-                    autoCapitalize="words"
-                    mode="outlined"
-                    style={styles.input}
-                    textColor={fantasyTokens.colors.inkDark}
-                    outlineColor={fantasyTokens.colors.gold}
-                    activeOutlineColor={fantasyTokens.colors.crimson}
-                    testID="custom-subclass-name-input"
-                />
-                <Text style={styles.counter}>{draft.name.length}/{NAME_MAX_LENGTH}</Text>
+                <View style={styles.field}>
+                    <Text style={styles.fieldLabel}>Subclass Name</Text>
+                    <TextInput
+                        placeholder="e.g. Oath of the Ancients"
+                        placeholderTextColor={fantasyTokens.colors.inkSoft}
+                        value={draft.name}
+                        onChangeText={(name) => onChangeDraft({ ...draft, name })}
+                        autoCapitalize="words"
+                        mode="outlined"
+                        style={styles.input}
+                        textColor={fantasyTokens.colors.inkDark}
+                        outlineColor={fantasyTokens.colors.gold}
+                        activeOutlineColor={fantasyTokens.colors.crimson}
+                        testID="custom-subclass-name-input"
+                    />
+                </View>
 
                 <View style={styles.classSection}>
                     <Text style={styles.fieldLabel}>Parent Class</Text>
@@ -141,24 +137,26 @@ export default function CustomSubclassFormSheet({
                     )}
                 </View>
 
-                <TextInput
-                    label="Description"
-                    value={draft.description}
-                    onChangeText={(description) => {
-                        onChangeDraft({ ...draft, description });
-                        if (errorMessage) onDismissError();
-                    }}
-                    maxLength={DESCRIPTION_MAX_LENGTH}
-                    mode="outlined"
-                    multiline
-                    numberOfLines={6}
-                    style={[styles.input, styles.descriptionInput]}
-                    textColor={fantasyTokens.colors.inkDark}
-                    outlineColor={fantasyTokens.colors.gold}
-                    activeOutlineColor={fantasyTokens.colors.crimson}
-                    testID="custom-subclass-description-input"
-                />
-                <Text style={styles.counter}>{draft.description.length}/{DESCRIPTION_MAX_LENGTH}</Text>
+                <View style={styles.field}>
+                    <Text style={styles.fieldLabel}>Description</Text>
+                    <TextInput
+                        placeholder="Describe the subclass features, flavour, and abilities"
+                        placeholderTextColor={fantasyTokens.colors.inkSoft}
+                        value={draft.description}
+                        onChangeText={(description) => {
+                            onChangeDraft({ ...draft, description });
+                            if (errorMessage) onDismissError();
+                        }}
+                        mode="outlined"
+                        multiline
+                        numberOfLines={6}
+                        style={[styles.input, styles.descriptionInput]}
+                        textColor={fantasyTokens.colors.inkDark}
+                        outlineColor={fantasyTokens.colors.gold}
+                        activeOutlineColor={fantasyTokens.colors.crimson}
+                        testID="custom-subclass-description-input"
+                    />
+                </View>
 
                 {errorMessage && (
                     <HelperText type="error" visible style={styles.errorText}>
@@ -198,8 +196,6 @@ export default function CustomSubclassFormSheet({
     );
 }
 
-export { DESCRIPTION_MAX_LENGTH, NAME_MAX_LENGTH };
-
 const styles = StyleSheet.create({
     sheetContent: {
         gap: fantasyTokens.spacing.md,
@@ -216,27 +212,19 @@ const styles = StyleSheet.create({
         flex: 1,
         minWidth: 0,
     },
-    sheetLabel: {
-        ...fantasyTokens.typography.eyebrow,
-        color: fantasyTokens.colors.gold,
-    },
     sheetTitle: {
         ...fantasyTokens.typography.sectionTitle,
         color: fantasyTokens.colors.parchment,
         fontWeight: '700',
+    },
+    field: {
+        gap: fantasyTokens.spacing.sm,
     },
     input: {
         backgroundColor: fantasyTokens.colors.parchment,
     },
     descriptionInput: {
         minHeight: 132,
-    },
-    counter: {
-        ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.gold,
-        textAlign: 'right',
-        fontVariant: ['tabular-nums'],
-        marginTop: -fantasyTokens.spacing.sm,
     },
     classSection: {
         gap: fantasyTokens.spacing.sm,
@@ -249,12 +237,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: fantasyTokens.spacing.sm,
+        justifyContent: 'center',
     },
     classButton: {
-        width: 124,
+        width: 110,
         minHeight: 44,
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
         gap: fantasyTokens.spacing.xs,
         borderRadius: fantasyTokens.radii.sm,
         borderWidth: 1,
@@ -278,8 +268,7 @@ const styles = StyleSheet.create({
     classButtonText: {
         ...fantasyTokens.typography.bodySmall,
         color: fantasyTokens.colors.parchmentDeep,
-        flex: 1,
-        minWidth: 0,
+        textAlign: 'center',
     },
     classButtonTextSelected: {
         color: fantasyTokens.colors.parchment,
