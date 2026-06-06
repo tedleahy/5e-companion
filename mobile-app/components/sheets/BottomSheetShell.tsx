@@ -1,7 +1,11 @@
 import type { ReactNode } from 'react';
-import { Animated, Keyboard, Pressable, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import { Animated, Keyboard, Pressable, StyleSheet, useWindowDimensions, type StyleProp, type ViewStyle } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { Portal } from 'react-native-paper';
+import {
+    getBottomSheetSlotStyle,
+    getMainContentFrameStyle,
+} from '@/components/layout/mainContentFrameStyle';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 type BottomSheetShellProps = {
@@ -34,6 +38,8 @@ export default function BottomSheetShell({
     sheetStyle,
     backdropStyle,
 }: BottomSheetShellProps) {
+    const { width } = useWindowDimensions();
+
     if (!isRendered) return null;
 
     return (
@@ -48,28 +54,31 @@ export default function BottomSheetShell({
                     />
                 </Animated.View>
 
-                <GestureDetector gesture={sheetDismissGesture}>
-                    <Animated.View
-                        testID={testID}
-                        style={[
-                            styles.sheet,
-                            sheetStyle,
-                            { transform: [{ translateY: sheetTranslateY }] },
-                        ]}
-                        onStartShouldSetResponderCapture={() => {
-                            Keyboard.dismiss();
-                            return false;
-                        }}
-                    >
+                <Animated.View style={getBottomSheetSlotStyle(width)}>
+                    <GestureDetector gesture={sheetDismissGesture}>
                         <Animated.View
-                            accessible={false}
-                            style={styles.handleWrap}
+                            testID={testID}
+                            style={[
+                                styles.sheet,
+                                getMainContentFrameStyle(width),
+                                sheetStyle,
+                                { transform: [{ translateY: sheetTranslateY }] },
+                            ]}
+                            onStartShouldSetResponderCapture={() => {
+                                Keyboard.dismiss();
+                                return false;
+                            }}
                         >
-                            <Animated.View style={styles.handle} />
+                            <Animated.View
+                                accessible={false}
+                                style={styles.handleWrap}
+                            >
+                                <Animated.View style={styles.handle} />
+                            </Animated.View>
+                            {children}
                         </Animated.View>
-                        {children}
-                    </Animated.View>
-                </GestureDetector>
+                    </GestureDetector>
+                </Animated.View>
             </Animated.View>
         </Portal>
     );
@@ -88,6 +97,8 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     sheet: {
+        width: '100%',
+        minWidth: 0,
         height: '92%',
         backgroundColor: fantasyTokens.colors.night,
         borderTopLeftRadius: fantasyTokens.radii.lg,
