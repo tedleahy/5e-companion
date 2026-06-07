@@ -54,7 +54,7 @@ export default function BottomSheetShell({
                     />
                 </Animated.View>
 
-                <Animated.View style={getBottomSheetSlotStyle(width)}>
+                <Animated.View pointerEvents="box-none" style={getBottomSheetSlotStyle(width)}>
                     <GestureDetector gesture={sheetDismissGesture}>
                         <Animated.View
                             testID={testID}

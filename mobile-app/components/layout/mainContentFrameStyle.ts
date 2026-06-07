@@ -24,8 +24,10 @@ export function getBottomSheetSlotStyle(width: number): ViewStyle {
 
     return {
         width: '100%',
+        height: '100%',
         minWidth: 0,
         alignItems: 'center',
+        justifyContent: 'flex-end',
         paddingLeft: showPersistentRail ? fantasyTokens.rail.collapsedWidth : 0,
     };
 }
