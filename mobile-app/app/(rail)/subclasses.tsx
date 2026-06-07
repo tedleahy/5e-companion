@@ -67,6 +67,7 @@ export default function CustomSubclassesScreen() {
     const [formVisible, setFormVisible] = useState(false);
     const [formMode, setFormMode] = useState<CustomSubclassFormMode>('create');
     const [draft, setDraft] = useState<CustomSubclassFormDraft>(EMPTY_DRAFT);
+    const [initialDraft, setInitialDraft] = useState<CustomSubclassFormDraft>(EMPTY_DRAFT);
     const [editingSubclass, setEditingSubclass] = useState<CustomSubclassManagerRow | null>(null);
     const [deleteCandidate, setDeleteCandidate] = useState<CustomSubclassManagerRow | null>(null);
     const [formErrorMessage, setFormErrorMessage] = useState<string | null>(null);
@@ -129,6 +130,7 @@ export default function CustomSubclassesScreen() {
         setFormMode('create');
         setEditingSubclass(null);
         setDraft(EMPTY_DRAFT);
+        setInitialDraft(EMPTY_DRAFT);
         setFormErrorMessage(null);
         setFormVisible(true);
     }
@@ -137,13 +139,16 @@ export default function CustomSubclassesScreen() {
      * Opens the edit form with existing row values.
      */
     function openEditForm(subclass: CustomSubclassManagerRow) {
-        setFormMode('edit');
-        setEditingSubclass(subclass);
-        setDraft({
+        const nextDraft = {
             name: subclass.name,
             classId: subclass.classId,
             description: subclass.description.join('\n'),
-        });
+        };
+
+        setFormMode('edit');
+        setEditingSubclass(subclass);
+        setDraft(nextDraft);
+        setInitialDraft(nextDraft);
         setFormErrorMessage(null);
         setFormVisible(true);
     }
@@ -287,6 +292,7 @@ export default function CustomSubclassesScreen() {
                     visible={formVisible}
                     mode={formMode}
                     draft={draft}
+                    initialDraft={initialDraft}
                     pending={saving}
                     errorMessage={formErrorMessage}
                     lockedClassSelection={Boolean(editingSubclass && editingSubclass.characterUsageCount > 0)}

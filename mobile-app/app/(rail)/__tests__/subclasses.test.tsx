@@ -231,6 +231,52 @@ describe('CustomSubclassesScreen', () => {
         expect(mockRefetchQueries).toHaveBeenCalled();
     });
 
+    it('shows discard confirmation when canceling the create form with unsaved changes', async () => {
+        await renderScreenAndFlush();
+
+        fireEvent.press(screen.getByTestId('add-custom-subclass'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Create Subclass')).toBeTruthy();
+        });
+
+        fireEvent.changeText(screen.getByTestId('custom-subclass-name-input'), 'Moon Warden');
+        fireEvent.press(screen.getByTestId('cancel-custom-subclass-form'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Discard changes?')).toBeTruthy();
+        });
+        expect(screen.getByText('You have unsaved changes to this subclass. Are you sure you want to discard them?')).toBeTruthy();
+        expect(screen.getByLabelText('Keep Editing')).toBeTruthy();
+        expect(screen.getByLabelText('Discard')).toBeTruthy();
+        expect(screen.getByText('Create Subclass')).toBeTruthy();
+
+        fireEvent.press(screen.getByLabelText('Keep Editing'));
+
+        await waitFor(() => {
+            expect(screen.queryByText('Discard changes?')).toBeNull();
+        });
+        expect(screen.getByText('Create Subclass')).toBeTruthy();
+        expect(screen.getByTestId('custom-subclass-name-input').props.value).toBe('Moon Warden');
+    });
+
+    it('closes the create form immediately when canceling without changes', async () => {
+        await renderScreenAndFlush();
+
+        fireEvent.press(screen.getByTestId('add-custom-subclass'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Create Subclass')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getByTestId('cancel-custom-subclass-form'));
+
+        await waitFor(() => {
+            expect(screen.queryByText('Create Subclass')).toBeNull();
+        });
+        expect(screen.queryByText('Discard changes?')).toBeNull();
+    });
+
     it('prefills edit mode and locks parent class when the subclass is in use', async () => {
         mockUseQuery.mockReturnValue({
             data: { customSubclasses: [WIZARD_SUBCLASS] },

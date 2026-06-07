@@ -10,3 +10,15 @@ export type CustomSubclassFormDraft = {
 
 export type CustomSubclassFormMode = 'create' | 'edit';
 
+/**
+ * Returns true when two subclass form drafts contain the same field values.
+ */
+export function areCustomSubclassDraftsEqual(
+    left: CustomSubclassFormDraft,
+    right: CustomSubclassFormDraft,
+): boolean {
+    return left.name === right.name
+        && left.classId === right.classId
+        && left.description === right.description;
+}
+

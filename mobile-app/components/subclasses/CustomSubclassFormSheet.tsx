@@ -1,15 +1,22 @@
+import { useCallback, useMemo, useRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { HelperText, Text, TextInput } from 'react-native-paper';
 import BottomSheetShell from '@/components/sheets/BottomSheetShell';
 import useBottomSheetMotion from '@/hooks/useBottomSheetMotion';
+import useConfirm from '@/hooks/useConfirm';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { fantasyTokens } from '@/theme/fantasyTheme';
-import type { CustomSubclassFormDraft, CustomSubclassFormMode } from './subclassManager.types';
+import {
+    areCustomSubclassDraftsEqual,
+    type CustomSubclassFormDraft,
+    type CustomSubclassFormMode,
+} from './subclassManager.types';
 
 type CustomSubclassFormSheetProps = {
     visible: boolean;
     mode: CustomSubclassFormMode;
     draft: CustomSubclassFormDraft;
+    initialDraft: CustomSubclassFormDraft;
     pending: boolean;
     errorMessage: string | null;
     lockedClassSelection: boolean;
@@ -26,6 +33,7 @@ export default function CustomSubclassFormSheet({
     visible,
     mode,
     draft,
+    initialDraft,
     pending,
     errorMessage,
     lockedClassSelection,
@@ -35,10 +43,37 @@ export default function CustomSubclassFormSheet({
     onSave,
 }: CustomSubclassFormSheetProps) {
     const { height: windowHeight } = useWindowDimensions();
+    const { confirm, confirmDialogElement } = useConfirm();
+    const skipDiscardCheckRef = useRef(false);
+    const requestSheetCloseRef = useRef<() => void>(() => {});
+    const isDirty = useMemo(
+        () => !areCustomSubclassDraftsEqual(draft, initialDraft),
+        [draft, initialDraft],
+    );
     const canSave = draft.name.trim().length > 0
         && draft.classId.trim().length > 0
         && draft.description.trim().length > 0
         && !pending;
+
+    const handleRequestClose = useCallback((): boolean | void => {
+        if (pending) return false;
+
+        if (!skipDiscardCheckRef.current && isDirty) {
+            confirm({
+                title: 'Discard changes?',
+                message: 'You have unsaved changes to this subclass. Are you sure you want to discard them?',
+                confirmLabel: 'Discard',
+                cancelLabel: 'Keep Editing',
+                onConfirm: () => {
+                    skipDiscardCheckRef.current = true;
+                    requestSheetCloseRef.current();
+                    skipDiscardCheckRef.current = false;
+                },
+            });
+            return false;
+        }
+    }, [confirm, isDirty, pending]);
+
     const {
         isRendered,
         backdropOpacity,
@@ -49,14 +84,18 @@ export default function CustomSubclassFormSheet({
     } = useBottomSheetMotion({
         visible,
         windowHeight,
-        onRequestClose: () => (pending ? false : undefined),
+        onRequestClose: handleRequestClose,
         onClose,
     });
+
+    requestSheetCloseRef.current = requestSheetClose;
 
     const title = mode === 'edit' ? 'Edit Subclass' : 'Create Subclass';
 
     return (
-        <BottomSheetShell
+        <>
+            {confirmDialogElement}
+            <BottomSheetShell
             isRendered={isRendered}
             backdropOpacity={backdropOpacity}
             sheetTranslateY={sheetTranslateY}
@@ -193,6 +232,7 @@ export default function CustomSubclassFormSheet({
                 </View>
             </ScrollView>
         </BottomSheetShell>
+        </>
     );
 }
 
