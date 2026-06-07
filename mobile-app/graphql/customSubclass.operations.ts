@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client';
-import { GET_AVAILABLE_SUBCLASSES } from '@/graphql/characterSheet.operations';
 
 /**
- * Shared custom subclass fields rendered by the manager and mutation results.
+ * Shared custom subclass fields returned by manager mutations.
  */
 export const CUSTOM_SUBCLASS_MANAGER_FIELDS = gql`
     fragment CustomSubclassManagerFields on CustomSubclass {
@@ -18,20 +17,7 @@ export const CUSTOM_SUBCLASS_MANAGER_FIELDS = gql`
             description
             level
         }
-        characterUsageCount
     }
-`;
-
-/**
- * Loads current-user custom subclasses for the manager.
- */
-export const GET_CUSTOM_SUBCLASSES = gql`
-    query CustomSubclasses($classIds: [String!]) {
-        customSubclasses(classIds: $classIds) {
-            ...CustomSubclassManagerFields
-        }
-    }
-    ${CUSTOM_SUBCLASS_MANAGER_FIELDS}
 `;
 
 /**
@@ -66,5 +52,3 @@ export const ARCHIVE_CUSTOM_SUBCLASS = gql`
         archiveCustomSubclass(id: $id)
     }
 `;
-
-export { GET_AVAILABLE_SUBCLASSES };

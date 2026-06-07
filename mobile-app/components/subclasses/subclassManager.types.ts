@@ -1,6 +1,6 @@
-import type { CustomSubclassesQuery } from '@/types/generated_graphql_types';
+import type { AvailableSubclassesQuery } from '@/types/generated_graphql_types';
 
-export type CustomSubclassManagerRow = CustomSubclassesQuery['customSubclasses'][number];
+export type SubclassManagerRow = AvailableSubclassesQuery['availableSubclasses'][number];
 
 export type CustomSubclassFormDraft = {
     name: string;
@@ -21,4 +21,3 @@ export function areCustomSubclassDraftsEqual(
         && left.classId === right.classId
         && left.description === right.description;
 }
-

@@ -55,7 +55,7 @@ The mutation resolves classes/subclasses/race/background by `srdIndex`. The clie
 
 ## Custom subclasses
 
-The class step allows a "custom subclass" per class row (name + description). On create, `normaliseCustomSubclassInput` + `materialiseResolvedCharacterClasses` in `subclassReferences.ts` create a `Subclass` row with `ownerUserId` set so it only shows up for that user going forward. The subclass picker also includes active custom subclasses created in the `/subclasses` manager for the matching parent class.
+The class step allows a "custom subclass" per class row (name + description). On create, `normaliseCustomSubclassInput` + `materialiseResolvedCharacterClasses` in `subclassReferences.ts` create a `Subclass` row with `ownerUserId` set so it only shows up for that user going forward. The subclass picker also includes active custom subclasses created in the `/subclasses` manager for the matching parent class; the manager lists all visible subclasses in one filtered view and lets users manage their own rows.
 
 Custom subclasses can also be archived by the subclass manager. Archived custom subclasses are hidden from future creation and level-up subclass pickers, and the create mutation rejects archived custom subclass ids even if the caller submits one directly. Existing characters keep their archived subclass relation for display; `saveCharacterSheet` may preserve an archived subclass id only when that subclass is already attached to the same character.
 

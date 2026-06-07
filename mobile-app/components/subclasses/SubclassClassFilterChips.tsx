@@ -11,7 +11,7 @@ type SubclassClassFilterChipsProps = {
 const ALL_CLASSES_FILTER = 'all';
 
 /**
- * Horizontal single-select class filter used by the custom subclass manager.
+ * Horizontal single-select class filter used by the subclass manager.
  */
 export default function SubclassClassFilterChips({
     selectedClassId,
@@ -82,4 +82,3 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.parchment,
     },
 });
-

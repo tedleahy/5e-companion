@@ -171,7 +171,7 @@ export default function CustomSubclassFormSheet({
                     </View>
                     {lockedClassSelection && (
                         <Text style={styles.lockedText}>
-                            Parent class is locked while existing characters use this subclass.
+                            Parent class is locked while editing an existing subclass.
                         </Text>
                     )}
                 </View>

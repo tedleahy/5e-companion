@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useApolloClient, useMutation, useQuery } from '@apollo/client/react';
 import { useRouter } from 'expo-router';
@@ -12,24 +12,23 @@ import { ALL_CLASSES_FILTER } from '@/components/subclasses/SubclassClassFilterC
 import type {
     CustomSubclassFormDraft,
     CustomSubclassFormMode,
-    CustomSubclassManagerRow,
+    SubclassManagerRow,
 } from '@/components/subclasses/subclassManager.types';
 import {
     ARCHIVE_CUSTOM_SUBCLASS,
     CREATE_CUSTOM_SUBCLASS,
-    GET_AVAILABLE_SUBCLASSES,
-    GET_CUSTOM_SUBCLASSES,
     UPDATE_CUSTOM_SUBCLASS,
 } from '@/graphql/customSubclass.operations';
+import { GET_AVAILABLE_SUBCLASSES } from '@/graphql/subclassManager.operations';
 import useSessionGuard from '@/hooks/useSessionGuard';
 import { isUnauthenticatedError } from '@/lib/graphqlErrors';
 import type {
     ArchiveCustomSubclassMutation,
     ArchiveCustomSubclassMutationVariables,
+    AvailableSubclassesQuery,
+    AvailableSubclassesQueryVariables,
     CreateCustomSubclassMutation,
     CreateCustomSubclassMutationVariables,
-    CustomSubclassesQuery,
-    CustomSubclassesQueryVariables,
     UpdateCustomSubclassMutation,
     UpdateCustomSubclassMutationVariables,
 } from '@/types/generated_graphql_types';
@@ -47,39 +46,34 @@ const AUTH_LOADING_LABEL = 'Checking your adventurer records...';
 /**
  * Builds the soft-archive confirmation text for a custom subclass.
  */
-function deleteConfirmationMessage(subclass: CustomSubclassManagerRow): string {
-    if (subclass.characterUsageCount > 0) {
-        const characterLabel = subclass.characterUsageCount === 1 ? 'character' : 'characters';
-        return `"${subclass.name}" will be removed from future picks. ${subclass.characterUsageCount} existing ${characterLabel} will keep their subclass name.`;
-    }
-
+function deleteConfirmationMessage(subclass: SubclassManagerRow): string {
     return `"${subclass.name}" will be removed from future subclass picks. Existing characters that use it will keep their subclass name.`;
 }
 
 /**
- * Rail route for managing reusable current-user custom subclasses.
+ * Rail route for browsing SRD subclasses and managing reusable current-user custom subclasses.
  */
 export default function CustomSubclassesScreen() {
     const router = useRouter();
     const apolloClient = useApolloClient();
+    const scrollViewRef = useRef<ScrollView>(null);
     const { hasValidSession, isCheckingSession } = useSessionGuard();
     const [selectedClassId, setSelectedClassId] = useState(ALL_CLASSES_FILTER);
     const [formVisible, setFormVisible] = useState(false);
     const [formMode, setFormMode] = useState<CustomSubclassFormMode>('create');
     const [draft, setDraft] = useState<CustomSubclassFormDraft>(EMPTY_DRAFT);
     const [initialDraft, setInitialDraft] = useState<CustomSubclassFormDraft>(EMPTY_DRAFT);
-    const [editingSubclass, setEditingSubclass] = useState<CustomSubclassManagerRow | null>(null);
-    const [deleteCandidate, setDeleteCandidate] = useState<CustomSubclassManagerRow | null>(null);
+    const [editingSubclass, setEditingSubclass] = useState<SubclassManagerRow | null>(null);
+    const [deleteCandidate, setDeleteCandidate] = useState<SubclassManagerRow | null>(null);
     const [formErrorMessage, setFormErrorMessage] = useState<string | null>(null);
     const [actionErrorMessage, setActionErrorMessage] = useState<string | null>(null);
 
     const {
-        data,
-        loading,
-        error,
-        refetch,
-    } = useQuery<CustomSubclassesQuery, CustomSubclassesQueryVariables>(
-        GET_CUSTOM_SUBCLASSES,
+        data: availableData,
+        loading: availableLoading,
+        error: availableError,
+    } = useQuery<AvailableSubclassesQuery, AvailableSubclassesQueryVariables>(
+        GET_AVAILABLE_SUBCLASSES,
         {
             skip: !hasValidSession,
             notifyOnNetworkStatusChange: true,
@@ -100,8 +94,10 @@ export default function CustomSubclassesScreen() {
         ArchiveCustomSubclassMutationVariables
     >(ARCHIVE_CUSTOM_SUBCLASS);
 
+    const error = availableError;
+    const loading = availableLoading;
     const isUnauthenticated = isUnauthenticatedError(error);
-    const allSubclasses = data?.customSubclasses ?? [];
+    const allSubclasses = availableData?.availableSubclasses ?? [];
     const visibleSubclasses = useMemo(() => {
         if (selectedClassId === ALL_CLASSES_FILTER) return allSubclasses;
         return allSubclasses.filter((subclass) => subclass.classId === selectedClassId);
@@ -114,10 +110,9 @@ export default function CustomSubclassesScreen() {
     }, [isUnauthenticated, router]);
 
     /**
-     * Refetches manager data and any mounted subclass picker queries.
+     * Refetches manager data and any mounted subclass picker queries after custom subclass mutations.
      */
     async function refreshSubclassData() {
-        await refetch();
         await apolloClient.refetchQueries({
             include: [GET_AVAILABLE_SUBCLASSES],
         });
@@ -138,7 +133,9 @@ export default function CustomSubclassesScreen() {
     /**
      * Opens the edit form with existing row values.
      */
-    function openEditForm(subclass: CustomSubclassManagerRow) {
+    function openEditForm(subclass: SubclassManagerRow) {
+        if (!subclass.isCustom) return;
+
         const nextDraft = {
             name: subclass.name,
             classId: subclass.classId,
@@ -206,7 +203,7 @@ export default function CustomSubclassesScreen() {
      * Archives the selected subclass after confirmation.
      */
     async function confirmArchiveSubclass() {
-        if (!deleteCandidate || archiveState.loading) return;
+        if (!deleteCandidate || !deleteCandidate.isCustom || archiveState.loading) return;
 
         try {
             setActionErrorMessage(null);
@@ -238,12 +235,12 @@ export default function CustomSubclassesScreen() {
         return null;
     }
 
-    if (loading && !data) {
+    if (loading && !availableData) {
         return (
             <RailScreenShell>
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={fantasyTokens.colors.gold} />
-                    <Text style={styles.loadingText}>Gathering your custom subclasses...</Text>
+                    <Text style={styles.loadingText}>Gathering subclasses...</Text>
                 </View>
             </RailScreenShell>
         );
@@ -253,7 +250,7 @@ export default function CustomSubclassesScreen() {
         return (
             <RailScreenShell>
                 <View style={styles.loadingContainer}>
-                    <Text style={styles.errorTitle}>Unable to load custom subclasses.</Text>
+                    <Text style={styles.errorTitle}>Unable to load subclasses.</Text>
                     <Text style={styles.errorText}>{error.message}</Text>
                 </View>
             </RailScreenShell>
@@ -264,14 +261,15 @@ export default function CustomSubclassesScreen() {
         <RailScreenShell>
             <View style={styles.container}>
                 <ScrollView
+                    ref={scrollViewRef}
                     contentContainerStyle={styles.scrollContent}
                     showsVerticalScrollIndicator={false}
                 >
                     <View style={styles.header}>
-                        <Text style={styles.codexLabel}>Custom Subclasses</Text>
+                        <Text style={styles.codexLabel}>Subclasses</Text>
                         <Text style={styles.pageTitle}>Subclass Manager</Text>
                         <Text style={styles.subtitle}>
-                            Build reusable subclass options for character creation and level-up.
+                            Browse SRD subclasses and build reusable custom options for character creation and level-up.
                         </Text>
                     </View>
 
@@ -284,6 +282,9 @@ export default function CustomSubclassesScreen() {
                             onCreate={openCreateForm}
                             onEdit={openEditForm}
                             onDelete={setDeleteCandidate}
+                            onExpandSubclass={() => {
+                                scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+                            }}
                         />
                     </MainContentFrame>
                 </ScrollView>
@@ -295,7 +296,7 @@ export default function CustomSubclassesScreen() {
                     initialDraft={initialDraft}
                     pending={saving}
                     errorMessage={formErrorMessage}
-                    lockedClassSelection={Boolean(editingSubclass && editingSubclass.characterUsageCount > 0)}
+                    lockedClassSelection={formMode === 'edit'}
                     onChangeDraft={(nextDraft) => {
                         setDraft(nextDraft);
                         if (formErrorMessage) setFormErrorMessage(null);
