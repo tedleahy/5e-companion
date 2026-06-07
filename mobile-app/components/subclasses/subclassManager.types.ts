@@ -1,6 +1,8 @@
 import type { AvailableSubclassesQuery } from '@/types/generated_graphql_types';
 
-export type SubclassManagerRow = AvailableSubclassesQuery['availableSubclasses'][number];
+export type SubclassManagerRow = AvailableSubclassesQuery['availableSubclasses'][number] & {
+    characterUsageCount: number;
+};
 
 export type CustomSubclassFormDraft = {
     name: string;

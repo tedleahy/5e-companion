@@ -17,6 +17,7 @@ import type {
 import {
     ARCHIVE_CUSTOM_SUBCLASS,
     CREATE_CUSTOM_SUBCLASS,
+    GET_CUSTOM_SUBCLASSES,
     UPDATE_CUSTOM_SUBCLASS,
 } from '@/graphql/customSubclass.operations';
 import { GET_AVAILABLE_SUBCLASSES } from '@/graphql/subclassManager.operations';
@@ -29,6 +30,8 @@ import type {
     AvailableSubclassesQueryVariables,
     CreateCustomSubclassMutation,
     CreateCustomSubclassMutationVariables,
+    CustomSubclassesQuery,
+    CustomSubclassesQueryVariables,
     UpdateCustomSubclassMutation,
     UpdateCustomSubclassMutationVariables,
 } from '@/types/generated_graphql_types';
@@ -47,6 +50,14 @@ const AUTH_LOADING_LABEL = 'Checking your adventurer records...';
  * Builds the soft-archive confirmation text for a custom subclass.
  */
 function deleteConfirmationMessage(subclass: SubclassManagerRow): string {
+    if (subclass.characterUsageCount === 1) {
+        return `"${subclass.name}" will be removed from future picks. 1 existing character will keep their subclass name.`;
+    }
+
+    if (subclass.characterUsageCount > 1) {
+        return `"${subclass.name}" will be removed from future picks. ${subclass.characterUsageCount} existing characters will keep their subclass name.`;
+    }
+
     return `"${subclass.name}" will be removed from future subclass picks. Existing characters that use it will keep their subclass name.`;
 }
 
@@ -80,6 +91,18 @@ export default function CustomSubclassesScreen() {
             fetchPolicy: 'cache-and-network',
         },
     );
+    const {
+        data: customData,
+        loading: customLoading,
+        error: customError,
+    } = useQuery<CustomSubclassesQuery, CustomSubclassesQueryVariables>(
+        GET_CUSTOM_SUBCLASSES,
+        {
+            skip: !hasValidSession,
+            notifyOnNetworkStatusChange: true,
+            fetchPolicy: 'cache-and-network',
+        },
+    );
 
     const [createCustomSubclass, createState] = useMutation<
         CreateCustomSubclassMutation,
@@ -94,10 +117,25 @@ export default function CustomSubclassesScreen() {
         ArchiveCustomSubclassMutationVariables
     >(ARCHIVE_CUSTOM_SUBCLASS);
 
-    const error = availableError;
-    const loading = availableLoading;
+    const error = availableError ?? customError;
+    const loading = availableLoading || customLoading;
     const isUnauthenticated = isUnauthenticatedError(error);
-    const allSubclasses = availableData?.availableSubclasses ?? [];
+    const customSubclassUsageCountById = useMemo(() => {
+        return new Map(
+            (customData?.customSubclasses ?? []).map((subclass) => [
+                subclass.id,
+                subclass.characterUsageCount,
+            ]),
+        );
+    }, [customData?.customSubclasses]);
+    const allSubclasses = useMemo<SubclassManagerRow[]>(() => {
+        return (availableData?.availableSubclasses ?? []).map((subclass) => ({
+            ...subclass,
+            characterUsageCount: subclass.isCustom
+                ? customSubclassUsageCountById.get(subclass.id) ?? 0
+                : 0,
+        }));
+    }, [availableData?.availableSubclasses, customSubclassUsageCountById]);
     const visibleSubclasses = useMemo(() => {
         if (selectedClassId === ALL_CLASSES_FILTER) return allSubclasses;
         return allSubclasses.filter((subclass) => subclass.classId === selectedClassId);
@@ -114,7 +152,7 @@ export default function CustomSubclassesScreen() {
      */
     async function refreshSubclassData() {
         await apolloClient.refetchQueries({
-            include: [GET_AVAILABLE_SUBCLASSES],
+            include: [GET_AVAILABLE_SUBCLASSES, GET_CUSTOM_SUBCLASSES],
         });
     }
 
@@ -296,7 +334,7 @@ export default function CustomSubclassesScreen() {
                     initialDraft={initialDraft}
                     pending={saving}
                     errorMessage={formErrorMessage}
-                    lockedClassSelection={formMode === 'edit'}
+                    lockedClassSelection={formMode === 'edit' && (editingSubclass?.characterUsageCount ?? 0) > 0}
                     onChangeDraft={(nextDraft) => {
                         setDraft(nextDraft);
                         if (formErrorMessage) setFormErrorMessage(null);

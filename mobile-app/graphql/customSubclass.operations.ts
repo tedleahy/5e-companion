@@ -11,6 +11,7 @@ export const CUSTOM_SUBCLASS_MANAGER_FIELDS = gql`
         className
         name
         description
+        characterUsageCount
         features {
             id
             name
@@ -18,6 +19,18 @@ export const CUSTOM_SUBCLASS_MANAGER_FIELDS = gql`
             level
         }
     }
+`;
+
+/**
+ * Loads current-user custom subclasses with manager-only metadata such as usage count.
+ */
+export const GET_CUSTOM_SUBCLASSES = gql`
+    query CustomSubclasses($classIds: [String!]) {
+        customSubclasses(classIds: $classIds) {
+            ...CustomSubclassManagerFields
+        }
+    }
+    ${CUSTOM_SUBCLASS_MANAGER_FIELDS}
 `;
 
 /**

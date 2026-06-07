@@ -142,38 +142,42 @@ export default function SubclassListRow({
                         {description}
                     </Text>
 
-                    {subclass.isCustom && isOpen && (
-                        <Animated.View style={[styles.expandedActions, { opacity: expandedActionsOpacity }]}>
-                            <Pressable
-                                accessibilityRole="button"
-                                accessibilityLabel={`Edit ${subclass.name}`}
-                                onPress={() => onEdit(subclass)}
-                                style={({ pressed }) => [
-                                    styles.expandedActionButton,
-                                    styles.expandedEditButton,
-                                    pressed && styles.expandedActionPressed,
-                                ]}
-                                testID={`edit-custom-subclass-${subclass.id}`}
-                            >
-                                <Text style={styles.expandedEditLabel}>Edit Subclass</Text>
-                            </Pressable>
-                            <Pressable
-                                accessibilityRole="button"
-                                accessibilityLabel={`Delete ${subclass.name}`}
-                                onPress={() => onDelete(subclass)}
-                                style={({ pressed }) => [
-                                    styles.expandedActionButton,
-                                    styles.expandedDeleteButton,
-                                    pressed && styles.expandedDeletePressed,
-                                ]}
-                                testID={`delete-custom-subclass-${subclass.id}`}
-                            >
-                                <Text style={styles.expandedDeleteLabel}>Delete</Text>
-                            </Pressable>
-                        </Animated.View>
-                    )}
                 </View>
             </Pressable>
+
+            {subclass.isCustom && isOpen && (
+                <Animated.View style={[styles.expandedActionsRow, { opacity: expandedActionsOpacity }]}>
+                    <View style={styles.expandedActionsSpacer} />
+                    <View style={styles.expandedActions}>
+                        <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={`Edit ${subclass.name}`}
+                            onPress={() => onEdit(subclass)}
+                            style={({ pressed }) => [
+                                styles.expandedActionButton,
+                                styles.expandedEditButton,
+                                pressed && styles.expandedActionPressed,
+                            ]}
+                            testID={`edit-custom-subclass-${subclass.id}`}
+                        >
+                            <Text style={styles.expandedEditLabel}>Edit Subclass</Text>
+                        </Pressable>
+                        <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={`Delete ${subclass.name}`}
+                            onPress={() => onDelete(subclass)}
+                            style={({ pressed }) => [
+                                styles.expandedActionButton,
+                                styles.expandedDeleteButton,
+                                pressed && styles.expandedDeletePressed,
+                            ]}
+                            testID={`delete-custom-subclass-${subclass.id}`}
+                        >
+                            <Text style={styles.expandedDeleteLabel}>Delete</Text>
+                        </Pressable>
+                    </View>
+                </Animated.View>
+            )}
 
             {subclass.isCustom && !isOpen && (
                 <View style={styles.actions}>
@@ -276,11 +280,20 @@ const styles = StyleSheet.create({
     deletePressed: {
         backgroundColor: fantasyTokens.colors.crimsonSoft,
     },
-    expandedActions: {
+    expandedActionsRow: {
         width: '100%',
         flexDirection: 'row',
-        gap: fantasyTokens.spacing.sm,
+        gap: fantasyTokens.spacing.md,
         marginTop: fantasyTokens.spacing.md,
+    },
+    expandedActionsSpacer: {
+        width: SUBCLASS_BADGE_SIZE_EXPANDED,
+    },
+    expandedActions: {
+        flex: 1,
+        minWidth: 0,
+        flexDirection: 'row',
+        gap: fantasyTokens.spacing.sm,
         paddingTop: fantasyTokens.spacing.md,
         borderTopWidth: 1,
         borderTopColor: fantasyTokens.colors.accordionBorder,
