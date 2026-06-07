@@ -26,6 +26,9 @@ type CustomSubclassFormSheetProps = {
     onSave: () => void;
 };
 
+const CUSTOM_SUBCLASS_NAME_MAX_LENGTH = 100;
+const CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH = 10000;
+
 /**
  * Modal sheet for creating and editing reusable custom subclasses.
  */
@@ -126,6 +129,7 @@ export default function CustomSubclassFormSheet({
                         placeholderTextColor={fantasyTokens.colors.inkSoft}
                         value={draft.name}
                         onChangeText={(name) => onChangeDraft({ ...draft, name })}
+                        maxLength={CUSTOM_SUBCLASS_NAME_MAX_LENGTH}
                         autoCapitalize="words"
                         mode="outlined"
                         style={styles.input}
@@ -189,12 +193,19 @@ export default function CustomSubclassFormSheet({
                         mode="outlined"
                         multiline
                         numberOfLines={6}
+                        maxLength={CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH}
                         style={[styles.input, styles.descriptionInput]}
                         textColor={fantasyTokens.colors.inkDark}
                         outlineColor={fantasyTokens.colors.gold}
                         activeOutlineColor={fantasyTokens.colors.crimson}
                         testID="custom-subclass-description-input"
                     />
+                    <Text
+                        style={styles.descriptionCounter}
+                        testID="custom-subclass-description-counter"
+                    >
+                        {draft.description.length}/{CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH}
+                    </Text>
                 </View>
 
                 {errorMessage && (
@@ -265,6 +276,12 @@ const styles = StyleSheet.create({
     },
     descriptionInput: {
         minHeight: 132,
+    },
+    descriptionCounter: {
+        ...fantasyTokens.typography.bodySmall,
+        color: fantasyTokens.colors.gold,
+        opacity: 0.72,
+        textAlign: 'right',
     },
     classSection: {
         gap: fantasyTokens.spacing.sm,
