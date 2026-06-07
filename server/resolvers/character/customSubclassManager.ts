@@ -15,6 +15,9 @@ const FEATURE_KIND = {
     SUBCLASS_FEATURE: "SUBCLASS_FEATURE",
 } as const;
 
+const CUSTOM_SUBCLASS_NAME_MAX_LENGTH = 100;
+const CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH = 10000;
+
 const CUSTOM_SUBCLASS_FEATURE_INCLUDE = {
     where: {
         kind: FEATURE_KIND.SUBCLASS_FEATURE,
@@ -77,12 +80,12 @@ function normaliseManagedCustomSubclassInput(
         throw new Error("Name, description, and class are required.");
     }
 
-    if (name.length > 100) {
-        throw new Error("Name must be 100 characters or fewer.");
+    if (name.length > CUSTOM_SUBCLASS_NAME_MAX_LENGTH) {
+        throw new Error(`Name must be ${CUSTOM_SUBCLASS_NAME_MAX_LENGTH} characters or fewer.`);
     }
 
-    if (description.length > 5000) {
-        throw new Error("Description must be 5000 characters or fewer.");
+    if (description.length > CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH) {
+        throw new Error(`Description must be ${CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH} characters or fewer.`);
     }
 
     return { name, description, classId };

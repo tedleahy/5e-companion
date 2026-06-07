@@ -138,6 +138,22 @@ describe('customSubclassManager — createCustomSubclass', () => {
         ).rejects.toThrow('Name must be 100 characters or fewer.');
     });
 
+    test('rejects description over 10000 characters', () => {
+        expect(
+            resolvers.createCustomSubclass(
+                {},
+                {
+                    input: {
+                        classId: 'wizard',
+                        name: 'School of Glass',
+                        description: 'A'.repeat(10001),
+                    },
+                },
+                authedCtx,
+            ),
+        ).rejects.toThrow('Description must be 10000 characters or fewer.');
+    });
+
     test('rejects unknown class srdIndex', () => {
         classFindFirstMock.mockResolvedValueOnce(null);
 
