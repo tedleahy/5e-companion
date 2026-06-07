@@ -5,6 +5,7 @@ import CustomSubclassesScreen from '../subclasses';
 import {
     ARCHIVE_CUSTOM_SUBCLASS,
     CREATE_CUSTOM_SUBCLASS,
+    GET_CUSTOM_SUBCLASSES,
     UPDATE_CUSTOM_SUBCLASS,
 } from '@/graphql/customSubclass.operations';
 import { GET_AVAILABLE_SUBCLASSES } from '@/graphql/subclassManager.operations';
@@ -75,6 +76,24 @@ type AvailableSubclassRow = {
     }[];
 };
 
+type CustomSubclassRow = {
+    __typename: 'CustomSubclass';
+    id: string;
+    value: string;
+    classId: string;
+    className: string;
+    name: string;
+    description: string[];
+    characterUsageCount: number;
+    features: {
+        __typename: 'AvailableSubclassFeature';
+        id: string;
+        name: string;
+        description: string;
+        level: number;
+    }[];
+};
+
 const WIZARD_AVAILABLE_SUBCLASS: AvailableSubclassRow = {
     __typename: 'AvailableSubclass',
     id: 'custom-subclass-1',
@@ -86,6 +105,23 @@ const WIZARD_AVAILABLE_SUBCLASS: AvailableSubclassRow = {
     description: ['You bind floating lanterns to defensive spellwork.'],
     isCustom: true,
     features: [],
+};
+
+const WIZARD_CUSTOM_SUBCLASS_UNUSED: CustomSubclassRow = {
+    __typename: 'CustomSubclass',
+    id: 'custom-subclass-1',
+    value: 'custom-subclass-1',
+    classId: 'wizard',
+    className: 'Wizard',
+    name: 'School of Lanterns',
+    description: ['You bind floating lanterns to defensive spellwork.'],
+    characterUsageCount: 0,
+    features: [],
+};
+
+const WIZARD_CUSTOM_SUBCLASS_IN_USE: CustomSubclassRow = {
+    ...WIZARD_CUSTOM_SUBCLASS_UNUSED,
+    characterUsageCount: 2,
 };
 
 const FIGHTER_AVAILABLE_SUBCLASS: AvailableSubclassRow = {
@@ -104,6 +140,7 @@ const FIGHTER_AVAILABLE_SUBCLASS: AvailableSubclassRow = {
 const FIGHTER_MUTATION_SUBCLASS = {
     ...FIGHTER_AVAILABLE_SUBCLASS,
     __typename: 'CustomSubclass',
+    characterUsageCount: 0,
 };
 
 const SRD_WIZARD_SUBCLASS: AvailableSubclassRow = {
@@ -125,10 +162,12 @@ function operationName(document: { definitions?: { kind: string; name?: { value:
 
 function mockSubclassQueries({
     availableSubclasses = [],
+    customSubclasses = [],
     loading = false,
     error = undefined,
 }: {
     availableSubclasses?: AvailableSubclassRow[];
+    customSubclasses?: CustomSubclassRow[];
     loading?: boolean;
     error?: Error | undefined;
 } = {}) {
@@ -138,6 +177,14 @@ function mockSubclassQueries({
         if (name === 'AvailableSubclasses') {
             return {
                 data: error ? undefined : { availableSubclasses },
+                loading,
+                error,
+            };
+        }
+
+        if (name === 'CustomSubclasses') {
+            return {
+                data: error ? undefined : { customSubclasses },
                 loading,
                 error,
             };
@@ -215,6 +262,13 @@ describe('CustomSubclassesScreen', () => {
         });
         expect(mockUseQuery).toHaveBeenCalledWith(
             GET_AVAILABLE_SUBCLASSES,
+            expect.objectContaining({
+                fetchPolicy: 'cache-and-network',
+                notifyOnNetworkStatusChange: true,
+            }),
+        );
+        expect(mockUseQuery).toHaveBeenCalledWith(
+            GET_CUSTOM_SUBCLASSES,
             expect.objectContaining({
                 fetchPolicy: 'cache-and-network',
                 notifyOnNetworkStatusChange: true,
@@ -325,6 +379,13 @@ describe('CustomSubclassesScreen', () => {
             expect(screen.getByText('Create Subclass')).toBeTruthy();
         });
         expect(screen.getByTestId('save-custom-subclass').props.accessibilityState.disabled).toBe(true);
+        expect(screen.getByTestId('custom-subclass-name-input').props.maxLength).toBe(100);
+        expect(screen.getByTestId('custom-subclass-description-input').props.maxLength).toBe(10000);
+        expect(screen.getByTestId('custom-subclass-description-counter').props.children).toEqual([
+            0,
+            '/',
+            10000,
+        ]);
 
         fireEvent.changeText(screen.getByTestId('custom-subclass-name-input'), '  Moon Warden  ');
         fireEvent.press(screen.getByTestId('custom-subclass-class-druid'));
@@ -333,6 +394,11 @@ describe('CustomSubclassesScreen', () => {
         await waitFor(() => {
             expect(screen.getByTestId('save-custom-subclass').props.accessibilityState.disabled).toBe(false);
         });
+        expect(screen.getByTestId('custom-subclass-description-counter').props.children).toEqual([
+            38,
+            '/',
+            10000,
+        ]);
         fireEvent.press(screen.getByTestId('save-custom-subclass'));
 
         await waitFor(() => {
@@ -347,7 +413,7 @@ describe('CustomSubclassesScreen', () => {
             });
         });
         expect(mockRefetchQueries).toHaveBeenCalledWith({
-            include: [GET_AVAILABLE_SUBCLASSES],
+            include: [GET_AVAILABLE_SUBCLASSES, GET_CUSTOM_SUBCLASSES],
         });
     });
 
@@ -397,9 +463,10 @@ describe('CustomSubclassesScreen', () => {
         expect(screen.queryByText('Discard changes?')).toBeNull();
     });
 
-    it('prefills edit mode and locks parent class when the subclass is in use', async () => {
+    it('prefills edit mode and keeps parent class editable when the subclass is unused', async () => {
         mockSubclassQueries({
             availableSubclasses: [WIZARD_AVAILABLE_SUBCLASS],
+            customSubclasses: [WIZARD_CUSTOM_SUBCLASS_UNUSED],
         });
 
         await renderScreenAndFlush();
@@ -410,13 +477,75 @@ describe('CustomSubclassesScreen', () => {
             expect(screen.getByText('Edit Subclass')).toBeTruthy();
         });
         expect(screen.getByTestId('custom-subclass-name-input').props.value).toBe('School of Lanterns');
+        expect(screen.getByTestId('custom-subclass-class-wizard').props.accessibilityState.disabled).toBe(false);
+        expect(screen.queryByText('Parent class is locked while editing an existing subclass.')).toBeNull();
+    });
+
+    it('opens edit mode from an expanded custom subclass', async () => {
+        mockSubclassQueries({
+            availableSubclasses: [WIZARD_AVAILABLE_SUBCLASS],
+            customSubclasses: [WIZARD_CUSTOM_SUBCLASS_UNUSED],
+        });
+
+        await renderScreenAndFlush();
+
+        fireEvent.press(screen.getByTestId('custom-subclass-row-custom-subclass-1'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('subclass-expand-back')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getByTestId('edit-custom-subclass-custom-subclass-1'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('custom-subclass-form-sheet')).toBeTruthy();
+        });
+        expect(screen.getByTestId('custom-subclass-name-input').props.value).toBe('School of Lanterns');
+    });
+
+    it('locks parent class when editing a subclass used by characters', async () => {
+        mockSubclassQueries({
+            availableSubclasses: [WIZARD_AVAILABLE_SUBCLASS],
+            customSubclasses: [WIZARD_CUSTOM_SUBCLASS_IN_USE],
+        });
+
+        await renderScreenAndFlush();
+
+        fireEvent.press(screen.getByTestId('edit-custom-subclass-custom-subclass-1'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Edit Subclass')).toBeTruthy();
+        });
         expect(screen.getByTestId('custom-subclass-class-wizard').props.accessibilityState.disabled).toBe(true);
         expect(screen.getByText('Parent class is locked while editing an existing subclass.')).toBeTruthy();
+    });
+
+    it('confirms archive from an expanded custom subclass', async () => {
+        mockSubclassQueries({
+            availableSubclasses: [WIZARD_AVAILABLE_SUBCLASS],
+            customSubclasses: [WIZARD_CUSTOM_SUBCLASS_IN_USE],
+        });
+
+        await renderScreenAndFlush();
+
+        fireEvent.press(screen.getByTestId('custom-subclass-row-custom-subclass-1'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('subclass-expand-back')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getByTestId('delete-custom-subclass-custom-subclass-1'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Delete custom subclass?')).toBeTruthy();
+        });
+        expect(screen.getByText('"School of Lanterns" will be removed from future picks. 2 existing characters will keep their subclass name.')).toBeTruthy();
     });
 
     it('confirms archive, calls the archive mutation, and refetches subclass pickers', async () => {
         mockSubclassQueries({
             availableSubclasses: [WIZARD_AVAILABLE_SUBCLASS],
+            customSubclasses: [WIZARD_CUSTOM_SUBCLASS_IN_USE],
         });
 
         await renderScreenAndFlush();
@@ -426,7 +555,7 @@ describe('CustomSubclassesScreen', () => {
         await waitFor(() => {
             expect(screen.getByText('Delete custom subclass?')).toBeTruthy();
         });
-        expect(screen.getByText('"School of Lanterns" will be removed from future subclass picks. Existing characters that use it will keep their subclass name.')).toBeTruthy();
+        expect(screen.getByText('"School of Lanterns" will be removed from future picks. 2 existing characters will keep their subclass name.')).toBeTruthy();
 
         fireEvent.press(screen.getByText('Delete'));
 
@@ -438,7 +567,7 @@ describe('CustomSubclassesScreen', () => {
             });
         });
         expect(mockRefetchQueries).toHaveBeenCalledWith({
-            include: [GET_AVAILABLE_SUBCLASSES],
+            include: [GET_AVAILABLE_SUBCLASSES, GET_CUSTOM_SUBCLASSES],
         });
     });
 
@@ -458,6 +587,7 @@ describe('CustomSubclassesScreen', () => {
 describe('subclass manager documents', () => {
     it('exports the mutation documents consumed by the screen', () => {
         expect(CREATE_CUSTOM_SUBCLASS).toBeTruthy();
+        expect(GET_CUSTOM_SUBCLASSES).toBeTruthy();
         expect(UPDATE_CUSTOM_SUBCLASS).toBeTruthy();
         expect(ARCHIVE_CUSTOM_SUBCLASS).toBeTruthy();
     });
