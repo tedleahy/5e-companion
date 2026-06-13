@@ -62,6 +62,8 @@ bun test --test-name-pattern "longRest"   # Filter by test name
 3. The `setup` project runs `auth.setup.ts` once, performs a real UI sign-in, and saves auth storage state to `e2e/.auth/user.json`.
 4. Other specs reuse that storage state via `storageState`.
 
+Agents or non-Playwright browser harnesses should use [`agent-browser-auth.md`](./agent-browser-auth.md) instead of repeatedly clicking through the sign-in UI.
+
 ### Commands (from repo root or `mobile-app/`)
 
 ```bash
@@ -70,6 +72,7 @@ bun e2e:up
 
 # Run tests
 bun app:e2e          # from root
+bun app:e2e:auth     # generate portable browser auth artifacts for agents/harnesses
 yarn e2e             # from mobile-app/
 yarn e2e:ui          # interactive UI mode
 yarn e2e:report      # view the last HTML report
