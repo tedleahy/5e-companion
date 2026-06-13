@@ -41,6 +41,7 @@ const EMPTY_DRAFT: CustomSubclassFormDraft = {
     name: '',
     classId: '',
     description: '',
+    features: [],
 };
 
 /** Loading label shown while auth is being validated. */
@@ -59,6 +60,39 @@ function deleteConfirmationMessage(subclass: SubclassManagerRow): string {
     }
 
     return `"${subclass.name}" will be removed from future subclass picks. Existing characters that use it will keep their subclass name.`;
+}
+
+function customSubclassFeatureDraftId(featureId: string, index: number): string {
+    return `${featureId || 'feature'}-${index}`;
+}
+
+function draftFromSubclass(subclass: SubclassManagerRow): CustomSubclassFormDraft {
+    return {
+        name: subclass.name,
+        classId: subclass.classId,
+        description: subclass.description.join('\n'),
+        features: subclass.features.map((feature, index) => ({
+            clientId: customSubclassFeatureDraftId(feature.id, index),
+            id: feature.id,
+            name: feature.name,
+            description: feature.description,
+            level: String(feature.level > 0 ? feature.level : ''),
+        })),
+    };
+}
+
+function mutationInputFromDraft(draft: CustomSubclassFormDraft) {
+    return {
+        name: draft.name.trim(),
+        classId: draft.classId.trim(),
+        description: draft.description.trim(),
+        features: draft.features.map((feature) => ({
+            ...(feature.id ? { id: feature.id } : {}),
+            name: feature.name.trim(),
+            description: feature.description.trim(),
+            level: Number(feature.level),
+        })),
+    };
 }
 
 /**
@@ -174,11 +208,7 @@ export default function CustomSubclassesScreen() {
     function openEditForm(subclass: SubclassManagerRow) {
         if (!subclass.isCustom) return;
 
-        const nextDraft = {
-            name: subclass.name,
-            classId: subclass.classId,
-            description: subclass.description.join('\n'),
-        };
+        const nextDraft = draftFromSubclass(subclass);
 
         setFormMode('edit');
         setEditingSubclass(subclass);
@@ -203,11 +233,7 @@ export default function CustomSubclassesScreen() {
      * Persists the current create/edit form draft.
      */
     async function saveForm() {
-        const input = {
-            name: draft.name.trim(),
-            classId: draft.classId.trim(),
-            description: draft.description.trim(),
-        };
+        const input = mutationInputFromDraft(draft);
 
         try {
             setFormErrorMessage(null);
@@ -334,7 +360,13 @@ export default function CustomSubclassesScreen() {
                     initialDraft={initialDraft}
                     pending={saving}
                     errorMessage={formErrorMessage}
-                    lockedClassSelection={formMode === 'edit' && (editingSubclass?.characterUsageCount ?? 0) > 0}
+                    lockedClassSelection={formMode === 'edit' && (
+                        (editingSubclass?.characterUsageCount ?? 0) > 0
+                        || ((initialDraft.features.length > 0) && draft.features.length > 0)
+                    )}
+                    lockedClassMessage={(editingSubclass?.characterUsageCount ?? 0) > 0
+                        ? 'Parent class is locked while this subclass is used by existing characters.'
+                        : 'Remove saved feature definitions before changing the parent class.'}
                     onChangeDraft={(nextDraft) => {
                         setDraft(nextDraft);
                         if (formErrorMessage) setFormErrorMessage(null);

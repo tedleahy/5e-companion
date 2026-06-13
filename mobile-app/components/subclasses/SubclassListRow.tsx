@@ -40,6 +40,12 @@ export default function SubclassListRow({
 }: SubclassListRowProps) {
     const classOption = CLASS_OPTIONS.find((option) => option.value === subclass.classId);
     const description = subclass.description.join('\n').trim() || 'No description provided.';
+    const features = subclass.features
+        .slice()
+        .sort((left, right) => {
+            if (left.level !== right.level) return left.level - right.level;
+            return left.name.localeCompare(right.name);
+        });
 
     const rowMaxHeight = useRef(new Animated.Value(SUBCLASS_ROW_MAX_HEIGHT)).current;
     const badgeSize = useRef(new Animated.Value(SUBCLASS_BADGE_SIZE_COLLAPSED)).current;
@@ -141,6 +147,23 @@ export default function SubclassListRow({
                     >
                         {description}
                     </Text>
+
+                    {isOpen && (
+                        <View style={styles.featuresSection}>
+                            <Text style={styles.featuresTitle}>Features</Text>
+                            {features.length === 0 ? (
+                                <Text style={styles.emptyFeaturesText}>No subclass features yet.</Text>
+                            ) : (
+                                features.map((feature) => (
+                                    <View key={feature.id} style={styles.featureItem}>
+                                        <Text style={styles.featureLevel}>Level {feature.level}</Text>
+                                        <Text style={styles.featureName}>{feature.name}</Text>
+                                        <Text style={styles.featureDescription}>{feature.description}</Text>
+                                    </View>
+                                ))
+                            )}
+                        </View>
+                    )}
 
                 </View>
             </Pressable>
@@ -259,6 +282,43 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.inkLight,
         marginTop: fantasyTokens.spacing.xs,
         lineHeight: fantasyTokens.fontSizes.caption * 1.6,
+    },
+    featuresSection: {
+        gap: fantasyTokens.spacing.sm,
+        marginTop: fantasyTokens.spacing.sm,
+        paddingTop: fantasyTokens.spacing.sm,
+        borderTopWidth: 1,
+        borderTopColor: fantasyTokens.colors.accordionBorder,
+    },
+    featuresTitle: {
+        ...fantasyTokens.typography.buttonLabel,
+        color: fantasyTokens.colors.ember,
+    },
+    emptyFeaturesText: {
+        ...fantasyTokens.typography.bodySmall,
+        color: fantasyTokens.colors.inkLight,
+        fontStyle: 'italic',
+    },
+    featureItem: {
+        gap: fantasyTokens.spacing.xs,
+        borderRadius: fantasyTokens.radii.sm,
+        borderWidth: 1,
+        borderColor: fantasyTokens.colors.accordionBorder,
+        backgroundColor: fantasyTokens.colors.rowOpenBg,
+        padding: fantasyTokens.spacing.sm,
+    },
+    featureLevel: {
+        ...fantasyTokens.typography.statLabel,
+        color: fantasyTokens.colors.ember,
+    },
+    featureName: {
+        ...fantasyTokens.typography.body,
+        color: fantasyTokens.colors.inkDark,
+        fontWeight: '700',
+    },
+    featureDescription: {
+        ...fantasyTokens.typography.bodySmall,
+        color: fantasyTokens.colors.inkLight,
     },
     actions: {
         flexDirection: 'row',

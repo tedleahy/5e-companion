@@ -107,6 +107,28 @@ const WIZARD_AVAILABLE_SUBCLASS: AvailableSubclassRow = {
     features: [],
 };
 
+const WIZARD_SUBCLASS_FEATURES: AvailableSubclassRow['features'] = [
+    {
+        __typename: 'AvailableSubclassFeature',
+        id: 'feature-lantern-ward',
+        name: 'Lantern Ward',
+        description: 'You raise a ward of floating lights.',
+        level: 2,
+    },
+    {
+        __typename: 'AvailableSubclassFeature',
+        id: 'feature-beacon-step',
+        name: 'Beacon Step',
+        description: 'You step between friendly lights.',
+        level: 6,
+    },
+];
+
+const WIZARD_AVAILABLE_SUBCLASS_WITH_FEATURES: AvailableSubclassRow = {
+    ...WIZARD_AVAILABLE_SUBCLASS,
+    features: WIZARD_SUBCLASS_FEATURES,
+};
+
 const WIZARD_CUSTOM_SUBCLASS_UNUSED: CustomSubclassRow = {
     __typename: 'CustomSubclass',
     id: 'custom-subclass-1',
@@ -117,6 +139,11 @@ const WIZARD_CUSTOM_SUBCLASS_UNUSED: CustomSubclassRow = {
     description: ['You bind floating lanterns to defensive spellwork.'],
     characterUsageCount: 0,
     features: [],
+};
+
+const WIZARD_CUSTOM_SUBCLASS_WITH_FEATURES: CustomSubclassRow = {
+    ...WIZARD_CUSTOM_SUBCLASS_UNUSED,
+    features: WIZARD_SUBCLASS_FEATURES,
 };
 
 const WIZARD_CUSTOM_SUBCLASS_IN_USE: CustomSubclassRow = {
@@ -154,6 +181,19 @@ const SRD_WIZARD_SUBCLASS: AvailableSubclassRow = {
     description: ['You focus your study on magic that creates powerful elemental effects.'],
     isCustom: false,
     features: [],
+};
+
+const SRD_WIZARD_SUBCLASS_WITH_FEATURES: AvailableSubclassRow = {
+    ...SRD_WIZARD_SUBCLASS,
+    features: [
+        {
+            __typename: 'AvailableSubclassFeature',
+            id: 'feature-sculpt-spells',
+            name: 'Sculpt Spells',
+            description: 'Protect allies from your evocations.',
+            level: 2,
+        },
+    ],
 };
 
 function operationName(document: { definitions?: { kind: string; name?: { value: string } }[] }): string | undefined {
@@ -318,6 +358,23 @@ describe('CustomSubclassesScreen', () => {
         });
     });
 
+    it('shows ordered feature details when a subclass row is expanded', async () => {
+        mockSubclassQueries({
+            availableSubclasses: [SRD_WIZARD_SUBCLASS_WITH_FEATURES],
+        });
+
+        await renderScreenAndFlush();
+
+        fireEvent.press(screen.getByTestId('custom-subclass-row-srd-subclass-evocation'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Features')).toBeTruthy();
+        });
+        expect(screen.getByText('Level 2')).toBeTruthy();
+        expect(screen.getByText('Sculpt Spells')).toBeTruthy();
+        expect(screen.getByText('Protect allies from your evocations.')).toBeTruthy();
+    });
+
     it('shows only the expanded subclass until returning to the full list', async () => {
         mockSubclassQueries({
             availableSubclasses: [SRD_WIZARD_SUBCLASS, WIZARD_AVAILABLE_SUBCLASS, FIGHTER_AVAILABLE_SUBCLASS],
@@ -408,12 +465,60 @@ describe('CustomSubclassesScreen', () => {
                         name: 'Moon Warden',
                         classId: 'druid',
                         description: 'A circle sworn to moonlit borders.',
+                        features: [],
                     },
                 },
             });
         });
         expect(mockRefetchQueries).toHaveBeenCalledWith({
             include: [GET_AVAILABLE_SUBCLASSES, GET_CUSTOM_SUBCLASSES],
+        });
+    });
+
+    it('adds feature rows to create mutation variables', async () => {
+        await renderScreenAndFlush();
+
+        fireEvent.press(screen.getByTestId('add-custom-subclass'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Create Subclass')).toBeTruthy();
+        });
+
+        fireEvent.changeText(screen.getByTestId('custom-subclass-name-input'), 'Moon Warden');
+        fireEvent.press(screen.getByTestId('custom-subclass-class-druid'));
+        fireEvent.changeText(screen.getByTestId('custom-subclass-description-input'), 'A circle sworn to moonlit borders.');
+        fireEvent.press(screen.getByTestId('add-custom-subclass-feature'));
+
+        expect(screen.getByTestId('save-custom-subclass').props.accessibilityState.disabled).toBe(true);
+
+        fireEvent.changeText(screen.getByTestId('custom-subclass-feature-level-0'), '3rd');
+        fireEvent.changeText(screen.getByTestId('custom-subclass-feature-name-0'), 'Moonlit Ward');
+        fireEvent.changeText(screen.getByTestId('custom-subclass-feature-description-0'), 'You guard allies in silver light.');
+
+        await waitFor(() => {
+            expect(screen.getByTestId('save-custom-subclass').props.accessibilityState.disabled).toBe(false);
+        });
+        expect(screen.getByTestId('custom-subclass-feature-level-0').props.value).toBe('3');
+
+        fireEvent.press(screen.getByTestId('save-custom-subclass'));
+
+        await waitFor(() => {
+            expect(mockCreateCustomSubclass).toHaveBeenCalledWith({
+                variables: {
+                    input: {
+                        name: 'Moon Warden',
+                        classId: 'druid',
+                        description: 'A circle sworn to moonlit borders.',
+                        features: [
+                            {
+                                name: 'Moonlit Ward',
+                                description: 'You guard allies in silver light.',
+                                level: 3,
+                            },
+                        ],
+                    },
+                },
+            });
         });
     });
 
@@ -517,7 +622,93 @@ describe('CustomSubclassesScreen', () => {
             expect(screen.getByText('Edit Subclass')).toBeTruthy();
         });
         expect(screen.getByTestId('custom-subclass-class-wizard').props.accessibilityState.disabled).toBe(true);
-        expect(screen.getByText('Parent class is locked while editing an existing subclass.')).toBeTruthy();
+        expect(screen.getByText('Parent class is locked while this subclass is used by existing characters.')).toBeTruthy();
+    });
+
+    it('prefills, edits, and removes feature rows in edit mode', async () => {
+        mockSubclassQueries({
+            availableSubclasses: [WIZARD_AVAILABLE_SUBCLASS_WITH_FEATURES],
+            customSubclasses: [WIZARD_CUSTOM_SUBCLASS_WITH_FEATURES],
+        });
+
+        await renderScreenAndFlush();
+
+        fireEvent.press(screen.getByTestId('edit-custom-subclass-custom-subclass-1'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('custom-subclass-feature-name-0').props.value).toBe('Lantern Ward');
+        });
+        expect(screen.getByTestId('custom-subclass-class-wizard').props.accessibilityState.disabled).toBe(true);
+        expect(screen.getByText('Remove saved feature definitions before changing the parent class.')).toBeTruthy();
+
+        fireEvent.changeText(screen.getByTestId('custom-subclass-feature-description-0'), 'You raise brighter wards.');
+        fireEvent.press(screen.getByTestId('remove-custom-subclass-feature-1'));
+
+        await waitFor(() => {
+            expect(screen.queryByText('Feature 2')).toBeNull();
+        });
+
+        fireEvent.press(screen.getByTestId('save-custom-subclass'));
+
+        await waitFor(() => {
+            expect(mockUpdateCustomSubclass).toHaveBeenCalledWith({
+                variables: {
+                    id: 'custom-subclass-1',
+                    input: {
+                        name: 'School of Lanterns',
+                        classId: 'wizard',
+                        description: 'You bind floating lanterns to defensive spellwork.',
+                        features: [
+                            {
+                                id: 'feature-lantern-ward',
+                                name: 'Lantern Ward',
+                                description: 'You raise brighter wards.',
+                                level: 2,
+                            },
+                        ],
+                    },
+                },
+            });
+        });
+    });
+
+    it('unlocks parent class after saved feature rows are removed from the draft', async () => {
+        mockSubclassQueries({
+            availableSubclasses: [WIZARD_AVAILABLE_SUBCLASS_WITH_FEATURES],
+            customSubclasses: [WIZARD_CUSTOM_SUBCLASS_WITH_FEATURES],
+        });
+
+        await renderScreenAndFlush();
+
+        fireEvent.press(screen.getByTestId('edit-custom-subclass-custom-subclass-1'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('custom-subclass-class-wizard').props.accessibilityState.disabled).toBe(true);
+        });
+
+        fireEvent.press(screen.getByTestId('remove-custom-subclass-feature-1'));
+        fireEvent.press(screen.getByTestId('remove-custom-subclass-feature-0'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('custom-subclass-class-fighter').props.accessibilityState.disabled).toBe(false);
+        });
+
+        fireEvent.press(screen.getByTestId('custom-subclass-class-fighter'));
+        fireEvent.press(screen.getByTestId('save-custom-subclass'));
+
+        await waitFor(() => {
+            expect(mockUpdateCustomSubclass).toHaveBeenCalledWith({
+                variables: {
+                    id: 'custom-subclass-1',
+                    input: {
+                        name: 'School of Lanterns',
+                        classId: 'fighter',
+                        description: 'You bind floating lanterns to defensive spellwork.',
+                        features: [],
+                    },
+                },
+            });
+        });
     });
 
     it('confirms archive from an expanded custom subclass', async () => {
