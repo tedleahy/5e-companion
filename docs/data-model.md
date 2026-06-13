@@ -103,12 +103,12 @@ The reference tables are normalised rather than JSON — `AGENTS.md` is explicit
 - `Class` → many-to-many to `Proficiency`, has many `Subclass` and `Feature`.
 - `Subclass` → belongs to a `Class`, carries `description: String[]`. SRD rows have `ownerUserId: null`; reusable custom subclass rows are user-owned and have `srdIndex: null`.
 - `Background` → many-to-many to `Proficiency` and `Language`, plus the background `Feature`.
-- `Feature` is polymorphic — optional FKs to any of `classId`, `subclassId`, `raceId`, `subraceId`, `backgroundId`, `traitId`, `featId`. `FeatureKind` enum tags the owner. When adding feature data, set exactly one of these plus `kind`.
+- `Feature` is polymorphic — optional FKs to any of `classId`, `subclassId`, `raceId`, `subraceId`, `backgroundId`, `traitId`, `featId`. `FeatureKind` enum tags the owner. When adding feature data, set exactly one of these plus `kind`. User-owned custom subclass feature definitions use `kind: SUBCLASS_FEATURE`, `ownerUserId`, `classId`, and `subclassId`.
 - `Feature.parentFeatureId` models SRD parent/child feature trees such as Pact Boon, Fighting Style, Circle of the Land, and Hunter choices. `Feature.chooseCount` is only populated for parent features that use SRD `feature_specific.subfeature_options`.
 - `CharacterFeature` stores the resolved result of those choices on the character sheet: the parent feature row plus only the chosen child feature rows, not every child option.
 - `Proficiency.type: ProficiencyType` (ARMOR / WEAPON / TOOL / SKILL / SAVING_THROW / OTHER) — filter on this when rendering starting proficiencies.
 
-Most reference tables support user-owned rows via `ownerUserId` (null for SRD). Custom subclasses created in the manager, during character creation, or during level-up end up here. `Subclass.archivedAt` soft-deletes user-owned custom subclasses from future pickers while preserving existing character relations for display. `Spell` is the exception today: custom spells are distinguished by `source=CUSTOM`, but they are not user-owned because the model has no `ownerUserId`.
+Most reference tables support user-owned rows via `ownerUserId` (null for SRD). Custom subclasses created in the manager, during character creation, or during level-up end up here. The subclass manager can also create, update, and delete reusable user-owned `Feature` rows for custom subclasses; existing `CharacterFeature.featureId` values are nullable and use `onDelete: SetNull`, so removing a reusable feature definition does not erase copied character-sheet text. `Subclass.archivedAt` soft-deletes user-owned custom subclasses from future pickers while preserving existing character relations for display. `Spell` is the exception today: custom spells are distinguished by `source=CUSTOM`, but they are not user-owned because the model has no `ownerUserId`.
 
 ## Seeding
 

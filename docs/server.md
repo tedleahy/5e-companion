@@ -71,7 +71,7 @@ Single `ApolloServer` object wiring; resolvers are modularised by file:
 
 Reference tables can mix SRD rows and user-owned rows. SRD rows use `ownerUserId: null`; user-owned rows set `ownerUserId` and every resolver that touches them must call `requireUser(ctx)` and scope by that id.
 
-Custom subclasses are the main user-owned reference type today. Active custom subclass lookups filter `archivedAt: null`, and manager + inline creation paths treat duplicate names as case-insensitive per user/class. Archiving a custom subclass hides it from future create and level-up selections, but existing characters keep their subclass relation; `saveCharacterSheet` may preserve an archived subclass id only when it was already attached to that same character.
+Custom subclasses are the main user-owned reference type today. Active custom subclass lookups filter `archivedAt: null`, and manager + inline creation paths treat duplicate names as case-insensitive per user/class. The manager also reconciles reusable custom subclass feature definitions transactionally as `Feature` rows with `kind: SUBCLASS_FEATURE`, scoped by `ownerUserId`, `classId`, and `subclassId`; omitted submitted feature ids are removed. Archiving a custom subclass hides it from future create and level-up selections, but existing characters keep their subclass relation; `saveCharacterSheet` may preserve an archived subclass id only when it was already attached to that same character.
 
 ## Shared library
 
