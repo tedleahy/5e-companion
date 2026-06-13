@@ -59,6 +59,9 @@ export default defineConfig({
             use: {
                 ...devices['Desktop Chrome'],
                 storageState: AUTH_STORAGE_STATE,
+                launchOptions: {
+                    executablePath: "/usr/bin/chromium",
+                },
             },
             dependencies: ['setup'],
         },
