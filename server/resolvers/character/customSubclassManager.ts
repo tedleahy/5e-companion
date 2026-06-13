@@ -1,6 +1,8 @@
 import type { Context } from "../..";
+import type { Prisma } from "@prisma/client";
 import type {
     CustomSubclass,
+    ManagedCustomSubclassFeatureInput,
     ManagedCustomSubclassInput,
     MutationArchiveCustomSubclassArgs,
     MutationCreateCustomSubclassArgs,
@@ -15,8 +17,13 @@ const FEATURE_KIND = {
     SUBCLASS_FEATURE: "SUBCLASS_FEATURE",
 } as const;
 
+// NOTE: keep these max lengths in sync with the matching constants in
+// mobile-app/components/subclasses/CustomSubclassFormSheet.tsx. No shared module
+// exists yet, so the values must be mirrored by hand.
 const CUSTOM_SUBCLASS_NAME_MAX_LENGTH = 100;
 const CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH = 10000;
+const CUSTOM_SUBCLASS_FEATURE_NAME_MAX_LENGTH = 100;
+const CUSTOM_SUBCLASS_FEATURE_DESCRIPTION_MAX_LENGTH = 10000;
 
 const CUSTOM_SUBCLASS_FEATURE_INCLUDE = {
     where: {
@@ -44,6 +51,15 @@ type ManagedCustomSubclassValues = {
     classId: string;
     name: string;
     description: string;
+    features: ManagedCustomSubclassFeatureValues[];
+    shouldReconcileFeatures: boolean;
+};
+
+type ManagedCustomSubclassFeatureValues = {
+    id?: string;
+    name: string;
+    description: string;
+    level: number;
 };
 
 type CustomSubclassFeatureRow = {
@@ -75,6 +91,8 @@ function normaliseManagedCustomSubclassInput(
     const name = input.name.trim();
     const description = input.description.trim();
     const classId = input.classId.trim();
+    const shouldReconcileFeatures = input.features != null;
+    const features = normaliseManagedCustomSubclassFeatures(input.features ?? []);
 
     if (!name || !description || !classId) {
         throw new Error("Name, description, and class are required.");
@@ -88,7 +106,51 @@ function normaliseManagedCustomSubclassInput(
         throw new Error(`Description must be ${CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH} characters or fewer.`);
     }
 
-    return { name, description, classId };
+    return { name, description, classId, features, shouldReconcileFeatures };
+}
+
+function normaliseManagedCustomSubclassFeatures(
+    features: readonly ManagedCustomSubclassFeatureInput[],
+): ManagedCustomSubclassFeatureValues[] {
+    const duplicateKeys = new Set<string>();
+
+    return features.map((feature, index) => {
+        const id = feature.id?.trim() || undefined;
+        const name = feature.name.trim();
+        const description = feature.description.trim();
+        const level = Number(feature.level);
+
+        if (!name || !description) {
+            throw new Error(`Feature ${index + 1} requires a name and description.`);
+        }
+
+        if (!Number.isInteger(level) || level < 1) {
+            throw new Error(`Feature ${index + 1} level must be a positive integer.`);
+        }
+
+        if (name.length > CUSTOM_SUBCLASS_FEATURE_NAME_MAX_LENGTH) {
+            throw new Error(`Feature ${index + 1} name must be ${CUSTOM_SUBCLASS_FEATURE_NAME_MAX_LENGTH} characters or fewer.`);
+        }
+
+        if (description.length > CUSTOM_SUBCLASS_FEATURE_DESCRIPTION_MAX_LENGTH) {
+            throw new Error(`Feature ${index + 1} description must be ${CUSTOM_SUBCLASS_FEATURE_DESCRIPTION_MAX_LENGTH} characters or fewer.`);
+        }
+
+        const duplicateKey = `${level}:${name.toLowerCase()}`;
+
+        if (duplicateKeys.has(duplicateKey)) {
+            throw new Error(`Duplicate subclass feature "${name}" at level ${level}.`);
+        }
+
+        duplicateKeys.add(duplicateKey);
+
+        return {
+            ...(id ? { id } : {}),
+            name,
+            description,
+            level,
+        };
+    });
 }
 
 function duplicateSubclassNameWhere(
@@ -125,6 +187,73 @@ function toCustomSubclass(subclassRef: CustomSubclassResponseRow): CustomSubclas
         })),
         characterUsageCount: subclassRef._count?.characterClasses ?? 0,
     };
+}
+
+function subclassFeatureSourceLabel(subclassName: string, className: string, level: number): string {
+    return `${subclassName} ${className} ${level}`;
+}
+
+async function reconcileOwnedCustomSubclassFeatures(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    subclassId: string,
+    classId: string,
+    className: string,
+    subclassName: string,
+    features: ManagedCustomSubclassFeatureValues[],
+) {
+    const existingFeatures = await tx.feature.findMany({
+        where: {
+            ownerUserId: userId,
+            kind: FEATURE_KIND.SUBCLASS_FEATURE,
+            subclassId,
+        },
+        select: { id: true },
+    });
+    const existingFeatureIds = new Set(existingFeatures.map((feature) => feature.id));
+    const submittedIds = features
+        .map((feature) => feature.id)
+        .filter((id): id is string => Boolean(id));
+
+    for (const id of submittedIds) {
+        if (!existingFeatureIds.has(id)) {
+            throw new Error("Custom subclass feature not found.");
+        }
+    }
+
+    await tx.feature.deleteMany({
+        where: {
+            ownerUserId: userId,
+            kind: FEATURE_KIND.SUBCLASS_FEATURE,
+            subclassId,
+            ...(submittedIds.length > 0 ? { id: { notIn: submittedIds } } : {}),
+        },
+    });
+
+    for (const feature of features) {
+        const data = {
+            ownerUserId: userId,
+            name: feature.name,
+            description: [feature.description],
+            level: feature.level,
+            kind: FEATURE_KIND.SUBCLASS_FEATURE,
+            sourceLabel: subclassFeatureSourceLabel(subclassName, className, feature.level),
+            classId,
+            subclassId,
+        };
+
+        if (feature.id) {
+            await tx.feature.update({
+                where: {
+                    id: feature.id,
+                    ownerUserId: userId,
+                },
+                data,
+            });
+        } else {
+            await tx.feature.create({ data });
+        }
+    }
 }
 
 /**
@@ -179,7 +308,7 @@ export async function createCustomSubclass(
     ctx: Context,
 ): Promise<CustomSubclass> {
     const userId = requireUser(ctx);
-    const { name, description, classId } = normaliseManagedCustomSubclassInput(input);
+    const { name, description, classId, features } = normaliseManagedCustomSubclassInput(input);
 
     const classRef = await prisma.class.findFirst({
         where: { srdIndex: classId },
@@ -197,15 +326,35 @@ export async function createCustomSubclass(
         throw new Error(`You already have a custom subclass named "${name}" for ${classRef.name}.`);
     }
 
-    const subclassRef = await prisma.subclass.create({
-        data: {
-            ownerUserId: userId,
+    const subclassRef = await prisma.$transaction(async (tx) => {
+        const createdSubclass = await tx.subclass.create({
+            data: {
+                ownerUserId: userId,
+                name,
+                description: [description],
+                classId: classRef.id,
+            },
+        });
+
+        await reconcileOwnedCustomSubclassFeatures(
+            tx,
+            userId,
+            createdSubclass.id,
+            classRef.id,
+            classRef.name,
             name,
-            description: [description],
-            classId: classRef.id,
-        },
-        include: CUSTOM_SUBCLASS_RESPONSE_INCLUDE,
+            features,
+        );
+
+        return await tx.subclass.findFirst({
+            where: { id: createdSubclass.id },
+            include: CUSTOM_SUBCLASS_RESPONSE_INCLUDE,
+        });
     });
+
+    if (!subclassRef) {
+        throw new Error("Custom subclass not found.");
+    }
 
     return toCustomSubclass(subclassRef);
 }
@@ -219,7 +368,13 @@ export async function updateCustomSubclass(
     ctx: Context,
 ): Promise<CustomSubclass> {
     const userId = requireUser(ctx);
-    const { name, description, classId } = normaliseManagedCustomSubclassInput(input);
+    const {
+        name,
+        description,
+        classId,
+        features,
+        shouldReconcileFeatures,
+    } = normaliseManagedCustomSubclassInput(input);
 
     const existingSubclass = await prisma.subclass.findFirst({
         where: {
@@ -259,7 +414,7 @@ export async function updateCustomSubclass(
             );
         }
 
-        if (existingSubclass._count.features > 0) {
+        if (existingSubclass._count.features > 0 && (!shouldReconcileFeatures || features.length > 0)) {
             throw new Error(
                 `Cannot change the parent class of a subclass with ${existingSubclass._count.features} feature definition(s).`,
             );
@@ -274,15 +429,37 @@ export async function updateCustomSubclass(
         throw new Error(`You already have a custom subclass named "${name}" for ${classRef.name}.`);
     }
 
-    const subclassRef = await prisma.subclass.update({
-        where: { id },
-        data: {
-            name,
-            description: [description],
-            classId: classRef.id,
-        },
-        include: CUSTOM_SUBCLASS_RESPONSE_WITH_COUNT_INCLUDE,
+    const subclassRef = await prisma.$transaction(async (tx) => {
+        await tx.subclass.update({
+            where: { id },
+            data: {
+                name,
+                description: [description],
+                classId: classRef.id,
+            },
+        });
+
+        if (shouldReconcileFeatures) {
+            await reconcileOwnedCustomSubclassFeatures(
+                tx,
+                userId,
+                id,
+                classRef.id,
+                classRef.name,
+                name,
+                features,
+            );
+        }
+
+        return await tx.subclass.findFirst({
+            where: { id },
+            include: CUSTOM_SUBCLASS_RESPONSE_WITH_COUNT_INCLUDE,
+        });
     });
+
+    if (!subclassRef) {
+        throw new Error("Custom subclass not found.");
+    }
 
     return toCustomSubclass(subclassRef);
 }

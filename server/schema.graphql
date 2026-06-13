@@ -302,6 +302,14 @@ input ManagedCustomSubclassInput {
     classId: String!
     name: String!
     description: String!
+    features: [ManagedCustomSubclassFeatureInput!]
+}
+
+input ManagedCustomSubclassFeatureInput {
+    id: ID
+    name: String!
+    description: String!
+    level: Int!
 }
 
 type CustomSubclass {

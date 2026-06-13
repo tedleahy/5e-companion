@@ -3,6 +3,10 @@ import {
     authedCtx,
     classFindFirstMock,
     clearAllCharacterResolverMocks,
+    featureCreateMock,
+    featureDeleteManyMock,
+    featureFindManyMock,
+    featureUpdateMock,
     resolvers,
     subclassCreateMock,
     subclassFindFirstMock,
@@ -181,7 +185,22 @@ describe('customSubclassManager — createCustomSubclass', () => {
 
     test('creates an owned subclass and returns it', async () => {
         classFindFirstMock.mockResolvedValueOnce({ id: 'class-wizard-id', srdIndex: 'wizard', name: 'Wizard' });
-        subclassFindFirstMock.mockResolvedValueOnce(null);
+        subclassFindFirstMock
+            .mockResolvedValueOnce(null)
+            .mockResolvedValueOnce({
+                id: 'new-subclass-id',
+                srdIndex: null,
+                ownerUserId: 'user-abc',
+                name: 'School of Glass',
+                description: ['A delicate art.'],
+                classId: 'class-wizard-id',
+                classRef: {
+                    id: 'class-wizard-id',
+                    srdIndex: 'wizard',
+                    name: 'Wizard',
+                },
+                features: [],
+            });
 
         subclassCreateMock.mockResolvedValueOnce({
             id: 'new-subclass-id',
@@ -240,6 +259,125 @@ describe('customSubclassManager — createCustomSubclass', () => {
             features: [],
             characterUsageCount: 0,
         });
+    });
+
+    test('rejects invalid feature rows before creating a subclass', () => {
+        expect(
+            resolvers.createCustomSubclass(
+                {},
+                {
+                    input: {
+                        classId: 'wizard',
+                        name: 'School of Glass',
+                        description: 'A delicate art.',
+                        features: [{ name: 'Glass Step', description: 'Step through mirrors.', level: 0 }],
+                    },
+                },
+                authedCtx,
+            ),
+        ).rejects.toThrow('Feature 1 level must be a positive integer.');
+    });
+
+    test('rejects duplicate feature names at the same level', () => {
+        expect(
+            resolvers.createCustomSubclass(
+                {},
+                {
+                    input: {
+                        classId: 'wizard',
+                        name: 'School of Glass',
+                        description: 'A delicate art.',
+                        features: [
+                            { name: 'Glass Step', description: 'Step through mirrors.', level: 2 },
+                            { name: 'glass step', description: 'Step again.', level: 2 },
+                        ],
+                    },
+                },
+                authedCtx,
+            ),
+        ).rejects.toThrow('Duplicate subclass feature "glass step" at level 2.');
+    });
+
+    test('creates owned subclass feature definitions with source labels', async () => {
+        classFindFirstMock.mockResolvedValueOnce({ id: 'class-wizard-id', srdIndex: 'wizard', name: 'Wizard' });
+        subclassFindFirstMock
+            .mockResolvedValueOnce(null)
+            .mockResolvedValueOnce({
+                id: 'new-subclass-id',
+                srdIndex: null,
+                ownerUserId: 'user-abc',
+                name: 'School of Glass',
+                description: ['A delicate art.'],
+                classId: 'class-wizard-id',
+                classRef: {
+                    id: 'class-wizard-id',
+                    srdIndex: 'wizard',
+                    name: 'Wizard',
+                },
+                features: [
+                    {
+                        id: 'feature-glass-step',
+                        name: 'Glass Step',
+                        description: ['Step through mirrors.'],
+                        level: 2,
+                    },
+                ],
+            });
+
+        subclassCreateMock.mockResolvedValueOnce({
+            id: 'new-subclass-id',
+            srdIndex: null,
+            ownerUserId: 'user-abc',
+            name: 'School of Glass',
+            description: ['A delicate art.'],
+            classId: 'class-wizard-id',
+            classRef: {
+                id: 'class-wizard-id',
+                srdIndex: 'wizard',
+                name: 'Wizard',
+            },
+            features: [],
+        });
+
+        const result = await resolvers.createCustomSubclass(
+            {},
+            {
+                input: {
+                    classId: 'wizard',
+                    name: 'School of Glass',
+                    description: 'A delicate art.',
+                    features: [
+                        {
+                            name: 'Glass Step',
+                            description: 'Step through mirrors.',
+                            level: 2,
+                        },
+                    ],
+                },
+            },
+            authedCtx,
+        );
+
+        expect(featureCreateMock).toHaveBeenCalledWith({
+            data: {
+                ownerUserId: 'user-abc',
+                name: 'Glass Step',
+                description: ['Step through mirrors.'],
+                level: 2,
+                kind: 'SUBCLASS_FEATURE',
+                sourceLabel: 'School of Glass Wizard 2',
+                classId: 'class-wizard-id',
+                subclassId: 'new-subclass-id',
+            },
+        });
+        expect(result.features).toEqual([
+            {
+                id: 'feature-glass-step',
+                name: 'Glass Step',
+                description: 'Step through mirrors.',
+                level: 2,
+            },
+        ]);
     });
 });
 
@@ -327,7 +465,15 @@ describe('customSubclassManager — updateCustomSubclass', () => {
         expect(
             resolvers.updateCustomSubclass(
                 {},
-                { id: 'sub-1', input: { classId: 'sorcerer', name: 'Foo', description: 'Bar' } },
+                {
+                    id: 'sub-1',
+                    input: {
+                        classId: 'sorcerer',
+                        name: 'Foo',
+                        description: 'Bar',
+                        features: [{ id: 'feature-1', name: 'Feature A', description: 'Does something.', level: 3 }],
+                    },
+                },
                 authedCtx,
             ),
         ).rejects.toThrow('Cannot change the parent class of a subclass with 2 feature definition(s).');
@@ -368,7 +514,29 @@ describe('customSubclassManager — updateCustomSubclass', () => {
                 },
                 _count: { characterClasses: 0, features: 0 },
             })
-            .mockResolvedValueOnce(null); // no duplicate
+            .mockResolvedValueOnce(null)
+            .mockResolvedValueOnce({
+                id: 'sub-1',
+                srdIndex: null,
+                ownerUserId: 'user-abc',
+                name: 'Updated Name',
+                description: ['Updated description.'],
+                classId: 'class-wizard-id',
+                classRef: {
+                    id: 'class-wizard-id',
+                    srdIndex: 'wizard',
+                    name: 'Wizard',
+                },
+                features: [
+                    {
+                        id: 'feat-1',
+                        name: 'Feature A',
+                        description: ['Does something.'],
+                        level: 3,
+                    },
+                ],
+                _count: { characterClasses: 0 },
+            });
 
         classFindFirstMock.mockResolvedValueOnce({ id: 'class-wizard-id', srdIndex: 'wizard', name: 'Wizard' });
 
@@ -428,6 +596,211 @@ describe('customSubclassManager — updateCustomSubclass', () => {
             ],
             characterUsageCount: 0,
         });
+    });
+
+    test('reconciles updated, created, and omitted owned feature definitions', async () => {
+        subclassFindFirstMock
+            .mockResolvedValueOnce({
+                id: 'sub-1',
+                ownerUserId: 'user-abc',
+                classRef: {
+                    srdIndex: 'wizard',
+                    name: 'Wizard',
+                },
+                _count: { characterClasses: 0, features: 2 },
+            })
+            .mockResolvedValueOnce(null)
+            .mockResolvedValueOnce({
+                id: 'sub-1',
+                srdIndex: null,
+                ownerUserId: 'user-abc',
+                name: 'Updated Name',
+                description: ['Updated description.'],
+                classId: 'class-wizard-id',
+                classRef: {
+                    id: 'class-wizard-id',
+                    srdIndex: 'wizard',
+                    name: 'Wizard',
+                },
+                features: [
+                    {
+                        id: 'feat-kept',
+                        name: 'Feature A',
+                        description: ['Updated feature.'],
+                        level: 3,
+                    },
+                    {
+                        id: 'feat-created',
+                        name: 'Feature B',
+                        description: ['New feature.'],
+                        level: 7,
+                    },
+                ],
+                _count: { characterClasses: 0 },
+            });
+        classFindFirstMock.mockResolvedValueOnce({ id: 'class-wizard-id', srdIndex: 'wizard', name: 'Wizard' });
+        featureFindManyMock.mockResolvedValueOnce([
+            { id: 'feat-kept', ownerUserId: 'user-abc', subclassId: 'sub-1', kind: 'SUBCLASS_FEATURE' },
+            { id: 'feat-removed', ownerUserId: 'user-abc', subclassId: 'sub-1', kind: 'SUBCLASS_FEATURE' },
+        ]);
+
+        const result = await resolvers.updateCustomSubclass(
+            {},
+            {
+                id: 'sub-1',
+                input: {
+                    classId: 'wizard',
+                    name: 'Updated Name',
+                    description: 'Updated description.',
+                    features: [
+                        {
+                            id: 'feat-kept',
+                            name: 'Feature A',
+                            description: 'Updated feature.',
+                            level: 3,
+                        },
+                        {
+                            name: 'Feature B',
+                            description: 'New feature.',
+                            level: 7,
+                        },
+                    ],
+                },
+            },
+            authedCtx,
+        );
+
+        expect(featureDeleteManyMock).toHaveBeenCalledWith({
+            where: {
+                ownerUserId: 'user-abc',
+                kind: 'SUBCLASS_FEATURE',
+                subclassId: 'sub-1',
+                id: { notIn: ['feat-kept'] },
+            },
+        });
+        expect(featureUpdateMock).toHaveBeenCalledWith({
+            where: { id: 'feat-kept', ownerUserId: 'user-abc' },
+            data: {
+                ownerUserId: 'user-abc',
+                name: 'Feature A',
+                description: ['Updated feature.'],
+                level: 3,
+                kind: 'SUBCLASS_FEATURE',
+                sourceLabel: 'Updated Name Wizard 3',
+                classId: 'class-wizard-id',
+                subclassId: 'sub-1',
+            },
+        });
+        expect(featureCreateMock).toHaveBeenCalledWith({
+            data: {
+                ownerUserId: 'user-abc',
+                name: 'Feature B',
+                description: ['New feature.'],
+                level: 7,
+                kind: 'SUBCLASS_FEATURE',
+                sourceLabel: 'Updated Name Wizard 7',
+                classId: 'class-wizard-id',
+                subclassId: 'sub-1',
+            },
+        });
+        expect(result.features).toHaveLength(2);
+    });
+
+    test('rejects updating a feature not owned by the subclass', () => {
+        subclassFindFirstMock
+            .mockResolvedValueOnce({
+                id: 'sub-1',
+                ownerUserId: 'user-abc',
+                classRef: {
+                    srdIndex: 'wizard',
+                    name: 'Wizard',
+                },
+                _count: { characterClasses: 0, features: 1 },
+            })
+            .mockResolvedValueOnce(null);
+        classFindFirstMock.mockResolvedValueOnce({ id: 'class-wizard-id', srdIndex: 'wizard', name: 'Wizard' });
+        featureFindManyMock.mockResolvedValueOnce([
+            { id: 'owned-feature', ownerUserId: 'user-abc', subclassId: 'sub-1', kind: 'SUBCLASS_FEATURE' },
+        ]);
+
+        expect(
+            resolvers.updateCustomSubclass(
+                {},
+                {
+                    id: 'sub-1',
+                    input: {
+                        classId: 'wizard',
+                        name: 'Updated Name',
+                        description: 'Updated description.',
+                        features: [
+                            {
+                                id: 'other-feature',
+                                name: 'Feature A',
+                                description: 'Updated feature.',
+                                level: 3,
+                            },
+                        ],
+                    },
+                },
+                authedCtx,
+            ),
+        ).rejects.toThrow('Custom subclass feature not found.');
+    });
+
+    test('allows changing parent class when saved feature definitions are emptied', async () => {
+        subclassFindFirstMock
+            .mockResolvedValueOnce({
+                id: 'sub-1',
+                ownerUserId: 'user-abc',
+                classRef: {
+                    srdIndex: 'wizard',
+                    name: 'Wizard',
+                },
+                _count: { characterClasses: 0, features: 1 },
+            })
+            .mockResolvedValueOnce(null)
+            .mockResolvedValueOnce({
+                id: 'sub-1',
+                srdIndex: null,
+                ownerUserId: 'user-abc',
+                name: 'Updated Name',
+                description: ['Updated description.'],
+                classId: 'class-fighter-id',
+                classRef: {
+                    id: 'class-fighter-id',
+                    srdIndex: 'fighter',
+                    name: 'Fighter',
+                },
+                features: [],
+                _count: { characterClasses: 0 },
+            });
+        classFindFirstMock.mockResolvedValueOnce({ id: 'class-fighter-id', srdIndex: 'fighter', name: 'Fighter' });
+        featureFindManyMock.mockResolvedValueOnce([
+            { id: 'feat-removed', ownerUserId: 'user-abc', subclassId: 'sub-1', kind: 'SUBCLASS_FEATURE' },
+        ]);
+
+        const result = await resolvers.updateCustomSubclass(
+            {},
+            {
+                id: 'sub-1',
+                input: {
+                    classId: 'fighter',
+                    name: 'Updated Name',
+                    description: 'Updated description.',
+                    features: [],
+                },
+            },
+            authedCtx,
+        );
+
+        expect(featureDeleteManyMock).toHaveBeenCalledWith({
+            where: {
+                ownerUserId: 'user-abc',
+                kind: 'SUBCLASS_FEATURE',
+                subclassId: 'sub-1',
+            },
+        });
+        expect(result.classId).toBe('fighter');
     });
 });
 

@@ -266,9 +266,17 @@ export type InventoryItemInput = {
   weight?: InputMaybe<Scalars['Float']['input']>;
 };
 
+export type ManagedCustomSubclassFeatureInput = {
+  description: Scalars['String']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  level: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+};
+
 export type ManagedCustomSubclassInput = {
   classId: Scalars['String']['input'];
   description: Scalars['String']['input'];
+  features?: InputMaybe<Array<ManagedCustomSubclassFeatureInput>>;
   name: Scalars['String']['input'];
 };
 
@@ -787,6 +795,7 @@ export type ResolversTypes = {
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   InventoryItem: ResolverTypeWrapper<InventoryItem>;
   InventoryItemInput: InventoryItemInput;
+  ManagedCustomSubclassFeatureInput: ManagedCustomSubclassFeatureInput;
   ManagedCustomSubclassInput: ManagedCustomSubclassInput;
   Mutation: ResolverTypeWrapper<{}>;
   ProficiencyLevel: ProficiencyLevel;
@@ -846,6 +855,7 @@ export type ResolversParentTypes = {
   Int: Scalars['Int']['output'];
   InventoryItem: InventoryItem;
   InventoryItemInput: InventoryItemInput;
+  ManagedCustomSubclassFeatureInput: ManagedCustomSubclassFeatureInput;
   ManagedCustomSubclassInput: ManagedCustomSubclassInput;
   Mutation: {};
   Query: {};

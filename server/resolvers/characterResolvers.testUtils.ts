@@ -26,6 +26,7 @@ export const featureFindManyMock: any = mock((_args: unknown) => Promise.resolve
 export const featureFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const featureCreateMock: any = mock((_args: unknown) => Promise.resolve({}));
 export const featureUpdateMock: any = mock((_args: unknown) => Promise.resolve({}));
+export const featureDeleteManyMock: any = mock((_args: unknown) => Promise.resolve({ count: 0 }));
 export const raceFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const backgroundFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const backgroundFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
@@ -90,6 +91,7 @@ export const transactionMock: any = mock((callback: (tx: any) => Promise<unknown
         findFirst: featureFindFirstMock,
         create: featureCreateMock,
         update: featureUpdateMock,
+        deleteMany: featureDeleteManyMock,
     },
     spellSlot: {
         findMany: spellSlotFindManyMock,
@@ -159,6 +161,7 @@ function createMockTransactionClient() {
             findFirst: featureFindFirstMock,
             create: featureCreateMock,
             update: featureUpdateMock,
+            deleteMany: featureDeleteManyMock,
         },
         race: {
             findFirst: raceFindFirstMock,
@@ -428,6 +431,7 @@ export function clearAllCharacterResolverMocks() {
     featureFindManyMock.mockClear();
     featureCreateMock.mockClear();
     featureUpdateMock.mockClear();
+    featureDeleteManyMock.mockClear();
     raceFindFirstMock.mockClear();
     backgroundFindFirstMock.mockClear();
     backgroundFindManyMock.mockClear();
