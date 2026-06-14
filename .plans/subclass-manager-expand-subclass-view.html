@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Subclass Manager — Character Codex</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Almendra:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;600&family=Spectral:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0f0904;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Spectral', serif;
+  }
+
+  .app {
+    display: flex;
+    width: 420px;
+    height: 780px;
+    background: #1e140a;
+    border-radius: 28px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(196,162,101,0.12);
+  }
+
+  /* ─── NAV RAIL ─── */
+  .rail {
+    width: 52px;
+    background: #140c04;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 0;
+    gap: 6px;
+    flex-shrink: 0;
+    border-right: 1px solid rgba(196,162,101,0.08);
+  }
+  .rail-av {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #8c6d3f, #c4a265);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Almendra', serif; font-size: 15px;
+    color: #140c04; font-weight: 700;
+    border: 2px solid rgba(196,162,101,0.5);
+    cursor: pointer; margin-bottom: 6px;
+  }
+  .rail-i {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; cursor: pointer;
+    color: rgba(240,230,208,0.28); font-size: 18px; transition: color 0.15s;
+  }
+  .rail-i:hover { color: rgba(240,230,208,0.5); }
+  .rail-i.on { color: #c4a265; }
+  .rail-sp { flex: 1; }
+  .rail-g {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(240,230,208,0.18); font-size: 17px; cursor: pointer;
+  }
+
+  /* ─── MAIN ─── */
+  .mn { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  .hd { padding: 20px 20px 0; text-align: center; flex-shrink: 0; }
+  .hd-l {
+    font-family: 'Cinzel', serif; font-size: 10px;
+    letter-spacing: 0.22em; color: #8c1d38; text-transform: uppercase;
+  }
+  .hd-t {
+    font-family: 'Almendra', serif; font-size: 24px;
+    color: #f0e6d0; margin: 3px 0 4px;
+  }
+  .hd-s { font-family: 'Spectral', serif; font-size: 11px; color: rgba(240,230,208,0.38); }
+  .hd-rule {
+    margin: 14px 20px 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(196,162,101,0.3) 30%, rgba(196,162,101,0.3) 70%, transparent);
+  }
+
+  .ct { flex: 1; overflow-y: auto; padding: 14px 14px 24px; }
+  .ct::-webkit-scrollbar { width: 3px; }
+  .ct::-webkit-scrollbar-thumb { background: rgba(196,162,101,0.2); border-radius: 2px; }
+
+  /* ─── PARCHMENT CARD ─── */
+  .pc {
+    background: #ede3cf;
+    border-radius: 10px;
+    border: 1px solid #c8b99a;
+    overflow: hidden;
+  }
+
+  /* Card header row: title + add button */
+  .pc-hd {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 15px 9px;
+    transition: padding 0.35s ease;
+  }
+  .pc-hd-t {
+    font-family: 'Cinzel', serif; font-size: 11px;
+    letter-spacing: 0.16em; color: #8c1d38; text-transform: uppercase;
+  }
+  .b-add {
+    font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.12em;
+    padding: 5px 13px; border-radius: 6px; cursor: pointer; text-transform: uppercase;
+    background: rgba(140,29,56,0.07); border: 1px solid #8c1d38; color: #8c1d38;
+    transition: background 0.15s, opacity 0.25s ease;
+  }
+  .b-add:hover { background: rgba(140,29,56,0.14); }
+
+  /* ─── FILTER CHIPS ─── */
+  .fl {
+    display: flex; gap: 7px;
+    padding: 0 15px 11px;
+    overflow-x: auto; scrollbar-width: none;
+    max-height: 50px; overflow: hidden;
+    /* transitions for collapse */
+    transition: opacity 0.2s ease, max-height 0.3s ease 0.1s, padding 0.3s ease 0.1s;
+  }
+  .fl::-webkit-scrollbar { display: none; }
+  .ft {
+    font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 5px 11px; border-radius: 20px;
+    cursor: pointer; white-space: nowrap; transition: all 0.15s;
+    border: 1.5px solid #a89878; background: transparent; color: #5a4a30;
+  }
+  .ft:hover { border-color: #7a6540; color: #3a2a10; }
+  .ft.on { border-color: #8c1d38; color: #8c1d38; background: rgba(140,29,56,0.07); }
+
+  .pc-bd { padding: 0 15px 13px; }
+
+  /* ─── SUBCLASS ROWS ─── */
+  .sr {
+    display: flex; align-items: flex-start; gap: 11px;
+    padding: 12px 0;
+    border-bottom: 1px solid #d4c8ae;
+    overflow: hidden;
+    cursor: pointer;
+    /* transitions for open/close */
+    max-height: 200px;
+    transition: max-height 0.35s ease, opacity 0.2s ease, padding 0.3s ease;
+  }
+  .sr:last-child { border-bottom: none; }
+  .sr:hover { background: rgba(140,29,56,0.02); }
+
+  /* Badge */
+  .sr-bg {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(140,29,56,0.09);
+    border: 1.5px solid rgba(140,29,56,0.28);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+    transition: width 0.3s ease 0.2s, height 0.3s ease 0.2s, border-radius 0.3s ease 0.2s;
+  }
+  .sr-bg span {
+    font-family: 'Cinzel', serif; font-size: 11px; color: #8c1d38; font-weight: 600;
+    transition: font-size 0.3s ease 0.2s;
+  }
+
+  .sr-i { flex: 1; min-width: 0; }
+
+  .sr-n {
+    font-family: 'Spectral', serif;
+    font-size: 15px; color: #1e1208; font-weight: 500; line-height: 1.3;
+    transition: font-size 0.3s ease 0.2s;
+  }
+  .sr-c {
+    font-family: 'Spectral', serif; font-size: 11px; color: #8a7a5e; margin-top: 1px;
+    transition: font-size 0.3s ease 0.2s, margin-top 0.3s ease 0.2s;
+  }
+
+  /* Description wrapper — animates height */
+  .sr-dw {
+    overflow: hidden;
+    max-height: 38px; /* ~2 lines */
+    transition: max-height 0.4s ease 0.2s;
+  }
+  .sr-d {
+    font-family: 'Spectral', serif;
+    font-size: 12px; color: #5a4e38; line-height: 1.6;
+    margin-top: 5px;
+  }
+
+  /* Edit/delete — hidden by default, shown when open */
+  .sr-a {
+    display: flex; gap: 5px; flex-shrink: 0; margin-top: 1px;
+    transition: opacity 0.2s ease;
+  }
+  .sr-b {
+    width: 30px; height: 30px; border-radius: 6px;
+    border: 1.5px solid #b0a48a; background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #6a5a40; font-size: 14px;
+    transition: all 0.15s;
+  }
+  .sr-b:hover { border-color: #8c1d38; color: #8c1d38; background: rgba(140,29,56,0.06); }
+
+  /* Back arrow — sits below card title, above the row. Hidden by default. */
+  .pc-back {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0 15px 10px;
+    color: #8c1d38;
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, max-height 0.3s ease, padding 0.3s ease;
+  }
+  .pc-back:hover { color: #6a1228; }
+  .pc.expanded .pc-back {
+    max-height: 40px;
+    opacity: 1;
+    pointer-events: all;
+    transition: opacity 0.25s ease 0.2s, max-height 0.3s ease 0.1s, padding 0.3s ease 0.1s;
+  }
+
+  /* ─────────────────────────────────────────
+     EXPANDED STATE
+  ───────────────────────────────────────── */
+
+  /* When the card is expanded: fade & collapse non-open elements */
+  .pc.expanded .b-add {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .pc.expanded .fl {
+    opacity: 0;
+    max-height: 0;
+    padding-bottom: 0;
+  }
+  .pc.expanded .sr:not(.open) {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-bottom-color: transparent;
+  }
+
+  /* The open row itself */
+  .sr.open {
+    cursor: default;
+    max-height: 600px;
+    flex-wrap: wrap;
+  }
+  .sr.open:hover { background: transparent; }
+
+  /* Badge grows */
+  .sr.open .sr-bg {
+    width: 40px; height: 40px;
+  }
+  .sr.open .sr-bg span { font-size: 14px; }
+
+  /* Name grows */
+  .sr.open .sr-n { font-size: 20px; }
+
+  /* Source gets a little more breathing room */
+  .sr.open .sr-c { font-size: 12px; margin-top: 3px; }
+
+  /* Description fully expands */
+  .sr.open .sr-dw { max-height: 600px; }
+
+  /* In the open row, hide the normal edit/del buttons,
+     show them in a separate full-width action row instead */
+  .sr.open .sr-a { display: none; }
+
+
+  /* Full-width action row that appears at bottom of open row */
+  .sr-actions-expanded {
+    width: 100%;
+    display: none;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #d4c8ae;
+    opacity: 0;
+    transition: opacity 0.3s ease 0.35s;
+  }
+  .sr.open .sr-actions-expanded {
+    display: flex;
+    opacity: 1;
+  }
+  .sr-act-btn {
+    flex: 1; padding: 8px; border-radius: 6px;
+    font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.12em;
+    text-transform: uppercase; cursor: pointer; transition: all 0.15s;
+  }
+  .sr-act-edit {
+    background: transparent; border: 1.5px solid #a89878; color: #5a4a30;
+  }
+  .sr-act-edit:hover { border-color: #7a6540; color: #3a2a10; }
+  .sr-act-del {
+    background: transparent; border: 1.5px solid rgba(140,29,56,0.35); color: #8c1d38;
+  }
+  .sr-act-del:hover { background: rgba(140,29,56,0.07); }
+
+  /* ─── EMPTY STATE ─── */
+  .emp { padding: 40px 20px; text-align: center; }
+  .emp svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.18; }
+  .emp-t { font-family: 'Almendra', serif; font-size: 15px; color: #7a6a4e; margin-bottom: 5px; }
+  .emp-s { font-family: 'Spectral', serif; font-size: 12px; color: #9a8a6e; }
+
+  /* ─── BOTTOM SHEET ─── */
+  .ov {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.52);
+    display: flex; align-items: flex-end;
+    z-index: 10; border-radius: 28px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .ov.show { opacity: 1; pointer-events: all; }
+  .sh {
+    width: 100%; background: #241a0e;
+    border-radius: 18px 18px 0 0;
+    border-top: 1px solid rgba(196,162,101,0.18);
+    max-height: 90%; display: flex; flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .ov.show .sh { transform: translateY(0); }
+  .sh-bar {
+    width: 36px; height: 4px;
+    background: rgba(196,162,101,0.22); border-radius: 2px;
+    margin: 11px auto 0;
+  }
+  .sh-hd {
+    display: flex; align-items: center;
+    padding: 14px 18px 13px;
+    border-bottom: 1px solid rgba(196,162,101,0.1);
+  }
+  .sh-x {
+    background: transparent; border: none;
+    color: rgba(240,230,208,0.38); font-size: 22px;
+    cursor: pointer; padding: 0; line-height: 1; width: 28px;
+    transition: color 0.15s;
+  }
+  .sh-x:hover { color: rgba(240,230,208,0.7); }
+  .sh-t {
+    flex: 1; text-align: center;
+    font-family: 'Almendra', serif; font-size: 18px; color: #f0e6d0;
+  }
+  .sh-sv {
+    font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.12em;
+    color: #f0e6d0; background: #8c1d38; border: none;
+    padding: 7px 14px; border-radius: 6px; cursor: pointer;
+    text-transform: uppercase; transition: background 0.15s;
+  }
+  .sh-sv:disabled { background: rgba(140,29,56,0.3); color: rgba(240,230,208,0.3); cursor: not-allowed; }
+  .sh-sv:not(:disabled):hover { background: #a22648; }
+
+  .sh-bd { padding: 16px 18px 24px; overflow-y: auto; flex: 1; }
+  .sh-bd::-webkit-scrollbar { width: 3px; }
+  .sh-bd::-webkit-scrollbar-thumb { background: rgba(196,162,101,0.15); border-radius: 2px; }
+
+  .fl-l {
+    font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.14em;
+    color: rgba(196,162,101,0.55); text-transform: uppercase;
+    margin-bottom: 7px; margin-top: 18px;
+  }
+  .fl-l:first-child { margin-top: 0; }
+  .fi {
+    width: 100%; background: rgba(240,230,208,0.06);
+    border: 1px solid rgba(196,162,101,0.28); border-radius: 8px;
+    color: #f0e6d0; font-family: 'Spectral', serif; font-size: 14px;
+    padding: 10px 12px; outline: none; transition: border-color 0.15s;
+  }
+  .fi:focus { border-color: #c4a265; }
+  .fi::placeholder { color: rgba(240,230,208,0.2); }
+  .fi-ta { min-height: 88px; resize: none; line-height: 1.55; }
+  .fi-cc {
+    text-align: right; font-family: 'Spectral', serif;
+    font-size: 10px; color: rgba(240,230,208,0.2); margin-top: 4px;
+  }
+  .cg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .cb {
+    border: 1px solid rgba(196,162,101,0.22); background: transparent;
+    color: rgba(240,230,208,0.4); font-family: 'Cinzel', serif;
+    font-size: 9px; letter-spacing: 0.08em; padding: 8px 4px;
+    border-radius: 6px; cursor: pointer; text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  .cb:hover { border-color: rgba(196,162,101,0.5); color: rgba(240,230,208,0.75); }
+  .cb.on { border-color: #8c1d38; background: rgba(140,29,56,0.22); color: #f0e6d0; }
+
+  /* ─── DELETE CONFIRM ─── */
+  .dl-ov {
+    position: absolute; inset: 0; background: rgba(0,0,0,0.58);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 20; border-radius: 28px;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+  }
+  .dl-ov.show { opacity: 1; pointer-events: all; }
+  .dl-bx {
+    background: #241a0e; border: 1px solid rgba(196,162,101,0.22);
+    border-radius: 14px; padding: 22px 24px; width: 300px; text-align: center;
+    transform: scale(0.92); transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .dl-ov.show .dl-bx { transform: scale(1); }
+  .dl-ti { font-family: 'Almendra', serif; font-size: 17px; color: #f0e6d0; margin-bottom: 8px; }
+  .dl-bd {
+    font-family: 'Spectral', serif; font-size: 12px;
+    color: rgba(240,230,208,0.45); line-height: 1.55; margin-bottom: 18px;
+  }
+  .dl-bt { display: flex; gap: 8px; justify-content: center; }
+  .dl-cn {
+    font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.1em;
+    color: rgba(240,230,208,0.5); background: transparent;
+    border: 1px solid rgba(196,162,101,0.28); padding: 9px 18px;
+    border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: all 0.15s;
+  }
+  .dl-cn:hover { border-color: rgba(196,162,101,0.55); color: #f0e6d0; }
+  .dl-ok {
+    font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.1em;
+    color: #f0e6d0; background: #8c1d38; border: none;
+    padding: 9px 18px; border-radius: 6px; cursor: pointer;
+    text-transform: uppercase; transition: background 0.15s;
+  }
+  .dl-ok:hover { background: #a22648; }
+</style>
+</head>
+<body>
+
+<div class="app" id="root">
+
+  <!-- NAV RAIL -->
+  <div class="rail">
+    <div class="rail-av">V</div>
+    <div class="rail-i" title="Character Sheet">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v16l6-4 6 4V4a2 2 0 00-2-2H8a2 2 0 00-2 2z"/></svg>
+    </div>
+    <div class="rail-i" title="Characters">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 3.13a4 4 0 010 7.75"/><path d="M21 21v-2a4 4 0 00-3-3.85"/></svg>
+    </div>
+    <div class="rail-i" title="Compendium">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19a9 9 0 019 0 9 9 0 019 0M3 6a9 9 0 019 0 9 9 0 019 0M3 6v13M12 6v13M21 6v13"/></svg>
+    </div>
+    <div class="rail-i on" title="Custom Subclasses">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21l15-15-3-3L3 18l3 3"/><path d="M15 6l3 3"/><path d="M9 3a2 2 0 002 2 2 2 0 00-2 2 2 2 0 00-2-2 2 2 0 002-2"/><path d="M19 13a2 2 0 002 2 2 2 0 00-2 2 2 2 0 00-2-2 2 2 0 002-2"/></svg>
+    </div>
+    <div class="rail-sp"></div>
+    <div class="rail-g" title="Settings">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="mn">
+    <div class="hd">
+      <div class="hd-l">Custom Subclasses</div>
+      <div class="hd-t">Subclass Manager</div>
+      <div class="hd-s">Create and manage homebrew subclasses</div>
+    </div>
+    <div class="hd-rule"></div>
+
+    <div class="ct">
+      <div class="pc" id="pc">
+        <div class="pc-hd">
+          <span class="pc-hd-t">Your Subclasses</span>
+          <button class="b-add" id="btn-add">+ Add</button>
+        </div>
+
+        <button class="pc-back" id="pc-back" aria-label="Back to all subclasses">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          All Subclasses
+        </button>
+
+        <div class="fl" id="flt">
+          <button class="ft on" data-c="all">All</button>
+          <button class="ft" data-c="barbarian">Barbarian</button>
+          <button class="ft" data-c="bard">Bard</button>
+          <button class="ft" data-c="cleric">Cleric</button>
+          <button class="ft" data-c="druid">Druid</button>
+          <button class="ft" data-c="fighter">Fighter</button>
+          <button class="ft" data-c="monk">Monk</button>
+          <button class="ft" data-c="paladin">Paladin</button>
+          <button class="ft" data-c="ranger">Ranger</button>
+          <button class="ft" data-c="rogue">Rogue</button>
+          <button class="ft" data-c="sorcerer">Sorcerer</button>
+          <button class="ft" data-c="warlock">Warlock</button>
+          <button class="ft" data-c="wizard">Wizard</button>
+        </div>
+
+        <div class="pc-bd" id="ls"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM SHEET -->
+  <div class="ov" id="sho">
+    <div class="sh">
+      <div class="sh-bar"></div>
+      <div class="sh-hd">
+        <button class="sh-x" id="shx" aria-label="Close">×</button>
+        <span class="sh-t" id="sht">Create Subclass</span>
+        <button class="sh-sv" id="shsv" disabled>Save</button>
+      </div>
+      <div class="sh-bd">
+        <div class="fl-l">Subclass Name</div>
+        <input class="fi" id="fn" type="text" placeholder="e.g. School of Bladesinging" maxlength="100" />
+        <div class="fl-l">Parent Class</div>
+        <div class="cg">
+          <button class="cb" data-c="barbarian">Barbarian</button>
+          <button class="cb" data-c="bard">Bard</button>
+          <button class="cb" data-c="cleric">Cleric</button>
+          <button class="cb" data-c="druid">Druid</button>
+          <button class="cb" data-c="fighter">Fighter</button>
+          <button class="cb" data-c="monk">Monk</button>
+          <button class="cb" data-c="paladin">Paladin</button>
+          <button class="cb" data-c="ranger">Ranger</button>
+          <button class="cb" data-c="rogue">Rogue</button>
+          <button class="cb" data-c="sorcerer">Sorcerer</button>
+          <button class="cb" data-c="warlock">Warlock</button>
+          <button class="cb" data-c="wizard">Wizard</button>
+        </div>
+        <div class="fl-l">Description</div>
+        <textarea class="fi fi-ta" id="fd" placeholder="Describe this subclass's flavour, abilities, and lore…" maxlength="5000"></textarea>
+        <div class="fi-cc"><span id="cc">0</span> / 5,000</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRM -->
+  <div class="dl-ov" id="dlo">
+    <div class="dl-bx">
+      <div class="dl-ti">Delete Subclass?</div>
+      <div class="dl-bd" id="dlb">This cannot be undone.</div>
+      <div class="dl-bt">
+        <button class="dl-cn" id="dlk">Cancel</button>
+        <button class="dl-ok" id="dlg">Delete</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const tc = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+let D = [
+  { id:'s1', name:'Blood Mage', pc:'wizard',
+    d:'Harnesses the vital power of living blood to fuel devastating arcane spells. Blood Mages sacrifice their own vitality to amplify magic beyond its normal limits, walking a razor\'s edge between power and self-destruction. At higher levels, a Blood Mage can draw power from nearby creatures, fuelling their spells with stolen life force and leaving enemies weakened in their wake.' },
+  { id:'s2', name:'Oath of the Void', pc:'paladin',
+    d:'Sworn to the consuming dark beyond the stars, these paladins channel the silence of the abyss to protect the living from cosmic annihilation. Where other paladins radiate holy light, the Knight of the Void is draped in a silence so profound it extinguishes nearby flames. Their sacred oath binds them to guard the boundary between the mortal world and the endless nothing that hungers beyond it.' },
+  { id:'s3', name:'Wild Soul', pc:'barbarian',
+    d:'Your rage is suffused with chaotic magic, causing unpredictable surges of arcane power that erupt from your fury in battle. When you enter your rage, roll on the Wild Surge table to determine its magical effect. Some surges are devastating, some protective, and a rare few are simply strange. The unpredictability is itself a weapon — no enemy can plan for what they cannot predict.' },
+  { id:'s4', name:'College of Shadows', pc:'bard',
+    d:'Bards of the College of Shadows weave illusion and misdirection into their performances, turning every song into a veil of deception. They learn that the most powerful stories are the ones that make the audience forget what is real. A Shadow Bard\'s performances leave audiences uncertain of what they saw, and enemies uncertain of what struck them.' },
+];
+let ni = 5, flt = 'all', openId = null, editId = null, sc = null, did = null;
+
+/* ─── RENDER ─── */
+function R() {
+  const el = document.getElementById('ls');
+  const it = flt === 'all' ? D : D.filter(s => s.pc === flt);
+
+  if (!it.length) {
+    el.innerHTML = `<div class="emp">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#8c1d38" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 21l15-15-3-3L3 18l3 3"/><path d="M15 6l3 3"/>
+        <path d="M9 3a2 2 0 002 2 2 2 0 00-2 2 2 2 0 00-2-2 2 2 0 002-2"/>
+        <path d="M19 13a2 2 0 002 2 2 2 0 00-2 2 2 2 0 00-2-2 2 2 0 002-2"/>
+      </svg>
+      <div class="emp-t">No custom subclasses yet.</div>
+      <div class="emp-s">Tap + Add to create your first one.</div>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = it.map(s => `
+    <div class="sr" data-id="${s.id}">
+      <div class="sr-bg"><span>S</span></div>
+      <div class="sr-i">
+        <div class="sr-n">${s.name}</div>
+        <div class="sr-c">${tc(s.pc)}</div>
+        <div class="sr-dw"><div class="sr-d">${s.d}</div></div>
+        <div class="sr-actions-expanded">
+          <button class="sr-act-btn sr-act-edit" data-e="${s.id}">Edit Subclass</button>
+          <button class="sr-act-btn sr-act-del" data-d="${s.id}">Delete</button>
+        </div>
+      </div>
+      <div class="sr-a">
+        <button class="sr-b" data-e="${s.id}" title="Edit">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="sr-b" data-d="${s.id}" title="Delete">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  `).join('');
+
+  /* Bind events on newly created rows */
+  el.querySelectorAll('.sr').forEach(row => {
+    row.addEventListener('click', e => {
+      /* Don't trigger expand if clicking a button inside */
+      if (e.target.closest('button')) return;
+      const id = row.dataset.id;
+      if (openId === id) collapseRow();
+      else expandRow(id);
+    });
+  });
+
+  el.querySelectorAll('[data-e]').forEach(b => b.addEventListener('click', e => {
+    e.stopPropagation();
+    OE(b.dataset.e);
+  }));
+
+  el.querySelectorAll('[data-d]').forEach(b => b.addEventListener('click', e => {
+    e.stopPropagation();
+    OD(b.dataset.d);
+  }));
+
+  document.getElementById('pc-back').addEventListener('click', () => collapseRow());
+
+  /* Restore open state after re-render */
+  if (openId) {
+    const row = el.querySelector(`[data-id="${openId}"]`);
+    if (row) {
+      row.classList.add('open');
+      document.getElementById('pc').classList.add('expanded');
+    } else {
+      openId = null;
+    }
+  }
+}
+
+/* ─── EXPAND / COLLAPSE ─── */
+function expandRow(id) {
+  if (openId) {
+    collapseRow(() => expandRow(id));
+    return;
+  }
+  openId = id;
+  const row = document.querySelector(`.sr[data-id="${id}"]`);
+  document.getElementById('pc').classList.add('expanded');
+  row.classList.add('open');
+
+  /* Scroll the card to top so the open row is visible */
+  document.querySelector('.ct').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function collapseRow(cb) {
+  if (!openId) { if (cb) cb(); return; }
+  const row = document.querySelector(`.sr[data-id="${openId}"]`);
+  if (row) row.classList.remove('open');
+  document.getElementById('pc').classList.remove('expanded');
+  openId = null;
+  if (cb) setTimeout(cb, 350);
+}
+
+/* ─── CREATE / EDIT SHEET ─── */
+function CS() {
+  document.getElementById('shsv').disabled = !(document.getElementById('fn').value.trim() && sc);
+}
+function openSheet() { document.getElementById('sho').classList.add('show'); }
+function closeSheet() { document.getElementById('sho').classList.remove('show'); }
+
+function OC() {
+  editId = null; sc = null;
+  document.getElementById('sht').textContent = 'Create Subclass';
+  document.getElementById('fn').value = '';
+  document.getElementById('fd').value = '';
+  document.getElementById('cc').textContent = '0';
+  document.querySelectorAll('.cb').forEach(b => b.classList.remove('on'));
+  CS(); openSheet();
+  setTimeout(() => document.getElementById('fn').focus(), 350);
+}
+
+function OE(id) {
+  const s = D.find(x => x.id === id); if (!s) return;
+  editId = id; sc = s.pc;
+  document.getElementById('sht').textContent = 'Edit Subclass';
+  document.getElementById('fn').value = s.name;
+  document.getElementById('fd').value = s.d;
+  document.getElementById('cc').textContent = String(s.d.length);
+  document.querySelectorAll('.cb').forEach(b => b.classList.toggle('on', b.dataset.c === s.pc));
+  CS(); openSheet();
+}
+
+function OD(id) {
+  did = id;
+  const s = D.find(x => x.id === id);
+  document.getElementById('dlb').textContent =
+    `"${s.name}" will be permanently removed. Characters using it will keep the name but it won't appear in future picks.`;
+  document.getElementById('dlo').classList.add('show');
+}
+
+/* ─── EVENTS ─── */
+document.getElementById('btn-add').addEventListener('click', OC);
+document.getElementById('shx').addEventListener('click', closeSheet);
+document.getElementById('fn').addEventListener('input', CS);
+document.getElementById('fd').addEventListener('input', () => {
+  document.getElementById('cc').textContent = String(document.getElementById('fd').value.length);
+});
+
+document.querySelectorAll('.cb').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.cb').forEach(x => x.classList.remove('on'));
+  b.classList.add('on'); sc = b.dataset.c; CS();
+}));
+
+document.getElementById('shsv').addEventListener('click', () => {
+  const n = document.getElementById('fn').value.trim();
+  const d = document.getElementById('fd').value.trim();
+  if (editId) {
+    const s = D.find(x => x.id === editId);
+    s.name = n; s.pc = sc; s.d = d;
+  } else {
+    D.unshift({ id: 's' + (ni++), name: n, pc: sc, d });
+  }
+  closeSheet(); R();
+});
+
+document.querySelectorAll('#flt .ft').forEach(t => t.addEventListener('click', () => {
+  if (openId) collapseRow(() => {
+    document.querySelectorAll('#flt .ft').forEach(x => x.classList.remove('on'));
+    t.classList.add('on'); flt = t.dataset.c; R();
+  });
+  else {
+    document.querySelectorAll('#flt .ft').forEach(x => x.classList.remove('on'));
+    t.classList.add('on'); flt = t.dataset.c; R();
+  }
+}));
+
+document.getElementById('dlk').addEventListener('click', () => {
+  document.getElementById('dlo').classList.remove('show'); did = null;
+});
+document.getElementById('dlg').addEventListener('click', () => {
+  if (openId === did) { openId = null; document.getElementById('pc').classList.remove('expanded'); }
+  D = D.filter(s => s.id !== did);
+  document.getElementById('dlo').classList.remove('show'); did = null; R();
+});
+
+R();
+</script>
+</body>
+</html>
