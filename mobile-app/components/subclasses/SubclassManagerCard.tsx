@@ -1,18 +1,23 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { NativeScrollEvent, NativeSyntheticEvent, StyleProp, ViewStyle } from 'react-native';
-import { Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import {
+    Animated,
+    Easing,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    View,
+    useWindowDimensions,
+} from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Text } from 'react-native-paper';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import SubclassClassFilterChips, { ALL_CLASSES_FILTER } from './SubclassClassFilterChips';
 import SubclassListRow from './SubclassListRow';
 import type { SubclassManagerRow } from './subclassManager.types';
-import {
-    animateSubclassValue,
-    SUBCLASS_EXPAND_DURATION_MS,
-    SUBCLASS_FADE_DURATION_MS,
-} from './subclassExpandMotion';
 
 type SubclassManagerCardProps = {
     subclasses: SubclassManagerRow[];
@@ -26,7 +31,11 @@ type SubclassManagerCardProps = {
     onDelete: (subclass: SubclassManagerRow) => void;
 };
 
-const FILTER_MAX_HEIGHT = 50;
+const DETAIL_TRANSITION_DURATION_MS = 220;
+const SWIPE_BACK_DISTANCE = 72;
+const SWIPE_BACK_VELOCITY = 700;
+const SWIPE_BACK_ACTIVE_OFFSET_X = 12;
+const SWIPE_BACK_FAIL_OFFSET_Y = 18;
 
 /**
  * Parchment manager panel containing filters and the reusable subclass list.
@@ -42,14 +51,18 @@ export default function SubclassManagerCard({
     onEdit,
     onDelete,
 }: SubclassManagerCardProps) {
+    const { width: windowWidth } = useWindowDimensions();
+    const hiddenDetailTranslateX = Math.max(1, windowWidth);
     const [expandedSubclassId, setExpandedSubclassId] = useState<string | null>(null);
-    const collapseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const [detailClosing, setDetailClosing] = useState(false);
     const isCardExpanded = expandedSubclassId != null;
-
-    const listBorderWidth = useRef(new Animated.Value(1)).current;
-    const filterOpacity = useRef(new Animated.Value(1)).current;
-    const filterMaxHeight = useRef(new Animated.Value(FILTER_MAX_HEIGHT)).current;
-    const filterPaddingBottom = useRef(new Animated.Value(1)).current;
+    const showListChrome = !isCardExpanded || detailClosing;
+    const showDetailChrome = isCardExpanded && !detailClosing;
+    const detailTranslateX = useRef(new Animated.Value(hiddenDetailTranslateX)).current;
+    const listOpacity = useRef(new Animated.Value(1)).current;
+    const closingDetailRef = useRef(false);
+    const detailClosingRef = useRef(false);
+    const previousHiddenDetailTranslateXRef = useRef(hiddenDetailTranslateX);
 
     const selectedClass = CLASS_OPTIONS.find((option) => option.value === selectedClassId);
     const emptyTitle = selectedClassId === ALL_CLASSES_FILTER
@@ -62,89 +75,189 @@ export default function SubclassManagerCard({
         ? subclasses.find((subclass) => subclass.id === expandedSubclassId)
         : undefined;
 
-    useEffect(() => {
-        return () => {
-            if (collapseTimeoutRef.current) {
-                clearTimeout(collapseTimeoutRef.current);
-            }
-        };
+    const setDetailClosingState = useCallback((nextClosing: boolean) => {
+        if (detailClosingRef.current === nextClosing) return;
+
+        detailClosingRef.current = nextClosing;
+        setDetailClosing(nextClosing);
     }, []);
 
     useEffect(() => {
-        animateSubclassValue(listBorderWidth, isCardExpanded ? 0 : 1, SUBCLASS_FADE_DURATION_MS);
-        animateSubclassValue(filterOpacity, isCardExpanded ? 0 : 1, SUBCLASS_FADE_DURATION_MS);
-        animateSubclassValue(filterMaxHeight, isCardExpanded ? 0 : FILTER_MAX_HEIGHT, 300);
-        animateSubclassValue(filterPaddingBottom, isCardExpanded ? 0 : 1, 300);
+        if (expandedSubclassId && !subclasses.some((subclass) => subclass.id === expandedSubclassId)) {
+            detailTranslateX.setValue(hiddenDetailTranslateX);
+            listOpacity.setValue(1);
+            setExpandedSubclassId(null);
+            setDetailClosingState(false);
+        }
     }, [
-        listBorderWidth,
-        filterMaxHeight,
-        filterOpacity,
-        filterPaddingBottom,
-        isCardExpanded,
+        detailTranslateX,
+        expandedSubclassId,
+        hiddenDetailTranslateX,
+        listOpacity,
+        setDetailClosingState,
+        subclasses,
     ]);
 
     useEffect(() => {
-        if (expandedSubclassId && !subclasses.some((subclass) => subclass.id === expandedSubclassId)) {
-            setExpandedSubclassId(null);
-        }
-    }, [expandedSubclassId, subclasses]);
+        if (previousHiddenDetailTranslateXRef.current === hiddenDetailTranslateX) return;
+
+        previousHiddenDetailTranslateXRef.current = hiddenDetailTranslateX;
+        detailTranslateX.setValue(isCardExpanded ? 0 : hiddenDetailTranslateX);
+    }, [detailTranslateX, hiddenDetailTranslateX, isCardExpanded]);
+
+    const animateDetailOpen = useCallback(() => {
+        closingDetailRef.current = false;
+        setDetailClosingState(false);
+        detailTranslateX.setValue(hiddenDetailTranslateX);
+        listOpacity.setValue(1);
+
+        Animated.parallel([
+            Animated.timing(detailTranslateX, {
+                toValue: 0,
+                duration: DETAIL_TRANSITION_DURATION_MS,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: Platform.OS !== 'web',
+            }),
+            Animated.timing(listOpacity, {
+                toValue: 0,
+                duration: DETAIL_TRANSITION_DURATION_MS,
+                useNativeDriver: Platform.OS !== 'web',
+            }),
+        ]).start();
+    }, [detailTranslateX, hiddenDetailTranslateX, listOpacity, setDetailClosingState]);
 
     /**
-     * Collapses the expanded row and optionally runs a callback after the animation.
+     * Animates the detail pane back to the list.
      */
-    function collapseExpandedRow(onComplete?: () => void) {
-        setExpandedSubclassId(null);
+    const closeExpandedRow = useCallback((onComplete?: () => void) => {
+        if (!expandedSubclassId || closingDetailRef.current) return;
 
-        if (!onComplete) return;
+        closingDetailRef.current = true;
+        setDetailClosingState(true);
 
-        if (collapseTimeoutRef.current) {
-            clearTimeout(collapseTimeoutRef.current);
-        }
+        Animated.parallel([
+            Animated.timing(detailTranslateX, {
+                toValue: hiddenDetailTranslateX,
+                duration: DETAIL_TRANSITION_DURATION_MS,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: Platform.OS !== 'web',
+            }),
+            Animated.timing(listOpacity, {
+                toValue: 1,
+                duration: DETAIL_TRANSITION_DURATION_MS,
+                useNativeDriver: Platform.OS !== 'web',
+            }),
+        ]).start(({ finished }) => {
+            if (!finished) return;
 
-        collapseTimeoutRef.current = setTimeout(() => {
-            onComplete();
-            collapseTimeoutRef.current = null;
-        }, SUBCLASS_EXPAND_DURATION_MS);
-    }
+            closingDetailRef.current = false;
+            setExpandedSubclassId(null);
+            setDetailClosingState(false);
+            onComplete?.();
+        });
+    }, [
+        detailTranslateX,
+        expandedSubclassId,
+        hiddenDetailTranslateX,
+        listOpacity,
+        setDetailClosingState,
+    ]);
+
+    const animateDetailBack = useCallback(() => {
+        closingDetailRef.current = false;
+        setDetailClosingState(false);
+
+        Animated.parallel([
+            Animated.timing(detailTranslateX, {
+                toValue: 0,
+                duration: 180,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: Platform.OS !== 'web',
+            }),
+            Animated.timing(listOpacity, {
+                toValue: 0,
+                duration: 180,
+                useNativeDriver: Platform.OS !== 'web',
+            }),
+        ]).start();
+    }, [detailTranslateX, listOpacity, setDetailClosingState]);
+
+    const detailSwipeBackGesture = useMemo(() => Gesture.Pan()
+        .runOnJS(true)
+        .activeOffsetX(SWIPE_BACK_ACTIVE_OFFSET_X)
+        .failOffsetY([-SWIPE_BACK_FAIL_OFFSET_Y, SWIPE_BACK_FAIL_OFFSET_Y])
+        .onUpdate((event) => {
+            if (!expandedSubclassId || closingDetailRef.current) return;
+            if (event.translationX <= 0) return;
+
+            detailTranslateX.setValue(event.translationX);
+            listOpacity.setValue(Math.min(1, event.translationX / SWIPE_BACK_DISTANCE));
+        })
+        .onEnd((event) => {
+            if (!expandedSubclassId || closingDetailRef.current) return;
+
+            const shouldClose = event.translationX > SWIPE_BACK_DISTANCE
+                || event.velocityX > SWIPE_BACK_VELOCITY;
+
+            if (shouldClose) {
+                closeExpandedRow();
+            }
+        })
+        .onFinalize(() => {
+            if (!expandedSubclassId || closingDetailRef.current) return;
+
+            animateDetailBack();
+        }), [
+        animateDetailBack,
+        closeExpandedRow,
+        detailTranslateX,
+        expandedSubclassId,
+        listOpacity,
+    ]);
 
     /**
      * Expands or collapses a subclass row when tapped.
      */
     function handleRowPress(subclassId: string) {
         if (expandedSubclassId === subclassId) {
-            collapseExpandedRow();
-            return;
-        }
-
-        if (expandedSubclassId) {
-            collapseExpandedRow(() => {
-                setExpandedSubclassId(subclassId);
-            });
+            closeExpandedRow();
             return;
         }
 
         setExpandedSubclassId(subclassId);
+        animateDetailOpen();
     }
 
     /**
      * Applies a class filter, collapsing any expanded row first.
      */
     function handleSelectClassId(classId: string) {
-        if (expandedSubclassId) {
-            collapseExpandedRow(() => onSelectClassId(classId));
+        if (expandedSubclassId && !detailClosing) {
+            closeExpandedRow(() => onSelectClassId(classId));
             return;
         }
 
         onSelectClassId(classId);
     }
 
+    const detailSceneOpacity = detailTranslateX.interpolate({
+        inputRange: [0, hiddenDetailTranslateX],
+        outputRange: [1, 0],
+        extrapolate: 'clamp',
+    });
+    const listChromeOverlayOpacity = detailTranslateX.interpolate({
+        inputRange: [0, SWIPE_BACK_DISTANCE],
+        outputRange: [0, 1],
+        extrapolate: 'clamp',
+    });
+
     return (
         <View
-            style={[styles.card, style, isCardExpanded && styles.cardExpanded]}
+            style={[styles.card, style, showDetailChrome && styles.cardExpanded]}
             testID="subclass-manager-card"
         >
-            <View style={[styles.tableHeader, isCardExpanded && styles.tableHeaderExpanded]}>
-                {!isCardExpanded && (
+            <View style={[styles.tableHeader, showDetailChrome && styles.tableHeaderExpanded]}>
+                {showListChrome && (
                     <View style={styles.cardHeader}>
                         <Pressable
                             accessibilityRole="button"
@@ -158,11 +271,11 @@ export default function SubclassManagerCard({
                     </View>
                 )}
 
-                {isCardExpanded && (
+                {showDetailChrome && (
                     <Pressable
                         accessibilityRole="button"
                         accessibilityLabel="Back to all subclasses"
-                        onPress={() => collapseExpandedRow()}
+                        onPress={() => closeExpandedRow()}
                         style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed]}
                         testID="subclass-expand-back"
                     >
@@ -175,51 +288,38 @@ export default function SubclassManagerCard({
                     </Pressable>
                 )}
 
-                <Animated.View
-                    pointerEvents={isCardExpanded ? 'none' : 'auto'}
-                    importantForAccessibility={isCardExpanded ? 'no-hide-descendants' : 'auto'}
-                    style={{
-                        opacity: filterOpacity,
-                        maxHeight: filterMaxHeight,
-                        paddingBottom: Animated.multiply(filterPaddingBottom, 11),
-                        overflow: 'hidden',
-                    }}
-                >
+                {showListChrome && (
                     <SubclassClassFilterChips
                         selectedClassId={selectedClassId}
                         onSelectClassId={handleSelectClassId}
                     />
-                </Animated.View>
+                )}
+
+                {showDetailChrome && (
+                    <Animated.View
+                        pointerEvents="none"
+                        importantForAccessibility="no-hide-descendants"
+                        style={[styles.listChromeOverlay, { opacity: listChromeOverlayOpacity }]}
+                    >
+                        <View style={styles.cardHeader}>
+                            <View style={styles.addButton}>
+                                <Text style={styles.addButtonText}>Add</Text>
+                            </View>
+                        </View>
+                        <SubclassClassFilterChips
+                            selectedClassId={selectedClassId}
+                            onSelectClassId={handleSelectClassId}
+                        />
+                    </Animated.View>
+                )}
             </View>
 
-            <Animated.View
-                style={[
-                    styles.listFrame,
-                    {
-                        borderTopWidth: listBorderWidth,
-                    },
-                ]}
-            >
-                {isCardExpanded && expandedSubclass ? (
-                    <ScrollView
-                        key={`subclass-detail-${expandedSubclass.id}`}
-                        style={styles.listScroll}
-                        contentContainerStyle={styles.listContent}
-                        nestedScrollEnabled
-                        onScroll={onListScroll}
-                        scrollEventThrottle={16}
-                        showsVerticalScrollIndicator
-                        testID="subclass-detail-scroll"
-                    >
-                        <SubclassListRow
-                            subclass={expandedSubclass}
-                            isOpen
-                            onPress={() => handleRowPress(expandedSubclass.id)}
-                            onEdit={onEdit}
-                            onDelete={onDelete}
-                        />
-                    </ScrollView>
-                ) : (
+            <View style={[styles.listFrame, showDetailChrome && styles.listFrameExpanded]}>
+                <Animated.View
+                    pointerEvents={showListChrome ? 'auto' : 'none'}
+                    importantForAccessibility={showListChrome ? 'auto' : 'no-hide-descendants'}
+                    style={[styles.listScene, { opacity: listOpacity }]}
+                >
                     <ScrollView
                         style={styles.listScroll}
                         contentContainerStyle={styles.listContent}
@@ -247,8 +347,41 @@ export default function SubclassManagerCard({
                             </View>
                         )}
                     </ScrollView>
+                </Animated.View>
+
+                {isCardExpanded && expandedSubclass && (
+                    <GestureDetector gesture={detailSwipeBackGesture}>
+                        <Animated.View
+                            style={[
+                                styles.detailScene,
+                                {
+                                    opacity: detailSceneOpacity,
+                                    transform: [{ translateX: detailTranslateX }],
+                                },
+                            ]}
+                        >
+                            <ScrollView
+                                key={`subclass-detail-${expandedSubclass.id}`}
+                                style={styles.listScroll}
+                                contentContainerStyle={styles.listContent}
+                                nestedScrollEnabled
+                                onScroll={onListScroll}
+                                scrollEventThrottle={16}
+                                showsVerticalScrollIndicator
+                                testID="subclass-detail-scroll"
+                            >
+                                <SubclassListRow
+                                    subclass={expandedSubclass}
+                                    isOpen
+                                    onPress={() => handleRowPress(expandedSubclass.id)}
+                                    onEdit={onEdit}
+                                    onDelete={onDelete}
+                                />
+                            </ScrollView>
+                        </Animated.View>
+                    </GestureDetector>
                 )}
-            </Animated.View>
+            </View>
         </View>
     );
 }
@@ -273,6 +406,15 @@ const styles = StyleSheet.create({
     },
     tableHeaderExpanded: {
         gap: 0,
+    },
+    listChromeOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 2,
+        gap: fantasyTokens.spacing.sm,
+        backgroundColor: fantasyTokens.colors.cardBg,
     },
     cardHeader: {
         flexDirection: 'row',
@@ -314,7 +456,20 @@ const styles = StyleSheet.create({
     listFrame: {
         flex: 1,
         minHeight: 0,
+        position: 'relative',
+        overflow: 'hidden',
+        borderTopWidth: 1,
         borderTopColor: fantasyTokens.colors.accordionBorder,
+    },
+    listFrameExpanded: {
+        borderTopWidth: 0,
+    },
+    listScene: {
+        flex: 1,
+    },
+    detailScene: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: fantasyTokens.colors.cardBg,
     },
     listScroll: {
         flex: 1,

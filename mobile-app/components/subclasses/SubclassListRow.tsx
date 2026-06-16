@@ -1,24 +1,12 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useEffect, useRef } from 'react';
-import { Animated, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { SubclassManagerRow } from './subclassManager.types';
-import {
-    animateSubclassValue,
-    SUBCLASS_BADGE_SIZE_COLLAPSED,
-    SUBCLASS_BADGE_SIZE_EXPANDED,
-    SUBCLASS_CLASS_SIZE_COLLAPSED,
-    SUBCLASS_CLASS_SIZE_EXPANDED,
-    SUBCLASS_EXPAND_DURATION_MS,
-    SUBCLASS_NAME_SIZE_COLLAPSED,
-    SUBCLASS_NAME_SIZE_EXPANDED,
-    SUBCLASS_ROW_EXPANDED_MAX_HEIGHT,
-    SUBCLASS_ROW_MAX_HEIGHT,
-} from './subclassExpandMotion';
 
-const AnimatedText = Animated.createAnimatedComponent(Text);
+const SUBCLASS_BADGE_SIZE_COLLAPSED = 42;
+const SUBCLASS_BADGE_SIZE_EXPANDED = 52;
 
 type SubclassListRowProps = {
     subclass: SubclassManagerRow;
@@ -47,46 +35,11 @@ export default function SubclassListRow({
             return left.name.localeCompare(right.name);
         });
 
-    const rowMaxHeight = useRef(new Animated.Value(SUBCLASS_ROW_MAX_HEIGHT)).current;
-    const badgeSize = useRef(new Animated.Value(SUBCLASS_BADGE_SIZE_COLLAPSED)).current;
-    const nameSize = useRef(new Animated.Value(SUBCLASS_NAME_SIZE_COLLAPSED)).current;
-    const classSize = useRef(new Animated.Value(SUBCLASS_CLASS_SIZE_COLLAPSED)).current;
-    const classMarginTop = useRef(new Animated.Value(1)).current;
-    const expandedActionsOpacity = useRef(new Animated.Value(0)).current;
-
-    useEffect(() => {
-        animateSubclassValue(
-            rowMaxHeight,
-            isOpen ? SUBCLASS_ROW_EXPANDED_MAX_HEIGHT : SUBCLASS_ROW_MAX_HEIGHT,
-            SUBCLASS_EXPAND_DURATION_MS,
-        );
-
-        const openDelay = isOpen ? 80 : 0;
-        animateSubclassValue(badgeSize, isOpen ? SUBCLASS_BADGE_SIZE_EXPANDED : SUBCLASS_BADGE_SIZE_COLLAPSED, 300, openDelay);
-        animateSubclassValue(nameSize, isOpen ? SUBCLASS_NAME_SIZE_EXPANDED : SUBCLASS_NAME_SIZE_COLLAPSED, 300, openDelay);
-        animateSubclassValue(classSize, isOpen ? SUBCLASS_CLASS_SIZE_EXPANDED : SUBCLASS_CLASS_SIZE_COLLAPSED, 300, openDelay);
-        animateSubclassValue(classMarginTop, isOpen ? fantasyTokens.spacing.xs : 1, 300, openDelay);
-        animateSubclassValue(expandedActionsOpacity, isOpen ? 1 : 0, 300, isOpen ? 140 : 0);
-    }, [
-        badgeSize,
-        classMarginTop,
-        classSize,
-        expandedActionsOpacity,
-        isOpen,
-        nameSize,
-        rowMaxHeight,
-    ]);
-
     return (
-        <Animated.View
+        <View
             style={[
                 styles.row,
                 isOpen && styles.rowOpen,
-                {
-                    maxHeight: rowMaxHeight,
-                    paddingVertical: fantasyTokens.spacing.md,
-                    overflow: isOpen ? 'visible' : 'hidden',
-                },
             ]}
         >
             <Pressable
@@ -101,44 +54,23 @@ export default function SubclassListRow({
                 ]}
                 testID={`custom-subclass-row-${subclass.id}`}
             >
-                <Animated.View
-                    style={[
-                        styles.iconBadge,
-                        {
-                            width: badgeSize,
-                            height: badgeSize,
-                        },
-                    ]}
-                >
+                <View style={[styles.iconBadge, isOpen && styles.iconBadgeOpen]}>
                     <Text style={styles.iconText}>{classOption?.icon ?? '✨'}</Text>
-                </Animated.View>
+                </View>
 
                 <View style={styles.content}>
-                    <AnimatedText
-                        style={[
-                            styles.name,
-                            {
-                                fontSize: nameSize,
-                                lineHeight: Animated.multiply(nameSize, 1.3),
-                            },
-                        ]}
+                    <Text
+                        style={[styles.name, isOpen && styles.nameOpen]}
                         numberOfLines={isOpen ? undefined : 2}
                     >
                         {subclass.name}
-                    </AnimatedText>
-                    <AnimatedText
-                        style={[
-                            styles.className,
-                            {
-                                fontSize: classSize,
-                                lineHeight: Animated.multiply(classSize, 1.3),
-                                marginTop: classMarginTop,
-                            },
-                        ]}
+                    </Text>
+                    <Text
+                        style={[styles.className, isOpen && styles.classNameOpen]}
                         numberOfLines={1}
                     >
                         {subclass.className}
-                    </AnimatedText>
+                    </Text>
 
                     <Text
                         style={styles.description}
@@ -169,7 +101,7 @@ export default function SubclassListRow({
             </Pressable>
 
             {subclass.isCustom && isOpen && (
-                <Animated.View style={[styles.expandedActionsRow, { opacity: expandedActionsOpacity }]}>
+                <View style={styles.expandedActionsRow}>
                     <View style={styles.expandedActionsSpacer} />
                     <View style={styles.expandedActions}>
                         <Pressable
@@ -199,7 +131,7 @@ export default function SubclassListRow({
                             <Text style={styles.expandedDeleteLabel}>Delete</Text>
                         </Pressable>
                     </View>
-                </Animated.View>
+                </View>
             )}
 
             {subclass.isCustom && !isOpen && (
@@ -225,7 +157,7 @@ export default function SubclassListRow({
                 </View>
             )}
 
-        </Animated.View>
+        </View>
     );
 }
 
@@ -236,6 +168,7 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.md,
         borderBottomWidth: 1,
         borderBottomColor: fantasyTokens.colors.accordionBorder,
+        paddingVertical: fantasyTokens.spacing.md,
     },
     rowOpen: {
         flexWrap: 'wrap',
@@ -252,12 +185,18 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(140, 29, 56, 0.02)',
     },
     iconBadge: {
+        width: SUBCLASS_BADGE_SIZE_COLLAPSED,
+        height: SUBCLASS_BADGE_SIZE_COLLAPSED,
         borderRadius: fantasyTokens.radii.sm,
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: fantasyTokens.colors.parchmentLight,
         borderWidth: 1,
         borderColor: fantasyTokens.colors.accordionBorder,
+    },
+    iconBadgeOpen: {
+        width: SUBCLASS_BADGE_SIZE_EXPANDED,
+        height: SUBCLASS_BADGE_SIZE_EXPANDED,
     },
     iconText: {
         fontSize: fantasyTokens.fontSizes.title,
@@ -268,14 +207,28 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.xs,
     },
     name: {
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
+        lineHeight: fantasyTokens.fontSizes.bodyLarge * 1.3,
         color: fantasyTokens.colors.inkDark,
         fontWeight: '700',
         fontFamily: fantasyTokens.fonts.regular,
     },
+    nameOpen: {
+        fontSize: fantasyTokens.fontSizes.title,
+        lineHeight: fantasyTokens.fontSizes.title * 1.3,
+    },
     className: {
+        fontSize: fantasyTokens.fontSizes.utility,
+        lineHeight: fantasyTokens.fontSizes.utility * 1.3,
+        marginTop: 1,
         color: fantasyTokens.colors.ember,
         fontFamily: fantasyTokens.fonts.medium,
         fontWeight: '500',
+    },
+    classNameOpen: {
+        fontSize: fantasyTokens.fontSizes.caption,
+        lineHeight: fantasyTokens.fontSizes.caption * 1.3,
+        marginTop: fantasyTokens.spacing.xs,
     },
     description: {
         ...fantasyTokens.typography.bodySmall,
