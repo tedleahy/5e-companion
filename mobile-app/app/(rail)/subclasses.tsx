@@ -1,8 +1,15 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useApolloClient, useMutation, useQuery } from '@apollo/client/react';
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, Snackbar, Text } from 'react-native-paper';
+import Animated, {
+    Extrapolation,
+    interpolate,
+    useAnimatedStyle,
+    useSharedValue,
+} from 'react-native-reanimated';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import MainContentFrame from '@/components/layout/MainContentFrame';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
@@ -46,6 +53,23 @@ const EMPTY_DRAFT: CustomSubclassFormDraft = {
 
 /** Loading label shown while auth is being validated. */
 const AUTH_LOADING_LABEL = 'Checking your adventurer records...';
+const HEADER_BORDER_WIDTH = StyleSheet.hairlineWidth;
+const EYEBROW_LINE_HEIGHT = fantasyTokens.typography.eyebrow.lineHeight ?? fantasyTokens.fontSizes.utility;
+const PAGE_TITLE_LINE_HEIGHT = fantasyTokens.typography.pageTitle.lineHeight ?? fantasyTokens.fontSizes.display;
+const SUBTITLE_LINE_HEIGHT = fantasyTokens.typography.bodySmall.lineHeight ?? fantasyTokens.fontSizes.caption;
+const EXPANDED_HEADER_HEIGHT = fantasyTokens.spacing.sm
+    + EYEBROW_LINE_HEIGHT
+    + fantasyTokens.spacing.xs
+    + PAGE_TITLE_LINE_HEIGHT
+    + fantasyTokens.spacing.xs
+    + (SUBTITLE_LINE_HEIGHT * 2)
+    + fantasyTokens.spacing.md
+    + HEADER_BORDER_WIDTH;
+const COLLAPSED_HEADER_HEIGHT = fantasyTokens.spacing.md
+    + EYEBROW_LINE_HEIGHT
+    + fantasyTokens.spacing.md
+    + HEADER_BORDER_WIDTH;
+const HEADER_COLLAPSE_DISTANCE = fantasyTokens.spacing.xxl;
 
 /**
  * Builds the soft-archive confirmation text for a custom subclass.
@@ -101,7 +125,7 @@ function mutationInputFromDraft(draft: CustomSubclassFormDraft) {
 export default function CustomSubclassesScreen() {
     const router = useRouter();
     const apolloClient = useApolloClient();
-    const scrollViewRef = useRef<ScrollView>(null);
+    const scrollOffsetY = useSharedValue(0);
     const { hasValidSession, isCheckingSession } = useSessionGuard();
     const [selectedClassId, setSelectedClassId] = useState(ALL_CLASSES_FILTER);
     const [formVisible, setFormVisible] = useState(false);
@@ -175,6 +199,53 @@ export default function CustomSubclassesScreen() {
         return allSubclasses.filter((subclass) => subclass.classId === selectedClassId);
     }, [allSubclasses, selectedClassId]);
     const saving = createState.loading || updateState.loading;
+    function handleListScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
+        scrollOffsetY.value = event.nativeEvent.contentOffset.y;
+    }
+
+    const headerAnimatedStyle = useAnimatedStyle(() => ({
+        height: interpolate(
+            scrollOffsetY.value,
+            [0, HEADER_COLLAPSE_DISTANCE],
+            [EXPANDED_HEADER_HEIGHT, COLLAPSED_HEADER_HEIGHT],
+            Extrapolation.CLAMP,
+        ),
+    }));
+    const expandedHeaderAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: interpolate(
+            scrollOffsetY.value,
+            [0, HEADER_COLLAPSE_DISTANCE * 0.7],
+            [1, 0],
+            Extrapolation.CLAMP,
+        ),
+        transform: [{
+            translateY: interpolate(
+                scrollOffsetY.value,
+                [0, HEADER_COLLAPSE_DISTANCE],
+                [0, -fantasyTokens.spacing.sm],
+                Extrapolation.CLAMP,
+            ),
+        }],
+    }));
+    const collapsedTitleAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: interpolate(
+            scrollOffsetY.value,
+            [0, HEADER_COLLAPSE_DISTANCE * 0.3, HEADER_COLLAPSE_DISTANCE],
+            [0, 0, 1],
+            Extrapolation.CLAMP,
+        ),
+    }));
+    const contentAreaAnimatedStyle = useAnimatedStyle(() => ({
+        paddingTop: interpolate(
+            scrollOffsetY.value,
+            [0, HEADER_COLLAPSE_DISTANCE],
+            [
+                EXPANDED_HEADER_HEIGHT + fantasyTokens.spacing.md,
+                COLLAPSED_HEADER_HEIGHT + fantasyTokens.spacing.md,
+            ],
+            Extrapolation.CLAMP,
+        ),
+    }));
 
     useEffect(() => {
         if (!isUnauthenticated) return;
@@ -324,34 +395,38 @@ export default function CustomSubclassesScreen() {
     return (
         <RailScreenShell>
             <View style={styles.container}>
-                <ScrollView
-                    ref={scrollViewRef}
-                    contentContainerStyle={styles.scrollContent}
-                    showsVerticalScrollIndicator={false}
-                >
-                    <View style={styles.header}>
+                <Animated.View style={[styles.header, headerAnimatedStyle]}>
+                    <Animated.View style={[styles.expandedHeaderContent, expandedHeaderAnimatedStyle]}>
                         <Text style={styles.codexLabel}>Subclasses</Text>
                         <Text style={styles.pageTitle}>Subclass Manager</Text>
                         <Text style={styles.subtitle}>
                             Browse SRD subclasses and build reusable custom options for character creation and level-up.
                         </Text>
-                    </View>
+                    </Animated.View>
+                    <Animated.View
+                        accessibilityElementsHidden
+                        importantForAccessibility="no-hide-descendants"
+                        style={[styles.collapsedHeaderContent, collapsedTitleAnimatedStyle]}
+                    >
+                        <Text style={styles.collapsedCodexLabel}>Subclasses</Text>
+                    </Animated.View>
+                </Animated.View>
 
+                <Animated.View style={[styles.contentArea, contentAreaAnimatedStyle]}>
                     <MainContentFrame style={styles.frame}>
                         <SubclassManagerCard
+                            style={styles.managerCard}
                             subclasses={visibleSubclasses}
                             allSubclassCount={allSubclasses.length}
                             selectedClassId={selectedClassId}
+                            onListScroll={handleListScroll}
                             onSelectClassId={setSelectedClassId}
                             onCreate={openCreateForm}
                             onEdit={openEditForm}
                             onDelete={setDeleteCandidate}
-                            onExpandSubclass={() => {
-                                scrollViewRef.current?.scrollTo({ y: 0, animated: true });
-                            }}
                         />
                     </MainContentFrame>
-                </ScrollView>
+                </Animated.View>
 
                 <CustomSubclassFormSheet
                     visible={formVisible}
@@ -409,16 +484,30 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: fantasyTokens.colors.night,
     },
-    scrollContent: {
+    contentArea: {
+        flex: 1,
         paddingBottom: fantasyTokens.spacing.xxl,
     },
     header: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 2,
+        overflow: 'hidden',
+        backgroundColor: fantasyTokens.colors.night,
         borderBottomWidth: 1,
         borderBottomColor: fantasyTokens.rail.border,
         paddingHorizontal: fantasyTokens.spacing.xl,
+    },
+    expandedHeaderContent: {
         paddingTop: fantasyTokens.spacing.sm,
         paddingBottom: fantasyTokens.spacing.md,
-        marginBottom: fantasyTokens.spacing.md,
+    },
+    collapsedHeaderContent: {
+        ...StyleSheet.absoluteFillObject,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     codexLabel: {
         color: fantasyTokens.colors.gold,
@@ -440,8 +529,18 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         textAlign: 'center',
     },
+    collapsedCodexLabel: {
+        color: fantasyTokens.colors.gold,
+        ...fantasyTokens.typography.eyebrow,
+        opacity: 0.85,
+        textAlign: 'center',
+    },
     frame: {
+        flex: 1,
         paddingHorizontal: fantasyTokens.spacing.md,
+    },
+    managerCard: {
+        flex: 1,
     },
     loadingContainer: {
         flex: 1,

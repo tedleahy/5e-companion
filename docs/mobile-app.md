@@ -92,7 +92,7 @@ No Redux, Zustand, Jotai, etc.
 - `app/_layout.tsx` — app-wide auth gate; checks the stored Supabase session, listens for auth-state changes, and redirects between auth/protected routes.
 - `hooks/useSessionGuard.ts` — focused screen-level session checks and manual re-checks, including post-sign-in checks.
 - `components/navigation/navigationConstants.ts` — single list of drawer destinations plus the `isNavigationDestinationActive()` helper that knows `/character/:id` should count as the "Characters" section.
-- The authenticated rail includes `/subclasses`, a subclass manager that lists visible subclasses in one filtered view. Tapping a row expands it in-place to show the full description while fading out sibling rows, filters, and the add button; custom rows expose edit/delete actions in a full-width footer. User-owned subclass rows can be created, edited, and archived.
+- The authenticated rail includes `/subclasses`, a subclass manager that lists visible subclasses in one fixed-height, internally scrolling view. The screen header collapses from the table's internal scroll position, while the table keeps Add and filter controls pinned above the row scroller. Tapping a row opens a fresh detail scroller for that subclass so details start at the top without inheriting the list scroll offset; custom rows expose edit/delete actions in a full-width footer. User-owned subclass rows can be created, edited, and archived.
 
 ## Theming
 
