@@ -6,15 +6,14 @@
     [] Make more responsive - bigger text on ipad
     [] Allow making text bigger with some sort of zoom control, or maybe configurable in settings? (LOW PRIORITY)
     [] Implement settings (LOW PRIORITY)
-    [] Add Caudex font
 
 [] Sign in page
     [] Make 'Forge a new account' text more visible, and modify text slightly between sign in vs sign up
 
 [] Character creation flow
-    [] No characters created yet page
-        [] Add more stars to the no characters animation (LOW PRIORITY)
-        [] Add fireworks to the no characters animation (LOW PRIORITY)
+    [x] No characters created yet page
+        [x] Add more stars to the no characters animation (LOW PRIORITY)
+        [x] Add fireworks to the no characters animation (LOW PRIORITY)
     [] General
         [] Make subheadings bigger (LOW PRIORITY)
         [] After completion, it flashes 'No characters created' for a second while the character loads (LOW PRIORITY)
