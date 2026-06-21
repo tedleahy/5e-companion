@@ -9,7 +9,7 @@ type SubclassClassFilterChipsProps = {
 };
 
 const ALL_CLASSES_FILTER = 'all';
-const FILTER_CHIP_HEIGHT = 32;
+export const FILTER_CHIP_HEIGHT = 32;
 
 /**
  * Horizontal single-select class filter used by the subclass manager.

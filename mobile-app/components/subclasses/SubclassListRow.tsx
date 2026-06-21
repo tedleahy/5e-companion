@@ -54,50 +54,51 @@ export default function SubclassListRow({
                 ]}
                 testID={`custom-subclass-row-${subclass.id}`}
             >
-                <View style={[styles.iconBadge, isOpen && styles.iconBadgeOpen]}>
-                    <Text style={styles.iconText}>{classOption?.icon ?? '✨'}</Text>
+                <View style={styles.header}>
+                    <View style={[styles.iconBadge, isOpen && styles.iconBadgeOpen]}>
+                        <Text style={styles.iconText}>{classOption?.icon ?? '✨'}</Text>
+                    </View>
+
+                    <View style={styles.content}>
+                        <Text
+                            style={[styles.name, isOpen && styles.nameOpen]}
+                            numberOfLines={isOpen ? undefined : 2}
+                        >
+                            {subclass.name}
+                        </Text>
+                        <Text
+                            style={[styles.className, isOpen && styles.classNameOpen]}
+                            numberOfLines={1}
+                        >
+                            {subclass.className}
+                        </Text>
+                    </View>
                 </View>
 
-                <View style={styles.content}>
-                    <Text
-                        style={[styles.name, isOpen && styles.nameOpen]}
-                        numberOfLines={isOpen ? undefined : 2}
-                    >
-                        {subclass.name}
-                    </Text>
-                    <Text
-                        style={[styles.className, isOpen && styles.classNameOpen]}
-                        numberOfLines={1}
-                    >
-                        {subclass.className}
-                    </Text>
+                <Text
+                    style={styles.description}
+                    numberOfLines={isOpen ? undefined : 2}
+                    ellipsizeMode={isOpen ? undefined : 'tail'}
+                >
+                    {description}
+                </Text>
 
-                    <Text
-                        style={styles.description}
-                        numberOfLines={isOpen ? undefined : 2}
-                        ellipsizeMode={isOpen ? undefined : 'tail'}
-                    >
-                        {description}
-                    </Text>
-
-                    {isOpen && (
-                        <View style={styles.featuresSection}>
-                            <Text style={styles.featuresTitle}>Features</Text>
-                            {features.length === 0 ? (
-                                <Text style={styles.emptyFeaturesText}>No subclass features yet.</Text>
-                            ) : (
-                                features.map((feature) => (
-                                    <View key={feature.id} style={styles.featureItem}>
-                                        <Text style={styles.featureLevel}>Level {feature.level}</Text>
-                                        <Text style={styles.featureName}>{feature.name}</Text>
-                                        <Text style={styles.featureDescription}>{feature.description}</Text>
-                                    </View>
-                                ))
-                            )}
-                        </View>
-                    )}
-
-                </View>
+                {isOpen && (
+                    <View style={styles.featuresSection}>
+                        <Text style={styles.featuresTitle}>Features</Text>
+                        {features.length === 0 ? (
+                            <Text style={styles.emptyFeaturesText}>No subclass features yet.</Text>
+                        ) : (
+                            features.map((feature) => (
+                                <View key={feature.id} style={styles.featureItem}>
+                                    <Text style={styles.featureLevel}>Level {feature.level}</Text>
+                                    <Text style={styles.featureName}>{feature.name}</Text>
+                                    <Text style={styles.featureDescription}>{feature.description}</Text>
+                                </View>
+                            ))
+                        )}
+                    </View>
+                )}
             </Pressable>
 
             {subclass.isCustom && isOpen && (
@@ -177,6 +178,9 @@ const styles = StyleSheet.create({
     rowPressable: {
         flex: 1,
         minWidth: 0,
+        gap: fantasyTokens.spacing.xs,
+    },
+    header: {
         flexDirection: 'row',
         alignItems: 'flex-start',
         gap: fantasyTokens.spacing.md,

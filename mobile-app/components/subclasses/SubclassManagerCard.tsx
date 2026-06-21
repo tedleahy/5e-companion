@@ -15,7 +15,10 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Text } from 'react-native-paper';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { fantasyTokens } from '@/theme/fantasyTheme';
-import SubclassClassFilterChips, { ALL_CLASSES_FILTER } from './SubclassClassFilterChips';
+import SubclassClassFilterChips, {
+    ALL_CLASSES_FILTER,
+    FILTER_CHIP_HEIGHT,
+} from './SubclassClassFilterChips';
 import SubclassListRow from './SubclassListRow';
 import type { SubclassManagerRow } from './subclassManager.types';
 
@@ -36,6 +39,8 @@ const SWIPE_BACK_VELOCITY = 700;
 const SWIPE_BACK_ACTIVE_OFFSET_X = 12;
 const SWIPE_BACK_FAIL_OFFSET_Y = 18;
 const DETAIL_BACK_BUTTON_FADE_DISTANCE = 24;
+const DETAIL_BACK_BUTTON_HEIGHT = fantasyTokens.fontSizes.body
+    + (fantasyTokens.spacing.xs * 2);
 
 /**
  * Parchment manager panel containing filters and the reusable subclass list.
@@ -59,6 +64,7 @@ export default function SubclassManagerCard({
     const showDetailChrome = isCardExpanded && !detailClosing;
     const detailTranslateX = useRef(new Animated.Value(hiddenDetailTranslateX)).current;
     const listOpacity = useRef(new Animated.Value(1)).current;
+    const listChromeVisibility = useRef(new Animated.Value(1)).current;
     const closingDetailRef = useRef(false);
     const detailClosingRef = useRef(false);
     const previousHiddenDetailTranslateXRef = useRef(hiddenDetailTranslateX);
@@ -85,6 +91,7 @@ export default function SubclassManagerCard({
         if (expandedSubclassId && !subclasses.some((subclass) => subclass.id === expandedSubclassId)) {
             detailTranslateX.setValue(hiddenDetailTranslateX);
             listOpacity.setValue(1);
+            listChromeVisibility.setValue(1);
             setExpandedSubclassId(null);
             setDetailClosingState(false);
         }
@@ -93,6 +100,7 @@ export default function SubclassManagerCard({
         expandedSubclassId,
         hiddenDetailTranslateX,
         listOpacity,
+        listChromeVisibility,
         setDetailClosingState,
         subclasses,
     ]);
@@ -109,6 +117,7 @@ export default function SubclassManagerCard({
         setDetailClosingState(false);
         detailTranslateX.setValue(hiddenDetailTranslateX);
         listOpacity.setValue(1);
+        listChromeVisibility.setValue(1);
 
         Animated.parallel([
             Animated.timing(detailTranslateX, {
@@ -122,8 +131,20 @@ export default function SubclassManagerCard({
                 duration: DETAIL_TRANSITION_DURATION_MS,
                 useNativeDriver: Platform.OS !== 'web',
             }),
+            Animated.timing(listChromeVisibility, {
+                toValue: 0,
+                duration: DETAIL_TRANSITION_DURATION_MS,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: false,
+            }),
         ]).start();
-    }, [detailTranslateX, hiddenDetailTranslateX, listOpacity, setDetailClosingState]);
+    }, [
+        detailTranslateX,
+        hiddenDetailTranslateX,
+        listChromeVisibility,
+        listOpacity,
+        setDetailClosingState,
+    ]);
 
     /**
      * Animates the detail pane back to the list.
@@ -146,6 +167,12 @@ export default function SubclassManagerCard({
                 duration: DETAIL_TRANSITION_DURATION_MS,
                 useNativeDriver: Platform.OS !== 'web',
             }),
+            Animated.timing(listChromeVisibility, {
+                toValue: 1,
+                duration: DETAIL_TRANSITION_DURATION_MS,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: false,
+            }),
         ]).start(({ finished }) => {
             if (!finished) return;
 
@@ -158,6 +185,7 @@ export default function SubclassManagerCard({
         detailTranslateX,
         expandedSubclassId,
         hiddenDetailTranslateX,
+        listChromeVisibility,
         listOpacity,
         setDetailClosingState,
     ]);
@@ -178,8 +206,14 @@ export default function SubclassManagerCard({
                 duration: 180,
                 useNativeDriver: Platform.OS !== 'web',
             }),
+            Animated.timing(listChromeVisibility, {
+                toValue: 0,
+                duration: 180,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: false,
+            }),
         ]).start();
-    }, [detailTranslateX, listOpacity, setDetailClosingState]);
+    }, [detailTranslateX, listChromeVisibility, listOpacity, setDetailClosingState]);
 
     const detailSwipeBackGesture = useMemo(() => Gesture.Pan()
         .runOnJS(true)
@@ -191,6 +225,7 @@ export default function SubclassManagerCard({
 
             detailTranslateX.setValue(event.translationX);
             listOpacity.setValue(Math.min(1, event.translationX / SWIPE_BACK_DISTANCE));
+            listChromeVisibility.setValue(Math.min(1, event.translationX / SWIPE_BACK_DISTANCE));
         })
         .onEnd((event) => {
             if (!expandedSubclassId || closingDetailRef.current) return;
@@ -211,6 +246,7 @@ export default function SubclassManagerCard({
         closeExpandedRow,
         detailTranslateX,
         expandedSubclassId,
+        listChromeVisibility,
         listOpacity,
     ]);
 
@@ -244,9 +280,14 @@ export default function SubclassManagerCard({
         outputRange: [1, 0],
         extrapolate: 'clamp',
     });
-    const listChromeOverlayOpacity = detailTranslateX.interpolate({
-        inputRange: [0, SWIPE_BACK_DISTANCE],
-        outputRange: [0, 1],
+    const listChromeHeight = listChromeVisibility.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, FILTER_CHIP_HEIGHT],
+        extrapolate: 'clamp',
+    });
+    const tableHeaderHeight = listChromeVisibility.interpolate({
+        inputRange: [0, 1],
+        outputRange: [DETAIL_BACK_BUTTON_HEIGHT, FILTER_CHIP_HEIGHT],
         extrapolate: 'clamp',
     });
     const detailBackButtonOpacity = detailTranslateX.interpolate({
@@ -260,14 +301,15 @@ export default function SubclassManagerCard({
             style={[styles.card, style]}
             testID="subclass-manager-card"
         >
-            <View style={styles.tableHeader}>
+            <Animated.View style={[styles.tableHeader, { height: tableHeaderHeight }]}>
                 <Animated.View
                     pointerEvents={showListChrome ? 'auto' : 'none'}
                     importantForAccessibility={showListChrome ? 'auto' : 'no-hide-descendants'}
                     style={[
                         styles.listChromeSlot,
                         {
-                            opacity: showDetailChrome ? listChromeOverlayOpacity : 1,
+                            height: listChromeHeight,
+                            opacity: listChromeVisibility,
                         },
                     ]}
                 >
@@ -302,7 +344,7 @@ export default function SubclassManagerCard({
                         </Pressable>
                     </Animated.View>
                 )}
-            </View>
+            </Animated.View>
 
             <View style={styles.listFrame}>
                 <Animated.View
@@ -392,12 +434,13 @@ const styles = StyleSheet.create({
     },
     listChromeSlot: {
         gap: fantasyTokens.spacing.sm,
+        overflow: 'hidden',
     },
     backButton: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: fantasyTokens.spacing.xs,
-        paddingBottom: fantasyTokens.spacing.xs,
+        paddingVertical: fantasyTokens.spacing.xs,
     },
     backButtonOverlay: {
         position: 'absolute',
@@ -412,9 +455,9 @@ const styles = StyleSheet.create({
     backButtonText: {
         ...fantasyTokens.typography.buttonLabel,
         color: fantasyTokens.colors.crimson,
-        letterSpacing: 1.2,
+        letterSpacing: 1,
         textTransform: 'uppercase',
-        fontSize: fantasyTokens.fontSizes.utility,
+        fontSize: fantasyTokens.fontSizes.body,
     },
     listFrame: {
         flex: 1,

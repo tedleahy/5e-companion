@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
     },
     contentArea: {
         flex: 1,
-        paddingBottom: fantasyTokens.spacing.xxl,
+        paddingBottom: fantasyTokens.spacing.md,
     },
     header: {
         backgroundColor: fantasyTokens.colors.night,
