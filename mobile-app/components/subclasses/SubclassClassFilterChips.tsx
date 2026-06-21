@@ -9,6 +9,7 @@ type SubclassClassFilterChipsProps = {
 };
 
 const ALL_CLASSES_FILTER = 'all';
+const FILTER_CHIP_HEIGHT = 32;
 
 /**
  * Horizontal single-select class filter used by the subclass manager.
@@ -59,16 +60,21 @@ export { ALL_CLASSES_FILTER };
 
 const styles = StyleSheet.create({
     scrollContent: {
+        alignItems: 'center',
         paddingRight: fantasyTokens.spacing.md,
     },
     chipRow: {
         flexDirection: 'row',
+        alignItems: 'center',
         gap: fantasyTokens.spacing.sm,
     },
     chip: {
+        height: FILTER_CHIP_HEIGHT,
+        minHeight: FILTER_CHIP_HEIGHT,
         backgroundColor: 'transparent',
         borderWidth: 1,
         borderColor: fantasyTokens.colors.gold,
+        justifyContent: 'center',
     },
     chipSelected: {
         backgroundColor: fantasyTokens.colors.crimson,
@@ -77,6 +83,10 @@ const styles = StyleSheet.create({
     chipText: {
         color: fantasyTokens.colors.inkLight,
         ...fantasyTokens.typography.bodySmall,
+        ...(process.env.EXPO_OS === 'web' ? {} : {
+            includeFontPadding: false,
+            marginVertical: 0,
+        }),
     },
     chipTextSelected: {
         color: fantasyTokens.colors.parchment,
