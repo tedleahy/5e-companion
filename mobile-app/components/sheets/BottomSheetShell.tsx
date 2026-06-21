@@ -55,29 +55,30 @@ export default function BottomSheetShell({
                 </Animated.View>
 
                 <Animated.View pointerEvents="box-none" style={getBottomSheetSlotStyle(width)}>
-                    <GestureDetector gesture={sheetDismissGesture}>
-                        <Animated.View
-                            testID={testID}
-                            style={[
-                                styles.sheet,
-                                getMainContentFrameStyle(width),
-                                sheetStyle,
-                                { transform: [{ translateY: sheetTranslateY }] },
-                            ]}
-                            onStartShouldSetResponderCapture={() => {
-                                Keyboard.dismiss();
-                                return false;
-                            }}
-                        >
+                    <Animated.View
+                        testID={testID}
+                        style={[
+                            styles.sheet,
+                            getMainContentFrameStyle(width),
+                            sheetStyle,
+                            { transform: [{ translateY: sheetTranslateY }] },
+                        ]}
+                        onStartShouldSetResponderCapture={() => {
+                            Keyboard.dismiss();
+                            return false;
+                        }}
+                    >
+                        <GestureDetector gesture={sheetDismissGesture}>
                             <Animated.View
                                 accessible={false}
-                                style={styles.handleWrap}
+                                style={styles.handleGestureTarget}
                             >
                                 <Animated.View style={styles.handle} />
                             </Animated.View>
-                            {children}
-                        </Animated.View>
-                    </GestureDetector>
+                        </GestureDetector>
+                        <Animated.View accessible={false} style={styles.handleSpacer} />
+                        {children}
+                    </Animated.View>
                 </Animated.View>
             </Animated.View>
         </Portal>
@@ -110,10 +111,18 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         elevation: 20,
     },
-    handleWrap: {
+    handleGestureTarget: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        left: 0,
+        zIndex: 1,
         alignItems: 'center',
         paddingTop: fantasyTokens.spacing.sm,
-        paddingBottom: fantasyTokens.spacing.xs,
+        paddingBottom: 60,
+    },
+    handleSpacer: {
+        height: fantasyTokens.spacing.md,
     },
     handle: {
         width: 42,

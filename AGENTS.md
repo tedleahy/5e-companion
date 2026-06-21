@@ -104,6 +104,7 @@ Area-specific detail lives in `docs/`; add cross-cutting items here.
 ## Expo TypeScript / platform forks
 
 - `Component.native.tsx` + `Component.web.tsx` — keep `mobile-app/tsconfig.json` `compilerOptions.moduleSuffixes` aligned with Metro.
+- Keep bottom-sheet dismiss pan gestures on the drag handle, not around nested scroll views; on Android a parent pan recognizer can block the scroll view's initial upward gesture.
 
 ## Character creation reference-data
 
