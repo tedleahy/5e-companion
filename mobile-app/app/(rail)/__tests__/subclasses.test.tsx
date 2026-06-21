@@ -347,6 +347,7 @@ describe('CustomSubclassesScreen', () => {
 
         await waitFor(() => {
             expect(screen.getByTestId('subclass-expand-back')).toBeTruthy();
+            expect(screen.queryByTestId('add-custom-subclass')).toBeNull();
         });
         expect(screen.getByTestId('custom-subclass-row-srd-subclass-evocation').props.accessibilityState?.expanded).toBe(true);
         expect(screen.getByText('School of Evocation')).toBeTruthy();
@@ -355,6 +356,7 @@ describe('CustomSubclassesScreen', () => {
 
         await waitFor(() => {
             expect(screen.getByText('School of Lanterns')).toBeTruthy();
+            expect(screen.getByTestId('add-custom-subclass')).toBeTruthy();
         });
     });
 

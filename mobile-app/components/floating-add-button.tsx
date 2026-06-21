@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 type FloatingAddButtonProps = {
@@ -8,6 +9,8 @@ type FloatingAddButtonProps = {
     onPress: () => void;
 };
 
+const ENTER_DURATION_MS = 180;
+
 /** Shared floating add action used on collection manager screens. */
 export default function FloatingAddButton({
     accessibilityLabel,
@@ -15,25 +18,33 @@ export default function FloatingAddButton({
     onPress,
 }: FloatingAddButtonProps) {
     return (
-        <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={accessibilityLabel}
-            onPress={onPress}
-            style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
-            testID={testID}
+        <Animated.View
+            entering={FadeIn.duration(ENTER_DURATION_MS)}
+            style={styles.fabPosition}
         >
-            <Text style={styles.fabIcon}>+</Text>
-        </Pressable>
+            <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={accessibilityLabel}
+                onPress={onPress}
+                style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
+                testID={testID}
+            >
+                <Text style={styles.fabIcon}>+</Text>
+            </Pressable>
+        </Animated.View>
     );
 }
 
 const styles = StyleSheet.create({
-    fab: {
+    fabPosition: {
         position: 'absolute',
         right: fantasyTokens.floatingActionButton.insetRight,
         bottom: fantasyTokens.floatingActionButton.insetBottom,
         width: fantasyTokens.floatingActionButton.size,
         height: fantasyTokens.floatingActionButton.size,
+    },
+    fab: {
+        flex: 1,
         borderRadius: fantasyTokens.radii.md,
         alignItems: 'center',
         justifyContent: 'center',

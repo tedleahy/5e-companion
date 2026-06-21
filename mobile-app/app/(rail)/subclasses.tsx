@@ -104,6 +104,7 @@ export default function CustomSubclassesScreen() {
     const apolloClient = useApolloClient();
     const { hasValidSession, isCheckingSession } = useSessionGuard();
     const [selectedClassId, setSelectedClassId] = useState(ALL_CLASSES_FILTER);
+    const [isViewingSubclass, setIsViewingSubclass] = useState(false);
     const [formVisible, setFormVisible] = useState(false);
     const [formMode, setFormMode] = useState<CustomSubclassFormMode>('create');
     const [draft, setDraft] = useState<CustomSubclassFormDraft>(EMPTY_DRAFT);
@@ -338,6 +339,7 @@ export default function CustomSubclassesScreen() {
                             subclasses={visibleSubclasses}
                             allSubclassCount={allSubclasses.length}
                             selectedClassId={selectedClassId}
+                            onDetailVisibilityChange={setIsViewingSubclass}
                             onSelectClassId={setSelectedClassId}
                             onEdit={openEditForm}
                             onDelete={setDeleteCandidate}
@@ -345,11 +347,13 @@ export default function CustomSubclassesScreen() {
                     </MainContentFrame>
                 </View>
 
-                <FloatingAddButton
-                    accessibilityLabel="Add custom subclass"
-                    onPress={openCreateForm}
-                    testID="add-custom-subclass"
-                />
+                {!isViewingSubclass && (
+                    <FloatingAddButton
+                        accessibilityLabel="Add custom subclass"
+                        onPress={openCreateForm}
+                        testID="add-custom-subclass"
+                    />
+                )}
 
                 <CustomSubclassFormSheet
                     visible={formVisible}
@@ -416,6 +420,8 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: fantasyTokens.rail.border,
         paddingHorizontal: fantasyTokens.spacing.xl,
+        marginBottom: fantasyTokens.spacing.md,
+
     },
     headerContent: {
         paddingTop: fantasyTokens.spacing.sm,

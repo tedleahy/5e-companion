@@ -249,7 +249,9 @@ const styles = StyleSheet.create({
     },
     featuresTitle: {
         ...fantasyTokens.typography.buttonLabel,
+        fontSize: fantasyTokens.fontSizes.body,
         color: fantasyTokens.colors.ember,
+        paddingTop: 10,
     },
     emptyFeaturesText: {
         ...fantasyTokens.typography.bodySmall,

@@ -28,6 +28,7 @@ type SubclassManagerCardProps = {
     selectedClassId: string;
     style?: StyleProp<ViewStyle>;
     onListScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
+    onDetailVisibilityChange?: (visible: boolean) => void;
     onSelectClassId: (classId: string) => void;
     onEdit: (subclass: SubclassManagerRow) => void;
     onDelete: (subclass: SubclassManagerRow) => void;
@@ -51,6 +52,7 @@ export default function SubclassManagerCard({
     selectedClassId,
     style,
     onListScroll,
+    onDetailVisibilityChange,
     onSelectClassId,
     onEdit,
     onDelete,
@@ -68,6 +70,10 @@ export default function SubclassManagerCard({
     const closingDetailRef = useRef(false);
     const detailClosingRef = useRef(false);
     const previousHiddenDetailTranslateXRef = useRef(hiddenDetailTranslateX);
+
+    useEffect(() => {
+        onDetailVisibilityChange?.(isCardExpanded);
+    }, [isCardExpanded, onDetailVisibilityChange]);
 
     const selectedClass = CLASS_OPTIONS.find((option) => option.value === selectedClassId);
     const emptyTitle = selectedClassId === ALL_CLASSES_FILTER
