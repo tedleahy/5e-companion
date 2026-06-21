@@ -42,7 +42,6 @@ Full style guide: [`docs/conventions.md`](./docs/conventions.md). Non-negotiable
 
 ## Agent workflow
 
-- **Prefix shell commands with `rtk`** where the RTK proxy is available.
 - **Use the `ask-user-questions` skill** when information is missing or a result needs confirming. Do not assume a task is complete — wait for explicit confirmation.
 - **Run `tsc --noEmit` in both `server/` and `mobile-app/`** before considering a task done. Fix type errors in files you touched; ignore pre-existing errors elsewhere.
 
