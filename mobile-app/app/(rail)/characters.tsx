@@ -1,10 +1,11 @@
 import { useEffect, useMemo } from 'react';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@apollo/client/react';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import CharacterCard, { type CharacterCardData } from '@/components/characters/CharacterCard';
 import EmptyState from '@/components/characters/EmptyState';
+import FloatingAddButton from '@/components/floating-add-button';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
 import { GET_CURRENT_USER_CHARACTER_ROSTER } from '@/graphql/characterSheet.operations';
 import {
@@ -190,15 +191,11 @@ export default function CharactersScreen() {
                     )}
                 />
 
-                <Pressable
-                    accessibilityRole="button"
+                <FloatingAddButton
                     accessibilityLabel="Create a new character"
                     onPress={() => router.push('/characters/create')}
-                    style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
                     testID="characters-list-fab"
-                >
-                    <Text style={styles.fabIcon}>+</Text>
-                </Pressable>
+                />
             </View>
         </RailScreenShell>
     );
@@ -245,27 +242,6 @@ const styles = StyleSheet.create({
     },
     cardGap: {
         height: 14,
-    },
-    fab: {
-        position: 'absolute',
-        right: 22,
-        bottom: 32,
-        width: 56,
-        height: 56,
-        borderRadius: 16,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: fantasyTokens.colors.crimson,
-    },
-    fabPressed: {
-        opacity: 0.9,
-    },
-    fabIcon: {
-        color: fantasyTokens.colors.parchment,
-        fontFamily: fantasyTokens.fonts.regular,
-        fontSize: fantasyTokens.fontSizes.headline,
-        lineHeight: fantasyTokens.fontSizes.headline + 12,
-        marginTop: -1,
     },
     loadingContainer: {
         flex: 1,
