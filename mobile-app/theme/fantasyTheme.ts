@@ -201,6 +201,13 @@ export const fantasyTokens = {
         gentle: 320,
         stagger: 36,
     },
+    floatingActionButton: {
+        insetRight: 32,
+        insetBottom: 50,
+        size: 56,
+        iconLineHeight: 38,
+        iconOffsetTop: -1,
+    },
     breakpoints: {
         tablet: 768,
         laptop: 1024,
