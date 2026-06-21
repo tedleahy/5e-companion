@@ -26,7 +26,6 @@ type SubclassManagerCardProps = {
     style?: StyleProp<ViewStyle>;
     onListScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
     onSelectClassId: (classId: string) => void;
-    onCreate: () => void;
     onEdit: (subclass: SubclassManagerRow) => void;
     onDelete: (subclass: SubclassManagerRow) => void;
 };
@@ -36,6 +35,7 @@ const SWIPE_BACK_DISTANCE = 72;
 const SWIPE_BACK_VELOCITY = 700;
 const SWIPE_BACK_ACTIVE_OFFSET_X = 12;
 const SWIPE_BACK_FAIL_OFFSET_Y = 18;
+const DETAIL_BACK_BUTTON_FADE_DISTANCE = 24;
 
 /**
  * Parchment manager panel containing filters and the reusable subclass list.
@@ -47,7 +47,6 @@ export default function SubclassManagerCard({
     style,
     onListScroll,
     onSelectClassId,
-    onCreate,
     onEdit,
     onDelete,
 }: SubclassManagerCardProps) {
@@ -250,71 +249,62 @@ export default function SubclassManagerCard({
         outputRange: [0, 1],
         extrapolate: 'clamp',
     });
+    const detailBackButtonOpacity = detailTranslateX.interpolate({
+        inputRange: [0, DETAIL_BACK_BUTTON_FADE_DISTANCE],
+        outputRange: [1, 0],
+        extrapolate: 'clamp',
+    });
 
     return (
         <View
-            style={[styles.card, style, showDetailChrome && styles.cardExpanded]}
+            style={[styles.card, style]}
             testID="subclass-manager-card"
         >
-            <View style={[styles.tableHeader, showDetailChrome && styles.tableHeaderExpanded]}>
-                {showListChrome && (
-                    <View style={styles.cardHeader}>
-                        <Pressable
-                            accessibilityRole="button"
-                            accessibilityLabel="Add custom subclass"
-                            onPress={onCreate}
-                            style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}
-                            testID="add-custom-subclass"
-                        >
-                            <Text style={styles.addButtonText}>Add</Text>
-                        </Pressable>
-                    </View>
-                )}
-
-                {showDetailChrome && (
-                    <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel="Back to all subclasses"
-                        onPress={() => closeExpandedRow()}
-                        style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed]}
-                        testID="subclass-expand-back"
-                    >
-                        <Ionicons
-                            name="chevron-back"
-                            size={12}
-                            color={fantasyTokens.colors.crimson}
-                        />
-                        <Text style={styles.backButtonText}>All Subclasses</Text>
-                    </Pressable>
-                )}
-
-                {showListChrome && (
+            <View style={styles.tableHeader}>
+                <Animated.View
+                    pointerEvents={showListChrome ? 'auto' : 'none'}
+                    importantForAccessibility={showListChrome ? 'auto' : 'no-hide-descendants'}
+                    style={[
+                        styles.listChromeSlot,
+                        {
+                            opacity: showDetailChrome ? listChromeOverlayOpacity : 1,
+                        },
+                    ]}
+                >
                     <SubclassClassFilterChips
                         selectedClassId={selectedClassId}
                         onSelectClassId={handleSelectClassId}
                     />
-                )}
-
+                </Animated.View>
                 {showDetailChrome && (
                     <Animated.View
-                        pointerEvents="none"
-                        importantForAccessibility="no-hide-descendants"
-                        style={[styles.listChromeOverlay, { opacity: listChromeOverlayOpacity }]}
+                        style={[
+                            styles.backButtonOverlay,
+                            { opacity: detailBackButtonOpacity },
+                        ]}
                     >
-                        <View style={styles.cardHeader}>
-                            <View style={styles.addButton}>
-                                <Text style={styles.addButtonText}>Add</Text>
-                            </View>
-                        </View>
-                        <SubclassClassFilterChips
-                            selectedClassId={selectedClassId}
-                            onSelectClassId={handleSelectClassId}
-                        />
+                        <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel="Back to all subclasses"
+                            onPress={() => closeExpandedRow()}
+                            style={({ pressed }) => [
+                                styles.backButton,
+                                pressed && styles.backButtonPressed,
+                            ]}
+                            testID="subclass-expand-back"
+                        >
+                            <Ionicons
+                                name="chevron-back"
+                                size={12}
+                                color={fantasyTokens.colors.crimson}
+                            />
+                            <Text style={styles.backButtonText}>All Subclasses</Text>
+                        </Pressable>
                     </Animated.View>
                 )}
             </View>
 
-            <View style={[styles.listFrame, showDetailChrome && styles.listFrameExpanded]}>
+            <View style={styles.listFrame}>
                 <Animated.View
                     pointerEvents={showListChrome ? 'auto' : 'none'}
                     importantForAccessibility={showListChrome ? 'auto' : 'no-hide-descendants'}
@@ -396,52 +386,25 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.md,
         minHeight: 0,
     },
-    cardExpanded: {
-        gap: 0,
-    },
     tableHeader: {
         backgroundColor: fantasyTokens.colors.cardBg,
-        gap: fantasyTokens.spacing.sm,
         zIndex: 1,
     },
-    tableHeaderExpanded: {
-        gap: 0,
-    },
-    listChromeOverlay: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 2,
+    listChromeSlot: {
         gap: fantasyTokens.spacing.sm,
-        backgroundColor: fantasyTokens.colors.cardBg,
-    },
-    cardHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-    },
-    addButton: {
-        minWidth: 72,
-        minHeight: 42,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: fantasyTokens.radii.sm,
-        backgroundColor: fantasyTokens.colors.crimson,
-        paddingHorizontal: fantasyTokens.spacing.md,
-    },
-    addButtonPressed: {
-        opacity: 0.9,
-    },
-    addButtonText: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.parchment,
     },
     backButton: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: fantasyTokens.spacing.xs,
         paddingBottom: fantasyTokens.spacing.xs,
+    },
+    backButtonOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        zIndex: 3,
+        backgroundColor: fantasyTokens.colors.cardBg,
     },
     backButtonPressed: {
         opacity: 0.8,
@@ -460,9 +423,6 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         borderTopWidth: 1,
         borderTopColor: fantasyTokens.colors.accordionBorder,
-    },
-    listFrameExpanded: {
-        borderTopWidth: 0,
     },
     listScene: {
         flex: 1,
