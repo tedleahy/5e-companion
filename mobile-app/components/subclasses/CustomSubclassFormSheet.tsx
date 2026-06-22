@@ -14,6 +14,12 @@ import {
     type CustomSubclassFormDraft,
     type CustomSubclassFormMode,
 } from './subclassManager.types';
+import {
+    CUSTOM_SUBCLASS_NAME_MAX_LENGTH,
+    CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH,
+    CUSTOM_SUBCLASS_FEATURE_NAME_MAX_LENGTH,
+    CUSTOM_SUBCLASS_FEATURE_DESCRIPTION_MAX_LENGTH,
+} from '@shared/constants/customSubclassLimits';
 
 type CustomSubclassFormSheetProps = {
     visible: boolean;
@@ -29,14 +35,6 @@ type CustomSubclassFormSheetProps = {
     onClose: () => void;
     onSave: () => void;
 };
-
-// NOTE: keep these max lengths in sync with the matching constants in
-// server/resolvers/character/customSubclassManager.ts. No shared module exists
-// yet, so the values must be mirrored by hand.
-const CUSTOM_SUBCLASS_NAME_MAX_LENGTH = 100;
-const CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH = 10000;
-const CUSTOM_SUBCLASS_FEATURE_NAME_MAX_LENGTH = 100;
-const CUSTOM_SUBCLASS_FEATURE_DESCRIPTION_MAX_LENGTH = 10000;
 
 /**
  * Modal sheet for creating and editing reusable custom subclasses.

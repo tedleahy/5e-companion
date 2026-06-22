@@ -12,18 +12,16 @@ import type {
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
 import { subclassSelectionValue } from "./subclassReferences";
+import {
+    CUSTOM_SUBCLASS_NAME_MAX_LENGTH,
+    CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH,
+    CUSTOM_SUBCLASS_FEATURE_NAME_MAX_LENGTH,
+    CUSTOM_SUBCLASS_FEATURE_DESCRIPTION_MAX_LENGTH,
+} from "../../../shared/constants/customSubclassLimits";
 
 const FEATURE_KIND = {
     SUBCLASS_FEATURE: "SUBCLASS_FEATURE",
 } as const;
-
-// NOTE: keep these max lengths in sync with the matching constants in
-// mobile-app/components/subclasses/CustomSubclassFormSheet.tsx. No shared module
-// exists yet, so the values must be mirrored by hand.
-const CUSTOM_SUBCLASS_NAME_MAX_LENGTH = 100;
-const CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH = 10000;
-const CUSTOM_SUBCLASS_FEATURE_NAME_MAX_LENGTH = 100;
-const CUSTOM_SUBCLASS_FEATURE_DESCRIPTION_MAX_LENGTH = 10000;
 
 const CUSTOM_SUBCLASS_FEATURE_INCLUDE = {
     where: {
