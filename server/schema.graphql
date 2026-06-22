@@ -325,6 +325,8 @@ type CustomSubclass {
     description: [String!]!
     features: [AvailableSubclassFeature!]!
     characterUsageCount: Int!
+    canChangeClass: Boolean!
+    cannotChangeClassReason: String
 }
 
 input AbilityScoresInput {

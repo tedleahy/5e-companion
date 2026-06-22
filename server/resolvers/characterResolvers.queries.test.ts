@@ -288,6 +288,8 @@ describe('characterResolvers — queries', () => {
                 description: ['A delicate art of mirrored wards.'],
                 features: [],
                 characterUsageCount: 2,
+                canChangeClass: false,
+                cannotChangeClassReason: 'Cannot change the parent class of a subclass used by 2 character(s).',
             },
         ]);
     });

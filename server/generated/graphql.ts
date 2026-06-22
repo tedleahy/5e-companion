@@ -179,6 +179,8 @@ export type CurrencyInput = {
 
 export type CustomSubclass = {
   __typename?: 'CustomSubclass';
+  canChangeClass: Scalars['Boolean']['output'];
+  cannotChangeClassReason?: Maybe<Scalars['String']['output']>;
   characterUsageCount: Scalars['Int']['output'];
   classId: Scalars['String']['output'];
   className: Scalars['String']['output'];
@@ -1004,6 +1006,8 @@ export type CurrencyResolvers<ContextType = Context, ParentType extends Resolver
 };
 
 export type CustomSubclassResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CustomSubclass'] = ResolversParentTypes['CustomSubclass']> = {
+  canChangeClass?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  cannotChangeClassReason?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   characterUsageCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   classId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   className?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

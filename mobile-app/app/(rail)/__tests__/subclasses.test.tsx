@@ -87,6 +87,8 @@ type CustomSubclassRow = {
     selectionLevel: number;
     description: string[];
     characterUsageCount: number;
+    canChangeClass: boolean;
+    cannotChangeClassReason: string | null;
     features: {
         __typename: 'AvailableSubclassFeature';
         id: string;
@@ -142,6 +144,8 @@ const WIZARD_CUSTOM_SUBCLASS_UNUSED: CustomSubclassRow = {
     selectionLevel: 2,
     description: ['You bind floating lanterns to defensive spellwork.'],
     characterUsageCount: 0,
+    canChangeClass: true,
+    cannotChangeClassReason: null,
     features: [],
 };
 
@@ -153,6 +157,8 @@ const WIZARD_CUSTOM_SUBCLASS_WITH_FEATURES: CustomSubclassRow = {
 const WIZARD_CUSTOM_SUBCLASS_IN_USE: CustomSubclassRow = {
     ...WIZARD_CUSTOM_SUBCLASS_UNUSED,
     characterUsageCount: 2,
+    canChangeClass: false,
+    cannotChangeClassReason: 'Cannot change the parent class of a subclass used by 2 character(s).',
 };
 
 const FIGHTER_AVAILABLE_SUBCLASS: AvailableSubclassRow = {
@@ -173,6 +179,8 @@ const FIGHTER_MUTATION_SUBCLASS = {
     ...FIGHTER_AVAILABLE_SUBCLASS,
     __typename: 'CustomSubclass',
     characterUsageCount: 0,
+    canChangeClass: true,
+    cannotChangeClassReason: null,
 };
 
 const SRD_WIZARD_SUBCLASS: AvailableSubclassRow = {
@@ -634,7 +642,7 @@ describe('CustomSubclassesScreen', () => {
             expect(screen.getByText('Edit Subclass')).toBeTruthy();
         });
         expect(screen.getByTestId('custom-subclass-class-wizard').props.accessibilityState.disabled).toBe(true);
-        expect(screen.getByText('Parent class is locked while this subclass is used by existing characters.')).toBeTruthy();
+        expect(screen.getByText('Cannot change the parent class of a subclass used by 2 character(s).')).toBeTruthy();
     });
 
     it('prefills, edits, and removes feature rows in edit mode', async () => {

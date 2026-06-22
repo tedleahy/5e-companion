@@ -13,6 +13,8 @@ export const CUSTOM_SUBCLASS_MANAGER_FIELDS = gql`
         selectionLevel
         description
         characterUsageCount
+        canChangeClass
+        cannotChangeClassReason
         features {
             id
             name

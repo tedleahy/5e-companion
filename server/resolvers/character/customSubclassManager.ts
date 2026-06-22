@@ -41,7 +41,10 @@ const CUSTOM_SUBCLASS_RESPONSE_INCLUDE = {
 const CUSTOM_SUBCLASS_RESPONSE_WITH_COUNT_INCLUDE = {
     ...CUSTOM_SUBCLASS_RESPONSE_INCLUDE,
     _count: {
-        select: { characterClasses: true as const },
+        select: {
+            characterClasses: true as const,
+            features: true as const,
+        },
     },
 };
 
@@ -82,6 +85,7 @@ type CustomSubclassResponseRow = {
     features: CustomSubclassFeatureRow[];
     _count?: {
         characterClasses: number;
+        features: number;
     };
 };
 
@@ -177,9 +181,18 @@ function duplicateSubclassNameWhere(
 }
 
 function toCustomSubclass(subclassRef: CustomSubclassResponseRow): CustomSubclass {
+    const characterUsageCount = subclassRef._count?.characterClasses ?? 0;
+    const featureCount = subclassRef._count?.features ?? 0;
+    const canChangeClass = characterUsageCount === 0;
+    const cannotChangeClassReason = characterUsageCount > 0
+        ? `Cannot change the parent class of a subclass used by ${characterUsageCount} character(s).`
+        : null;
+
     return {
         ...mapSubclassRowToBase(subclassRef),
-        characterUsageCount: subclassRef._count?.characterClasses ?? 0,
+        characterUsageCount,
+        canChangeClass,
+        cannotChangeClassReason,
     };
 }
 

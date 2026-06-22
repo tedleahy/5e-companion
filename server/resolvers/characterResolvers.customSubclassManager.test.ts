@@ -90,6 +90,8 @@ describe('customSubclassManager — customSubclasses', () => {
                     },
                 ],
                 characterUsageCount: 4,
+                canChangeClass: false,
+                cannotChangeClassReason: 'Cannot change the parent class of a subclass used by 4 character(s).',
             },
         ]);
     });
@@ -282,6 +284,8 @@ describe('customSubclassManager — createCustomSubclass', () => {
             description: ['A delicate art.'],
             features: [],
             characterUsageCount: 0,
+            canChangeClass: true,
+            cannotChangeClassReason: null,
         });
     });
 
@@ -627,6 +631,8 @@ describe('customSubclassManager — updateCustomSubclass', () => {
                 },
             ],
             characterUsageCount: 0,
+            canChangeClass: true,
+            cannotChangeClassReason: null,
         });
     });
 

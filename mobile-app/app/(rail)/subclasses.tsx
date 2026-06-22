@@ -166,6 +166,17 @@ export default function CustomSubclassesScreen() {
             ]),
         );
     }, [customData?.customSubclasses]);
+    const customSubclassCanChangeById = useMemo(() => {
+        return new Map(
+            (customData?.customSubclasses ?? []).map((subclass) => [
+                subclass.id,
+                {
+                    canChangeClass: subclass.canChangeClass,
+                    cannotChangeClassReason: subclass.cannotChangeClassReason,
+                },
+            ]),
+        );
+    }, [customData?.customSubclasses]);
     const allSubclasses = useMemo<SubclassManagerRow[]>(() => {
         return (availableData?.availableSubclasses ?? []).map((subclass) => ({
             ...subclass,
@@ -365,13 +376,20 @@ export default function CustomSubclassesScreen() {
                     initialDraft={initialDraft}
                     pending={saving}
                     errorMessage={formErrorMessage}
-                    lockedClassSelection={formMode === 'edit' && (
-                        (editingSubclass?.characterUsageCount ?? 0) > 0
-                        || ((initialDraft.features.length > 0) && draft.features.length > 0)
-                    )}
-                    lockedClassMessage={(editingSubclass?.characterUsageCount ?? 0) > 0
-                        ? 'Parent class is locked while this subclass is used by existing characters.'
-                        : 'Remove saved feature definitions before changing the parent class.'}
+                    lockedClassSelection={
+                        formMode === 'edit'
+                        && editingSubclass != null
+                        && (
+                            !(customSubclassCanChangeById.get(editingSubclass.id)?.canChangeClass ?? false)
+                            || (initialDraft.features.length > 0 && draft.features.length > 0)
+                        )
+                    }
+                    lockedClassMessage={
+                        formMode === 'edit' && editingSubclass != null
+                            ? (customSubclassCanChangeById.get(editingSubclass.id)?.cannotChangeClassReason)
+                                || 'Remove saved feature definitions before changing the parent class.'
+                            : ''
+                    }
                     onChangeDraft={(nextDraft) => {
                         setDraft(nextDraft);
                         if (formErrorMessage) setFormErrorMessage(null);
