@@ -81,6 +81,7 @@ type AvailableSubclass {
     classId: String!
     className: String!
     name: String!
+    selectionLevel: Int!
     description: [String!]!
     isCustom: Boolean!
     features: [AvailableSubclassFeature!]!
@@ -296,12 +297,14 @@ input FeatureChoiceInput {
 input CustomSubclassInput {
     name: String!
     description: String!
+    selectionLevel: Int!
 }
 
 input ManagedCustomSubclassInput {
     classId: String!
     name: String!
     description: String!
+    selectionLevel: Int!
     features: [ManagedCustomSubclassFeatureInput!]
 }
 
@@ -318,6 +321,7 @@ type CustomSubclass {
     classId: String!
     className: String!
     name: String!
+    selectionLevel: Int!
     description: [String!]!
     features: [AvailableSubclassFeature!]!
     characterUsageCount: Int!

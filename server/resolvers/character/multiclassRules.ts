@@ -30,6 +30,7 @@ export type CharacterClassAllocation = {
     customSubclass?: {
         name: string;
         description: string;
+        selectionLevel: number;
     } | null;
     level: number;
 };
@@ -59,6 +60,7 @@ export type CharacterSubclassReference = {
     srdIndex: string | null;
     name: string;
     classId: string;
+    selectionLevel: number;
 };
 
 /**
@@ -121,24 +123,6 @@ export type DisplaySortableClassRow = {
     className: string;
     isStartingClass: boolean;
     level: number;
-};
-
-/**
- * Subclass unlock levels for 2014 PHB/SRD classes.
- */
-export const SUBCLASS_UNLOCK_LEVEL_BY_CLASS_SRD_INDEX: Record<string, number> = {
-    barbarian: 3,
-    bard: 3,
-    cleric: 1,
-    druid: 2,
-    fighter: 3,
-    monk: 3,
-    paladin: 3,
-    ranger: 3,
-    rogue: 3,
-    sorcerer: 1,
-    warlock: 1,
-    wizard: 2,
 };
 
 /**
@@ -412,6 +396,7 @@ export function validateClassAllocations(
     classRefsBySrdIndex: Map<string, CharacterClassReference>,
     subclassRefsBySelectionValue: Map<string, CharacterSubclassReference>,
     startingClassId: string,
+    options: { allowedUnderLevelSubclassIds?: ReadonlySet<string> } = {},
 ) {
     if (classRows.length === 0) {
         throw new Error('At least one class row is required.');
@@ -439,24 +424,23 @@ export function validateClassAllocations(
             throw new Error(`Unknown class: ${classRow.classId}`);
         }
 
-        const unlockLevel = SUBCLASS_UNLOCK_LEVEL_BY_CLASS_SRD_INDEX[classRow.classId] ?? 3;
-
         if (classRow.subclassId && classRow.customSubclass) {
             throw new Error(`Class ${classRow.classId} cannot submit both subclassId and customSubclass.`);
         }
 
         if (!classRow.subclassId && !classRow.customSubclass) {
-            if (classRow.level >= unlockLevel) {
-                throw new Error(`Class ${classRow.classId} requires a subclass at level ${unlockLevel}.`);
-            }
-
             continue;
         }
 
         if (classRow.customSubclass) {
-            if (classRow.level < unlockLevel) {
+            const selectionLevel = Number(classRow.customSubclass.selectionLevel);
+            if (!Number.isInteger(selectionLevel) || selectionLevel < 1 || selectionLevel > 20) {
+                throw new Error('Custom subclass selection level must be an integer from 1 to 20.');
+            }
+
+            if (classRow.level < selectionLevel) {
                 throw new Error(
-                    `Custom subclass ${classRow.customSubclass.name} requires ${classRow.classId} level ${unlockLevel}.`,
+                    `Custom subclass ${classRow.customSubclass.name} requires ${classRow.classId} level ${selectionLevel}.`,
                 );
             }
 
@@ -483,9 +467,10 @@ export function validateClassAllocations(
             throw new Error(`Subclass ${subclassId} does not belong to class ${classRow.classId}.`);
         }
 
-        if (classRow.level < unlockLevel) {
+        const isGrandfathered = options.allowedUnderLevelSubclassIds?.has(subclassRef.id) ?? false;
+        if (classRow.level < subclassRef.selectionLevel && !isGrandfathered) {
             throw new Error(
-                `Subclass ${subclassId} requires ${classRow.classId} level ${unlockLevel}.`,
+                `Subclass ${subclassId} requires ${classRow.classId} level ${subclassRef.selectionLevel}.`,
             );
         }
     }

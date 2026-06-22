@@ -51,6 +51,7 @@ type ManagedCustomSubclassValues = {
     classId: string;
     name: string;
     description: string;
+    selectionLevel: number;
     features: ManagedCustomSubclassFeatureValues[];
     shouldReconcileFeatures: boolean;
 };
@@ -79,6 +80,7 @@ type CustomSubclassResponseRow = {
     };
     name: string;
     description: string[];
+    selectionLevel: number;
     features: CustomSubclassFeatureRow[];
     _count?: {
         characterClasses: number;
@@ -91,6 +93,7 @@ function normaliseManagedCustomSubclassInput(
     const name = input.name.trim();
     const description = input.description.trim();
     const classId = input.classId.trim();
+    const selectionLevel = Number(input.selectionLevel ?? 3);
     const shouldReconcileFeatures = input.features != null;
     const features = normaliseManagedCustomSubclassFeatures(input.features ?? []);
 
@@ -106,7 +109,11 @@ function normaliseManagedCustomSubclassInput(
         throw new Error(`Description must be ${CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH} characters or fewer.`);
     }
 
-    return { name, description, classId, features, shouldReconcileFeatures };
+    if (!Number.isInteger(selectionLevel) || selectionLevel < 1 || selectionLevel > 20) {
+        throw new Error('Selection level must be an integer from 1 to 20.');
+    }
+
+    return { name, description, selectionLevel, classId, features, shouldReconcileFeatures };
 }
 
 function normaliseManagedCustomSubclassFeatures(
@@ -178,6 +185,7 @@ function toCustomSubclass(subclassRef: CustomSubclassResponseRow): CustomSubclas
         classId: subclassRef.classRef.srdIndex ?? subclassRef.classId,
         className: subclassRef.classRef.name,
         name: subclassRef.name,
+        selectionLevel: subclassRef.selectionLevel ?? 3,
         description: subclassRef.description,
         features: subclassRef.features.map((feature) => ({
             id: feature.id,
@@ -308,7 +316,7 @@ export async function createCustomSubclass(
     ctx: Context,
 ): Promise<CustomSubclass> {
     const userId = requireUser(ctx);
-    const { name, description, classId, features } = normaliseManagedCustomSubclassInput(input);
+    const { name, description, selectionLevel, classId, features } = normaliseManagedCustomSubclassInput(input);
 
     const classRef = await prisma.class.findFirst({
         where: { srdIndex: classId },
@@ -332,6 +340,7 @@ export async function createCustomSubclass(
                 ownerUserId: userId,
                 name,
                 description: [description],
+                selectionLevel,
                 classId: classRef.id,
             },
         });
@@ -371,6 +380,7 @@ export async function updateCustomSubclass(
     const {
         name,
         description,
+        selectionLevel,
         classId,
         features,
         shouldReconcileFeatures,
@@ -435,6 +445,7 @@ export async function updateCustomSubclass(
             data: {
                 name,
                 description: [description],
+                selectionLevel,
                 classId: classRef.id,
             },
         });

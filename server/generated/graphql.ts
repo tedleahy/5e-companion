@@ -57,6 +57,7 @@ export type AvailableSubclass = {
   id: Scalars['ID']['output'];
   isCustom: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
+  selectionLevel: Scalars['Int']['output'];
   srdIndex?: Maybe<Scalars['String']['output']>;
   value: Scalars['String']['output'];
 };
@@ -185,12 +186,14 @@ export type CustomSubclass = {
   features: Array<AvailableSubclassFeature>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  selectionLevel: Scalars['Int']['output'];
   value: Scalars['String']['output'];
 };
 
 export type CustomSubclassInput = {
   description: Scalars['String']['input'];
   name: Scalars['String']['input'];
+  selectionLevel: Scalars['Int']['input'];
 };
 
 export type DeathSaves = {
@@ -278,6 +281,7 @@ export type ManagedCustomSubclassInput = {
   description: Scalars['String']['input'];
   features?: InputMaybe<Array<ManagedCustomSubclassFeatureInput>>;
   name: Scalars['String']['input'];
+  selectionLevel: Scalars['Int']['input'];
 };
 
 export type Mutation = {
@@ -910,6 +914,7 @@ export type AvailableSubclassResolvers<ContextType = Context, ParentType extends
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isCustom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  selectionLevel?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   srdIndex?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -1006,6 +1011,7 @@ export type CustomSubclassResolvers<ContextType = Context, ParentType extends Re
   features?: Resolver<Array<ResolversTypes['AvailableSubclassFeature']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  selectionLevel?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };

@@ -203,12 +203,23 @@ async function seedClasses(classes: SrdClass[]) {
 }
 
 async function seedSubclasses(subclasses: SrdSubclass[]) {
+    const selectionLevelByClass: Record<string, number> = {
+        cleric: 1,
+        sorcerer: 1,
+        warlock: 1,
+        druid: 2,
+        wizard: 2,
+    };
+
     for (const subclass of subclasses) {
+        const selectionLevel = selectionLevelByClass[subclass.class.index] ?? 3;
+
         await prisma.subclass.upsert({
             where: { srdIndex: subclass.index },
             update: {
                 name: subclass.name,
                 description: subclass.desc ?? null,
+                selectionLevel,
                 classRef: {
                     connect: { srdIndex: subclass.class.index },
                 },
@@ -219,6 +230,7 @@ async function seedSubclasses(subclasses: SrdSubclass[]) {
                 srdIndex: subclass.index,
                 name: subclass.name,
                 description: subclass.desc ?? null,
+                selectionLevel,
                 classRef: {
                     connect: { srdIndex: subclass.class.index },
                 },

@@ -283,6 +283,7 @@ describe('characterResolvers — queries', () => {
                 classId: 'wizard',
                 className: 'Wizard',
                 name: 'School of Glass',
+                selectionLevel: 3,
                 description: ['A delicate art of mirrored wards.'],
                 features: [],
                 characterUsageCount: 2,

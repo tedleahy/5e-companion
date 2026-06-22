@@ -25,6 +25,7 @@ describe('customSubclassManager — customSubclasses', () => {
                 srdIndex: null,
                 ownerUserId: 'user-abc',
                 name: 'School of Glass',
+                selectionLevel: 3,
                 description: ['A delicate art of mirrored wards.'],
                 classId: 'class-wizard-id',
                 classRef: {
@@ -72,6 +73,7 @@ describe('customSubclassManager — customSubclasses', () => {
                 classId: 'wizard',
                 className: 'Wizard',
                 name: 'School of Glass',
+                selectionLevel: 3,
                 description: ['A delicate art of mirrored wards.'],
                 features: [
                     {
@@ -156,6 +158,24 @@ describe('customSubclassManager — createCustomSubclass', () => {
                 authedCtx,
             ),
         ).rejects.toThrow('Description must be 10000 characters or fewer.');
+    });
+
+    test('rejects selection levels outside 1 through 20', () => {
+        expect(
+            resolvers.createCustomSubclass(
+                {},
+                { input: { classId: 'wizard', name: 'Foo', description: 'Bar', selectionLevel: 0 } },
+                authedCtx,
+            ),
+        ).rejects.toThrow('Selection level must be an integer from 1 to 20.');
+
+        expect(
+            resolvers.createCustomSubclass(
+                {},
+                { input: { classId: 'wizard', name: 'Foo', description: 'Bar', selectionLevel: 21 } },
+                authedCtx,
+            ),
+        ).rejects.toThrow('Selection level must be an integer from 1 to 20.');
     });
 
     test('rejects unknown class srdIndex', () => {
@@ -244,6 +264,7 @@ describe('customSubclassManager — createCustomSubclass', () => {
                 data: {
                     ownerUserId: 'user-abc',
                     name: 'School of Glass',
+                    selectionLevel: 3,
                     description: ['A delicate art.'],
                     classId: 'class-wizard-id',
                 },
@@ -255,6 +276,7 @@ describe('customSubclassManager — createCustomSubclass', () => {
             classId: 'wizard',
             className: 'Wizard',
             name: 'School of Glass',
+            selectionLevel: 3,
             description: ['A delicate art.'],
             features: [],
             characterUsageCount: 0,
@@ -306,9 +328,10 @@ describe('customSubclassManager — createCustomSubclass', () => {
                 id: 'new-subclass-id',
                 srdIndex: null,
                 ownerUserId: 'user-abc',
-                name: 'School of Glass',
-                description: ['A delicate art.'],
-                classId: 'class-wizard-id',
+                    name: 'School of Glass',
+                    description: ['A delicate art.'],
+                    selectionLevel: 3,
+                    classId: 'class-wizard-id',
                 classRef: {
                     id: 'class-wizard-id',
                     srdIndex: 'wizard',
@@ -329,6 +352,7 @@ describe('customSubclassManager — createCustomSubclass', () => {
             srdIndex: null,
             ownerUserId: 'user-abc',
             name: 'School of Glass',
+            selectionLevel: 3,
             description: ['A delicate art.'],
             classId: 'class-wizard-id',
             classRef: {
@@ -545,6 +569,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
             srdIndex: null,
             ownerUserId: 'user-abc',
             name: 'Updated Name',
+            selectionLevel: 3,
             description: ['Updated description.'],
             classId: 'class-wizard-id',
             classRef: {
@@ -575,6 +600,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
                 data: {
                     name: 'Updated Name',
                     description: ['Updated description.'],
+                    selectionLevel: 3,
                     classId: 'class-wizard-id',
                 },
             }),
@@ -585,6 +611,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
             classId: 'wizard',
             className: 'Wizard',
             name: 'Updated Name',
+            selectionLevel: 3,
             description: ['Updated description.'],
             features: [
                 {

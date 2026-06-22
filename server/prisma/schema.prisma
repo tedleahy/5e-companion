@@ -144,6 +144,7 @@ model Subclass {
     srdIndex        String?     @unique
     name            String
     description     String[]
+    selectionLevel  Int
     classId         String
     classRef        Class       @relation(fields: [classId], references: [id], onDelete: Cascade)
     sourceBook      String?

@@ -81,7 +81,7 @@ describe('multiclassRules', () => {
             ['wizard', wizardClass],
         ]);
         const subclassRefs = new Map([
-            ['evocation', { id: 'subclass-evocation-id', srdIndex: 'evocation', name: 'Evocation', classId: 'class-wizard-id' }],
+            ['evocation', { id: 'subclass-evocation-id', srdIndex: 'evocation', name: 'Evocation', classId: 'class-wizard-id', selectionLevel: 2 }],
         ]);
 
         expect(() => validateClassAllocations(
@@ -92,7 +92,7 @@ describe('multiclassRules', () => {
         )).toThrow('requires wizard level 2');
     });
 
-    test('requires subclasses once a class reaches its subclass unlock level', () => {
+    test('permits a class above subclass selection levels to remain without a subclass', () => {
         const classRefs = new Map([
             ['wizard', wizardClass],
         ]);
@@ -102,7 +102,62 @@ describe('multiclassRules', () => {
             classRefs,
             new Map(),
             'wizard',
-        )).toThrow('Class wizard requires a subclass at level 2.');
+        )).not.toThrow();
+    });
+
+    test('validates inline custom selection levels and prevents early selection', () => {
+        const classRefs = new Map([['wizard', wizardClass]]);
+
+        expect(() => validateClassAllocations(
+            [{
+                classId: 'wizard',
+                level: 2,
+                customSubclass: { name: 'Chronurgy', description: 'Time magic.', selectionLevel: 3 },
+            }],
+            classRefs,
+            new Map(),
+            'wizard',
+        )).toThrow('requires wizard level 3');
+
+        expect(() => validateClassAllocations(
+            [{
+                classId: 'wizard',
+                level: 2,
+                customSubclass: { name: 'Chronurgy', description: 'Time magic.', selectionLevel: 21 },
+            }],
+            classRefs,
+            new Map(),
+            'wizard',
+        )).toThrow('must be an integer from 1 to 20');
+    });
+
+    test('grandfathers an unchanged assignment after its custom selection level is raised', () => {
+        const classRefs = new Map([['wizard', wizardClass]]);
+        const subclassRefs = new Map([
+            ['custom-subclass-id', {
+                id: 'custom-subclass-id',
+                srdIndex: null,
+                name: 'School of Glass',
+                classId: 'class-wizard-id',
+                selectionLevel: 10,
+            }],
+        ]);
+        const allocation = [{ classId: 'wizard', subclassId: 'custom-subclass-id', level: 5 }];
+
+        expect(() => validateClassAllocations(
+            allocation,
+            classRefs,
+            subclassRefs,
+            'wizard',
+        )).toThrow('requires wizard level 10');
+
+        expect(() => validateClassAllocations(
+            allocation,
+            classRefs,
+            subclassRefs,
+            'wizard',
+            { allowedUnderLevelSubclassIds: new Set(['custom-subclass-id']) },
+        )).not.toThrow();
     });
 
     test('derives total level and proficiency bonus from ordered class rows', () => {
@@ -162,6 +217,7 @@ describe('multiclassRules', () => {
                     srdIndex: 'eldritch-knight',
                     name: 'Eldritch Knight',
                     classId: 'class-fighter-id',
+                    selectionLevel: 3,
                 },
             },
         ];
@@ -174,7 +230,7 @@ describe('multiclassRules', () => {
     test('derives multiclass spell slots and separate warlock pact slots', () => {
         const classes = [
             { classRow: { classId: 'wizard', level: 3 }, classRef: wizardClass, subclassRef: null },
-            { classRow: { classId: 'warlock', subclassId: 'fiend', level: 2 }, classRef: warlockClass, subclassRef: { id: 'subclass-fiend-id', srdIndex: 'fiend', name: 'Fiend', classId: 'class-warlock-id' } },
+            { classRow: { classId: 'warlock', subclassId: 'fiend', level: 2 }, classRef: warlockClass, subclassRef: { id: 'subclass-fiend-id', srdIndex: 'fiend', name: 'Fiend', classId: 'class-warlock-id', selectionLevel: 1 } },
         ];
 
         expect(deriveSpellSlots(classes)).toEqual([
@@ -186,8 +242,8 @@ describe('multiclassRules', () => {
 
     test('derives spellcasting profiles per casting class', () => {
         const classes = [
-            { classRow: { classId: 'wizard', subclassId: 'evocation', level: 3 }, classRef: wizardClass, subclassRef: { id: 'subclass-evocation-id', srdIndex: 'evocation', name: 'Evocation', classId: 'class-wizard-id' } },
-            { classRow: { classId: 'warlock', subclassId: 'fiend', level: 2 }, classRef: warlockClass, subclassRef: { id: 'subclass-fiend-id', srdIndex: 'fiend', name: 'Fiend', classId: 'class-warlock-id' } },
+            { classRow: { classId: 'wizard', subclassId: 'evocation', level: 3 }, classRef: wizardClass, subclassRef: { id: 'subclass-evocation-id', srdIndex: 'evocation', name: 'Evocation', classId: 'class-wizard-id', selectionLevel: 2 } },
+            { classRow: { classId: 'warlock', subclassId: 'fiend', level: 2 }, classRef: warlockClass, subclassRef: { id: 'subclass-fiend-id', srdIndex: 'fiend', name: 'Fiend', classId: 'class-warlock-id', selectionLevel: 1 } },
         ];
 
         expect(deriveSpellcastingProfiles(classes, {

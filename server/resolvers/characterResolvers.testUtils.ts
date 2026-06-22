@@ -314,6 +314,7 @@ export const fakeCharacterClasses: any[] = [
             srdIndex: 'evocation',
             name: 'Evocation',
             classId: 'class-wizard-id',
+            selectionLevel: 2,
         },
     },
     {
@@ -335,6 +336,7 @@ export const fakeCharacterClasses: any[] = [
             srdIndex: 'fiend',
             name: 'Fiend',
             classId: 'class-warlock-id',
+            selectionLevel: 1,
         },
     },
 ];

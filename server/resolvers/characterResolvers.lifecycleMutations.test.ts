@@ -53,8 +53,8 @@ describe('characterResolvers — createCharacter', () => {
             },
         ]);
         subclassFindManyMock.mockResolvedValueOnce([
-            { id: 'subclass-evocation-id', srdIndex: 'evocation', name: 'Evocation', classId: 'class-wizard-id' },
-            { id: 'subclass-fiend-id', srdIndex: 'fiend', name: 'Fiend', classId: 'class-warlock-id' },
+            { id: 'subclass-evocation-id', srdIndex: 'evocation', name: 'Evocation', classId: 'class-wizard-id', selectionLevel: 2 },
+            { id: 'subclass-fiend-id', srdIndex: 'fiend', name: 'Fiend', classId: 'class-warlock-id', selectionLevel: 1 },
         ]);
         raceFindFirstMock.mockResolvedValueOnce({
             id: 'race-elf-id',
@@ -127,7 +127,7 @@ describe('characterResolvers — createCharacter', () => {
             },
         ]);
         subclassFindManyMock.mockResolvedValueOnce([
-            { id: 'subclass-evocation-id', srdIndex: 'evocation', name: 'Evocation', classId: 'class-wizard-id' },
+            { id: 'subclass-evocation-id', srdIndex: 'evocation', name: 'Evocation', classId: 'class-wizard-id', selectionLevel: 2 },
         ]);
         raceFindFirstMock.mockResolvedValueOnce({ id: 'race-elf-id', name: 'Elf', languages: [], traits: [] });
         backgroundFindFirstMock.mockResolvedValueOnce({ id: 'background-acolyte-id', name: 'Acolyte', proficiencies: [], languages: [], languageChoiceCount: null });
@@ -220,6 +220,7 @@ describe('characterResolvers — createCharacter', () => {
             ownerUserId: 'user-abc',
             name: 'School of Glass',
             description: ['A delicate art of mirrored wards and refractions.'],
+            selectionLevel: 2,
             classId: 'class-wizard-id',
         });
         featureFindManyMock.mockReset();
@@ -257,6 +258,7 @@ describe('characterResolvers — createCharacter', () => {
                         customSubclass: {
                             name: 'School of Glass',
                             description: 'A delicate art of mirrored wards and refractions.',
+                            selectionLevel: 2,
                         },
                     },
                 ],
@@ -287,6 +289,7 @@ describe('characterResolvers — createCharacter', () => {
                 ownerUserId: 'user-abc',
                 name: 'School of Glass',
                 description: ['A delicate art of mirrored wards and refractions.'],
+                selectionLevel: 2,
                 classId: 'class-wizard-id',
             },
         });
@@ -327,7 +330,7 @@ describe('characterResolvers — createCharacter', () => {
             },
         ]);
         subclassFindManyMock.mockResolvedValueOnce([
-            { id: 'subclass-fiend-id', srdIndex: 'fiend', name: 'Fiend', classId: 'class-warlock-id' },
+            { id: 'subclass-fiend-id', srdIndex: 'fiend', name: 'Fiend', classId: 'class-warlock-id', selectionLevel: 1 },
         ]);
         raceFindFirstMock.mockResolvedValueOnce({
             id: 'race-human-id',
@@ -450,7 +453,7 @@ describe('characterResolvers — createCharacter', () => {
             },
         ]);
         subclassFindManyMock.mockResolvedValueOnce([
-            { id: 'subclass-fiend-id', srdIndex: 'fiend', name: 'Fiend', classId: 'class-warlock-id' },
+            { id: 'subclass-fiend-id', srdIndex: 'fiend', name: 'Fiend', classId: 'class-warlock-id', selectionLevel: 1 },
         ]);
         raceFindFirstMock.mockResolvedValueOnce({
             id: 'race-human-id',
@@ -584,7 +587,7 @@ describe('characterResolvers — createCharacter', () => {
             },
         ]);
         subclassFindManyMock.mockResolvedValueOnce([
-            { id: 'subclass-fiend-id', srdIndex: 'fiend', name: 'Fiend', classId: 'class-warlock-id' },
+            { id: 'subclass-fiend-id', srdIndex: 'fiend', name: 'Fiend', classId: 'class-warlock-id', selectionLevel: 1 },
         ]);
         raceFindFirstMock.mockResolvedValueOnce({
             id: 'race-human-id',

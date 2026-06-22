@@ -162,6 +162,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
             ownerUserId: 'user-abc',
             name: 'School of Glass',
             classId: 'class-wizard-id',
+            selectionLevel: 20,
             archivedAt: new Date('2026-06-01T00:00:00.000Z'),
         };
 
@@ -605,6 +606,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                         customSubclass: {
                             name: 'School of Glass',
                             description: 'A delicate art of mirrored wards and refractions.',
+                            selectionLevel: 2,
                         },
                         level: 10,
                         isStartingClass: true,
@@ -632,6 +634,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                 ownerUserId: 'user-abc',
                 name: 'School of Glass',
                 description: ['A delicate art of mirrored wards and refractions.'],
+                selectionLevel: 2,
                 classId: 'class-wizard-id',
             },
         });
@@ -696,6 +699,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                         customSubclass: {
                             name: 'School of Glass',
                             description: 'A delicate art of mirrored wards and refractions.',
+                            selectionLevel: 2,
                         },
                         level: 10,
                         isStartingClass: true,

@@ -268,6 +268,7 @@ async function resolveSaveCharacterClassReferences(
     const existingSubclassIds = existingCharacterClassRows
         .map((classRow) => classRow.subclassId)
         .filter((subclassId): subclassId is string => typeof subclassId === "string");
+    const allowedUnderLevelSubclassIds = new Set(existingSubclassIds);
     const subclassRefs = subclassSelectionValues.length === 0
         ? []
         : await loadVisibleSubclassReferences(userId, subclassSelectionValues, {
@@ -283,7 +284,13 @@ async function resolveSaveCharacterClassReferences(
 
     const subclassRefsBySelectionValue = mapSubclassReferencesBySelectionValue(subclassRefs);
 
-    validateClassAllocations(classes, classRefsBySrdIndex, subclassRefsBySelectionValue, startingClassId);
+    validateClassAllocations(
+        classes,
+        classRefsBySrdIndex,
+        subclassRefsBySelectionValue,
+        startingClassId,
+        { allowedUnderLevelSubclassIds },
+    );
 
     return {
         classRefsBySrdIndex,

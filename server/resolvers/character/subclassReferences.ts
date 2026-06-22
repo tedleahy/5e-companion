@@ -27,6 +27,7 @@ const FEATURE_KIND = {
 export type SubmittedCustomSubclass = {
     name: string;
     description: string;
+    selectionLevel: number;
 };
 
 /**
@@ -86,14 +87,20 @@ export function normaliseCustomSubclassInput(
 
     const name = customSubclass.name.trim();
     const description = customSubclass.description.trim();
+    const selectionLevel = Number(customSubclass.selectionLevel);
 
     if (name.length === 0 && description.length === 0) {
         return null;
     }
 
+    if (!Number.isInteger(selectionLevel) || selectionLevel < 1 || selectionLevel > 20) {
+        throw new Error('Custom subclass selection level must be an integer from 1 to 20.');
+    }
+
     return {
         name,
         description,
+        selectionLevel,
     };
 }
 
@@ -184,6 +191,7 @@ export async function availableSubclassesForUser(
             classId: subclassRef.classRef.srdIndex ?? subclassRef.classId,
             className: subclassRef.classRef.name,
             name: subclassRef.name,
+            selectionLevel: subclassRef.selectionLevel,
             description: subclassRef.description,
             isCustom: subclassRef.ownerUserId != null,
             features: subclassRef.features.map((feature) => ({
@@ -268,11 +276,15 @@ export async function findOrCreateOwnedCustomSubclass(
     });
 
     if (existingSubclass) {
-        if (existingSubclass.description.join("\n\n") !== customSubclass.description) {
+        if (
+            existingSubclass.description.join("\n\n") !== customSubclass.description
+            || existingSubclass.selectionLevel !== customSubclass.selectionLevel
+        ) {
             return await tx.subclass.update({
                 where: { id: existingSubclass.id },
                 data: {
                     description: [customSubclass.description],
+                    selectionLevel: customSubclass.selectionLevel,
                 },
             });
         }
@@ -285,6 +297,7 @@ export async function findOrCreateOwnedCustomSubclass(
             ownerUserId: userId,
             name: customSubclass.name,
             description: [customSubclass.description],
+            selectionLevel: customSubclass.selectionLevel,
             classId: classRef.id,
         },
     });
