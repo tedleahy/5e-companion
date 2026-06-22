@@ -34,17 +34,20 @@ export async function fillSubclassForm(
         name,
         classId,
         description,
+        selectionLevel = '3',
         features,
     }: {
         name: string;
         classId: string;
         description: string;
+        selectionLevel?: string;
         features?: Array<{ level: string; name: string; description: string }>;
     },
 ): Promise<void> {
     await page.getByTestId('custom-subclass-name-input').fill(name);
     await page.getByTestId(`custom-subclass-class-${classId}`).click();
     await page.getByTestId('custom-subclass-description-input').fill(description);
+    await page.getByTestId('custom-subclass-selection-level-input').fill(selectionLevel);
 
     if (features && features.length > 0) {
         for (let i = 0; i < features.length; i++) {
@@ -99,7 +102,7 @@ export async function collapseExpandedSubclass(page: Page): Promise<void> {
  * Opens edit form for a custom subclass from its collapsed row.
  */
 export async function editSubclassFromRow(page: Page, id: string): Promise<void> {
-    await page.getByTestId(`edit-custom-subclass-${id}`).click();
+    await page.getByTestId('subclass-list-scroll').getByTestId(`edit-custom-subclass-${id}`).click();
     await expect(page.getByTestId('custom-subclass-form-sheet')).toBeVisible();
     await expect(page.getByText('Edit Subclass')).toBeVisible();
 }
@@ -108,7 +111,7 @@ export async function editSubclassFromRow(page: Page, id: string): Promise<void>
  * Opens the delete confirmation for a custom subclass from its collapsed row.
  */
 export async function deleteSubclassFromRow(page: Page, id: string): Promise<void> {
-    await page.getByTestId(`delete-custom-subclass-${id}`).click();
+    await page.getByTestId('subclass-list-scroll').getByTestId(`delete-custom-subclass-${id}`).click();
     await expect(page.getByText('Delete custom subclass?')).toBeVisible();
 }
 
@@ -140,7 +143,7 @@ export async function selectClassFilter(page: Page, classId: string): Promise<vo
  * This is needed because row testIDs include the generated Prisma id.
  */
 export async function findCustomSubclassRowId(page: Page, name: string): Promise<string | null> {
-    const row = page.locator('[data-testid^="custom-subclass-row-"]').filter({
+    const row = page.getByTestId('subclass-list-scroll').locator('[data-testid^="custom-subclass-row-"]').filter({
         has: page.locator('text=' + name),
     });
     if (await row.count() === 0) return null;

@@ -129,8 +129,8 @@ test.describe('Subclass manager — create', () => {
         await expandSubclass(page, name);
         await expect(page.getByText('Arcane Resilience')).toBeVisible();
         await expect(page.getByText('Spellweaving')).toBeVisible();
-        await expect(page.getByText('Level 2')).toBeVisible();
-        await expect(page.getByText('Level 6')).toBeVisible();
+        await expect(page.getByTestId('subclass-detail-scroll').getByText('Level 2')).toBeVisible();
+        await expect(page.getByTestId('subclass-detail-scroll').getByText('Level 6')).toBeVisible();
 
         // Clean up
         await collapseExpandedSubclass(page);
@@ -156,6 +156,9 @@ test.describe('Subclass manager — create', () => {
         await expect(saveButton).toBeDisabled();
 
         await page.getByTestId('custom-subclass-description-input').fill('A description.');
+        await expect(saveButton).toBeDisabled();
+
+        await page.getByTestId('custom-subclass-selection-level-input').fill('3');
         await expect(saveButton).toBeEnabled();
     });
 
