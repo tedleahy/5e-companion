@@ -102,7 +102,7 @@ describe('customSubclassManager — createCustomSubclass', () => {
         expect(
             resolvers.createCustomSubclass(
                 {},
-                { input: { classId: 'wizard', name: 'Foo', description: 'Bar' } },
+                { input: { classId: 'wizard', name: 'Foo', description: 'Bar', selectionLevel: 3 } },
                 unauthedCtx,
             ),
         ).rejects.toThrow('UNAUTHENTICATED');
@@ -122,7 +122,7 @@ describe('customSubclassManager — createCustomSubclass', () => {
         expect(
             resolvers.createCustomSubclass(
                 {},
-                { input: { classId: '   ', name: 'Foo', description: 'Bar' } },
+                { input: { classId: '   ', name: 'Foo', description: 'Bar', selectionLevel: 3 } },
                 authedCtx,
             ),
         ).rejects.toThrow('Name, description, and class are required.');
@@ -184,7 +184,7 @@ describe('customSubclassManager — createCustomSubclass', () => {
         expect(
             resolvers.createCustomSubclass(
                 {},
-                { input: { classId: 'unknown', name: 'Foo', description: 'Bar' } },
+                { input: { classId: 'unknown', name: 'Foo', description: 'Bar', selectionLevel: 3 } },
                 authedCtx,
             ),
         ).rejects.toThrow('Unknown class: unknown');
@@ -197,7 +197,7 @@ describe('customSubclassManager — createCustomSubclass', () => {
         expect(
             resolvers.createCustomSubclass(
                 {},
-                { input: { classId: 'wizard', name: 'Foo', description: 'Bar' } },
+                { input: { classId: 'wizard', name: 'Foo', description: 'Bar', selectionLevel: 3 } },
                 authedCtx,
             ),
         ).rejects.toThrow('You already have a custom subclass named "Foo" for Wizard.');
@@ -241,7 +241,7 @@ describe('customSubclassManager — createCustomSubclass', () => {
 
         const result = await resolvers.createCustomSubclass(
             {},
-            { input: { classId: 'wizard', name: 'School of Glass', description: 'A delicate art.' } },
+            { input: { classId: 'wizard', name: 'School of Glass', description: 'A delicate art.', selectionLevel: 3 } },
             authedCtx,
         );
 
@@ -372,6 +372,7 @@ describe('customSubclassManager — createCustomSubclass', () => {
                     classId: 'wizard',
                     name: 'School of Glass',
                     description: 'A delicate art.',
+                    selectionLevel: 3,
                     features: [
                         {
                             name: 'Glass Step',
@@ -414,7 +415,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
         expect(
             resolvers.updateCustomSubclass(
                 {},
-                { id: 'sub-1', input: { classId: 'wizard', name: 'Foo', description: 'Bar' } },
+                { id: 'sub-1', input: { classId: 'wizard', name: 'Foo', description: 'Bar', selectionLevel: 3 } },
                 unauthedCtx,
             ),
         ).rejects.toThrow('UNAUTHENTICATED');
@@ -424,7 +425,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
         expect(
             resolvers.updateCustomSubclass(
                 {},
-                { id: 'sub-1', input: { classId: '', name: 'Foo', description: 'Bar' } },
+                { id: 'sub-1', input: { classId: '', name: 'Foo', description: 'Bar', selectionLevel: 3 } },
                 authedCtx,
             ),
         ).rejects.toThrow('Name, description, and class are required.');
@@ -437,7 +438,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
         expect(
             resolvers.updateCustomSubclass(
                 {},
-                { id: 'sub-1', input: { classId: 'wizard', name: 'Foo', description: 'Bar' } },
+                { id: 'sub-1', input: { classId: 'wizard', name: 'Foo', description: 'Bar', selectionLevel: 3 } },
                 authedCtx,
             ),
         ).rejects.toThrow('Custom subclass not found.');
@@ -449,7 +450,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
         expect(
             resolvers.updateCustomSubclass(
                 {},
-                { id: 'sub-1', input: { classId: 'wizard', name: 'Foo', description: 'Bar' } },
+                { id: 'sub-1', input: { classId: 'wizard', name: 'Foo', description: 'Bar', selectionLevel: 3 } },
                 authedCtx,
             ),
         ).rejects.toThrow('Custom subclass not found.');
@@ -470,7 +471,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
         expect(
             resolvers.updateCustomSubclass(
                 {},
-                { id: 'sub-1', input: { classId: 'sorcerer', name: 'Foo', description: 'Bar' } },
+                { id: 'sub-1', input: { classId: 'sorcerer', name: 'Foo', description: 'Bar', selectionLevel: 3 } },
                 authedCtx,
             ),
         ).rejects.toThrow('Cannot change the parent class of a subclass used by 3 character(s).');
@@ -497,6 +498,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
                         classId: 'sorcerer',
                         name: 'Foo',
                         description: 'Bar',
+                        selectionLevel: 3,
                         features: [{ id: 'feature-1', name: 'Feature A', description: 'Does something.', level: 3 }],
                     },
                 },
@@ -523,7 +525,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
         expect(
             resolvers.updateCustomSubclass(
                 {},
-                { id: 'sub-1', input: { classId: 'wizard', name: 'Duplicate', description: 'Bar' } },
+                { id: 'sub-1', input: { classId: 'wizard', name: 'Duplicate', description: 'Bar', selectionLevel: 3 } },
                 authedCtx,
             ),
         ).rejects.toThrow('You already have a custom subclass named "Duplicate" for Wizard.');
@@ -593,7 +595,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
 
         const result = await resolvers.updateCustomSubclass(
             {},
-            { id: 'sub-1', input: { classId: 'wizard', name: 'Updated Name', description: 'Updated description.' } },
+            { id: 'sub-1', input: { classId: 'wizard', name: 'Updated Name', description: 'Updated description.', selectionLevel: 3 } },
             authedCtx,
         );
 
@@ -682,6 +684,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
                     classId: 'wizard',
                     name: 'Updated Name',
                     description: 'Updated description.',
+                    selectionLevel: 3,
                     features: [
                         {
                             id: 'feat-kept',
@@ -762,6 +765,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
                         classId: 'wizard',
                         name: 'Updated Name',
                         description: 'Updated description.',
+                        selectionLevel: 3,
                         features: [
                             {
                                 id: 'other-feature',
@@ -817,6 +821,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
                     classId: 'fighter',
                     name: 'Updated Name',
                     description: 'Updated description.',
+                    selectionLevel: 3,
                     features: [],
                 },
             },

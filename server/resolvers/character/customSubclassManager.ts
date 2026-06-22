@@ -91,7 +91,7 @@ function normaliseManagedCustomSubclassInput(
     const name = input.name.trim();
     const description = input.description.trim();
     const classId = input.classId.trim();
-    const selectionLevel = Number(input.selectionLevel ?? 3);
+    const selectionLevel = Number(input.selectionLevel);
     const shouldReconcileFeatures = input.features != null;
     const features = normaliseManagedCustomSubclassFeatures(input.features ?? []);
 
