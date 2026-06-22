@@ -246,6 +246,7 @@ export const GET_AVAILABLE_SUBCLASSES = gql`
             classId
             className
             name
+            selectionLevel
             description
             isCustom
             features {

@@ -67,6 +67,7 @@ export default function LevelUpWizardStepBody({
         selectCustomSubclass,
         changeCustomSubclassName,
         changeCustomSubclassDescription,
+        changeCustomSubclassSelectionLevel,
         addCustomFeature,
         changeCustomFeature,
         removeCustomFeature,
@@ -191,11 +192,13 @@ export default function LevelUpWizardStepBody({
                 selectedSubclassId={subclassSelectionState.selectedSubclassId}
                 customSubclassName={subclassSelectionState.customSubclassName}
                 customSubclassDescription={subclassSelectionState.customSubclassDescription}
+                customSubclassSelectionLevel={subclassSelectionState.customSubclassSelectionLevel ?? ''}
                 selectedMode={subclassSelectionState.mode}
                 onSelectExistingSubclass={selectExistingSubclass}
                 onSelectCustomSubclass={selectCustomSubclass}
                 onChangeCustomSubclassName={changeCustomSubclassName}
                 onChangeCustomSubclassDescription={changeCustomSubclassDescription}
+                onChangeCustomSubclassSelectionLevel={changeCustomSubclassSelectionLevel}
             />
         );
     }

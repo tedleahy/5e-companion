@@ -1,7 +1,4 @@
 import {
-    SUBCLASS_UNLOCK_LEVEL_BY_CLASS,
-} from '@/lib/characterCreation/classRules';
-import {
     CLASS_OPTIONS,
     SUBCLASS_OPTIONS,
     type OptionItem,
@@ -89,13 +86,6 @@ export function subclassLabel(
 }
 
 /**
- * Returns the configured subclass unlock level for the given class.
- */
-export function subclassUnlockLevel(classId: string): number {
-    return SUBCLASS_UNLOCK_LEVEL_BY_CLASS[classId] ?? 3;
-}
-
-/**
  * Returns whether the class has any selectable subclasses in the current SRD data.
  */
 export function classHasSubclassOptions(
@@ -116,7 +106,9 @@ export function isSubclassUnlocked(
         return false;
     }
 
-    return classRow.level >= subclassUnlockLevel(classRow.classId);
+    return (subclassOptionsByClassId[classRow.classId] ?? []).some(
+        (option) => classRow.level >= (option.selectionLevel ?? 1),
+    );
 }
 
 /**
@@ -151,7 +143,12 @@ export function sanitiseCharacterClassRow(
         };
     }
 
-    if (!isSubclassUnlocked(classRow, subclassOptionsByClassId)) {
+    const selectedSubclass = subclassOptionById(
+        classRow.classId,
+        classRow.subclassId,
+        subclassOptionsByClassId,
+    );
+    if (classRow.level < (selectedSubclass?.selectionLevel ?? 1)) {
         return {
             ...classRow,
             subclassId: '',
@@ -312,15 +309,15 @@ export function validateCharacterClassDraft(
             break;
         }
 
-        if (classRow.subclassId && !isSubclassUnlocked(classRow, subclassOptionsByClassId)) {
+        const selectedSubclass = subclassOptionById(
+            classRow.classId,
+            classRow.subclassId,
+            subclassOptionsByClassId,
+        );
+        if (selectedSubclass && classRow.level < (selectedSubclass.selectionLevel ?? 1)) {
             errors.push(
-                `${classLabel(classRow.classId)} reaches its subclass at level ${subclassUnlockLevel(classRow.classId)}.`,
+                `${selectedSubclass.label} requires ${classLabel(classRow.classId)} level ${selectedSubclass.selectionLevel ?? 1}.`,
             );
-            break;
-        }
-
-        if (!classRow.subclassId && isSubclassUnlocked(classRow, subclassOptionsByClassId)) {
-            errors.push(`Choose a subclass for ${classLabel(classRow.classId)}.`);
             break;
         }
     }

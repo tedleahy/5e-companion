@@ -10,6 +10,7 @@ export const CUSTOM_SUBCLASS_MANAGER_FIELDS = gql`
         classId
         className
         name
+        selectionLevel
         description
         characterUsageCount
         features {

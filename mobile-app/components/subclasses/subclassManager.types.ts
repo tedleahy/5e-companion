@@ -8,6 +8,7 @@ export type CustomSubclassFormDraft = {
     name: string;
     classId: string;
     description: string;
+    selectionLevel: string;
     features: CustomSubclassFeatureDraft[];
 };
 
@@ -31,6 +32,7 @@ export function areCustomSubclassDraftsEqual(
     return left.name === right.name
         && left.classId === right.classId
         && left.description === right.description
+        && left.selectionLevel === right.selectionLevel
         && left.features.length === right.features.length
         && left.features.every((feature, index) => {
             const rightFeature = right.features[index];

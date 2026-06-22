@@ -70,7 +70,7 @@ export default function SubclassListRow({
                             style={[styles.className, isOpen && styles.classNameOpen]}
                             numberOfLines={1}
                         >
-                            {subclass.className}
+                            {`Available at ${subclass.className} level ${subclass.selectionLevel}`}
                         </Text>
                     </View>
                 </View>

@@ -65,6 +65,7 @@ type AvailableSubclassRow = {
     classId: string;
     className: string;
     name: string;
+    selectionLevel: number;
     description: string[];
     isCustom: boolean;
     features: {
@@ -83,6 +84,7 @@ type CustomSubclassRow = {
     classId: string;
     className: string;
     name: string;
+    selectionLevel: number;
     description: string[];
     characterUsageCount: number;
     features: {
@@ -102,6 +104,7 @@ const WIZARD_AVAILABLE_SUBCLASS: AvailableSubclassRow = {
     classId: 'wizard',
     className: 'Wizard',
     name: 'School of Lanterns',
+    selectionLevel: 2,
     description: ['You bind floating lanterns to defensive spellwork.'],
     isCustom: true,
     features: [],
@@ -136,6 +139,7 @@ const WIZARD_CUSTOM_SUBCLASS_UNUSED: CustomSubclassRow = {
     classId: 'wizard',
     className: 'Wizard',
     name: 'School of Lanterns',
+    selectionLevel: 2,
     description: ['You bind floating lanterns to defensive spellwork.'],
     characterUsageCount: 0,
     features: [],
@@ -159,6 +163,7 @@ const FIGHTER_AVAILABLE_SUBCLASS: AvailableSubclassRow = {
     classId: 'fighter',
     className: 'Fighter',
     name: 'Banner Knight',
+    selectionLevel: 3,
     description: ['You carry a battle standard into every fray.'],
     isCustom: true,
     features: [],
@@ -178,6 +183,7 @@ const SRD_WIZARD_SUBCLASS: AvailableSubclassRow = {
     classId: 'wizard',
     className: 'Wizard',
     name: 'School of Evocation',
+    selectionLevel: 2,
     description: ['You focus your study on magic that creates powerful elemental effects.'],
     isCustom: false,
     features: [],
@@ -448,6 +454,7 @@ describe('CustomSubclassesScreen', () => {
 
         fireEvent.changeText(screen.getByTestId('custom-subclass-name-input'), '  Moon Warden  ');
         fireEvent.press(screen.getByTestId('custom-subclass-class-druid'));
+        fireEvent.changeText(screen.getByTestId('custom-subclass-selection-level-input'), '2');
         fireEvent.changeText(screen.getByTestId('custom-subclass-description-input'), '  A circle sworn to moonlit borders.  ');
 
         await waitFor(() => {
@@ -466,6 +473,7 @@ describe('CustomSubclassesScreen', () => {
                     input: {
                         name: 'Moon Warden',
                         classId: 'druid',
+                        selectionLevel: 2,
                         description: 'A circle sworn to moonlit borders.',
                         features: [],
                     },
@@ -488,6 +496,7 @@ describe('CustomSubclassesScreen', () => {
 
         fireEvent.changeText(screen.getByTestId('custom-subclass-name-input'), 'Moon Warden');
         fireEvent.press(screen.getByTestId('custom-subclass-class-druid'));
+        fireEvent.changeText(screen.getByTestId('custom-subclass-selection-level-input'), '2');
         fireEvent.changeText(screen.getByTestId('custom-subclass-description-input'), 'A circle sworn to moonlit borders.');
         fireEvent.press(screen.getByTestId('add-custom-subclass-feature'));
 
@@ -510,6 +519,7 @@ describe('CustomSubclassesScreen', () => {
                     input: {
                         name: 'Moon Warden',
                         classId: 'druid',
+                        selectionLevel: 2,
                         description: 'A circle sworn to moonlit borders.',
                         features: [
                             {
@@ -659,6 +669,7 @@ describe('CustomSubclassesScreen', () => {
                     input: {
                         name: 'School of Lanterns',
                         classId: 'wizard',
+                        selectionLevel: 2,
                         description: 'You bind floating lanterns to defensive spellwork.',
                         features: [
                             {
@@ -705,6 +716,7 @@ describe('CustomSubclassesScreen', () => {
                     input: {
                         name: 'School of Lanterns',
                         classId: 'fighter',
+                        selectionLevel: 2,
                         description: 'You bind floating lanterns to defensive spellwork.',
                         features: [],
                     },

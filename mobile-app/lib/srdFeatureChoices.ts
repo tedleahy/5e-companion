@@ -291,12 +291,15 @@ export function getCreateFeatureChoiceGroups(
  * Returns all simple SRD parent/child feature choice groups unlocked by the current level-up.
  */
 export function getLevelUpFeatureChoiceGroups(
-    selectedClass: Pick<LevelUpWizardSelectedClass, 'classId' | 'newLevel' | 'subclassId'>,
+    selectedClass: Pick<LevelUpWizardSelectedClass, 'classId' | 'newLevel' | 'subclassId' | 'subclassSelectedThisLevel'>,
 ): ResolvedSrdFeatureChoiceGroup[] {
     return SRD_FEATURE_CHOICE_DEFINITIONS
         .filter((definition) => definition.classId === selectedClass.classId)
         .filter((definition) => !definition.createOnly)
-        .filter((definition) => definition.level === selectedClass.newLevel)
+        .filter((definition) => definition.level === selectedClass.newLevel
+            || (selectedClass.subclassSelectedThisLevel
+                && definition.subclassId != null
+                && definition.level <= selectedClass.newLevel))
         .filter((definition) => definition.subclassId == null || definition.subclassId === normaliseSubclassId(selectedClass.subclassId))
         .map((definition) => resolveFeatureChoiceDefinition(definition, selectedClass.newLevel))
         .filter((group): group is ResolvedSrdFeatureChoiceGroup => group !== null);

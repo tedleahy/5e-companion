@@ -23,6 +23,7 @@ export type AvailableSubclassOption = {
     classId: string;
     className: string;
     name: string;
+    selectionLevel: number;
     description: string;
     isCustom: boolean;
     features: AvailableSubclassFeature[];
@@ -49,6 +50,7 @@ export function mapAvailableSubclassOption(
         classId: subclass.classId,
         className: subclass.className,
         name: subclass.name,
+        selectionLevel: subclass.selectionLevel,
         description: subclass.description.join('\n\n').trim(),
         isCustom: subclass.isCustom,
         features: subclass.features.map((feature) => ({
@@ -88,7 +90,8 @@ export function subclassOptionItems(
         value: subclass.value,
         label: subclass.name,
         icon: subclass.icon,
-        hint: subclass.hint ?? (subclass.isCustom ? 'Your custom subclass' : undefined),
+        hint: `Available at ${subclass.className} level ${subclass.selectionLevel}`,
         description: subclass.description || undefined,
+        selectionLevel: subclass.selectionLevel,
     }));
 }

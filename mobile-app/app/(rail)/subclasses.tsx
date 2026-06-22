@@ -42,6 +42,7 @@ const EMPTY_DRAFT: CustomSubclassFormDraft = {
     name: '',
     classId: '',
     description: '',
+    selectionLevel: '',
     features: [],
 };
 
@@ -72,6 +73,7 @@ function draftFromSubclass(subclass: SubclassManagerRow): CustomSubclassFormDraf
         name: subclass.name,
         classId: subclass.classId,
         description: subclass.description.join('\n'),
+        selectionLevel: String(subclass.selectionLevel),
         features: subclass.features.map((feature, index) => ({
             clientId: customSubclassFeatureDraftId(feature.id, index),
             id: feature.id,
@@ -87,6 +89,7 @@ function mutationInputFromDraft(draft: CustomSubclassFormDraft) {
         name: draft.name.trim(),
         classId: draft.classId.trim(),
         description: draft.description.trim(),
+        selectionLevel: Number(draft.selectionLevel),
         features: draft.features.map((feature) => ({
             ...(feature.id ? { id: feature.id } : {}),
             name: feature.name.trim(),

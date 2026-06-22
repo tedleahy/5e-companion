@@ -18,6 +18,8 @@ describe('multiclass helpers', () => {
             classId: 'wizard',
             subclassId: 'evocation',
             level: 1,
+        }, {
+            wizard: [{ value: 'evocation', label: 'Evocation', icon: '🔥', selectionLevel: 2 }],
         })).toEqual({
             classId: 'wizard',
             subclassId: '',
@@ -36,14 +38,14 @@ describe('multiclass helpers', () => {
         });
     });
 
-    it('requires a subclass once a class reaches its unlock level', () => {
+    it('allows an eligible subclass choice to be deferred', () => {
         expect(validateCharacterClassDraft(
             [{ classId: 'wizard', subclassId: '', level: 2 }],
             2,
             'wizard',
         )).toMatchObject({
-            isValid: false,
-            errors: ['Choose a subclass for Wizard.'],
+            isValid: true,
+            errors: [],
         });
     });
 

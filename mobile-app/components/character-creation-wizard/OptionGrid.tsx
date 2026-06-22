@@ -13,6 +13,7 @@ type Props = {
     tone?: 'night' | 'parchment';
     getOptionTestId?: (option: OptionItem) => string | undefined;
     getOptionAccessibilityLabel?: (option: OptionItem) => string | undefined;
+    isOptionDisabled?: (option: OptionItem) => boolean;
 };
 
 /**
@@ -40,6 +41,7 @@ export default function OptionGrid({
     tone = 'night',
     getOptionTestId,
     getOptionAccessibilityLabel,
+    isOptionDisabled,
 }: Props) {
     const { width } = useWindowDimensions();
     const columnCount = getOptionGridColumnCount(width);
@@ -65,10 +67,12 @@ export default function OptionGrid({
                 contentContainerStyle={styles.grid}
                 renderItem={({ item, index }) => {
                     const isSelected = item.value === selected;
+                    const isDisabled = isOptionDisabled?.(item) ?? false;
                     const isInIncompleteFinalRow = incompleteFinalRowCount !== 0 &&
                         index >= options.length - incompleteFinalRowCount;
                     return (
                         <Pressable
+                            disabled={isDisabled}
                             onPress={() => {
                                 if (item.value === selected) return;
                                 onSelect(item.value);
@@ -79,10 +83,12 @@ export default function OptionGrid({
                                 isSelected && styles.cardSelected,
                                 isSelected && isParchmentTone && styles.cardSelectedParchment,
                                 isInIncompleteFinalRow && columnWidthStyle,
+                                isDisabled && styles.cardDisabled,
                             ]}
                             testID={getOptionTestId?.(item) ?? `option-${item.value}`}
                             accessibilityRole="button"
                             accessibilityLabel={getOptionAccessibilityLabel?.(item)}
+                            accessibilityState={{ selected: isSelected, disabled: isDisabled }}
                         >
                             {item.description ? (
                                 <Pressable
@@ -166,6 +172,9 @@ const styles = StyleSheet.create({
     cardSelectedParchment: {
         borderColor: fantasyTokens.colors.claret,
         backgroundColor: fantasyTokens.colors.parchmentDeep,
+    },
+    cardDisabled: {
+        opacity: 0.4,
     },
     cardHalf: {
         maxWidth: '50%',

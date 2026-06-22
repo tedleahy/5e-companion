@@ -14,11 +14,13 @@ type LevelUpSubclassSelectionStepProps = {
     selectedSubclassId: string | null;
     customSubclassName: string;
     customSubclassDescription: string;
+    customSubclassSelectionLevel: string;
     selectedMode: 'none' | 'srd' | 'custom';
     onSelectExistingSubclass: (subclass: AvailableSubclassOption) => void;
     onSelectCustomSubclass: () => void;
     onChangeCustomSubclassName: (value: string) => void;
     onChangeCustomSubclassDescription: (value: string) => void;
+    onChangeCustomSubclassSelectionLevel: (value: string) => void;
 };
 
 /**
@@ -30,11 +32,13 @@ export default function LevelUpSubclassSelectionStep({
     selectedSubclassId,
     customSubclassName,
     customSubclassDescription,
+    customSubclassSelectionLevel,
     selectedMode,
     onSelectExistingSubclass,
     onSelectCustomSubclass,
     onChangeCustomSubclassName,
     onChangeCustomSubclassDescription,
+    onChangeCustomSubclassSelectionLevel,
 }: LevelUpSubclassSelectionStepProps) {
     const categoryName = subclassCategoryName(selectedClass.classId);
     const existingSubclassSelected = selectedMode === 'srd';
@@ -43,23 +47,26 @@ export default function LevelUpSubclassSelectionStep({
     return (
         <View style={styles.section} testID="level-up-step-subclass_selection">
             <Text style={styles.bodyText}>
-                {`Choose your ${categoryName} for ${selectedClass.className}.`}
+                {`Choose your ${categoryName} for ${selectedClass.className}, or skip this step and choose later.`}
             </Text>
 
             {availableSubclasses.map((subclass) => {
                 const isSelected = existingSubclassSelected && selectedSubclassId === subclass.value;
+                const isLocked = subclass.selectionLevel > selectedClass.newLevel;
 
                 return (
                     <Pressable
                         key={subclass.value}
+                        disabled={isLocked}
                         onPress={() => onSelectExistingSubclass(subclass)}
                         style={[
                             styles.optionCard,
                             isSelected && styles.optionCardSelected,
+                            isLocked && styles.optionCardLocked,
                         ]}
                         accessibilityRole="button"
                         accessibilityLabel={`Choose ${subclass.name}`}
-                        accessibilityState={{ selected: isSelected }}
+                        accessibilityState={{ selected: isSelected, disabled: isLocked }}
                         testID={`level-up-subclass-option-${subclass.value}`}
                     >
                         <View style={styles.optionHeader}>
@@ -67,7 +74,7 @@ export default function LevelUpSubclassSelectionStep({
                             <View style={styles.optionTitleWrap}>
                                 <Text style={styles.optionTitle}>{subclass.name}</Text>
                                 <Text style={styles.optionSubtitle}>
-                                    {subclass.isCustom ? `Custom ${categoryName}` : categoryName}
+                                    {`Available at ${selectedClass.className} level ${subclass.selectionLevel}`}
                                 </Text>
                             </View>
                             <View style={[
@@ -115,6 +122,21 @@ export default function LevelUpSubclassSelectionStep({
 
                 {customSelected ? (
                     <View style={styles.customInputGroup}>
+                        <TextInput
+                            mode="outlined"
+                            label={`Selection Level (1-${selectedClass.newLevel})`}
+                            placeholder={`1-${selectedClass.newLevel}`}
+                            value={customSubclassSelectionLevel}
+                            onChangeText={(value) => onChangeCustomSubclassSelectionLevel(
+                                value.replace(/[^0-9]/g, '').slice(0, 2),
+                            )}
+                            keyboardType="number-pad"
+                            outlineColor={fantasyTokens.colors.gold}
+                            activeOutlineColor={fantasyTokens.colors.claret}
+                            textColor={fantasyTokens.colors.inkDark}
+                            style={styles.input}
+                            testID="level-up-custom-subclass-selection-level-input"
+                        />
                         <TextInput
                             mode="outlined"
                             label="Custom Subclass Name"
@@ -170,6 +192,9 @@ const styles = StyleSheet.create({
     optionCardSelected: {
         borderColor: fantasyTokens.colors.claret,
         backgroundColor: '#faf0e8',
+    },
+    optionCardLocked: {
+        opacity: 0.45,
     },
     optionHeader: {
         flexDirection: 'row',

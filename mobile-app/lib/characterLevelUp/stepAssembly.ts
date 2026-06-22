@@ -126,6 +126,7 @@ export function selectedLevelUpClass(
             subclassDescription: matchingSubclassOption?.description ?? null,
             subclassIsCustom: matchingSubclassOption?.isCustom ?? false,
             subclassFeatures: matchingSubclassOption?.features ?? [],
+            subclassSelectedThisLevel: false,
             customSubclass: null,
         };
         const resolvedSubclass = resolveSelectedClassSubclass(baseSelectedClass, subclassSelection);
@@ -133,6 +134,7 @@ export function selectedLevelUpClass(
         return {
             ...baseSelectedClass,
             ...resolvedSubclass,
+            subclassSelectedThisLevel: subclassSelection.mode !== 'none' && baseSelectedClass.subclassId == null,
         };
     }
 
@@ -147,6 +149,7 @@ export function selectedLevelUpClass(
         subclassDescription: null,
         subclassIsCustom: false,
         subclassFeatures: [],
+        subclassSelectedThisLevel: false,
         customSubclass: null,
     };
     const resolvedSubclass = resolveSelectedClassSubclass(baseSelectedClass, subclassSelection);
@@ -154,6 +157,7 @@ export function selectedLevelUpClass(
     return {
         ...baseSelectedClass,
         ...resolvedSubclass,
+        subclassSelectedThisLevel: subclassSelection.mode !== 'none' && baseSelectedClass.subclassId == null,
     };
 }
 

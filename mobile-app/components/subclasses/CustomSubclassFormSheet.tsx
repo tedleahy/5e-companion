@@ -95,6 +95,9 @@ export default function CustomSubclassFormSheet({
     const canSave = draft.name.trim().length > 0
         && draft.classId.trim().length > 0
         && draft.description.trim().length > 0
+        && Number.isInteger(Number(draft.selectionLevel))
+        && Number(draft.selectionLevel) >= 1
+        && Number(draft.selectionLevel) <= 20
         && featureRowsAreValid
         && !pending;
 
@@ -256,6 +259,29 @@ export default function CustomSubclassFormSheet({
                             {lockedClassMessage}
                         </Text>
                     )}
+                </View>
+
+                <View style={styles.field}>
+                    <Text style={styles.fieldLabel}>Selection Level</Text>
+                    <TextInput
+                        placeholder="1-20"
+                        placeholderTextColor={fantasyTokens.colors.inkSoft}
+                        value={draft.selectionLevel}
+                        onChangeText={(value) => onChangeDraft({
+                            ...draft,
+                            selectionLevel: value.replace(/[^0-9]/g, '').slice(0, 2),
+                        })}
+                        keyboardType="number-pad"
+                        mode="outlined"
+                        style={styles.input}
+                        textColor={fantasyTokens.colors.inkDark}
+                        outlineColor={fantasyTokens.colors.gold}
+                        activeOutlineColor={fantasyTokens.colors.crimson}
+                        testID="custom-subclass-selection-level-input"
+                    />
+                    <Text style={styles.lockedText}>
+                        Characters can choose this subclass at this class level or later.
+                    </Text>
                 </View>
 
                 <View style={styles.field}>

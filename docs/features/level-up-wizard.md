@@ -48,7 +48,7 @@ Rules by condition:
 | `choose_class` | Always |
 | `hit_points` | Always |
 | `asi_or_feat` | `ASI_LEVELS_BY_CLASS_ID[classId].includes(newLevel)` |
-| `subclass_selection` | Class has no subclass yet and this level unlocks it |
+| `subclass_selection` | Class has no subclass yet (offered at every level until one is chosen) |
 | `new_features` | The class gains at least one feature at this level (SRD + custom), including inline parent/child feature choices like Pact Boon or Hunter's Prey |
 | `spellcasting_updates` | New spell slots, spells known/prepared, cantrips, swaps |
 | `multiclass_proficiencies` | This is a brand-new class being added |
@@ -119,4 +119,6 @@ When the level-up is confirmed, the draft keeps the parent feature row and adds 
 - **Invocation prerequisite context** is recomputed whenever `selectedClass` or character data changes. If you rely on it, read from `invocationPrerequisiteContext` rather than rebuilding.
 - **The wizard resets on `visible` transitions** — see the `useEffect` in `useLevelUpWizard.ts` that blanks every sub-state when `visible` flips.
 - **Custom subclasses and custom features** are first-class here — the wizard can produce a `customSubclass` or custom features that then round-trip via `draftApplication.ts` → `saveCharacterSheet`. The subclass selection step also includes active custom subclasses and reusable custom subclass feature definitions created in the `/subclasses` manager for the matching parent class.
+- **Subclass choice is optional and level-aware** — all matching options are shown using their database-backed selection levels; options above the new class level are disabled and Next remains available with no choice. The inline custom form requires a selection level from 1 through the new class level and defaults it to that new level.
+- **Late choices catch up** — selecting a subclass after its earliest level adds all earned subclass features and required subclass feature choices at or below the new class level. Draft application skips duplicate feature name/source pairs.
 - **Archived custom subclasses are not future choices** — archived user-owned subclasses are hidden from level-up selection and direct submissions are rejected unless `saveCharacterSheet` is preserving an archived subclass already attached to that same character.

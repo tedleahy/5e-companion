@@ -53,6 +53,7 @@ export type AvailableSubclass = {
   id: Scalars['ID']['output'];
   isCustom: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
+  selectionLevel: Scalars['Int']['output'];
   srdIndex?: Maybe<Scalars['String']['output']>;
   value: Scalars['String']['output'];
 };
@@ -181,12 +182,14 @@ export type CustomSubclass = {
   features: Array<AvailableSubclassFeature>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  selectionLevel: Scalars['Int']['output'];
   value: Scalars['String']['output'];
 };
 
 export type CustomSubclassInput = {
   description: Scalars['String']['input'];
   name: Scalars['String']['input'];
+  selectionLevel: Scalars['Int']['input'];
 };
 
 export type DeathSaves = {
@@ -274,6 +277,7 @@ export type ManagedCustomSubclassInput = {
   description: Scalars['String']['input'];
   features?: InputMaybe<Array<ManagedCustomSubclassFeatureInput>>;
   name: Scalars['String']['input'];
+  selectionLevel: Scalars['Int']['input'];
 };
 
 export type Mutation = {
@@ -758,7 +762,7 @@ export type AvailableSubclassesQueryVariables = Exact<{
 }>;
 
 
-export type AvailableSubclassesQuery = { __typename?: 'Query', availableSubclasses: Array<{ __typename?: 'AvailableSubclass', id: string, value: string, srdIndex?: string | null, classId: string, className: string, name: string, description: Array<string>, isCustom: boolean, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> }> };
+export type AvailableSubclassesQuery = { __typename?: 'Query', availableSubclasses: Array<{ __typename?: 'AvailableSubclass', id: string, value: string, srdIndex?: string | null, classId: string, className: string, name: string, selectionLevel: number, description: Array<string>, isCustom: boolean, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> }> };
 
 export type AvailableBackgroundsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -844,21 +848,21 @@ export type UnprepareSpellMutationVariables = Exact<{
 
 export type UnprepareSpellMutation = { __typename?: 'Mutation', unprepareSpell: { __typename?: 'CharacterSpell', prepared: boolean, spell: { __typename?: 'Spell', id: string } } };
 
-export type CustomSubclassManagerFieldsFragment = { __typename?: 'CustomSubclass', id: string, value: string, classId: string, className: string, name: string, description: Array<string>, characterUsageCount: number, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> };
+export type CustomSubclassManagerFieldsFragment = { __typename?: 'CustomSubclass', id: string, value: string, classId: string, className: string, name: string, selectionLevel: number, description: Array<string>, characterUsageCount: number, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> };
 
 export type CustomSubclassesQueryVariables = Exact<{
   classIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
 }>;
 
 
-export type CustomSubclassesQuery = { __typename?: 'Query', customSubclasses: Array<{ __typename?: 'CustomSubclass', id: string, value: string, classId: string, className: string, name: string, description: Array<string>, characterUsageCount: number, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> }> };
+export type CustomSubclassesQuery = { __typename?: 'Query', customSubclasses: Array<{ __typename?: 'CustomSubclass', id: string, value: string, classId: string, className: string, name: string, selectionLevel: number, description: Array<string>, characterUsageCount: number, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> }> };
 
 export type CreateCustomSubclassMutationVariables = Exact<{
   input: ManagedCustomSubclassInput;
 }>;
 
 
-export type CreateCustomSubclassMutation = { __typename?: 'Mutation', createCustomSubclass: { __typename?: 'CustomSubclass', id: string, value: string, classId: string, className: string, name: string, description: Array<string>, characterUsageCount: number, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> } };
+export type CreateCustomSubclassMutation = { __typename?: 'Mutation', createCustomSubclass: { __typename?: 'CustomSubclass', id: string, value: string, classId: string, className: string, name: string, selectionLevel: number, description: Array<string>, characterUsageCount: number, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> } };
 
 export type UpdateCustomSubclassMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -866,7 +870,7 @@ export type UpdateCustomSubclassMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCustomSubclassMutation = { __typename?: 'Mutation', updateCustomSubclass: { __typename?: 'CustomSubclass', id: string, value: string, classId: string, className: string, name: string, description: Array<string>, characterUsageCount: number, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> } };
+export type UpdateCustomSubclassMutation = { __typename?: 'Mutation', updateCustomSubclass: { __typename?: 'CustomSubclass', id: string, value: string, classId: string, className: string, name: string, selectionLevel: number, description: Array<string>, characterUsageCount: number, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> } };
 
 export type ArchiveCustomSubclassMutationVariables = Exact<{
   id: Scalars['ID']['input'];
