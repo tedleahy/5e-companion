@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.md,
     },
     rowPressed: {
-        backgroundColor: 'rgba(140, 29, 56, 0.02)',
+        backgroundColor: fantasyTokens.colors.claretSoft,
     },
     iconBadge: {
         width: SUBCLASS_BADGE_SIZE_COLLAPSED,
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     expandedDeleteButton: {
-        borderColor: 'rgba(140, 29, 56, 0.35)',
+        borderColor: fantasyTokens.colors.claretSubtle,
         backgroundColor: 'transparent',
     },
     expandedActionPressed: {

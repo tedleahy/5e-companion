@@ -76,6 +76,17 @@ export function subclassSelectionValue(subclassRef: Pick<CharacterSubclassRefere
 }
 
 /**
+ * Builds the display label for a subclass feature source.
+ */
+export function buildSubclassFeatureSourceLabel(
+    subclassName: string,
+    className: string,
+    level: number,
+): string {
+    return `${subclassName} ${className} ${level}`;
+}
+
+/**
  * Trims one optional custom-subclass payload and drops it when blank.
  */
 export function normaliseCustomSubclassInput(
@@ -317,7 +328,11 @@ export async function findOrCreateOwnedCustomSubclassFeature(
     },
 ): Promise<{ id: string }> {
     const subclassRef = resolvedClass.subclassRef;
-    const sourceLabel = `${subclassRef?.name ?? resolvedClass.classRef.name} ${resolvedClass.classRef.name} ${feature.level}`;
+    const sourceLabel = buildSubclassFeatureSourceLabel(
+        subclassRef?.name ?? resolvedClass.classRef.name,
+        resolvedClass.classRef.name,
+        feature.level,
+    );
 
     if (!subclassRef || subclassRef.ownerUserId !== userId) {
         throw new Error(`Cannot persist a custom subclass feature for class ${resolvedClass.classRow.classId}.`);

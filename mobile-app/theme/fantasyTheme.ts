@@ -169,6 +169,8 @@ export const fantasyTokens = {
         goldDark: '#9e845b',
         claret: '#8c1d38',
         claretLight: '#a62b4a',
+        claretSoft: 'rgba(140, 29, 56, 0.02)',
+        claretSubtle: 'rgba(140, 29, 56, 0.35)',
         crimson: '#7b1e1e',
         crimsonSoft: 'rgba(123, 30, 30, 0.2)',
         success: '#2d6a4f',

@@ -11,7 +11,7 @@ import type {
 } from "../../generated/graphql";
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
-import { subclassSelectionValue } from "./subclassReferences";
+import { buildSubclassFeatureSourceLabel, subclassSelectionValue } from "./subclassReferences";
 import {
     CUSTOM_SUBCLASS_NAME_MAX_LENGTH,
     CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH,
@@ -195,10 +195,6 @@ function toCustomSubclass(subclassRef: CustomSubclassResponseRow): CustomSubclas
     };
 }
 
-function subclassFeatureSourceLabel(subclassName: string, className: string, level: number): string {
-    return `${subclassName} ${className} ${level}`;
-}
-
 async function reconcileOwnedCustomSubclassFeatures(
     tx: Prisma.TransactionClient,
     userId: string,
@@ -243,7 +239,7 @@ async function reconcileOwnedCustomSubclassFeatures(
             description: [feature.description],
             level: feature.level,
             kind: FEATURE_KIND.SUBCLASS_FEATURE,
-            sourceLabel: subclassFeatureSourceLabel(subclassName, className, feature.level),
+            sourceLabel: buildSubclassFeatureSourceLabel(subclassName, className, feature.level),
             classId,
             subclassId,
         };
