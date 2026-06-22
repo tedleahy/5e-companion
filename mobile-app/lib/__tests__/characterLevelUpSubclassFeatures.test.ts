@@ -5,7 +5,6 @@ import {
     getLevelUpFeatures,
     getLevelUpFeatureChoiceGroups,
     isPickerManagedFeature,
-    isSubclassChoiceLevel,
     mapCustomFeatureDrafts,
     mapSelectedFeatureChoiceFeatures,
 } from '@/lib/characterLevelUp/subclassFeatures';
@@ -34,12 +33,6 @@ function createSelectedClass(
 }
 
 describe('characterLevelUp subclass features', () => {
-    it('offers subclass choice at every class level', () => {
-        expect(isSubclassChoiceLevel('wizard', 2)).toBe(true);
-        expect(isSubclassChoiceLevel('wizard', 3)).toBe(true);
-        expect(isSubclassChoiceLevel('fighter', 3)).toBe(true);
-    });
-
     it('treats invocation and metamagic entries as picker-managed features', () => {
         expect(isPickerManagedFeature('Eldritch Invocation: Agonizing Blast')).toBe(true);
         expect(isPickerManagedFeature('Metamagic: Careful Spell')).toBe(true);

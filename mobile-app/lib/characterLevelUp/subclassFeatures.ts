@@ -96,13 +96,6 @@ export function createLevelUpSubclassSelectionState(): LevelUpSubclassSelectionS
 }
 
 /**
- * Returns true when the selected class reaches a subclass-choice level.
- */
-export function isSubclassChoiceLevel(classId: string, newClassLevel: number): boolean {
-    return classId.length > 0 && newClassLevel >= 1;
-}
-
-/**
  * Returns true when the wizard must show the subclass selection step.
  */
 export function needsSubclassSelectionStep(selectedClass: LevelUpWizardSelectedClass): boolean {
