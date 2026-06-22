@@ -247,6 +247,7 @@ describe('characterResolvers — queries', () => {
                 srdIndex: null,
                 ownerUserId: 'user-abc',
                 name: 'School of Glass',
+                selectionLevel: 3,
                 description: ['A delicate art of mirrored wards.'],
                 classId: 'class-wizard-id',
                 classRef: {

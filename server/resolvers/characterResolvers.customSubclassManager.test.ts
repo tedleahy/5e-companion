@@ -212,6 +212,7 @@ describe('customSubclassManager — createCustomSubclass', () => {
                 srdIndex: null,
                 ownerUserId: 'user-abc',
                 name: 'School of Glass',
+                selectionLevel: 3,
                 description: ['A delicate art.'],
                 classId: 'class-wizard-id',
                 classRef: {
@@ -227,6 +228,7 @@ describe('customSubclassManager — createCustomSubclass', () => {
             srdIndex: null,
             ownerUserId: 'user-abc',
             name: 'School of Glass',
+            selectionLevel: 3,
             description: ['A delicate art.'],
             classId: 'class-wizard-id',
             classRef: {
@@ -544,6 +546,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
                 srdIndex: null,
                 ownerUserId: 'user-abc',
                 name: 'Updated Name',
+                selectionLevel: 3,
                 description: ['Updated description.'],
                 classId: 'class-wizard-id',
                 classRef: {

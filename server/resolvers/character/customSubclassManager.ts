@@ -11,7 +11,7 @@ import type {
 } from "../../generated/graphql";
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
-import { buildSubclassFeatureSourceLabel, subclassSelectionValue } from "./subclassReferences";
+import { buildSubclassFeatureSourceLabel, mapSubclassRowToBase } from "./subclassReferences";
 import {
     CUSTOM_SUBCLASS_NAME_MAX_LENGTH,
     CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH,
@@ -178,19 +178,7 @@ function duplicateSubclassNameWhere(
 
 function toCustomSubclass(subclassRef: CustomSubclassResponseRow): CustomSubclass {
     return {
-        id: subclassRef.id,
-        value: subclassSelectionValue(subclassRef),
-        classId: subclassRef.classRef.srdIndex ?? subclassRef.classId,
-        className: subclassRef.classRef.name,
-        name: subclassRef.name,
-        selectionLevel: subclassRef.selectionLevel ?? 3,
-        description: subclassRef.description,
-        features: subclassRef.features.map((feature) => ({
-            id: feature.id,
-            name: feature.name,
-            description: feature.description.join("\n\n").trim(),
-            level: feature.level ?? 0,
-        })),
+        ...mapSubclassRowToBase(subclassRef),
         characterUsageCount: subclassRef._count?.characterClasses ?? 0,
     };
 }

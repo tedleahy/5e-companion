@@ -2,6 +2,7 @@ import type { FeatureKind, Prisma } from "@prisma/client";
 import prisma from "../../prisma/prisma";
 import type {
     AvailableSubclass,
+    AvailableSubclassFeature,
     CustomSubclassInput,
     SaveCustomSubclassFeatureInput,
 } from "../../generated/graphql";
@@ -84,6 +85,49 @@ export function buildSubclassFeatureSourceLabel(
     level: number,
 ): string {
     return `${subclassName} ${className} ${level}`;
+}
+
+type SubclassFeatureRowLike = {
+    id: string;
+    name: string;
+    description: string[];
+    level: number | null;
+};
+
+type SubclassRowLike = {
+    id: string;
+    srdIndex: string | null;
+    classId: string;
+    classRef: {
+        srdIndex: string | null;
+        name: string;
+    };
+    name: string;
+    description: string[];
+    selectionLevel: number;
+    features: SubclassFeatureRowLike[];
+};
+
+export function mapSubclassFeatureRow(feature: SubclassFeatureRowLike): AvailableSubclassFeature {
+    return {
+        id: feature.id,
+        name: feature.name,
+        description: feature.description.join("\n\n").trim(),
+        level: feature.level ?? 0,
+    };
+}
+
+export function mapSubclassRowToBase(subclassRef: SubclassRowLike) {
+    return {
+        id: subclassRef.id,
+        value: subclassSelectionValue(subclassRef),
+        classId: subclassRef.classRef.srdIndex ?? subclassRef.classId,
+        className: subclassRef.classRef.name,
+        name: subclassRef.name,
+        selectionLevel: subclassRef.selectionLevel,
+        description: subclassRef.description,
+        features: subclassRef.features.map(mapSubclassFeatureRow),
+    };
 }
 
 /**
@@ -196,21 +240,9 @@ export async function availableSubclassesForUser(
             return left.name.localeCompare(right.name);
         })
         .map((subclassRef) => ({
-            id: subclassRef.id,
-            value: subclassSelectionValue(subclassRef),
+            ...mapSubclassRowToBase(subclassRef),
             srdIndex: subclassRef.srdIndex,
-            classId: subclassRef.classRef.srdIndex ?? subclassRef.classId,
-            className: subclassRef.classRef.name,
-            name: subclassRef.name,
-            selectionLevel: subclassRef.selectionLevel,
-            description: subclassRef.description,
             isCustom: subclassRef.ownerUserId != null,
-            features: subclassRef.features.map((feature) => ({
-                id: feature.id,
-                name: feature.name,
-                description: feature.description.join("\n\n").trim(),
-                level: feature.level ?? 0,
-            })),
         }));
 }
 
