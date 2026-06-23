@@ -236,6 +236,46 @@ async function reconcileOwnedCustomSubclassFeatures(
         }),
         buildUpdateData: buildFeatureData,
         buildCreateData: buildFeatureData,
+        updateManyItems: async (items) => {
+            const updateRows = JSON.stringify(items.map(({ id, data }) => {
+                const featureData = data as ReturnType<typeof buildFeatureData>;
+
+                return {
+                    id,
+                    name: featureData.name,
+                    description: featureData.description[0],
+                    level: featureData.level,
+                    source_label: featureData.sourceLabel,
+                    class_id: featureData.classId,
+                    subclass_id: featureData.subclassId,
+                };
+            }));
+
+            await tx.$executeRaw`
+                UPDATE "Feature" AS feature
+                SET
+                    "name" = incoming.name,
+                    "description" = ARRAY[incoming.description],
+                    "level" = incoming.level,
+                    "sourceLabel" = incoming.source_label,
+                    "classId" = incoming.class_id,
+                    "subclassId" = incoming.subclass_id
+                FROM jsonb_to_recordset(${updateRows}::jsonb) AS incoming(
+                    id text,
+                    name text,
+                    description text,
+                    level integer,
+                    source_label text,
+                    class_id text,
+                    subclass_id text
+                )
+                WHERE feature."id" = incoming.id
+                  AND feature."ownerUserId" = ${userId}
+                  AND feature."subclassId" = ${subclassId}
+                  AND feature."kind" = ${FEATURE_KIND.SUBCLASS_FEATURE}::"FeatureKind"
+            `;
+        },
+        createManyItems: (items) => tx.feature.createMany({ data: items }),
     });
 }
 

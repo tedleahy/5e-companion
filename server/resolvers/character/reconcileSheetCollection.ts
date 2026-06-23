@@ -54,6 +54,11 @@ type ReconcileOwnedCollectionArgs<
     buildUpdateWhere(itemId: string, scopeWhere: TScopeWhere): TUpdateWhere;
     buildUpdateData(item: TInput): Promise<TUpdateData> | TUpdateData;
     buildCreateData(item: TInput, scopeWhere: TScopeWhere): Promise<TCreateData> | TCreateData;
+    updateManyItems?(
+        items: Array<{ id: string; data: TUpdateData }>,
+        scopeWhere: TScopeWhere,
+    ): Promise<unknown>;
+    createManyItems?(items: TCreateData[], scopeWhere: TScopeWhere): Promise<unknown>;
 };
 
 /**
@@ -76,6 +81,8 @@ export async function reconcileOwnedCollection<
     buildUpdateWhere,
     buildUpdateData,
     buildCreateData,
+    updateManyItems,
+    createManyItems,
 }: ReconcileOwnedCollectionArgs<
     TExisting,
     TInput,
@@ -99,28 +106,49 @@ export async function reconcileOwnedCollection<
         .filter((item) => !submittedIds.has(item.id))
         .map((item) => item.id);
 
+    const itemsToUpdate = nextItems.filter(
+        (item): item is TInput & { id: string } => typeof item.id === 'string',
+    );
+
+    for (const item of itemsToUpdate) {
+        if (!existingIds.has(item.id)) {
+            throw new Error(notFoundMessage);
+        }
+    }
+
     if (removedIds.length > 0) {
         await delegate.deleteMany({
             where: buildDeleteWhere(removedIds, scopeWhere),
         });
     }
 
-    for (const item of nextItems) {
-        if (item.id) {
-            if (!existingIds.has(item.id)) {
-                throw new Error(notFoundMessage);
-            }
+    const updateEntries = await Promise.all(itemsToUpdate.map(async (item) => ({
+        id: item.id,
+        data: await buildUpdateData(item),
+    })));
+    const createEntries = await Promise.all(
+        nextItems
+            .filter((item) => !item.id)
+            .map((item) => buildCreateData(item, scopeWhere)),
+    );
 
+    if (updateEntries.length > 0 && updateManyItems) {
+        await updateManyItems(updateEntries, scopeWhere);
+    } else {
+        for (const { id, data } of updateEntries) {
             await delegate.update({
-                where: buildUpdateWhere(item.id, scopeWhere),
-                data: await buildUpdateData(item),
+                where: buildUpdateWhere(id, scopeWhere),
+                data,
             });
-            continue;
         }
+    }
 
-        await delegate.create({
-            data: await buildCreateData(item, scopeWhere),
-        });
+    if (createEntries.length > 0 && createManyItems) {
+        await createManyItems(createEntries, scopeWhere);
+    } else {
+        for (const data of createEntries) {
+            await delegate.create({ data });
+        }
     }
 }
 

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
+import type { CharacterClassReference } from './character/multiclassRules';
 import {
     authedCtx,
     backgroundFindFirstMock,
@@ -8,15 +9,17 @@ import {
     characterUpdateMock,
     classFindManyMock,
     clearAllCharacterResolverMocks,
+    executeRawMock,
     fakeCharacter,
     featureFindManyMock,
     resolvers,
     raceFindFirstMock,
-    subclassCreateMock,
-    subclassFindFirstMock,
+    subclassCreateManyAndReturnMock,
     subclassFindManyMock,
     unauthedCtx,
 } from './characterResolvers.testUtils';
+
+const { materialiseResolvedCharacterClasses } = await import('./character/subclassReferences');
 
 describe('characterResolvers — createCharacter', () => {
     beforeEach(clearAllCharacterResolverMocks);
@@ -213,8 +216,8 @@ describe('characterResolvers — createCharacter', () => {
             languages: [],
             languageChoiceCount: 2,
         });
-        subclassFindFirstMock.mockResolvedValueOnce(null);
-        subclassCreateMock.mockResolvedValueOnce({
+        subclassFindManyMock.mockResolvedValueOnce([]);
+        subclassCreateManyAndReturnMock.mockResolvedValueOnce([{
             id: 'custom-subclass-id',
             srdIndex: null,
             ownerUserId: 'user-abc',
@@ -222,7 +225,7 @@ describe('characterResolvers — createCharacter', () => {
             description: ['A delicate art of mirrored wards and refractions.'],
             selectionLevel: 2,
             classId: 'class-wizard-id',
-        });
+        }]);
         featureFindManyMock.mockReset();
         featureFindManyMock.mockImplementation(() => Promise.resolve([
             {
@@ -273,25 +276,27 @@ describe('characterResolvers — createCharacter', () => {
             },
         } as any, authedCtx);
 
-        expect(subclassFindFirstMock).toHaveBeenCalledWith({
+        expect(subclassFindManyMock).toHaveBeenCalledWith({
             where: {
                 ownerUserId: 'user-abc',
-                classId: 'class-wizard-id',
-                name: {
-                    equals: 'School of Glass',
-                    mode: 'insensitive',
-                },
                 archivedAt: null,
+                OR: [{
+                    classId: 'class-wizard-id',
+                    name: {
+                        equals: 'School of Glass',
+                        mode: 'insensitive',
+                    },
+                }],
             },
         });
-        expect(subclassCreateMock).toHaveBeenCalledWith({
-            data: {
+        expect(subclassCreateManyAndReturnMock).toHaveBeenCalledWith({
+            data: [{
                 ownerUserId: 'user-abc',
                 name: 'School of Glass',
                 description: ['A delicate art of mirrored wards and refractions.'],
                 selectionLevel: 2,
                 classId: 'class-wizard-id',
-            },
+            }],
         });
         const callArgs = characterCreateMock.mock.calls[0]![0] as Record<string, any>;
         expect(callArgs.data.classes.create).toEqual([
@@ -315,6 +320,177 @@ describe('characterResolvers — createCharacter', () => {
                 description: 'Bend light to turn aside attacks.',
             },
         ]);
+    });
+
+    test('batches multiple inline custom subclass lookups and creates', async () => {
+        const wizardClass: CharacterClassReference = {
+            id: 'class-wizard-id',
+            srdIndex: 'wizard',
+            name: 'Wizard',
+            hitDie: 6,
+            spellcastingAbility: 'int',
+        };
+        const fighterClass: CharacterClassReference = {
+            id: 'class-fighter-id',
+            srdIndex: 'fighter',
+            name: 'Fighter',
+            hitDie: 10,
+            spellcastingAbility: null,
+        };
+        subclassFindManyMock.mockResolvedValueOnce([]);
+        subclassCreateManyAndReturnMock.mockResolvedValueOnce([
+            {
+                id: 'subclass-glass-id',
+                ownerUserId: 'user-abc',
+                srdIndex: null,
+                name: 'School of Glass',
+                description: ['Mirrored wards.'],
+                selectionLevel: 2,
+                classId: wizardClass.id,
+            },
+            {
+                id: 'subclass-iron-id',
+                ownerUserId: 'user-abc',
+                srdIndex: null,
+                name: 'Iron Vanguard',
+                description: ['Unbroken defence.'],
+                selectionLevel: 3,
+                classId: fighterClass.id,
+            },
+        ]);
+
+        const result = await materialiseResolvedCharacterClasses(
+            {
+                subclass: {
+                    findMany: subclassFindManyMock,
+                    createManyAndReturn: subclassCreateManyAndReturnMock,
+                },
+            } as any,
+            'user-abc',
+            [
+                {
+                    classId: 'wizard',
+                    level: 2,
+                    customSubclass: {
+                        name: 'School of Glass',
+                        description: 'Mirrored wards.',
+                        selectionLevel: 2,
+                    },
+                },
+                {
+                    classId: 'fighter',
+                    level: 3,
+                    customSubclass: {
+                        name: 'Iron Vanguard',
+                        description: 'Unbroken defence.',
+                        selectionLevel: 3,
+                    },
+                },
+            ],
+            new Map([
+                ['wizard', wizardClass],
+                ['fighter', fighterClass],
+            ]),
+            new Map(),
+        );
+
+        expect(subclassFindManyMock).toHaveBeenCalledTimes(1);
+        expect(subclassCreateManyAndReturnMock).toHaveBeenCalledTimes(1);
+        expect(subclassCreateManyAndReturnMock.mock.calls[0]![0].data).toHaveLength(2);
+        expect(result.map((resolvedClass) => resolvedClass.subclassRef?.id)).toEqual([
+            'subclass-glass-id',
+            'subclass-iron-id',
+        ]);
+    });
+
+    test('batches updates for existing inline custom subclasses', async () => {
+        const wizardClass: CharacterClassReference = {
+            id: 'class-wizard-id',
+            srdIndex: 'wizard',
+            name: 'Wizard',
+            hitDie: 6,
+            spellcastingAbility: 'int',
+        };
+        const fighterClass: CharacterClassReference = {
+            id: 'class-fighter-id',
+            srdIndex: 'fighter',
+            name: 'Fighter',
+            hitDie: 10,
+            spellcastingAbility: null,
+        };
+        subclassFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'subclass-glass-id',
+                ownerUserId: 'user-abc',
+                srdIndex: null,
+                name: 'School of Glass',
+                description: ['Old glass description.'],
+                selectionLevel: 3,
+                classId: wizardClass.id,
+            },
+            {
+                id: 'subclass-iron-id',
+                ownerUserId: 'user-abc',
+                srdIndex: null,
+                name: 'Iron Vanguard',
+                description: ['Old iron description.'],
+                selectionLevel: 3,
+                classId: fighterClass.id,
+            },
+        ]);
+
+        const result = await materialiseResolvedCharacterClasses(
+            {
+                subclass: {
+                    findMany: subclassFindManyMock,
+                    createManyAndReturn: subclassCreateManyAndReturnMock,
+                },
+                $executeRaw: executeRawMock,
+            } as any,
+            'user-abc',
+            [
+                {
+                    classId: 'wizard',
+                    level: 2,
+                    customSubclass: {
+                        name: 'School of Glass',
+                        description: 'Updated glass description.',
+                        selectionLevel: 2,
+                    },
+                },
+                {
+                    classId: 'fighter',
+                    level: 3,
+                    customSubclass: {
+                        name: 'Iron Vanguard',
+                        description: 'Updated iron description.',
+                        selectionLevel: 4,
+                    },
+                },
+            ],
+            new Map([
+                ['wizard', wizardClass],
+                ['fighter', fighterClass],
+            ]),
+            new Map(),
+        );
+
+        expect(subclassFindManyMock).toHaveBeenCalledTimes(1);
+        expect(executeRawMock).toHaveBeenCalledTimes(1);
+        expect(JSON.parse(executeRawMock.mock.calls[0]![1] as string)).toEqual([
+            {
+                id: 'subclass-glass-id',
+                description: 'Updated glass description.',
+                selection_level: 2,
+            },
+            {
+                id: 'subclass-iron-id',
+                description: 'Updated iron description.',
+                selection_level: 4,
+            },
+        ]);
+        expect(subclassCreateManyAndReturnMock).not.toHaveBeenCalled();
+        expect(result.map((resolvedClass) => resolvedClass.subclassRef?.selectionLevel)).toEqual([2, 4]);
     });
 
     test('grants only the chosen child feature for parent/child class feature choices', async () => {

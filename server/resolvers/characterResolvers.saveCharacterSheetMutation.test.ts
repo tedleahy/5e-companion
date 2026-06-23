@@ -25,8 +25,7 @@ import {
     spellSlotFindManyMock,
     statsFindUniqueMock,
     statsUpdateMock,
-    subclassCreateMock,
-    subclassFindFirstMock,
+    subclassCreateManyAndReturnMock,
     subclassFindManyMock,
     transactionMock,
     unauthedCtx,
@@ -576,15 +575,16 @@ describe('characterResolvers — saveCharacterSheet', () => {
         weaponFindManyMock.mockResolvedValueOnce([]);
         inventoryItemFindManyMock.mockResolvedValueOnce([]);
         characterFeatureFindManyMock.mockResolvedValueOnce([]);
-        subclassFindFirstMock.mockResolvedValueOnce(null);
-        subclassCreateMock.mockResolvedValueOnce({
+        subclassFindManyMock.mockResolvedValueOnce([]);
+        subclassCreateManyAndReturnMock.mockResolvedValueOnce([{
             id: 'custom-subclass-id',
             srdIndex: null,
             ownerUserId: 'user-abc',
             name: 'School of Glass',
             description: ['A delicate art of mirrored wards and refractions.'],
+            selectionLevel: 2,
             classId: 'class-wizard-id',
-        });
+        }]);
 
         await resolvers.saveCharacterSheet({}, {
             characterId: 'char-1',
@@ -618,25 +618,27 @@ describe('characterResolvers — saveCharacterSheet', () => {
             },
         } as any, authedCtx);
 
-        expect(subclassFindFirstMock).toHaveBeenCalledWith({
+        expect(subclassFindManyMock).toHaveBeenCalledWith({
             where: {
                 ownerUserId: 'user-abc',
-                classId: 'class-wizard-id',
-                name: {
-                    equals: 'School of Glass',
-                    mode: 'insensitive',
-                },
                 archivedAt: null,
+                OR: [{
+                    classId: 'class-wizard-id',
+                    name: {
+                        equals: 'School of Glass',
+                        mode: 'insensitive',
+                    },
+                }],
             },
         });
-        expect(subclassCreateMock).toHaveBeenCalledWith({
-            data: {
+        expect(subclassCreateManyAndReturnMock).toHaveBeenCalledWith({
+            data: [{
                 ownerUserId: 'user-abc',
                 name: 'School of Glass',
                 description: ['A delicate art of mirrored wards and refractions.'],
                 selectionLevel: 2,
                 classId: 'class-wizard-id',
-            },
+            }],
         });
         const callArgs = characterUpdateMock.mock.calls[0]![0] as Record<string, any>;
         expect(callArgs.data.classes.create).toEqual([
@@ -662,15 +664,16 @@ describe('characterResolvers — saveCharacterSheet', () => {
         weaponFindManyMock.mockResolvedValueOnce([]);
         inventoryItemFindManyMock.mockResolvedValueOnce([]);
         characterFeatureFindManyMock.mockResolvedValueOnce([]);
-        subclassFindFirstMock.mockResolvedValueOnce(null);
-        subclassCreateMock.mockResolvedValueOnce({
+        subclassFindManyMock.mockResolvedValueOnce([]);
+        subclassCreateManyAndReturnMock.mockResolvedValueOnce([{
             id: 'custom-subclass-id',
             srdIndex: null,
             ownerUserId: 'user-abc',
             name: 'School of Glass',
             description: ['A delicate art of mirrored wards and refractions.'],
+            selectionLevel: 2,
             classId: 'class-wizard-id',
-        });
+        }]);
         featureFindFirstMock.mockResolvedValueOnce(null);
         featureCreateMock.mockResolvedValueOnce({
             id: 'glass-feature-1',

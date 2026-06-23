@@ -297,53 +297,134 @@ export async function loadVisibleSubclassReferences(
     });
 }
 
+type OwnedCustomSubclassRequest = {
+    classRef: CharacterClassReference;
+    customSubclass: SubmittedCustomSubclass;
+};
+
+function ownedCustomSubclassKey(classId: string, subclassName: string): string {
+    return `${classId}:${subclassName.toLowerCase()}`;
+}
+
 /**
- * Finds or creates one current-user custom subclass within an existing transaction.
+ * Finds, updates, and creates current-user custom subclasses in bounded batches.
  */
-export async function findOrCreateOwnedCustomSubclass(
+async function findOrCreateOwnedCustomSubclasses(
     tx: Prisma.TransactionClient,
     userId: string,
-    classRef: CharacterClassReference,
-    customSubclass: SubmittedCustomSubclass,
-): Promise<CharacterSubclassReference> {
-    const existingSubclass = await tx.subclass.findFirst({
+    requests: OwnedCustomSubclassRequest[],
+): Promise<Map<string, CharacterSubclassReference>> {
+    const uniqueRequests = new Map(
+        requests.map((request) => [
+            ownedCustomSubclassKey(request.classRef.id, request.customSubclass.name),
+            request,
+        ]),
+    );
+
+    if (uniqueRequests.size === 0) {
+        return new Map();
+    }
+
+    const existingSubclasses = await tx.subclass.findMany({
         where: {
             ownerUserId: userId,
-            classId: classRef.id,
-            name: {
-                equals: customSubclass.name,
-                mode: "insensitive",
-            },
             archivedAt: null,
+            OR: Array.from(uniqueRequests.values(), ({ classRef, customSubclass }) => ({
+                classId: classRef.id,
+                name: {
+                    equals: customSubclass.name,
+                    mode: "insensitive" as const,
+                },
+            })),
         },
     });
+    const existingByKey = new Map(existingSubclasses.map((subclassRef) => [
+        ownedCustomSubclassKey(subclassRef.classId, subclassRef.name),
+        subclassRef,
+    ]));
+    const resolvedByKey = new Map<string, CharacterSubclassReference>();
+    const updates: Array<{
+        id: string;
+        description: string;
+        selectionLevel: number;
+    }> = [];
+    const creates: Array<{
+        ownerUserId: string;
+        name: string;
+        description: string[];
+        selectionLevel: number;
+        classId: string;
+    }> = [];
 
-    if (existingSubclass) {
+    for (const [key, { classRef, customSubclass }] of uniqueRequests) {
+        const existingSubclass = existingByKey.get(key);
+
+        if (!existingSubclass) {
+            creates.push({
+                ownerUserId: userId,
+                name: customSubclass.name,
+                description: [customSubclass.description],
+                selectionLevel: customSubclass.selectionLevel,
+                classId: classRef.id,
+            });
+            continue;
+        }
+
         if (
             existingSubclass.description.join("\n\n") !== customSubclass.description
             || existingSubclass.selectionLevel !== customSubclass.selectionLevel
         ) {
-            return await tx.subclass.update({
-                where: { id: existingSubclass.id },
-                data: {
-                    description: [customSubclass.description],
-                    selectionLevel: customSubclass.selectionLevel,
-                },
+            updates.push({
+                id: existingSubclass.id,
+                description: customSubclass.description,
+                selectionLevel: customSubclass.selectionLevel,
             });
+            resolvedByKey.set(key, {
+                id: existingSubclass.id,
+                ownerUserId: existingSubclass.ownerUserId,
+                srdIndex: existingSubclass.srdIndex,
+                name: existingSubclass.name,
+                classId: existingSubclass.classId,
+                selectionLevel: customSubclass.selectionLevel,
+            });
+        } else {
+            resolvedByKey.set(key, existingSubclass);
         }
-
-        return existingSubclass;
     }
 
-    return await tx.subclass.create({
-        data: {
-            ownerUserId: userId,
-            name: customSubclass.name,
-            description: [customSubclass.description],
-            selectionLevel: customSubclass.selectionLevel,
-            classId: classRef.id,
-        },
-    });
+    if (updates.length > 0) {
+        const updateRows = JSON.stringify(updates.map(({ id, description, selectionLevel }) => ({
+            id,
+            description,
+            selection_level: selectionLevel,
+        })));
+        await tx.$executeRaw`
+            UPDATE "Subclass" AS subclass
+            SET
+                "description" = ARRAY[incoming.description],
+                "selectionLevel" = incoming.selection_level
+            FROM jsonb_to_recordset(${updateRows}::jsonb) AS incoming(
+                id text,
+                description text,
+                selection_level integer
+            )
+            WHERE subclass."id" = incoming.id
+              AND subclass."ownerUserId" = ${userId}
+        `;
+    }
+
+    if (creates.length > 0) {
+        const createdSubclasses = await tx.subclass.createManyAndReturn({ data: creates });
+
+        for (const subclassRef of createdSubclasses) {
+            resolvedByKey.set(
+                ownedCustomSubclassKey(subclassRef.classId, subclassRef.name),
+                subclassRef,
+            );
+        }
+    }
+
+    return resolvedByKey;
 }
 
 /**
@@ -423,9 +504,7 @@ export async function materialiseResolvedCharacterClasses(
     classRefsBySrdIndex: Map<string, CharacterClassReference>,
     subclassRefsBySelectionValue: Map<string, CharacterSubclassReference>,
 ): Promise<ResolvedCharacterClass[]> {
-    const resolvedClasses: ResolvedCharacterClass[] = [];
-
-    for (const classRow of classRows) {
+    const preparedClasses = classRows.map((classRow) => {
         const classRef = classRefsBySrdIndex.get(classRow.classId);
         if (!classRef) {
             throw new Error(`Unknown class: ${classRow.classId}`);
@@ -435,13 +514,31 @@ export async function materialiseResolvedCharacterClasses(
             ? subclassRefsBySelectionValue.get(classRow.subclassId) ?? null
             : null;
 
+        return { classRow, classRef, subclassRef };
+    });
+    const customSubclassRequests = preparedClasses.flatMap(({ classRow, classRef, subclassRef }) => (
+        !subclassRef && classRow.customSubclass
+            ? [{ classRef, customSubclass: classRow.customSubclass }]
+            : []
+    ));
+    const customSubclassesByKey = await findOrCreateOwnedCustomSubclasses(
+        tx,
+        userId,
+        customSubclassRequests,
+    );
+
+    return preparedClasses.map(({ classRow, classRef, subclassRef: initialSubclassRef }) => {
+        let subclassRef = initialSubclassRef;
+
         if (!subclassRef && classRow.customSubclass) {
-            subclassRef = await findOrCreateOwnedCustomSubclass(
-                tx,
-                userId,
-                classRef,
-                classRow.customSubclass,
-            );
+            subclassRef = customSubclassesByKey.get(
+                ownedCustomSubclassKey(classRef.id, classRow.customSubclass.name),
+            ) ?? null;
+
+            if (!subclassRef) {
+                throw new Error(`Failed to persist custom subclass: ${classRow.customSubclass.name}`);
+            }
+
             subclassRefsBySelectionValue.set(subclassRef.id, subclassRef);
 
             if (subclassRef.srdIndex) {
@@ -449,7 +546,7 @@ export async function materialiseResolvedCharacterClasses(
             }
         }
 
-        resolvedClasses.push({
+        return {
             classRow: {
                 classId: classRow.classId,
                 subclassId: subclassRef ? subclassSelectionValue(subclassRef) : null,
@@ -458,8 +555,6 @@ export async function materialiseResolvedCharacterClasses(
             },
             classRef,
             subclassRef,
-        });
-    }
-
-    return resolvedClasses;
+        };
+    });
 }

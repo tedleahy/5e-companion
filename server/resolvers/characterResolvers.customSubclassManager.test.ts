@@ -3,10 +3,10 @@ import {
     authedCtx,
     classFindFirstMock,
     clearAllCharacterResolverMocks,
-    featureCreateMock,
+    executeRawMock,
+    featureCreateManyMock,
     featureDeleteManyMock,
     featureFindManyMock,
-    featureUpdateMock,
     resolvers,
     subclassCreateMock,
     subclassFindFirstMock,
@@ -389,8 +389,8 @@ describe('customSubclassManager — createCustomSubclass', () => {
             authedCtx,
         );
 
-        expect(featureCreateMock).toHaveBeenCalledWith({
-            data: {
+        expect(featureCreateManyMock).toHaveBeenCalledWith({
+            data: [{
                 ownerUserId: 'user-abc',
                 name: 'Glass Step',
                 description: ['Step through mirrors.'],
@@ -399,7 +399,7 @@ describe('customSubclassManager — createCustomSubclass', () => {
                 sourceLabel: 'School of Glass Wizard 2',
                 classId: 'class-wizard-id',
                 subclassId: 'new-subclass-id',
-            },
+            }],
         });
         expect(result.features).toEqual([
             {
@@ -717,21 +717,18 @@ describe('customSubclassManager — updateCustomSubclass', () => {
                 id: { in: ['feat-removed'] },
             },
         });
-        expect(featureUpdateMock).toHaveBeenCalledWith({
-            where: { id: 'feat-kept', ownerUserId: 'user-abc' },
-            data: {
-                ownerUserId: 'user-abc',
-                name: 'Feature A',
-                description: ['Updated feature.'],
-                level: 3,
-                kind: 'SUBCLASS_FEATURE',
-                sourceLabel: 'Updated Name Wizard 3',
-                classId: 'class-wizard-id',
-                subclassId: 'sub-1',
-            },
-        });
-        expect(featureCreateMock).toHaveBeenCalledWith({
-            data: {
+        expect(executeRawMock).toHaveBeenCalledTimes(1);
+        expect(JSON.parse(executeRawMock.mock.calls[0]![1] as string)).toEqual([{
+            id: 'feat-kept',
+            name: 'Feature A',
+            description: 'Updated feature.',
+            level: 3,
+            source_label: 'Updated Name Wizard 3',
+            class_id: 'class-wizard-id',
+            subclass_id: 'sub-1',
+        }]);
+        expect(featureCreateManyMock).toHaveBeenCalledWith({
+            data: [{
                 ownerUserId: 'user-abc',
                 name: 'Feature B',
                 description: ['New feature.'],
@@ -740,7 +737,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
                 sourceLabel: 'Updated Name Wizard 7',
                 classId: 'class-wizard-id',
                 subclassId: 'sub-1',
-            },
+            }],
         });
         expect(result.features).toHaveLength(2);
     });
