@@ -48,6 +48,18 @@ export const fantasyFontSizes = {
 } as const;
 
 /**
+ * Shared spacing scale used across the mobile UI.
+ */
+export const fantasySpacing = {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 20,
+    xl: 24,
+    xxl: 40,
+} as const;
+
+/**
  * Builds a React Native Paper type entry for the fantasy type scale.
  */
 function createFantasyType(
@@ -184,14 +196,7 @@ export const fantasyTokens = {
         blueDark: '#1a2a4a',
         inspired: '#8b1a1a',
     },
-    spacing: {
-        xs: 4,
-        sm: 8,
-        md: 16,
-        lg: 20,
-        xl: 24,
-        xxl: 40,
-    },
+    spacing: fantasySpacing,
     radii: {
         sm: 12,
         md: 16,
@@ -204,11 +209,12 @@ export const fantasyTokens = {
         stagger: 36,
     },
     floatingActionButton: {
-        insetRight: 32,
-        insetBottom: 50,
-        size: 56,
-        iconLineHeight: 38,
-        iconOffsetTop: -1,
+        insetRight: fantasySpacing.md * 2,
+        insetBottom: fantasySpacing.xxl + fantasySpacing.sm + fantasySpacing.xs / 2,
+        size: fantasySpacing.xxl + fantasySpacing.md,
+        iconLineHeight: fantasyFontSizes.headline + fantasySpacing.sm + fantasySpacing.xs,
+        // Quarter-step optical correction keeps the glyph centred in its line box.
+        iconOffsetTop: -(fantasySpacing.xs / 4),
     },
     breakpoints: {
         tablet: 768,
