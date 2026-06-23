@@ -33,6 +33,9 @@ export function areCustomSubclassDraftsEqual(
     left: CustomSubclassFormDraft,
     right: CustomSubclassFormDraft,
 ): boolean {
+    const leftFeaturesByKey = new Map(
+        left.features.map((feature) => [customSubclassFeatureDraftKey(feature), feature]),
+    );
     const rightFeaturesByKey = new Map(
         right.features.map((feature) => [customSubclassFeatureDraftKey(feature), feature]),
     );
@@ -42,9 +45,10 @@ export function areCustomSubclassDraftsEqual(
         && left.description === right.description
         && left.selectionLevel === right.selectionLevel
         && left.features.length === right.features.length
+        && leftFeaturesByKey.size === left.features.length
         && rightFeaturesByKey.size === right.features.length
-        && left.features.every((feature) => {
-            const rightFeature = rightFeaturesByKey.get(customSubclassFeatureDraftKey(feature));
+        && Array.from(leftFeaturesByKey).every(([featureKey, feature]) => {
+            const rightFeature = rightFeaturesByKey.get(featureKey);
 
             return rightFeature != null
                 && feature.name === rightFeature.name

@@ -53,4 +53,21 @@ describe('areCustomSubclassDraftsEqual', () => {
             draftWithFeatures([{ ...feature, level: '10' }]),
         )).toBe(false);
     });
+
+    it('rejects duplicate feature identities on either draft', () => {
+        const feature = {
+            clientId: 'new-feature-1',
+            name: 'Shatterstep',
+            description: 'Step through a nearby pane.',
+            level: '6',
+        };
+
+        expect(areCustomSubclassDraftsEqual(
+            draftWithFeatures([feature, { ...feature }]),
+            draftWithFeatures([
+                feature,
+                { ...feature, clientId: 'new-feature-2' },
+            ]),
+        )).toBe(false);
+    });
 });
