@@ -12,6 +12,7 @@ import type {
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
 import { buildSubclassFeatureSourceLabel, mapSubclassRowToBase } from "./subclassReferences";
+import { reconcileOwnedCollection } from "./reconcileSheetCollection";
 import {
     CUSTOM_SUBCLASS_NAME_MAX_LENGTH,
     CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH,
@@ -205,58 +206,37 @@ async function reconcileOwnedCustomSubclassFeatures(
     subclassName: string,
     features: ManagedCustomSubclassFeatureValues[],
 ) {
-    const existingFeatures = await tx.feature.findMany({
-        where: {
+    const buildFeatureData = (feature: ManagedCustomSubclassFeatureValues) => ({
+        ownerUserId: userId,
+        name: feature.name,
+        description: [feature.description],
+        level: feature.level,
+        kind: FEATURE_KIND.SUBCLASS_FEATURE,
+        sourceLabel: buildSubclassFeatureSourceLabel(subclassName, className, feature.level),
+        classId,
+        subclassId,
+    });
+
+    await reconcileOwnedCollection({
+        delegate: tx.feature,
+        scopeWhere: {
             ownerUserId: userId,
             kind: FEATURE_KIND.SUBCLASS_FEATURE,
             subclassId,
         },
-        select: { id: true },
-    });
-    const existingFeatureIds = new Set(existingFeatures.map((feature) => feature.id));
-    const submittedIds = features
-        .map((feature) => feature.id)
-        .filter((id): id is string => Boolean(id));
-
-    for (const id of submittedIds) {
-        if (!existingFeatureIds.has(id)) {
-            throw new Error("Custom subclass feature not found.");
-        }
-    }
-
-    await tx.feature.deleteMany({
-        where: {
+        nextItems: features,
+        notFoundMessage: "Custom subclass feature not found.",
+        buildDeleteWhere: (removedIds, scopeWhere) => ({
+            ...scopeWhere,
+            id: { in: removedIds },
+        }),
+        buildUpdateWhere: (featureId) => ({
+            id: featureId,
             ownerUserId: userId,
-            kind: FEATURE_KIND.SUBCLASS_FEATURE,
-            subclassId,
-            ...(submittedIds.length > 0 ? { id: { notIn: submittedIds } } : {}),
-        },
+        }),
+        buildUpdateData: buildFeatureData,
+        buildCreateData: buildFeatureData,
     });
-
-    for (const feature of features) {
-        const data = {
-            ownerUserId: userId,
-            name: feature.name,
-            description: [feature.description],
-            level: feature.level,
-            kind: FEATURE_KIND.SUBCLASS_FEATURE,
-            sourceLabel: buildSubclassFeatureSourceLabel(subclassName, className, feature.level),
-            classId,
-            subclassId,
-        };
-
-        if (feature.id) {
-            await tx.feature.update({
-                where: {
-                    id: feature.id,
-                    ownerUserId: userId,
-                },
-                data,
-            });
-        } else {
-            await tx.feature.create({ data });
-        }
-    }
 }
 
 /**

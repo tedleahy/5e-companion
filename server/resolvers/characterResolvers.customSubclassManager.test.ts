@@ -714,7 +714,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
                 ownerUserId: 'user-abc',
                 kind: 'SUBCLASS_FEATURE',
                 subclassId: 'sub-1',
-                id: { notIn: ['feat-kept'] },
+                id: { in: ['feat-removed'] },
             },
         });
         expect(featureUpdateMock).toHaveBeenCalledWith({
@@ -839,6 +839,7 @@ describe('customSubclassManager — updateCustomSubclass', () => {
                 ownerUserId: 'user-abc',
                 kind: 'SUBCLASS_FEATURE',
                 subclassId: 'sub-1',
+                id: { in: ['feat-removed'] },
             },
         });
         expect(result.classId).toBe('fighter');
