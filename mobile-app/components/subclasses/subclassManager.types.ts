@@ -22,6 +22,10 @@ export type CustomSubclassFeatureDraft = {
 
 export type CustomSubclassFormMode = 'create' | 'edit';
 
+function customSubclassFeatureDraftKey(feature: CustomSubclassFeatureDraft): string {
+    return feature.id ?? feature.clientId;
+}
+
 /**
  * Returns true when two subclass form drafts contain the same field values.
  */
@@ -29,16 +33,20 @@ export function areCustomSubclassDraftsEqual(
     left: CustomSubclassFormDraft,
     right: CustomSubclassFormDraft,
 ): boolean {
+    const rightFeaturesByKey = new Map(
+        right.features.map((feature) => [customSubclassFeatureDraftKey(feature), feature]),
+    );
+
     return left.name === right.name
         && left.classId === right.classId
         && left.description === right.description
         && left.selectionLevel === right.selectionLevel
         && left.features.length === right.features.length
-        && left.features.every((feature, index) => {
-            const rightFeature = right.features[index];
+        && rightFeaturesByKey.size === right.features.length
+        && left.features.every((feature) => {
+            const rightFeature = rightFeaturesByKey.get(customSubclassFeatureDraftKey(feature));
 
             return rightFeature != null
-                && feature.id === rightFeature.id
                 && feature.name === rightFeature.name
                 && feature.description === rightFeature.description
                 && feature.level === rightFeature.level;
