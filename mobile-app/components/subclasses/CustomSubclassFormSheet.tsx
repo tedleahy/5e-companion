@@ -63,7 +63,7 @@ export default function CustomSubclassFormSheet({
         () => !areCustomSubclassDraftsEqual(draft, initialDraft),
         [draft, initialDraft],
     );
-    const featureRowsAreValid = (() => {
+    const featureRowsAreValid = useMemo(() => {
         const seenKeys = new Set<string>();
 
         return draft.features.every((feature) => {
@@ -89,7 +89,7 @@ export default function CustomSubclassFormSheet({
 
             return true;
         });
-    })();
+    }, [draft.features]);
     const canSave = draft.name.trim().length > 0
         && draft.classId.trim().length > 0
         && draft.description.trim().length > 0
