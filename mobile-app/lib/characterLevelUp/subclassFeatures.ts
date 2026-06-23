@@ -222,7 +222,12 @@ export function canContinueFromSubclassSelection(
             && selectionLevel <= maximumSelectionLevel;
     }
 
-    return true;
+    if (state.mode === 'none') {
+        return true;
+    }
+
+    const unsupportedMode: never = state.mode;
+    throw new Error(`Unsupported subclass selection mode: ${unsupportedMode}`);
 }
 
 /**
