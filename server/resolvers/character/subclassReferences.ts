@@ -219,31 +219,18 @@ export async function availableSubclassesForUser(
                     : []),
             ],
         },
+        orderBy: [
+            { classRef: { name: "asc" } },
+            { ownerUserId: { sort: "asc", nulls: "first" } },
+            { name: "asc" },
+        ],
     });
 
-    return subclassRefs
-        .slice()
-        .sort((left, right) => {
-            const leftClassName = left.classRef.name;
-            const rightClassName = right.classRef.name;
-
-            if (leftClassName !== rightClassName) {
-                return leftClassName.localeCompare(rightClassName);
-            }
-
-            const leftIsCustom = left.ownerUserId != null;
-            const rightIsCustom = right.ownerUserId != null;
-            if (leftIsCustom !== rightIsCustom) {
-                return leftIsCustom ? 1 : -1;
-            }
-
-            return left.name.localeCompare(right.name);
-        })
-        .map((subclassRef) => ({
-            ...mapSubclassRowToBase(subclassRef),
-            srdIndex: subclassRef.srdIndex,
-            isCustom: subclassRef.ownerUserId != null,
-        }));
+    return subclassRefs.map((subclassRef) => ({
+        ...mapSubclassRowToBase(subclassRef),
+        srdIndex: subclassRef.srdIndex,
+        isCustom: subclassRef.ownerUserId != null,
+    }));
 }
 
 /**

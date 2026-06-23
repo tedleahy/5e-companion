@@ -144,6 +144,11 @@ describe('characterResolvers — queries', () => {
                 },
             ],
         });
+        expect(args.orderBy).toEqual([
+            { classRef: { name: 'asc' } },
+            { ownerUserId: { sort: 'asc', nulls: 'first' } },
+            { name: 'asc' },
+        ]);
         expect(result).toEqual([
             {
                 id: 'subclass-evocation-id',
