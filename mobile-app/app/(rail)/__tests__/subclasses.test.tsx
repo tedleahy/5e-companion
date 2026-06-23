@@ -8,7 +8,7 @@ import {
     GET_CUSTOM_SUBCLASSES,
     UPDATE_CUSTOM_SUBCLASS,
 } from '@/graphql/customSubclass.operations';
-import { GET_AVAILABLE_SUBCLASSES } from '@/graphql/subclassManager.operations';
+import { GET_AVAILABLE_SUBCLASSES } from '@/graphql/characterSheet.operations';
 import { supabase } from '@/lib/supabase';
 
 const mockReplace = jest.fn();

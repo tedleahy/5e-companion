@@ -21,7 +21,7 @@ import {
     GET_CUSTOM_SUBCLASSES,
     UPDATE_CUSTOM_SUBCLASS,
 } from '@/graphql/customSubclass.operations';
-import { GET_AVAILABLE_SUBCLASSES } from '@/graphql/subclassManager.operations';
+import { GET_AVAILABLE_SUBCLASSES } from '@/graphql/characterSheet.operations';
 import useSessionGuard from '@/hooks/useSessionGuard';
 import { isUnauthenticatedError } from '@/lib/graphqlErrors';
 import type {
