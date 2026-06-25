@@ -394,7 +394,6 @@ export default function CustomSubclassesScreen() {
                         setDraft(nextDraft);
                         if (formErrorMessage) setFormErrorMessage(null);
                     }}
-                    onDismissError={() => setFormErrorMessage(null)}
                     onClose={closeForm}
                     onSave={() => {
                         void saveForm();

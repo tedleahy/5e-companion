@@ -2,23 +2,33 @@ import { useCallback, useMemo, useRef } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { HelperText, Text, TextInput } from 'react-native-paper';
+import { HelperText, Text } from 'react-native-paper';
 import BottomSheetShell from '@/components/sheets/BottomSheetShell';
 import useBottomSheetMotion from '@/hooks/useBottomSheetMotion';
 import useConfirm from '@/hooks/useConfirm';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import CustomSubclassFeatureCard from './CustomSubclassFeatureCard';
+import { FantasyFormTextInput } from './FantasyFormTextInput';
+import {
+    addCustomSubclassFeatureDraft,
+    buildBlankCustomSubclassFeatureDraft,
+    normaliseLevelInput,
+    patchCustomSubclassDraft,
+    patchCustomSubclassFeatureDraft,
+    removeCustomSubclassFeatureDraft,
+    validateCustomSubclassDraft,
+} from './customSubclassFormDraft';
 import {
     areCustomSubclassDraftsEqual,
     type CustomSubclassFormDraft,
     type CustomSubclassFormMode,
+    type CustomSubclassFeatureDraft,
 } from './subclassManager.types';
 import {
     CUSTOM_SUBCLASS_NAME_MAX_LENGTH,
     CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH,
-    CUSTOM_SUBCLASS_FEATURE_NAME_MAX_LENGTH,
-    CUSTOM_SUBCLASS_FEATURE_DESCRIPTION_MAX_LENGTH,
 } from '@shared/constants/customSubclassLimits';
 
 type CustomSubclassFormSheetProps = {
@@ -31,7 +41,6 @@ type CustomSubclassFormSheetProps = {
     lockedClassSelection: boolean;
     lockedClassMessage: string;
     onChangeDraft: (draft: CustomSubclassFormDraft) => void;
-    onDismissError: () => void;
     onClose: () => void;
     onSave: () => void;
 };
@@ -49,7 +58,6 @@ export default function CustomSubclassFormSheet({
     lockedClassSelection,
     lockedClassMessage,
     onChangeDraft,
-    onDismissError,
     onClose,
     onSave,
 }: CustomSubclassFormSheetProps) {
@@ -63,41 +71,8 @@ export default function CustomSubclassFormSheet({
         () => !areCustomSubclassDraftsEqual(draft, initialDraft),
         [draft, initialDraft],
     );
-    const featureRowsAreValid = useMemo(() => {
-        const seenKeys = new Set<string>();
-
-        return draft.features.every((feature) => {
-            const level = Number(feature.level);
-            const name = feature.name.trim();
-
-            if (
-                name.length === 0
-                || feature.description.trim().length === 0
-                || !Number.isInteger(level)
-                || level < 1
-            ) {
-                return false;
-            }
-
-            const duplicateKey = `${level}:${name.toLowerCase()}`;
-
-            if (seenKeys.has(duplicateKey)) {
-                return false;
-            }
-
-            seenKeys.add(duplicateKey);
-
-            return true;
-        });
-    }, [draft.features]);
-    const canSave = draft.name.trim().length > 0
-        && draft.classId.trim().length > 0
-        && draft.description.trim().length > 0
-        && Number.isInteger(Number(draft.selectionLevel))
-        && Number(draft.selectionLevel) >= 1
-        && Number(draft.selectionLevel) <= 20
-        && featureRowsAreValid
-        && !pending;
+    const draftValidation = useMemo(() => validateCustomSubclassDraft(draft), [draft]);
+    const canSave = draftValidation.canSave && !pending;
 
     const handleRequestClose = useCallback((): boolean | void => {
         if (pending) return false;
@@ -136,338 +111,216 @@ export default function CustomSubclassFormSheet({
 
     const title = mode === 'edit' ? 'Edit Subclass' : 'Create Subclass';
 
+    function updateDraft(updates: Partial<Omit<CustomSubclassFormDraft, 'features'>>) {
+        onChangeDraft(patchCustomSubclassDraft(draft, updates));
+    }
+
     function addFeature() {
         featureClientIdCounterRef.current += 1;
         const clientId = `feature-${featureClientIdCounterRef.current}`;
 
-        onChangeDraft({
-            ...draft,
-            features: [
-                ...draft.features,
-                {
-                    clientId,
-                    name: '',
-                    description: '',
-                    level: '',
-                },
-            ],
-        });
+        onChangeDraft(addCustomSubclassFeatureDraft(
+            draft,
+            buildBlankCustomSubclassFeatureDraft(clientId),
+        ));
     }
 
     function updateFeature(
         clientId: string,
-        updates: Partial<CustomSubclassFormDraft['features'][number]>,
+        updates: Partial<CustomSubclassFeatureDraft>,
     ) {
-        onChangeDraft({
-            ...draft,
-            features: draft.features.map((feature) => (
-                feature.clientId === clientId ? { ...feature, ...updates } : feature
-            )),
-        });
+        onChangeDraft(patchCustomSubclassFeatureDraft(draft, clientId, updates));
     }
 
     function removeFeature(clientId: string) {
-        onChangeDraft({
-            ...draft,
-            features: draft.features.filter((feature) => feature.clientId !== clientId),
-        });
+        onChangeDraft(removeCustomSubclassFeatureDraft(draft, clientId));
     }
 
     return (
         <>
             {confirmDialogElement}
             <BottomSheetShell
-            isRendered={isRendered}
-            backdropOpacity={backdropOpacity}
-            sheetTranslateY={sheetTranslateY}
-            sheetDismissGesture={sheetDismissGesture}
-            sheetStyle={{ height: '80%' }}
-            onRequestClose={requestSheetClose}
-            closeAccessibilityLabel="Close custom subclass form"
-            testID="custom-subclass-form-sheet"
-            overlayZIndex={30}
-        >
-            <KeyboardAwareScrollView
-                {...keyboardAwareScrollProps}
-                bottomOffset={keyboardAwareBottomOffset}
-                contentContainerStyle={styles.sheetContent}
-                showsVerticalScrollIndicator={false}
-                onScroll={handleScroll}
-                scrollEventThrottle={16}
+                isRendered={isRendered}
+                backdropOpacity={backdropOpacity}
+                sheetTranslateY={sheetTranslateY}
+                sheetDismissGesture={sheetDismissGesture}
+                sheetStyle={{ height: '80%' }}
+                onRequestClose={requestSheetClose}
+                closeAccessibilityLabel="Close custom subclass form"
+                testID="custom-subclass-form-sheet"
+                overlayZIndex={30}
             >
-                <View style={styles.headerRow}>
-                    <View style={styles.headerText}>
-                        <Text style={styles.sheetTitle}>{title}</Text>
+                <KeyboardAwareScrollView
+                    {...keyboardAwareScrollProps}
+                    bottomOffset={keyboardAwareBottomOffset}
+                    contentContainerStyle={styles.sheetContent}
+                    showsVerticalScrollIndicator={false}
+                    onScroll={handleScroll}
+                    scrollEventThrottle={16}
+                >
+                    <View style={styles.headerRow}>
+                        <View style={styles.headerText}>
+                            <Text style={styles.sheetTitle}>{title}</Text>
+                        </View>
                     </View>
-                </View>
 
-                <View style={styles.field}>
-                    <Text style={styles.fieldLabel}>Subclass Name</Text>
-                    <TextInput
-                        placeholder="e.g. Oath of the Ancients"
-                        placeholderTextColor={fantasyTokens.colors.inkSoft}
-                        value={draft.name}
-                        onChangeText={(name) => onChangeDraft({ ...draft, name })}
-                        maxLength={CUSTOM_SUBCLASS_NAME_MAX_LENGTH}
-                        autoCapitalize="words"
-                        mode="outlined"
-                        style={styles.input}
-                        textColor={fantasyTokens.colors.inkDark}
-                        outlineColor={fantasyTokens.colors.gold}
-                        activeOutlineColor={fantasyTokens.colors.crimson}
-                        testID="custom-subclass-name-input"
-                    />
-                </View>
+                    <View style={styles.field}>
+                        <Text style={styles.fieldLabel}>Subclass Name</Text>
+                        <FantasyFormTextInput
+                            placeholder="e.g. Oath of the Ancients"
+                            value={draft.name}
+                            onChangeText={(name) => updateDraft({ name })}
+                            maxLength={CUSTOM_SUBCLASS_NAME_MAX_LENGTH}
+                            autoCapitalize="words"
+                            testID="custom-subclass-name-input"
+                        />
+                    </View>
 
-                <View style={styles.classSection}>
-                    <Text style={styles.fieldLabel}>Parent Class</Text>
-                    <View style={styles.classGrid}>
-                        {CLASS_OPTIONS.map((option) => {
-                            const selected = draft.classId === option.value;
+                    <View style={styles.classSection}>
+                        <Text style={styles.fieldLabel}>Parent Class</Text>
+                        <View style={styles.classGrid}>
+                            {CLASS_OPTIONS.map((option) => {
+                                const selected = draft.classId === option.value;
 
-                            return (
-                                <Pressable
-                                    key={option.value}
-                                    accessibilityRole="button"
-                                    accessibilityLabel={`Select ${option.label}`}
-                                    accessibilityState={{ selected, disabled: lockedClassSelection }}
-                                    disabled={lockedClassSelection}
-                                    onPress={() => onChangeDraft({ ...draft, classId: option.value })}
-                                    style={({ pressed }) => [
-                                        styles.classButton,
-                                        selected && styles.classButtonSelected,
-                                        lockedClassSelection && styles.classButtonDisabled,
-                                        pressed && styles.classButtonPressed,
-                                    ]}
-                                    testID={`custom-subclass-class-${option.value}`}
-                                >
-                                    <Text style={styles.classIcon}>{option.icon}</Text>
-                                    <Text
-                                        style={[styles.classButtonText, selected && styles.classButtonTextSelected]}
-                                        numberOfLines={1}
+                                return (
+                                    <Pressable
+                                        key={option.value}
+                                        accessibilityRole="button"
+                                        accessibilityLabel={`Select ${option.label}`}
+                                        accessibilityState={{ selected, disabled: lockedClassSelection }}
+                                        disabled={lockedClassSelection}
+                                        onPress={() => updateDraft({ classId: option.value })}
+                                        style={({ pressed }) => [
+                                            styles.classButton,
+                                            selected && styles.classButtonSelected,
+                                            lockedClassSelection && styles.classButtonDisabled,
+                                            pressed && styles.classButtonPressed,
+                                        ]}
+                                        testID={`custom-subclass-class-${option.value}`}
                                     >
-                                        {option.label}
-                                    </Text>
-                                </Pressable>
-                            );
-                        })}
+                                        <Text style={styles.classIcon}>{option.icon}</Text>
+                                        <Text
+                                            style={[styles.classButtonText, selected && styles.classButtonTextSelected]}
+                                            numberOfLines={1}
+                                        >
+                                            {option.label}
+                                        </Text>
+                                    </Pressable>
+                                );
+                            })}
+                        </View>
+                        {lockedClassSelection && (
+                            <Text style={styles.lockedText}>
+                                {lockedClassMessage}
+                            </Text>
+                        )}
                     </View>
-                    {lockedClassSelection && (
+
+                    <View style={styles.field}>
+                        <Text style={styles.fieldLabel}>Selection Level</Text>
+                        <FantasyFormTextInput
+                            placeholder="1-20"
+                            value={draft.selectionLevel}
+                            onChangeText={(value) => updateDraft({ selectionLevel: normaliseLevelInput(value) })}
+                            keyboardType="number-pad"
+                            testID="custom-subclass-selection-level-input"
+                        />
                         <Text style={styles.lockedText}>
-                            {lockedClassMessage}
+                            Characters can choose this subclass at this class level or later.
                         </Text>
+                    </View>
+
+                    <View style={styles.field}>
+                        <Text style={styles.fieldLabel}>Description</Text>
+                        <FantasyFormTextInput
+                            placeholder="Describe the subclass features, flavour, and abilities"
+                            value={draft.description}
+                            onChangeText={(description) => updateDraft({ description })}
+                            multiline
+                            numberOfLines={6}
+                            maxLength={CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH}
+                            style={styles.descriptionInput}
+                            testID="custom-subclass-description-input"
+                        />
+                        <Text
+                            style={styles.descriptionCounter}
+                            testID="custom-subclass-description-counter"
+                        >
+                            {draft.description.length}/{CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH}
+                        </Text>
+                    </View>
+
+                    <View style={styles.featuresSection}>
+                        <View style={styles.featuresHeader}>
+                            <Text style={styles.fieldLabel}>Subclass Features</Text>
+                            <Pressable
+                                accessibilityRole="button"
+                                accessibilityLabel="Add subclass feature"
+                                onPress={addFeature}
+                                disabled={pending}
+                                style={({ pressed }) => [
+                                    styles.addFeatureButton,
+                                    pressed && styles.addFeatureButtonPressed,
+                                ]}
+                                testID="add-custom-subclass-feature"
+                            >
+                                <Ionicons name="add" size={18} color={fantasyTokens.colors.parchment} />
+                                <Text style={styles.addFeatureButtonText}>Add Feature</Text>
+                            </Pressable>
+                        </View>
+
+                        {draft.features.length === 0 ? (
+                            <Text style={styles.emptyFeaturesText}>No subclass features yet.</Text>
+                        ) : (
+                            draft.features.map((feature, index) => (
+                                <CustomSubclassFeatureCard
+                                    key={feature.clientId}
+                                    feature={feature}
+                                    index={index}
+                                    pending={pending}
+                                    useStackedFields={useStackedFeatureFields}
+                                    onUpdate={updateFeature}
+                                    onRemove={removeFeature}
+                                />
+                            ))
+                        )}
+                    </View>
+
+                    {errorMessage && (
+                        <HelperText type="error" visible style={styles.errorText}>
+                            {errorMessage}
+                        </HelperText>
                     )}
-                </View>
 
-                <View style={styles.field}>
-                    <Text style={styles.fieldLabel}>Selection Level</Text>
-                    <TextInput
-                        placeholder="1-20"
-                        placeholderTextColor={fantasyTokens.colors.inkSoft}
-                        value={draft.selectionLevel}
-                        onChangeText={(value) => onChangeDraft({
-                            ...draft,
-                            selectionLevel: value.replace(/[^0-9]/g, '').slice(0, 2),
-                        })}
-                        keyboardType="number-pad"
-                        mode="outlined"
-                        style={styles.input}
-                        textColor={fantasyTokens.colors.inkDark}
-                        outlineColor={fantasyTokens.colors.gold}
-                        activeOutlineColor={fantasyTokens.colors.crimson}
-                        testID="custom-subclass-selection-level-input"
-                    />
-                    <Text style={styles.lockedText}>
-                        Characters can choose this subclass at this class level or later.
-                    </Text>
-                </View>
-
-                <View style={styles.field}>
-                    <Text style={styles.fieldLabel}>Description</Text>
-                    <TextInput
-                        placeholder="Describe the subclass features, flavour, and abilities"
-                        placeholderTextColor={fantasyTokens.colors.inkSoft}
-                        value={draft.description}
-                        onChangeText={(description) => {
-                            onChangeDraft({ ...draft, description });
-                            if (errorMessage) onDismissError();
-                        }}
-                        mode="outlined"
-                        multiline
-                        numberOfLines={6}
-                        maxLength={CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH}
-                        style={[styles.input, styles.descriptionInput]}
-                        textColor={fantasyTokens.colors.inkDark}
-                        outlineColor={fantasyTokens.colors.gold}
-                        activeOutlineColor={fantasyTokens.colors.crimson}
-                        testID="custom-subclass-description-input"
-                    />
-                    <Text
-                        style={styles.descriptionCounter}
-                        testID="custom-subclass-description-counter"
-                    >
-                        {draft.description.length}/{CUSTOM_SUBCLASS_DESCRIPTION_MAX_LENGTH}
-                    </Text>
-                </View>
-
-                <View style={styles.featuresSection}>
-                    <View style={styles.featuresHeader}>
-                        <Text style={styles.fieldLabel}>Subclass Features</Text>
+                    <View style={styles.footer}>
                         <Pressable
                             accessibilityRole="button"
-                            accessibilityLabel="Add subclass feature"
-                            onPress={addFeature}
+                            accessibilityLabel="Cancel custom subclass form"
+                            onPress={requestSheetClose}
                             disabled={pending}
-                            style={({ pressed }) => [
-                                styles.addFeatureButton,
-                                pressed && styles.addFeatureButtonPressed,
-                            ]}
-                            testID="add-custom-subclass-feature"
+                            style={({ pressed }) => [styles.cancelButton, pressed && styles.cancelButtonPressed]}
+                            testID="cancel-custom-subclass-form"
                         >
-                            <Ionicons name="add" size={18} color={fantasyTokens.colors.parchment} />
-                            <Text style={styles.addFeatureButtonText}>Add Feature</Text>
+                            <Text style={styles.cancelButtonText}>Cancel</Text>
+                        </Pressable>
+                        <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel="Save custom subclass"
+                            accessibilityState={{ disabled: !canSave }}
+                            onPress={onSave}
+                            disabled={!canSave}
+                            style={({ pressed }) => [
+                                styles.saveButton,
+                                !canSave && styles.saveButtonDisabled,
+                                pressed && canSave && styles.saveButtonPressed,
+                            ]}
+                            testID="save-custom-subclass"
+                        >
+                            <Text style={styles.saveButtonText}>{pending ? 'Saving...' : 'Save'}</Text>
                         </Pressable>
                     </View>
-
-                    {draft.features.length === 0 ? (
-                        <Text style={styles.emptyFeaturesText}>No subclass features yet.</Text>
-                    ) : (
-                        draft.features.map((feature, index) => (
-                            <View
-                                key={feature.clientId}
-                                style={styles.featureCard}
-                                testID={`custom-subclass-feature-${index}`}
-                            >
-                                <View style={styles.featureCardHeader}>
-                                    <Text style={styles.featureCardTitle}>Feature {index + 1}</Text>
-                                    <Pressable
-                                        accessibilityRole="button"
-                                        accessibilityLabel={`Remove feature ${index + 1}`}
-                                        onPress={() => removeFeature(feature.clientId)}
-                                        disabled={pending}
-                                        style={({ pressed }) => [
-                                            styles.removeFeatureButton,
-                                            pressed && styles.removeFeatureButtonPressed,
-                                        ]}
-                                        testID={`remove-custom-subclass-feature-${index}`}
-                                    >
-                                        <Ionicons name="trash-outline" size={18} color={fantasyTokens.colors.crimson} />
-                                    </Pressable>
-                                </View>
-
-                                <View
-                                    style={[
-                                        styles.featureInlineFields,
-                                        useStackedFeatureFields && styles.featureInlineFieldsStacked,
-                                    ]}
-                                >
-                                    <View
-                                        style={[
-                                            styles.featureLevelField,
-                                            useStackedFeatureFields && styles.featureStackedField,
-                                        ]}
-                                    >
-                                        <Text style={styles.featureFieldLabel}>Level</Text>
-                                        <TextInput
-                                            placeholder="3"
-                                            placeholderTextColor={fantasyTokens.colors.inkSoft}
-                                            value={feature.level}
-                                            onChangeText={(level) => updateFeature(feature.clientId, {
-                                                level: level.replace(/[^0-9]/g, ''),
-                                            })}
-                                            keyboardType="number-pad"
-                                            inputMode="numeric"
-                                            mode="outlined"
-                                            style={styles.input}
-                                            textColor={fantasyTokens.colors.inkDark}
-                                            outlineColor={fantasyTokens.colors.gold}
-                                            activeOutlineColor={fantasyTokens.colors.crimson}
-                                            testID={`custom-subclass-feature-level-${index}`}
-                                        />
-                                    </View>
-
-                                    <View
-                                        style={[
-                                            styles.featureNameField,
-                                            useStackedFeatureFields && styles.featureStackedField,
-                                        ]}
-                                    >
-                                        <Text style={styles.featureFieldLabel}>Name</Text>
-                                        <TextInput
-                                            placeholder="e.g. Moonlit Ward"
-                                            placeholderTextColor={fantasyTokens.colors.inkSoft}
-                                            value={feature.name}
-                                            onChangeText={(name) => updateFeature(feature.clientId, { name })}
-                                            maxLength={CUSTOM_SUBCLASS_FEATURE_NAME_MAX_LENGTH}
-                                            autoCapitalize="words"
-                                            mode="outlined"
-                                            style={styles.input}
-                                            textColor={fantasyTokens.colors.inkDark}
-                                            outlineColor={fantasyTokens.colors.gold}
-                                            activeOutlineColor={fantasyTokens.colors.crimson}
-                                            testID={`custom-subclass-feature-name-${index}`}
-                                        />
-                                    </View>
-                                </View>
-
-                                <View style={styles.field}>
-                                    <Text style={styles.featureFieldLabel}>Description</Text>
-                                    <TextInput
-                                        placeholder="Describe what this feature grants"
-                                        placeholderTextColor={fantasyTokens.colors.inkSoft}
-                                        value={feature.description}
-                                        onChangeText={(description) => updateFeature(feature.clientId, { description })}
-                                        mode="outlined"
-                                        multiline
-                                        numberOfLines={4}
-                                        maxLength={CUSTOM_SUBCLASS_FEATURE_DESCRIPTION_MAX_LENGTH}
-                                        style={[styles.input, styles.featureDescriptionInput]}
-                                        textColor={fantasyTokens.colors.inkDark}
-                                        outlineColor={fantasyTokens.colors.gold}
-                                        activeOutlineColor={fantasyTokens.colors.crimson}
-                                        testID={`custom-subclass-feature-description-${index}`}
-                                    />
-                                </View>
-                            </View>
-                        ))
-                    )}
-                </View>
-
-                {errorMessage && (
-                    <HelperText type="error" visible style={styles.errorText}>
-                        {errorMessage}
-                    </HelperText>
-                )}
-
-                <View style={styles.footer}>
-                    <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel="Cancel custom subclass form"
-                        onPress={requestSheetClose}
-                        disabled={pending}
-                        style={({ pressed }) => [styles.cancelButton, pressed && styles.cancelButtonPressed]}
-                        testID="cancel-custom-subclass-form"
-                    >
-                        <Text style={styles.cancelButtonText}>Cancel</Text>
-                    </Pressable>
-                    <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel="Save custom subclass"
-                        accessibilityState={{ disabled: !canSave }}
-                        onPress={onSave}
-                        disabled={!canSave}
-                        style={({ pressed }) => [
-                            styles.saveButton,
-                            !canSave && styles.saveButtonDisabled,
-                            pressed && canSave && styles.saveButtonPressed,
-                        ]}
-                        testID="save-custom-subclass"
-                    >
-                        <Text style={styles.saveButtonText}>{pending ? 'Saving...' : 'Save'}</Text>
-                    </Pressable>
-                </View>
-            </KeyboardAwareScrollView>
-        </BottomSheetShell>
+                </KeyboardAwareScrollView>
+            </BottomSheetShell>
         </>
     );
 }
@@ -495,9 +348,6 @@ const styles = StyleSheet.create({
     },
     field: {
         gap: fantasyTokens.spacing.sm,
-    },
-    input: {
-        backgroundColor: fantasyTokens.colors.parchment,
     },
     descriptionInput: {
         minHeight: 132,
@@ -590,64 +440,6 @@ const styles = StyleSheet.create({
         ...fantasyTokens.typography.bodySmall,
         color: fantasyTokens.colors.gold,
         opacity: 0.72,
-    },
-    featureCard: {
-        gap: fantasyTokens.spacing.sm,
-        borderRadius: fantasyTokens.radii.sm,
-        borderWidth: 1,
-        borderColor: fantasyTokens.rail.borderStrong,
-        backgroundColor: fantasyTokens.rail.pressed,
-        padding: fantasyTokens.spacing.md,
-    },
-    featureCardHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: fantasyTokens.spacing.sm,
-    },
-    featureCardTitle: {
-        ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.parchment,
-        fontWeight: '700',
-    },
-    removeFeatureButton: {
-        width: 40,
-        height: 40,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: fantasyTokens.radii.sm,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
-        borderWidth: 1,
-        borderColor: fantasyTokens.rail.borderStrong,
-    },
-    removeFeatureButtonPressed: {
-        backgroundColor: fantasyTokens.colors.crimsonSoft,
-    },
-    featureInlineFields: {
-        flexDirection: 'row',
-        gap: fantasyTokens.spacing.sm,
-    },
-    featureInlineFieldsStacked: {
-        flexDirection: 'column',
-    },
-    featureLevelField: {
-        width: 86,
-        gap: fantasyTokens.spacing.xs,
-    },
-    featureNameField: {
-        flex: 1,
-        minWidth: 0,
-        gap: fantasyTokens.spacing.xs,
-    },
-    featureStackedField: {
-        width: '100%',
-    },
-    featureFieldLabel: {
-        ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.gold,
-    },
-    featureDescriptionInput: {
-        minHeight: 104,
     },
     errorText: {
         color: fantasyTokens.colors.goldLight,
