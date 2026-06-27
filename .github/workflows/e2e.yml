@@ -4,8 +4,22 @@ on:
   workflow_call:
   push:
     branches: [main]
+    paths:
+      - server/**
+      - mobile-app/**
+      - srd-json-files/**
+      - .github/workflows/e2e.yml
+      - bun.lock
+      - package.json
   pull_request:
     branches: [main]
+    paths:
+      - server/**
+      - mobile-app/**
+      - srd-json-files/**
+      - .github/workflows/e2e.yml
+      - bun.lock
+      - package.json
   workflow_dispatch:
 
 jobs:
@@ -16,10 +30,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Set up Supabase CLI
-        uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1 # v1.7.1
+        uses: supabase/setup-cli@3c2f5e2ae34c34e428e8e206e2c4d21fa2d20fbf # v2.1.1
         with:
           version: latest
 
@@ -29,7 +43,7 @@ jobs:
           bun-version: latest
 
       - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: 24
 
@@ -45,7 +59,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Cache Playwright browsers
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('mobile-app/yarn.lock') }}
@@ -85,7 +99,7 @@ jobs:
 
       - name: Upload Playwright report
         if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: playwright-report
           path: mobile-app/playwright-report/

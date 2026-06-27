@@ -89,11 +89,11 @@ Prefer unit tests. Add an e2e spec only for flows that can't be meaningfully cov
 
 ## CI
 
-- `.github/workflows/unit-tests.yml` — runs `bun test` (server) and `yarn test` (mobile) on every PR and push to `main`.
-- `.github/workflows/e2e.yml` — brings up local Supabase via the Supabase CLI, installs Playwright browsers, runs the full e2e suite.
-- `.github/workflows/lint.yml` — lint only.
+- `.github/workflows/backend-checks.yml` — runs actionlint, Prisma validation/generation, server GraphQL codegen drift check, `tsc --noEmit`, `bun test`, and an API Docker build for backend-related changes. Backend deploys use this workflow as their gate.
+- `.github/workflows/frontend-checks.yml` — runs mobile GraphQL codegen drift check, `tsc --noEmit`, Expo lint, and Jest for mobile-app changes and server GraphQL schema changes.
+- `.github/workflows/e2e.yml` — brings up local Supabase via the Supabase CLI, installs Playwright browsers, and runs the full e2e suite for full-stack app/server/data changes.
 
-All three run on Ubuntu, Node 24 + Bun latest.
+All CI workflows run on Ubuntu. Frontend and e2e use Node 24; backend and e2e use Bun latest.
 
 ## General testing discipline
 

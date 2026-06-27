@@ -1,0 +1,60 @@
+name: Frontend checks
+
+on:
+  workflow_call:
+  push:
+    branches: [main]
+    paths:
+      - mobile-app/**
+      - server/schema.graphql
+      - .github/workflows/frontend-checks.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - mobile-app/**
+      - server/schema.graphql
+      - .github/workflows/frontend-checks.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile:
+    name: Mobile checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 24
+          cache: yarn
+          cache-dependency-path: mobile-app/yarn.lock
+
+      - name: Install mobile-app dependencies
+        working-directory: mobile-app
+        run: yarn install --frozen-lockfile
+
+      - name: Generate GraphQL types
+        working-directory: mobile-app
+        run: yarn codegen
+
+      - name: Check generated GraphQL types are committed
+        run: git diff --exit-code -- mobile-app/types/generated_graphql_types.ts
+
+      - name: Typecheck mobile app
+        working-directory: mobile-app
+        run: yarn tsc --noEmit
+
+      - name: Run expo lint
+        working-directory: mobile-app
+        run: yarn expo lint
+
+      - name: Run mobile unit tests
+        working-directory: mobile-app
+        run: yarn test

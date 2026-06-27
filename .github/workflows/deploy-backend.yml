@@ -8,10 +8,9 @@ on:
       - server/**
       - deploy/**
       - .github/scripts/**
+      - .github/workflows/backend-checks.yml
       - .github/workflows/deploy-backend.yml
-      - .github/workflows/e2e.yml
-      - .github/workflows/lint.yml
-      - .github/workflows/unit-tests.yml
+      - srd-json-files/**
       - bun.lock
       - package.json
   workflow_dispatch:
@@ -24,24 +23,13 @@ permissions:
   contents: read
 
 jobs:
-  unit-tests:
-    name: Unit tests
-    uses: ./.github/workflows/unit-tests.yml
-
-  lint:
-    name: Lint
-    uses: ./.github/workflows/lint.yml
-
-  e2e:
-    name: E2E tests
-    uses: ./.github/workflows/e2e.yml
+  backend-checks:
+    name: Backend checks
+    uses: ./.github/workflows/backend-checks.yml
 
   build-api-image:
     name: Build API image
-    needs:
-      - unit-tests
-      - lint
-      - e2e
+    needs: backend-checks
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -52,7 +40,7 @@ jobs:
       head_sha: ${{ steps.ref.outputs.head_sha }}
     steps:
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || github.sha }}
 
@@ -81,7 +69,7 @@ jobs:
 
     steps:
       - name: Checkout deploy scripts
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           ref: ${{ needs.build-api-image.outputs.head_sha }}
 
