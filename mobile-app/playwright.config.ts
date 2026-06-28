@@ -23,6 +23,10 @@ import {
 
 const SERVER_ROOT = path.resolve(__dirname, '..', 'server');
 const AUTH_STORAGE_STATE = path.resolve(__dirname, 'e2e', '.auth', 'user.json');
+const desktopChrome = {
+    ...devices['Desktop Chrome'],
+    ...(process.env.CI ? { channel: 'chrome' as const } : {}),
+};
 
 export default defineConfig({
     testDir: './e2e',
@@ -46,18 +50,18 @@ export default defineConfig({
         {
             name: 'setup',
             testMatch: /auth\.setup\.ts/,
-            use: { ...devices['Desktop Chrome'] },
+            use: desktopChrome,
         },
         {
             name: 'smoke',
             testMatch: /smoke\.spec\.ts/,
-            use: { ...devices['Desktop Chrome'] },
+            use: desktopChrome,
         },
         {
             name: 'chromium',
             testIgnore: [/auth\.setup\.ts/, /smoke\.spec\.ts/],
             use: {
-                ...devices['Desktop Chrome'],
+                ...desktopChrome,
                 storageState: AUTH_STORAGE_STATE,
             },
             dependencies: ['setup'],
@@ -91,4 +95,3 @@ export default defineConfig({
         },
     ],
 });
-
