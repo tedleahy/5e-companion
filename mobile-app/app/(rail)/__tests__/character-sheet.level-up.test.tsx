@@ -21,6 +21,7 @@ jest.mock('@/hooks/useAvailableSubclasses', () => ({
             classId: string;
             className: string;
             name: string;
+            selectionLevel: number;
             description: string;
             isCustom: boolean;
             features: Array<{
@@ -40,6 +41,7 @@ jest.mock('@/hooks/useAvailableSubclasses', () => ({
                     classId: 'wizard',
                     className: 'Wizard',
                     name: 'School of Evocation',
+                    selectionLevel: 2,
                     description: 'Focus your magic on raw elemental force, disciplined blast shaping, and battlefield control through practiced destructive wizardry that turns fire, frost, and thunder into precise arcane tools.',
                     isCustom: false,
                     features: [],
@@ -52,6 +54,7 @@ jest.mock('@/hooks/useAvailableSubclasses', () => ({
                     classId: 'wizard',
                     className: 'Wizard',
                     name: 'School of Glass',
+                    selectionLevel: 2,
                     description: 'A delicate art of mirrored wards and refractions.',
                     isCustom: true,
                     features: [
@@ -498,7 +501,7 @@ describe('CharacterByIdScreen level-up wizard', () => {
         await pressAndFlush(screen.getByTestId('level-up-class-option-fighter'));
 
         await waitFor(() => {
-            expect(screen.getByText('Step 1 of 5 - Choose Class')).toBeTruthy();
+            expect(screen.getByText('Step 1 of 6 - Choose Class')).toBeTruthy();
         });
 
         expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);

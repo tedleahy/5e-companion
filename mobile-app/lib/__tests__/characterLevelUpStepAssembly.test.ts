@@ -152,6 +152,7 @@ describe('characterLevelUp step assembly', () => {
         expect(steps).toEqual([
             'choose_class',
             'hit_points',
+            'subclass_selection',
             'new_features',
             'multiclass_proficiencies',
             'summary',

@@ -262,6 +262,7 @@ function toResolvedCharacterClasses(classRows: LoadedCharacterClassRow[]): Resol
                   srdIndex: classRow.subclassRef.srdIndex,
                   name: classRow.subclassRef.name,
                   classId: classRow.subclassRef.classId,
+                  selectionLevel: classRow.subclassRef.selectionLevel,
               } satisfies CharacterSubclassReference
             : null,
     }));

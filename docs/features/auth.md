@@ -93,7 +93,8 @@ For Playwright, a local Supabase stack is used rather than the production Supaba
 - `mobile-app/e2e/supabaseLocalStack.ts` — helpers to read URLs, service keys, and seed a test user.
 - `mobile-app/e2e/globalSetup.ts` — migrates the local DB and seeds the test user + a test character.
 - `mobile-app/e2e/auth.setup.ts` — performs a real UI sign-in once per run and saves storage state to `e2e/.auth/user.json`.
-- Downstream specs reuse that storage state via Playwright's `storageState`.
+- `mobile-app/e2e/bootstrapBrowserAuth.ts` — signs in through Supabase Auth REST and writes portable browser auth artifacts for agents and non-Playwright harnesses; see [`agent-browser-auth.md`](../agent-browser-auth.md).
+- Downstream specs reuse Playwright storage state via `storageState`.
 
 ## Things to know
 

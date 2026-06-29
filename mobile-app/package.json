@@ -13,6 +13,9 @@
         "lint": "expo lint",
         "codegen": "graphql-codegen --config codegen.yml",
         "test": "NODE_OPTIONS='--no-experimental-webstorage' jest",
+        "e2e:auth": "bun run e2e/bootstrapBrowserAuth.ts",
+        "e2e:server": "bun run e2e/runWithE2eEnv.ts ../server bun run dev",
+        "e2e:web": "yarn web --port 8081 --clear",
         "e2e": "playwright test",
         "e2e:ui": "playwright test --ui",
         "e2e:report": "playwright show-report"

@@ -12,6 +12,8 @@ import MainContentFrame from '@/components/layout/MainContentFrame';
 import CollapsedRail from '@/components/navigation/CollapsedRail';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
+const COMPACT_OVERLAY_Z_INDEX = 3;
+
 /**
  * Props for the rail shell used by main authenticated screens.
  */
@@ -96,6 +98,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: fantasyTokens.spacing.sm,
         left: 0,
+        zIndex: COMPACT_OVERLAY_Z_INDEX,
     },
     compactMenuButton: {
         position: 'absolute',

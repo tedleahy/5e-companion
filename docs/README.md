@@ -18,6 +18,7 @@ Each doc is short and cross-links to the code; it does not duplicate the code. [
 - [`server.md`](./server.md) — Apollo Server, GraphQL schema, resolver structure, auth context
 - [`deployment.md`](./deployment.md) — Hetzner VPS, Docker Compose, Caddy, production env, deploy flow
 - [`testing.md`](./testing.md) — Jest (mobile), Bun test (server), Playwright (e2e), gotchas
+- [`agent-browser-auth.md`](./agent-browser-auth.md) — authenticated Expo web access for agents and browser harnesses
 - [`conventions.md`](./conventions.md) — canonical code style, commits, and workflow (hard rules in `AGENTS.md`)
 
 ## Features

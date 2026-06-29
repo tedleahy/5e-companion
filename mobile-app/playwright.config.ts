@@ -63,6 +63,9 @@ export default defineConfig({
             use: {
                 ...desktopChrome,
                 storageState: AUTH_STORAGE_STATE,
+                launchOptions: {
+                    executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH || undefined,
+                },
             },
             dependencies: ['setup'],
         },

@@ -2,6 +2,7 @@ import type { FeatureKind, Prisma } from "@prisma/client";
 import prisma from "../../prisma/prisma";
 import type {
     AvailableSubclass,
+    AvailableSubclassFeature,
     CustomSubclassInput,
     SaveCustomSubclassFeatureInput,
 } from "../../generated/graphql";
@@ -27,6 +28,7 @@ const FEATURE_KIND = {
 export type SubmittedCustomSubclass = {
     name: string;
     description: string;
+    selectionLevel: number;
 };
 
 /**
@@ -75,6 +77,60 @@ export function subclassSelectionValue(subclassRef: Pick<CharacterSubclassRefere
 }
 
 /**
+ * Builds the display label for a subclass feature source.
+ */
+export function buildSubclassFeatureSourceLabel(
+    subclassName: string,
+    className: string,
+    level: number,
+): string {
+    return `${subclassName} ${className} ${level}`;
+}
+
+type SubclassFeatureRowLike = {
+    id: string;
+    name: string;
+    description: string[];
+    level: number | null;
+};
+
+type SubclassRowLike = {
+    id: string;
+    srdIndex: string | null;
+    classId: string;
+    classRef: {
+        srdIndex: string | null;
+        name: string;
+    };
+    name: string;
+    description: string[];
+    selectionLevel: number;
+    features: SubclassFeatureRowLike[];
+};
+
+export function mapSubclassFeatureRow(feature: SubclassFeatureRowLike): AvailableSubclassFeature {
+    return {
+        id: feature.id,
+        name: feature.name,
+        description: feature.description.join("\n\n").trim(),
+        level: feature.level ?? 0,
+    };
+}
+
+export function mapSubclassRowToBase(subclassRef: SubclassRowLike) {
+    return {
+        id: subclassRef.id,
+        value: subclassSelectionValue(subclassRef),
+        classId: subclassRef.classRef.srdIndex ?? subclassRef.classId,
+        className: subclassRef.classRef.name,
+        name: subclassRef.name,
+        selectionLevel: subclassRef.selectionLevel,
+        description: subclassRef.description,
+        features: subclassRef.features.map(mapSubclassFeatureRow),
+    };
+}
+
+/**
  * Trims one optional custom-subclass payload and drops it when blank.
  */
 export function normaliseCustomSubclassInput(
@@ -86,14 +142,20 @@ export function normaliseCustomSubclassInput(
 
     const name = customSubclass.name.trim();
     const description = customSubclass.description.trim();
+    const selectionLevel = Number(customSubclass.selectionLevel);
 
     if (name.length === 0 && description.length === 0) {
         return null;
     }
 
+    if (!Number.isInteger(selectionLevel) || selectionLevel < 1 || selectionLevel > 20) {
+        throw new Error('Custom subclass selection level must be an integer from 1 to 20.');
+    }
+
     return {
         name,
         description,
+        selectionLevel,
     };
 }
 
@@ -141,7 +203,7 @@ export async function availableSubclassesForUser(
                 {
                     OR: [
                         { ownerUserId: null },
-                        { ownerUserId: userId },
+                        { ownerUserId: userId, archivedAt: null },
                     ],
                 },
                 ...(classIds && classIds.length > 0
@@ -157,42 +219,18 @@ export async function availableSubclassesForUser(
                     : []),
             ],
         },
+        orderBy: [
+            { classRef: { name: "asc" } },
+            { ownerUserId: { sort: "asc", nulls: "first" } },
+            { name: "asc" },
+        ],
     });
 
-    return subclassRefs
-        .slice()
-        .sort((left, right) => {
-            const leftClassName = left.classRef.name;
-            const rightClassName = right.classRef.name;
-
-            if (leftClassName !== rightClassName) {
-                return leftClassName.localeCompare(rightClassName);
-            }
-
-            const leftIsCustom = left.ownerUserId != null;
-            const rightIsCustom = right.ownerUserId != null;
-            if (leftIsCustom !== rightIsCustom) {
-                return leftIsCustom ? 1 : -1;
-            }
-
-            return left.name.localeCompare(right.name);
-        })
-        .map((subclassRef) => ({
-            id: subclassRef.id,
-            value: subclassSelectionValue(subclassRef),
-            srdIndex: subclassRef.srdIndex,
-            classId: subclassRef.classRef.srdIndex ?? subclassRef.classId,
-            className: subclassRef.classRef.name,
-            name: subclassRef.name,
-            description: subclassRef.description,
-            isCustom: subclassRef.ownerUserId != null,
-            features: subclassRef.features.map((feature) => ({
-                id: feature.id,
-                name: feature.name,
-                description: feature.description.join("\n\n").trim(),
-                level: feature.level ?? 0,
-            })),
-        }));
+    return subclassRefs.map((subclassRef) => ({
+        ...mapSubclassRowToBase(subclassRef),
+        srdIndex: subclassRef.srdIndex,
+        isCustom: subclassRef.ownerUserId != null,
+    }));
 }
 
 /**
@@ -201,19 +239,31 @@ export async function availableSubclassesForUser(
 export async function loadVisibleSubclassReferences(
     userId: string,
     subclassSelectionValues: string[],
+    options: { allowedArchivedSubclassIds?: string[] } = {},
 ): Promise<CharacterSubclassReference[]> {
     if (subclassSelectionValues.length === 0) {
         return [];
+    }
+
+    const allowedArchivedSubclassIds = options.allowedArchivedSubclassIds ?? [];
+    const visibleOwnerFilters: Prisma.SubclassWhereInput[] = [
+        { ownerUserId: null },
+        { ownerUserId: userId, archivedAt: null },
+    ];
+
+    if (allowedArchivedSubclassIds.length > 0) {
+        visibleOwnerFilters.push({
+            ownerUserId: userId,
+            archivedAt: { not: null },
+            id: { in: allowedArchivedSubclassIds },
+        });
     }
 
     return await prisma.subclass.findMany({
         where: {
             AND: [
                 {
-                    OR: [
-                        { ownerUserId: null },
-                        { ownerUserId: userId },
-                    ],
+                    OR: visibleOwnerFilters,
                 },
                 {
                     OR: [
@@ -234,44 +284,134 @@ export async function loadVisibleSubclassReferences(
     });
 }
 
+type OwnedCustomSubclassRequest = {
+    classRef: CharacterClassReference;
+    customSubclass: SubmittedCustomSubclass;
+};
+
+function ownedCustomSubclassKey(classId: string, subclassName: string): string {
+    return `${classId}:${subclassName.toLowerCase()}`;
+}
+
 /**
- * Finds or creates one current-user custom subclass within an existing transaction.
+ * Finds, updates, and creates current-user custom subclasses in bounded batches.
  */
-export async function findOrCreateOwnedCustomSubclass(
+async function findOrCreateOwnedCustomSubclasses(
     tx: Prisma.TransactionClient,
     userId: string,
-    classRef: CharacterClassReference,
-    customSubclass: SubmittedCustomSubclass,
-): Promise<CharacterSubclassReference> {
-    const existingSubclass = await tx.subclass.findFirst({
-        where: {
-            ownerUserId: userId,
-            classId: classRef.id,
-            name: customSubclass.name,
-        },
-    });
+    requests: OwnedCustomSubclassRequest[],
+): Promise<Map<string, CharacterSubclassReference>> {
+    const uniqueRequests = new Map(
+        requests.map((request) => [
+            ownedCustomSubclassKey(request.classRef.id, request.customSubclass.name),
+            request,
+        ]),
+    );
 
-    if (existingSubclass) {
-        if (existingSubclass.description.join("\n\n") !== customSubclass.description) {
-            return await tx.subclass.update({
-                where: { id: existingSubclass.id },
-                data: {
-                    description: [customSubclass.description],
-                },
-            });
-        }
-
-        return existingSubclass;
+    if (uniqueRequests.size === 0) {
+        return new Map();
     }
 
-    return await tx.subclass.create({
-        data: {
+    const existingSubclasses = await tx.subclass.findMany({
+        where: {
             ownerUserId: userId,
-            name: customSubclass.name,
-            description: [customSubclass.description],
-            classId: classRef.id,
+            archivedAt: null,
+            OR: Array.from(uniqueRequests.values(), ({ classRef, customSubclass }) => ({
+                classId: classRef.id,
+                name: {
+                    equals: customSubclass.name,
+                    mode: "insensitive" as const,
+                },
+            })),
         },
     });
+    const existingByKey = new Map(existingSubclasses.map((subclassRef) => [
+        ownedCustomSubclassKey(subclassRef.classId, subclassRef.name),
+        subclassRef,
+    ]));
+    const resolvedByKey = new Map<string, CharacterSubclassReference>();
+    const updates: Array<{
+        id: string;
+        description: string;
+        selectionLevel: number;
+    }> = [];
+    const creates: Array<{
+        ownerUserId: string;
+        name: string;
+        description: string[];
+        selectionLevel: number;
+        classId: string;
+    }> = [];
+
+    for (const [key, { classRef, customSubclass }] of uniqueRequests) {
+        const existingSubclass = existingByKey.get(key);
+
+        if (!existingSubclass) {
+            creates.push({
+                ownerUserId: userId,
+                name: customSubclass.name,
+                description: [customSubclass.description],
+                selectionLevel: customSubclass.selectionLevel,
+                classId: classRef.id,
+            });
+            continue;
+        }
+
+        if (
+            existingSubclass.description.join("\n\n") !== customSubclass.description
+            || existingSubclass.selectionLevel !== customSubclass.selectionLevel
+        ) {
+            updates.push({
+                id: existingSubclass.id,
+                description: customSubclass.description,
+                selectionLevel: customSubclass.selectionLevel,
+            });
+            resolvedByKey.set(key, {
+                id: existingSubclass.id,
+                ownerUserId: existingSubclass.ownerUserId,
+                srdIndex: existingSubclass.srdIndex,
+                name: existingSubclass.name,
+                classId: existingSubclass.classId,
+                selectionLevel: customSubclass.selectionLevel,
+            });
+        } else {
+            resolvedByKey.set(key, existingSubclass);
+        }
+    }
+
+    if (updates.length > 0) {
+        const updateRows = JSON.stringify(updates.map(({ id, description, selectionLevel }) => ({
+            id,
+            description,
+            selection_level: selectionLevel,
+        })));
+        await tx.$executeRaw`
+            UPDATE "Subclass" AS subclass
+            SET
+                "description" = ARRAY[incoming.description],
+                "selectionLevel" = incoming.selection_level
+            FROM jsonb_to_recordset(${updateRows}::jsonb) AS incoming(
+                id text,
+                description text,
+                selection_level integer
+            )
+            WHERE subclass."id" = incoming.id
+              AND subclass."ownerUserId" = ${userId}
+        `;
+    }
+
+    if (creates.length > 0) {
+        const createdSubclasses = await tx.subclass.createManyAndReturn({ data: creates });
+
+        for (const subclassRef of createdSubclasses) {
+            resolvedByKey.set(
+                ownedCustomSubclassKey(subclassRef.classId, subclassRef.name),
+                subclassRef,
+            );
+        }
+    }
+
+    return resolvedByKey;
 }
 
 /**
@@ -288,7 +428,11 @@ export async function findOrCreateOwnedCustomSubclassFeature(
     },
 ): Promise<{ id: string }> {
     const subclassRef = resolvedClass.subclassRef;
-    const sourceLabel = `${subclassRef?.name ?? resolvedClass.classRef.name} ${resolvedClass.classRef.name} ${feature.level}`;
+    const sourceLabel = buildSubclassFeatureSourceLabel(
+        subclassRef?.name ?? resolvedClass.classRef.name,
+        resolvedClass.classRef.name,
+        feature.level,
+    );
 
     if (!subclassRef || subclassRef.ownerUserId !== userId) {
         throw new Error(`Cannot persist a custom subclass feature for class ${resolvedClass.classRow.classId}.`);
@@ -347,9 +491,7 @@ export async function materialiseResolvedCharacterClasses(
     classRefsBySrdIndex: Map<string, CharacterClassReference>,
     subclassRefsBySelectionValue: Map<string, CharacterSubclassReference>,
 ): Promise<ResolvedCharacterClass[]> {
-    const resolvedClasses: ResolvedCharacterClass[] = [];
-
-    for (const classRow of classRows) {
+    const preparedClasses = classRows.map((classRow) => {
         const classRef = classRefsBySrdIndex.get(classRow.classId);
         if (!classRef) {
             throw new Error(`Unknown class: ${classRow.classId}`);
@@ -359,13 +501,31 @@ export async function materialiseResolvedCharacterClasses(
             ? subclassRefsBySelectionValue.get(classRow.subclassId) ?? null
             : null;
 
+        return { classRow, classRef, subclassRef };
+    });
+    const customSubclassRequests = preparedClasses.flatMap(({ classRow, classRef, subclassRef }) => (
+        !subclassRef && classRow.customSubclass
+            ? [{ classRef, customSubclass: classRow.customSubclass }]
+            : []
+    ));
+    const customSubclassesByKey = await findOrCreateOwnedCustomSubclasses(
+        tx,
+        userId,
+        customSubclassRequests,
+    );
+
+    return preparedClasses.map(({ classRow, classRef, subclassRef: initialSubclassRef }) => {
+        let subclassRef = initialSubclassRef;
+
         if (!subclassRef && classRow.customSubclass) {
-            subclassRef = await findOrCreateOwnedCustomSubclass(
-                tx,
-                userId,
-                classRef,
-                classRow.customSubclass,
-            );
+            subclassRef = customSubclassesByKey.get(
+                ownedCustomSubclassKey(classRef.id, classRow.customSubclass.name),
+            ) ?? null;
+
+            if (!subclassRef) {
+                throw new Error(`Failed to persist custom subclass: ${classRow.customSubclass.name}`);
+            }
+
             subclassRefsBySelectionValue.set(subclassRef.id, subclassRef);
 
             if (subclassRef.srdIndex) {
@@ -373,7 +533,7 @@ export async function materialiseResolvedCharacterClasses(
             }
         }
 
-        resolvedClasses.push({
+        return {
             classRow: {
                 classId: classRow.classId,
                 subclassId: subclassRef ? subclassSelectionValue(subclassRef) : null,
@@ -382,8 +542,6 @@ export async function materialiseResolvedCharacterClasses(
             },
             classRef,
             subclassRef,
-        });
-    }
-
-    return resolvedClasses;
+        };
+    });
 }

@@ -74,6 +74,7 @@ import {
     selectLevelUpCustomSubclass,
     setLevelUpCustomSubclassDescription,
     setLevelUpCustomSubclassName,
+    setLevelUpCustomSubclassSelectionLevel,
 } from '@/lib/characterLevelUp/subclassFeatures';
 import type {
     InvocationPrerequisiteContext,
@@ -147,6 +148,7 @@ export type UseLevelUpWizardResult = {
     selectCustomSubclass: () => void;
     changeCustomSubclassName: (value: string) => void;
     changeCustomSubclassDescription: (value: string) => void;
+    changeCustomSubclassSelectionLevel: (value: string) => void;
     addCustomFeature: () => void;
     changeCustomFeature: (featureId: string, changes: Partial<LevelUpCustomFeatureDraft>) => void;
     removeCustomFeature: (featureId: string) => void;
@@ -318,7 +320,7 @@ export default function useLevelUpWizard(
             case 'asi_or_feat':
                 return !canContinueFromAsiOrFeat(asiOrFeatState);
             case 'subclass_selection':
-                return !canContinueFromSubclassSelection(subclassSelectionState);
+                return !canContinueFromSubclassSelection(subclassSelectionState, selectedClass.newLevel);
             case 'new_features':
                 return !canContinueFromNewFeatures(
                     customFeatures,
@@ -394,12 +396,16 @@ export default function useLevelUpWizard(
     }, []);
 
     const selectExistingSubclass = useCallback((subclass: AvailableSubclassOption) => {
+        if (subclass.selectionLevel > selectedClass.newLevel) return;
         setSubclassSelectionState((previousState) => selectLevelUpExistingSubclass(previousState, subclass));
-    }, []);
+    }, [selectedClass.newLevel]);
 
     const selectCustomSubclass = useCallback(() => {
-        setSubclassSelectionState((previousState) => selectLevelUpCustomSubclass(previousState));
-    }, []);
+        setSubclassSelectionState((previousState) => selectLevelUpCustomSubclass(
+            previousState,
+            selectedClass.newLevel,
+        ));
+    }, [selectedClass.newLevel]);
 
     const changeCustomSubclassName = useCallback((value: string) => {
         setSubclassSelectionState((previousState) => setLevelUpCustomSubclassName(previousState, value));
@@ -407,6 +413,10 @@ export default function useLevelUpWizard(
 
     const changeCustomSubclassDescription = useCallback((value: string) => {
         setSubclassSelectionState((previousState) => setLevelUpCustomSubclassDescription(previousState, value));
+    }, []);
+
+    const changeCustomSubclassSelectionLevel = useCallback((value: string) => {
+        setSubclassSelectionState((previousState) => setLevelUpCustomSubclassSelectionLevel(previousState, value));
     }, []);
 
     const addCustomFeature = useCallback(() => {
@@ -614,6 +624,7 @@ export default function useLevelUpWizard(
         selectCustomSubclass,
         changeCustomSubclassName,
         changeCustomSubclassDescription,
+        changeCustomSubclassSelectionLevel,
         addCustomFeature,
         changeCustomFeature,
         removeCustomFeature,

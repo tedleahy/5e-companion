@@ -96,6 +96,7 @@ const resolvers: Resolvers = {
         hasCurrentUserCharacters: characterResolvers.hasCurrentUserCharacters,
         currentUserCharacters: characterResolvers.currentUserCharacters,
         availableSubclasses: characterResolvers.availableSubclasses,
+        customSubclasses: characterResolvers.customSubclasses,
         availableBackgrounds: characterResolvers.availableBackgrounds,
     },
 
@@ -105,6 +106,10 @@ const resolvers: Resolvers = {
         deleteCharacter: characterResolvers.deleteCharacter,
         toggleInspiration: characterResolvers.toggleInspiration,
         saveCharacterSheet: characterResolvers.saveCharacterSheet,
+
+        createCustomSubclass: characterResolvers.createCustomSubclass,
+        updateCustomSubclass: characterResolvers.updateCustomSubclass,
+        archiveCustomSubclass: characterResolvers.archiveCustomSubclass,
 
         updateDeathSaves: characterResolvers.updateDeathSaves,
         updateHitDice: characterResolvers.updateHitDice,

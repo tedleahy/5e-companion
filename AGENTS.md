@@ -42,7 +42,6 @@ Full style guide: [`docs/conventions.md`](./docs/conventions.md). Non-negotiable
 
 ## Agent workflow
 
-- **Prefix shell commands with `rtk`** where the RTK proxy is available.
 - **Use the `ask-user-questions` skill** when information is missing or a result needs confirming. Do not assume a task is complete — wait for explicit confirmation.
 - **Run `tsc --noEmit` in both `server/` and `mobile-app/`** before considering a task done. Fix type errors in files you touched; ignore pre-existing errors elsewhere.
 
@@ -105,6 +104,7 @@ Area-specific detail lives in `docs/`; add cross-cutting items here.
 ## Expo TypeScript / platform forks
 
 - `Component.native.tsx` + `Component.web.tsx` — keep `mobile-app/tsconfig.json` `compilerOptions.moduleSuffixes` aligned with Metro.
+- Keep bottom-sheet dismiss pan gestures on the drag handle, not around nested scroll views; on Android a parent pan recognizer can block the scroll view's initial upward gesture.
 
 ## Character creation reference-data
 

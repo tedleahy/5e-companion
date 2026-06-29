@@ -71,7 +71,10 @@ export default function StepClass() {
             // In single-class mode, the single class row tracks the character level
             updateDraft({
                 level: next,
-                classes: [{ ...draft.classes[0]!, level: next }],
+                classes: [sanitiseCharacterClassRow(
+                    { ...draft.classes[0]!, level: next },
+                    subclassOptionItemsByClassId,
+                )],
             });
         } else {
             updateDraft({ level: next });
@@ -87,7 +90,7 @@ export default function StepClass() {
 
     function handleSelectSingleClass(classId: string) {
         const classRow = createCharacterClassDraft(classId, draft.level);
-        setShouldScrollToSingleSubclass(isSubclassUnlocked(classRow));
+        setShouldScrollToSingleSubclass(isSubclassUnlocked(classRow, subclassOptionItemsByClassId));
         updateDraft({
             classes: [classRow],
             startingClassId: classId,
@@ -197,7 +200,7 @@ export default function StepClass() {
             if (nextClasses.length === 1) {
                 const solo = { ...nextClasses[0]!, level: draft.level };
                 updateDraft({
-                    classes: [sanitiseCharacterClassRow(solo)],
+                    classes: [sanitiseCharacterClassRow(solo, subclassOptionItemsByClassId)],
                     startingClassId: solo.classId,
                 });
             }
@@ -215,9 +218,6 @@ export default function StepClass() {
     /* ── subclass options for single-class mode ── */
 
     const singleSubclassOptions = subclassOptionItemsByClassId[selectedClassId] ?? [];
-    const singleSubclassUnlocked = selectedClass
-        ? isSubclassUnlocked(selectedClass, subclassOptionItemsByClassId)
-        : false;
 
     /* ── render ── */
 
@@ -288,8 +288,8 @@ export default function StepClass() {
                         onSelect={handleSelectSingleClass}
                     />
 
-                    {/* Inline subclass picker when unlocked */}
-                    {selectedClassId !== '' && singleSubclassUnlocked && singleSubclassOptions.length > 0 && (
+                    {/* Inline subclass picker; unavailable choices remain visible but disabled. */}
+                    {selectedClassId !== '' && singleSubclassOptions.length > 0 && (
                         <View
                             style={styles.subclassSection}
                             testID="single-subclass-section"
@@ -300,6 +300,9 @@ export default function StepClass() {
                                 options={singleSubclassOptions}
                                 selected={selectedClass?.subclassId ?? ''}
                                 onSelect={handleSelectSingleSubclass}
+                                isOptionDisabled={(option) => (
+                                    (selectedClass?.level ?? 0) < (option.selectionLevel ?? 1)
+                                )}
                             />
                         </View>
                     )}
@@ -349,7 +352,6 @@ export default function StepClass() {
                             onSelectSubclass={(subclassId) => handleSelectSubclass(classRow.originalIndex, subclassId)}
                             showStartingClassSelector={draft.classes.length > 1}
                             subclassOptions={subclassOptionItemsByClassId[classRow.classId] ?? []}
-                            subclassUnlocked={isSubclassUnlocked(classRow, subclassOptionItemsByClassId)}
                         />
                     ))}
 

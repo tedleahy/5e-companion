@@ -31,7 +31,7 @@ _layout.tsx
 |---|---|---|
 | `index.tsx` | 1 - Identity | Character name (text input) and race selection via `OptionGrid` from `RACE_OPTIONS` |
 | `race.tsx` | — | Redirect to identity step. Kept in place so Expo Router doesn't break if navigated to directly |
-| `class.tsx` | 2 - Class | Level stepper (1-20), single-class selection via `OptionGrid` by default. Inline subclass picker when unlocked, with automatic scroll into the subclass section after selecting a class that requires one. A "Multiclass" switch (with an info button that reveals an explanation) appears when a class is selected and level is 2+; toggling it on enters multiclass mode with full allocation UI |
+| `class.tsx` | 2 - Class | Level stepper (1-20), single-class selection via `OptionGrid` by default. Shows all visible subclass options with database-backed availability levels and disables those above the allocation. A "Multiclass" switch (with an info button that reveals an explanation) appears when a class is selected and level is 2+; toggling it on enters multiclass mode with full allocation UI |
 | `abilities.tsx` | 3 - Abilities | Toggle between Roll (4d6 drop lowest) and Point Buy modes. Also handles ASI (Ability Score Increase) allocation for higher levels |
 | `background.tsx` | 4 - Background | Background selection via `OptionGrid` from `useAvailableBackgrounds()` (includes info button with feature description), alignment (3x3 grid), and personality trait text fields (traits, ideals, bonds, flaws) |
 | `skills.tsx` | 5 - Skills | Saving throws (display-only, from starting class), background skills (locked), class skill picks (capped by `pick` count) |
@@ -103,7 +103,7 @@ Default draft starts with level 1, all scores 10, roll mode, empty everything el
 
 ## Single-Class / Multiclass System
 
-The class step defaults to **single-class mode**: the user picks one class from a tile grid, and it automatically receives all of the character's levels. If that class is already at its subclass unlock level, the screen scrolls to the inline subclass picker once it renders.
+The class step defaults to **single-class mode**: the user picks one class from a tile grid, and it automatically receives all of the character's levels. Its visible SRD and user-owned subclasses are shown together; each option displays its own availability level.
 
 When a class is selected and the character is level 2+, a **"Multiclass"** switch is shown above the class grid, along with an info button that toggles a short explanation of multiclassing. Turning the switch on enters **multiclass mode**, which shows:
 
@@ -119,12 +119,13 @@ Multiclass rules:
 - `startingClassId` determines which class grants saving throws and starting proficiencies
 - When there's only one class row, it's automatically the starting class
 - When multiclassing, a radio selector appears to pick the starting class
-- Subclass selection unlocks per-class at specific levels (defined in `SUBCLASS_UNLOCK_LEVEL_BY_CLASS` — cleric/sorcerer/warlock at 1, druid/wizard at 2, everything else at 3)
+- Subclass eligibility comes from each option's GraphQL `selectionLevel`; there is no mobile class-level unlock map
+- Subclass selection is optional, even after one or more options become eligible
 - `sanitiseCharacterClassRow()` auto-clears invalid subclass selections when class or level changes
 - `normaliseStartingClassId()` ensures the starting class ID stays valid when classes are added/removed
 - Decreasing level below 2 while in multiclass mode auto-switches back to single-class mode
 - Removing classes until only one remains auto-switches back to single-class mode
-- Currently only SRD subclasses are available (one per class)
+- Active user-owned subclasses from the manager are available alongside SRD subclasses
 
 ## Step Completion / Validation
 

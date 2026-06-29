@@ -81,6 +81,7 @@ type AvailableSubclass {
     classId: String!
     className: String!
     name: String!
+    selectionLevel: Int!
     description: [String!]!
     isCustom: Boolean!
     features: [AvailableSubclassFeature!]!
@@ -296,6 +297,36 @@ input FeatureChoiceInput {
 input CustomSubclassInput {
     name: String!
     description: String!
+    selectionLevel: Int!
+}
+
+input ManagedCustomSubclassInput {
+    classId: String!
+    name: String!
+    description: String!
+    selectionLevel: Int!
+    features: [ManagedCustomSubclassFeatureInput!]
+}
+
+input ManagedCustomSubclassFeatureInput {
+    id: ID
+    name: String!
+    description: String!
+    level: Int!
+}
+
+type CustomSubclass {
+    id: ID!
+    value: String!
+    classId: String!
+    className: String!
+    name: String!
+    selectionLevel: Int!
+    description: [String!]!
+    features: [AvailableSubclassFeature!]!
+    characterUsageCount: Int!
+    canChangeClass: Boolean!
+    cannotChangeClassReason: String
 }
 
 input AbilityScoresInput {
@@ -462,6 +493,7 @@ type Query {
     hasCurrentUserCharacters: Boolean!
     currentUserCharacters: [Character!]!
     availableSubclasses(classIds: [String!]): [AvailableSubclass!]!
+    customSubclasses(classIds: [String!]): [CustomSubclass!]!
     availableBackgrounds: [AvailableBackground!]!
 }
 
@@ -471,6 +503,11 @@ type Mutation {
     updateCharacter(id: ID!, input: UpdateCharacterInput!): Character!
     deleteCharacter(id: ID!): Boolean!
     toggleInspiration(characterId: ID!): Character!
+
+    # Custom subclass manager
+    createCustomSubclass(input: ManagedCustomSubclassInput!): CustomSubclass!
+    updateCustomSubclass(id: ID!, input: ManagedCustomSubclassInput!): CustomSubclass!
+    archiveCustomSubclass(id: ID!): Boolean!
     saveCharacterSheet(characterId: ID!, input: SaveCharacterSheetInput!): Character!
 
     # Live stats updates

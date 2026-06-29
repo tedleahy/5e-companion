@@ -69,7 +69,7 @@ See [`architecture.md`](./architecture.md) for the request lifecycle and more de
 - **Character sheet** — core stats, HP, death saves, hit dice, skills, abilities, inventory, weapons, features, spell slots.
 - **Level-up wizard** — per-class level bump with ASI/feat, subclass selection, spellcasting updates, etc. (see [`features/level-up-wizard.md`](./features/level-up-wizard.md)).
 - **Rests** — short / long rest mutations to recover resources server-side.
-- **Custom subclasses** — the create + level-up flows allow user-defined subclasses stored alongside SRD rows.
+- **Custom subclasses** — reusable rows are managed under `/subclasses`; character creation selects them and level-up can also create one inline.
 
 ## What this project is **not** (yet)
 

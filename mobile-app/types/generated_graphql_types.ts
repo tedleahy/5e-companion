@@ -53,6 +53,7 @@ export type AvailableSubclass = {
   id: Scalars['ID']['output'];
   isCustom: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
+  selectionLevel: Scalars['Int']['output'];
   srdIndex?: Maybe<Scalars['String']['output']>;
   value: Scalars['String']['output'];
 };
@@ -172,9 +173,25 @@ export type CurrencyInput = {
   sp: Scalars['Int']['input'];
 };
 
+export type CustomSubclass = {
+  __typename?: 'CustomSubclass';
+  canChangeClass: Scalars['Boolean']['output'];
+  cannotChangeClassReason?: Maybe<Scalars['String']['output']>;
+  characterUsageCount: Scalars['Int']['output'];
+  classId: Scalars['String']['output'];
+  className: Scalars['String']['output'];
+  description: Array<Scalars['String']['output']>;
+  features: Array<AvailableSubclassFeature>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  selectionLevel: Scalars['Int']['output'];
+  value: Scalars['String']['output'];
+};
+
 export type CustomSubclassInput = {
   description: Scalars['String']['input'];
   name: Scalars['String']['input'];
+  selectionLevel: Scalars['Int']['input'];
 };
 
 export type DeathSaves = {
@@ -250,9 +267,26 @@ export type InventoryItemInput = {
   weight?: InputMaybe<Scalars['Float']['input']>;
 };
 
+export type ManagedCustomSubclassFeatureInput = {
+  description: Scalars['String']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  level: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type ManagedCustomSubclassInput = {
+  classId: Scalars['String']['input'];
+  description: Scalars['String']['input'];
+  features?: InputMaybe<Array<ManagedCustomSubclassFeatureInput>>;
+  name: Scalars['String']['input'];
+  selectionLevel: Scalars['Int']['input'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  archiveCustomSubclass: Scalars['Boolean']['output'];
   createCharacter: Character;
+  createCustomSubclass: CustomSubclass;
   deleteCharacter: Scalars['Boolean']['output'];
   forgetSpell: Scalars['Boolean']['output'];
   learnSpell: CharacterSpell;
@@ -265,6 +299,7 @@ export type Mutation = {
   toggleSpellSlot: SpellSlot;
   unprepareSpell: CharacterSpell;
   updateCharacter: Character;
+  updateCustomSubclass: CustomSubclass;
   updateDeathSaves: CharacterStats;
   updateHitDice: CharacterStats;
   updateInventoryItem: InventoryItem;
@@ -273,8 +308,18 @@ export type Mutation = {
 };
 
 
+export type MutationArchiveCustomSubclassArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationCreateCharacterArgs = {
   input: CreateCharacterInput;
+};
+
+
+export type MutationCreateCustomSubclassArgs = {
+  input: ManagedCustomSubclassInput;
 };
 
 
@@ -348,6 +393,12 @@ export type MutationUpdateCharacterArgs = {
 };
 
 
+export type MutationUpdateCustomSubclassArgs = {
+  id: Scalars['ID']['input'];
+  input: ManagedCustomSubclassInput;
+};
+
+
 export type MutationUpdateDeathSavesArgs = {
   characterId: Scalars['ID']['input'];
   input: DeathSavesInput;
@@ -390,6 +441,7 @@ export type Query = {
   availableSubclasses: Array<AvailableSubclass>;
   character?: Maybe<Character>;
   currentUserCharacters: Array<Character>;
+  customSubclasses: Array<CustomSubclass>;
   hasCurrentUserCharacters: Scalars['Boolean']['output'];
   spell?: Maybe<Spell>;
   spells: Array<Spell>;
@@ -403,6 +455,11 @@ export type QueryAvailableSubclassesArgs = {
 
 export type QueryCharacterArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryCustomSubclassesArgs = {
+  classIds?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 
@@ -707,7 +764,7 @@ export type AvailableSubclassesQueryVariables = Exact<{
 }>;
 
 
-export type AvailableSubclassesQuery = { __typename?: 'Query', availableSubclasses: Array<{ __typename?: 'AvailableSubclass', id: string, value: string, srdIndex?: string | null, classId: string, className: string, name: string, description: Array<string>, isCustom: boolean, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> }> };
+export type AvailableSubclassesQuery = { __typename?: 'Query', availableSubclasses: Array<{ __typename?: 'AvailableSubclass', id: string, value: string, srdIndex?: string | null, classId: string, className: string, name: string, selectionLevel: number, description: Array<string>, isCustom: boolean, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> }> };
 
 export type AvailableBackgroundsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -792,6 +849,37 @@ export type UnprepareSpellMutationVariables = Exact<{
 
 
 export type UnprepareSpellMutation = { __typename?: 'Mutation', unprepareSpell: { __typename?: 'CharacterSpell', prepared: boolean, spell: { __typename?: 'Spell', id: string } } };
+
+export type CustomSubclassManagerFieldsFragment = { __typename?: 'CustomSubclass', id: string, value: string, classId: string, className: string, name: string, selectionLevel: number, description: Array<string>, characterUsageCount: number, canChangeClass: boolean, cannotChangeClassReason?: string | null, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> };
+
+export type CustomSubclassesQueryVariables = Exact<{
+  classIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type CustomSubclassesQuery = { __typename?: 'Query', customSubclasses: Array<{ __typename?: 'CustomSubclass', id: string, value: string, classId: string, className: string, name: string, selectionLevel: number, description: Array<string>, characterUsageCount: number, canChangeClass: boolean, cannotChangeClassReason?: string | null, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> }> };
+
+export type CreateCustomSubclassMutationVariables = Exact<{
+  input: ManagedCustomSubclassInput;
+}>;
+
+
+export type CreateCustomSubclassMutation = { __typename?: 'Mutation', createCustomSubclass: { __typename?: 'CustomSubclass', id: string, value: string, classId: string, className: string, name: string, selectionLevel: number, description: Array<string>, characterUsageCount: number, canChangeClass: boolean, cannotChangeClassReason?: string | null, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> } };
+
+export type UpdateCustomSubclassMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: ManagedCustomSubclassInput;
+}>;
+
+
+export type UpdateCustomSubclassMutation = { __typename?: 'Mutation', updateCustomSubclass: { __typename?: 'CustomSubclass', id: string, value: string, classId: string, className: string, name: string, selectionLevel: number, description: Array<string>, characterUsageCount: number, canChangeClass: boolean, cannotChangeClassReason?: string | null, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> } };
+
+export type ArchiveCustomSubclassMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ArchiveCustomSubclassMutation = { __typename?: 'Mutation', archiveCustomSubclass: boolean };
 
 export type SpellListFieldsFragment = { __typename?: 'Spell', id: string, name: string, level: number, schoolIndex: string, classIndexes: Array<string>, castingTime: string, range?: string | null, concentration: boolean, ritual: boolean };
 

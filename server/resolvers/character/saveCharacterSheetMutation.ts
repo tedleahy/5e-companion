@@ -94,6 +94,7 @@ export async function saveCharacterSheet(
     const startingClassId = extractStartingClassId(input.classes);
     const { classRefsBySrdIndex, subclassRefsBySelectionValue } = await resolveSaveCharacterClassReferences(
         userId,
+        characterId,
         submittedClasses,
         startingClassId,
     );
@@ -238,6 +239,7 @@ function extractStartingClassId(classes: SaveCharacterSheetClassInput[]): string
  */
 async function resolveSaveCharacterClassReferences(
     userId: string,
+    characterId: string,
     classes: SubmittedCharacterClassAllocation[],
     startingClassId: string,
 ): Promise<{
@@ -248,7 +250,7 @@ async function resolveSaveCharacterClassReferences(
         .map((classRow) => classRow.subclassId)
         .filter((subclassId): subclassId is string => typeof subclassId === "string");
 
-    const [classRefs, subclassRefs] = await Promise.all([
+    const [classRefs, existingCharacterClassRows] = await Promise.all([
         prisma.class.findMany({
             where: {
                 srdIndex: {
@@ -258,8 +260,20 @@ async function resolveSaveCharacterClassReferences(
         }),
         subclassSelectionValues.length === 0
             ? Promise.resolve([])
-            : loadVisibleSubclassReferences(userId, subclassSelectionValues),
+            : prisma.characterClass.findMany({
+                  where: { characterId },
+                  select: { subclassId: true },
+              }),
     ]);
+    const existingSubclassIds = existingCharacterClassRows
+        .map((classRow) => classRow.subclassId)
+        .filter((subclassId): subclassId is string => typeof subclassId === "string");
+    const allowedUnderLevelSubclassIds = new Set(existingSubclassIds);
+    const subclassRefs = subclassSelectionValues.length === 0
+        ? []
+        : await loadVisibleSubclassReferences(userId, subclassSelectionValues, {
+              allowedArchivedSubclassIds: existingSubclassIds,
+          });
 
     const classRefsBySrdIndex = new Map<string, CharacterClassReference>();
     for (const classRef of classRefs) {
@@ -270,7 +284,13 @@ async function resolveSaveCharacterClassReferences(
 
     const subclassRefsBySelectionValue = mapSubclassReferencesBySelectionValue(subclassRefs);
 
-    validateClassAllocations(classes, classRefsBySrdIndex, subclassRefsBySelectionValue, startingClassId);
+    validateClassAllocations(
+        classes,
+        classRefsBySrdIndex,
+        subclassRefsBySelectionValue,
+        startingClassId,
+        { allowedUnderLevelSubclassIds },
+    );
 
     return {
         classRefsBySrdIndex,

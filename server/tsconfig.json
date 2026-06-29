@@ -26,5 +26,10 @@
         "noUnusedLocals": false,
         "noUnusedParameters": false,
         "noPropertyAccessFromIndexSignature": false
-    }
+    },
+    "include": [
+        "**/*.ts",
+        "**/*.tsx",
+        "../shared/**/*.ts"
+    ]
 }

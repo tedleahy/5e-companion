@@ -6,7 +6,6 @@ import NumericStepper from '@/components/character-creation-wizard/NumericSteppe
 import {
     classLabel,
     formatClassRowLabel,
-    subclassUnlockLevel,
     type CharacterClassDraft,
 } from '@/lib/characterCreation/multiclass';
 import type { OptionItem } from '@/lib/characterCreation/options';
@@ -28,7 +27,6 @@ type Props = {
     onSelectSubclass: (subclassId: string) => void;
     showStartingClassSelector: boolean;
     subclassOptions: OptionItem[];
-    subclassUnlocked: boolean;
 };
 
 /**
@@ -49,10 +47,8 @@ export default function ClassAllocationRow({
     onSelectSubclass,
     showStartingClassSelector,
     subclassOptions,
-    subclassUnlocked,
 }: Props) {
     const [showStartingClassInfo, setShowStartingClassInfo] = useState(false);
-    const unlockLevel = subclassUnlockLevel(classRow.classId);
 
     return (
         <View onLayout={onLayout}>
@@ -127,21 +123,25 @@ export default function ClassAllocationRow({
                         <Text style={styles.subclassHeading}>
                             {classLabel(classRow.classId)} subclass
                         </Text>
-                        {subclassUnlocked ? (
-                            <View style={styles.subclassList}>
+                        <View style={styles.subclassList}>
                                 {subclassOptions.map((subclassOption) => {
                                     const isSelected = classRow.subclassId === subclassOption.value;
+                                    const selectionLevel = subclassOption.selectionLevel ?? 1;
+                                    const isLocked = classRow.level < selectionLevel;
                                     return (
                                         <Pressable
                                             key={subclassOption.value}
                                             accessibilityRole="button"
+                                            disabled={isLocked}
                                             onPress={() => onSelectSubclass(isSelected ? '' : subclassOption.value)}
                                             style={({ pressed }) => [
                                                 styles.subclassOption,
                                                 isSelected && styles.subclassOptionSelected,
+                                                isLocked && styles.subclassOptionLocked,
                                                 pressed && styles.subclassOptionPressed,
                                             ]}
                                             testID={`class-row-subclass-${index}-${subclassOption.value}`}
+                                            accessibilityState={{ selected: isSelected, disabled: isLocked }}
                                         >
                                             <Text style={styles.subclassIcon}>{subclassOption.icon}</Text>
                                             <View style={styles.subclassText}>
@@ -151,16 +151,14 @@ export default function ClassAllocationRow({
                                                 {subclassOption.hint ? (
                                                     <Text style={styles.subclassHint}>{subclassOption.hint}</Text>
                                                 ) : null}
+                                                <Text style={styles.subclassHint}>
+                                                    {`Available at ${classLabel(classRow.classId)} level ${selectionLevel}`}
+                                                </Text>
                                             </View>
                                         </Pressable>
                                     );
                                 })}
-                            </View>
-                        ) : (
-                            <Text style={styles.lockedHint}>
-                                Unlocks at {classLabel(classRow.classId)} level {unlockLevel}.
-                            </Text>
-                        )}
+                        </View>
                     </View>
                 ) : null}
 
@@ -290,6 +288,9 @@ const styles = StyleSheet.create({
     subclassOptionSelected: {
         borderColor: fantasyTokens.colors.gold,
         backgroundColor: 'rgba(201,146,42,0.12)',
+    },
+    subclassOptionLocked: {
+        opacity: 0.4,
     },
     subclassOptionPressed: {
         opacity: 0.9,

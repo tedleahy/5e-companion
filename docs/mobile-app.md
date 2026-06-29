@@ -25,6 +25,7 @@ mobile-app/app/
 ├── (rail)/                           # Drawer-based main app (requires auth)
 │   ├── _layout.tsx                   # expo-router Drawer
 │   ├── characters.tsx                # Roster
+│   ├── subclasses.tsx                # Custom subclass manager
 │   ├── spells.tsx                    # Spell library
 │   ├── settings.tsx
 │   └── character/
@@ -71,7 +72,7 @@ Any screen can assume these are available. The character-creation wizard wraps i
 - Created in [`@/home/ted/projects/5e-companion/mobile-app/app/apolloClient.ts:1-45`](../mobile-app/app/apolloClient.ts).
 - Two links: `authLink` (adds `Authorization: Bearer <jwt>` from the current Supabase session) → `httpLink` (points at `EXPO_PUBLIC_API_URL`).
 - Cache has **one field policy**: `Character.spellbook` uses `merge: false`, because the server returns the full snapshot on any spellbook change and partial merging would clobber deletions.
-- Shared GraphQL documents live in `mobile-app/graphql/` (primarily `characterSheet.operations.ts` + `spell.fragments.ts`). One-shot queries/mutations are colocated in their screen.
+- Shared GraphQL documents live in `mobile-app/graphql/` (primarily `characterSheet.operations.ts`, `customSubclass.operations.ts`, and `spell.fragments.ts`). One-shot queries/mutations are colocated in their screen.
 
 GraphQL operation types are generated into `mobile-app/types/generated_graphql_types.ts` via `bun app:codegen`. The codegen scans `app/**/*.tsx`, `components/**/*.tsx`, and `graphql/**/*.ts` — extend `mobile-app/codegen.yml` if you put docs elsewhere.
 
@@ -91,6 +92,7 @@ No Redux, Zustand, Jotai, etc.
 - `app/_layout.tsx` — app-wide auth gate; checks the stored Supabase session, listens for auth-state changes, and redirects between auth/protected routes.
 - `hooks/useSessionGuard.ts` — focused screen-level session checks and manual re-checks, including post-sign-in checks.
 - `components/navigation/navigationConstants.ts` — single list of drawer destinations plus the `isNavigationDestinationActive()` helper that knows `/character/:id` should count as the "Characters" section.
+- The authenticated rail includes `/subclasses`, a subclass manager that lists visible subclasses in one fixed-height, internally scrolling view. Each row shows the database-backed parent-class selection level. The screen header collapses from the table's internal scroll position, while the table keeps Add and filter controls pinned above the row scroller. Tapping a row opens a fresh detail scroller for that subclass so details start at the top without inheriting the list scroll offset; custom rows expose edit/delete actions in a full-width footer. User-owned subclass rows can be created, edited, and archived; their required 1–20 selection level remains editable even while characters use the subclass.
 
 ## Theming
 
@@ -126,6 +128,8 @@ High-reuse components live at `components/` (flat), with folders for sub-domains
 | `components/character-sheet/features/` | Features list |
 | `components/character-sheet/edit-mode/` | Edit-mode framing |
 | `components/navigation/` | Drawer + rail |
+| `components/sheets/` | Shared bottom-sheet frames and sheet-level primitives |
+| `components/subclasses/` | Custom subclass manager cards, rows, filters, and form sheet |
 | `components/wizard/` | Shared wizard pieces (WizardShell, OptionGrid, AlignmentGrid, ability-score inputs) |
 | `components/spell-list/` | SpellList subcomponents |
 | `components/characters/` | Character roster cards |

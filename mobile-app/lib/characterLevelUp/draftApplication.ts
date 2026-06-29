@@ -192,6 +192,12 @@ function applyLevelUpFeatures(
     }
 
     for (const feature of features) {
+        const duplicate = nextFeatures.some((existingFeature) => (
+            existingFeature.name.trim().toLowerCase() === feature.name.trim().toLowerCase()
+            && existingFeature.source.trim().toLowerCase() === feature.source.trim().toLowerCase()
+        ));
+        if (duplicate) continue;
+
         nextFeatures.push({
             id: createDraftEntityId('feature'),
             name: feature.name.trim(),

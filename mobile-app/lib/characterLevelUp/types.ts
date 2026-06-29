@@ -55,9 +55,11 @@ export type LevelUpWizardSelectedClass = {
     subclassDescription: string | null;
     subclassIsCustom: boolean;
     subclassFeatures: AvailableSubclassFeature[];
+    subclassSelectedThisLevel?: boolean;
     customSubclass: {
         name: string;
         description: string;
+        selectionLevel: number;
     } | null;
 };
 
@@ -136,6 +138,7 @@ export type LevelUpSubclassSelectionState = {
     selectedSubclassFeatures: AvailableSubclassFeature[];
     customSubclassName: string;
     customSubclassDescription: string;
+    customSubclassSelectionLevel?: string;
 };
 
 /**

@@ -69,12 +69,22 @@ describe('CollapsedRail', () => {
         });
     });
 
+    it('navigates to subclasses from quick action', async () => {
+        render(<CollapsedRail />);
+
+        fireEvent.press(screen.getByTestId('collapsed-rail-subclasses'));
+
+        await waitFor(() => {
+            expect(mockPush).toHaveBeenCalledWith('/subclasses');
+        });
+    });
+
     it('marks the active destination as selected', () => {
-        mockUsePathname.mockReturnValue('/spells');
+        mockUsePathname.mockReturnValue('/subclasses');
 
         render(<CollapsedRail />);
 
-        expect(screen.getByLabelText('Open all spells').props.accessibilityState.selected).toBe(true);
+        expect(screen.getByLabelText('Open custom subclasses').props.accessibilityState.selected).toBe(true);
         expect(screen.getByLabelText('Open characters').props.accessibilityState.selected).toBe(false);
     });
 });

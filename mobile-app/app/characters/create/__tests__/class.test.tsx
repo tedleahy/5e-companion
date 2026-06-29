@@ -43,9 +43,9 @@ jest.mock('@/hooks/useAvailableSubclasses', () => ({
         availableSubclasses: [],
         availableSubclassesByClassId: {},
         subclassOptionItemsByClassId: {
-            wizard: [{ value: 'evocation', label: 'School of Evocation', icon: '\u{1F525}' }],
-            rogue: [{ value: 'thief', label: 'Thief', icon: '\u{1F4B0}' }],
-            fighter: [{ value: 'champion', label: 'Champion', icon: '\u{1F3C6}' }],
+            wizard: [{ value: 'evocation', label: 'School of Evocation', icon: '\u{1F525}', selectionLevel: 2 }],
+            rogue: [{ value: 'thief', label: 'Thief', icon: '\u{1F4B0}', selectionLevel: 3 }],
+            fighter: [{ value: 'champion', label: 'Champion', icon: '\u{1F3C6}', selectionLevel: 3 }],
         },
         loading: false,
     })),

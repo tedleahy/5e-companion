@@ -1,7 +1,8 @@
-import { Animated, Keyboard, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
-import { Portal, Snackbar } from 'react-native-paper';
+import { Animated, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Snackbar } from 'react-native-paper';
 import { GestureDetector } from 'react-native-gesture-handler';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import BottomSheetShell from '@/components/sheets/BottomSheetShell';
 import AddSpellBottomBar from './add-sheet/AddSpellBottomBar';
 import AddSpellFilterPanel from './add-sheet/AddSpellFilterPanel';
 import AddSpellSectionList from './add-sheet/AddSpellSectionList';
@@ -117,152 +118,126 @@ export default function AddSpellSheet({
         clearSelectedSpell,
     });
 
-    if (!isRendered) {
-        return null;
-    }
-
     return (
-        <Portal>
-            <View style={[styles.overlayContainer, { pointerEvents: 'box-none' }]}>
-                <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
-                    <Pressable style={styles.backdropPressable} onPress={requestSheetClose} accessibilityLabel="Close add spell sheet" />
-                </Animated.View>
+        <BottomSheetShell
+            isRendered={isRendered}
+            backdropOpacity={backdropOpacity}
+            sheetTranslateY={sheetTranslateY}
+            sheetDismissGesture={sheetDismissGesture}
+            onRequestClose={requestSheetClose}
+            closeAccessibilityLabel="Close add spell sheet"
+            testID="add-spell-sheet"
+            sheetStyle={styles.sheet}
+        >
+            <AddSpellSheetHeader
+                searchQuery={searchQuery}
+                onChangeSearchQuery={setSearchQuery}
+                onClearSearchQuery={() => setSearchQuery('')}
+                activeFilterCount={activeFilterCount}
+                onOpenFilterPanel={openFilterPanel}
+                title={title}
+                subtitle={subtitle}
+                showFilterButton={showFilterButton}
+            />
 
-                <GestureDetector gesture={sheetDismissGesture}>
-                    <Animated.View
-                        testID="add-spell-sheet"
-                        style={[styles.sheet, { transform: [{ translateY: sheetTranslateY }] }]}
-                        onStartShouldSetResponderCapture={() => {
-                            Keyboard.dismiss();
-                            return false;
-                        }}
-                    >
-                        <AddSpellSheetHeader
-                            searchQuery={searchQuery}
-                            onChangeSearchQuery={setSearchQuery}
-                            onClearSearchQuery={() => setSearchQuery('')}
-                            activeFilterCount={activeFilterCount}
-                            onOpenFilterPanel={openFilterPanel}
-                            title={title}
-                            subtitle={subtitle}
-                            showFilterButton={showFilterButton}
+            <AddSpellActiveFilterChips
+                chips={activeFilterChips}
+                onRemoveChip={removeAppliedFilterChip}
+            />
+
+            <View style={styles.divider} />
+
+            <AddSpellSectionList
+                sections={sections}
+                loading={loading}
+                errorMessage={errorMessage}
+                isKnownSpell={isKnownSpell}
+                blockedReasonForSpell={blockedReasonForSpell}
+                pendingSpellIds={pendingSpellIds}
+                onToggleSpellSelection={(spell) => {
+                    void toggleSpellSelection(spell);
+                }}
+                onPrefetchSpellDetail={prefetchSpellDetail}
+                onOpenSpellDetail={openSpellDetail}
+                onScroll={handleSpellListScroll}
+            />
+
+            <AddSpellBottomBar sessionChangesCount={sessionChangesCount} onDone={requestSheetClose} />
+
+            <Animated.View style={[styles.filterPanel, { transform: [{ translateX: filterPanelTranslateX }] }]}>
+                <AddSpellFilterPanel
+                    draftFilters={draftFilters}
+                    setDraftFilters={setDraftFilters}
+                    onBack={closeFilterPanel}
+                    onClear={clearDraftFilters}
+                    onApply={applyFilters}
+                />
+            </Animated.View>
+
+            {selectedSpell && (
+                <>
+                    <Animated.View style={[styles.detailBackdrop, { opacity: detailOverlayOpacity }]}>
+                        <Pressable
+                            style={styles.backdropPressable}
+                            onPress={animateCloseSpellDetail}
+                            accessibilityRole="button"
+                            accessibilityLabel="Close spell details"
                         />
+                    </Animated.View>
 
-                        <AddSpellActiveFilterChips
-                            chips={activeFilterChips}
-                            onRemoveChip={removeAppliedFilterChip}
-                        />
-
-                        <View style={styles.divider} />
-
-                        <AddSpellSectionList
-                            sections={sections}
-                            loading={loading}
-                            errorMessage={errorMessage}
-                            isKnownSpell={isKnownSpell}
-                            blockedReasonForSpell={blockedReasonForSpell}
-                            pendingSpellIds={pendingSpellIds}
-                            onToggleSpellSelection={(spell) => {
-                                void toggleSpellSelection(spell);
-                            }}
-                            onPrefetchSpellDetail={prefetchSpellDetail}
-                            onOpenSpellDetail={openSpellDetail}
-                            onScroll={handleSpellListScroll}
-                        />
-
-                        <AddSpellBottomBar sessionChangesCount={sessionChangesCount} onDone={requestSheetClose} />
-
-                        <Animated.View style={[styles.filterPanel, { transform: [{ translateX: filterPanelTranslateX }] }]}>
-                            <AddSpellFilterPanel
-                                draftFilters={draftFilters}
-                                setDraftFilters={setDraftFilters}
-                                onBack={closeFilterPanel}
-                                onClear={clearDraftFilters}
-                                onApply={applyFilters}
+                    <GestureDetector gesture={detailDismissGesture}>
+                        <Animated.View style={[styles.detailModalWrap, { transform: [{ translateY: detailModalTranslateY }] }]}>
+                            <SpellDetailModal
+                                spell={selectedSpellDetail ?? null}
+                                spellName={selectedSpell.name}
+                                known={isKnownSpell(selectedSpell.id)}
+                                blockedReason={blockedReasonForSpell(selectedSpell.id)}
+                                loading={selectedSpellDetailLoading && selectedSpellDetail == null}
+                                errorMessage={selectedSpellDetailErrorMessage}
+                                onRetry={retrySelectedSpellDetail}
+                                onToggleSelection={() => {
+                                    void toggleSpellSelection(selectedSpell);
+                                }}
+                                onBodyScroll={handleDetailBodyScroll}
                             />
                         </Animated.View>
+                    </GestureDetector>
+                </>
+            )}
 
-                        {selectedSpell && (
-                            <>
-                                <Animated.View style={[styles.detailBackdrop, { opacity: detailOverlayOpacity }]}>
-                                    <Pressable style={styles.backdropPressable} onPress={animateCloseSpellDetail} accessibilityLabel="Close spell details" />
-                                </Animated.View>
-
-                                <GestureDetector gesture={detailDismissGesture}>
-                                    <Animated.View style={[styles.detailModalWrap, { transform: [{ translateY: detailModalTranslateY }] }]}>
-                                        <SpellDetailModal
-                                            spell={selectedSpellDetail ?? null}
-                                            spellName={selectedSpell.name}
-                                            known={isKnownSpell(selectedSpell.id)}
-                                            blockedReason={blockedReasonForSpell(selectedSpell.id)}
-                                            loading={selectedSpellDetailLoading && selectedSpellDetail == null}
-                                            errorMessage={selectedSpellDetailErrorMessage}
-                                            onRetry={retrySelectedSpellDetail}
-                                            onToggleSelection={() => {
-                                                void toggleSpellSelection(selectedSpell);
-                                            }}
-                                            onBodyScroll={handleDetailBodyScroll}
-                                        />
-                                    </Animated.View>
-                                </GestureDetector>
-                            </>
-                        )}
-
-                        <Snackbar
-                            visible={actionErrorMessage != null}
-                            onDismiss={clearActionErrorMessage}
-                            duration={3000}
-                            style={styles.errorSnackbar}
-                        >
-                            {actionErrorMessage ?? ''}
-                        </Snackbar>
-                    </Animated.View>
-                </GestureDetector>
-            </View>
-        </Portal>
+            <Snackbar
+                visible={actionErrorMessage != null}
+                onDismiss={clearActionErrorMessage}
+                duration={3000}
+                style={styles.errorSnackbar}
+            >
+                {actionErrorMessage ?? ''}
+            </Snackbar>
+        </BottomSheetShell>
     );
 }
 
 const styles = StyleSheet.create({
-    overlayContainer: {
-        ...StyleSheet.absoluteFillObject,
-        zIndex: 20,
-        justifyContent: 'flex-end',
-    },
-    backdrop: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0,0,0,0.65)',
-    },
     backdropPressable: {
         flex: 1,
     },
     sheet: {
         height: SHEET_HEIGHT_PERCENTAGE,
-        backgroundColor: fantasyTokens.colors.night,
-        borderTopLeftRadius: 22,
-        borderTopRightRadius: 22,
-        borderTopWidth: 1,
-        borderLeftWidth: 1,
-        borderRightWidth: 1,
-        borderColor: 'rgba(201,146,42,0.2)',
-        overflow: 'hidden',
-        boxShadow: '0 0 12px rgba(0,0,0,0.5)',
-        elevation: 20,
     },
     divider: {
         height: 1,
-        backgroundColor: 'rgba(201,146,42,0.1)',
+        backgroundColor: fantasyTokens.rail.border,
     },
     filterPanel: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: '#140e06',
+        backgroundColor: fantasyTokens.colors.night,
         borderLeftWidth: 1,
-        borderLeftColor: 'rgba(201,146,42,0.12)',
+        borderLeftColor: fantasyTokens.rail.border,
         zIndex: 10,
     },
     detailBackdrop: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0,0,0,0.55)',
+        backgroundColor: fantasyTokens.rail.backdrop,
         zIndex: 30,
     },
     detailModalWrap: {
@@ -271,6 +246,6 @@ const styles = StyleSheet.create({
         zIndex: 31,
     },
     errorSnackbar: {
-        backgroundColor: '#8b1a1a',
+        backgroundColor: fantasyTokens.colors.inspired,
     },
 });

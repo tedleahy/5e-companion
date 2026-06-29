@@ -3,6 +3,13 @@ const path = require('path');
 
 /** @type {import('@expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(__dirname);
+
+// Allow Metro to resolve shared modules outside the project root.
+config.watchFolders = [
+    ...(config.watchFolders ?? []),
+    path.resolve(__dirname, '../shared'),
+];
+
 const tslibShimPath = path.resolve(__dirname, 'shims/tslib.ts');
 
 /**

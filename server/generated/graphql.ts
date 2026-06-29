@@ -57,6 +57,7 @@ export type AvailableSubclass = {
   id: Scalars['ID']['output'];
   isCustom: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
+  selectionLevel: Scalars['Int']['output'];
   srdIndex?: Maybe<Scalars['String']['output']>;
   value: Scalars['String']['output'];
 };
@@ -176,9 +177,25 @@ export type CurrencyInput = {
   sp: Scalars['Int']['input'];
 };
 
+export type CustomSubclass = {
+  __typename?: 'CustomSubclass';
+  canChangeClass: Scalars['Boolean']['output'];
+  cannotChangeClassReason?: Maybe<Scalars['String']['output']>;
+  characterUsageCount: Scalars['Int']['output'];
+  classId: Scalars['String']['output'];
+  className: Scalars['String']['output'];
+  description: Array<Scalars['String']['output']>;
+  features: Array<AvailableSubclassFeature>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  selectionLevel: Scalars['Int']['output'];
+  value: Scalars['String']['output'];
+};
+
 export type CustomSubclassInput = {
   description: Scalars['String']['input'];
   name: Scalars['String']['input'];
+  selectionLevel: Scalars['Int']['input'];
 };
 
 export type DeathSaves = {
@@ -254,9 +271,26 @@ export type InventoryItemInput = {
   weight?: InputMaybe<Scalars['Float']['input']>;
 };
 
+export type ManagedCustomSubclassFeatureInput = {
+  description: Scalars['String']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  level: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type ManagedCustomSubclassInput = {
+  classId: Scalars['String']['input'];
+  description: Scalars['String']['input'];
+  features?: InputMaybe<Array<ManagedCustomSubclassFeatureInput>>;
+  name: Scalars['String']['input'];
+  selectionLevel: Scalars['Int']['input'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  archiveCustomSubclass: Scalars['Boolean']['output'];
   createCharacter: Character;
+  createCustomSubclass: CustomSubclass;
   deleteCharacter: Scalars['Boolean']['output'];
   forgetSpell: Scalars['Boolean']['output'];
   learnSpell: CharacterSpell;
@@ -269,6 +303,7 @@ export type Mutation = {
   toggleSpellSlot: SpellSlot;
   unprepareSpell: CharacterSpell;
   updateCharacter: Character;
+  updateCustomSubclass: CustomSubclass;
   updateDeathSaves: CharacterStats;
   updateHitDice: CharacterStats;
   updateInventoryItem: InventoryItem;
@@ -277,8 +312,18 @@ export type Mutation = {
 };
 
 
+export type MutationArchiveCustomSubclassArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationCreateCharacterArgs = {
   input: CreateCharacterInput;
+};
+
+
+export type MutationCreateCustomSubclassArgs = {
+  input: ManagedCustomSubclassInput;
 };
 
 
@@ -352,6 +397,12 @@ export type MutationUpdateCharacterArgs = {
 };
 
 
+export type MutationUpdateCustomSubclassArgs = {
+  id: Scalars['ID']['input'];
+  input: ManagedCustomSubclassInput;
+};
+
+
 export type MutationUpdateDeathSavesArgs = {
   characterId: Scalars['ID']['input'];
   input: DeathSavesInput;
@@ -394,6 +445,7 @@ export type Query = {
   availableSubclasses: Array<AvailableSubclass>;
   character?: Maybe<Character>;
   currentUserCharacters: Array<Character>;
+  customSubclasses: Array<CustomSubclass>;
   hasCurrentUserCharacters: Scalars['Boolean']['output'];
   spell?: Maybe<Spell>;
   spells: Array<Spell>;
@@ -407,6 +459,11 @@ export type QueryAvailableSubclassesArgs = {
 
 export type QueryCharacterArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryCustomSubclassesArgs = {
+  classIds?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 
@@ -729,6 +786,7 @@ export type ResolversTypes = {
   CreateCharacterInput: CreateCharacterInput;
   Currency: ResolverTypeWrapper<Currency>;
   CurrencyInput: CurrencyInput;
+  CustomSubclass: ResolverTypeWrapper<CustomSubclass>;
   CustomSubclassInput: CustomSubclassInput;
   DeathSaves: ResolverTypeWrapper<DeathSaves>;
   DeathSavesInput: DeathSavesInput;
@@ -743,6 +801,8 @@ export type ResolversTypes = {
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   InventoryItem: ResolverTypeWrapper<InventoryItem>;
   InventoryItemInput: InventoryItemInput;
+  ManagedCustomSubclassFeatureInput: ManagedCustomSubclassFeatureInput;
+  ManagedCustomSubclassInput: ManagedCustomSubclassInput;
   Mutation: ResolverTypeWrapper<{}>;
   ProficiencyLevel: ProficiencyLevel;
   Query: ResolverTypeWrapper<{}>;
@@ -786,6 +846,7 @@ export type ResolversParentTypes = {
   CreateCharacterInput: CreateCharacterInput;
   Currency: Currency;
   CurrencyInput: CurrencyInput;
+  CustomSubclass: CustomSubclass;
   CustomSubclassInput: CustomSubclassInput;
   DeathSaves: DeathSaves;
   DeathSavesInput: DeathSavesInput;
@@ -800,6 +861,8 @@ export type ResolversParentTypes = {
   Int: Scalars['Int']['output'];
   InventoryItem: InventoryItem;
   InventoryItemInput: InventoryItemInput;
+  ManagedCustomSubclassFeatureInput: ManagedCustomSubclassFeatureInput;
+  ManagedCustomSubclassInput: ManagedCustomSubclassInput;
   Mutation: {};
   Query: {};
   SaveCharacterSheetClassInput: SaveCharacterSheetClassInput;
@@ -853,6 +916,7 @@ export type AvailableSubclassResolvers<ContextType = Context, ParentType extends
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isCustom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  selectionLevel?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   srdIndex?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -941,6 +1005,21 @@ export type CurrencyResolvers<ContextType = Context, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type CustomSubclassResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CustomSubclass'] = ResolversParentTypes['CustomSubclass']> = {
+  canChangeClass?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  cannotChangeClassReason?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  characterUsageCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  classId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  className?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  features?: Resolver<Array<ResolversTypes['AvailableSubclassFeature']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  selectionLevel?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type DeathSavesResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeathSaves'] = ResolversParentTypes['DeathSaves']> = {
   failures?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   successes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -976,7 +1055,9 @@ export type InventoryItemResolvers<ContextType = Context, ParentType extends Res
 };
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  archiveCustomSubclass?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationArchiveCustomSubclassArgs, 'id'>>;
   createCharacter?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationCreateCharacterArgs, 'input'>>;
+  createCustomSubclass?: Resolver<ResolversTypes['CustomSubclass'], ParentType, ContextType, RequireFields<MutationCreateCustomSubclassArgs, 'input'>>;
   deleteCharacter?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCharacterArgs, 'id'>>;
   forgetSpell?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationForgetSpellArgs, 'characterId' | 'spellId'>>;
   learnSpell?: Resolver<ResolversTypes['CharacterSpell'], ParentType, ContextType, RequireFields<MutationLearnSpellArgs, 'characterId' | 'spellId'>>;
@@ -989,6 +1070,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   toggleSpellSlot?: Resolver<ResolversTypes['SpellSlot'], ParentType, ContextType, RequireFields<MutationToggleSpellSlotArgs, 'characterId' | 'kind' | 'level'>>;
   unprepareSpell?: Resolver<ResolversTypes['CharacterSpell'], ParentType, ContextType, RequireFields<MutationUnprepareSpellArgs, 'characterId' | 'spellId'>>;
   updateCharacter?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationUpdateCharacterArgs, 'id' | 'input'>>;
+  updateCustomSubclass?: Resolver<ResolversTypes['CustomSubclass'], ParentType, ContextType, RequireFields<MutationUpdateCustomSubclassArgs, 'id' | 'input'>>;
   updateDeathSaves?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateDeathSavesArgs, 'characterId' | 'input'>>;
   updateHitDice?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateHitDiceArgs, 'characterId' | 'input'>>;
   updateInventoryItem?: Resolver<ResolversTypes['InventoryItem'], ParentType, ContextType, RequireFields<MutationUpdateInventoryItemArgs, 'characterId' | 'input' | 'itemId'>>;
@@ -1001,6 +1083,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   availableSubclasses?: Resolver<Array<ResolversTypes['AvailableSubclass']>, ParentType, ContextType, Partial<QueryAvailableSubclassesArgs>>;
   character?: Resolver<Maybe<ResolversTypes['Character']>, ParentType, ContextType, RequireFields<QueryCharacterArgs, 'id'>>;
   currentUserCharacters?: Resolver<Array<ResolversTypes['Character']>, ParentType, ContextType>;
+  customSubclasses?: Resolver<Array<ResolversTypes['CustomSubclass']>, ParentType, ContextType, Partial<QueryCustomSubclassesArgs>>;
   hasCurrentUserCharacters?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   spell?: Resolver<Maybe<ResolversTypes['Spell']>, ParentType, ContextType, RequireFields<QuerySpellArgs, 'id'>>;
   spells?: Resolver<Array<ResolversTypes['Spell']>, ParentType, ContextType, Partial<QuerySpellsArgs>>;
@@ -1101,6 +1184,7 @@ export type Resolvers<ContextType = Context> = {
   CharacterSpell?: CharacterSpellResolvers<ContextType>;
   CharacterStats?: CharacterStatsResolvers<ContextType>;
   Currency?: CurrencyResolvers<ContextType>;
+  CustomSubclass?: CustomSubclassResolvers<ContextType>;
   DeathSaves?: DeathSavesResolvers<ContextType>;
   HP?: HpResolvers<ContextType>;
   HitDicePool?: HitDicePoolResolvers<ContextType>;

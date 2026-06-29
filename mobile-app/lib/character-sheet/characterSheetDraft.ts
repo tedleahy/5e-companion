@@ -92,6 +92,7 @@ export type CharacterSheetDraftFeature = {
 export type CharacterSheetDraftCustomSubclass = {
     name: string;
     description: string;
+    selectionLevel: number;
 };
 
 /** Local class row used while editing the character sheet. */
@@ -360,6 +361,7 @@ export function mapCharacterSheetDraftToSaveInput(
                 ? {
                     name: classRow.customSubclass.name,
                     description: classRow.customSubclass.description,
+                    selectionLevel: classRow.customSubclass.selectionLevel,
                 }
                 : null,
             level: classRow.level,

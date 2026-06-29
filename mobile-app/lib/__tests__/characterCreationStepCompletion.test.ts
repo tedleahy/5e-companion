@@ -36,7 +36,7 @@ describe('characterCreationStepCompletion', () => {
         )).toBe(true);
     });
 
-    it('blocks subclasses that have not reached their unlock level yet', () => {
+    it('blocks subclasses that have not reached their own selection level yet', () => {
         expect(isCreateCharacterStepComplete(
             CREATE_CHARACTER_ROUTES.class,
             createDraft({
@@ -44,10 +44,11 @@ describe('characterCreationStepCompletion', () => {
                 classes: [{ classId: 'wizard', subclassId: 'evocation', level: 1 }],
                 startingClassId: 'wizard',
             }),
+            { wizard: [{ value: 'evocation', label: 'Evocation', icon: '🔥', selectionLevel: 2 }] },
         )).toBe(false);
     });
 
-    it('requires every unlocked subclass choice before continuing', () => {
+    it('allows every eligible subclass choice to be deferred', () => {
         expect(isCreateCharacterStepComplete(
             CREATE_CHARACTER_ROUTES.class,
             createDraft({
@@ -58,7 +59,7 @@ describe('characterCreationStepCompletion', () => {
                 ],
                 startingClassId: 'wizard',
             }),
-        )).toBe(false);
+        )).toBe(true);
 
         expect(isCreateCharacterStepComplete(
             CREATE_CHARACTER_ROUTES.class,

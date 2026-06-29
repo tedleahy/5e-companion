@@ -1,27 +1,25 @@
 /**
- * Minimal persisted row shape for character-scoped collection reconciliation.
+ * Minimal persisted row shape for owned collection reconciliation.
  */
-type CharacterScopedRow = {
+type OwnedCollectionRow = {
     id: string;
 };
 
 /**
- * Delegate methods required to reconcile one character-scoped collection.
+ * Delegate methods required to reconcile one owned collection.
  */
-type CharacterScopedCollectionDelegate<
-    TExisting extends CharacterScopedRow,
+type OwnedCollectionDelegate<
+    TExisting extends OwnedCollectionRow,
+    TScopeWhere,
+    TDeleteWhere,
+    TUpdateWhere,
     TUpdateData,
     TCreateData,
 > = {
-    findMany(args: { where: { characterId: string } }): Promise<TExisting[]>;
-    deleteMany(args: {
-        where: {
-            characterId: string;
-            id: { in: string[] };
-        };
-    }): Promise<unknown>;
+    findMany(args: { where: TScopeWhere }): Promise<TExisting[]>;
+    deleteMany(args: { where: TDeleteWhere }): Promise<unknown>;
     update(args: {
-        where: { id: string };
+        where: TUpdateWhere;
         data: TUpdateData;
     }): Promise<unknown>;
     create(args: {
@@ -30,40 +28,72 @@ type CharacterScopedCollectionDelegate<
 };
 
 /**
- * Input accepted by the generic character-sheet collection reconciler.
+ * Input accepted by the generic owned collection reconciler.
  */
-type ReconcileCharacterSheetCollectionArgs<
-    TExisting extends CharacterScopedRow,
+type ReconcileOwnedCollectionArgs<
+    TExisting extends OwnedCollectionRow,
     TInput extends { id?: string | null },
+    TScopeWhere,
+    TDeleteWhere,
+    TUpdateWhere,
     TUpdateData,
     TCreateData,
 > = {
-    delegate: CharacterScopedCollectionDelegate<TExisting, TUpdateData, TCreateData>;
-    characterId: string;
+    delegate: OwnedCollectionDelegate<
+        TExisting,
+        TScopeWhere,
+        TDeleteWhere,
+        TUpdateWhere,
+        TUpdateData,
+        TCreateData
+    >;
+    scopeWhere: TScopeWhere;
     nextItems: TInput[];
     notFoundMessage: string;
+    buildDeleteWhere(removedIds: string[], scopeWhere: TScopeWhere): TDeleteWhere;
+    buildUpdateWhere(itemId: string, scopeWhere: TScopeWhere): TUpdateWhere;
     buildUpdateData(item: TInput): Promise<TUpdateData> | TUpdateData;
-    buildCreateData(item: TInput, characterId: string): Promise<TCreateData> | TCreateData;
+    buildCreateData(item: TInput, scopeWhere: TScopeWhere): Promise<TCreateData> | TCreateData;
+    updateManyItems?(
+        items: Array<{ id: string; data: TUpdateData }>,
+        scopeWhere: TScopeWhere,
+    ): Promise<unknown>;
+    createManyItems?(items: TCreateData[], scopeWhere: TScopeWhere): Promise<unknown>;
 };
 
 /**
- * Reconciles one character-owned collection against the submitted sheet payload.
+ * Reconciles a submitted collection within an ownership scope.
  */
-export async function reconcileCharacterSheetCollection<
-    TExisting extends CharacterScopedRow,
+export async function reconcileOwnedCollection<
+    TExisting extends OwnedCollectionRow,
     TInput extends { id?: string | null },
+    TScopeWhere,
+    TDeleteWhere,
+    TUpdateWhere,
     TUpdateData,
     TCreateData,
 >({
     delegate,
-    characterId,
+    scopeWhere,
     nextItems,
     notFoundMessage,
+    buildDeleteWhere,
+    buildUpdateWhere,
     buildUpdateData,
     buildCreateData,
-}: ReconcileCharacterSheetCollectionArgs<TExisting, TInput, TUpdateData, TCreateData>) {
+    updateManyItems,
+    createManyItems,
+}: ReconcileOwnedCollectionArgs<
+    TExisting,
+    TInput,
+    TScopeWhere,
+    TDeleteWhere,
+    TUpdateWhere,
+    TUpdateData,
+    TCreateData
+>) {
     const existingItems = await delegate.findMany({
-        where: { characterId },
+        where: scopeWhere,
     });
     const existingIds = new Set(existingItems.map((item) => item.id));
     const submittedIds = new Set(
@@ -76,30 +106,93 @@ export async function reconcileCharacterSheetCollection<
         .filter((item) => !submittedIds.has(item.id))
         .map((item) => item.id);
 
+    const itemsToUpdate = nextItems.filter(
+        (item): item is TInput & { id: string } => typeof item.id === 'string',
+    );
+
+    for (const item of itemsToUpdate) {
+        if (!existingIds.has(item.id)) {
+            throw new Error(notFoundMessage);
+        }
+    }
+
     if (removedIds.length > 0) {
         await delegate.deleteMany({
-            where: {
-                characterId,
-                id: { in: removedIds },
-            },
+            where: buildDeleteWhere(removedIds, scopeWhere),
         });
     }
 
-    for (const item of nextItems) {
-        if (item.id) {
-            if (!existingIds.has(item.id)) {
-                throw new Error(notFoundMessage);
-            }
+    const updateEntries = await Promise.all(itemsToUpdate.map(async (item) => ({
+        id: item.id,
+        data: await buildUpdateData(item),
+    })));
+    const createEntries = await Promise.all(
+        nextItems
+            .filter((item) => !item.id)
+            .map((item) => buildCreateData(item, scopeWhere)),
+    );
 
+    if (updateEntries.length > 0 && updateManyItems) {
+        await updateManyItems(updateEntries, scopeWhere);
+    } else {
+        for (const { id, data } of updateEntries) {
             await delegate.update({
-                where: { id: item.id },
-                data: await buildUpdateData(item),
+                where: buildUpdateWhere(id, scopeWhere),
+                data,
             });
-            continue;
         }
-
-        await delegate.create({
-            data: await buildCreateData(item, characterId),
-        });
     }
+
+    if (createEntries.length > 0 && createManyItems) {
+        await createManyItems(createEntries, scopeWhere);
+    } else {
+        for (const data of createEntries) {
+            await delegate.create({ data });
+        }
+    }
+}
+
+/**
+ * Reconciles one character-owned collection against the submitted sheet payload.
+ */
+export async function reconcileCharacterSheetCollection<
+    TExisting extends OwnedCollectionRow,
+    TInput extends { id?: string | null },
+    TUpdateData,
+    TCreateData,
+>({
+    delegate,
+    characterId,
+    nextItems,
+    notFoundMessage,
+    buildUpdateData,
+    buildCreateData,
+}: {
+    delegate: OwnedCollectionDelegate<
+        TExisting,
+        { characterId: string },
+        { characterId: string; id: { in: string[] } },
+        { id: string },
+        TUpdateData,
+        TCreateData
+    >;
+    characterId: string;
+    nextItems: TInput[];
+    notFoundMessage: string;
+    buildUpdateData(item: TInput): Promise<TUpdateData> | TUpdateData;
+    buildCreateData(item: TInput, characterId: string): Promise<TCreateData> | TCreateData;
+}) {
+    await reconcileOwnedCollection({
+        delegate,
+        scopeWhere: { characterId },
+        nextItems,
+        notFoundMessage,
+        buildDeleteWhere: (removedIds, scopeWhere) => ({
+            ...scopeWhere,
+            id: { in: removedIds },
+        }),
+        buildUpdateWhere: (itemId) => ({ id: itemId }),
+        buildUpdateData,
+        buildCreateData: (item, scopeWhere) => buildCreateData(item, scopeWhere.characterId),
+    });
 }

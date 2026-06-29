@@ -1,10 +1,10 @@
 import {
     canContinueFromNewFeatures,
     canContinueFromSubclassSelection,
+    createLevelUpSubclassSelectionState,
     getLevelUpFeatures,
     getLevelUpFeatureChoiceGroups,
     isPickerManagedFeature,
-    isSubclassChoiceLevel,
     mapCustomFeatureDrafts,
     mapSelectedFeatureChoiceFeatures,
 } from '@/lib/characterLevelUp/subclassFeatures';
@@ -33,12 +33,6 @@ function createSelectedClass(
 }
 
 describe('characterLevelUp subclass features', () => {
-    it('detects subclass-choice levels from the SRD progression table', () => {
-        expect(isSubclassChoiceLevel('wizard', 2)).toBe(true);
-        expect(isSubclassChoiceLevel('wizard', 3)).toBe(false);
-        expect(isSubclassChoiceLevel('fighter', 3)).toBe(true);
-    });
-
     it('treats invocation and metamagic entries as picker-managed features', () => {
         expect(isPickerManagedFeature('Eldritch Invocation: Agonizing Blast')).toBe(true);
         expect(isPickerManagedFeature('Metamagic: Careful Spell')).toBe(true);
@@ -145,6 +139,26 @@ describe('characterLevelUp subclass features', () => {
         ]));
     });
 
+    it('backfills earlier custom subclass features when the subclass is selected late', () => {
+        const features = getLevelUpFeatures(createSelectedClass({
+            currentLevel: 5,
+            newLevel: 6,
+            subclassId: 'custom-subclass-id',
+            subclassName: 'School of Glass',
+            subclassIsCustom: true,
+            subclassSelectedThisLevel: true,
+            subclassFeatures: [
+                { id: 'feature-2', name: 'Refraction Shield', description: 'Bend light.', level: 2 },
+                { id: 'feature-6', name: 'Glass Step', description: 'Step through glass.', level: 6 },
+            ],
+        }));
+
+        expect(features).toEqual(expect.arrayContaining([
+            expect.objectContaining({ name: 'Refraction Shield', level: 2 }),
+            expect.objectContaining({ name: 'Glass Step', level: 6 }),
+        ]));
+    });
+
     it('requires drafted custom subclass features to be complete before continuing', () => {
         expect(canContinueFromNewFeatures([], [], {})).toBe(true);
         expect(canContinueFromNewFeatures([
@@ -178,6 +192,7 @@ describe('characterLevelUp subclass features', () => {
             customSubclass: {
                 name: 'School of Glass',
                 description: 'A delicate art of mirrored wards and refractions.',
+                selectionLevel: 2,
             },
         }), [
             {
@@ -219,7 +234,7 @@ describe('characterLevelUp subclass features', () => {
         ]);
     });
 
-    it('requires a concrete subclass choice before the subclass step can continue', () => {
+    it('allows skipping and validates a selected inline custom subclass', () => {
         expect(canContinueFromSubclassSelection({
             mode: 'none',
             selectedSubclassId: null,
@@ -229,7 +244,7 @@ describe('characterLevelUp subclass features', () => {
             selectedSubclassFeatures: [],
             customSubclassName: '',
             customSubclassDescription: '',
-        })).toBe(false);
+        })).toBe(true);
 
         expect(canContinueFromSubclassSelection({
             mode: 'srd',
@@ -251,6 +266,15 @@ describe('characterLevelUp subclass features', () => {
             selectedSubclassFeatures: [],
             customSubclassName: 'School of Glass',
             customSubclassDescription: 'A delicate art of mirrored wards and refractions.',
+            customSubclassSelectionLevel: '2',
         })).toBe(true);
+
+        expect(canContinueFromSubclassSelection({
+            ...createLevelUpSubclassSelectionState(),
+            mode: 'custom',
+            customSubclassName: 'School of Glass',
+            customSubclassDescription: 'A delicate art.',
+            customSubclassSelectionLevel: '3',
+        }, 2)).toBe(false);
     });
 });

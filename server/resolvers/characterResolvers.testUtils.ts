@@ -17,14 +17,18 @@ export const hitDicePoolUpdateMock: any = mock((_args: unknown) => Promise.resol
 
 // reference model mocks
 export const classFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
+export const classFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const subclassFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const subclassFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const subclassCreateMock: any = mock((_args: unknown) => Promise.resolve({}));
+export const subclassCreateManyAndReturnMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const subclassUpdateMock: any = mock((_args: unknown) => Promise.resolve({}));
 export const featureFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const featureFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const featureCreateMock: any = mock((_args: unknown) => Promise.resolve({}));
+export const featureCreateManyMock: any = mock((_args: unknown) => Promise.resolve({ count: 0 }));
 export const featureUpdateMock: any = mock((_args: unknown) => Promise.resolve({}));
+export const featureDeleteManyMock: any = mock((_args: unknown) => Promise.resolve({ count: 0 }));
 export const raceFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const backgroundFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const backgroundFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
@@ -80,15 +84,19 @@ export const transactionMock: any = mock((callback: (tx: any) => Promise<unknown
         update: hitDicePoolUpdateMock,
     },
     subclass: {
+        findMany: subclassFindManyMock,
         findFirst: subclassFindFirstMock,
         create: subclassCreateMock,
+        createManyAndReturn: subclassCreateManyAndReturnMock,
         update: subclassUpdateMock,
     },
     feature: {
         findMany: featureFindManyMock,
         findFirst: featureFindFirstMock,
         create: featureCreateMock,
+        createMany: featureCreateManyMock,
         update: featureUpdateMock,
+        deleteMany: featureDeleteManyMock,
     },
     spellSlot: {
         findMany: spellSlotFindManyMock,
@@ -120,6 +128,7 @@ export const transactionMock: any = mock((callback: (tx: any) => Promise<unknown
         updateMany: characterFeatureUpdateManyMock,
         deleteMany: characterFeatureDeleteManyMock,
     },
+    $executeRaw: executeRawMock,
 }));
 
 function createMockTransactionClient() {
@@ -145,18 +154,22 @@ function createMockTransactionClient() {
         },
         class: {
             findMany: classFindManyMock,
+            findFirst: classFindFirstMock,
         },
         subclass: {
             findMany: subclassFindManyMock,
             findFirst: subclassFindFirstMock,
             create: subclassCreateMock,
+            createManyAndReturn: subclassCreateManyAndReturnMock,
             update: subclassUpdateMock,
         },
         feature: {
             findMany: featureFindManyMock,
             findFirst: featureFindFirstMock,
             create: featureCreateMock,
+            createMany: featureCreateManyMock,
             update: featureUpdateMock,
+            deleteMany: featureDeleteManyMock,
         },
         race: {
             findFirst: raceFindFirstMock,
@@ -205,6 +218,7 @@ function createMockTransactionClient() {
             findMany: spellFindManyMock,
             findUnique: spellFindUniqueMock,
         },
+        $executeRaw: executeRawMock,
     };
 }
 
@@ -309,6 +323,7 @@ export const fakeCharacterClasses: any[] = [
             srdIndex: 'evocation',
             name: 'Evocation',
             classId: 'class-wizard-id',
+            selectionLevel: 2,
         },
     },
     {
@@ -330,6 +345,7 @@ export const fakeCharacterClasses: any[] = [
             srdIndex: 'fiend',
             name: 'Fiend',
             classId: 'class-warlock-id',
+            selectionLevel: 1,
         },
     },
 ];
@@ -417,14 +433,18 @@ export function clearAllCharacterResolverMocks() {
     hitDicePoolFindManyMock.mockClear();
     hitDicePoolUpdateMock.mockClear();
     classFindManyMock.mockClear();
+    classFindFirstMock.mockClear();
     subclassFindManyMock.mockClear();
     subclassFindFirstMock.mockClear();
     subclassCreateMock.mockClear();
+    subclassCreateManyAndReturnMock.mockClear();
     subclassUpdateMock.mockClear();
     featureFindFirstMock.mockClear();
     featureFindManyMock.mockClear();
     featureCreateMock.mockClear();
+    featureCreateManyMock.mockClear();
     featureUpdateMock.mockClear();
+    featureDeleteManyMock.mockClear();
     raceFindFirstMock.mockClear();
     backgroundFindFirstMock.mockClear();
     backgroundFindManyMock.mockClear();
