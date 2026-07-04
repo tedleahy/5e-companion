@@ -60,6 +60,7 @@ flowchart TB
     idx["server/index.ts<br/>Express<br/>ApolloServer({ typeDefs, resolvers })"]
     idx --> cors
     idx --> spells["resolvers/spellsResolver.ts<br/>+ spellResolver.ts"]
+    idx --> compCounts["resolvers/compendiumResolver.ts<br/>(aggregate hub totals)"]
     idx --> charR["resolvers/characterResolvers.ts<br/>(barrel)"]
     charR --> qs["character/queries.ts"]
     charR --> life["character/lifecycleMutations.ts"]
@@ -108,7 +109,9 @@ flowchart TB
     root --> create["characters/create/*<br/>(creation wizard)"]
     root --> spell["spells/[id]"]
     rail --> chars["characters.tsx"]
-    rail --> spells["spells.tsx"]
+    rail --> compendium["compendium/index.tsx<br/>(library hub)"]
+    compendium --> spells["compendium/spells.tsx"]
+    compendium --> subclasses["compendium/subclasses.tsx"]
     rail --> settings["settings.tsx"]
     rail --> sheet["character/[id].tsx<br/>(character sheet)"]
 ```

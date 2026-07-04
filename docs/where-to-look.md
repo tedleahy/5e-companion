@@ -28,7 +28,7 @@ Deep dive: [`features/auth.md`](./features/auth.md).
 
 | Task | Files |
 | --- | --- |
-| Change spell-list UI | `mobile-app/app/(rail)/spells.tsx`, `mobile-app/components/SpellList.tsx`, `components/spell-list/` |
+| Change spell-list UI | `mobile-app/app/(rail)/compendium/spells.tsx`, `mobile-app/components/SpellList.tsx`, `components/spell-list/` |
 | Add a spell filter (client) | [`@/home/ted/projects/5e-companion/mobile-app/lib/spellFilters.ts`](../mobile-app/lib/spellFilters.ts), `components/SpellFilterDrawer.tsx` |
 | Add a spell filter (server) | [`@/home/ted/projects/5e-companion/server/lib/spellFilters.ts`](../server/lib/spellFilters.ts), update `SpellFilter` input in `server/schema.graphql`, extend [`@/home/ted/projects/5e-companion/server/resolvers/spellsResolver.ts`](../server/resolvers/spellsResolver.ts) if needed |
 | Change the fields exposed on a spell | `server/schema.graphql` (`Spell` type), [`@/home/ted/projects/5e-companion/server/lib/spellSelect.ts`](../server/lib/spellSelect.ts), and the Prisma model at [`@/home/ted/projects/5e-companion/server/prisma/schema.prisma:37-70`](../server/prisma/schema.prisma) |

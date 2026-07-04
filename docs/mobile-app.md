@@ -25,9 +25,12 @@ mobile-app/app/
 ├── (rail)/                           # Drawer-based main app (requires auth)
 │   ├── _layout.tsx                   # expo-router Drawer
 │   ├── characters.tsx                # Roster
-│   ├── subclasses.tsx                # Custom subclass manager
-│   ├── spells.tsx                    # Spell library
 │   ├── settings.tsx
+│   ├── compendium/                    # Library hub + implemented categories
+│   │   ├── _layout.tsx               # Nested category stack
+│   │   ├── index.tsx                 # Eight-category hub
+│   │   ├── subclasses.tsx            # Custom subclass manager
+│   │   └── spells.tsx                # Spell library
 │   └── character/
 │       └── [id].tsx                  # Character sheet (pager: core / abilities / features / gear / spells / traits)
 ├── characters/
@@ -92,7 +95,8 @@ No Redux, Zustand, Jotai, etc.
 - `app/_layout.tsx` — app-wide auth gate; checks the stored Supabase session, listens for auth-state changes, and redirects between auth/protected routes.
 - `hooks/useSessionGuard.ts` — focused screen-level session checks and manual re-checks, including post-sign-in checks.
 - `components/navigation/navigationConstants.ts` — single list of drawer destinations plus the `isNavigationDestinationActive()` helper that knows `/character/:id` should count as the "Characters" section.
-- The authenticated rail includes `/subclasses`, a subclass manager that lists visible subclasses in one fixed-height, internally scrolling view. Each row shows the database-backed parent-class selection level. The screen header collapses from the table's internal scroll position, while the table keeps Add and filter controls pinned above the row scroller. Tapping a row opens a fresh detail scroller for that subclass so details start at the top without inheriting the list scroll offset; custom rows expose edit/delete actions in a full-width footer. User-owned subclass rows can be created, edited, and archived; their required 1–20 selection level remains editable even while characters use the subclass.
+- The authenticated rail exposes one `/compendium` library destination. Its responsive hub shows Classes, Subclasses, Spells, Races, Subraces, Backgrounds, Feats, and Languages; Traits stay embedded in their owning content types. Subclasses and Spells are currently available, while the remaining category cards are visibly disabled pending their data-management work. The nested Compendium layout applies the rail shell once to every category, and every `/compendium/*` route keeps the Compendium rail item selected. Hub totals come from `Query.compendiumCounts` rather than loading full content lists.
+- `/compendium/subclasses` lists visible subclasses in one fixed-height, internally scrolling view. Each row shows the database-backed parent-class selection level. The table keeps Add and filter controls pinned above the row scroller. Tapping a row opens a fresh detail scroller for that subclass so details start at the top without inheriting the list scroll offset; custom rows expose edit/delete actions in a full-width footer. User-owned subclass rows can be created, edited, and archived; their required 1–20 selection level remains editable even while characters use the subclass.
 
 ## Theming
 
@@ -121,6 +125,7 @@ High-reuse components live at `components/` (flat), with folders for sub-domains
 | Folder | What it's for |
 | --- | --- |
 | `components/` (top level) | Generic UI (ActionButton, ConfirmDialog, TextField, SpellList, etc.) |
+| `components/compendium/` | Hub category cards, category metadata, and shared category navigation |
 | `components/character-sheet/` | The character sheet screens and their cards |
 | `components/character-sheet/level-up/` | The level-up wizard UI |
 | `components/character-sheet/spells/` | Spellbook, spell slots, add-spell sheet |
