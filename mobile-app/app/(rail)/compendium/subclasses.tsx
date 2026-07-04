@@ -4,9 +4,9 @@ import { useApolloClient, useMutation, useQuery } from '@apollo/client/react';
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, Snackbar, Text } from 'react-native-paper';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import CompendiumBackButton from '@/components/compendium/compendium-back-button';
+import CompendiumScreenHeader from '@/components/compendium/compendium-screen-header';
 import FloatingAddButton from '@/components/floating-add-button';
-import MainContentFrame from '@/components/layout/MainContentFrame';
-import RailScreenShell from '@/components/navigation/RailScreenShell';
 import CustomSubclassFormSheet from '@/components/subclasses/CustomSubclassFormSheet';
 import SubclassManagerCard from '@/components/subclasses/SubclassManagerCard';
 import { ALL_CLASSES_FILTER } from '@/components/subclasses/SubclassClassFilterChips';
@@ -316,113 +316,102 @@ export default function CustomSubclassesScreen() {
 
     if (loading && !availableData) {
         return (
-            <RailScreenShell>
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={fantasyTokens.colors.gold} />
-                    <Text style={styles.loadingText}>Gathering subclasses...</Text>
-                </View>
-            </RailScreenShell>
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={fantasyTokens.colors.gold} />
+                <Text style={styles.loadingText}>Gathering subclasses...</Text>
+            </View>
         );
     }
 
     if (error) {
         return (
-            <RailScreenShell>
-                <View style={styles.loadingContainer}>
-                    <Text style={styles.errorTitle}>Unable to load subclasses.</Text>
-                    <Text style={styles.errorText}>{error.message}</Text>
-                </View>
-            </RailScreenShell>
+            <View style={styles.loadingContainer}>
+                <Text style={styles.errorTitle}>Unable to load subclasses.</Text>
+                <Text style={styles.errorText}>{error.message}</Text>
+            </View>
         );
     }
 
     return (
-        <RailScreenShell>
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <View style={styles.headerContent}>
-                        <Text style={styles.codexLabel}>Subclasses</Text>
-                        <Text style={styles.pageTitle}>Subclass Manager</Text>
-                    </View>
-                </View>
+        <View style={styles.container}>
+            <CompendiumScreenHeader eyebrow="Compendium" title="Subclasses" />
 
-                <View style={styles.contentArea}>
-                    <MainContentFrame style={styles.frame}>
-                        <SubclassManagerCard
-                            style={styles.managerCard}
-                            subclasses={visibleSubclasses}
-                            allSubclassCount={allSubclasses.length}
-                            selectedClassId={selectedClassId}
-                            onDetailVisibilityChange={setIsViewingSubclass}
-                            onSelectClassId={setSelectedClassId}
-                            onEdit={openEditForm}
-                            onDelete={setDeleteCandidate}
-                        />
-                    </MainContentFrame>
-                </View>
+            <CompendiumBackButton />
 
-                {!isViewingSubclass && (
-                    <FloatingAddButton
-                        accessibilityLabel="Add custom subclass"
-                        onPress={openCreateForm}
-                        testID="add-custom-subclass"
-                    />
-                )}
-
-                <CustomSubclassFormSheet
-                    visible={formVisible}
-                    mode={formMode}
-                    draft={draft}
-                    initialDraft={initialDraft}
-                    pending={saving}
-                    errorMessage={formErrorMessage}
-                    lockedClassSelection={
-                        formMode === 'edit'
-                        && editingSubclass != null
-                        && (
-                            !(customSubclassCanChangeById.get(editingSubclass.id)?.canChangeClass ?? false)
-                            || (initialDraft.features.length > 0 && draft.features.length > 0)
-                        )
-                    }
-                    lockedClassMessage={
-                        formMode === 'edit' && editingSubclass != null
-                            ? (customSubclassCanChangeById.get(editingSubclass.id)?.cannotChangeClassReason)
-                                || 'Remove saved feature definitions before changing the parent class.'
-                            : ''
-                    }
-                    onChangeDraft={(nextDraft) => {
-                        setDraft(nextDraft);
-                        if (formErrorMessage) setFormErrorMessage(null);
-                    }}
-                    onClose={closeForm}
-                    onSave={() => {
-                        void saveForm();
-                    }}
+            <View style={styles.contentArea}>
+                <SubclassManagerCard
+                    style={styles.managerCard}
+                    subclasses={visibleSubclasses}
+                    allSubclassCount={allSubclasses.length}
+                    selectedClassId={selectedClassId}
+                    onDetailVisibilityChange={setIsViewingSubclass}
+                    onSelectClassId={setSelectedClassId}
+                    onEdit={openEditForm}
+                    onDelete={setDeleteCandidate}
                 />
-
-                <ConfirmDialog
-                    visible={deleteCandidate != null}
-                    title="Delete custom subclass?"
-                    message={deleteCandidate ? deleteConfirmationMessage(deleteCandidate) : ''}
-                    confirmLabel={archiveState.loading ? 'Deleting...' : 'Delete'}
-                    onConfirm={() => {
-                        void confirmArchiveSubclass();
-                    }}
-                    onCancel={() => {
-                        if (!archiveState.loading) setDeleteCandidate(null);
-                    }}
-                />
-
-                <Snackbar
-                    visible={actionErrorMessage != null}
-                    onDismiss={() => setActionErrorMessage(null)}
-                    duration={4000}
-                    style={styles.snackbar}
-                >
-                    {actionErrorMessage ?? ''}
-                </Snackbar>
             </View>
-        </RailScreenShell>
+
+            {!isViewingSubclass && (
+                <FloatingAddButton
+                    accessibilityLabel="Add custom subclass"
+                    onPress={openCreateForm}
+                    testID="add-custom-subclass"
+                />
+            )}
+
+            <CustomSubclassFormSheet
+                visible={formVisible}
+                mode={formMode}
+                draft={draft}
+                initialDraft={initialDraft}
+                pending={saving}
+                errorMessage={formErrorMessage}
+                lockedClassSelection={
+                    formMode === 'edit'
+                    && editingSubclass != null
+                    && (
+                        !(customSubclassCanChangeById.get(editingSubclass.id)?.canChangeClass ?? false)
+                        || (initialDraft.features.length > 0 && draft.features.length > 0)
+                    )
+                }
+                lockedClassMessage={
+                    formMode === 'edit' && editingSubclass != null
+                        ? (customSubclassCanChangeById.get(editingSubclass.id)?.cannotChangeClassReason)
+                            || 'Remove saved feature definitions before changing the parent class.'
+                        : ''
+                }
+                onChangeDraft={(nextDraft) => {
+                    setDraft(nextDraft);
+                    if (formErrorMessage) setFormErrorMessage(null);
+                }}
+                onClose={closeForm}
+                onSave={() => {
+                    void saveForm();
+                }}
+            />
+
+            <ConfirmDialog
+                visible={deleteCandidate != null}
+                title="Delete custom subclass?"
+                message={deleteCandidate ? deleteConfirmationMessage(deleteCandidate) : ''}
+                confirmLabel={archiveState.loading ? 'Deleting...' : 'Delete'}
+                onConfirm={() => {
+                    void confirmArchiveSubclass();
+                }}
+                onCancel={() => {
+                    if (!archiveState.loading) setDeleteCandidate(null);
+                }}
+            />
+
+            <Snackbar
+                visible={actionErrorMessage != null}
+                onDismiss={() => setActionErrorMessage(null)}
+                duration={4000}
+                style={styles.snackbar}
+            >
+                {actionErrorMessage ?? ''}
+            </Snackbar>
+        </View>
     );
 }
 
@@ -433,36 +422,8 @@ const styles = StyleSheet.create({
     },
     contentArea: {
         flex: 1,
-        paddingBottom: fantasyTokens.spacing.md,
-    },
-    header: {
-        backgroundColor: fantasyTokens.colors.night,
-        borderBottomWidth: 1,
-        borderBottomColor: fantasyTokens.rail.border,
-        paddingHorizontal: fantasyTokens.spacing.xl,
-        marginBottom: fantasyTokens.spacing.md,
-
-    },
-    headerContent: {
-        paddingTop: fantasyTokens.spacing.sm,
-        paddingBottom: fantasyTokens.spacing.md,
-    },
-    codexLabel: {
-        color: fantasyTokens.colors.gold,
-        opacity: 0.7,
-        ...fantasyTokens.typography.eyebrow,
-        textAlign: 'center',
-    },
-    pageTitle: {
-        color: fantasyTokens.colors.parchment,
-        ...fantasyTokens.typography.pageTitle,
-        marginTop: fantasyTokens.spacing.xs,
-        fontWeight: '700',
-        textAlign: 'center',
-    },
-    frame: {
-        flex: 1,
         paddingHorizontal: fantasyTokens.spacing.md,
+        paddingBottom: fantasyTokens.spacing.md,
     },
     managerCard: {
         flex: 1,

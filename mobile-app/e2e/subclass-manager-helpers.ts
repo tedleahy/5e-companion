@@ -11,7 +11,7 @@ export function uniqueSubclassName(prefix: string): string {
  * Navigates to the subclass manager and waits for the list to load.
  */
 export async function openSubclassManager(page: Page): Promise<void> {
-    await page.goto('/subclasses');
+    await page.goto('/compendium/subclasses');
     await expect(page.getByText('Subclass Manager')).toBeVisible();
     await expect(page.getByTestId('subclass-manager-card')).toBeVisible();
 }

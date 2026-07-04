@@ -1,7 +1,6 @@
-import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { PaperProvider } from 'react-native-paper';
-import CustomSubclassesScreen from '../subclasses';
+import CustomSubclassesScreen from '../compendium/subclasses';
 import {
     ARCHIVE_CUSTOM_SUBCLASS,
     CREATE_CUSTOM_SUBCLASS,
@@ -50,11 +49,6 @@ jest.mock('@apollo/client/react', () => ({
 
         return [jest.fn(), { loading: false }];
     },
-}));
-
-jest.mock('@/components/navigation/RailScreenShell', () => ({
-    __esModule: true,
-    default: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 type AvailableSubclassRow = {

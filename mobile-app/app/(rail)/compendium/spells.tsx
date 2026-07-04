@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import { Button } from 'react-native-paper';
 import { useQuery } from '@apollo/client/react';
 import SpellList, { type SpellListItem } from '@/components/SpellList';
 import SpellFilterDrawer from '@/components/SpellFilterDrawer';
@@ -8,9 +8,10 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
 import { gql } from '@apollo/client';
 import { useRouter } from 'expo-router';
 import { isUnauthenticatedError } from '@/lib/graphqlErrors';
-import RailScreenShell from '@/components/navigation/RailScreenShell';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import SearchBarInput from '@/components/SearchBarInput';
+import CompendiumBackButton from '@/components/compendium/compendium-back-button';
+import CompendiumScreenHeader from '@/components/compendium/compendium-screen-header';
 import {
     buildSpellFilterInput,
     countActiveSpellFilters,
@@ -156,44 +157,44 @@ export default function SpellSearch() {
     }
 
     return (
-        <RailScreenShell>
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <Text style={styles.codexLabel}>Spell Codex</Text>
-                    <Text style={styles.pageTitle}>All Spells</Text>
+        <View style={styles.container}>
+            <CompendiumScreenHeader eyebrow="Compendium" title="Spells" />
+            <CompendiumBackButton />
+            <View style={styles.topRow}>
+                <View style={styles.searchBarWrapper}>
+                    <SearchBarInput
+                        placeholder="Search spells"
+                        searchText={pendingSearchName}
+                        onChangeSearchText={setPendingSearchName}
+                    />
                 </View>
-                <View style={styles.topRow}>
-                    <View style={styles.searchBarWrapper}>
-                        <SearchBarInput
-                            placeholder="Search spells"
-                            searchText={pendingSearchName}
-                            onChangeSearchText={setPendingSearchName}
-                        />
-                    </View>
-                    <Button
-                        mode="outlined"
-                        accessibilityLabel="Open spell filters"
-                        onPress={() => setDrawerVisible(true)}
-                        style={styles.filterButton}
-                        textColor={fantasyTokens.colors.parchment}
-                    >
-                        <Ionicons name="filter" size={17} color={fantasyTokens.colors.parchment} />
-                        {activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
-                    </Button>
-                </View>
-                <SpellList
-                    spells={spells}
-                    loading={loading || isUnauthenticated || isLoadingMore}
-                    onEndReached={loadMoreSpells}
-                />
-                <SpellFilterDrawer
-                    visible={drawerVisible}
-                    filters={searchParams.filters}
-                    onClose={() => setDrawerVisible(false)}
-                    onChange={(filters) => setSearchParams((prev) => ({ ...prev, filters }))}
-                />
+                <Button
+                    mode="outlined"
+                    accessibilityLabel="Open spell filters"
+                    onPress={() => setDrawerVisible(true)}
+                    style={styles.filterButton}
+                    textColor={fantasyTokens.colors.parchment}
+                >
+                    <Ionicons
+                        name="filter"
+                        size={fantasyTokens.fontSizes.body}
+                        color={fantasyTokens.colors.parchment}
+                    />
+                    {activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+                </Button>
             </View>
-        </RailScreenShell>
+            <SpellList
+                spells={spells}
+                loading={loading || isUnauthenticated || isLoadingMore}
+                onEndReached={loadMoreSpells}
+            />
+            <SpellFilterDrawer
+                visible={drawerVisible}
+                filters={searchParams.filters}
+                onClose={() => setDrawerVisible(false)}
+                onChange={(filters) => setSearchParams((prev) => ({ ...prev, filters }))}
+            />
+        </View>
     );
 }
 
@@ -203,7 +204,7 @@ const styles = StyleSheet.create({
         backgroundColor: fantasyTokens.colors.night,
     },
     topRow: {
-        gap: 5,
+        gap: fantasyTokens.spacing.xs,
         flexDirection: 'row',
         alignItems: 'center',
         paddingRight: fantasyTokens.spacing.xs,
@@ -211,33 +212,11 @@ const styles = StyleSheet.create({
     },
     searchBarWrapper: {
         flex: 1,
-        marginLeft: fantasyTokens.spacing.sm
+        marginLeft: fantasyTokens.spacing.sm,
     },
     filterButton: {
         borderColor: fantasyTokens.colors.gold,
-        borderRadius: 5,
+        borderRadius: fantasyTokens.editableField.borderRadius,
         paddingHorizontal: 0,
-    },
-    pageTitle: {
-        color: fantasyTokens.colors.parchment,
-        ...fantasyTokens.typography.pageTitle,
-        marginTop: 6,
-        fontWeight: '700',
-        textAlign: 'center',
-    },
-    header: {
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(201,146,42,0.15)',
-        paddingHorizontal: 22,
-        paddingTop: 8,
-        paddingBottom: 14,
-        marginBottom: 16,
-    },
-    codexLabel: {
-        color: fantasyTokens.colors.gold,
-        opacity: 0.7,
-        ...fantasyTokens.typography.eyebrow,
-        letterSpacing: 3,
-        textAlign: 'center',
     },
 });

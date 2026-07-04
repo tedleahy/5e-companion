@@ -54,29 +54,28 @@ describe('ExpandedDrawer', () => {
         render(<ExpandedDrawer {...buildDrawerProps()} />);
 
         expect(screen.getByText('Characters')).toBeTruthy();
-        expect(screen.getByText('Subclasses')).toBeTruthy();
-        expect(screen.getByText('All Spells')).toBeTruthy();
+        expect(screen.getByText('Compendium')).toBeTruthy();
         expect(screen.getByText('Settings')).toBeTruthy();
         expect(screen.getByText('Sign Out')).toBeTruthy();
         expect(screen.getByText('Collapse')).toBeTruthy();
     });
 
     it('highlights the active destination', () => {
-        mockUsePathname.mockReturnValue('/subclasses');
+        mockUsePathname.mockReturnValue('/compendium/spells');
 
         render(<ExpandedDrawer {...buildDrawerProps()} />);
 
-        expect(screen.getByLabelText('Open Subclasses').props.accessibilityState.selected).toBe(true);
+        expect(screen.getByLabelText('Open Compendium').props.accessibilityState.selected).toBe(true);
         expect(screen.getByLabelText('Open Characters').props.accessibilityState.selected).toBe(false);
     });
 
-    it('navigates to subclasses and closes the drawer', async () => {
+    it('navigates to the compendium and closes the drawer', async () => {
         render(<ExpandedDrawer {...buildDrawerProps()} />);
 
-        fireEvent.press(screen.getByTestId('drawer-item-subclasses'));
+        fireEvent.press(screen.getByTestId('drawer-item-compendium'));
 
         await waitFor(() => {
-            expect(mockPush).toHaveBeenCalledWith('/subclasses');
+            expect(mockPush).toHaveBeenCalledWith('/compendium');
             expect(mockCloseDrawer).toHaveBeenCalled();
         });
     });

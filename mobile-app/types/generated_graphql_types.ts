@@ -132,6 +132,13 @@ export type CharacterStats = {
   traits: Traits;
 };
 
+export type CompendiumCounts = {
+  __typename?: 'CompendiumCounts';
+  customSubclassCount: Scalars['Int']['output'];
+  spellCount: Scalars['Int']['output'];
+  srdSubclassCount: Scalars['Int']['output'];
+};
+
 export type CreateCharacterClassInput = {
   classId: Scalars['String']['input'];
   customSubclass?: InputMaybe<CustomSubclassInput>;
@@ -440,6 +447,7 @@ export type Query = {
   availableBackgrounds: Array<AvailableBackground>;
   availableSubclasses: Array<AvailableSubclass>;
   character?: Maybe<Character>;
+  compendiumCounts: CompendiumCounts;
   currentUserCharacters: Array<Character>;
   customSubclasses: Array<CustomSubclass>;
   hasCurrentUserCharacters: Scalars['Boolean']['output'];
@@ -695,6 +703,11 @@ export type WeaponInput = {
   name: Scalars['String']['input'];
   type: Scalars['String']['input'];
 };
+
+export type CompendiumCountsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CompendiumCountsQuery = { __typename?: 'Query', compendiumCounts: { __typename?: 'CompendiumCounts', srdSubclassCount: number, customSubclassCount: number, spellCount: number } };
 
 export type SpellsQueryVariables = Exact<{
   filter?: InputMaybe<SpellFilter>;
