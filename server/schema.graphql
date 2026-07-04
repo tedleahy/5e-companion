@@ -16,6 +16,12 @@ type Spell {
     sourceBook: String
 }
 
+type CompendiumCounts {
+    srdSubclassCount: Int!
+    customSubclassCount: Int!
+    spellCount: Int!
+}
+
 input SpellFilter {
     name: String
     levels: [Int]
@@ -487,6 +493,7 @@ input SaveCharacterSheetInput {
 # ---------------------------------------------------------------------------
 
 type Query {
+    compendiumCounts: CompendiumCounts!
     spells(filter: SpellFilter, pagination: SpellPagination): [Spell!]!
     spell(id: ID!): Spell
     character(id: ID!): Character
