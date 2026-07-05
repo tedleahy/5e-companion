@@ -14,6 +14,15 @@ export {
 } from "./character/customSubclassManager";
 
 export {
+    availableClasses,
+    classDetails,
+    customClasses,
+    createCustomClass,
+    updateCustomClass,
+    archiveCustomClass,
+} from "./character/customClassManager";
+
+export {
     createCharacter,
     updateCharacter,
     deleteCharacter,

@@ -87,12 +87,16 @@ export async function createCharacter(
     const [classRefs, subclassRefs, raceRef, backgroundRef] = await Promise.all([
         prisma.class.findMany({
             where: {
-                srdIndex: {
-                    in: submittedClasses.map((classRow) => classRow.classId),
-                },
+                archivedAt: null,
+                OR: [
+                    { srdIndex: { in: submittedClasses.map((classRow) => classRow.classId) }, ownerUserId: null },
+                    { id: { in: submittedClasses.map((classRow) => classRow.classId) }, ownerUserId: userId },
+                ],
             },
             include: {
                 proficiencies: true,
+                proficiencyRules: { include: { proficiencyRef: true } },
+                progression: true,
             },
         }),
         subclassSelectionValues.length === 0
@@ -138,6 +142,7 @@ export async function createCharacter(
 
     const classRefsBySrdIndex = new Map<string, (typeof classRefs)[number]>();
     for (const classRef of classRefs) {
+        classRefsBySrdIndex.set(classRef.id, classRef);
         if (classRef.srdIndex) {
             classRefsBySrdIndex.set(classRef.srdIndex, classRef);
         }

@@ -4,7 +4,13 @@ import type { Character as PrismaCharacter, Prisma } from "@prisma/client";
  * Shared include shape for class-row loads that need resolved display labels.
  */
 export const CHARACTER_CLASS_INCLUDE = {
-    classRef: true,
+    classRef: {
+        include: {
+            proficiencies: true,
+            proficiencyRules: { include: { proficiencyRef: true } },
+            progression: true,
+        },
+    },
     subclassRef: true,
 } satisfies Prisma.CharacterClassInclude;
 

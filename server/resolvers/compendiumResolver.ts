@@ -9,7 +9,9 @@ export default async function compendiumCounts(
     ctx: Context,
 ) {
     const userId = requireUser(ctx);
-    const [srdSubclassCount, customSubclassCount, spellCount] = await Promise.all([
+    const [srdClassCount, customClassCount, srdSubclassCount, customSubclassCount, spellCount] = await Promise.all([
+        prisma.class.count({ where: { ownerUserId: null } }),
+        prisma.class.count({ where: { ownerUserId: userId, archivedAt: null } }),
         prisma.subclass.count({
             where: { ownerUserId: null },
         }),
@@ -20,6 +22,8 @@ export default async function compendiumCounts(
     ]);
 
     return {
+        srdClassCount,
+        customClassCount,
         srdSubclassCount,
         customSubclassCount,
         spellCount,

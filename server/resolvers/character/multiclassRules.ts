@@ -44,6 +44,22 @@ export type CharacterClassReference = {
     name: string;
     hitDie: number | null;
     spellcastingAbility: string | null;
+    spellcastingMode?: 'NONE' | 'STANDARD' | 'PACT_MAGIC';
+    savingThrowIndexes?: string[];
+    proficiencyRules?: Array<{
+        grant: 'STARTING' | 'MULTICLASS';
+        choiceGroup: number | null;
+        proficiencyRef: { srdIndex: string | null; name: string; type: ProficiencyType };
+    }>;
+    progression?: Array<{
+        level: number;
+        spellSlots: number[];
+        abilityScoreImprovement: boolean;
+        cantripsKnown: number | null;
+        spellsKnown: number | null;
+        preparedSpellCount: number | null;
+        addSpellcastingAbility: boolean;
+    }>;
     proficiencies?: Array<{
         srdIndex: string | null;
         name: string;
@@ -539,6 +555,9 @@ export function deriveStartingHp(
 export function deriveSavingThrowProficiencies(
     startingClass: CharacterClassReference,
 ): Array<keyof CharacterAbilityScores> {
+    const configuredSavingThrows = (startingClass.savingThrowIndexes ?? [])
+        .map((abilityIndex) => ABILITY_KEY_BY_SRD_INDEX[abilityIndex])
+        .filter((abilityKey): abilityKey is keyof CharacterAbilityScores => abilityKey !== undefined);
     const savingThrowProficiencies = (startingClass.proficiencies ?? [])
         .filter((proficiency) => proficiency.type === PROFICIENCY_TYPE.SAVING_THROW)
         .map((proficiency) => {
@@ -547,7 +566,7 @@ export function deriveSavingThrowProficiencies(
         })
         .filter((abilityKey): abilityKey is keyof CharacterAbilityScores => abilityKey !== undefined);
 
-    return Array.from(new Set(savingThrowProficiencies));
+    return Array.from(new Set([...configuredSavingThrows, ...savingThrowProficiencies]));
 }
 
 /**
@@ -578,6 +597,16 @@ export function deriveNamedClassProficiencies(
     const tools = new Set<string>();
 
     for (const [index, resolvedClass] of classes.entries()) {
+        const configuredRules = (resolvedClass.classRef.proficiencyRules ?? [])
+            .filter((rule) => rule.choiceGroup == null && rule.grant === (index === startingClassIndex ? 'STARTING' : 'MULTICLASS'));
+        if (configuredRules.length > 0) {
+            for (const { proficiencyRef } of configuredRules) {
+                if (proficiencyRef.type === PROFICIENCY_TYPE.ARMOR) armor.add(proficiencyRef.name);
+                if (proficiencyRef.type === PROFICIENCY_TYPE.WEAPON) weapons.add(proficiencyRef.name);
+                if (proficiencyRef.type === PROFICIENCY_TYPE.TOOL) tools.add(proficiencyRef.name);
+            }
+            continue;
+        }
         if (index === startingClassIndex) {
             for (const proficiency of resolvedClass.classRef.proficiencies ?? []) {
                 if (proficiency.type === PROFICIENCY_TYPE.ARMOR) armor.add(proficiency.name);
@@ -607,6 +636,7 @@ export function deriveNamedClassProficiencies(
  */
 export function deriveSpellSlots(classes: ResolvedCharacterClass[]): DerivedSpellSlot[] {
     const spellSlots: DerivedSpellSlot[] = [];
+    const pactSlotsByLevel = new Map<number, number>();
     const standardSlots = deriveStandardSpellSlots(classes);
 
     for (const [index, total] of standardSlots.entries()) {
@@ -620,15 +650,22 @@ export function deriveSpellSlots(classes: ResolvedCharacterClass[]): DerivedSpel
         });
     }
 
-    const warlockLevel = classes.find((resolvedClass) => resolvedClass.classRow.classId === 'warlock')?.classRow.level ?? 0;
-    const pactMagic = PACT_MAGIC_SLOT_TABLE[warlockLevel] ?? { level: 0, total: 0 };
-    if (pactMagic.total > 0 && pactMagic.level > 0) {
-        spellSlots.push({
-            kind: 'PACT_MAGIC',
-            level: pactMagic.level,
-            total: pactMagic.total,
-            used: 0,
-        });
+    for (const resolvedClass of classes.filter((entry) => entry.classRef.spellcastingMode === 'PACT_MAGIC' || entry.classRef.srdIndex === 'warlock')) {
+        const configured = resolvedClass.classRef.progression?.find((row) => row.level === resolvedClass.classRow.level)?.spellSlots;
+        if (configured) {
+            configured.forEach((total, index) => {
+                if (total > 0) pactSlotsByLevel.set(index + 1, (pactSlotsByLevel.get(index + 1) ?? 0) + total);
+            });
+            continue;
+        }
+        const pactMagic = PACT_MAGIC_SLOT_TABLE[resolvedClass.classRow.level] ?? { level: 0, total: 0 };
+        if (pactMagic.total > 0 && pactMagic.level > 0) {
+            pactSlotsByLevel.set(pactMagic.level, (pactSlotsByLevel.get(pactMagic.level) ?? 0) + pactMagic.total);
+        }
+    }
+
+    for (const [level, total] of pactSlotsByLevel) {
+        spellSlots.push({ kind: 'PACT_MAGIC', level, total, used: 0 });
     }
 
     return sortSpellSlots(spellSlots);
@@ -658,7 +695,7 @@ export function deriveSpellcastingProfiles(
                 spellcastingAbility,
                 spellSaveDC: 8 + spellAttackBonus,
                 spellAttackBonus,
-                slotKind: resolvedClass.classRow.classId === 'warlock' ? 'PACT_MAGIC' : 'STANDARD',
+                slotKind: resolvedClass.classRef.spellcastingMode === 'PACT_MAGIC' || resolvedClass.classRef.srdIndex === 'warlock' ? 'PACT_MAGIC' : 'STANDARD',
             };
         })
         .filter((profile): profile is DerivedSpellcastingProfile => profile !== null);
@@ -754,6 +791,12 @@ function deriveStandardSpellSlots(classes: ResolvedCharacterClass[]): readonly n
 function deriveSingleClassStandardSlots(resolvedClass: ResolvedCharacterClass): readonly number[] {
     const { classId, level, subclassId } = resolvedClass.classRow;
 
+    if (resolvedClass.classRef.spellcastingMode === 'STANDARD'
+        && resolvedClass.classRef.srdIndex == null
+        && resolvedClass.classRef.progression) {
+        return resolvedClass.classRef.progression.find((row) => row.level === level)?.spellSlots ?? [];
+    }
+
     if (FULL_CASTER_CLASS_IDS.has(classId)) {
         return STANDARD_SPELL_SLOT_TABLE[level] ?? [];
     }
@@ -778,6 +821,11 @@ function deriveStandardCasterLevel(classes: ResolvedCharacterClass[]): number {
     for (const resolvedClass of classes) {
         const { classId, level, subclassId } = resolvedClass.classRow;
 
+        if (resolvedClass.classRef.spellcastingMode === 'STANDARD' && resolvedClass.classRef.srdIndex == null) {
+            casterLevel += deriveConfiguredStandardCasterLevel(resolvedClass);
+            continue;
+        }
+
         if (FULL_CASTER_CLASS_IDS.has(classId)) {
             casterLevel += level;
             continue;
@@ -794,6 +842,59 @@ function deriveStandardCasterLevel(classes: ResolvedCharacterClass[]): number {
     }
 
     return casterLevel;
+}
+
+/**
+ * Infers a custom standard caster's multiclass contribution from its authored
+ * slot progression. Canonical full, half, and third progressions retain their
+ * 5e rounding rules; other authored tables use the equivalent standard row.
+ */
+function deriveConfiguredStandardCasterLevel(resolvedClass: ResolvedCharacterClass): number {
+    const progression = resolvedClass.classRef.progression ?? [];
+    const classLevel = resolvedClass.classRow.level;
+
+    if (progressionMatchesSlotTable(progression, HALF_CASTER_SINGLE_CLASS_SLOT_TABLE)) {
+        return Math.floor(classLevel / 2);
+    }
+    if (progressionMatchesSlotTable(progression, THIRD_CASTER_SINGLE_CLASS_SLOT_TABLE)) {
+        return Math.floor(classLevel / 3);
+    }
+    if (progressionMatchesSlotTable(progression, STANDARD_SPELL_SLOT_TABLE)) {
+        return classLevel;
+    }
+
+    const configuredSlots = progression.find((row) => row.level === classLevel)?.spellSlots ?? [];
+    if (configuredSlots.every((total) => total === 0)) return 0;
+
+    let equivalentCasterLevel = 1;
+    let closestDistance = Number.POSITIVE_INFINITY;
+    for (let level = 1; level < STANDARD_SPELL_SLOT_TABLE.length; level += 1) {
+        const distance = spellSlotRowDistance(configuredSlots, STANDARD_SPELL_SLOT_TABLE[level] ?? []);
+        if (distance < closestDistance) {
+            closestDistance = distance;
+            equivalentCasterLevel = level;
+        }
+    }
+    return equivalentCasterLevel;
+}
+
+function progressionMatchesSlotTable(
+    progression: NonNullable<CharacterClassReference['progression']>,
+    slotTable: ReadonlyArray<readonly number[]>,
+): boolean {
+    return progression.length >= 20 && progression.every((row) => (
+        spellSlotRowsEqual(row.spellSlots, slotTable[row.level] ?? [])
+    ));
+}
+
+function spellSlotRowsEqual(left: readonly number[], right: readonly number[]): boolean {
+    return Array.from({ length: 9 }, (_, index) => left[index] ?? 0)
+        .every((total, index) => total === (right[index] ?? 0));
+}
+
+function spellSlotRowDistance(left: readonly number[], right: readonly number[]): number {
+    return Array.from({ length: 9 }, (_, index) => Math.abs((left[index] ?? 0) - (right[index] ?? 0)))
+        .reduce((total, difference) => total + difference, 0);
 }
 
 /**

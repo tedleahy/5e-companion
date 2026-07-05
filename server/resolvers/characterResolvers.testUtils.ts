@@ -18,6 +18,7 @@ export const hitDicePoolUpdateMock: any = mock((_args: unknown) => Promise.resol
 // reference model mocks
 export const classFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const classFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
+export const classCountMock: any = mock((_args: unknown) => Promise.resolve(0));
 export const subclassFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const subclassFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const subclassCountMock: any = mock((_args: unknown) => Promise.resolve(0));
@@ -158,6 +159,7 @@ function createMockTransactionClient() {
         class: {
             findMany: classFindManyMock,
             findFirst: classFindFirstMock,
+            count: classCountMock,
         },
         subclass: {
             findMany: subclassFindManyMock,
@@ -439,6 +441,7 @@ export function clearAllCharacterResolverMocks() {
     hitDicePoolUpdateMock.mockClear();
     classFindManyMock.mockClear();
     classFindFirstMock.mockClear();
+    classCountMock.mockClear();
     subclassFindManyMock.mockClear();
     subclassFindFirstMock.mockClear();
     subclassCountMock.mockClear();

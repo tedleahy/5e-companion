@@ -248,7 +248,15 @@ describe('customSubclassManager — createCustomSubclass', () => {
         );
 
         expect(classFindFirstMock).toHaveBeenCalledWith(
-            expect.objectContaining({ where: { srdIndex: 'wizard' } }),
+            {
+                where: {
+                    archivedAt: null,
+                    OR: [
+                        { srdIndex: 'wizard', ownerUserId: null },
+                        { id: 'wizard', ownerUserId: 'user-abc' },
+                    ],
+                },
+            },
         );
         expect(subclassFindFirstMock).toHaveBeenCalledWith(
             expect.objectContaining({

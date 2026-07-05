@@ -137,9 +137,15 @@ describe('characterResolvers — queries', () => {
                 },
                 {
                     classRef: {
-                        srdIndex: {
-                            in: ['wizard'],
-                        },
+                        archivedAt: null,
+                    },
+                },
+                {
+                    classRef: {
+                        OR: [
+                            { srdIndex: { in: ['wizard'] }, ownerUserId: null },
+                            { id: { in: ['wizard'] }, ownerUserId: 'user-abc', archivedAt: null },
+                        ],
                     },
                 },
             ],
@@ -277,9 +283,10 @@ describe('characterResolvers — queries', () => {
             ownerUserId: 'user-abc',
             archivedAt: null,
             classRef: {
-                srdIndex: {
-                    in: ['wizard'],
-                },
+                OR: [
+                    { srdIndex: { in: ['wizard'] }, ownerUserId: null },
+                    { id: { in: ['wizard'] }, ownerUserId: 'user-abc', archivedAt: null },
+                ],
             },
         });
         expect(result).toEqual([

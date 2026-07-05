@@ -294,9 +294,10 @@ export async function customSubclassesForUser(
             ...(classIds && classIds.length > 0
                 ? {
                       classRef: {
-                          srdIndex: {
-                              in: classIds,
-                          },
+                          OR: [
+                              { srdIndex: { in: classIds }, ownerUserId: null },
+                              { id: { in: classIds }, ownerUserId: userId, archivedAt: null },
+                          ],
                       },
                   }
                 : {}),
@@ -334,7 +335,13 @@ export async function createCustomSubclass(
     const { name, description, selectionLevel, classId, features } = normaliseManagedCustomSubclassInput(input);
 
     const classRef = await prisma.class.findFirst({
-        where: { srdIndex: classId },
+        where: {
+            archivedAt: null,
+            OR: [
+                { srdIndex: classId, ownerUserId: null },
+                { id: classId, ownerUserId: userId },
+            ],
+        },
     });
 
     if (!classRef) {
@@ -423,7 +430,13 @@ export async function updateCustomSubclass(
     }
 
     const classRef = await prisma.class.findFirst({
-        where: { srdIndex: classId },
+        where: {
+            archivedAt: null,
+            OR: [
+                { srdIndex: classId, ownerUserId: null },
+                { id: classId, ownerUserId: userId },
+            ],
+        },
     });
 
     if (!classRef) {

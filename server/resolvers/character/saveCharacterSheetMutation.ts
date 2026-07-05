@@ -250,21 +250,22 @@ async function resolveSaveCharacterClassReferences(
         .map((classRow) => classRow.subclassId)
         .filter((subclassId): subclassId is string => typeof subclassId === "string");
 
-    const [classRefs, existingCharacterClassRows] = await Promise.all([
-        prisma.class.findMany({
-            where: {
-                srdIndex: {
-                    in: classes.map((classRow) => classRow.classId),
-                },
-            },
-        }),
-        subclassSelectionValues.length === 0
-            ? Promise.resolve([])
-            : prisma.characterClass.findMany({
-                  where: { characterId },
-                  select: { subclassId: true },
-              }),
-    ]);
+    const existingCharacterClassRows = await prisma.characterClass.findMany({
+        where: { characterId },
+        select: { classId: true, subclassId: true },
+    });
+    const existingClassIds = existingCharacterClassRows.map((row) => row.classId).filter((classId): classId is string => typeof classId === 'string');
+    const classRefs = await prisma.class.findMany({ where: {
+            OR: [
+                { srdIndex: { in: classes.map((classRow) => classRow.classId) }, ownerUserId: null },
+                { id: { in: classes.map((classRow) => classRow.classId) }, ownerUserId: userId, archivedAt: null },
+                { id: { in: existingClassIds }, ownerUserId: userId },
+            ],
+        }, include: {
+            proficiencies: true,
+            proficiencyRules: { include: { proficiencyRef: true } },
+            progression: true,
+        } });
     const existingSubclassIds = existingCharacterClassRows
         .map((classRow) => classRow.subclassId)
         .filter((subclassId): subclassId is string => typeof subclassId === "string");
@@ -277,6 +278,7 @@ async function resolveSaveCharacterClassReferences(
 
     const classRefsBySrdIndex = new Map<string, CharacterClassReference>();
     for (const classRef of classRefs) {
+        classRefsBySrdIndex.set(classRef.id, classRef);
         if (classRef.srdIndex) {
             classRefsBySrdIndex.set(classRef.srdIndex, classRef);
         }

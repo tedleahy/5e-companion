@@ -55,6 +55,8 @@ export async function characterClasses(parent: CharacterFieldParent) {
         id: classRow.id,
         classId: classRow.classRef.srdIndex ?? classRow.classId,
         className: classRow.classRef.name,
+        srdIndex: classRow.classRef.srdIndex,
+        isCustom: classRow.classRef.ownerUserId != null,
         subclassId: classRow.subclassRef?.srdIndex ?? classRow.subclassId ?? null,
         subclassName: classRow.subclassRef?.name ?? null,
         level: classRow.level,
@@ -233,7 +235,13 @@ async function loadCharacterClasses(characterId: string) {
     return await prisma.characterClass.findMany({
         where: { characterId },
         include: {
-            classRef: true,
+            classRef: {
+                include: {
+                    proficiencies: true,
+                    proficiencyRules: { include: { proficiencyRef: true } },
+                    progression: true,
+                },
+            },
             subclassRef: true,
         },
     });
