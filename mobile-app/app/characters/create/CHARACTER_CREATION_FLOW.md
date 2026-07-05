@@ -34,7 +34,7 @@ _layout.tsx
 | `class.tsx` | 2 - Class | Level stepper (1-20), single-class selection via `OptionGrid` by default. Shows all visible subclass options with database-backed availability levels and disables those above the allocation. A "Multiclass" switch (with an info button that reveals an explanation) appears when a class is selected and level is 2+; toggling it on enters multiclass mode with full allocation UI |
 | `abilities.tsx` | 3 - Abilities | Toggle between Roll (4d6 drop lowest) and Point Buy modes. Also handles ASI (Ability Score Increase) allocation for higher levels |
 | `background.tsx` | 4 - Background | Background selection via `OptionGrid` from `useAvailableBackgrounds()` (includes info button with feature description), alignment (3x3 grid), and personality trait text fields (traits, ideals, bonds, flaws) |
-| `skills.tsx` | 5 - Skills | Saving throws (display-only, from starting class), background skills (locked), class skill picks (capped by `pick` count) |
+| `skills.tsx` | 5 - Skills | Saving throws (display-only, from starting class), background skills (locked), class skill picks (each configured choice group is capped independently) |
 | `features.tsx` | 6 - Additional Class Benefits (conditional) | Inserted after skills when the selected SRD classes/subclasses unlock parent/child feature choices (for example Eldritch Invocations, Metamagic, Pact Boon, Circle of the Land, Fighting Style, Hunter's Prey). Renders one card per parent feature and requires the configured number of child selections before continuing |
 | `review.tsx` | Final step - Review | Read-only summary of all choices. Each section is tappable to jump back to its step for editing. "Create Character" triggers the GraphQL mutation |
 
@@ -57,7 +57,7 @@ _layout.tsx
 | File | Purpose |
 |---|---|
 | `multiclass.ts` | Core multiclass logic. Types: `CharacterClassDraft`, `CharacterClassDraftValidation`. Functions for creating/sanitising class rows, computing remaining levels, checking subclass unlock, sorting for display, normalising starting class ID, formatting labels, and full validation (`validateCharacterClassDraft`) |
-| `options.ts` | Static data: `RACE_OPTIONS`, `CLASS_OPTIONS`, `SUBCLASS_OPTIONS`, `ALIGNMENT_OPTIONS`. All use the `OptionItem` shape (`value`, `label`, `icon`, `hint?`, `description?`) |
+| `options.ts` | Static visual metadata for races, SRD class icons, subclass fallbacks, and alignments. Selectable classes themselves come from `availableClasses` and can include owned custom classes. |
 | `classRules.ts` | Static D&D rule data: `HIT_DIE_MAP`, armour/weapon proficiencies, `BACKGROUND_SKILL_PROFICIENCIES`, `CLASS_SKILL_OPTIONS` (with `pick` count), `CLASS_SAVING_THROWS`, `CLASS_SPELLCASTING_ABILITY_MAP`, `CLASS_ABILITY_PRIORITY`, `SUBCLASS_UNLOCK_LEVEL_BY_CLASS` |
 | `abilityRules.ts` | Point buy cost table, ASI level thresholds, `roll4d6DropLowest()`, `rollAllAbilityScores()`, `suggestAbilityScores()` (reorders rolled scores by class priority), `asiPointsForLevel()`, `proficiencyBonusForLevel()` |
 | `raceRules.ts` | `RACE_ABILITY_BONUSES`, `RACE_SPEED_MAP`, `applyRacialBonuses()` |
@@ -103,7 +103,7 @@ Default draft starts with level 1, all scores 10, roll mode, empty everything el
 
 ## Single-Class / Multiclass System
 
-The class step defaults to **single-class mode**: the user picks one class from a tile grid, and it automatically receives all of the character's levels. Its visible SRD and user-owned subclasses are shown together; each option displays its own availability level.
+The class step defaults to **single-class mode**: the user picks an active SRD or owned custom class from a server-backed tile grid, and it automatically receives all of the character's levels. Its visible SRD and user-owned subclasses are shown together; each option displays its own availability level.
 
 When a class is selected and the character is level 2+, a **"Multiclass"** switch is shown above the class grid, along with an info button that toggles a short explanation of multiclassing. Turning the switch on enters **multiclass mode**, which shows:
 
@@ -162,10 +162,10 @@ The WizardShell's Continue button is disabled until `isCreateCharacterStepComple
 - "Abandon" resets the draft and navigates to `/characters`
 - If no data has been entered, navigates immediately without confirmation
 
-## Supported Content (SRD-only)
+## Supported Content
 
 - **Races**: Elf, Human, Dwarf, Halfling, Dragonborn, Tiefling, Gnome, Half-Orc, Half-Elf
-- **Classes**: Wizard, Fighter, Rogue, Cleric, Druid, Bard, Sorcerer, Warlock, Ranger, Paladin, Monk, Barbarian
+- **Classes**: the 12 SRD classes plus active custom classes authored in `/compendium/classes`
 - **Subclasses**: One per class (e.g. Champion Fighter, Thief Rogue, Life Domain Cleric)
 - **Backgrounds**: Acolyte only (but `BACKGROUND_SKILL_PROFICIENCIES` has data for Sage, Soldier, Noble, Outlander, Entertainer too)
 - **Alignments**: Standard 3x3 grid (Lawful/Neutral/Chaotic x Good/Neutral/Evil)
