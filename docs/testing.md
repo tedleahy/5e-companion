@@ -52,7 +52,7 @@ bun test --test-name-pattern "longRest"   # Filter by test name
 ## End-to-end tests — Playwright
 
 - **Config**: [`@/home/ted/projects/5e-companion/mobile-app/playwright.config.ts:1-94`](../mobile-app/playwright.config.ts).
-- **Tests**: `mobile-app/e2e/*.spec.ts`.
+- **Tests**: `mobile-app/e2e/**/*.spec.ts`.
 - Runs against the **Expo web** build + a local GraphQL server + local Supabase.
 
 ### Flow (handled by the config)

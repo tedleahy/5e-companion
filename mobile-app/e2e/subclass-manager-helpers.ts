@@ -12,7 +12,7 @@ export function uniqueSubclassName(prefix: string): string {
  */
 export async function openSubclassManager(page: Page): Promise<void> {
     await page.goto('/compendium/subclasses');
-    await expect(page.getByText('Subclass Manager')).toBeVisible();
+    await expect(page.getByText('Subclasses', { exact: true })).toBeVisible();
     await expect(page.getByTestId('subclass-manager-card')).toBeVisible();
 }
 
@@ -111,7 +111,11 @@ export async function editSubclassFromRow(page: Page, id: string): Promise<void>
  * Opens the delete confirmation for a custom subclass from its collapsed row.
  */
 export async function deleteSubclassFromRow(page: Page, id: string): Promise<void> {
-    await page.getByTestId('subclass-list-scroll').getByTestId(`delete-custom-subclass-${id}`).click();
+    // The floating add button can cover the center of this control on the last visible row.
+    await page
+        .getByTestId('subclass-list-scroll')
+        .getByTestId(`delete-custom-subclass-${id}`)
+        .click({ position: { x: 8, y: 8 } });
     await expect(page.getByText('Delete custom subclass?')).toBeVisible();
 }
 
