@@ -117,7 +117,19 @@ const MULTICLASS_PROFICIENCY_TABLE: Record<string, MulticlassProficiencyGains> =
  * Returns the multiclass proficiency gains for a given class id, or null if
  * the class has no SRD multiclass proficiency entry.
  */
-export function getMulticlassProficiencyGains(classId: string): MulticlassProficiencyGains | null {
+export function getMulticlassProficiencyGains(classId: string, selectedClass?: LevelUpWizardSelectedClass): MulticlassProficiencyGains | null {
+    const configured = selectedClass?.classDefinition?.proficiencies.filter((rule) => rule.grant === 'MULTICLASS') ?? [];
+    if (configured.length > 0) {
+        const fixed = configured.filter((rule) => rule.choiceGroup == null);
+        const skillChoices = Math.max(0, ...configured.filter((rule) => rule.type === 'SKILL').map((rule) => rule.choiceCount ?? 0));
+        return {
+            armor: fixed.filter((rule) => rule.type === 'ARMOR').map((rule) => rule.name),
+            weapons: fixed.filter((rule) => rule.type === 'WEAPON').map((rule) => rule.name),
+            tools: fixed.filter((rule) => rule.type === 'TOOL').map((rule) => rule.name),
+            skillChoices,
+            skillOptions: configured.filter((rule) => rule.type === 'SKILL').map((rule) => rule.name.replace(/^Skill:\s*/, '')),
+        };
+    }
     return MULTICLASS_PROFICIENCY_TABLE[classId] ?? null;
 }
 
@@ -198,7 +210,7 @@ export function canContinueFromMulticlassProficiencies(
     selectedClass: LevelUpWizardSelectedClass,
     state: LevelUpMulticlassProficiencyState,
 ): boolean {
-    const gains = getMulticlassProficiencyGains(selectedClass.classId);
+    const gains = getMulticlassProficiencyGains(selectedClass.classId, selectedClass);
 
     if (!gains || gains.skillChoices === 0) {
         return true;

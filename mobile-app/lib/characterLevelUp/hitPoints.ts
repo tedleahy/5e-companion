@@ -58,12 +58,13 @@ export function createLevelUpHitPointsState(
     constitutionScore: number,
     method: LevelUpHitPointsMethod,
     randomSource?: () => number,
+    configuredHitDieSize?: number,
 ): LevelUpHitPointsState {
-    const hitDieSize = levelUpHitDieSize(classId);
+    const hitDieSize = configuredHitDieSize ?? levelUpHitDieSize(classId);
     const constitutionModifier = abilityModifier(constitutionScore);
     const hitDieValue = method === 'average'
-        ? averageLevelUpHitDieValue(classId)
-        : rollLevelUpHitDieValue(classId, randomSource);
+        ? (hitDieSize > 0 ? Math.floor(hitDieSize / 2) + 1 : averageLevelUpHitDieValue(classId))
+        : (hitDieSize > 0 ? Math.floor((randomSource ?? Math.random)() * hitDieSize) + 1 : rollLevelUpHitDieValue(classId, randomSource));
 
     return {
         method,

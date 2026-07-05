@@ -1,5 +1,5 @@
 import { HIT_DIE_MAP } from '@/lib/characterCreation/classRules';
-import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
+import { CLASS_OPTIONS, type OptionItem } from '@/lib/characterCreation/options';
 import { ABILITY_ABBREVIATIONS, type AbilityKey } from '@/lib/characterSheetUtils';
 import type {
     LevelUpClassSelectionState,
@@ -158,6 +158,7 @@ export function multiclassPrerequisiteWarnings(
     character: LevelUpWizardCharacter | null | undefined,
     currentClassId: string,
     targetClassId: string | null,
+    classOptions: readonly OptionItem[] = CLASS_OPTIONS,
 ): string[] {
     if (!character?.stats?.abilityScores || !targetClassId || targetClassId === currentClassId) {
         return [];
@@ -166,8 +167,8 @@ export function multiclassPrerequisiteWarnings(
     const abilityScores = character.stats.abilityScores;
     const warnings: string[] = [];
 
-    appendPrerequisiteWarning(warnings, currentClassId, abilityScores, 'Current class');
-    appendPrerequisiteWarning(warnings, targetClassId, abilityScores, 'New class');
+    appendPrerequisiteWarning(warnings, currentClassId, abilityScores, 'Current class', classOptions);
+    appendPrerequisiteWarning(warnings, targetClassId, abilityScores, 'New class', classOptions);
 
     return warnings;
 }
@@ -229,7 +230,23 @@ function appendPrerequisiteWarning(
     classId: string,
     abilityScores: Record<AbilityKey, number>,
     prefix: string,
+    classOptions: readonly OptionItem[],
 ) {
+    const classOption = classOptions.find((option) => option.value === classId);
+    const configuredRules = classOption?.multiclassPrerequisites ?? [];
+    if (configuredRules.length > 0) {
+        const abilityByIndex: Record<string, AbilityKey> = { str: 'strength', dex: 'dexterity', con: 'constitution', int: 'intelligence', wis: 'wisdom', cha: 'charisma' };
+        const groups = new Map<number, typeof configuredRules>();
+        for (const rule of configuredRules) groups.set(rule.group, [...(groups.get(rule.group) ?? []), rule]);
+        const failedGroups = [...groups.values()].filter((rules) => !rules.some((rule) => {
+            const ability = abilityByIndex[rule.abilityIndex];
+            return ability != null && abilityScores[ability] >= rule.minimum;
+        }));
+        if (failedGroups.length === 0) return;
+        const requirement = [...groups.values()].map((rules) => rules.map((rule) => `${rule.abilityIndex.toUpperCase()} ${rule.minimum}`).join(' or ')).join(' and ');
+        warnings.push(`${prefix} multiclass requirement not met for ${classOption?.label ?? 'Unknown class'}: ${requirement}.`);
+        return;
+    }
     const prerequisiteRule = MULTICLASS_PREREQUISITES_BY_CLASS_ID[classId];
 
     if (!prerequisiteRule || prerequisiteRule.validate(abilityScores)) {

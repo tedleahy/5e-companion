@@ -481,13 +481,13 @@ describe('applyLevelUpToDraft', () => {
         expect(addedFeature?.description).toContain('Constitution +1');
     });
 
-    it('applies selected multiclass skill proficiencies into the local draft', () => {
+    it('applies configured custom multiclass proficiencies into the local draft', () => {
         const draft = createCharacterSheetDraft(BASE_CHARACTER as never);
 
         const nextDraft = applyLevelUpToDraft(draft, {
             selectedClass: {
-                classId: 'rogue',
-                className: 'Rogue',
+                classId: 'custom-class-id',
+                className: 'Warden',
                 currentLevel: 0,
                 newLevel: 1,
                 isExistingClass: false,
@@ -497,6 +497,14 @@ describe('applyLevelUpToDraft', () => {
                 subclassIsCustom: false,
                 subclassFeatures: [],
                 customSubclass: null,
+                classDefinition: {
+                    proficiencies: [
+                        { grant: 'MULTICLASS', type: 'ARMOR', name: 'Medium armour', choiceGroup: null },
+                        { grant: 'MULTICLASS', type: 'WEAPON', name: 'Longbows', choiceGroup: null },
+                        { grant: 'MULTICLASS', type: 'TOOL', name: "Smith's tools", choiceGroup: null },
+                        { grant: 'MULTICLASS', type: 'SKILL', name: 'Skill: Athletics', choiceGroup: 1, choiceCount: 1 },
+                    ],
+                } as never,
             },
             hitPointsState: {
                 method: 'average',
@@ -522,6 +530,8 @@ describe('applyLevelUpToDraft', () => {
         });
 
         expect(nextDraft.skillProficiencies.athletics).toBe('proficient');
-        expect(nextDraft.traits.toolProficiencies).toEqual(["Thieves' tools"]);
+        expect(nextDraft.traits.armorProficiencies).toEqual(['Medium armour']);
+        expect(nextDraft.traits.weaponProficiencies).toEqual(['Daggers', 'Longbows']);
+        expect(nextDraft.traits.toolProficiencies).toEqual(["Smith's tools"]);
     });
 });

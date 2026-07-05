@@ -31,7 +31,7 @@ export default function LevelUpMulticlassProficienciesStep({
     existingSkillProficiencies,
     onToggleSkill,
 }: LevelUpMulticlassProficienciesStepProps) {
-    const gains = getMulticlassProficiencyGains(selectedClass.classId);
+    const gains = getMulticlassProficiencyGains(selectedClass.classId, selectedClass);
     const automaticLabels = gains ? getAutomaticProficiencyLabels(gains) : [];
 
     return (

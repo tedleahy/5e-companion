@@ -82,7 +82,7 @@ export default function LevelUpWizardStepBody({
         changeMysticArcanumSpell,
     } = wizard;
     if (currentStep.id === 'choose_class') {
-        const currentClassOption = levelUpClassOption(currentClass.classId);
+        const currentClassOption = wizard.classOptions.find((option) => option.value === currentClass.classId) ?? levelUpClassOption(currentClass.classId);
         const isDefaultCurrentClassView = classSelectionMode === 'current_class';
         const pickerSelectedId = pickerSelectedClassId ?? '';
 
@@ -98,7 +98,7 @@ export default function LevelUpWizardStepBody({
                             <Text style={styles.currentClassIcon}>{currentClassOption?.icon ?? '\u2736'}</Text>
                             <Text style={styles.currentClassName}>{currentClass.className}</Text>
                             <Text style={styles.currentClassLevelText}>
-                                {`Level ${currentClass.currentLevel} -> ${currentClass.newLevel} · ${levelUpHitDieLabel(currentClass.classId)} Hit Die`}
+                                {`Level ${currentClass.currentLevel} -> ${currentClass.newLevel} · ${currentClassOption?.hitDie ? `d${currentClassOption.hitDie}` : levelUpHitDieLabel(currentClass.classId)} Hit Die`}
                             </Text>
                         </View>
 
@@ -133,6 +133,7 @@ export default function LevelUpWizardStepBody({
                         </Text>
 
                         <ClassOptionGrid
+                            options={[...wizard.classOptions]}
                             selected={pickerSelectedId}
                             onSelect={selectClass}
                             tone="parchment"

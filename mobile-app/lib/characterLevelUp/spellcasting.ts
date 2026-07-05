@@ -1,3 +1,4 @@
+import { SpellSlotKind } from '@/types/generated_graphql_types';
 import type {
     CharacterSpellbookEntryFieldsFragment,
     SpellSlot,
@@ -179,6 +180,60 @@ export function buildLevelUpSpellcastingSummary(
             eligibleSpellLevels: [],
             currentKnownSpells: [],
             currentKnownSpellIds: [],
+        };
+    }
+
+    if (selectedClass.classDefinition) {
+        const definition = selectedClass.classDefinition;
+        const previous = definition.progression.find((level) => level.level === selectedClass.currentLevel);
+        const next = definition.progression.find((level) => level.level === selectedClass.newLevel);
+        const kind: SpellSlot['kind'] = definition.spellcastingMode === 'PACT_MAGIC' ? SpellSlotKind.PactMagic : SpellSlotKind.Standard;
+        const slotRows = (slots: readonly number[] | undefined) => (slots ?? []).flatMap((total, index) => total > 0 ? [{ kind, level: index + 1, total }] : []);
+        const slotComparisons = buildSpellSlotComparisons(slotRows(previous?.spellSlots), slotRows(next?.spellSlots));
+        const previousMaxSpellLevel = highestSpellLevel(previous?.spellSlots ?? []);
+        const nextMaxSpellLevel = highestSpellLevel(next?.spellSlots ?? []);
+        const previousKnownSpells = previous?.spellsKnown ?? null;
+        const nextKnownSpells = next?.spellsKnown ?? null;
+        const previousCantripsKnown = previous?.cantripsKnown ?? null;
+        const nextCantripsKnown = next?.cantripsKnown ?? null;
+        const learnedSpellCount = Math.max(0, (nextKnownSpells ?? 0) - (previousKnownSpells ?? 0));
+        const cantripCountGain = Math.max(0, (nextCantripsKnown ?? 0) - (previousCantripsKnown ?? 0));
+        const classSpellIds = new Set(definition.spells.map((spell) => spell.id));
+        const currentKnownSpells = character.spellbook.filter((entry) => classSpellIds.has(entry.spell.id));
+        const preparedLimit = (level: typeof next | undefined) => {
+            if (level?.preparedSpellCount == null) return null;
+            const ability = ({ str: 'strength', dex: 'dexterity', con: 'constitution', int: 'intelligence', wis: 'wisdom', cha: 'charisma' } as Record<string, AbilityKey>)[definition.spellcastingAbility ?? ''] ?? null;
+            const score = ability ? character.stats?.abilityScores[ability] ?? 10 : 10;
+            return Math.max(0, level.preparedSpellCount + (level.addSpellcastingAbility ? modifier(score) : 0));
+        };
+        const previousPreparedSpellLimit = preparedLimit(previous);
+        const nextPreparedSpellLimit = preparedLimit(next);
+        const mode = definition.spellcastingMode === 'NONE'
+            ? 'none'
+            : nextKnownSpells != null
+                ? 'known'
+                : 'prepared';
+        return {
+            mode,
+            hasChanges: slotComparisons.some((comparison) => comparison.changed)
+                || learnedSpellCount > 0 || cantripCountGain > 0
+                || nextMaxSpellLevel > previousMaxSpellLevel
+                || previousPreparedSpellLimit !== nextPreparedSpellLimit,
+            slotComparisons,
+            previousMaxSpellLevel,
+            nextMaxSpellLevel,
+            newSpellLevelUnlocked: nextMaxSpellLevel > previousMaxSpellLevel,
+            previousKnownSpells,
+            nextKnownSpells,
+            learnedSpellCount,
+            previousPreparedSpellLimit,
+            nextPreparedSpellLimit,
+            previousCantripsKnown,
+            nextCantripsKnown,
+            cantripCountGain,
+            eligibleSpellLevels: buildEligibleSpellLevels(nextMaxSpellLevel),
+            currentKnownSpells,
+            currentKnownSpellIds: currentKnownSpells.map((entry) => entry.spell.id),
         };
     }
 

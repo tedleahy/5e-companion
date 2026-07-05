@@ -261,7 +261,7 @@ function applyLevelUpProficiencies(
         return traits;
     }
 
-    const gains = getMulticlassProficiencyGains(selectedClass.classId);
+    const gains = getMulticlassProficiencyGains(selectedClass.classId, selectedClass);
 
     if (!gains) {
         return traits;

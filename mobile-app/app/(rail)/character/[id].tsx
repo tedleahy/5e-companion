@@ -7,7 +7,8 @@ import {
     useRouter,
 } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
-import type { SkillProficiencies } from '@/types/generated_graphql_types';
+import { useQuery } from '@apollo/client/react';
+import type { AvailableClassesQuery, CustomClassesQuery, SkillProficiencies } from '@/types/generated_graphql_types';
 import { registerUnsavedChanges, unregisterUnsavedChanges } from '@/lib/unsavedChanges';
 import CharacterSheetHeader, { CHARACTER_SHEET_TABS } from '@/components/character-sheet/CharacterSheetHeader';
 import type { CharacterSheetTab } from '@/components/character-sheet/CharacterSheetHeader';
@@ -47,6 +48,8 @@ import {
     strongestSpellSaveDc,
 } from '@/lib/characterClassSummary';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
+import type { OptionItem } from '@/lib/characterCreation/options';
+import { GET_AVAILABLE_CLASSES, GET_CUSTOM_CLASSES } from '@/graphql/class.operations';
 import { isAbilityKey, skillModifier } from '@/lib/characterSheetUtils';
 import type { CharacterSheetDraftTraitTextField } from '@/lib/character-sheet/characterSheetDraft';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -78,6 +81,12 @@ export default function CharacterByIdScreen() {
     const router = useRouter();
     const navigation = useNavigation();
     const characterId = normaliseCharacterId(id);
+    const { data: availableClassData } = useQuery<AvailableClassesQuery>(GET_AVAILABLE_CLASSES, { fetchPolicy: 'cache-first' });
+    const { data: customClassData } = useQuery<CustomClassesQuery>(GET_CUSTOM_CLASSES, { fetchPolicy: 'cache-first' });
+    const levelUpClassOptions = useMemo<OptionItem[]>(() => (availableClassData?.availableClasses ?? []).map((classRef) => {
+        const visual = CLASS_OPTIONS.find((option) => option.value === classRef.srdIndex);
+        return { value: classRef.value, label: classRef.name, icon: visual?.icon ?? '⚔️', hint: classRef.primaryAbilityIndexes.map((ability) => ability.toUpperCase()).join(' / '), hitDie: classRef.hitDie, multiclassPrerequisites: classRef.multiclassPrerequisites.map((rule) => ({ ...rule })), classDefinition: customClassData?.customClasses.find((customClass) => customClass.id === classRef.id) };
+    }), [availableClassData, customClassData]);
     const {
         character,
         hasCurrentUserCharacters,
@@ -163,12 +172,12 @@ export default function CharacterByIdScreen() {
         };
     }, [character, draft?.abilityScores, draft?.classes, draft?.hp, draft?.level, draft?.spellSlots, draft?.spellbook, draft?.spellcastingProfiles, draftSkillProficiencies]);
     const allSubclassClassIds = useMemo(
-        () => CLASS_OPTIONS.map((option) => option.value),
-        [],
+        () => (levelUpClassOptions.length > 0 ? levelUpClassOptions : CLASS_OPTIONS).map((option) => option.value),
+        [levelUpClassOptions],
     );
     const { availableSubclasses, availableSubclassesByClassId } = useAvailableSubclasses(allSubclassClassIds);
     const { confirm, confirmDialogElement } = useConfirm();
-    const levelUpWizard = useLevelUpWizard(wizardCharacter, levelUpSheetVisible, availableSubclasses);
+    const levelUpWizard = useLevelUpWizard(wizardCharacter, levelUpSheetVisible, availableSubclasses, levelUpClassOptions.length > 0 ? levelUpClassOptions : CLASS_OPTIONS);
     const levelUpAvailableSubclasses = availableSubclassesByClassId[levelUpWizard.selectedClass.classId] ?? [];
 
     useEffect(() => {
