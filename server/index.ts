@@ -17,6 +17,7 @@ import { createGraphqlRateLimiter } from './lib/graphqlRateLimit';
 import type { Resolvers } from './generated/graphql';
 import spellsResolver from './resolvers/spellsResolver';
 import spellResolver from './resolvers/spellResolver';
+import compendiumCounts from './resolvers/compendiumResolver';
 import * as characterResolvers from './resolvers/characterResolvers';
 
 const typeDefs = loadFilesSync('schema.graphql');
@@ -90,6 +91,7 @@ async function context({ req }: ExpressContextFunctionArgument): Promise<Context
 
 const resolvers: Resolvers = {
     Query: {
+        compendiumCounts,
         spells: spellsResolver,
         spell: spellResolver,
         character: characterResolvers.character,

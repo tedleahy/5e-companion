@@ -14,7 +14,7 @@ import {
     saveSubclassForm,
     selectClassFilter,
     uniqueSubclassName,
-} from './subclass-manager-helpers';
+} from '../subclass-manager-helpers';
 
 /**
  * End-to-end coverage for the subclass manager (view, add, edit, delete, filter).

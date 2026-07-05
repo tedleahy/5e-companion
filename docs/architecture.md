@@ -60,6 +60,7 @@ flowchart TB
     idx["server/index.ts<br/>Express<br/>ApolloServer({ typeDefs, resolvers })"]
     idx --> cors
     idx --> spells["resolvers/spellsResolver.ts<br/>+ spellResolver.ts"]
+    idx --> compCounts["resolvers/compendiumResolver.ts<br/>(aggregate hub totals)"]
     idx --> charR["resolvers/characterResolvers.ts<br/>(barrel)"]
     charR --> qs["character/queries.ts"]
     charR --> life["character/lifecycleMutations.ts"]
@@ -108,7 +109,9 @@ flowchart TB
     root --> create["characters/create/*<br/>(creation wizard)"]
     root --> spell["spells/[id]"]
     rail --> chars["characters.tsx"]
-    rail --> spells["spells.tsx"]
+    rail --> compendium["compendium/index.tsx<br/>(library hub)"]
+    compendium --> spells["compendium/spells.tsx"]
+    compendium --> subclasses["compendium/subclasses.tsx"]
     rail --> settings["settings.tsx"]
     rail --> sheet["character/[id].tsx<br/>(character sheet)"]
 ```
@@ -131,5 +134,5 @@ See [`features/auth.md`](./features/auth.md).
 | --- | --- | --- | --- |
 | Local dev | Postgres via `docker compose up` in `server/` | Supabase cloud (user's own) via `.env` | `bun server:start` + `bun app:start` |
 | Local e2e | Local Supabase Postgres | Local Supabase (`bun e2e:up`) | Playwright boots server + Expo web; see `mobile-app/playwright.config.ts` |
-| CI | ephemeral Postgres-less (prisma `generate` only) for unit tests; local Supabase stack for e2e | — | `.github/workflows/unit-tests.yml`, `.github/workflows/e2e.yml` |
+| CI | ephemeral Postgres-less (prisma `generate` only) for unit tests; local Supabase stack for e2e | — | `.github/workflows/pr-checks.yml` dispatches the applicable backend, frontend, and e2e workflows |
 | Production API | PostgreSQL 18 container on a Hetzner VPS | Supabase cloud via `SUPABASE_URL` | Docker Compose stack with Bun API behind Caddy; see [`deployment.md`](./deployment.md) |

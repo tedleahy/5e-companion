@@ -12,7 +12,7 @@ import {
     useWindowDimensions,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { Text } from 'react-native-paper';
+import { Switch, Text } from 'react-native-paper';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import SubclassClassFilterChips, {
@@ -26,10 +26,12 @@ type SubclassManagerCardProps = {
     subclasses: SubclassManagerRow[];
     allSubclassCount: number;
     selectedClassId: string;
+    showSrdSubclasses: boolean;
     style?: StyleProp<ViewStyle>;
     onListScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
     onDetailVisibilityChange?: (visible: boolean) => void;
     onSelectClassId: (classId: string) => void;
+    onToggleShowSrdSubclasses: () => void;
     onEdit: (subclass: SubclassManagerRow) => void;
     onDelete: (subclass: SubclassManagerRow) => void;
 };
@@ -42,6 +44,8 @@ const SWIPE_BACK_FAIL_OFFSET_Y = 18;
 const DETAIL_BACK_BUTTON_FADE_DISTANCE = 24;
 const DETAIL_BACK_BUTTON_HEIGHT = fantasyTokens.fontSizes.body
     + (fantasyTokens.spacing.xs * 2);
+const SOURCE_SWITCH_ROW_HEIGHT = FILTER_CHIP_HEIGHT;
+const LIST_CHROME_HEIGHT = FILTER_CHIP_HEIGHT + fantasyTokens.spacing.sm + SOURCE_SWITCH_ROW_HEIGHT;
 
 /**
  * Parchment manager panel containing filters and the reusable subclass list.
@@ -50,10 +54,12 @@ export default function SubclassManagerCard({
     subclasses,
     allSubclassCount,
     selectedClassId,
+    showSrdSubclasses,
     style,
     onListScroll,
     onDetailVisibilityChange,
     onSelectClassId,
+    onToggleShowSrdSubclasses,
     onEdit,
     onDelete,
 }: SubclassManagerCardProps) {
@@ -77,11 +83,11 @@ export default function SubclassManagerCard({
 
     const selectedClass = CLASS_OPTIONS.find((option) => option.value === selectedClassId);
     const emptyTitle = selectedClassId === ALL_CLASSES_FILTER
-        ? 'No subclasses available.'
+        ? (showSrdSubclasses ? 'No subclasses available.' : 'No custom subclasses available.')
         : `No ${selectedClass?.label ?? 'class'} subclasses yet.`;
     const emptyBody = allSubclassCount === 0
         ? 'Add a custom subclass to make one available.'
-        : 'Try another class or add one.';
+        : 'Try another filter or add one.';
     const expandedSubclass = expandedSubclassId
         ? subclasses.find((subclass) => subclass.id === expandedSubclassId)
         : undefined;
@@ -288,12 +294,12 @@ export default function SubclassManagerCard({
     });
     const listChromeHeight = listChromeVisibility.interpolate({
         inputRange: [0, 1],
-        outputRange: [0, FILTER_CHIP_HEIGHT],
+        outputRange: [0, LIST_CHROME_HEIGHT],
         extrapolate: 'clamp',
     });
     const tableHeaderHeight = listChromeVisibility.interpolate({
         inputRange: [0, 1],
-        outputRange: [DETAIL_BACK_BUTTON_HEIGHT, FILTER_CHIP_HEIGHT],
+        outputRange: [DETAIL_BACK_BUTTON_HEIGHT, LIST_CHROME_HEIGHT],
         extrapolate: 'clamp',
     });
     const detailBackButtonOpacity = detailTranslateX.interpolate({
@@ -319,6 +325,19 @@ export default function SubclassManagerCard({
                         },
                     ]}
                 >
+                    <View
+                        style={styles.sourceSwitchRow}
+                        testID="subclass-source-switch-row"
+                    >
+                        <Text style={styles.sourceSwitchLabel}>Show default subclasses</Text>
+                        <Switch
+                            value={showSrdSubclasses}
+                            onValueChange={onToggleShowSrdSubclasses}
+                            color={fantasyTokens.colors.crimson}
+                            accessibilityLabel="Show default subclasses"
+                            testID="subclass-source-switch"
+                        />
+                    </View>
                     <SubclassClassFilterChips
                         selectedClassId={selectedClassId}
                         onSelectClassId={handleSelectClassId}
@@ -441,6 +460,17 @@ const styles = StyleSheet.create({
     listChromeSlot: {
         gap: fantasyTokens.spacing.sm,
         overflow: 'hidden',
+    },
+    sourceSwitchRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        gap: fantasyTokens.spacing.sm,
+        height: SOURCE_SWITCH_ROW_HEIGHT,
+    },
+    sourceSwitchLabel: {
+        ...fantasyTokens.typography.body,
+        color: fantasyTokens.colors.inkLight,
     },
     backButton: {
         flexDirection: 'row',

@@ -1,14 +1,8 @@
-import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { PaperProvider } from 'react-native-paper';
 import { MockedProvider } from '@apollo/client/testing/react';
 import type { MockLink } from '@apollo/client/testing';
-import SpellSearch, { SEARCH_SPELLS } from '../spells';
-
-jest.mock('@/components/navigation/RailScreenShell', () => ({
-    __esModule: true,
-    default: ({ children }: { children: React.ReactNode }) => children,
-}));
+import SpellSearch, { SEARCH_SPELLS } from '../compendium/spells';
 
 const mockReplace = jest.fn();
 const mockPush = jest.fn();

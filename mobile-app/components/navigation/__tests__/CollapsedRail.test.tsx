@@ -59,32 +59,22 @@ describe('CollapsedRail', () => {
         expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: 'OPEN_DRAWER' }));
     });
 
-    it('navigates to spells from quick action', async () => {
+    it('navigates to the compendium from its quick action', async () => {
         render(<CollapsedRail />);
 
-        fireEvent.press(screen.getByTestId('collapsed-rail-spells'));
+        fireEvent.press(screen.getByTestId('collapsed-rail-compendium'));
 
         await waitFor(() => {
-            expect(mockPush).toHaveBeenCalledWith('/spells');
-        });
-    });
-
-    it('navigates to subclasses from quick action', async () => {
-        render(<CollapsedRail />);
-
-        fireEvent.press(screen.getByTestId('collapsed-rail-subclasses'));
-
-        await waitFor(() => {
-            expect(mockPush).toHaveBeenCalledWith('/subclasses');
+            expect(mockPush).toHaveBeenCalledWith('/compendium');
         });
     });
 
     it('marks the active destination as selected', () => {
-        mockUsePathname.mockReturnValue('/subclasses');
+        mockUsePathname.mockReturnValue('/compendium/subclasses');
 
         render(<CollapsedRail />);
 
-        expect(screen.getByLabelText('Open custom subclasses').props.accessibilityState.selected).toBe(true);
+        expect(screen.getByLabelText('Open compendium').props.accessibilityState.selected).toBe(true);
         expect(screen.getByLabelText('Open characters').props.accessibilityState.selected).toBe(false);
     });
 });

@@ -1,0 +1,100 @@
+name: PR checks
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: Classify changed paths
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      backend: ${{ steps.classify.outputs.backend }}
+      frontend: ${{ steps.classify.outputs.frontend }}
+      e2e: ${{ steps.classify.outputs.e2e }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          fetch-depth: 0
+
+      - name: Classify changed paths
+        id: classify
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          bash .github/scripts/classify-ci-paths.sh \
+            < <(git diff --no-renames --name-only -z "$BASE_SHA...$HEAD_SHA") \
+            >> "$GITHUB_OUTPUT"
+
+  backend:
+    name: Backend
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+    uses: ./.github/workflows/backend-checks.yml
+
+  frontend:
+    name: Frontend
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    uses: ./.github/workflows/frontend-checks.yml
+
+  e2e:
+    name: E2E
+    needs: changes
+    if: ${{ needs.changes.outputs.e2e == 'true' }}
+    uses: ./.github/workflows/e2e.yml
+
+  required:
+    name: No relevant builds fail
+    if: ${{ always() }}
+    needs:
+      - changes
+      - backend
+      - frontend
+      - e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify applicable checks passed
+        env:
+          CHANGES_RESULT: ${{ needs.changes.result }}
+          BACKEND_REQUIRED: ${{ needs.changes.outputs.backend }}
+          BACKEND_RESULT: ${{ needs.backend.result }}
+          FRONTEND_REQUIRED: ${{ needs.changes.outputs.frontend }}
+          FRONTEND_RESULT: ${{ needs.frontend.result }}
+          E2E_REQUIRED: ${{ needs.changes.outputs.e2e }}
+          E2E_RESULT: ${{ needs.e2e.result }}
+        run: |
+          set -euo pipefail
+
+          test "$CHANGES_RESULT" = success
+
+          verify_result() {
+            local name="$1"
+            local required="$2"
+            local result="$3"
+            local expected=skipped
+
+            if [[ "$required" == true ]]; then
+              expected=success
+            fi
+
+            if [[ "$result" != "$expected" ]]; then
+              echo "${name}: expected ${expected}, got ${result}" >&2
+              return 1
+            fi
+          }
+
+          verify_result backend "$BACKEND_REQUIRED" "$BACKEND_RESULT"
+          verify_result frontend "$FRONTEND_REQUIRED" "$FRONTEND_RESULT"
+          verify_result e2e "$E2E_REQUIRED" "$E2E_RESULT"

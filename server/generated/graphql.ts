@@ -136,6 +136,13 @@ export type CharacterStats = {
   traits: Traits;
 };
 
+export type CompendiumCounts = {
+  __typename?: 'CompendiumCounts';
+  customSubclassCount: Scalars['Int']['output'];
+  spellCount: Scalars['Int']['output'];
+  srdSubclassCount: Scalars['Int']['output'];
+};
+
 export type CreateCharacterClassInput = {
   classId: Scalars['String']['input'];
   customSubclass?: InputMaybe<CustomSubclassInput>;
@@ -444,6 +451,7 @@ export type Query = {
   availableBackgrounds: Array<AvailableBackground>;
   availableSubclasses: Array<AvailableSubclass>;
   character?: Maybe<Character>;
+  compendiumCounts: CompendiumCounts;
   currentUserCharacters: Array<Character>;
   customSubclasses: Array<CustomSubclass>;
   hasCurrentUserCharacters: Scalars['Boolean']['output'];
@@ -782,6 +790,7 @@ export type ResolversTypes = {
   CharacterFeature: ResolverTypeWrapper<CharacterFeature>;
   CharacterSpell: ResolverTypeWrapper<PrismaCharacterSpell>;
   CharacterStats: ResolverTypeWrapper<PrismaCharacterStats>;
+  CompendiumCounts: ResolverTypeWrapper<CompendiumCounts>;
   CreateCharacterClassInput: CreateCharacterClassInput;
   CreateCharacterInput: CreateCharacterInput;
   Currency: ResolverTypeWrapper<Currency>;
@@ -842,6 +851,7 @@ export type ResolversParentTypes = {
   CharacterFeature: CharacterFeature;
   CharacterSpell: PrismaCharacterSpell;
   CharacterStats: PrismaCharacterStats;
+  CompendiumCounts: CompendiumCounts;
   CreateCharacterClassInput: CreateCharacterClassInput;
   CreateCharacterInput: CreateCharacterInput;
   Currency: Currency;
@@ -996,6 +1006,13 @@ export type CharacterStatsResolvers<ContextType = Context, ParentType extends Re
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type CompendiumCountsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumCounts'] = ResolversParentTypes['CompendiumCounts']> = {
+  customSubclassCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  spellCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  srdSubclassCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type CurrencyResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Currency'] = ResolversParentTypes['Currency']> = {
   cp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   ep?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -1082,6 +1099,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   availableBackgrounds?: Resolver<Array<ResolversTypes['AvailableBackground']>, ParentType, ContextType>;
   availableSubclasses?: Resolver<Array<ResolversTypes['AvailableSubclass']>, ParentType, ContextType, Partial<QueryAvailableSubclassesArgs>>;
   character?: Resolver<Maybe<ResolversTypes['Character']>, ParentType, ContextType, RequireFields<QueryCharacterArgs, 'id'>>;
+  compendiumCounts?: Resolver<ResolversTypes['CompendiumCounts'], ParentType, ContextType>;
   currentUserCharacters?: Resolver<Array<ResolversTypes['Character']>, ParentType, ContextType>;
   customSubclasses?: Resolver<Array<ResolversTypes['CustomSubclass']>, ParentType, ContextType, Partial<QueryCustomSubclassesArgs>>;
   hasCurrentUserCharacters?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -1183,6 +1201,7 @@ export type Resolvers<ContextType = Context> = {
   CharacterFeature?: CharacterFeatureResolvers<ContextType>;
   CharacterSpell?: CharacterSpellResolvers<ContextType>;
   CharacterStats?: CharacterStatsResolvers<ContextType>;
+  CompendiumCounts?: CompendiumCountsResolvers<ContextType>;
   Currency?: CurrencyResolvers<ContextType>;
   CustomSubclass?: CustomSubclassResolvers<ContextType>;
   DeathSaves?: DeathSavesResolvers<ContextType>;

@@ -69,11 +69,12 @@ See [`architecture.md`](./architecture.md) for the request lifecycle and more de
 - **Character sheet** — core stats, HP, death saves, hit dice, skills, abilities, inventory, weapons, features, spell slots.
 - **Level-up wizard** — per-class level bump with ASI/feat, subclass selection, spellcasting updates, etc. (see [`features/level-up-wizard.md`](./features/level-up-wizard.md)).
 - **Rests** — short / long rest mutations to recover resources server-side.
-- **Custom subclasses** — reusable rows are managed under `/subclasses`; character creation selects them and level-up can also create one inline.
+- **Compendium** — `/compendium` consolidates library browsing. Subclasses and Spells are currently active categories; Classes, Races, Subraces, Backgrounds, Feats, and Languages are staged as future categories. Traits remain embedded in their owning content types.
+- **Custom subclasses** — reusable rows are managed under `/compendium/subclasses`; character creation selects them and level-up can also create one inline.
 
 ## What this project is **not** (yet)
 
 - Not multi-user collaborative — each character belongs to a single `ownerUserId`.
 - No Monster manual, encounter tracker, or dice-rolling UI.
 - Not offline-first — Apollo cache only, no persistence.
-- Mobile distribution is not documented yet. The API is deployed separately; see [`deployment.md`](./deployment.md).
+- Native app-store distribution is not documented yet. The web frontend and API deployments are documented separately in [`deployment.md`](./deployment.md).

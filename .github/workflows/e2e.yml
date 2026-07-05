@@ -11,15 +11,6 @@ on:
       - .github/workflows/e2e.yml
       - bun.lock
       - package.json
-  pull_request:
-    branches: [main]
-    paths:
-      - server/**
-      - mobile-app/**
-      - srd-json-files/**
-      - .github/workflows/e2e.yml
-      - bun.lock
-      - package.json
   workflow_dispatch:
 
 jobs:

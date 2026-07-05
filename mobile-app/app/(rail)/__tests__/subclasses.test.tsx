@@ -1,13 +1,13 @@
-import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { PaperProvider } from 'react-native-paper';
-import CustomSubclassesScreen from '../subclasses';
+import CustomSubclassesScreen from '../compendium/subclasses';
 import {
     ARCHIVE_CUSTOM_SUBCLASS,
     CREATE_CUSTOM_SUBCLASS,
     GET_CUSTOM_SUBCLASSES,
     UPDATE_CUSTOM_SUBCLASS,
 } from '@/graphql/customSubclass.operations';
+import { GET_COMPENDIUM_COUNTS } from '@/graphql/compendium.operations';
 import { GET_AVAILABLE_SUBCLASSES } from '@/graphql/characterSheet.operations';
 import { supabase } from '@/lib/supabase';
 
@@ -50,11 +50,6 @@ jest.mock('@apollo/client/react', () => ({
 
         return [jest.fn(), { loading: false }];
     },
-}));
-
-jest.mock('@/components/navigation/RailScreenShell', () => ({
-    __esModule: true,
-    default: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 type AvailableSubclassRow = {
@@ -443,6 +438,51 @@ describe('CustomSubclassesScreen', () => {
         expect(screen.getByText('Banner Knight')).toBeTruthy();
     });
 
+    it('renders a switch that hides SRD subclasses when turned off', async () => {
+        mockSubclassQueries({
+            availableSubclasses: [SRD_WIZARD_SUBCLASS, WIZARD_AVAILABLE_SUBCLASS, FIGHTER_AVAILABLE_SUBCLASS],
+        });
+
+        await renderScreenAndFlush();
+
+        await waitFor(() => {
+            expect(screen.getByText('School of Evocation')).toBeTruthy();
+            expect(screen.getByText('School of Lanterns')).toBeTruthy();
+            expect(screen.getByText('Banner Knight')).toBeTruthy();
+        });
+
+        const srdSwitch = screen.getByTestId('subclass-source-switch');
+        expect(srdSwitch.props.value).toBe(true);
+
+        fireEvent(srdSwitch, 'onValueChange', false);
+
+        await waitFor(() => {
+            expect(screen.queryByText('School of Evocation')).toBeNull();
+        });
+        expect(screen.getByText('School of Lanterns')).toBeTruthy();
+        expect(screen.getByText('Banner Knight')).toBeTruthy();
+    });
+
+    it('shows a custom-only empty state when SRD subclasses are hidden and none exist', async () => {
+        mockSubclassQueries({
+            availableSubclasses: [SRD_WIZARD_SUBCLASS],
+        });
+
+        await renderScreenAndFlush();
+
+        await waitFor(() => {
+            expect(screen.getByText('School of Evocation')).toBeTruthy();
+        });
+
+        fireEvent(screen.getByTestId('subclass-source-switch'), 'onValueChange', false);
+
+        await waitFor(() => {
+            expect(screen.getByText('No custom subclasses available.')).toBeTruthy();
+            expect(screen.getByText('Add a custom subclass to make one available.')).toBeTruthy();
+        });
+        expect(screen.queryByText('School of Evocation')).toBeNull();
+    });
+
     it('creates a custom subclass after required fields are present', async () => {
         await renderScreenAndFlush();
 
@@ -489,7 +529,11 @@ describe('CustomSubclassesScreen', () => {
             });
         });
         expect(mockRefetchQueries).toHaveBeenCalledWith({
-            include: [GET_AVAILABLE_SUBCLASSES, GET_CUSTOM_SUBCLASSES],
+            include: [
+                GET_AVAILABLE_SUBCLASSES,
+                GET_CUSTOM_SUBCLASSES,
+                GET_COMPENDIUM_COUNTS,
+            ],
         });
     });
 
@@ -780,7 +824,11 @@ describe('CustomSubclassesScreen', () => {
             });
         });
         expect(mockRefetchQueries).toHaveBeenCalledWith({
-            include: [GET_AVAILABLE_SUBCLASSES, GET_CUSTOM_SUBCLASSES],
+            include: [
+                GET_AVAILABLE_SUBCLASSES,
+                GET_CUSTOM_SUBCLASSES,
+                GET_COMPENDIUM_COUNTS,
+            ],
         });
     });
 

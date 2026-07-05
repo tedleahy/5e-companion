@@ -11,7 +11,7 @@ flowchart LR
     seed["server/prisma/seeds/seedSpells.ts<br/>+ seedCustomSpells.ts"]
     db[("Spell table<br/>(source=SRD|CUSTOM)")]
     api["Query.spells / Query.spell<br/>(server/resolvers/spellsResolver.ts)"]
-    list["mobile-app/app/(rail)/spells.tsx<br/>+ components/SpellList.tsx"]
+    list["mobile-app/app/(rail)/compendium/spells.tsx<br/>+ components/SpellList.tsx"]
     book["CharacterSpell rows<br/>(spellbook)"]
     card["SpellbookCard.tsx<br/>(on character sheet)"]
 
@@ -58,7 +58,7 @@ Entry: [`@/home/ted/projects/5e-companion/server/resolvers/spellsResolver.ts:32-
 
 ## Mobile spell library
 
-- **Screen**: `mobile-app/app/(rail)/spells.tsx` — GraphQL query + filter drawer + list.
+- **Screen**: `mobile-app/app/(rail)/compendium/spells.tsx` — GraphQL query + filter drawer + list, reached from the Compendium hub.
 - **List**: `mobile-app/components/SpellList.tsx` — a configurable SectionList grouping by level.
 - **Filter drawer**: `mobile-app/components/SpellFilterDrawer.tsx` uses `lib/spellFilters.ts` option tables (`CLASS_OPTIONS`, `LEVEL_OPTIONS`, `SCHOOL_OPTIONS`, etc.) and `FilterChipGroup` / `FilterSwitch`.
 - **Detail**: `mobile-app/app/spells/[id].tsx` + `components/character-sheet/spells/SpellDetailModal.tsx`.

@@ -1,5 +1,22 @@
 # Deployment
 
+The Expo web frontend is exported as a static site and deployed to Cloudflare Pages. The API is deployed separately to a Hetzner VPS.
+
+## Web frontend (Cloudflare Pages)
+
+The Pages project builds from `mobile-app/` with:
+
+```text
+Build command: yarn expo export --platform web
+Build output directory: dist
+```
+
+Expo inlines `EXPO_PUBLIC_*` variables while Metro builds the browser bundle. Production values live in [`mobile-app/.env.production`](../mobile-app/.env.production), which Expo loads automatically during `expo export`. These values are public client configuration; never put a Supabase secret or `service_role` key in an `EXPO_PUBLIC_*` variable.
+
+If a production endpoint changes, update `.env.production` and redeploy Pages. Preview deployments currently use the same production endpoints unless their Cloudflare build configuration overrides these variables.
+
+## API (Hetzner VPS)
+
 The live API is deployed to a single Hetzner VPS using Docker Compose. This is intentionally a small, single-box production setup: the API, PostgreSQL, and reverse proxy run on the same host, with Caddy as the only public entry point.
 
 ## Production shape

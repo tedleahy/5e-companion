@@ -20,6 +20,7 @@ export const classFindManyMock: any = mock((_args: unknown) => Promise.resolve([
 export const classFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const subclassFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const subclassFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
+export const subclassCountMock: any = mock((_args: unknown) => Promise.resolve(0));
 export const subclassCreateMock: any = mock((_args: unknown) => Promise.resolve({}));
 export const subclassCreateManyAndReturnMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const subclassUpdateMock: any = mock((_args: unknown) => Promise.resolve({}));
@@ -40,6 +41,7 @@ export const characterFeatureFindManyMock: any = mock((_args: unknown) => Promis
 export const spellSlotFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const characterSpellFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const spellFindManyMock: any = mock((_args: unknown) => Promise.resolve([] as unknown[]));
+export const spellCountMock: any = mock((_args: unknown) => Promise.resolve(0));
 /** Mock for single spell detail lookups. */
 export const spellFindUniqueMock: any = mock((_args: unknown) => Promise.resolve(null));
 
@@ -86,6 +88,7 @@ export const transactionMock: any = mock((callback: (tx: any) => Promise<unknown
     subclass: {
         findMany: subclassFindManyMock,
         findFirst: subclassFindFirstMock,
+        count: subclassCountMock,
         create: subclassCreateMock,
         createManyAndReturn: subclassCreateManyAndReturnMock,
         update: subclassUpdateMock,
@@ -159,6 +162,7 @@ function createMockTransactionClient() {
         subclass: {
             findMany: subclassFindManyMock,
             findFirst: subclassFindFirstMock,
+            count: subclassCountMock,
             create: subclassCreateMock,
             createManyAndReturn: subclassCreateManyAndReturnMock,
             update: subclassUpdateMock,
@@ -217,6 +221,7 @@ function createMockTransactionClient() {
         spell: {
             findMany: spellFindManyMock,
             findUnique: spellFindUniqueMock,
+            count: spellCountMock,
         },
         $executeRaw: executeRawMock,
     };
@@ -436,6 +441,7 @@ export function clearAllCharacterResolverMocks() {
     classFindFirstMock.mockClear();
     subclassFindManyMock.mockClear();
     subclassFindFirstMock.mockClear();
+    subclassCountMock.mockClear();
     subclassCreateMock.mockClear();
     subclassCreateManyAndReturnMock.mockClear();
     subclassUpdateMock.mockClear();
@@ -455,6 +461,7 @@ export function clearAllCharacterResolverMocks() {
     characterSpellFindManyMock.mockClear();
     spellFindManyMock.mockClear();
     spellFindUniqueMock.mockClear();
+    spellCountMock.mockClear();
     characterSpellUpsertMock.mockClear();
     characterSpellDeleteManyMock.mockClear();
     characterSpellUpdateMock.mockClear();

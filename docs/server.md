@@ -49,6 +49,7 @@ Single `ApolloServer` object wiring; resolvers are modularised by file:
 
 | File | Contents |
 | --- | --- |
+| `resolvers/compendiumResolver.ts` | `Query.compendiumCounts` — authenticated aggregate totals for the Compendium hub |
 | `resolvers/spellsResolver.ts` | `Query.spells` — requires auth, filter + pagination, selects only queried fields via `buildSpellSelect(info)` |
 | `resolvers/spellResolver.ts` | `Query.spell` by id; requires auth before reading SRD spell detail |
 | `resolvers/characterResolvers.ts` | Barrel re-exporting the `character/*` modules |
