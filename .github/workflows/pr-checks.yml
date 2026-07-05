@@ -55,7 +55,7 @@ jobs:
     uses: ./.github/workflows/e2e.yml
 
   required:
-    name: Required CI gate
+    name: No relevant builds fail
     if: ${{ always() }}
     needs:
       - changes
