@@ -48,6 +48,22 @@ export type AvailableBackground = {
   value: Scalars['String']['output'];
 };
 
+export type AvailableClass = {
+  __typename?: 'AvailableClass';
+  description: Array<Scalars['String']['output']>;
+  hitDie: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  multiclassPrerequisites: Array<ClassMulticlassPrerequisite>;
+  name: Scalars['String']['output'];
+  primaryAbilityIndexes: Array<Scalars['String']['output']>;
+  savingThrowIndexes: Array<Scalars['String']['output']>;
+  spellcastingAbility?: Maybe<Scalars['String']['output']>;
+  spellcastingMode: Scalars['String']['output'];
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  value: Scalars['String']['output'];
+};
+
 export type AvailableSubclass = {
   __typename?: 'AvailableSubclass';
   classId: Scalars['String']['output'];
@@ -100,8 +116,10 @@ export type CharacterClass = {
   classId: Scalars['String']['output'];
   className: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  isCustom?: Maybe<Scalars['Boolean']['output']>;
   isStartingClass: Scalars['Boolean']['output'];
   level: Scalars['Int']['output'];
+  srdIndex?: Maybe<Scalars['String']['output']>;
   subclassId?: Maybe<Scalars['String']['output']>;
   subclassName?: Maybe<Scalars['String']['output']>;
 };
@@ -136,10 +154,132 @@ export type CharacterStats = {
   traits: Traits;
 };
 
+export type ClassDetails = {
+  __typename?: 'ClassDetails';
+  archived: Scalars['Boolean']['output'];
+  characterUsageCount: Scalars['Int']['output'];
+  description: Array<Scalars['String']['output']>;
+  equipment: Array<ClassEquipmentDefinition>;
+  features: Array<ClassFeature>;
+  hitDie: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  mechanicsLocked: Scalars['Boolean']['output'];
+  mechanicsLockedReason?: Maybe<Scalars['String']['output']>;
+  multiclassPrerequisites: Array<ClassMulticlassPrerequisite>;
+  name: Scalars['String']['output'];
+  primaryAbilityIndexes: Array<Scalars['String']['output']>;
+  proficiencies: Array<ClassProficiency>;
+  progression: Array<ClassLevelProgression>;
+  savingThrowIndexes: Array<Scalars['String']['output']>;
+  sourceBook?: Maybe<Scalars['String']['output']>;
+  spellcastingAbility?: Maybe<Scalars['String']['output']>;
+  spellcastingMode: Scalars['String']['output'];
+  spells: Array<ClassSpell>;
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  value: Scalars['String']['output'];
+};
+
+export type ClassDisplayValue = {
+  __typename?: 'ClassDisplayValue';
+  key: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type ClassDisplayValueInput = {
+  key: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+};
+
+export type ClassEquipmentDefinition = {
+  __typename?: 'ClassEquipmentDefinition';
+  choiceCount?: Maybe<Scalars['Int']['output']>;
+  choiceGroup?: Maybe<Scalars['Int']['output']>;
+  name: Scalars['String']['output'];
+  quantity: Scalars['Int']['output'];
+};
+
+export type ClassEquipmentDefinitionInput = {
+  choiceCount?: InputMaybe<Scalars['Int']['input']>;
+  choiceGroup?: InputMaybe<Scalars['Int']['input']>;
+  name: Scalars['String']['input'];
+  quantity: Scalars['Int']['input'];
+};
+
+export type ClassFeature = {
+  __typename?: 'ClassFeature';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  level: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+};
+
+export type ClassLevelProgression = {
+  __typename?: 'ClassLevelProgression';
+  abilityScoreImprovement: Scalars['Boolean']['output'];
+  addSpellcastingAbility: Scalars['Boolean']['output'];
+  cantripsKnown?: Maybe<Scalars['Int']['output']>;
+  displayValues: Array<ClassDisplayValue>;
+  level: Scalars['Int']['output'];
+  preparedSpellCount?: Maybe<Scalars['Int']['output']>;
+  spellSlots: Array<Scalars['Int']['output']>;
+  spellsKnown?: Maybe<Scalars['Int']['output']>;
+};
+
+export type ClassLevelProgressionInput = {
+  abilityScoreImprovement: Scalars['Boolean']['input'];
+  addSpellcastingAbility: Scalars['Boolean']['input'];
+  cantripsKnown?: InputMaybe<Scalars['Int']['input']>;
+  displayValues: Array<ClassDisplayValueInput>;
+  level: Scalars['Int']['input'];
+  preparedSpellCount?: InputMaybe<Scalars['Int']['input']>;
+  spellSlots: Array<Scalars['Int']['input']>;
+  spellsKnown?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type ClassMulticlassPrerequisite = {
+  __typename?: 'ClassMulticlassPrerequisite';
+  abilityIndex: Scalars['String']['output'];
+  group: Scalars['Int']['output'];
+  minimum: Scalars['Int']['output'];
+};
+
+export type ClassMulticlassPrerequisiteInput = {
+  abilityIndex: Scalars['String']['input'];
+  group: Scalars['Int']['input'];
+  minimum: Scalars['Int']['input'];
+};
+
+export type ClassProficiency = {
+  __typename?: 'ClassProficiency';
+  choiceCount?: Maybe<Scalars['Int']['output']>;
+  choiceGroup?: Maybe<Scalars['Int']['output']>;
+  grant: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type ClassProficiencyInput = {
+  choiceCount?: InputMaybe<Scalars['Int']['input']>;
+  choiceGroup?: InputMaybe<Scalars['Int']['input']>;
+  grant: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+};
+
+export type ClassSpell = {
+  __typename?: 'ClassSpell';
+  id: Scalars['ID']['output'];
+  level: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+};
+
 export type CompendiumCounts = {
   __typename?: 'CompendiumCounts';
+  customClassCount: Scalars['Int']['output'];
   customSubclassCount: Scalars['Int']['output'];
   spellCount: Scalars['Int']['output'];
+  srdClassCount: Scalars['Int']['output'];
   srdSubclassCount: Scalars['Int']['output'];
 };
 
@@ -278,6 +418,29 @@ export type InventoryItemInput = {
   weight?: InputMaybe<Scalars['Float']['input']>;
 };
 
+export type ManagedCustomClassFeatureInput = {
+  description: Scalars['String']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  level: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type ManagedCustomClassInput = {
+  description: Scalars['String']['input'];
+  equipment: Array<ClassEquipmentDefinitionInput>;
+  features: Array<ManagedCustomClassFeatureInput>;
+  hitDie: Scalars['Int']['input'];
+  multiclassPrerequisites: Array<ClassMulticlassPrerequisiteInput>;
+  name: Scalars['String']['input'];
+  primaryAbilityIndexes: Array<Scalars['String']['input']>;
+  proficiencies: Array<ClassProficiencyInput>;
+  progression: Array<ClassLevelProgressionInput>;
+  savingThrowIndexes: Array<Scalars['String']['input']>;
+  spellIds: Array<Scalars['ID']['input']>;
+  spellcastingAbility?: InputMaybe<Scalars['String']['input']>;
+  spellcastingMode: Scalars['String']['input'];
+};
+
 export type ManagedCustomSubclassFeatureInput = {
   description: Scalars['String']['input'];
   id?: InputMaybe<Scalars['ID']['input']>;
@@ -295,8 +458,10 @@ export type ManagedCustomSubclassInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  archiveCustomClass: Scalars['Boolean']['output'];
   archiveCustomSubclass: Scalars['Boolean']['output'];
   createCharacter: Character;
+  createCustomClass: ClassDetails;
   createCustomSubclass: CustomSubclass;
   deleteCharacter: Scalars['Boolean']['output'];
   forgetSpell: Scalars['Boolean']['output'];
@@ -310,12 +475,18 @@ export type Mutation = {
   toggleSpellSlot: SpellSlot;
   unprepareSpell: CharacterSpell;
   updateCharacter: Character;
+  updateCustomClass: ClassDetails;
   updateCustomSubclass: CustomSubclass;
   updateDeathSaves: CharacterStats;
   updateHitDice: CharacterStats;
   updateInventoryItem: InventoryItem;
   updateSavingThrowProficiencies: CharacterStats;
   updateSkillProficiencies: CharacterStats;
+};
+
+
+export type MutationArchiveCustomClassArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -326,6 +497,11 @@ export type MutationArchiveCustomSubclassArgs = {
 
 export type MutationCreateCharacterArgs = {
   input: CreateCharacterInput;
+};
+
+
+export type MutationCreateCustomClassArgs = {
+  input: ManagedCustomClassInput;
 };
 
 
@@ -404,6 +580,12 @@ export type MutationUpdateCharacterArgs = {
 };
 
 
+export type MutationUpdateCustomClassArgs = {
+  id: Scalars['ID']['input'];
+  input: ManagedCustomClassInput;
+};
+
+
 export type MutationUpdateCustomSubclassArgs = {
   id: Scalars['ID']['input'];
   input: ManagedCustomSubclassInput;
@@ -449,10 +631,13 @@ export enum ProficiencyLevel {
 export type Query = {
   __typename?: 'Query';
   availableBackgrounds: Array<AvailableBackground>;
+  availableClasses: Array<AvailableClass>;
   availableSubclasses: Array<AvailableSubclass>;
   character?: Maybe<Character>;
+  classDetails?: Maybe<ClassDetails>;
   compendiumCounts: CompendiumCounts;
   currentUserCharacters: Array<Character>;
+  customClasses: Array<ClassDetails>;
   customSubclasses: Array<CustomSubclass>;
   hasCurrentUserCharacters: Scalars['Boolean']['output'];
   spell?: Maybe<Spell>;
@@ -467,6 +652,11 @@ export type QueryAvailableSubclassesArgs = {
 
 export type QueryCharacterArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryClassDetailsArgs = {
+  value: Scalars['String']['input'];
 };
 
 
@@ -782,6 +972,7 @@ export type ResolversTypes = {
   AbilityScores: ResolverTypeWrapper<AbilityScores>;
   AbilityScoresInput: AbilityScoresInput;
   AvailableBackground: ResolverTypeWrapper<AvailableBackground>;
+  AvailableClass: ResolverTypeWrapper<AvailableClass>;
   AvailableSubclass: ResolverTypeWrapper<AvailableSubclass>;
   AvailableSubclassFeature: ResolverTypeWrapper<AvailableSubclassFeature>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
@@ -790,6 +981,19 @@ export type ResolversTypes = {
   CharacterFeature: ResolverTypeWrapper<CharacterFeature>;
   CharacterSpell: ResolverTypeWrapper<PrismaCharacterSpell>;
   CharacterStats: ResolverTypeWrapper<PrismaCharacterStats>;
+  ClassDetails: ResolverTypeWrapper<ClassDetails>;
+  ClassDisplayValue: ResolverTypeWrapper<ClassDisplayValue>;
+  ClassDisplayValueInput: ClassDisplayValueInput;
+  ClassEquipmentDefinition: ResolverTypeWrapper<ClassEquipmentDefinition>;
+  ClassEquipmentDefinitionInput: ClassEquipmentDefinitionInput;
+  ClassFeature: ResolverTypeWrapper<ClassFeature>;
+  ClassLevelProgression: ResolverTypeWrapper<ClassLevelProgression>;
+  ClassLevelProgressionInput: ClassLevelProgressionInput;
+  ClassMulticlassPrerequisite: ResolverTypeWrapper<ClassMulticlassPrerequisite>;
+  ClassMulticlassPrerequisiteInput: ClassMulticlassPrerequisiteInput;
+  ClassProficiency: ResolverTypeWrapper<ClassProficiency>;
+  ClassProficiencyInput: ClassProficiencyInput;
+  ClassSpell: ResolverTypeWrapper<ClassSpell>;
   CompendiumCounts: ResolverTypeWrapper<CompendiumCounts>;
   CreateCharacterClassInput: CreateCharacterClassInput;
   CreateCharacterInput: CreateCharacterInput;
@@ -810,6 +1014,8 @@ export type ResolversTypes = {
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   InventoryItem: ResolverTypeWrapper<InventoryItem>;
   InventoryItemInput: InventoryItemInput;
+  ManagedCustomClassFeatureInput: ManagedCustomClassFeatureInput;
+  ManagedCustomClassInput: ManagedCustomClassInput;
   ManagedCustomSubclassFeatureInput: ManagedCustomSubclassFeatureInput;
   ManagedCustomSubclassInput: ManagedCustomSubclassInput;
   Mutation: ResolverTypeWrapper<{}>;
@@ -843,6 +1049,7 @@ export type ResolversParentTypes = {
   AbilityScores: AbilityScores;
   AbilityScoresInput: AbilityScoresInput;
   AvailableBackground: AvailableBackground;
+  AvailableClass: AvailableClass;
   AvailableSubclass: AvailableSubclass;
   AvailableSubclassFeature: AvailableSubclassFeature;
   Boolean: Scalars['Boolean']['output'];
@@ -851,6 +1058,19 @@ export type ResolversParentTypes = {
   CharacterFeature: CharacterFeature;
   CharacterSpell: PrismaCharacterSpell;
   CharacterStats: PrismaCharacterStats;
+  ClassDetails: ClassDetails;
+  ClassDisplayValue: ClassDisplayValue;
+  ClassDisplayValueInput: ClassDisplayValueInput;
+  ClassEquipmentDefinition: ClassEquipmentDefinition;
+  ClassEquipmentDefinitionInput: ClassEquipmentDefinitionInput;
+  ClassFeature: ClassFeature;
+  ClassLevelProgression: ClassLevelProgression;
+  ClassLevelProgressionInput: ClassLevelProgressionInput;
+  ClassMulticlassPrerequisite: ClassMulticlassPrerequisite;
+  ClassMulticlassPrerequisiteInput: ClassMulticlassPrerequisiteInput;
+  ClassProficiency: ClassProficiency;
+  ClassProficiencyInput: ClassProficiencyInput;
+  ClassSpell: ClassSpell;
   CompendiumCounts: CompendiumCounts;
   CreateCharacterClassInput: CreateCharacterClassInput;
   CreateCharacterInput: CreateCharacterInput;
@@ -871,6 +1091,8 @@ export type ResolversParentTypes = {
   Int: Scalars['Int']['output'];
   InventoryItem: InventoryItem;
   InventoryItemInput: InventoryItemInput;
+  ManagedCustomClassFeatureInput: ManagedCustomClassFeatureInput;
+  ManagedCustomClassInput: ManagedCustomClassInput;
   ManagedCustomSubclassFeatureInput: ManagedCustomSubclassFeatureInput;
   ManagedCustomSubclassInput: ManagedCustomSubclassInput;
   Mutation: {};
@@ -913,6 +1135,22 @@ export type AvailableBackgroundResolvers<ContextType = Context, ParentType exten
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isCustom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  srdIndex?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AvailableClassResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AvailableClass'] = ResolversParentTypes['AvailableClass']> = {
+  description?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  hitDie?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isCustom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  multiclassPrerequisites?: Resolver<Array<ResolversTypes['ClassMulticlassPrerequisite']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  primaryAbilityIndexes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  savingThrowIndexes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  spellcastingAbility?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  spellcastingMode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   srdIndex?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -969,8 +1207,10 @@ export type CharacterClassResolvers<ContextType = Context, ParentType extends Re
   classId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   className?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isCustom?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   isStartingClass?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   level?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  srdIndex?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   subclassId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   subclassName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -1006,9 +1246,95 @@ export type CharacterStatsResolvers<ContextType = Context, ParentType extends Re
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ClassDetailsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ClassDetails'] = ResolversParentTypes['ClassDetails']> = {
+  archived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  characterUsageCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  description?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  equipment?: Resolver<Array<ResolversTypes['ClassEquipmentDefinition']>, ParentType, ContextType>;
+  features?: Resolver<Array<ResolversTypes['ClassFeature']>, ParentType, ContextType>;
+  hitDie?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isCustom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  mechanicsLocked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  mechanicsLockedReason?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  multiclassPrerequisites?: Resolver<Array<ResolversTypes['ClassMulticlassPrerequisite']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  primaryAbilityIndexes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  proficiencies?: Resolver<Array<ResolversTypes['ClassProficiency']>, ParentType, ContextType>;
+  progression?: Resolver<Array<ResolversTypes['ClassLevelProgression']>, ParentType, ContextType>;
+  savingThrowIndexes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  sourceBook?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  spellcastingAbility?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  spellcastingMode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  spells?: Resolver<Array<ResolversTypes['ClassSpell']>, ParentType, ContextType>;
+  srdIndex?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ClassDisplayValueResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ClassDisplayValue'] = ResolversParentTypes['ClassDisplayValue']> = {
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ClassEquipmentDefinitionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ClassEquipmentDefinition'] = ResolversParentTypes['ClassEquipmentDefinition']> = {
+  choiceCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  choiceGroup?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  quantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ClassFeatureResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ClassFeature'] = ResolversParentTypes['ClassFeature']> = {
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  level?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ClassLevelProgressionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ClassLevelProgression'] = ResolversParentTypes['ClassLevelProgression']> = {
+  abilityScoreImprovement?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  addSpellcastingAbility?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  cantripsKnown?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  displayValues?: Resolver<Array<ResolversTypes['ClassDisplayValue']>, ParentType, ContextType>;
+  level?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  preparedSpellCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  spellSlots?: Resolver<Array<ResolversTypes['Int']>, ParentType, ContextType>;
+  spellsKnown?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ClassMulticlassPrerequisiteResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ClassMulticlassPrerequisite'] = ResolversParentTypes['ClassMulticlassPrerequisite']> = {
+  abilityIndex?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  group?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  minimum?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ClassProficiencyResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ClassProficiency'] = ResolversParentTypes['ClassProficiency']> = {
+  choiceCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  choiceGroup?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  grant?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ClassSpellResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ClassSpell'] = ResolversParentTypes['ClassSpell']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  level?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type CompendiumCountsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumCounts'] = ResolversParentTypes['CompendiumCounts']> = {
+  customClassCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   customSubclassCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   spellCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  srdClassCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   srdSubclassCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -1072,8 +1398,10 @@ export type InventoryItemResolvers<ContextType = Context, ParentType extends Res
 };
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  archiveCustomClass?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationArchiveCustomClassArgs, 'id'>>;
   archiveCustomSubclass?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationArchiveCustomSubclassArgs, 'id'>>;
   createCharacter?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationCreateCharacterArgs, 'input'>>;
+  createCustomClass?: Resolver<ResolversTypes['ClassDetails'], ParentType, ContextType, RequireFields<MutationCreateCustomClassArgs, 'input'>>;
   createCustomSubclass?: Resolver<ResolversTypes['CustomSubclass'], ParentType, ContextType, RequireFields<MutationCreateCustomSubclassArgs, 'input'>>;
   deleteCharacter?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCharacterArgs, 'id'>>;
   forgetSpell?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationForgetSpellArgs, 'characterId' | 'spellId'>>;
@@ -1087,6 +1415,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   toggleSpellSlot?: Resolver<ResolversTypes['SpellSlot'], ParentType, ContextType, RequireFields<MutationToggleSpellSlotArgs, 'characterId' | 'kind' | 'level'>>;
   unprepareSpell?: Resolver<ResolversTypes['CharacterSpell'], ParentType, ContextType, RequireFields<MutationUnprepareSpellArgs, 'characterId' | 'spellId'>>;
   updateCharacter?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationUpdateCharacterArgs, 'id' | 'input'>>;
+  updateCustomClass?: Resolver<ResolversTypes['ClassDetails'], ParentType, ContextType, RequireFields<MutationUpdateCustomClassArgs, 'id' | 'input'>>;
   updateCustomSubclass?: Resolver<ResolversTypes['CustomSubclass'], ParentType, ContextType, RequireFields<MutationUpdateCustomSubclassArgs, 'id' | 'input'>>;
   updateDeathSaves?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateDeathSavesArgs, 'characterId' | 'input'>>;
   updateHitDice?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateHitDiceArgs, 'characterId' | 'input'>>;
@@ -1097,10 +1426,13 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   availableBackgrounds?: Resolver<Array<ResolversTypes['AvailableBackground']>, ParentType, ContextType>;
+  availableClasses?: Resolver<Array<ResolversTypes['AvailableClass']>, ParentType, ContextType>;
   availableSubclasses?: Resolver<Array<ResolversTypes['AvailableSubclass']>, ParentType, ContextType, Partial<QueryAvailableSubclassesArgs>>;
   character?: Resolver<Maybe<ResolversTypes['Character']>, ParentType, ContextType, RequireFields<QueryCharacterArgs, 'id'>>;
+  classDetails?: Resolver<Maybe<ResolversTypes['ClassDetails']>, ParentType, ContextType, RequireFields<QueryClassDetailsArgs, 'value'>>;
   compendiumCounts?: Resolver<ResolversTypes['CompendiumCounts'], ParentType, ContextType>;
   currentUserCharacters?: Resolver<Array<ResolversTypes['Character']>, ParentType, ContextType>;
+  customClasses?: Resolver<Array<ResolversTypes['ClassDetails']>, ParentType, ContextType>;
   customSubclasses?: Resolver<Array<ResolversTypes['CustomSubclass']>, ParentType, ContextType, Partial<QueryCustomSubclassesArgs>>;
   hasCurrentUserCharacters?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   spell?: Resolver<Maybe<ResolversTypes['Spell']>, ParentType, ContextType, RequireFields<QuerySpellArgs, 'id'>>;
@@ -1194,6 +1526,7 @@ export type WeaponResolvers<ContextType = Context, ParentType extends ResolversP
 export type Resolvers<ContextType = Context> = {
   AbilityScores?: AbilityScoresResolvers<ContextType>;
   AvailableBackground?: AvailableBackgroundResolvers<ContextType>;
+  AvailableClass?: AvailableClassResolvers<ContextType>;
   AvailableSubclass?: AvailableSubclassResolvers<ContextType>;
   AvailableSubclassFeature?: AvailableSubclassFeatureResolvers<ContextType>;
   Character?: CharacterResolvers<ContextType>;
@@ -1201,6 +1534,14 @@ export type Resolvers<ContextType = Context> = {
   CharacterFeature?: CharacterFeatureResolvers<ContextType>;
   CharacterSpell?: CharacterSpellResolvers<ContextType>;
   CharacterStats?: CharacterStatsResolvers<ContextType>;
+  ClassDetails?: ClassDetailsResolvers<ContextType>;
+  ClassDisplayValue?: ClassDisplayValueResolvers<ContextType>;
+  ClassEquipmentDefinition?: ClassEquipmentDefinitionResolvers<ContextType>;
+  ClassFeature?: ClassFeatureResolvers<ContextType>;
+  ClassLevelProgression?: ClassLevelProgressionResolvers<ContextType>;
+  ClassMulticlassPrerequisite?: ClassMulticlassPrerequisiteResolvers<ContextType>;
+  ClassProficiency?: ClassProficiencyResolvers<ContextType>;
+  ClassSpell?: ClassSpellResolvers<ContextType>;
   CompendiumCounts?: CompendiumCountsResolvers<ContextType>;
   Currency?: CurrencyResolvers<ContextType>;
   CustomSubclass?: CustomSubclassResolvers<ContextType>;

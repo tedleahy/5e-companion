@@ -92,6 +92,9 @@ async function context({ req }: ExpressContextFunctionArgument): Promise<Context
 const resolvers: Resolvers = {
     Query: {
         compendiumCounts,
+        availableClasses: characterResolvers.availableClasses,
+        classDetails: characterResolvers.classDetails,
+        customClasses: characterResolvers.customClasses,
         spells: spellsResolver,
         spell: spellResolver,
         character: characterResolvers.character,
@@ -112,6 +115,9 @@ const resolvers: Resolvers = {
         createCustomSubclass: characterResolvers.createCustomSubclass,
         updateCustomSubclass: characterResolvers.updateCustomSubclass,
         archiveCustomSubclass: characterResolvers.archiveCustomSubclass,
+        createCustomClass: characterResolvers.createCustomClass,
+        updateCustomClass: characterResolvers.updateCustomClass,
+        archiveCustomClass: characterResolvers.archiveCustomClass,
 
         updateDeathSaves: characterResolvers.updateDeathSaves,
         updateHitDice: characterResolvers.updateHitDice,

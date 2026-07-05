@@ -34,6 +34,17 @@ enum SpellSlotKind {
     PACT_MAGIC
 }
 
+enum ClassSpellcastingMode {
+    NONE
+    STANDARD
+    PACT_MAGIC
+}
+
+enum ClassProficiencyGrant {
+    STARTING
+    MULTICLASS
+}
+
 model Spell {
     id                String      @id @default(cuid())
     source            SpellSource
@@ -58,6 +69,7 @@ model Spell {
     sourceBook        String?
     raw               Json?
     characterSpells   CharacterSpell[]
+    classSpellLists   ClassSpell[]
 
     @@index([name])
     @@index([level])
@@ -124,18 +136,71 @@ model Class {
     ownerUserId     String?
     srdIndex        String?        @unique
     name            String
+    description     String[]       @default([])
     hitDie          Int?
+    primaryAbilityIndexes String[] @default([])
+    savingThrowIndexes String[]    @default([])
+    multiclassPrerequisites Json?
+    startingEquipment Json?
+    spellcastingMode ClassSpellcastingMode @default(NONE)
     spellcastingAbility String?
+    archivedAt      DateTime?
     sourceBook      String?
     raw             Json?
     subclasses      Subclass[]
     proficiencies   Proficiency[]  @relation("ClassProficiencies")
+    proficiencyRules ClassProficiency[]
+    progression     ClassLevelProgression[]
+    spellList       ClassSpell[]
     features        Feature[]      @relation("ClassFeatures")
     characterClasses CharacterClass[]
     hitDicePools    HitDicePool[]
 
     @@index([ownerUserId])
     @@index([name])
+    @@index([archivedAt])
+}
+
+model ClassLevelProgression {
+    id                       String @id @default(cuid())
+    classId                  String
+    classRef                 Class  @relation(fields: [classId], references: [id], onDelete: Cascade)
+    level                    Int
+    abilityScoreImprovement  Boolean @default(false)
+    spellSlots               Int[] @default([])
+    cantripsKnown            Int?
+    spellsKnown              Int?
+    preparedSpellCount       Int?
+    addSpellcastingAbility   Boolean @default(false)
+    classSpecific            Json?
+
+    @@unique([classId, level])
+    @@index([classId])
+}
+
+model ClassProficiency {
+    id              String @id @default(cuid())
+    classId         String
+    classRef        Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+    proficiencyId   String
+    proficiencyRef  Proficiency @relation(fields: [proficiencyId], references: [id], onDelete: Cascade)
+    grant            ClassProficiencyGrant
+    choiceGroup      Int?
+    choiceCount      Int?
+
+    @@unique([classId, proficiencyId, grant])
+    @@index([classId, grant])
+    @@index([proficiencyId])
+}
+
+model ClassSpell {
+    classId String
+    classRef Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+    spellId String
+    spellRef Spell @relation(fields: [spellId], references: [id], onDelete: Cascade)
+
+    @@id([classId, spellId])
+    @@index([spellId])
 }
 
 model Subclass {
@@ -262,6 +327,7 @@ model Proficiency {
     backgrounds             Background[]            @relation("BackgroundProficiencies")
     traits                  Trait[]                 @relation("TraitProficiencies")
     characterProficiencies  CharacterProficiency[]
+    classRules              ClassProficiency[]
 
     @@index([ownerUserId])
     @@index([name])

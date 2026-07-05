@@ -17,9 +17,161 @@ type Spell {
 }
 
 type CompendiumCounts {
+    srdClassCount: Int!
+    customClassCount: Int!
     srdSubclassCount: Int!
     customSubclassCount: Int!
     spellCount: Int!
+}
+
+type AvailableClass {
+    id: ID!
+    value: String!
+    srdIndex: String
+    name: String!
+    description: [String!]!
+    hitDie: Int!
+    primaryAbilityIndexes: [String!]!
+    savingThrowIndexes: [String!]!
+    spellcastingMode: String!
+    spellcastingAbility: String
+    multiclassPrerequisites: [ClassMulticlassPrerequisite!]!
+    isCustom: Boolean!
+}
+
+type ClassDetails {
+    id: ID!
+    value: String!
+    srdIndex: String
+    name: String!
+    description: [String!]!
+    hitDie: Int!
+    primaryAbilityIndexes: [String!]!
+    savingThrowIndexes: [String!]!
+    spellcastingMode: String!
+    spellcastingAbility: String
+    isCustom: Boolean!
+    archived: Boolean!
+    sourceBook: String
+    multiclassPrerequisites: [ClassMulticlassPrerequisite!]!
+    proficiencies: [ClassProficiency!]!
+    equipment: [ClassEquipmentDefinition!]!
+    progression: [ClassLevelProgression!]!
+    features: [ClassFeature!]!
+    spells: [ClassSpell!]!
+    characterUsageCount: Int!
+    mechanicsLocked: Boolean!
+    mechanicsLockedReason: String
+}
+
+type ClassMulticlassPrerequisite {
+    abilityIndex: String!
+    minimum: Int!
+    group: Int!
+}
+
+type ClassProficiency {
+    value: String!
+    name: String!
+    type: String!
+    grant: String!
+    choiceGroup: Int
+    choiceCount: Int
+}
+
+type ClassEquipmentDefinition {
+    name: String!
+    quantity: Int!
+    choiceGroup: Int
+    choiceCount: Int
+}
+
+type ClassLevelProgression {
+    level: Int!
+    abilityScoreImprovement: Boolean!
+    spellSlots: [Int!]!
+    cantripsKnown: Int
+    spellsKnown: Int
+    preparedSpellCount: Int
+    addSpellcastingAbility: Boolean!
+    displayValues: [ClassDisplayValue!]!
+}
+
+type ClassDisplayValue {
+    key: String!
+    value: String!
+}
+
+type ClassFeature {
+    id: ID!
+    name: String!
+    description: String!
+    level: Int!
+}
+
+type ClassSpell {
+    id: ID!
+    name: String!
+    level: Int!
+}
+
+input ManagedCustomClassInput {
+    name: String!
+    description: String!
+    hitDie: Int!
+    primaryAbilityIndexes: [String!]!
+    savingThrowIndexes: [String!]!
+    multiclassPrerequisites: [ClassMulticlassPrerequisiteInput!]!
+    proficiencies: [ClassProficiencyInput!]!
+    equipment: [ClassEquipmentDefinitionInput!]!
+    spellcastingMode: String!
+    spellcastingAbility: String
+    progression: [ClassLevelProgressionInput!]!
+    features: [ManagedCustomClassFeatureInput!]!
+    spellIds: [ID!]!
+}
+
+input ClassMulticlassPrerequisiteInput {
+    abilityIndex: String!
+    minimum: Int!
+    group: Int!
+}
+
+input ClassProficiencyInput {
+    value: String!
+    grant: String!
+    choiceGroup: Int
+    choiceCount: Int
+}
+
+input ClassEquipmentDefinitionInput {
+    name: String!
+    quantity: Int!
+    choiceGroup: Int
+    choiceCount: Int
+}
+
+input ClassLevelProgressionInput {
+    level: Int!
+    abilityScoreImprovement: Boolean!
+    spellSlots: [Int!]!
+    cantripsKnown: Int
+    spellsKnown: Int
+    preparedSpellCount: Int
+    addSpellcastingAbility: Boolean!
+    displayValues: [ClassDisplayValueInput!]!
+}
+
+input ClassDisplayValueInput {
+    key: String!
+    value: String!
+}
+
+input ManagedCustomClassFeatureInput {
+    id: ID
+    name: String!
+    description: String!
+    level: Int!
 }
 
 input SpellFilter {
@@ -74,6 +226,8 @@ type CharacterClass {
     id: ID!
     classId: String!
     className: String!
+    srdIndex: String
+    isCustom: Boolean
     subclassId: String
     subclassName: String
     level: Int!
@@ -494,6 +648,9 @@ input SaveCharacterSheetInput {
 
 type Query {
     compendiumCounts: CompendiumCounts!
+    availableClasses: [AvailableClass!]!
+    classDetails(value: String!): ClassDetails
+    customClasses: [ClassDetails!]!
     spells(filter: SpellFilter, pagination: SpellPagination): [Spell!]!
     spell(id: ID!): Spell
     character(id: ID!): Character
@@ -515,6 +672,9 @@ type Mutation {
     createCustomSubclass(input: ManagedCustomSubclassInput!): CustomSubclass!
     updateCustomSubclass(id: ID!, input: ManagedCustomSubclassInput!): CustomSubclass!
     archiveCustomSubclass(id: ID!): Boolean!
+    createCustomClass(input: ManagedCustomClassInput!): ClassDetails!
+    updateCustomClass(id: ID!, input: ManagedCustomClassInput!): ClassDetails!
+    archiveCustomClass(id: ID!): Boolean!
     saveCharacterSheet(characterId: ID!, input: SaveCharacterSheetInput!): Character!
 
     # Live stats updates
