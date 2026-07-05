@@ -77,4 +77,4 @@ See [`architecture.md`](./architecture.md) for the request lifecycle and more de
 - Not multi-user collaborative — each character belongs to a single `ownerUserId`.
 - No Monster manual, encounter tracker, or dice-rolling UI.
 - Not offline-first — Apollo cache only, no persistence.
-- Mobile distribution is not documented yet. The API is deployed separately; see [`deployment.md`](./deployment.md).
+- Native app-store distribution is not documented yet. The web frontend and API deployments are documented separately in [`deployment.md`](./deployment.md).
