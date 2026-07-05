@@ -23,10 +23,12 @@ export default function CompendiumScreen() {
     const unavailableSummary = loading ? 'Gathering records…' : 'Counts unavailable';
     const summaries: Partial<Record<CompendiumCategoryKey, string>> = counts && !error
         ? {
+            classes: `${counts.srdClassCount} SRD · ${counts.customClassCount} custom`,
             subclasses: `${counts.srdSubclassCount} SRD · ${counts.customSubclassCount} custom`,
             spells: `${counts.spellCount} available`,
         }
         : {
+            classes: unavailableSummary,
             subclasses: unavailableSummary,
             spells: unavailableSummary,
         };

@@ -14,7 +14,7 @@ type CompendiumCategory = {
  * Traits are embedded in their owning content types rather than managed as a category.
  */
 export const COMPENDIUM_CATEGORIES = [
-    { key: 'classes', icon: '⚔️', label: 'Classes', href: undefined },
+    { key: 'classes', icon: '⚔️', label: 'Classes', href: '/compendium/classes' },
     {
         key: 'subclasses',
         icon: '✨',

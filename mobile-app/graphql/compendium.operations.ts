@@ -4,6 +4,8 @@ import { gql } from '@apollo/client';
 export const GET_COMPENDIUM_COUNTS = gql`
     query CompendiumCounts {
         compendiumCounts {
+            srdClassCount
+            customClassCount
             srdSubclassCount
             customSubclassCount
             spellCount

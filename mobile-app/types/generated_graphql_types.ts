@@ -44,6 +44,22 @@ export type AvailableBackground = {
   value: Scalars['String']['output'];
 };
 
+export type AvailableClass = {
+  __typename?: 'AvailableClass';
+  description: Array<Scalars['String']['output']>;
+  hitDie: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  multiclassPrerequisites: Array<ClassMulticlassPrerequisite>;
+  name: Scalars['String']['output'];
+  primaryAbilityIndexes: Array<Scalars['String']['output']>;
+  savingThrowIndexes: Array<Scalars['String']['output']>;
+  spellcastingAbility?: Maybe<Scalars['String']['output']>;
+  spellcastingMode: Scalars['String']['output'];
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  value: Scalars['String']['output'];
+};
+
 export type AvailableSubclass = {
   __typename?: 'AvailableSubclass';
   classId: Scalars['String']['output'];
@@ -96,8 +112,10 @@ export type CharacterClass = {
   classId: Scalars['String']['output'];
   className: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  isCustom?: Maybe<Scalars['Boolean']['output']>;
   isStartingClass: Scalars['Boolean']['output'];
   level: Scalars['Int']['output'];
+  srdIndex?: Maybe<Scalars['String']['output']>;
   subclassId?: Maybe<Scalars['String']['output']>;
   subclassName?: Maybe<Scalars['String']['output']>;
 };
@@ -132,10 +150,132 @@ export type CharacterStats = {
   traits: Traits;
 };
 
+export type ClassDetails = {
+  __typename?: 'ClassDetails';
+  archived: Scalars['Boolean']['output'];
+  characterUsageCount: Scalars['Int']['output'];
+  description: Array<Scalars['String']['output']>;
+  equipment: Array<ClassEquipmentDefinition>;
+  features: Array<ClassFeature>;
+  hitDie: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  mechanicsLocked: Scalars['Boolean']['output'];
+  mechanicsLockedReason?: Maybe<Scalars['String']['output']>;
+  multiclassPrerequisites: Array<ClassMulticlassPrerequisite>;
+  name: Scalars['String']['output'];
+  primaryAbilityIndexes: Array<Scalars['String']['output']>;
+  proficiencies: Array<ClassProficiency>;
+  progression: Array<ClassLevelProgression>;
+  savingThrowIndexes: Array<Scalars['String']['output']>;
+  sourceBook?: Maybe<Scalars['String']['output']>;
+  spellcastingAbility?: Maybe<Scalars['String']['output']>;
+  spellcastingMode: Scalars['String']['output'];
+  spells: Array<ClassSpell>;
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  value: Scalars['String']['output'];
+};
+
+export type ClassDisplayValue = {
+  __typename?: 'ClassDisplayValue';
+  key: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type ClassDisplayValueInput = {
+  key: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+};
+
+export type ClassEquipmentDefinition = {
+  __typename?: 'ClassEquipmentDefinition';
+  choiceCount?: Maybe<Scalars['Int']['output']>;
+  choiceGroup?: Maybe<Scalars['Int']['output']>;
+  name: Scalars['String']['output'];
+  quantity: Scalars['Int']['output'];
+};
+
+export type ClassEquipmentDefinitionInput = {
+  choiceCount?: InputMaybe<Scalars['Int']['input']>;
+  choiceGroup?: InputMaybe<Scalars['Int']['input']>;
+  name: Scalars['String']['input'];
+  quantity: Scalars['Int']['input'];
+};
+
+export type ClassFeature = {
+  __typename?: 'ClassFeature';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  level: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+};
+
+export type ClassLevelProgression = {
+  __typename?: 'ClassLevelProgression';
+  abilityScoreImprovement: Scalars['Boolean']['output'];
+  addSpellcastingAbility: Scalars['Boolean']['output'];
+  cantripsKnown?: Maybe<Scalars['Int']['output']>;
+  displayValues: Array<ClassDisplayValue>;
+  level: Scalars['Int']['output'];
+  preparedSpellCount?: Maybe<Scalars['Int']['output']>;
+  spellSlots: Array<Scalars['Int']['output']>;
+  spellsKnown?: Maybe<Scalars['Int']['output']>;
+};
+
+export type ClassLevelProgressionInput = {
+  abilityScoreImprovement: Scalars['Boolean']['input'];
+  addSpellcastingAbility: Scalars['Boolean']['input'];
+  cantripsKnown?: InputMaybe<Scalars['Int']['input']>;
+  displayValues: Array<ClassDisplayValueInput>;
+  level: Scalars['Int']['input'];
+  preparedSpellCount?: InputMaybe<Scalars['Int']['input']>;
+  spellSlots: Array<Scalars['Int']['input']>;
+  spellsKnown?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type ClassMulticlassPrerequisite = {
+  __typename?: 'ClassMulticlassPrerequisite';
+  abilityIndex: Scalars['String']['output'];
+  group: Scalars['Int']['output'];
+  minimum: Scalars['Int']['output'];
+};
+
+export type ClassMulticlassPrerequisiteInput = {
+  abilityIndex: Scalars['String']['input'];
+  group: Scalars['Int']['input'];
+  minimum: Scalars['Int']['input'];
+};
+
+export type ClassProficiency = {
+  __typename?: 'ClassProficiency';
+  choiceCount?: Maybe<Scalars['Int']['output']>;
+  choiceGroup?: Maybe<Scalars['Int']['output']>;
+  grant: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type ClassProficiencyInput = {
+  choiceCount?: InputMaybe<Scalars['Int']['input']>;
+  choiceGroup?: InputMaybe<Scalars['Int']['input']>;
+  grant: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+};
+
+export type ClassSpell = {
+  __typename?: 'ClassSpell';
+  id: Scalars['ID']['output'];
+  level: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+};
+
 export type CompendiumCounts = {
   __typename?: 'CompendiumCounts';
+  customClassCount: Scalars['Int']['output'];
   customSubclassCount: Scalars['Int']['output'];
   spellCount: Scalars['Int']['output'];
+  srdClassCount: Scalars['Int']['output'];
   srdSubclassCount: Scalars['Int']['output'];
 };
 
@@ -274,6 +414,29 @@ export type InventoryItemInput = {
   weight?: InputMaybe<Scalars['Float']['input']>;
 };
 
+export type ManagedCustomClassFeatureInput = {
+  description: Scalars['String']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  level: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type ManagedCustomClassInput = {
+  description: Scalars['String']['input'];
+  equipment: Array<ClassEquipmentDefinitionInput>;
+  features: Array<ManagedCustomClassFeatureInput>;
+  hitDie: Scalars['Int']['input'];
+  multiclassPrerequisites: Array<ClassMulticlassPrerequisiteInput>;
+  name: Scalars['String']['input'];
+  primaryAbilityIndexes: Array<Scalars['String']['input']>;
+  proficiencies: Array<ClassProficiencyInput>;
+  progression: Array<ClassLevelProgressionInput>;
+  savingThrowIndexes: Array<Scalars['String']['input']>;
+  spellIds: Array<Scalars['ID']['input']>;
+  spellcastingAbility?: InputMaybe<Scalars['String']['input']>;
+  spellcastingMode: Scalars['String']['input'];
+};
+
 export type ManagedCustomSubclassFeatureInput = {
   description: Scalars['String']['input'];
   id?: InputMaybe<Scalars['ID']['input']>;
@@ -291,8 +454,10 @@ export type ManagedCustomSubclassInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  archiveCustomClass: Scalars['Boolean']['output'];
   archiveCustomSubclass: Scalars['Boolean']['output'];
   createCharacter: Character;
+  createCustomClass: ClassDetails;
   createCustomSubclass: CustomSubclass;
   deleteCharacter: Scalars['Boolean']['output'];
   forgetSpell: Scalars['Boolean']['output'];
@@ -306,12 +471,18 @@ export type Mutation = {
   toggleSpellSlot: SpellSlot;
   unprepareSpell: CharacterSpell;
   updateCharacter: Character;
+  updateCustomClass: ClassDetails;
   updateCustomSubclass: CustomSubclass;
   updateDeathSaves: CharacterStats;
   updateHitDice: CharacterStats;
   updateInventoryItem: InventoryItem;
   updateSavingThrowProficiencies: CharacterStats;
   updateSkillProficiencies: CharacterStats;
+};
+
+
+export type MutationArchiveCustomClassArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -322,6 +493,11 @@ export type MutationArchiveCustomSubclassArgs = {
 
 export type MutationCreateCharacterArgs = {
   input: CreateCharacterInput;
+};
+
+
+export type MutationCreateCustomClassArgs = {
+  input: ManagedCustomClassInput;
 };
 
 
@@ -400,6 +576,12 @@ export type MutationUpdateCharacterArgs = {
 };
 
 
+export type MutationUpdateCustomClassArgs = {
+  id: Scalars['ID']['input'];
+  input: ManagedCustomClassInput;
+};
+
+
 export type MutationUpdateCustomSubclassArgs = {
   id: Scalars['ID']['input'];
   input: ManagedCustomSubclassInput;
@@ -445,10 +627,13 @@ export enum ProficiencyLevel {
 export type Query = {
   __typename?: 'Query';
   availableBackgrounds: Array<AvailableBackground>;
+  availableClasses: Array<AvailableClass>;
   availableSubclasses: Array<AvailableSubclass>;
   character?: Maybe<Character>;
+  classDetails?: Maybe<ClassDetails>;
   compendiumCounts: CompendiumCounts;
   currentUserCharacters: Array<Character>;
+  customClasses: Array<ClassDetails>;
   customSubclasses: Array<CustomSubclass>;
   hasCurrentUserCharacters: Scalars['Boolean']['output'];
   spell?: Maybe<Spell>;
@@ -463,6 +648,11 @@ export type QueryAvailableSubclassesArgs = {
 
 export type QueryCharacterArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryClassDetailsArgs = {
+  value: Scalars['String']['input'];
 };
 
 
@@ -858,10 +1048,53 @@ export type UnprepareSpellMutationVariables = Exact<{
 
 export type UnprepareSpellMutation = { __typename?: 'Mutation', unprepareSpell: { __typename?: 'CharacterSpell', prepared: boolean, spell: { __typename?: 'Spell', id: string } } };
 
+export type ClassSummaryFieldsFragment = { __typename?: 'AvailableClass', id: string, value: string, srdIndex?: string | null, name: string, description: Array<string>, hitDie: number, primaryAbilityIndexes: Array<string>, savingThrowIndexes: Array<string>, spellcastingMode: string, spellcastingAbility?: string | null, isCustom: boolean, multiclassPrerequisites: Array<{ __typename?: 'ClassMulticlassPrerequisite', abilityIndex: string, minimum: number, group: number }> };
+
+export type ClassDetailsFieldsFragment = { __typename?: 'ClassDetails', id: string, value: string, srdIndex?: string | null, name: string, description: Array<string>, hitDie: number, primaryAbilityIndexes: Array<string>, savingThrowIndexes: Array<string>, spellcastingMode: string, spellcastingAbility?: string | null, isCustom: boolean, archived: boolean, sourceBook?: string | null, characterUsageCount: number, mechanicsLocked: boolean, mechanicsLockedReason?: string | null, multiclassPrerequisites: Array<{ __typename?: 'ClassMulticlassPrerequisite', abilityIndex: string, minimum: number, group: number }>, proficiencies: Array<{ __typename?: 'ClassProficiency', value: string, name: string, type: string, grant: string, choiceGroup?: number | null, choiceCount?: number | null }>, equipment: Array<{ __typename?: 'ClassEquipmentDefinition', name: string, quantity: number, choiceGroup?: number | null, choiceCount?: number | null }>, progression: Array<{ __typename?: 'ClassLevelProgression', level: number, abilityScoreImprovement: boolean, spellSlots: Array<number>, cantripsKnown?: number | null, spellsKnown?: number | null, preparedSpellCount?: number | null, addSpellcastingAbility: boolean, displayValues: Array<{ __typename?: 'ClassDisplayValue', key: string, value: string }> }>, features: Array<{ __typename?: 'ClassFeature', id: string, name: string, description: string, level: number }>, spells: Array<{ __typename?: 'ClassSpell', id: string, name: string, level: number }> };
+
+export type AvailableClassesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AvailableClassesQuery = { __typename?: 'Query', availableClasses: Array<{ __typename?: 'AvailableClass', id: string, value: string, srdIndex?: string | null, name: string, description: Array<string>, hitDie: number, primaryAbilityIndexes: Array<string>, savingThrowIndexes: Array<string>, spellcastingMode: string, spellcastingAbility?: string | null, isCustom: boolean, multiclassPrerequisites: Array<{ __typename?: 'ClassMulticlassPrerequisite', abilityIndex: string, minimum: number, group: number }> }> };
+
+export type ClassDetailsQueryVariables = Exact<{
+  value: Scalars['String']['input'];
+}>;
+
+
+export type ClassDetailsQuery = { __typename?: 'Query', classDetails?: { __typename?: 'ClassDetails', id: string, value: string, srdIndex?: string | null, name: string, description: Array<string>, hitDie: number, primaryAbilityIndexes: Array<string>, savingThrowIndexes: Array<string>, spellcastingMode: string, spellcastingAbility?: string | null, isCustom: boolean, archived: boolean, sourceBook?: string | null, characterUsageCount: number, mechanicsLocked: boolean, mechanicsLockedReason?: string | null, multiclassPrerequisites: Array<{ __typename?: 'ClassMulticlassPrerequisite', abilityIndex: string, minimum: number, group: number }>, proficiencies: Array<{ __typename?: 'ClassProficiency', value: string, name: string, type: string, grant: string, choiceGroup?: number | null, choiceCount?: number | null }>, equipment: Array<{ __typename?: 'ClassEquipmentDefinition', name: string, quantity: number, choiceGroup?: number | null, choiceCount?: number | null }>, progression: Array<{ __typename?: 'ClassLevelProgression', level: number, abilityScoreImprovement: boolean, spellSlots: Array<number>, cantripsKnown?: number | null, spellsKnown?: number | null, preparedSpellCount?: number | null, addSpellcastingAbility: boolean, displayValues: Array<{ __typename?: 'ClassDisplayValue', key: string, value: string }> }>, features: Array<{ __typename?: 'ClassFeature', id: string, name: string, description: string, level: number }>, spells: Array<{ __typename?: 'ClassSpell', id: string, name: string, level: number }> } | null };
+
+export type CustomClassesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CustomClassesQuery = { __typename?: 'Query', customClasses: Array<{ __typename?: 'ClassDetails', id: string, value: string, srdIndex?: string | null, name: string, description: Array<string>, hitDie: number, primaryAbilityIndexes: Array<string>, savingThrowIndexes: Array<string>, spellcastingMode: string, spellcastingAbility?: string | null, isCustom: boolean, archived: boolean, sourceBook?: string | null, characterUsageCount: number, mechanicsLocked: boolean, mechanicsLockedReason?: string | null, multiclassPrerequisites: Array<{ __typename?: 'ClassMulticlassPrerequisite', abilityIndex: string, minimum: number, group: number }>, proficiencies: Array<{ __typename?: 'ClassProficiency', value: string, name: string, type: string, grant: string, choiceGroup?: number | null, choiceCount?: number | null }>, equipment: Array<{ __typename?: 'ClassEquipmentDefinition', name: string, quantity: number, choiceGroup?: number | null, choiceCount?: number | null }>, progression: Array<{ __typename?: 'ClassLevelProgression', level: number, abilityScoreImprovement: boolean, spellSlots: Array<number>, cantripsKnown?: number | null, spellsKnown?: number | null, preparedSpellCount?: number | null, addSpellcastingAbility: boolean, displayValues: Array<{ __typename?: 'ClassDisplayValue', key: string, value: string }> }>, features: Array<{ __typename?: 'ClassFeature', id: string, name: string, description: string, level: number }>, spells: Array<{ __typename?: 'ClassSpell', id: string, name: string, level: number }> }> };
+
+export type CreateCustomClassMutationVariables = Exact<{
+  input: ManagedCustomClassInput;
+}>;
+
+
+export type CreateCustomClassMutation = { __typename?: 'Mutation', createCustomClass: { __typename?: 'ClassDetails', id: string, value: string, srdIndex?: string | null, name: string, description: Array<string>, hitDie: number, primaryAbilityIndexes: Array<string>, savingThrowIndexes: Array<string>, spellcastingMode: string, spellcastingAbility?: string | null, isCustom: boolean, archived: boolean, sourceBook?: string | null, characterUsageCount: number, mechanicsLocked: boolean, mechanicsLockedReason?: string | null, multiclassPrerequisites: Array<{ __typename?: 'ClassMulticlassPrerequisite', abilityIndex: string, minimum: number, group: number }>, proficiencies: Array<{ __typename?: 'ClassProficiency', value: string, name: string, type: string, grant: string, choiceGroup?: number | null, choiceCount?: number | null }>, equipment: Array<{ __typename?: 'ClassEquipmentDefinition', name: string, quantity: number, choiceGroup?: number | null, choiceCount?: number | null }>, progression: Array<{ __typename?: 'ClassLevelProgression', level: number, abilityScoreImprovement: boolean, spellSlots: Array<number>, cantripsKnown?: number | null, spellsKnown?: number | null, preparedSpellCount?: number | null, addSpellcastingAbility: boolean, displayValues: Array<{ __typename?: 'ClassDisplayValue', key: string, value: string }> }>, features: Array<{ __typename?: 'ClassFeature', id: string, name: string, description: string, level: number }>, spells: Array<{ __typename?: 'ClassSpell', id: string, name: string, level: number }> } };
+
+export type UpdateCustomClassMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: ManagedCustomClassInput;
+}>;
+
+
+export type UpdateCustomClassMutation = { __typename?: 'Mutation', updateCustomClass: { __typename?: 'ClassDetails', id: string, value: string, srdIndex?: string | null, name: string, description: Array<string>, hitDie: number, primaryAbilityIndexes: Array<string>, savingThrowIndexes: Array<string>, spellcastingMode: string, spellcastingAbility?: string | null, isCustom: boolean, archived: boolean, sourceBook?: string | null, characterUsageCount: number, mechanicsLocked: boolean, mechanicsLockedReason?: string | null, multiclassPrerequisites: Array<{ __typename?: 'ClassMulticlassPrerequisite', abilityIndex: string, minimum: number, group: number }>, proficiencies: Array<{ __typename?: 'ClassProficiency', value: string, name: string, type: string, grant: string, choiceGroup?: number | null, choiceCount?: number | null }>, equipment: Array<{ __typename?: 'ClassEquipmentDefinition', name: string, quantity: number, choiceGroup?: number | null, choiceCount?: number | null }>, progression: Array<{ __typename?: 'ClassLevelProgression', level: number, abilityScoreImprovement: boolean, spellSlots: Array<number>, cantripsKnown?: number | null, spellsKnown?: number | null, preparedSpellCount?: number | null, addSpellcastingAbility: boolean, displayValues: Array<{ __typename?: 'ClassDisplayValue', key: string, value: string }> }>, features: Array<{ __typename?: 'ClassFeature', id: string, name: string, description: string, level: number }>, spells: Array<{ __typename?: 'ClassSpell', id: string, name: string, level: number }> } };
+
+export type ArchiveCustomClassMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ArchiveCustomClassMutation = { __typename?: 'Mutation', archiveCustomClass: boolean };
+
 export type CompendiumCountsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CompendiumCountsQuery = { __typename?: 'Query', compendiumCounts: { __typename?: 'CompendiumCounts', srdSubclassCount: number, customSubclassCount: number, spellCount: number } };
+export type CompendiumCountsQuery = { __typename?: 'Query', compendiumCounts: { __typename?: 'CompendiumCounts', srdClassCount: number, customClassCount: number, srdSubclassCount: number, customSubclassCount: number, spellCount: number } };
 
 export type CustomSubclassManagerFieldsFragment = { __typename?: 'CustomSubclass', id: string, value: string, classId: string, className: string, name: string, selectionLevel: number, description: Array<string>, characterUsageCount: number, canChangeClass: boolean, cannotChangeClassReason?: string | null, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> };
 

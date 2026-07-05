@@ -23,6 +23,8 @@ import {
 } from '@/graphql/customSubclass.operations';
 import { GET_COMPENDIUM_COUNTS } from '@/graphql/compendium.operations';
 import { GET_AVAILABLE_SUBCLASSES } from '@/graphql/characterSheet.operations';
+import { GET_AVAILABLE_CLASSES } from '@/graphql/class.operations';
+import { CLASS_OPTIONS, type OptionItem } from '@/lib/characterCreation/options';
 import useSessionGuard from '@/hooks/useSessionGuard';
 import { isUnauthenticatedError } from '@/lib/graphqlErrors';
 import type {
@@ -30,6 +32,7 @@ import type {
     ArchiveCustomSubclassMutationVariables,
     AvailableSubclassesQuery,
     AvailableSubclassesQueryVariables,
+    AvailableClassesQuery,
     CreateCustomSubclassMutation,
     CreateCustomSubclassMutationVariables,
     CustomSubclassesQuery,
@@ -113,6 +116,11 @@ export default function CustomSubclassesScreen() {
     const [formVisible, setFormVisible] = useState(false);
     const [formMode, setFormMode] = useState<CustomSubclassFormMode>('create');
     const [draft, setDraft] = useState<CustomSubclassFormDraft>(EMPTY_DRAFT);
+    const { data: classData } = useQuery<AvailableClassesQuery>(GET_AVAILABLE_CLASSES, { fetchPolicy: 'cache-first' });
+    const classOptions: OptionItem[] = (classData?.availableClasses ?? []).map((classRef) => {
+        const visual = CLASS_OPTIONS.find((option) => option.value === classRef.srdIndex);
+        return { value: classRef.value, label: classRef.name, icon: visual?.icon ?? '⚔️', hitDie: classRef.hitDie, multiclassPrerequisites: classRef.multiclassPrerequisites.map((rule) => ({ ...rule })) };
+    });
     const [initialDraft, setInitialDraft] = useState<CustomSubclassFormDraft>(EMPTY_DRAFT);
     const [editingSubclass, setEditingSubclass] = useState<SubclassManagerRow | null>(null);
     const [deleteCandidate, setDeleteCandidate] = useState<SubclassManagerRow | null>(null);
@@ -350,6 +358,7 @@ export default function CustomSubclassesScreen() {
 
             <View style={styles.contentArea}>
                 <SubclassManagerCard
+                    classOptions={classOptions.length > 0 ? classOptions : CLASS_OPTIONS}
                     style={styles.managerCard}
                     subclasses={visibleSubclasses}
                     allSubclassCount={sourceSubclasses.length}
@@ -372,6 +381,7 @@ export default function CustomSubclassesScreen() {
             )}
 
             <CustomSubclassFormSheet
+                classOptions={classOptions.length > 0 ? classOptions : CLASS_OPTIONS}
                 visible={formVisible}
                 mode={formMode}
                 draft={draft}
