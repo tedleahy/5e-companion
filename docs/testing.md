@@ -92,11 +92,12 @@ Prefer unit tests. Add an e2e spec only for flows that can't be meaningfully cov
 
 ## CI
 
-- `.github/workflows/backend-checks.yml` — runs actionlint, Prisma validation/generation, server GraphQL codegen drift check, `tsc --noEmit`, `bun test`, and an API Docker build for backend-related changes. Backend deploys use this workflow as their gate.
+- `.github/workflows/pr-checks.yml` — always runs for pull requests to `main`, classifies changed paths, invokes the applicable reusable workflows below, and reports the stable `Required CI gate` status. Keep path groups centralized in `.github/scripts/classify-ci-paths.sh`; its tests run with the backend workflow.
+- `.github/workflows/backend-checks.yml` — runs actionlint, CI path-classifier tests, Prisma validation/generation, server GraphQL codegen drift check, `tsc --noEmit`, `bun test`, and an API Docker build for backend-related changes. Backend deploys also use this workflow as their gate.
 - `.github/workflows/frontend-checks.yml` — runs mobile GraphQL codegen drift check, `tsc --noEmit`, Expo lint, and Jest for mobile-app changes and server GraphQL schema changes.
 - `.github/workflows/e2e.yml` — brings up local Supabase via the Supabase CLI and runs the full e2e suite for full-stack app/server/data changes. CI uses the Chrome installed on GitHub-hosted runners instead of downloading Playwright Chromium.
 
-All CI workflows run on Ubuntu. Frontend and e2e use Node 24; backend and e2e use Bun latest.
+The branch ruleset should require `Required CI gate` plus the Cloudflare Pages preview check. Individual reusable-workflow jobs are intentionally not required because non-applicable jobs are skipped. All CI workflows run on Ubuntu. Frontend and e2e use Node 24; backend and e2e use Bun latest.
 
 ## General testing discipline
 

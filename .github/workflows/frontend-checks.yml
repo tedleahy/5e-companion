@@ -8,12 +8,6 @@ on:
       - mobile-app/**
       - server/schema.graphql
       - .github/workflows/frontend-checks.yml
-  pull_request:
-    branches: [main]
-    paths:
-      - mobile-app/**
-      - server/schema.graphql
-      - .github/workflows/frontend-checks.yml
   workflow_dispatch:
 
 permissions:
