@@ -11,7 +11,7 @@ Reference mockup: [`../mockups/compendium-mockup.html`](../mockups/compendium-mo
 - The rail and expanded drawer expose **Compendium** (`📚`) at `/compendium` instead of separate Subclasses and Spells destinations.
 - Every `/compendium/*` route keeps the Compendium rail item selected.
 - The responsive hub displays all eight category cards. Subclasses and Spells are enabled; the remaining six are visibly marked as coming soon.
-- Hub counts come from the authenticated `compendiumCounts` GraphQL aggregate, avoiding full content-list transfers.
+- Hub counts come from the authenticated `compendiumCounts` GraphQL aggregate, avoiding full content-list transfers. The hub refreshes cached totals from the network, and custom subclass mutations refetch the aggregate before returning to it.
 - `/compendium/subclasses` retains the existing merged SRD/custom subclass manager and create/edit/archive flow.
 - `/compendium/spells` retains the existing paginated spell search and filter interface.
 - Category screens use a shared header and return to the hub with **Back to Compendium**.
@@ -38,6 +38,7 @@ Draft fields for future managers:
 - Shared Compendium UI: `mobile-app/components/compendium/`
 - Navigation metadata: `mobile-app/components/navigation/navigationConstants.ts`
 - Subclass operations: `mobile-app/graphql/customSubclass.operations.ts`
+- Compendium aggregate operation: `mobile-app/graphql/compendium.operations.ts`
 - Spell browsing: `mobile-app/components/SpellList.tsx` and `mobile-app/components/SpellFilterDrawer.tsx`
 - Aggregate counts: `server/resolvers/compendiumResolver.ts` and `Query.compendiumCounts`
 

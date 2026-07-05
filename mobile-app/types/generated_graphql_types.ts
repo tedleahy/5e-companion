@@ -704,11 +704,6 @@ export type WeaponInput = {
   type: Scalars['String']['input'];
 };
 
-export type CompendiumCountsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type CompendiumCountsQuery = { __typename?: 'Query', compendiumCounts: { __typename?: 'CompendiumCounts', srdSubclassCount: number, customSubclassCount: number, spellCount: number } };
-
 export type SpellsQueryVariables = Exact<{
   filter?: InputMaybe<SpellFilter>;
   pagination?: InputMaybe<SpellPagination>;
@@ -862,6 +857,11 @@ export type UnprepareSpellMutationVariables = Exact<{
 
 
 export type UnprepareSpellMutation = { __typename?: 'Mutation', unprepareSpell: { __typename?: 'CharacterSpell', prepared: boolean, spell: { __typename?: 'Spell', id: string } } };
+
+export type CompendiumCountsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CompendiumCountsQuery = { __typename?: 'Query', compendiumCounts: { __typename?: 'CompendiumCounts', srdSubclassCount: number, customSubclassCount: number, spellCount: number } };
 
 export type CustomSubclassManagerFieldsFragment = { __typename?: 'CustomSubclass', id: string, value: string, classId: string, className: string, name: string, selectionLevel: number, description: Array<string>, characterUsageCount: number, canChangeClass: boolean, cannotChangeClassReason?: string | null, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> };
 

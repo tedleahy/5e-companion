@@ -7,6 +7,7 @@ import {
     GET_CUSTOM_SUBCLASSES,
     UPDATE_CUSTOM_SUBCLASS,
 } from '@/graphql/customSubclass.operations';
+import { GET_COMPENDIUM_COUNTS } from '@/graphql/compendium.operations';
 import { GET_AVAILABLE_SUBCLASSES } from '@/graphql/characterSheet.operations';
 import { supabase } from '@/lib/supabase';
 
@@ -528,7 +529,11 @@ describe('CustomSubclassesScreen', () => {
             });
         });
         expect(mockRefetchQueries).toHaveBeenCalledWith({
-            include: [GET_AVAILABLE_SUBCLASSES, GET_CUSTOM_SUBCLASSES],
+            include: [
+                GET_AVAILABLE_SUBCLASSES,
+                GET_CUSTOM_SUBCLASSES,
+                GET_COMPENDIUM_COUNTS,
+            ],
         });
     });
 
@@ -819,7 +824,11 @@ describe('CustomSubclassesScreen', () => {
             });
         });
         expect(mockRefetchQueries).toHaveBeenCalledWith({
-            include: [GET_AVAILABLE_SUBCLASSES, GET_CUSTOM_SUBCLASSES],
+            include: [
+                GET_AVAILABLE_SUBCLASSES,
+                GET_CUSTOM_SUBCLASSES,
+                GET_COMPENDIUM_COUNTS,
+            ],
         });
     });
 

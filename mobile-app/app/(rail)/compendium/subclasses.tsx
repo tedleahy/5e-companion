@@ -21,6 +21,7 @@ import {
     GET_CUSTOM_SUBCLASSES,
     UPDATE_CUSTOM_SUBCLASS,
 } from '@/graphql/customSubclass.operations';
+import { GET_COMPENDIUM_COUNTS } from '@/graphql/compendium.operations';
 import { GET_AVAILABLE_SUBCLASSES } from '@/graphql/characterSheet.operations';
 import useSessionGuard from '@/hooks/useSessionGuard';
 import { isUnauthenticatedError } from '@/lib/graphqlErrors';
@@ -206,7 +207,11 @@ export default function CustomSubclassesScreen() {
      */
     async function refreshSubclassData() {
         await apolloClient.refetchQueries({
-            include: [GET_AVAILABLE_SUBCLASSES, GET_CUSTOM_SUBCLASSES],
+            include: [
+                GET_AVAILABLE_SUBCLASSES,
+                GET_CUSTOM_SUBCLASSES,
+                GET_COMPENDIUM_COUNTS,
+            ],
         });
     }
 

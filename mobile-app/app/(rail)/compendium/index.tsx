@@ -1,5 +1,4 @@
 import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
-import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import CompendiumCategoryCard from '@/components/compendium/compendium-category-card';
 import CompendiumScreenHeader from '@/components/compendium/compendium-screen-header';
@@ -7,26 +6,18 @@ import {
     COMPENDIUM_CATEGORIES,
     type CompendiumCategoryKey,
 } from '@/components/compendium/compendium-categories';
+import { GET_COMPENDIUM_COUNTS } from '@/graphql/compendium.operations';
 import useProtectedNavigation from '@/hooks/useProtectedNavigation';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { CompendiumCountsQuery } from '@/types/generated_graphql_types';
-
-/** Lightweight query used to populate counts on implemented Compendium cards. */
-export const GET_COMPENDIUM_COUNTS = gql`
-    query CompendiumCounts {
-        compendiumCounts {
-            srdSubclassCount
-            customSubclassCount
-            spellCount
-        }
-    }
-`;
 
 /** Hub for browsing implemented and planned Compendium content categories. */
 export default function CompendiumScreen() {
     const { width } = useWindowDimensions();
     const protectedRouter = useProtectedNavigation();
-    const { data, loading, error } = useQuery<CompendiumCountsQuery>(GET_COMPENDIUM_COUNTS);
+    const { data, loading, error } = useQuery<CompendiumCountsQuery>(GET_COMPENDIUM_COUNTS, {
+        fetchPolicy: 'cache-and-network',
+    });
     const cardWidth = width >= fantasyTokens.breakpoints.tablet ? '31%' : '47%';
     const counts = data?.compendiumCounts;
     const unavailableSummary = loading ? 'Gathering records…' : 'Counts unavailable';

@@ -1,8 +1,10 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { InMemoryCache } from '@apollo/client';
 import { MockedProvider } from '@apollo/client/testing/react';
 import type { MockLink } from '@apollo/client/testing';
 import { PaperProvider } from 'react-native-paper';
-import CompendiumScreen, { GET_COMPENDIUM_COUNTS } from '../compendium';
+import CompendiumScreen from '../compendium';
+import { GET_COMPENDIUM_COUNTS } from '@/graphql/compendium.operations';
 
 const mockPush = jest.fn();
 
@@ -11,17 +13,19 @@ jest.mock('@/hooks/useProtectedNavigation', () => ({
     default: () => ({ push: mockPush, replace: jest.fn(), back: jest.fn() }),
 }));
 
+const COUNTS_DATA = {
+    compendiumCounts: {
+        __typename: 'CompendiumCounts' as const,
+        srdSubclassCount: 1,
+        customSubclassCount: 1,
+        spellCount: 2,
+    },
+};
+
 const COUNTS_MOCK: MockLink.MockedResponse = {
     request: { query: GET_COMPENDIUM_COUNTS },
     result: {
-        data: {
-            compendiumCounts: {
-                __typename: 'CompendiumCounts',
-                srdSubclassCount: 1,
-                customSubclassCount: 1,
-                spellCount: 2,
-            },
-        },
+        data: COUNTS_DATA,
     },
 };
 
@@ -58,6 +62,38 @@ describe('Compendium screen', () => {
             expect(screen.getByText('1 SRD · 1 custom')).toBeTruthy();
             expect(screen.getByText('2 available')).toBeTruthy();
         });
+    });
+
+    it('refreshes cached counts from the network', async () => {
+        const cache = new InMemoryCache();
+        cache.writeQuery({
+            query: GET_COMPENDIUM_COUNTS,
+            data: COUNTS_DATA,
+        });
+        const refreshedCountsMock: MockLink.MockedResponse = {
+            request: { query: GET_COMPENDIUM_COUNTS },
+            result: {
+                data: {
+                    compendiumCounts: {
+                        __typename: 'CompendiumCounts',
+                        srdSubclassCount: 1,
+                        customSubclassCount: 2,
+                        spellCount: 2,
+                    },
+                },
+            },
+        };
+
+        render(
+            <MockedProvider cache={cache} mocks={[refreshedCountsMock]}>
+                <PaperProvider>
+                    <CompendiumScreen />
+                </PaperProvider>
+            </MockedProvider>,
+        );
+
+        expect(screen.getByText('1 SRD · 1 custom')).toBeTruthy();
+        await waitFor(() => expect(screen.getByText('1 SRD · 2 custom')).toBeTruthy());
     });
 
     it('opens both implemented categories and leaves future categories disabled', async () => {
