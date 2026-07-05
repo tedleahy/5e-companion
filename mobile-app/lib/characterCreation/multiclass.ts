@@ -52,15 +52,15 @@ export function remainingClassLevels(
 /**
  * Returns the class option metadata for a class id, or `null`.
  */
-export function classOptionById(classId: string): OptionItem | null {
-    return CLASS_OPTIONS.find((option) => option.value === classId) ?? null;
+export function classOptionById(classId: string, classOptions: OptionItem[] = CLASS_OPTIONS): OptionItem | null {
+    return classOptions.find((option) => option.value === classId) ?? null;
 }
 
 /**
  * Returns the display label for a class id, or a fallback.
  */
-export function classLabel(classId: string): string {
-    return classOptionById(classId)?.label ?? 'Unknown class';
+export function classLabel(classId: string, classOptions: OptionItem[] = CLASS_OPTIONS): string {
+    return classOptionById(classId, classOptions)?.label ?? 'Unknown class';
 }
 
 /**
@@ -225,10 +225,11 @@ export function startingClassRow(
  */
 export function availableClassOptions(
     classRows: CharacterClassDraft[],
+    classOptions: OptionItem[] = CLASS_OPTIONS,
 ): OptionItem[] {
     const selectedClassIds = new Set(classRows.map((classRow) => classRow.classId));
 
-    return CLASS_OPTIONS.filter((option) => !selectedClassIds.has(option.value));
+    return classOptions.filter((option) => !selectedClassIds.has(option.value));
 }
 
 /**

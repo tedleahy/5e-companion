@@ -1,4 +1,5 @@
-import type { AbilityKey, SkillKey } from '@/lib/characterSheetUtils';
+import { SKILL_DEFINITIONS, type AbilityKey, type SkillKey } from '@/lib/characterSheetUtils';
+import type { ClassDetailsFieldsFragment } from '@/types/generated_graphql_types';
 
 /** Hit die size by class, used to derive starting HP and hit dice. */
 export const HIT_DIE_MAP: Record<string, number> = {
@@ -77,6 +78,50 @@ export const CLASS_SKILL_OPTIONS: Record<string, { pick: number; options: SkillK
     warlock: { pick: 2, options: ['arcana', 'deception', 'history', 'intimidation', 'investigation', 'nature', 'religion'] },
     wizard: { pick: 2, options: ['arcana', 'history', 'insight', 'investigation', 'medicine', 'religion'] },
 };
+
+/** One independently limited class skill choice group. */
+export type ClassSkillOptionGroup = {
+    choiceGroup: number;
+    pick: number;
+    options: SkillKey[];
+};
+
+/**
+ * Returns author-configured starting skill choices, or null when the class has
+ * no configured skill-choice group and the SRD fallback should be used.
+ */
+export function configuredStartingClassSkillOptions(
+    classDefinition?: ClassDetailsFieldsFragment | null,
+): ClassSkillOptionGroup[] | null {
+    const rules = classDefinition?.proficiencies.filter((rule) => (
+        rule.grant === 'STARTING'
+        && rule.type === 'SKILL'
+        && rule.choiceGroup != null
+    )) ?? [];
+
+    if (rules.length === 0) return null;
+
+    const rulesByGroup = new Map<number, typeof rules>();
+    for (const rule of rules) {
+        const group = rulesByGroup.get(rule.choiceGroup!) ?? [];
+        group.push(rule);
+        rulesByGroup.set(rule.choiceGroup!, group);
+    }
+
+    return [...rulesByGroup.entries()]
+        .sort(([leftGroup], [rightGroup]) => leftGroup - rightGroup)
+        .map(([choiceGroup, groupRules]) => ({
+            choiceGroup,
+            pick: Math.max(...groupRules.map((rule) => rule.choiceCount ?? 0)),
+            options: [...new Set(groupRules.flatMap((rule) => {
+                const label = rule.name.replace(/^Skill:\s*/i, '');
+                const skill = SKILL_DEFINITIONS.find((candidate) => (
+                    candidate.label.localeCompare(label, undefined, { sensitivity: 'accent' }) === 0
+                ));
+                return skill ? [skill.key] : [];
+            }))],
+        }));
+}
 
 /** Saving throw proficiencies granted by each class. */
 export const CLASS_SAVING_THROWS: Record<string, AbilityKey[]> = {

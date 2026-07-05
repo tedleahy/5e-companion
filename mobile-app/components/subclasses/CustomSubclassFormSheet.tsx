@@ -7,6 +7,7 @@ import BottomSheetShell from '@/components/sheets/BottomSheetShell';
 import useBottomSheetMotion from '@/hooks/useBottomSheetMotion';
 import useConfirm from '@/hooks/useConfirm';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
+import type { OptionItem } from '@/lib/characterCreation/options';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import CustomSubclassFeatureCard from './CustomSubclassFeatureCard';
@@ -32,6 +33,7 @@ import {
 } from '@shared/constants/customSubclassLimits';
 
 type CustomSubclassFormSheetProps = {
+    classOptions?: OptionItem[];
     visible: boolean;
     mode: CustomSubclassFormMode;
     draft: CustomSubclassFormDraft;
@@ -49,6 +51,7 @@ type CustomSubclassFormSheetProps = {
  * Modal sheet for creating and editing reusable custom subclasses.
  */
 export default function CustomSubclassFormSheet({
+    classOptions = CLASS_OPTIONS,
     visible,
     mode,
     draft,
@@ -179,7 +182,7 @@ export default function CustomSubclassFormSheet({
                     <View style={styles.classSection}>
                         <Text style={styles.fieldLabel}>Parent Class</Text>
                         <View style={styles.classGrid}>
-                            {CLASS_OPTIONS.map((option) => {
+                            {classOptions.map((option) => {
                                 const selected = draft.classId === option.value;
 
                                 return (

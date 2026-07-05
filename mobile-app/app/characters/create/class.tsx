@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import type { LayoutChangeEvent } from 'react-native';
 import { Switch, Text } from 'react-native-paper';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useQuery } from '@apollo/client/react';
 import ClassAllocationRow from '@/components/character-creation-wizard/ClassAllocationRow';
 import ClassOptionGrid from '@/components/character-creation-wizard/ClassOptionGrid';
 import NumericStepper from '@/components/character-creation-wizard/NumericStepper';
@@ -21,6 +22,9 @@ import {
 import { useCharacterDraft } from '@/store/characterDraft';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { wizardStepStyles } from '@/components/character-creation-wizard/styles/wizardStepStyles';
+import { GET_AVAILABLE_CLASSES } from '@/graphql/class.operations';
+import { CLASS_OPTIONS, type OptionItem } from '@/lib/characterCreation/options';
+import type { AvailableClassesQuery } from '@/types/generated_graphql_types';
 
 /**
  * Class selection step for the create-character wizard.
@@ -35,6 +39,18 @@ export default function StepClass() {
         () => draft.classes.length > 1,
     );
     const [showMulticlassInfo, setShowMulticlassInfo] = useState(false);
+    const { data: classData } = useQuery<AvailableClassesQuery>(GET_AVAILABLE_CLASSES, { fetchPolicy: 'cache-first' });
+    const classOptions: OptionItem[] = (classData?.availableClasses ?? []).map((classRef) => {
+        const visual = CLASS_OPTIONS.find((option) => option.value === classRef.srdIndex);
+        return {
+            value: classRef.value,
+            label: classRef.name,
+            icon: visual?.icon ?? '⚔️',
+            hint: classRef.primaryAbilityIndexes.map((ability) => ability.toUpperCase()).join(' / ') || (classRef.isCustom ? 'Custom class' : undefined),
+            hitDie: classRef.hitDie,
+            multiclassPrerequisites: classRef.multiclassPrerequisites.map((rule) => ({ ...rule })),
+        };
+    });
 
     const selectedClass = draft.classes[0];
     const selectedClassId = selectedClass?.classId ?? '';
@@ -45,7 +61,7 @@ export default function StepClass() {
 
     /* ── multiclass helpers (reused from previous implementation) ── */
 
-    const availableClasses = availableClassOptions(draft.classes);
+    const availableClasses = availableClassOptions(draft.classes, classOptions.length > 0 ? classOptions : CLASS_OPTIONS);
     const validation = validateCharacterClassDraft(
         draft.classes,
         draft.level,
@@ -284,6 +300,7 @@ export default function StepClass() {
                 /* ── Single-class mode ── */
                 <>
                     <ClassOptionGrid
+                        options={classOptions.length > 0 ? classOptions : CLASS_OPTIONS}
                         selected={selectedClassId}
                         onSelect={handleSelectSingleClass}
                     />
@@ -342,6 +359,7 @@ export default function StepClass() {
                             canIncreaseLevel={remainingLevelsCount > 0}
                             canRemove
                             classRow={classRow}
+                            classOptions={classOptions.length > 0 ? classOptions : CLASS_OPTIONS}
                             index={displayIndex}
                             isStartingClass={classRow.classId === draft.startingClassId}
                             onDecreaseLevel={() => handleChangeClassLevel(classRow.originalIndex, -1)}

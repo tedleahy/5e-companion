@@ -6,6 +6,10 @@ import StepClass from '../class';
 const mockUpdateDraft = jest.fn();
 const mockScrollTo = jest.fn();
 
+jest.mock('@apollo/client/react', () => ({
+    useQuery: jest.fn(() => ({ data: undefined, loading: false, error: undefined })),
+}));
+
 jest.mock('react-native', () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const React = require('react');

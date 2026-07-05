@@ -1,3 +1,5 @@
+import type { ClassDetailsFieldsFragment } from '@/types/generated_graphql_types';
+
 export type OptionItem = {
     value: string;
     label: string;
@@ -5,6 +7,9 @@ export type OptionItem = {
     hint?: string;
     description?: string;
     selectionLevel?: number;
+    hitDie?: number;
+    multiclassPrerequisites?: Array<{ abilityIndex: string; minimum: number; group: number }>;
+    classDefinition?: ClassDetailsFieldsFragment;
 };
 
 /** Race options shown in the character creation wizard. */

@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
+import type { OptionItem } from '@/lib/characterCreation/options';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { SubclassManagerRow } from './subclassManager.types';
 
@@ -14,6 +15,7 @@ type SubclassListRowProps = {
     onPress: () => void;
     onEdit: (subclass: SubclassManagerRow) => void;
     onDelete: (subclass: SubclassManagerRow) => void;
+    classOptions?: OptionItem[];
 };
 
 /**
@@ -25,8 +27,9 @@ export default function SubclassListRow({
     onPress,
     onEdit,
     onDelete,
+    classOptions = CLASS_OPTIONS,
 }: SubclassListRowProps) {
-    const classOption = CLASS_OPTIONS.find((option) => option.value === subclass.classId);
+    const classOption = classOptions.find((option) => option.value === subclass.classId);
     const description = subclass.description.join('\n').trim() || 'No description provided.';
     const features = subclass.features
         .slice()

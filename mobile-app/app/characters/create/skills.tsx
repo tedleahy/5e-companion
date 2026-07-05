@@ -1,5 +1,6 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
+import { useQuery } from '@apollo/client/react';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { SKILL_DEFINITIONS, ABILITY_ABBREVIATIONS, type AbilityKey, type SkillKey } from '@/lib/characterSheetUtils';
@@ -7,6 +8,7 @@ import {
     BACKGROUND_SKILL_PROFICIENCIES,
     CLASS_SAVING_THROWS,
     CLASS_SKILL_OPTIONS,
+    configuredStartingClassSkillOptions,
 } from '@/lib/characterCreation/classRules';
 import {
     classLabel,
@@ -14,24 +16,29 @@ import {
 } from '@/lib/characterCreation/multiclass';
 import ProficiencyItem from '@/components/character-creation-wizard/ProficiencyItem';
 import { wizardStepStyles } from '@/components/character-creation-wizard/styles/wizardStepStyles';
+import { GET_CLASS_DETAILS } from '@/graphql/class.operations';
+import type { ClassDetailsQuery, ClassDetailsQueryVariables } from '@/types/generated_graphql_types';
 
 export default function StepSkills() {
     const { draft, toggleSkillProficiency } = useCharacterDraft();
     const startingClass = startingClassRow(draft.classes, draft.startingClassId);
     const startingClassId = startingClass?.classId ?? '';
+    const { data: classData } = useQuery<ClassDetailsQuery, ClassDetailsQueryVariables>(GET_CLASS_DETAILS, {
+        variables: { value: startingClassId },
+        skip: startingClassId.length === 0,
+        fetchPolicy: 'cache-first',
+    });
     const savingThrows = CLASS_SAVING_THROWS[startingClassId] ?? [];
 
     const backgroundSkillProfs: SkillKey[] = BACKGROUND_SKILL_PROFICIENCIES[draft.background] ?? [];
     const backgroundSkills = SKILL_DEFINITIONS.filter((skill) => backgroundSkillProfs.includes(skill.key));
 
-    const classOpts = CLASS_SKILL_OPTIONS[startingClassId];
-    const classOptions: SkillKey[] = classOpts?.options ?? [];
-    const classPickLimit = classOpts?.pick ?? 0;
-
-    const classPickCount = draft.skillProficiencies.filter(
-        (skill) => classOptions.includes(skill) && !backgroundSkillProfs.includes(skill),
-    ).length;
-    const atClassLimit = classPickCount >= classPickLimit;
+    const loadedClassDefinition = classData?.classDetails?.value === startingClassId
+        ? classData.classDetails
+        : null;
+    const fallbackClassOptions = CLASS_SKILL_OPTIONS[startingClassId];
+    const classOptionGroups = configuredStartingClassSkillOptions(loadedClassDefinition)
+        ?? (fallbackClassOptions ? [{ choiceGroup: 1, ...fallbackClassOptions }] : []);
 
     return (
         <ScrollView style={wizardStepStyles.scroll} contentContainerStyle={wizardStepStyles.container}>
@@ -78,31 +85,43 @@ export default function StepSkills() {
                 </>
             )}
 
-            {classOptions.length > 0 && (
+            {classOptionGroups.length > 0 && (
                 <>
-                    <Text style={[wizardStepStyles.sectionLabel, backgroundSkills.length > 0 && styles.sectionGap]}>
-                        Class Skills — Pick {classPickLimit}
-                        {classPickLimit > 0 && ` (${classPickCount}/${classPickLimit})`}
-                    </Text>
-                    <View style={styles.list}>
-                        {SKILL_DEFINITIONS.filter(
-                            (s) => classOptions.includes(s.key) && !backgroundSkillProfs.includes(s.key),
-                        ).map((skill) => {
-                            const isSelected = draft.skillProficiencies.includes(skill.key);
-                            const isDisabled = !isSelected && atClassLimit;
-                            return (
-                                <ProficiencyItem
-                                    key={skill.key}
-                                    testID={`create-skill-class-${skill.key}`}
-                                    name={skill.label}
-                                    abilityAbbr={ABILITY_ABBREVIATIONS[skill.ability]}
-                                    selected={isSelected}
-                                    disabled={isDisabled}
-                                    onToggle={() => toggleSkillProficiency(skill.key)}
-                                />
-                            );
-                        })}
-                    </View>
+                    {classOptionGroups.map((group, groupIndex) => {
+                        const selectedCount = draft.skillProficiencies.filter(
+                            (skill) => group.options.includes(skill) && !backgroundSkillProfs.includes(skill),
+                        ).length;
+                        const atGroupLimit = selectedCount >= group.pick;
+                        return (
+                            <View key={group.choiceGroup} style={groupIndex > 0 ? styles.sectionGap : undefined}>
+                                <Text style={[
+                                    wizardStepStyles.sectionLabel,
+                                    groupIndex === 0 && backgroundSkills.length > 0 && styles.sectionGap,
+                                ]}>
+                                    Class Skills{classOptionGroups.length > 1 ? ` ${groupIndex + 1}` : ''} — Pick {group.pick}
+                                    {group.pick > 0 && ` (${selectedCount}/${group.pick})`}
+                                </Text>
+                                <View style={styles.list}>
+                                    {SKILL_DEFINITIONS.filter(
+                                        (skill) => group.options.includes(skill.key) && !backgroundSkillProfs.includes(skill.key),
+                                    ).map((skill) => {
+                                        const isSelected = draft.skillProficiencies.includes(skill.key);
+                                        return (
+                                            <ProficiencyItem
+                                                key={skill.key}
+                                                testID={`create-skill-class-${skill.key}`}
+                                                name={skill.label}
+                                                abilityAbbr={ABILITY_ABBREVIATIONS[skill.ability]}
+                                                selected={isSelected}
+                                                disabled={!isSelected && atGroupLimit}
+                                                onToggle={() => toggleSkillProficiency(skill.key)}
+                                            />
+                                        );
+                                    })}
+                                </View>
+                            </View>
+                        );
+                    })}
                     {draft.classes.length > 1 ? (
                         <Text style={styles.multiclassHint}>
                             Extra multiclass proficiencies are derived on the server when the character is created.

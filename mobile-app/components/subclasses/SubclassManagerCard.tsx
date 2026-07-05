@@ -14,6 +14,7 @@ import {
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Switch, Text } from 'react-native-paper';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
+import type { OptionItem } from '@/lib/characterCreation/options';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import SubclassClassFilterChips, {
     ALL_CLASSES_FILTER,
@@ -34,6 +35,7 @@ type SubclassManagerCardProps = {
     onToggleShowSrdSubclasses: () => void;
     onEdit: (subclass: SubclassManagerRow) => void;
     onDelete: (subclass: SubclassManagerRow) => void;
+    classOptions?: OptionItem[];
 };
 
 const DETAIL_TRANSITION_DURATION_MS = 220;
@@ -62,6 +64,7 @@ export default function SubclassManagerCard({
     onToggleShowSrdSubclasses,
     onEdit,
     onDelete,
+    classOptions = CLASS_OPTIONS,
 }: SubclassManagerCardProps) {
     const { width: windowWidth } = useWindowDimensions();
     const hiddenDetailTranslateX = Math.max(1, windowWidth);
@@ -81,7 +84,7 @@ export default function SubclassManagerCard({
         onDetailVisibilityChange?.(isCardExpanded);
     }, [isCardExpanded, onDetailVisibilityChange]);
 
-    const selectedClass = CLASS_OPTIONS.find((option) => option.value === selectedClassId);
+    const selectedClass = classOptions.find((option) => option.value === selectedClassId);
     const emptyTitle = selectedClassId === ALL_CLASSES_FILTER
         ? (showSrdSubclasses ? 'No subclasses available.' : 'No custom subclasses available.')
         : `No ${selectedClass?.label ?? 'class'} subclasses yet.`;
@@ -339,6 +342,7 @@ export default function SubclassManagerCard({
                         />
                     </View>
                     <SubclassClassFilterChips
+                        classOptions={classOptions}
                         selectedClassId={selectedClassId}
                         onSelectClassId={handleSelectClassId}
                     />
@@ -389,6 +393,7 @@ export default function SubclassManagerCard({
                         {subclasses.length > 0 ? (
                             subclasses.map((subclass) => (
                                 <SubclassListRow
+                                    classOptions={classOptions}
                                     key={subclass.id}
                                     subclass={subclass}
                                     isOpen={false}
@@ -428,6 +433,7 @@ export default function SubclassManagerCard({
                                 testID="subclass-detail-scroll"
                             >
                                 <SubclassListRow
+                                    classOptions={classOptions}
                                     subclass={expandedSubclass}
                                     isOpen
                                     onPress={() => handleRowPress(expandedSubclass.id)}
