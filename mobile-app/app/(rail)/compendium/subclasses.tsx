@@ -107,6 +107,7 @@ export default function CustomSubclassesScreen() {
     const apolloClient = useApolloClient();
     const { hasValidSession, isCheckingSession } = useSessionGuard();
     const [selectedClassId, setSelectedClassId] = useState(ALL_CLASSES_FILTER);
+    const [showSrdSubclasses, setShowSrdSubclasses] = useState(true);
     const [isViewingSubclass, setIsViewingSubclass] = useState(false);
     const [formVisible, setFormVisible] = useState(false);
     const [formMode, setFormMode] = useState<CustomSubclassFormMode>('create');
@@ -185,10 +186,14 @@ export default function CustomSubclassesScreen() {
                 : 0,
         }));
     }, [availableData?.availableSubclasses, customSubclassUsageCountById]);
+    const sourceSubclasses = useMemo(() => {
+        if (showSrdSubclasses) return allSubclasses;
+        return allSubclasses.filter((subclass) => subclass.isCustom);
+    }, [allSubclasses, showSrdSubclasses]);
     const visibleSubclasses = useMemo(() => {
-        if (selectedClassId === ALL_CLASSES_FILTER) return allSubclasses;
-        return allSubclasses.filter((subclass) => subclass.classId === selectedClassId);
-    }, [allSubclasses, selectedClassId]);
+        if (selectedClassId === ALL_CLASSES_FILTER) return sourceSubclasses;
+        return sourceSubclasses.filter((subclass) => subclass.classId === selectedClassId);
+    }, [sourceSubclasses, selectedClassId]);
     const saving = createState.loading || updateState.loading;
 
     useEffect(() => {
@@ -342,10 +347,12 @@ export default function CustomSubclassesScreen() {
                 <SubclassManagerCard
                     style={styles.managerCard}
                     subclasses={visibleSubclasses}
-                    allSubclassCount={allSubclasses.length}
+                    allSubclassCount={sourceSubclasses.length}
                     selectedClassId={selectedClassId}
+                    showSrdSubclasses={showSrdSubclasses}
                     onDetailVisibilityChange={setIsViewingSubclass}
                     onSelectClassId={setSelectedClassId}
+                    onToggleShowSrdSubclasses={() => setShowSrdSubclasses((prev) => !prev)}
                     onEdit={openEditForm}
                     onDelete={setDeleteCandidate}
                 />
