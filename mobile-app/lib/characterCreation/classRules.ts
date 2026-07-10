@@ -114,9 +114,8 @@ export function configuredStartingClassSkillOptions(
             choiceGroup,
             pick: Math.max(...groupRules.map((rule) => rule.choiceCount ?? 0)),
             options: [...new Set(groupRules.flatMap((rule) => {
-                const label = rule.name.replace(/^Skill:\s*/i, '');
                 const skill = SKILL_DEFINITIONS.find((candidate) => (
-                    candidate.label.localeCompare(label, undefined, { sensitivity: 'accent' }) === 0
+                    candidate.label.localeCompare(rule.name, undefined, { sensitivity: 'accent' }) === 0
                 ));
                 return skill ? [skill.key] : [];
             }))],

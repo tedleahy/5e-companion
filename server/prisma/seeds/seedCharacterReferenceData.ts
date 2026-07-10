@@ -133,15 +133,29 @@ type SrdRace = {
     traits?: SrdReference[];
 };
 
-function proficiencyTypeFromSrd(type: string | undefined): ProficiencyType {
+export function proficiencyTypeFromSrd(type: string | undefined): ProficiencyType {
     const normalized = (type ?? '').trim().toLowerCase();
 
     if (normalized === 'armor') return ProficiencyType.ARMOR;
     if (normalized === 'weapon' || normalized === 'weapons') return ProficiencyType.WEAPON;
-    if (normalized === 'tool' || normalized === 'tools') return ProficiencyType.TOOL;
-    if (normalized === 'skill') return ProficiencyType.SKILL;
+    if (
+        normalized === 'tool'
+        || normalized === 'tools'
+        || normalized.includes('tool')
+        || normalized.includes('gaming')
+        || normalized.includes('musical')
+        || normalized.includes('vehicle')
+    ) {
+        return ProficiencyType.TOOL;
+    }
+    if (normalized === 'skill' || normalized === 'skills') return ProficiencyType.SKILL;
     if (normalized.includes('saving')) return ProficiencyType.SAVING_THROW;
     return ProficiencyType.OTHER;
+}
+
+/** SRD skill proficiencies are named "Skill: Acrobatics"; store the bare skill name. */
+export function proficiencyNameFromSrd(name: string): string {
+    return name.replace(/^Skill:\s*/i, '');
 }
 
 async function loadJson<T>(relativePath: string): Promise<T> {
@@ -176,17 +190,18 @@ async function seedLanguages(languages: SrdLanguage[]) {
 
 async function seedProficiencies(proficiencies: SrdProficiency[]) {
     for (const proficiency of proficiencies) {
+        const name = proficiencyNameFromSrd(proficiency.name);
         await prisma.proficiency.upsert({
             where: { srdIndex: proficiency.index },
             update: {
-                name: proficiency.name,
+                name,
                 type: proficiencyTypeFromSrd(proficiency.type),
                 sourceBook: 'SRD',
                 raw: proficiency as Prisma.InputJsonValue,
             },
             create: {
                 srdIndex: proficiency.index,
-                name: proficiency.name,
+                name,
                 type: proficiencyTypeFromSrd(proficiency.type),
                 sourceBook: 'SRD',
                 raw: proficiency as Prisma.InputJsonValue,

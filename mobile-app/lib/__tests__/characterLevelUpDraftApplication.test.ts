@@ -502,7 +502,7 @@ describe('applyLevelUpToDraft', () => {
                         { grant: 'MULTICLASS', type: 'ARMOR', name: 'Medium armour', choiceGroup: null },
                         { grant: 'MULTICLASS', type: 'WEAPON', name: 'Longbows', choiceGroup: null },
                         { grant: 'MULTICLASS', type: 'TOOL', name: "Smith's tools", choiceGroup: null },
-                        { grant: 'MULTICLASS', type: 'SKILL', name: 'Skill: Athletics', choiceGroup: 1, choiceCount: 1 },
+                        { grant: 'MULTICLASS', type: 'SKILL', name: 'Athletics', choiceGroup: 1, choiceCount: 1 },
                     ],
                 } as never,
             },

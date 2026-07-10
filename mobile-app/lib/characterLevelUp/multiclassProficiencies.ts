@@ -127,7 +127,7 @@ export function getMulticlassProficiencyGains(classId: string, selectedClass?: L
             weapons: fixed.filter((rule) => rule.type === 'WEAPON').map((rule) => rule.name),
             tools: fixed.filter((rule) => rule.type === 'TOOL').map((rule) => rule.name),
             skillChoices,
-            skillOptions: configured.filter((rule) => rule.type === 'SKILL').map((rule) => rule.name.replace(/^Skill:\s*/, '')),
+            skillOptions: configured.filter((rule) => rule.type === 'SKILL').map((rule) => rule.name),
         };
     }
     return MULTICLASS_PROFICIENCY_TABLE[classId] ?? null;

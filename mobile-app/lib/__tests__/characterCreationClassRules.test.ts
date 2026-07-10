@@ -4,8 +4,8 @@ describe('configuredStartingClassSkillOptions', () => {
     it('maps configured starting skill choice groups to character skill keys', () => {
         const classDefinition = {
             proficiencies: [
-                { grant: 'STARTING', type: 'SKILL', name: 'Skill: Animal Handling', choiceGroup: 1, choiceCount: 2 },
-                { grant: 'STARTING', type: 'SKILL', name: 'Skill: Athletics', choiceGroup: 1, choiceCount: 2 },
+                { grant: 'STARTING', type: 'SKILL', name: 'Animal Handling', choiceGroup: 1, choiceCount: 2 },
+                { grant: 'STARTING', type: 'SKILL', name: 'Athletics', choiceGroup: 1, choiceCount: 2 },
                 { grant: 'STARTING', type: 'ARMOR', name: 'Light armour', choiceGroup: null, choiceCount: null },
             ],
         } as never;
@@ -20,10 +20,10 @@ describe('configuredStartingClassSkillOptions', () => {
     it('keeps independent skill choice groups separate', () => {
         const classDefinition = {
             proficiencies: [
-                { grant: 'STARTING', type: 'SKILL', name: 'Skill: Arcana', choiceGroup: 1, choiceCount: 1 },
-                { grant: 'STARTING', type: 'SKILL', name: 'Skill: History', choiceGroup: 1, choiceCount: 1 },
-                { grant: 'STARTING', type: 'SKILL', name: 'Skill: Athletics', choiceGroup: 2, choiceCount: 1 },
-                { grant: 'STARTING', type: 'SKILL', name: 'Skill: Survival', choiceGroup: 2, choiceCount: 1 },
+                { grant: 'STARTING', type: 'SKILL', name: 'Arcana', choiceGroup: 1, choiceCount: 1 },
+                { grant: 'STARTING', type: 'SKILL', name: 'History', choiceGroup: 1, choiceCount: 1 },
+                { grant: 'STARTING', type: 'SKILL', name: 'Athletics', choiceGroup: 2, choiceCount: 1 },
+                { grant: 'STARTING', type: 'SKILL', name: 'Survival', choiceGroup: 2, choiceCount: 1 },
             ],
         } as never;
 
