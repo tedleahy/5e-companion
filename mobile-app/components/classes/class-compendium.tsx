@@ -4,23 +4,24 @@ import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Snackbar, Switch, Text } from 'react-native-paper';
 import Animated, { FadeIn, SlideInRight } from 'react-native-reanimated';
-import { useRouter } from 'expo-router';
 import CompendiumBackButton from '@/components/compendium/compendium-back-button';
 import CompendiumScreenHeader from '@/components/compendium/compendium-screen-header';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import CustomClassEditor from '@/components/classes/custom-class-editor';
 import FloatingAddButton from '@/components/floating-add-button';
 import { ARCHIVE_CUSTOM_CLASS, GET_AVAILABLE_CLASSES, GET_CLASS_DETAILS } from '@/graphql/class.operations';
 import { fantasyTokens } from '@/theme/fantasyTheme';
-import type { AvailableClassesQuery, ClassDetailsQuery, ClassDetailsQueryVariables } from '@/types/generated_graphql_types';
+import type { AvailableClassesQuery, ClassDetailsFieldsFragment, ClassDetailsQuery, ClassDetailsQueryVariables } from '@/types/generated_graphql_types';
 
 const ABILITY_LABELS: Record<string, string> = { str: 'Strength', dex: 'Dexterity', con: 'Constitution', int: 'Intelligence', wis: 'Wisdom', cha: 'Charisma' };
 
 export default function ClassCompendium() {
-    const router = useRouter();
     const [showSrd, setShowSrd] = useState(true);
     const [selectedValue, setSelectedValue] = useState<string | null>(null);
     const [archiveCandidate, setArchiveCandidate] = useState<{ id: string; name: string } | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [editorVisible, setEditorVisible] = useState(false);
+    const [editorInitial, setEditorInitial] = useState<ClassDetailsFieldsFragment | null>(null);
     const available = useQuery<AvailableClassesQuery>(GET_AVAILABLE_CLASSES, { fetchPolicy: 'cache-and-network' });
     const details = useQuery<ClassDetailsQuery, ClassDetailsQueryVariables>(GET_CLASS_DETAILS, {
         variables: { value: selectedValue ?? '' },
@@ -88,15 +89,27 @@ export default function ClassCompendium() {
                                 <Section title="Level progression">{selected.progression.map((level) => <View key={level.level} style={styles.progressionRow}><Text style={styles.level}>Level {level.level}</Text><Text style={styles.muted}>{level.abilityScoreImprovement ? 'ASI · ' : ''}{level.spellSlots.some(Boolean) ? `Slots ${level.spellSlots.map((count, index) => count ? `${index + 1}:${count}` : null).filter(Boolean).join(' ')}` : '—'}</Text></View>)}</Section>
                                 <Section title="Features">{selected.features.length === 0 ? <Text style={styles.muted}>No features listed.</Text> : selected.features.map((feature) => <View key={feature.id} style={styles.feature}><Text style={styles.level}>Level {feature.level}</Text><Text style={styles.featureTitle}>{feature.name}</Text><Text selectable style={styles.body}>{feature.description}</Text></View>)}</Section>
                                 <Section title={`Spell list (${selected.spells.length})`}>{selected.spells.length === 0 ? <Text style={styles.muted}>No class spells.</Text> : <Text selectable style={styles.body}>{selected.spells.map((spell) => spell.name).join(', ')}</Text>}</Section>
-                                {selected.isCustom ? <View style={styles.actions}><Pressable style={styles.secondaryButton} onPress={() => router.push(`/compendium/classes/${selected.id}/edit`)}><Text style={styles.secondaryLabel}>Edit class</Text></Pressable><Pressable style={styles.archiveButton} onPress={() => setArchiveCandidate({ id: selected.id, name: selected.name })}><Text style={styles.archiveLabel}>Archive</Text></Pressable></View> : null}
+                                {selected.isCustom ? <View style={styles.actions}><Pressable style={styles.secondaryButton} onPress={() => { setEditorInitial(selected); setEditorVisible(true); }}><Text style={styles.secondaryLabel}>Edit class</Text></Pressable><Pressable style={styles.archiveButton} onPress={() => setArchiveCandidate({ id: selected.id, name: selected.name })}><Text style={styles.archiveLabel}>Archive</Text></Pressable></View> : null}
                             </ScrollView>
                         )}
                     </Animated.View>
                 )}
             </View>
-            {selectedValue == null ? <FloatingAddButton accessibilityLabel="Add custom class" testID="add-custom-class" onPress={() => router.push('/compendium/classes/new')} /> : null}
+            {selectedValue == null ? <FloatingAddButton accessibilityLabel="Add custom class" testID="add-custom-class" onPress={() => { setEditorInitial(null); setEditorVisible(true); }} /> : null}
             <ConfirmDialog visible={archiveCandidate != null} title="Archive custom class?" message={archiveCandidate ? `${archiveCandidate.name} will no longer be available to new characters. Existing characters keep it.` : ''} confirmLabel={archiveState.loading ? 'Archiving...' : 'Archive'} onConfirm={() => void confirmArchive()} onCancel={() => setArchiveCandidate(null)} />
             <Snackbar visible={errorMessage != null} onDismiss={() => setErrorMessage(null)}>{errorMessage ?? ''}</Snackbar>
+            <CustomClassEditor
+                visible={editorVisible}
+                initial={editorInitial}
+                onClose={() => {
+                    setEditorVisible(false);
+                    setEditorInitial(null);
+                }}
+                onSaved={() => {
+                    void available.refetch();
+                    if (selectedValue != null) void details.refetch();
+                }}
+            />
         </View>
     );
 }

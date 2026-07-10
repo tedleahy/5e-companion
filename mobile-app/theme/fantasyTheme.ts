@@ -255,6 +255,15 @@ export const fantasyTokens = {
         paddingVertical: 5,
         paddingHorizontal: 12,
     },
+    sheet: {
+        backdrop: 'rgba(20,14,8,0.6)',
+        shadow: '0 0 12px rgba(0,0,0,0.22)',
+        elevation: 20,
+        handleWidth: 40,
+        handleHeight: 4,
+        defaultHeight: '82%' as const,
+        tallHeight: '88%' as const,
+    },
     text: {
         formLabel: {
             fontFamily: fantasyFonts.regular,

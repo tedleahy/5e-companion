@@ -131,8 +131,6 @@ export default function RootLayout() {
                                         name="spells/[id]"
                                         options={{ animation: 'slide_from_right', animationDuration: fantasyTokens.motion.standard }}
                                     />
-                                    <Stack.Screen name="compendium/classes/new" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
-                                    <Stack.Screen name="compendium/classes/[id]/edit" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
                                 </Stack>
                             </KeyboardProvider>
                         </PaperProvider>

@@ -289,11 +289,9 @@ export default function CharacterByIdScreen() {
     }, [character?.level, draft?.level]);
 
     /**
-     * Closes the level-up sheet without affecting the underlying edit draft.
-     * Shows a discard confirmation when the wizard contains user-entered data.
-     * Returns false when showing confirmation to prevent sheet animation.
+     * Gates level-up sheet dismissal. Returns false while a dirty confirmation is shown.
      */
-    const handleCloseLevelUpSheet = useCallback(() => {
+    const handleRequestCloseLevelUpSheet = useCallback(() => {
         if (levelUpWizard.isDirty) {
             confirm({
                 title: 'Discard level-up changes?',
@@ -305,13 +303,17 @@ export default function CharacterByIdScreen() {
                     levelUpWizard.resetWizard();
                 },
             });
-            return false; // Prevent sheet close animation while showing confirmation
+            return false;
         }
+    }, [levelUpWizard, confirm]);
 
+    /**
+     * Finalises level-up sheet dismissal after the close animation completes.
+     */
+    const handleCloseLevelUpSheet = useCallback(() => {
         setLevelUpSheetVisible(false);
         levelUpWizard.resetWizard();
-        return undefined; // Allow close animation
-    }, [levelUpWizard, confirm]);
+    }, [levelUpWizard]);
 
     /**
      * Handles canceling edit mode with confirmation if there are unsaved changes.
@@ -683,6 +685,7 @@ export default function CharacterByIdScreen() {
                     wizard={levelUpWizard}
                     availableSubclasses={levelUpAvailableSubclasses}
                     onConfirm={handleConfirmLevelUp}
+                    onRequestClose={handleRequestCloseLevelUpSheet}
                     onClose={handleCloseLevelUpSheet}
                 />
             </View>

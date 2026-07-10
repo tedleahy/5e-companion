@@ -1,11 +1,18 @@
+import 'react-native-gesture-handler/jestSetup';
+import type { ComponentProps } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { PaperProvider } from 'react-native-paper';
 import ClassCompendium from '@/components/classes/class-compendium';
 import { GET_AVAILABLE_CLASSES, GET_CLASS_DETAILS } from '@/graphql/class.operations';
 
-const mockPush = jest.fn();
-jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush, back: jest.fn(), replace: jest.fn() }) }));
+function renderCompendium(mocks: ComponentProps<typeof MockedProvider>['mocks']) {
+    render(
+        <MockedProvider mocks={mocks}>
+            <PaperProvider><ClassCompendium /></PaperProvider>
+        </MockedProvider>,
+    );
+}
 
 const summary = {
     __typename: 'AvailableClass', id: 'class-wizard', value: 'wizard', srdIndex: 'wizard', name: 'Wizard',
@@ -19,10 +26,10 @@ const details = {
 
 describe('Classes compendium', () => {
     test('opens full class details and hides the add action', async () => {
-        render(<MockedProvider mocks={[
+        renderCompendium([
             { request: { query: GET_AVAILABLE_CLASSES }, result: { data: { availableClasses: [summary] } } },
             { request: { query: GET_CLASS_DETAILS, variables: { value: 'wizard' } }, result: { data: { classDetails: details } } },
-        ]}><PaperProvider><ClassCompendium /></PaperProvider></MockedProvider>);
+        ]);
 
         await waitFor(() => expect(screen.getByText('Wizard')).toBeTruthy());
         expect(screen.getByTestId('add-custom-class')).toBeTruthy();
@@ -30,5 +37,17 @@ describe('Classes compendium', () => {
         await waitFor(() => expect(screen.getByText('Core rules')).toBeTruthy());
         expect(screen.queryByTestId('add-custom-class')).toBeNull();
         expect(screen.getByText('No SRD overview text is available.')).toBeTruthy();
+    });
+
+    test('opens the custom class editor sheet in place', async () => {
+        renderCompendium([
+            { request: { query: GET_AVAILABLE_CLASSES }, result: { data: { availableClasses: [summary] } } },
+        ]);
+
+        await waitFor(() => expect(screen.getByText('Wizard')).toBeTruthy());
+        expect(screen.queryByTestId('custom-class-editor-sheet')).toBeNull();
+        fireEvent.press(screen.getByTestId('add-custom-class'));
+        expect(screen.getByTestId('custom-class-editor-sheet')).toBeTruthy();
+        expect(screen.getByText('New custom class')).toBeTruthy();
     });
 });
