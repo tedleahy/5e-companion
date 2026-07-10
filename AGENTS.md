@@ -32,7 +32,7 @@ Full style guide: [`docs/conventions.md`](./docs/conventions.md). Non-negotiable
 - **`Character.spellbook` has `merge: false`** in `mobile-app/app/apolloClient.ts` — partial mutation responses need an updated field policy or a full spellbook snapshot.
 - **Never add production conditionals for tests**; never bloat app code for tests. Fix harness, mocks, or timers instead.
 - **Fantasy theme via `fantasyTokens`** (`mobile-app/theme/fantasyTheme.ts`) — no inline hex or magic spacing numbers.
-- **Don't commit unless explicitly told.** Don't commit root-level markdown/txt except `AGENTS.md`.
+- Don't commit root-level markdown/txt except `AGENTS.md`.
 - Write simple, clean, DRY, maintainable code. Less code is usually better than more code.
 - Ensure that all code has meaningful test coverage.
 
@@ -47,6 +47,7 @@ Full style guide: [`docs/conventions.md`](./docs/conventions.md). Non-negotiable
 
 ## Agent workflow
 
+- When you've finished a task, review review your changes, being pedantic, fix any issues, and then commit them.
 - **Run `tsc --noEmit` in both `server/` and `mobile-app/`** when files have been changed in those directories before considering a task done. Fix type errors in files you touched; ignore pre-existing errors elsewhere.
 
 ## Git commits
