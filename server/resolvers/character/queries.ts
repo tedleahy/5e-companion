@@ -3,12 +3,14 @@ import type {
     QueryAvailableSubclassesArgs,
     QueryCharacterArgs,
     QueryCustomSubclassesArgs,
+    QueryProficienciesArgs,
 } from "../../generated/graphql";
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
 import { CHARACTER_DETAIL_INCLUDE, CHARACTER_LIST_INCLUDE } from "./detailLoad";
 import { availableSubclassesForUser } from "./subclassReferences";
 import { availableBackgroundsForUser } from "./backgroundReferences";
+import { proficienciesForUser } from "./proficiencyReferences";
 import { customSubclasses as customSubclassesQuery } from "./customSubclassManager";
 
 /**
@@ -96,4 +98,17 @@ export async function availableBackgrounds(
     const userId = requireUser(ctx);
 
     return await availableBackgroundsForUser(userId);
+}
+
+/**
+ * Query resolver for proficiency reference data (SRD plus owned custom).
+ */
+export async function proficiencies(
+    _parent: unknown,
+    { type }: QueryProficienciesArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+
+    return await proficienciesForUser(userId, type);
 }

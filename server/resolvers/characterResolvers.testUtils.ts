@@ -34,6 +34,7 @@ export const featureDeleteManyMock: any = mock((_args: unknown) => Promise.resol
 export const raceFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const backgroundFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const backgroundFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
+export const proficiencyFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 
 // field resolver model mocks
 export const weaponFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
@@ -183,6 +184,9 @@ function createMockTransactionClient() {
         background: {
             findFirst: backgroundFindFirstMock,
             findMany: backgroundFindManyMock,
+        },
+        proficiency: {
+            findMany: proficiencyFindManyMock,
         },
         characterSpell: {
             findMany: characterSpellFindManyMock,
@@ -457,6 +461,7 @@ export function clearAllCharacterResolverMocks() {
     raceFindFirstMock.mockClear();
     backgroundFindFirstMock.mockClear();
     backgroundFindManyMock.mockClear();
+    proficiencyFindManyMock.mockClear();
     weaponFindManyMock.mockClear();
     inventoryItemFindManyMock.mockClear();
     characterFeatureFindManyMock.mockClear();

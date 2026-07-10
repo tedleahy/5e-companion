@@ -8,6 +8,7 @@ import {
     characterFindManyMock,
     clearAllCharacterResolverMocks,
     fakeCharacter,
+    proficiencyFindManyMock,
     resolvers,
     subclassFindManyMock,
     unauthedCtx,
@@ -323,5 +324,77 @@ describe('characterResolvers — queries', () => {
         expect(resolvers.availableBackgrounds({}, {}, unauthedCtx))
             .rejects.toThrow('UNAUTHENTICATED');
         expect(backgroundFindManyMock).not.toHaveBeenCalled();
+    });
+
+    test('proficiencies throws UNAUTHENTICATED when userId is null', () => {
+        expect(resolvers.proficiencies({}, {}, unauthedCtx))
+            .rejects.toThrow('UNAUTHENTICATED');
+        expect(proficiencyFindManyMock).not.toHaveBeenCalled();
+    });
+
+    test('proficiencies returns SRD and owned custom rows for the current user', async () => {
+        proficiencyFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'prof-light-armor',
+                srdIndex: 'light-armor',
+                ownerUserId: null,
+                name: 'Light Armor',
+                type: 'ARMOR',
+            },
+            {
+                id: 'custom-prof-id',
+                srdIndex: null,
+                ownerUserId: 'user-abc',
+                name: 'Glassworking Tools',
+                type: 'TOOL',
+            },
+        ]);
+
+        const result = await resolvers.proficiencies({}, {}, authedCtx);
+
+        expect(proficiencyFindManyMock).toHaveBeenCalledTimes(1);
+        const args = proficiencyFindManyMock.mock.calls[0]![0] as Record<string, unknown>;
+        expect(args.where).toEqual({
+            OR: [
+                { ownerUserId: null },
+                { ownerUserId: 'user-abc' },
+            ],
+        });
+        expect(args.orderBy).toEqual([{ type: 'asc' }, { name: 'asc' }]);
+        expect(result).toEqual([
+            {
+                value: 'light-armor',
+                name: 'Light Armor',
+                type: 'ARMOR',
+                isCustom: false,
+            },
+            {
+                value: 'custom-prof-id',
+                name: 'Glassworking Tools',
+                type: 'TOOL',
+                isCustom: true,
+            },
+        ]);
+    });
+
+    test('proficiencies filters by type when provided', async () => {
+        proficiencyFindManyMock.mockResolvedValueOnce([]);
+
+        await resolvers.proficiencies({}, { type: 'skill' }, authedCtx);
+
+        const args = proficiencyFindManyMock.mock.calls[0]![0] as Record<string, unknown>;
+        expect(args.where).toEqual({
+            OR: [
+                { ownerUserId: null },
+                { ownerUserId: 'user-abc' },
+            ],
+            type: 'SKILL',
+        });
+    });
+
+    test('proficiencies rejects unknown types', () => {
+        expect(resolvers.proficiencies({}, { type: 'banana' }, authedCtx))
+            .rejects.toThrow('Unknown proficiency type: banana');
+        expect(proficiencyFindManyMock).not.toHaveBeenCalled();
     });
 });

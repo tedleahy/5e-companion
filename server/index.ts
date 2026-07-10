@@ -103,6 +103,7 @@ const resolvers: Resolvers = {
         availableSubclasses: characterResolvers.availableSubclasses,
         customSubclasses: characterResolvers.customSubclasses,
         availableBackgrounds: characterResolvers.availableBackgrounds,
+        proficiencies: characterResolvers.proficiencies,
     },
 
     Mutation: {

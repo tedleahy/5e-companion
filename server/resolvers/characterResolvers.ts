@@ -5,6 +5,7 @@ export {
     availableSubclasses,
     customSubclasses,
     availableBackgrounds,
+    proficiencies,
 } from "./character/queries";
 
 export {

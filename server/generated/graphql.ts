@@ -628,6 +628,14 @@ export enum ProficiencyLevel {
   Proficient = 'proficient'
 }
 
+export type ProficiencyRef = {
+  __typename?: 'ProficiencyRef';
+  isCustom: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
   availableBackgrounds: Array<AvailableBackground>;
@@ -640,6 +648,7 @@ export type Query = {
   customClasses: Array<ClassDetails>;
   customSubclasses: Array<CustomSubclass>;
   hasCurrentUserCharacters: Scalars['Boolean']['output'];
+  proficiencies: Array<ProficiencyRef>;
   spell?: Maybe<Spell>;
   spells: Array<Spell>;
 };
@@ -662,6 +671,11 @@ export type QueryClassDetailsArgs = {
 
 export type QueryCustomSubclassesArgs = {
   classIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+
+export type QueryProficienciesArgs = {
+  type?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1020,6 +1034,7 @@ export type ResolversTypes = {
   ManagedCustomSubclassInput: ManagedCustomSubclassInput;
   Mutation: ResolverTypeWrapper<{}>;
   ProficiencyLevel: ProficiencyLevel;
+  ProficiencyRef: ResolverTypeWrapper<ProficiencyRef>;
   Query: ResolverTypeWrapper<{}>;
   SaveCharacterSheetClassInput: SaveCharacterSheetClassInput;
   SaveCharacterSheetFeatureInput: SaveCharacterSheetFeatureInput;
@@ -1096,6 +1111,7 @@ export type ResolversParentTypes = {
   ManagedCustomSubclassFeatureInput: ManagedCustomSubclassFeatureInput;
   ManagedCustomSubclassInput: ManagedCustomSubclassInput;
   Mutation: {};
+  ProficiencyRef: ProficiencyRef;
   Query: {};
   SaveCharacterSheetClassInput: SaveCharacterSheetClassInput;
   SaveCharacterSheetFeatureInput: SaveCharacterSheetFeatureInput;
@@ -1424,6 +1440,14 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateSkillProficiencies?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateSkillProficienciesArgs, 'characterId' | 'input'>>;
 };
 
+export type ProficiencyRefResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProficiencyRef'] = ResolversParentTypes['ProficiencyRef']> = {
+  isCustom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   availableBackgrounds?: Resolver<Array<ResolversTypes['AvailableBackground']>, ParentType, ContextType>;
   availableClasses?: Resolver<Array<ResolversTypes['AvailableClass']>, ParentType, ContextType>;
@@ -1435,6 +1459,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   customClasses?: Resolver<Array<ResolversTypes['ClassDetails']>, ParentType, ContextType>;
   customSubclasses?: Resolver<Array<ResolversTypes['CustomSubclass']>, ParentType, ContextType, Partial<QueryCustomSubclassesArgs>>;
   hasCurrentUserCharacters?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  proficiencies?: Resolver<Array<ResolversTypes['ProficiencyRef']>, ParentType, ContextType, Partial<QueryProficienciesArgs>>;
   spell?: Resolver<Maybe<ResolversTypes['Spell']>, ParentType, ContextType, RequireFields<QuerySpellArgs, 'id'>>;
   spells?: Resolver<Array<ResolversTypes['Spell']>, ParentType, ContextType, Partial<QuerySpellsArgs>>;
 };
@@ -1550,6 +1575,7 @@ export type Resolvers<ContextType = Context> = {
   HitDicePool?: HitDicePoolResolvers<ContextType>;
   InventoryItem?: InventoryItemResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  ProficiencyRef?: ProficiencyRefResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   SkillProficiencies?: SkillProficienciesResolvers<ContextType>;
   Spell?: SpellResolvers<ContextType>;

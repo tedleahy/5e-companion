@@ -79,6 +79,13 @@ type ClassProficiency {
     choiceCount: Int
 }
 
+type ProficiencyRef {
+    value: String!
+    name: String!
+    type: String!
+    isCustom: Boolean!
+}
+
 type ClassEquipmentDefinition {
     name: String!
     quantity: Int!
@@ -659,6 +666,7 @@ type Query {
     availableSubclasses(classIds: [String!]): [AvailableSubclass!]!
     customSubclasses(classIds: [String!]): [CustomSubclass!]!
     availableBackgrounds: [AvailableBackground!]!
+    proficiencies(type: String): [ProficiencyRef!]!
 }
 
 type Mutation {
