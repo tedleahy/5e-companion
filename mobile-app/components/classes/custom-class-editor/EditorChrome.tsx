@@ -10,6 +10,7 @@ type EditorChromeProps = {
     locked: boolean;
     lockReason?: string | null;
     pending: boolean;
+    validationMessage?: string | null;
     onCancel: () => void;
     onBack: () => void;
     onContinue: () => void;
@@ -26,6 +27,7 @@ export default function EditorChrome({
     locked,
     lockReason,
     pending,
+    validationMessage,
     onCancel,
     onBack,
     onContinue,
@@ -68,6 +70,12 @@ export default function EditorChrome({
             ) : null}
 
             <View style={styles.body}>{children}</View>
+
+            {validationMessage ? (
+                <View style={styles.validationBanner} accessibilityRole="alert">
+                    <Text style={styles.validationText}>{validationMessage}</Text>
+                </View>
+            ) : null}
 
             <View style={styles.footer}>
                 {stage > 0 ? (
@@ -159,6 +167,16 @@ const styles = StyleSheet.create({
         backgroundColor: fantasyTokens.colors.crimsonSoft,
     },
     lockText: {
+        ...fantasyTokens.typography.bodySmall,
+        color: fantasyTokens.colors.crimson,
+        textAlign: 'center',
+    },
+    validationBanner: {
+        paddingHorizontal: fantasyTokens.spacing.lg,
+        paddingVertical: fantasyTokens.spacing.sm,
+        backgroundColor: fantasyTokens.colors.crimsonSoft,
+    },
+    validationText: {
         ...fantasyTokens.typography.bodySmall,
         color: fantasyTokens.colors.crimson,
         textAlign: 'center',

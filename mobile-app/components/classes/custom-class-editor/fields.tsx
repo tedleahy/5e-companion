@@ -6,20 +6,27 @@ import { ABILITIES } from './types';
 export function Field({
     label,
     helper,
+    errorMessage,
     ...props
-}: React.ComponentProps<typeof TextInput> & { label: string; helper?: string }) {
+}: Omit<React.ComponentProps<typeof TextInput>, 'error'> & {
+    label: string;
+    helper?: string;
+    errorMessage?: string;
+}) {
     return (
         <View style={styles.field}>
             <Text style={styles.label}>{label}</Text>
             {helper ? <Text style={styles.helper}>{helper}</Text> : null}
             <TextInput
                 mode="outlined"
-                outlineColor={fantasyTokens.colors.accordionBorder}
-                activeOutlineColor={fantasyTokens.colors.claret}
+                outlineColor={errorMessage ? fantasyTokens.colors.crimson : fantasyTokens.colors.accordionBorder}
+                activeOutlineColor={errorMessage ? fantasyTokens.colors.crimson : fantasyTokens.colors.claret}
                 textColor={fantasyTokens.colors.inkDark}
                 style={styles.input}
+                error={Boolean(errorMessage)}
                 {...props}
             />
+            {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
         </View>
     );
 }
@@ -50,11 +57,13 @@ export function AbilityPicker({
     label,
     selected,
     disabled,
+    errorMessage,
     onPress,
 }: {
     label: string;
     selected: string[];
     disabled?: boolean;
+    errorMessage?: string;
     onPress: (value: string) => void;
 }) {
     return (
@@ -71,6 +80,7 @@ export function AbilityPicker({
                     />
                 ))}
             </View>
+            {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
         </View>
     );
 }
@@ -107,6 +117,10 @@ export const fieldStyles = StyleSheet.create({
         ...fantasyTokens.typography.bodySmall,
         color: fantasyTokens.colors.inkSoft,
     },
+    error: {
+        ...fantasyTokens.typography.bodySmall,
+        color: fantasyTokens.colors.crimson,
+    },
     chips: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -133,6 +147,7 @@ const styles = StyleSheet.create({
     field: fieldStyles.field,
     label: fieldStyles.label,
     helper: fieldStyles.helper,
+    error: fieldStyles.error,
     input: { backgroundColor: fantasyTokens.colors.parchmentLight },
     chips: fieldStyles.chips,
     chip: {

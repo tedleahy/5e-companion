@@ -18,6 +18,13 @@ export type Draft = Omit<ManagedCustomClassInput, 'progression' | 'features'> & 
     features: DraftFeature[];
 };
 
+export type IdentityFieldErrors = {
+    name?: string;
+    description?: string;
+    primaryAbilities?: string;
+    savingThrows?: string;
+};
+
 export type CustomClassEditorProps = {
     visible: boolean;
     initial?: ClassDetailsFieldsFragment | null;
@@ -29,4 +36,8 @@ export type StageProps = {
     draft: Draft;
     locked: boolean;
     onChange: (patch: Partial<Draft>) => void;
+};
+
+export type IdentityStageProps = StageProps & {
+    errors?: IdentityFieldErrors;
 };

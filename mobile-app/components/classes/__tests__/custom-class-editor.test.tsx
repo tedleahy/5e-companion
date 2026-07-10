@@ -24,7 +24,10 @@ describe('CustomClassEditor', () => {
     test('validates the identity stage locally', () => {
         renderEditor();
         fireEvent.press(screen.getByText('Continue'));
-        expect(screen.getByText('Name and description are required.')).toBeTruthy();
+        expect(screen.getByText('Class name is required.')).toBeTruthy();
+        expect(screen.getByText('Description is required.')).toBeTruthy();
+        expect(screen.getByText('Choose at least one primary ability.')).toBeTruthy();
+        expect(screen.getByText('Choose exactly two saving throws.')).toBeTruthy();
         expect(screen.getByText('Identity')).toBeTruthy();
     });
 

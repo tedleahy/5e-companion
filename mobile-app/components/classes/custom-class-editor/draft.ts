@@ -1,5 +1,5 @@
 import type { ClassDetailsFieldsFragment, ManagedCustomClassInput } from '@/types/generated_graphql_types';
-import type { Draft, DraftLevel } from './types';
+import type { Draft, DraftLevel, IdentityFieldErrors } from './types';
 
 export function emptyProgression(): DraftLevel[] {
     return Array.from({ length: 20 }, (_, index) => ({
@@ -71,11 +71,28 @@ export function serialiseDraft(draft: Draft): ManagedCustomClassInput {
     };
 }
 
+/** Per-field identity validation used for inline errors after Continue is pressed. */
+export function identityFieldErrors(draft: Draft): IdentityFieldErrors {
+    const errors: IdentityFieldErrors = {};
+    if (!draft.name.trim()) errors.name = 'Class name is required.';
+    if (!draft.description.trim()) errors.description = 'Description is required.';
+    if (draft.primaryAbilityIndexes.length === 0) {
+        errors.primaryAbilities = 'Choose at least one primary ability.';
+    }
+    if (draft.savingThrowIndexes.length !== 2) {
+        errors.savingThrows = 'Choose exactly two saving throws.';
+    }
+    return errors;
+}
+
 export function stageError(stage: number, draft: Draft): string | null {
     if (stage === 0) {
-        if (!draft.name.trim() || !draft.description.trim()) return 'Name and description are required.';
-        if (draft.primaryAbilityIndexes.length === 0) return 'Choose at least one primary ability.';
-        if (draft.savingThrowIndexes.length !== 2) return 'Choose exactly two saving throws.';
+        const errors = identityFieldErrors(draft);
+        return errors.name
+            ?? errors.description
+            ?? errors.primaryAbilities
+            ?? errors.savingThrows
+            ?? null;
     }
     if (stage === 3 && draft.spellcastingMode !== 'NONE' && !draft.spellcastingAbility) {
         return 'Choose a spellcasting ability.';

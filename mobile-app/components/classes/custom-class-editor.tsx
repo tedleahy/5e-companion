@@ -1,7 +1,6 @@
 import { useMutation } from '@apollo/client/react';
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import { BackHandler, StyleSheet, useWindowDimensions } from 'react-native';
-import { Snackbar } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import ParchmentWizardSheetShell from '@/components/sheets/ParchmentWizardSheetShell';
@@ -10,7 +9,7 @@ import useBottomSheetMotion from '@/hooks/useBottomSheetMotion';
 import useDismissKeyboardAction from '@/hooks/useDismissKeyboardAction';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 import { fantasyTokens } from '@/theme/fantasyTheme';
-import { createDraft, serialiseDraft, stageError } from './custom-class-editor/draft';
+import { createDraft, identityFieldErrors, serialiseDraft, stageError } from './custom-class-editor/draft';
 import EditorChrome from './custom-class-editor/EditorChrome';
 import EquipmentStage from './custom-class-editor/EquipmentStage';
 import FeaturesStage from './custom-class-editor/FeaturesStage';
@@ -170,6 +169,7 @@ export default function CustomClassEditor({ visible, initial, onClose, onSaved }
                     locked={locked}
                     lockReason={initial?.mechanicsLockedReason}
                     pending={pending}
+                    validationMessage={stage === 0 ? null : validationMessage}
                     onCancel={() => dismissKeyboardAndRun(requestSheetClose)}
                     onBack={() => dismissKeyboardAndRun(() => move(-1))}
                     onContinue={() => dismissKeyboardAndRun(() => move(1))}
@@ -185,7 +185,12 @@ export default function CustomClassEditor({ visible, initial, onClose, onSaved }
                         onScroll={handleScroll}
                         scrollEventThrottle={16}
                     >
-                        {stage === 0 ? <IdentityStage {...stageProps} /> : null}
+                        {stage === 0 ? (
+                            <IdentityStage
+                                {...stageProps}
+                                errors={validationMessage ? identityFieldErrors(draft) : undefined}
+                            />
+                        ) : null}
                         {stage === 1 ? <ProficienciesStage {...stageProps} /> : null}
                         {stage === 2 ? <EquipmentStage {...stageProps} /> : null}
                         {stage === 3 ? (
@@ -209,12 +214,6 @@ export default function CustomClassEditor({ visible, initial, onClose, onSaved }
                 onConfirm={confirmDiscard}
                 onCancel={() => setDiscardVisible(false)}
             />
-            <Snackbar
-                visible={validationMessage != null}
-                onDismiss={() => setValidationMessage(null)}
-            >
-                {validationMessage ?? ''}
-            </Snackbar>
         </>
     );
 }

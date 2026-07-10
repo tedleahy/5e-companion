@@ -1,12 +1,12 @@
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { AbilityPicker, Chip, Field, fieldStyles } from './fields';
-import type { StageProps } from './types';
+import type { IdentityStageProps } from './types';
 
 /**
  * Identity stage: name, description, hit die, and ability selections.
  */
-export default function IdentityStage({ draft, locked, onChange }: StageProps) {
+export default function IdentityStage({ draft, locked, errors = {}, onChange }: IdentityStageProps) {
     function toggleAbility(field: 'primaryAbilityIndexes' | 'savingThrowIndexes', value: string) {
         if (locked) return;
         const values = draft[field];
@@ -24,12 +24,14 @@ export default function IdentityStage({ draft, locked, onChange }: StageProps) {
                 label="Class name"
                 value={draft.name}
                 editable={!locked}
+                errorMessage={errors.name}
                 onChangeText={(name) => onChange({ name })}
             />
             <Field
                 label="Description"
                 value={draft.description}
                 multiline
+                errorMessage={errors.description}
                 onChangeText={(description) => onChange({ description })}
             />
             <Text style={fieldStyles.label}>Hit die</Text>
@@ -48,12 +50,14 @@ export default function IdentityStage({ draft, locked, onChange }: StageProps) {
                 label="Primary abilities"
                 selected={draft.primaryAbilityIndexes}
                 disabled={locked}
+                errorMessage={errors.primaryAbilities}
                 onPress={(value) => toggleAbility('primaryAbilityIndexes', value)}
             />
             <AbilityPicker
                 label="Saving throws (choose two)"
                 selected={draft.savingThrowIndexes}
                 disabled={locked}
+                errorMessage={errors.savingThrows}
                 onPress={(value) => toggleAbility('savingThrowIndexes', value)}
             />
         </>
