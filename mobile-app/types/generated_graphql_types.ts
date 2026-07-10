@@ -624,6 +624,14 @@ export enum ProficiencyLevel {
   Proficient = 'proficient'
 }
 
+export type ProficiencyRef = {
+  __typename?: 'ProficiencyRef';
+  isCustom: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
   availableBackgrounds: Array<AvailableBackground>;
@@ -636,6 +644,7 @@ export type Query = {
   customClasses: Array<ClassDetails>;
   customSubclasses: Array<CustomSubclass>;
   hasCurrentUserCharacters: Scalars['Boolean']['output'];
+  proficiencies: Array<ProficiencyRef>;
   spell?: Maybe<Spell>;
   spells: Array<Spell>;
 };
@@ -658,6 +667,11 @@ export type QueryClassDetailsArgs = {
 
 export type QueryCustomSubclassesArgs = {
   classIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+
+export type QueryProficienciesArgs = {
+  type?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1083,6 +1097,13 @@ export type UpdateCustomClassMutationVariables = Exact<{
 
 
 export type UpdateCustomClassMutation = { __typename?: 'Mutation', updateCustomClass: { __typename?: 'ClassDetails', id: string, value: string, srdIndex?: string | null, name: string, description: Array<string>, hitDie: number, primaryAbilityIndexes: Array<string>, savingThrowIndexes: Array<string>, spellcastingMode: string, spellcastingAbility?: string | null, isCustom: boolean, archived: boolean, sourceBook?: string | null, characterUsageCount: number, mechanicsLocked: boolean, mechanicsLockedReason?: string | null, multiclassPrerequisites: Array<{ __typename?: 'ClassMulticlassPrerequisite', abilityIndex: string, minimum: number, group: number }>, proficiencies: Array<{ __typename?: 'ClassProficiency', value: string, name: string, type: string, grant: string, choiceGroup?: number | null, choiceCount?: number | null }>, equipment: Array<{ __typename?: 'ClassEquipmentDefinition', name: string, quantity: number, choiceGroup?: number | null, choiceCount?: number | null }>, progression: Array<{ __typename?: 'ClassLevelProgression', level: number, abilityScoreImprovement: boolean, spellSlots: Array<number>, cantripsKnown?: number | null, spellsKnown?: number | null, preparedSpellCount?: number | null, addSpellcastingAbility: boolean, displayValues: Array<{ __typename?: 'ClassDisplayValue', key: string, value: string }> }>, features: Array<{ __typename?: 'ClassFeature', id: string, name: string, description: string, level: number }>, spells: Array<{ __typename?: 'ClassSpell', id: string, name: string, level: number }> } };
+
+export type ProficienciesQueryVariables = Exact<{
+  type?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type ProficienciesQuery = { __typename?: 'Query', proficiencies: Array<{ __typename?: 'ProficiencyRef', value: string, name: string, type: string, isCustom: boolean }> };
 
 export type ArchiveCustomClassMutationVariables = Exact<{
   id: Scalars['ID']['input'];

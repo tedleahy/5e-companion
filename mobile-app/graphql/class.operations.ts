@@ -88,6 +88,17 @@ export const UPDATE_CUSTOM_CLASS = gql`
     ${CLASS_DETAILS_FIELDS}
 `;
 
+export const GET_PROFICIENCIES = gql`
+    query Proficiencies($type: String) {
+        proficiencies(type: $type) {
+            value
+            name
+            type
+            isCustom
+        }
+    }
+`;
+
 export const ARCHIVE_CUSTOM_CLASS = gql`
     mutation ArchiveCustomClass($id: ID!) { archiveCustomClass(id: $id) }
 `;

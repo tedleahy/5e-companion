@@ -103,25 +103,75 @@ export function stageError(stage: number, draft: Draft): string | null {
     return null;
 }
 
-export function formatProficiencies(draft: Draft, grant: string) {
+export type ProficiencyChoiceGroup = {
+    choiceGroup: number;
+    choiceCount: number;
+    values: string[];
+};
+
+/** Fixed (non-choice) proficiency values for a grant. */
+export function fixedProficiencyValues(draft: Draft, grant: string): string[] {
     return draft.proficiencies
-        .filter((item) => item.grant === grant)
-        .map((item) => [item.value, item.choiceGroup, item.choiceCount].filter((value) => value != null).join('|'))
-        .join(', ');
+        .filter((item) => item.grant === grant && item.choiceGroup == null)
+        .map((item) => item.value);
 }
 
-export function parseProficiencies(text: string, grant: string) {
-    return text
-        .split(',')
-        .map((entry) => entry.trim())
-        .filter(Boolean)
-        .map((entry) => {
-            const [value, group, count] = entry.split('|');
-            return {
-                value: value ?? '',
+/** Choice groups for a grant, sorted by group id. */
+export function proficiencyChoiceGroups(draft: Draft, grant: string): ProficiencyChoiceGroup[] {
+    const groups = new Map<number, ProficiencyChoiceGroup>();
+    for (const item of draft.proficiencies) {
+        if (item.grant !== grant || item.choiceGroup == null || item.choiceCount == null) continue;
+        const existing = groups.get(item.choiceGroup);
+        if (existing) {
+            existing.values.push(item.value);
+        } else {
+            groups.set(item.choiceGroup, {
+                choiceGroup: item.choiceGroup,
+                choiceCount: item.choiceCount,
+                values: [item.value],
+            });
+        }
+    }
+    return [...groups.values()].sort((left, right) => left.choiceGroup - right.choiceGroup);
+}
+
+/** Replace fixed proficiency values for a grant, preserving choice groups. */
+export function withFixedProficiencies(
+    draft: Draft,
+    grant: string,
+    values: string[],
+): Draft['proficiencies'] {
+    return [
+        ...draft.proficiencies.filter((item) => item.grant !== grant || item.choiceGroup != null),
+        ...values.map((value) => ({
+            value,
+            grant,
+            choiceGroup: null,
+            choiceCount: null,
+        })),
+    ];
+}
+
+/** Replace choice groups for a grant, preserving fixed values. */
+export function withChoiceGroups(
+    draft: Draft,
+    grant: string,
+    groups: ProficiencyChoiceGroup[],
+): Draft['proficiencies'] {
+    return [
+        ...draft.proficiencies.filter((item) => item.grant !== grant || item.choiceGroup == null),
+        ...groups.flatMap((group) =>
+            group.values.map((value) => ({
+                value,
                 grant,
-                choiceGroup: group ? Number(group) : null,
-                choiceCount: count ? Number(count) : null,
-            };
-        });
+                choiceGroup: group.choiceGroup,
+                choiceCount: group.choiceCount,
+            })),
+        ),
+    ];
+}
+
+/** Next unused choice-group id for a grant. */
+export function nextChoiceGroupId(groups: ProficiencyChoiceGroup[]): number {
+    return groups.reduce((max, group) => Math.max(max, group.choiceGroup), 0) + 1;
 }
