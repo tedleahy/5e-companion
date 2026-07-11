@@ -13,9 +13,11 @@ export const ABILITIES = [
 
 export type DraftLevel = ManagedCustomClassInput['progression'][number];
 export type DraftFeature = ManagedCustomClassInput['features'][number] & { key: string };
-export type Draft = Omit<ManagedCustomClassInput, 'progression' | 'features'> & {
+export type DraftEquipment = ManagedCustomClassInput['equipment'][number] & { key: string };
+export type Draft = Omit<ManagedCustomClassInput, 'progression' | 'features' | 'equipment'> & {
     progression: DraftLevel[];
     features: DraftFeature[];
+    equipment: DraftEquipment[];
 };
 
 export type IdentityFieldErrors = {

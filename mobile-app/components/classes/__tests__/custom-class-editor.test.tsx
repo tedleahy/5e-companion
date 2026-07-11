@@ -153,6 +153,39 @@ describe('CustomClassEditor', () => {
         expect(screen.getByText('+ Add OR alternative')).toBeTruthy();
     });
 
+    test('shows structured equipment builders instead of pipe-delimited DSL', async () => {
+        renderEditor();
+        fillIdentityAndContinue();
+
+        await waitFor(() => {
+            expect(screen.getByText('Multiclass prerequisites')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByText('Continue'));
+
+        expect(screen.getByTestId('equipment-editor')).toBeTruthy();
+        expect(screen.getByTestId('add-fixed-equipment')).toBeTruthy();
+        expect(screen.getByTestId('add-equipment-choice-group')).toBeTruthy();
+        expect(screen.queryByText(/One per line/)).toBeNull();
+
+        fireEvent.press(screen.getByTestId('add-fixed-equipment'));
+        expect(screen.getByText('Qty')).toBeTruthy();
+        const nameInput = screen.getAllByTestId(/equipment-name-/)[0]!;
+        fireEvent.changeText(nameInput, 'Shield');
+        fireEvent.press(screen.getAllByTestId(/equipment-qty-inc-/)[0]!);
+        expect(screen.getAllByTestId(/equipment-qty-/)[0]).toHaveTextContent('2');
+
+        fireEvent.press(screen.getByTestId('add-equipment-choice-group'));
+        expect(screen.getByTestId('equipment-choice-group-1')).toBeTruthy();
+        expect(screen.getByText('Choose')).toBeTruthy();
+        expect(screen.getByText('+ Add option')).toBeTruthy();
+
+        fireEvent.press(screen.getByText('Continue'));
+        expect(
+            screen.getByText('Every equipment entry needs a name and a quantity of at least 1.'),
+        ).toBeTruthy();
+        expect(screen.getByText('Equipment')).toBeTruthy();
+    });
+
     test('allows adding the spellcasting ability modifier to prepared spells', async () => {
         renderEditor();
         fillIdentityAndContinue();

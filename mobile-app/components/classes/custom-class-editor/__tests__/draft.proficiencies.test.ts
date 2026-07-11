@@ -74,11 +74,6 @@ describe('custom class proficiency draft helpers', () => {
 
     test('nextChoiceGroupId increments past the highest group', () => {
         expect(nextChoiceGroupId([])).toBe(1);
-        expect(
-            nextChoiceGroupId([
-                { choiceGroup: 1, choiceCount: 2, values: ['a'] },
-                { choiceGroup: 3, choiceCount: 1, values: ['b'] },
-            ]),
-        ).toBe(4);
+        expect(nextChoiceGroupId([{ choiceGroup: 1 }, { choiceGroup: 3 }])).toBe(4);
     });
 });

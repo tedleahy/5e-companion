@@ -1,5 +1,13 @@
 import type { ClassDetailsFieldsFragment, ManagedCustomClassInput } from '@/types/generated_graphql_types';
-import type { Draft, DraftLevel, IdentityFieldErrors } from './types';
+import type { Draft, DraftEquipment, DraftLevel, IdentityFieldErrors } from './types';
+
+let equipmentKeySeq = 0;
+
+/** Stable client key for an equipment row (stripped on serialise). */
+export function newEquipmentKey(): string {
+    equipmentKeySeq += 1;
+    return `equipment-${Date.now()}-${equipmentKeySeq}`;
+}
 
 export function emptyProgression(): DraftLevel[] {
     return Array.from({ length: 20 }, (_, index) => ({
@@ -45,7 +53,7 @@ export function createDraft(initial?: ClassDetailsFieldsFragment | null): Draft 
             choiceGroup,
             choiceCount,
         })),
-        equipment: initial.equipment.map((item) => ({ ...item })),
+        equipment: initial.equipment.map((item) => ({ ...item, key: newEquipmentKey() })),
         spellcastingMode: initial.spellcastingMode,
         spellcastingAbility: initial.spellcastingAbility,
         progression: initial.progression.map(({ displayValues, ...level }) => ({
@@ -68,6 +76,7 @@ export function serialiseDraft(draft: Draft): ManagedCustomClassInput {
     return {
         ...draft,
         features: draft.features.map(({ key: _key, ...feature }) => feature),
+        equipment: draft.equipment.map(({ key: _key, ...item }) => item),
     };
 }
 
@@ -94,6 +103,15 @@ export function stageError(stage: number, draft: Draft): string | null {
             ?? errors.savingThrows
             ?? null;
     }
+    if (stage === 2) {
+        if (draft.equipment.some((item) => !item.name.trim() || item.quantity < 1)) {
+            return 'Every equipment entry needs a name and a quantity of at least 1.';
+        }
+        const groups = equipmentChoiceGroups(draft);
+        if (groups.some((group) => group.items.length === 0 || group.choiceCount > group.items.length)) {
+            return 'Each equipment choice group needs enough options for its choose count.';
+        }
+    }
     if (stage === 3 && draft.spellcastingMode !== 'NONE' && !draft.spellcastingAbility) {
         return 'Choose a spellcasting ability.';
     }
@@ -107,6 +125,18 @@ export type ProficiencyChoiceGroup = {
     choiceGroup: number;
     choiceCount: number;
     values: string[];
+};
+
+export type EquipmentEntry = {
+    key: string;
+    name: string;
+    quantity: number;
+};
+
+export type EquipmentChoiceGroup = {
+    choiceGroup: number;
+    choiceCount: number;
+    items: EquipmentEntry[];
 };
 
 /** Fixed (non-choice) proficiency values for a grant. */
@@ -125,6 +155,7 @@ export function proficiencyChoiceGroups(draft: Draft, grant: string): Proficienc
         if (existing) {
             existing.values.push(item.value);
         } else {
+            // First member wins when choiceCount disagrees within a group.
             groups.set(item.choiceGroup, {
                 choiceGroup: item.choiceGroup,
                 choiceCount: item.choiceCount,
@@ -171,7 +202,69 @@ export function withChoiceGroups(
     ];
 }
 
-/** Next unused choice-group id for a grant. */
-export function nextChoiceGroupId(groups: ProficiencyChoiceGroup[]): number {
+/** Next unused choice-group id. */
+export function nextChoiceGroupId(groups: { choiceGroup: number }[]): number {
     return groups.reduce((max, group) => Math.max(max, group.choiceGroup), 0) + 1;
+}
+
+/** Fixed (non-choice) starting equipment entries. */
+export function fixedEquipment(draft: Draft): EquipmentEntry[] {
+    return draft.equipment
+        .filter((item) => item.choiceGroup == null)
+        .map(({ key, name, quantity }) => ({ key, name, quantity }));
+}
+
+/** Choice groups for starting equipment, sorted by group id. */
+export function equipmentChoiceGroups(draft: Draft): EquipmentChoiceGroup[] {
+    const groups = new Map<number, EquipmentChoiceGroup>();
+    for (const item of draft.equipment) {
+        if (item.choiceGroup == null || item.choiceCount == null) continue;
+        const existing = groups.get(item.choiceGroup);
+        if (existing) {
+            existing.items.push({ key: item.key, name: item.name, quantity: item.quantity });
+        } else {
+            // First member wins when choiceCount disagrees within a group.
+            groups.set(item.choiceGroup, {
+                choiceGroup: item.choiceGroup,
+                choiceCount: item.choiceCount,
+                items: [{ key: item.key, name: item.name, quantity: item.quantity }],
+            });
+        }
+    }
+    return [...groups.values()].sort((left, right) => left.choiceGroup - right.choiceGroup);
+}
+
+function toDraftEquipment(
+    item: EquipmentEntry,
+    choiceGroup: number | null,
+    choiceCount: number | null,
+): DraftEquipment {
+    return {
+        key: item.key,
+        name: item.name,
+        quantity: item.quantity,
+        choiceGroup,
+        choiceCount,
+    };
+}
+
+/** Replace fixed equipment, preserving choice groups. */
+export function withFixedEquipment(draft: Draft, items: EquipmentEntry[]): Draft['equipment'] {
+    return [
+        ...draft.equipment.filter((item) => item.choiceGroup != null),
+        ...items.map((item) => toDraftEquipment(item, null, null)),
+    ];
+}
+
+/** Replace equipment choice groups, preserving fixed entries. */
+export function withEquipmentChoiceGroups(
+    draft: Draft,
+    groups: EquipmentChoiceGroup[],
+): Draft['equipment'] {
+    return [
+        ...draft.equipment.filter((item) => item.choiceGroup == null),
+        ...groups.flatMap((group) =>
+            group.items.map((item) => toDraftEquipment(item, group.choiceGroup, group.choiceCount)),
+        ),
+    ];
 }

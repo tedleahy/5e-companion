@@ -1,37 +1,24 @@
-import { Field } from './fields';
+import {
+    equipmentChoiceGroups,
+    fixedEquipment,
+    withEquipmentChoiceGroups,
+    withFixedEquipment,
+} from './draft';
+import EquipmentEditor from './EquipmentEditor';
 import type { StageProps } from './types';
 
 /**
- * Equipment stage: starting equipment as pipe-delimited lines.
+ * Equipment stage: starting equipment as fixed grants and choice groups.
  */
 export default function EquipmentStage({ draft, locked, onChange }: StageProps) {
     return (
-        <Field
-            label="Starting equipment"
-            helper="One per line: name|quantity|choice group|choice count. Choice fields may be blank."
-            editable={!locked}
-            value={draft.equipment
-                .map(
-                    (item) =>
-                        `${item.name}|${item.quantity}|${item.choiceGroup ?? ''}|${item.choiceCount ?? ''}`,
-                )
-                .join('\n')}
-            multiline
-            onChangeText={(text) =>
-                onChange({
-                    equipment: text
-                        .split('\n')
-                        .filter(Boolean)
-                        .map((line) => {
-                            const [name, quantity, group, count] = line.split('|');
-                            return {
-                                name: name?.trim() ?? '',
-                                quantity: Number(quantity || 1),
-                                choiceGroup: group ? Number(group) : null,
-                                choiceCount: count ? Number(count) : null,
-                            };
-                        }),
-                })
+        <EquipmentEditor
+            fixedItems={fixedEquipment(draft)}
+            choiceGroups={equipmentChoiceGroups(draft)}
+            locked={locked}
+            onChangeFixed={(items) => onChange({ equipment: withFixedEquipment(draft, items) })}
+            onChangeChoiceGroups={(groups) =>
+                onChange({ equipment: withEquipmentChoiceGroups(draft, groups) })
             }
         />
     );
