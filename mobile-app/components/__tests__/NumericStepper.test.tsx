@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { PaperProvider } from 'react-native-paper';
-import NumericStepper from '@/components/character-creation-wizard/NumericStepper';
+import NumericStepper from '@/components/NumericStepper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 /**
@@ -72,7 +72,7 @@ describe('NumericStepper', () => {
         );
 
         expect(screen.getByTestId('stepper-decrement')).toHaveStyle({
-            backgroundColor: 'rgba(201,146,42,0.18)',
+            backgroundColor: fantasyTokens.stepper.night.button,
         });
         expect(screen.getByTestId('stepper-value')).toHaveStyle({
             color: fantasyTokens.colors.parchment,

@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import NumericStepper from '@/components/character-creation-wizard/NumericStepper';
+import NumericStepper from '@/components/NumericStepper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { AbilityPicker, Chip, Field, NumberField, fieldStyles } from './fields';
 import type { DraftLevel, StageProps } from './types';

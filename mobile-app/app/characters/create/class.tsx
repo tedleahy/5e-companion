@@ -7,7 +7,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery } from '@apollo/client/react';
 import ClassAllocationRow from '@/components/character-creation-wizard/ClassAllocationRow';
 import ClassOptionGrid from '@/components/character-creation-wizard/ClassOptionGrid';
-import NumericStepper from '@/components/character-creation-wizard/NumericStepper';
+import NumericStepper from '@/components/NumericStepper';
 import OptionGrid from '@/components/character-creation-wizard/OptionGrid';
 import useAvailableSubclasses from '@/hooks/useAvailableSubclasses';
 import {

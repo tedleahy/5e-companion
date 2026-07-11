@@ -92,35 +92,35 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         borderWidth: 1,
-        borderRadius: 10,
+        borderRadius: fantasyTokens.radii.sm,
         overflow: 'hidden',
         justifyContent: 'space-between',
     },
     containerNight: {
-        borderColor: 'rgba(201,146,42,0.34)',
-        backgroundColor: 'rgba(201,146,42,0.12)',
+        borderColor: fantasyTokens.stepper.night.border,
+        backgroundColor: fantasyTokens.stepper.night.background,
     },
     containerParchment: {
-        borderColor: 'rgba(201,146,42,0.2)',
-        backgroundColor: 'rgba(240,224,188,0.06)',
+        borderColor: fantasyTokens.stepper.parchment.border,
+        backgroundColor: fantasyTokens.stepper.parchment.background,
     },
     button: {
-        width: 36,
-        height: 36,
+        width: fantasyTokens.stepper.buttonSize,
+        height: fantasyTokens.stepper.buttonSize,
         alignItems: 'center',
         justifyContent: 'center',
     },
     buttonNight: {
-        backgroundColor: 'rgba(201,146,42,0.18)',
+        backgroundColor: fantasyTokens.stepper.night.button,
     },
     buttonParchment: {
-        backgroundColor: 'rgba(201,146,42,0.08)',
+        backgroundColor: fantasyTokens.stepper.parchment.button,
     },
     buttonPressedNight: {
-        backgroundColor: 'rgba(201,146,42,0.28)',
+        backgroundColor: fantasyTokens.stepper.night.buttonPressed,
     },
     buttonPressedParchment: {
-        backgroundColor: 'rgba(201,146,42,0.16)',
+        backgroundColor: fantasyTokens.stepper.parchment.buttonPressed,
     },
     buttonDisabled: {
         opacity: 0.35,
@@ -136,8 +136,8 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.inkDark,
     },
     valueText: {
-        minWidth: 42,
-        paddingHorizontal: 10,
+        minWidth: fantasyTokens.stepper.valueMinWidth,
+        paddingHorizontal: fantasyTokens.stepper.valuePaddingHorizontal,
         textAlign: 'center',
         fontFamily: fantasyTokens.fonts.regular,
         fontSize: fantasyTokens.fontSizes.bodyLarge,

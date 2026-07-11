@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
+import NumericStepper from '@/components/NumericStepper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import {
     nextChoiceGroupId,
@@ -86,11 +87,15 @@ export default function ProficiencyGrantEditor({
 
     function removeOption(choiceGroup: number, value: string) {
         const next = choiceGroups
-            .map((group) =>
-                group.choiceGroup === choiceGroup
-                    ? { ...group, values: group.values.filter((entry) => entry !== value) }
-                    : group,
-            )
+            .map((group) => {
+                if (group.choiceGroup !== choiceGroup) return group;
+                const values = group.values.filter((entry) => entry !== value);
+                return {
+                    ...group,
+                    values,
+                    choiceCount: Math.min(group.choiceCount, Math.max(1, values.length)),
+                };
+            })
             .filter((group) => group.values.length > 0);
         onChangeChoiceGroups(next);
     }
@@ -117,7 +122,11 @@ export default function ProficiencyGrantEditor({
             removeGroup(pickerTarget.choiceGroup);
             return;
         }
-        updateGroup(pickerTarget.choiceGroup, { values });
+        const existing = choiceGroups.find((group) => group.choiceGroup === pickerTarget.choiceGroup);
+        updateGroup(pickerTarget.choiceGroup, {
+            values,
+            choiceCount: Math.min(existing?.choiceCount ?? 1, values.length),
+        });
     }
 
     return (
@@ -165,42 +174,35 @@ export default function ProficiencyGrantEditor({
                         <View style={styles.groupHeader}>
                             <Text style={styles.groupTitle}>Choice group {group.choiceGroup}</Text>
                             {!locked ? (
-                                <Pressable onPress={() => removeGroup(group.choiceGroup)}>
+                                <Pressable
+                                    accessibilityRole="button"
+                                    accessibilityLabel={`Remove choice group ${group.choiceGroup}`}
+                                    onPress={() => removeGroup(group.choiceGroup)}
+                                >
                                     <Text style={styles.remove}>Remove</Text>
                                 </Pressable>
                             ) : null}
                         </View>
                         <View style={styles.chooseRow}>
                             <Text style={styles.chooseLabel}>Choose</Text>
-                            <View style={styles.stepper}>
-                                <Pressable
-                                    disabled={locked || group.choiceCount <= 1}
-                                    onPress={() =>
-                                        updateGroup(group.choiceGroup, {
-                                            choiceCount: Math.max(1, group.choiceCount - 1),
-                                        })
-                                    }
-                                    style={[styles.stepperButton, locked && fieldStyles.disabled]}
-                                    accessibilityRole="button"
-                                    accessibilityLabel="Decrease choose count"
-                                >
-                                    <Text style={styles.stepperText}>−</Text>
-                                </Pressable>
-                                <Text style={styles.chooseValue}>{group.choiceCount}</Text>
-                                <Pressable
-                                    disabled={locked}
-                                    onPress={() =>
-                                        updateGroup(group.choiceGroup, {
-                                            choiceCount: group.choiceCount + 1,
-                                        })
-                                    }
-                                    style={[styles.stepperButton, locked && fieldStyles.disabled]}
-                                    accessibilityRole="button"
-                                    accessibilityLabel="Increase choose count"
-                                >
-                                    <Text style={styles.stepperText}>+</Text>
-                                </Pressable>
-                            </View>
+                            <NumericStepper
+                                value={group.choiceCount}
+                                canDecrease={!locked && group.choiceCount > 1}
+                                canIncrease={!locked && group.choiceCount < group.values.length}
+                                decrementLabel="Decrease choose count"
+                                incrementLabel="Increase choose count"
+                                tone="parchment"
+                                onDecrease={() =>
+                                    updateGroup(group.choiceGroup, {
+                                        choiceCount: Math.max(1, group.choiceCount - 1),
+                                    })
+                                }
+                                onIncrease={() =>
+                                    updateGroup(group.choiceGroup, {
+                                        choiceCount: Math.min(group.values.length, group.choiceCount + 1),
+                                    })
+                                }
+                            />
                         </View>
                         <View style={fieldStyles.chips}>
                             {group.values.map((value) => (
@@ -285,30 +287,6 @@ const styles = StyleSheet.create({
     chooseLabel: {
         ...fantasyTokens.typography.buttonLabel,
         color: fantasyTokens.colors.inkDark,
-    },
-    stepper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: fantasyTokens.spacing.sm,
-    },
-    stepperButton: {
-        width: fantasyTokens.spacing.xl + fantasyTokens.spacing.sm,
-        height: fantasyTokens.spacing.xl + fantasyTokens.spacing.sm,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.accordionBorder,
-        borderRadius: fantasyTokens.radii.sm,
-    },
-    stepperText: {
-        ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.inkDark,
-    },
-    chooseValue: {
-        ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.inkDark,
-        minWidth: fantasyTokens.spacing.lg,
-        textAlign: 'center',
     },
     remove: {
         ...fantasyTokens.typography.buttonLabel,

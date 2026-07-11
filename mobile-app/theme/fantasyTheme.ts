@@ -264,6 +264,23 @@ export const fantasyTokens = {
         defaultHeight: '82%' as const,
         tallHeight: '88%' as const,
     },
+    stepper: {
+        buttonSize: fantasySpacing.xl + fantasySpacing.sm + fantasySpacing.xs,
+        valueMinWidth: fantasySpacing.xxl + fantasySpacing.xs / 2,
+        valuePaddingHorizontal: fantasySpacing.sm + fantasySpacing.xs / 2,
+        night: {
+            border: 'rgba(201,146,42,0.34)',
+            background: 'rgba(201,146,42,0.12)',
+            button: 'rgba(201,146,42,0.18)',
+            buttonPressed: 'rgba(201,146,42,0.28)',
+        },
+        parchment: {
+            border: 'rgba(201,146,42,0.2)',
+            background: 'rgba(240,224,188,0.06)',
+            button: 'rgba(201,146,42,0.08)',
+            buttonPressed: 'rgba(201,146,42,0.16)',
+        },
+    },
     text: {
         formLabel: {
             fontFamily: fantasyFonts.regular,
