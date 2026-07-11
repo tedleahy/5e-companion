@@ -41,21 +41,24 @@ export default function CompendiumScreen() {
                 contentContainerStyle={styles.scrollContent}
             >
                 <View style={styles.grid}>
-                    {COMPENDIUM_CATEGORIES.map((category) => (
-                        <CompendiumCategoryCard
-                            key={category.key}
-                            icon={category.icon}
-                            label={category.label}
-                            summary={summaries[category.key]}
-                            width={cardWidth}
-                            testID={`compendium-category-${category.key}`}
-                            onPress={category.href == null
-                                ? undefined
-                                : () => {
-                                    void protectedRouter.push(category.href);
-                                }}
-                        />
-                    ))}
+                    {COMPENDIUM_CATEGORIES.map((category) => {
+                        const href = category.href;
+                        return (
+                            <CompendiumCategoryCard
+                                key={category.key}
+                                icon={category.icon}
+                                label={category.label}
+                                summary={summaries[category.key]}
+                                width={cardWidth}
+                                testID={`compendium-category-${category.key}`}
+                                onPress={href == null
+                                    ? undefined
+                                    : () => {
+                                        void protectedRouter.push(href);
+                                    }}
+                            />
+                        );
+                    })}
                 </View>
             </ScrollView>
         </View>

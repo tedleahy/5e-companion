@@ -14,18 +14,18 @@ type CompendiumCategory = {
  * Traits are embedded in their owning content types rather than managed as a category.
  */
 export const COMPENDIUM_CATEGORIES = [
-    { key: 'classes', icon: '⚔️', label: 'Classes', href: '/compendium/classes' },
+    { key: 'classes', icon: '⚔️', label: 'Classes', href: '/(rail)/compendium/classes' },
     {
         key: 'subclasses',
         icon: '✨',
         label: 'Subclasses',
-        href: '/compendium/subclasses',
+        href: '/(rail)/compendium/subclasses',
     },
     {
         key: 'spells',
         icon: '📖',
         label: 'Spells',
-        href: '/compendium/spells',
+        href: '/(rail)/compendium/spells',
     },
     { key: 'races', icon: '🧝', label: 'Races', href: undefined },
     { key: 'subraces', icon: '🌿', label: 'Subraces', href: undefined },

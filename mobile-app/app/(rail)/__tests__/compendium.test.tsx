@@ -112,9 +112,9 @@ describe('Compendium screen', () => {
 
         await waitFor(() => {
             expect(mockPush.mock.calls).toEqual([
-                ['/compendium/subclasses'],
-                ['/compendium/spells'],
-                ['/compendium/classes'],
+                ['/(rail)/compendium/subclasses'],
+                ['/(rail)/compendium/spells'],
+                ['/(rail)/compendium/classes'],
             ]);
         });
     });
