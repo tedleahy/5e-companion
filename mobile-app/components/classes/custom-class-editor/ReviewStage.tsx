@@ -18,7 +18,7 @@ export default function ReviewStage({ draft, locked }: { draft: Draft; locked: b
                 d{draft.hitDie} · {draft.primaryAbilityIndexes.join(', ').toUpperCase()}
             </Text>
             <Text style={styles.reviewLine}>
-                {draft.features.length} features · {draft.spellIds.length} spells
+                {draft.features.length} features · {draft.spells.length} spells
             </Text>
             {locked ? (
                 <Text style={styles.lockText}>Only descriptive fields will be updated.</Text>

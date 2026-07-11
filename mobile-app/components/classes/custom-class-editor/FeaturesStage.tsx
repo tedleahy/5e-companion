@@ -1,11 +1,12 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import ClassSpellListEditor from './ClassSpellListEditor';
 import { Field } from './fields';
 import type { StageProps } from './types';
 
 /**
- * Features stage: class feature list and class spell IDs.
+ * Features stage: class feature list and class spell list via the shared spell picker.
  */
 export default function FeaturesStage({ draft, locked, onChange }: StageProps) {
     return (
@@ -90,20 +91,10 @@ export default function FeaturesStage({ draft, locked, onChange }: StageProps) {
                 </Pressable>
             ) : null}
             {draft.spellcastingMode !== 'NONE' ? (
-                <Field
-                    label="Class spell IDs"
-                    helper="Comma-separated spell IDs from the Compendium."
-                    editable={!locked}
-                    value={draft.spellIds.join(', ')}
-                    multiline
-                    onChangeText={(text) =>
-                        onChange({
-                            spellIds: text
-                                .split(',')
-                                .map((value) => value.trim())
-                                .filter(Boolean),
-                        })
-                    }
+                <ClassSpellListEditor
+                    spells={draft.spells}
+                    locked={locked}
+                    onChangeSpells={(spells) => onChange({ spells })}
                 />
             ) : null}
         </>

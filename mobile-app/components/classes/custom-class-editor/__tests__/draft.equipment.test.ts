@@ -107,6 +107,18 @@ describe('custom class equipment draft helpers', () => {
         ]);
     });
 
+    test('serialiseDraft maps draft spells to spellIds', () => {
+        expect(
+            serialiseDraft({
+                ...draft,
+                spells: [
+                    { id: 'spell-magic-missile', name: 'Magic Missile', level: 1 },
+                    { id: 'spell-shield', name: 'Shield', level: 1 },
+                ],
+            }).spellIds,
+        ).toEqual(['spell-magic-missile', 'spell-shield']);
+    });
+
     test('stageError rejects incomplete equipment entries', () => {
         expect(stageError(2, draft)).toBeNull();
         expect(

@@ -79,7 +79,7 @@ export function createDraft(initial?: ClassDetailsFieldsFragment | null): Draft 
             spellcastingAbility: null,
             progression: emptyProgression(),
             features: [],
-            spellIds: [],
+            spells: [],
         };
     }
     return {
@@ -110,15 +110,21 @@ export function createDraft(initial?: ClassDetailsFieldsFragment | null): Draft 
             description: feature.description,
             level: feature.level,
         })),
-        spellIds: initial.spells.map((spell) => spell.id),
+        spells: initial.spells.map((spell) => ({
+            id: spell.id,
+            name: spell.name,
+            level: spell.level,
+        })),
     };
 }
 
 export function serialiseDraft(draft: Draft): ManagedCustomClassInput {
+    const { spells, features, equipment, ...rest } = draft;
     return {
-        ...draft,
-        features: draft.features.map(({ key: _key, ...feature }) => feature),
-        equipment: draft.equipment.map(({ key: _key, ...item }) => item),
+        ...rest,
+        features: features.map(({ key: _key, ...feature }) => feature),
+        equipment: equipment.map(({ key: _key, ...item }) => item),
+        spellIds: spells.map((spell) => spell.id),
     };
 }
 

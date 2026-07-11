@@ -14,10 +14,17 @@ export const ABILITIES = [
 export type DraftLevel = ManagedCustomClassInput['progression'][number];
 export type DraftFeature = ManagedCustomClassInput['features'][number] & { key: string };
 export type DraftEquipment = ManagedCustomClassInput['equipment'][number] & { key: string };
-export type Draft = Omit<ManagedCustomClassInput, 'progression' | 'features' | 'equipment'> & {
+/** Selected class-list spell kept with display fields for the features-stage picker. */
+export type DraftSpell = {
+    id: string;
+    name: string;
+    level: number;
+};
+export type Draft = Omit<ManagedCustomClassInput, 'progression' | 'features' | 'equipment' | 'spellIds'> & {
     progression: DraftLevel[];
     features: DraftFeature[];
     equipment: DraftEquipment[];
+    spells: DraftSpell[];
 };
 
 export type IdentityFieldErrors = {
