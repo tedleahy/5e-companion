@@ -186,6 +186,130 @@ describe('CustomClassEditor', () => {
         expect(screen.getByText('Equipment')).toBeTruthy();
     });
 
+    test('hides spellcasting progression fields when mode is NONE', async () => {
+        renderEditor();
+        fillIdentityAndContinue();
+
+        await waitFor(() => {
+            expect(screen.getByText('Multiclass prerequisites')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByText('Continue'));
+        fireEvent.press(screen.getByText('Continue'));
+
+        expect(screen.getByText('Spellcasting mode')).toBeTruthy();
+        expect(screen.queryByTestId('spell-slots-standard')).toBeNull();
+        expect(screen.queryByTestId('spell-slots-pact')).toBeNull();
+        expect(screen.queryByText('Cantrips known')).toBeNull();
+        expect(screen.queryByText('Spells known')).toBeNull();
+        expect(screen.queryByText('Prepared base')).toBeNull();
+        expect(screen.queryByTestId('custom-class-add-spellcasting-ability')).toBeNull();
+
+        fireEvent.press(screen.getByText('STANDARD'));
+        expect(screen.getByTestId('spell-slots-standard')).toBeTruthy();
+        expect(screen.getByText('Spell slots by level')).toBeTruthy();
+        expect(screen.getByText('Spells known at this level')).toBeTruthy();
+        expect(screen.getByTestId('spells-known-at-level')).toBeTruthy();
+        expect(screen.getByText('Cantrips known')).toBeTruthy();
+        expect(screen.getByTestId('custom-class-add-spellcasting-ability')).toBeTruthy();
+    });
+
+    test('uses pact level and count controls for PACT MAGIC', async () => {
+        renderEditor();
+        fillIdentityAndContinue();
+
+        await waitFor(() => {
+            expect(screen.getByText('Multiclass prerequisites')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByText('Continue'));
+        fireEvent.press(screen.getByText('Continue'));
+        fireEvent.press(screen.getByText('PACT MAGIC'));
+
+        expect(screen.getByTestId('spell-slots-pact')).toBeTruthy();
+        expect(screen.queryByTestId('spell-slots-standard')).toBeNull();
+        expect(screen.getByText('Slot level')).toBeTruthy();
+        expect(screen.getByText('Slot count')).toBeTruthy();
+
+        fireEvent.press(screen.getByLabelText('Increase pact slot level'));
+        expect(screen.getByTestId('pact-slot-level')).toHaveTextContent('2');
+        fireEvent.press(screen.getByLabelText('Increase pact slot count'));
+        expect(screen.getByTestId('pact-slot-count')).toHaveTextContent('1');
+    });
+
+    test('edits standard spell slots with per-level steppers', async () => {
+        renderEditor();
+        fillIdentityAndContinue();
+
+        await waitFor(() => {
+            expect(screen.getByText('Multiclass prerequisites')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByText('Continue'));
+        fireEvent.press(screen.getByText('Continue'));
+        fireEvent.press(screen.getByText('STANDARD'));
+
+        expect(screen.getByTestId('spell-slot-level-1')).toHaveTextContent('0');
+        fireEvent.press(screen.getByLabelText('Increase 1st spell slots'));
+        fireEvent.press(screen.getByLabelText('Increase 1st spell slots'));
+        expect(screen.getByTestId('spell-slot-level-1')).toHaveTextContent('2');
+    });
+
+    test('prefills the next progression level from the previous level', async () => {
+        renderEditor();
+        fillIdentityAndContinue();
+
+        await waitFor(() => {
+            expect(screen.getByText('Multiclass prerequisites')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByText('Continue'));
+        fireEvent.press(screen.getByText('Continue'));
+        fireEvent.press(screen.getByText('STANDARD'));
+
+        fireEvent.press(screen.getByLabelText('Increase 1st spell slots'));
+        fireEvent.press(screen.getByLabelText('Increase 1st spell slots'));
+        fireEvent.press(screen.getByLabelText('Increase 1st spell slots'));
+        fireEvent.press(screen.getByLabelText('Increase 1st spell slots'));
+        fireEvent.press(screen.getByLabelText('Increase 2nd spell slots'));
+        fireEvent.press(screen.getByLabelText('Increase 2nd spell slots'));
+        fireEvent.press(screen.getByLabelText('Increase 2nd spell slots'));
+        fireEvent.press(screen.getByLabelText('Increase cantrips known'));
+        fireEvent.press(screen.getByLabelText('Increase cantrips known'));
+        fireEvent.press(screen.getByTestId('custom-class-add-spellcasting-ability'));
+
+        fireEvent.press(screen.getByLabelText('Next class level'));
+
+        expect(screen.getByTestId('spell-slot-level-1')).toHaveTextContent('4');
+        expect(screen.getByTestId('spell-slot-level-2')).toHaveTextContent('3');
+        expect(screen.getByTestId('cantrips-known')).toHaveTextContent('2');
+        expect(screen.getByText('✓ Add spellcasting ability modifier to prepared spells')).toBeTruthy();
+    });
+
+    test('edits cantrips, spells known, and prepared base with side-by-side steppers', async () => {
+        renderEditor();
+        fillIdentityAndContinue();
+
+        await waitFor(() => {
+            expect(screen.getByText('Multiclass prerequisites')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByText('Continue'));
+        fireEvent.press(screen.getByText('Continue'));
+        fireEvent.press(screen.getByText('STANDARD'));
+
+        expect(screen.getByTestId('cantrips-known')).toHaveTextContent('0');
+        expect(screen.getByTestId('spells-known')).toHaveTextContent('0');
+        expect(screen.getByTestId('prepared-base')).toHaveTextContent('0');
+
+        fireEvent.press(screen.getByLabelText('Increase cantrips known'));
+        expect(screen.getByTestId('cantrips-known')).toHaveTextContent('1');
+        fireEvent.press(screen.getByLabelText('Decrease cantrips known'));
+        expect(screen.getByTestId('cantrips-known')).toHaveTextContent('0');
+
+        fireEvent.press(screen.getByLabelText('Increase spells known'));
+        expect(screen.getByTestId('spells-known')).toHaveTextContent('1');
+
+        fireEvent.press(screen.getByLabelText('Increase prepared base'));
+        fireEvent.press(screen.getByLabelText('Increase prepared base'));
+        expect(screen.getByTestId('prepared-base')).toHaveTextContent('2');
+    });
+
     test('allows adding the spellcasting ability modifier to prepared spells', async () => {
         renderEditor();
         fillIdentityAndContinue();

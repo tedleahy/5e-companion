@@ -85,28 +85,6 @@ export function AbilityPicker({
     );
 }
 
-export function NumberField({
-    label,
-    value,
-    disabled,
-    onChange,
-}: {
-    label: string;
-    value: number | null | undefined;
-    disabled: boolean;
-    onChange: (value: number | null) => void;
-}) {
-    return (
-        <Field
-            label={label}
-            value={value == null ? '' : String(value)}
-            editable={!disabled}
-            keyboardType="number-pad"
-            onChangeText={(text) => onChange(text.trim() ? Math.max(0, Number(text) || 0) : null)}
-        />
-    );
-}
-
 export const fieldStyles = StyleSheet.create({
     field: { gap: fantasyTokens.spacing.xs },
     label: {

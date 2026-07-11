@@ -89,21 +89,23 @@ export default function FeaturesStage({ draft, locked, onChange }: StageProps) {
                     <Text style={styles.addLabel}>+ Add feature</Text>
                 </Pressable>
             ) : null}
-            <Field
-                label="Class spell IDs"
-                helper="Comma-separated spell IDs from the Compendium."
-                editable={!locked && draft.spellcastingMode !== 'NONE'}
-                value={draft.spellIds.join(', ')}
-                multiline
-                onChangeText={(text) =>
-                    onChange({
-                        spellIds: text
-                            .split(',')
-                            .map((value) => value.trim())
-                            .filter(Boolean),
-                    })
-                }
-            />
+            {draft.spellcastingMode !== 'NONE' ? (
+                <Field
+                    label="Class spell IDs"
+                    helper="Comma-separated spell IDs from the Compendium."
+                    editable={!locked}
+                    value={draft.spellIds.join(', ')}
+                    multiline
+                    onChangeText={(text) =>
+                        onChange({
+                            spellIds: text
+                                .split(',')
+                                .map((value) => value.trim())
+                                .filter(Boolean),
+                        })
+                    }
+                />
+            ) : null}
         </>
     );
 }
