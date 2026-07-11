@@ -84,6 +84,8 @@ export default function AddSpellSheet({
         setDraftFilters,
         setSearchQuery,
         toggleSpellSelection,
+        loadMoreSpells,
+        loadingMore,
     } = useAddSpellSheetController({
         visible,
         characterClassIds,
@@ -150,6 +152,7 @@ export default function AddSpellSheet({
             <AddSpellSectionList
                 sections={sections}
                 loading={loading}
+                loadingMore={loadingMore}
                 errorMessage={errorMessage}
                 isKnownSpell={isKnownSpell}
                 blockedReasonForSpell={blockedReasonForSpell}
@@ -159,6 +162,7 @@ export default function AddSpellSheet({
                 }}
                 onPrefetchSpellDetail={prefetchSpellDetail}
                 onOpenSpellDetail={openSpellDetail}
+                onEndReached={loadMoreSpells}
                 onScroll={handleSpellListScroll}
             />
 

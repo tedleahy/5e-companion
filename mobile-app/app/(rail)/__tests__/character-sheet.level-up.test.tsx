@@ -301,7 +301,7 @@ const LEVEL_UP_SPELL_SELECTION_QUERY_MOCK = {
                 levels: [1, 2, 3, 4, 5, 6],
             },
             pagination: {
-                limit: 500,
+                limit: 50,
                 offset: 0,
             },
         },

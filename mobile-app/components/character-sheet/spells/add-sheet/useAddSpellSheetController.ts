@@ -50,6 +50,7 @@ type UseAddSpellSheetControllerResult = {
     activeFilterChips: ActiveFilterChip[];
     sections: ReturnType<typeof buildAddSpellSections>;
     loading: boolean;
+    loadingMore: boolean;
     errorMessage?: string;
     pendingSpellIds: Set<string>;
     sessionChangesCount: number;
@@ -68,6 +69,7 @@ type UseAddSpellSheetControllerResult = {
     applyFilters: () => void;
     clearDraftFilters: () => void;
     removeAppliedFilterChip: (chip: ActiveFilterChip) => void;
+    loadMoreSpells: () => void;
     prefetchSpellDetail: (spellId: string) => void;
     openSpellDetail: (spell: AddSpellListItem) => void;
     clearSelectedSpell: () => void;
@@ -77,8 +79,8 @@ type UseAddSpellSheetControllerResult = {
 /** Search debounce delay for spell list queries. */
 const SEARCH_DEBOUNCE_MS = 300;
 
-/** Maximum number of spells fetched into the add-sheet list. */
-const MAX_SHEET_RESULTS = 500;
+/** Number of spells requested per page for infinite scroll. */
+export const ADD_SPELL_SHEET_PAGE_SIZE = 50;
 
 /**
  * Applies forced class/level filters without allowing the caller to override them.
@@ -131,6 +133,8 @@ export default function useAddSpellSheetController({
     const [draftFilters, setDraftFilters] = useState<AddSpellFilterState>(() => defaultFilterForClasses(characterClassIds));
     const [filterPanelOpen, setFilterPanelOpen] = useState(false);
     const [selectedSpell, setSelectedSpell] = useState<AddSpellListItem | null>(null);
+    const [hasMore, setHasMore] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
     const prefetchedSpellDetailIdsRef = useRef<Set<string>>(new Set());
     const {
         pendingSpellIds,
@@ -175,13 +179,13 @@ export default function useAddSpellSheetController({
 
     const queryVariables = useMemo<AddSpellSheetSpellsQueryVariables>(() => ({
         pagination: {
-            limit: MAX_SHEET_RESULTS,
+            limit: ADD_SPELL_SHEET_PAGE_SIZE,
             offset: 0,
         },
         ...(filterInput ? { filter: filterInput } : {}),
     }), [filterInput]);
 
-    const { data, loading, error } = useQuery<AddSpellSheetSpellsQuery, AddSpellSheetSpellsQueryVariables>(
+    const { data, loading, error, fetchMore } = useQuery<AddSpellSheetSpellsQuery, AddSpellSheetSpellsQueryVariables>(
         SEARCH_SPELLS_FOR_SHEET,
         {
             variables: queryVariables,
@@ -189,6 +193,17 @@ export default function useAddSpellSheetController({
             notifyOnNetworkStatusChange: true,
         },
     );
+
+    useEffect(() => {
+        setHasMore(true);
+    }, [queryVariables]);
+
+    useEffect(() => {
+        if (!data?.spells || loadingMore) return;
+        if (data.spells.length <= ADD_SPELL_SHEET_PAGE_SIZE) {
+            setHasMore(data.spells.length === ADD_SPELL_SHEET_PAGE_SIZE);
+        }
+    }, [data, loadingMore]);
 
     const {
         data: selectedSpellDetailData,
@@ -254,6 +269,49 @@ export default function useAddSpellSheetController({
     }, []);
 
     /**
+     * Fetches the next page of spells and appends them to the current list.
+     */
+    const loadMoreSpells = useCallback(() => {
+        if (!visible || loading || loadingMore || !hasMore) return;
+
+        const currentCount = data?.spells?.length ?? 0;
+        let fetchedCount = 0;
+
+        setLoadingMore(true);
+
+        void fetchMore({
+            variables: {
+                pagination: {
+                    limit: ADD_SPELL_SHEET_PAGE_SIZE,
+                    offset: currentCount,
+                },
+                ...(filterInput ? { filter: filterInput } : {}),
+            },
+            updateQuery(previousResult, { fetchMoreResult }) {
+                const nextSpells = fetchMoreResult?.spells ?? [];
+                fetchedCount = nextSpells.length;
+
+                if (nextSpells.length === 0) return previousResult;
+
+                const existingSpellIds = new Set(previousResult.spells.map((spell) => spell.id));
+                const deduplicatedNextSpells = nextSpells.filter(
+                    (spell) => !existingSpellIds.has(spell.id),
+                );
+
+                return {
+                    spells: [...previousResult.spells, ...deduplicatedNextSpells],
+                };
+            },
+        }).then(() => {
+            setHasMore(fetchedCount === ADD_SPELL_SHEET_PAGE_SIZE);
+        }).catch((fetchError) => {
+            console.error(fetchError);
+        }).finally(() => {
+            setLoadingMore(false);
+        });
+    }, [data?.spells?.length, fetchMore, filterInput, hasMore, loading, loadingMore, visible]);
+
+    /**
      * Warms Apollo cache for spell details before the full press completes.
      */
     const prefetchSpellDetail = useCallback((spellId: string) => {
@@ -302,6 +360,7 @@ export default function useAddSpellSheetController({
         activeFilterChips,
         sections,
         loading,
+        loadingMore,
         errorMessage: error?.message,
         pendingSpellIds,
         sessionChangesCount,
@@ -320,6 +379,7 @@ export default function useAddSpellSheetController({
         applyFilters,
         clearDraftFilters,
         removeAppliedFilterChip,
+        loadMoreSpells,
         prefetchSpellDetail,
         openSpellDetail,
         clearSelectedSpell,

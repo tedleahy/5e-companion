@@ -67,7 +67,7 @@ Entry: [`@/home/ted/projects/5e-companion/server/resolvers/spellsResolver.ts:32-
 ## Character spellbook
 
 - **Card**: [`@/home/ted/projects/5e-companion/mobile-app/components/character-sheet/spells/SpellbookCard.tsx`](../../mobile-app/components/character-sheet/spells/SpellbookCard.tsx).
-- **Add-spell sheet**: `AddSpellSheet.tsx` + `add-sheet/` subfolder — search/filter over all spells available to the character's classes.
+- **Add-spell sheet**: `AddSpellSheet.tsx` + `add-sheet/` subfolder — search/filter over spells (optionally scoped to the character's classes). The list pages with `ADD_SPELL_SHEET_PAGE_SIZE` (50) and loads more via `onEndReached` / `fetchMore`, matching the Compendium spell browser.
 - **Slots**: `SpellSlotsCard.tsx` + server `toggleSpellSlot` mutation.
 - **Prepared toggle**: lives in the spell row's accordion actions (`character-spell-prepare-*`). Tests must expand the row (`character-spell-row-*`) before asserting (see [`testing.md`](../testing.md)).
 - **Known-caster classes** (bard, ranger, sorcerer, warlock) short-circuit the "prepared" concept — see the `KNOWN_CASTER_CLASS_IDS` set in `SpellbookCard.tsx`.

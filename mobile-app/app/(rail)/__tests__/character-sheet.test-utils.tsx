@@ -22,7 +22,7 @@ export const ADD_SPELL_LIST_MOCK: MockLink.MockedResponse = {
                 classes: ['wizard', 'warlock'],
             },
             pagination: {
-                limit: 500,
+                limit: 50,
                 offset: 0,
             },
         },
