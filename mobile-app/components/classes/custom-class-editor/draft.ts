@@ -22,6 +22,48 @@ export function emptyProgression(): DraftLevel[] {
     }));
 }
 
+/** True when spellcasting fields still match an empty progression row. */
+export function hasDefaultSpellcasting(level: DraftLevel): boolean {
+    return level.spellSlots.every((slot) => slot === 0)
+        && level.cantripsKnown == null
+        && level.spellsKnown == null
+        && level.preparedSpellCount == null
+        && !level.addSpellcastingAbility;
+}
+
+/**
+ * Copy spellcasting fields from one progression row onto another, preserving
+ * level, ASI, and display values on the target.
+ */
+export function copySpellcastingFrom(source: DraftLevel, target: DraftLevel): DraftLevel {
+    return {
+        ...target,
+        spellSlots: [...source.spellSlots],
+        cantripsKnown: source.cantripsKnown,
+        spellsKnown: source.spellsKnown,
+        preparedSpellCount: source.preparedSpellCount,
+        addSpellcastingAbility: source.addSpellcastingAbility,
+    };
+}
+
+/**
+ * When advancing to the next class level, prefill untouched spellcasting fields
+ * from the previous level. Does not overwrite levels that already have values.
+ */
+export function withPrefillOnLevelAdvance(
+    progression: DraftLevel[],
+    fromLevel: number,
+    toLevel: number,
+): DraftLevel[] {
+    if (toLevel !== fromLevel + 1) return progression;
+    const source = progression[fromLevel - 1];
+    const target = progression[toLevel - 1];
+    if (!source || !target || !hasDefaultSpellcasting(target)) return progression;
+    return progression.map((item) =>
+        item.level === toLevel ? copySpellcastingFrom(source, item) : item,
+    );
+}
+
 export function createDraft(initial?: ClassDetailsFieldsFragment | null): Draft {
     if (!initial) {
         return {
