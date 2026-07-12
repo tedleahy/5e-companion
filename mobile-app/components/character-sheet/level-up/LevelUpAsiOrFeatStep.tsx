@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { Menu, Text, TextInput } from 'react-native-paper';
+import { Menu, Text } from 'react-native-paper';
+import { FantasyFormTextInput } from '@/components/FantasyFormTextInput';
 import NumericStepper from '@/components/NumericStepper';
 import { ABILITY_KEYS, type AbilityKey } from '@/lib/characterSheetUtils';
 import {
@@ -12,6 +13,7 @@ import {
 } from '@/lib/characterLevelUp/asiOrFeat';
 import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 
 type LevelUpAsiOrFeatStepProps = {
     wizard: UseLevelUpWizardResult;
@@ -128,6 +130,7 @@ export default function LevelUpAsiOrFeatStep({
                                         decrementTestID={`level-up-asi-decrement-${ability}`}
                                         incrementTestID={`level-up-asi-increment-${ability}`}
                                         valueTestID={`level-up-asi-increase-${ability}`}
+                                        tone="night"
                                         onDecrease={() => decrementAsiAbility(ability)}
                                         onIncrease={() => incrementAsiAbility(ability)}
                                     />
@@ -138,28 +141,19 @@ export default function LevelUpAsiOrFeatStep({
                 </View>
             ) : (
                 <View style={styles.panel} testID="level-up-feat-panel">
-                    <TextInput
-                        mode="outlined"
+                    <FantasyFormTextInput
                         label="Feat Name"
                         placeholder="Feat name (e.g. War Caster)"
                         value={asiOrFeatState.feat.name}
                         onChangeText={changeFeatName}
-                        outlineColor={fantasyTokens.colors.gold}
-                        activeOutlineColor={fantasyTokens.colors.claret}
-                        textColor={fantasyTokens.colors.inkDark}
-                        style={styles.input}
                         testID="level-up-feat-name-input"
                     />
 
-                    <TextInput
-                        mode="outlined"
+                    <FantasyFormTextInput
                         label="Description"
                         placeholder="Describe the feat's benefits..."
                         value={asiOrFeatState.feat.description}
                         onChangeText={changeFeatDescription}
-                        outlineColor={fantasyTokens.colors.gold}
-                        activeOutlineColor={fantasyTokens.colors.claret}
-                        textColor={fantasyTokens.colors.inkDark}
                         multiline
                         numberOfLines={4}
                         style={styles.textArea}
@@ -248,7 +242,7 @@ const styles = StyleSheet.create({
     },
     bodyText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     choiceCards: {
         flexDirection: 'row',
@@ -257,29 +251,26 @@ const styles = StyleSheet.create({
     choiceCard: {
         flex: 1,
         borderWidth: 2,
-        borderColor: fantasyTokens.colors.sheetDivider,
+        borderColor: fantasyTokens.sheet.form.border,
         borderRadius: fantasyTokens.radii.md,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        backgroundColor: fantasyTokens.sheet.form.card,
         paddingHorizontal: fantasyTokens.spacing.md,
         paddingVertical: fantasyTokens.spacing.lg,
         alignItems: 'center',
         gap: fantasyTokens.spacing.xs,
     },
     choiceCardSelected: {
-        borderColor: fantasyTokens.colors.claret,
-        backgroundColor: '#faf0e8',
+        ...nightFormStyles.cardSelected,
     },
     choiceIcon: {
         fontSize: 28,
     },
     choiceTitle: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkDark,
+        ...nightFormStyles.cardTitle,
         textAlign: 'center',
     },
     choiceDescription: {
-        ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.inkLight,
+        ...nightFormStyles.cardBody,
         textAlign: 'center',
     },
     panel: {
@@ -288,25 +279,24 @@ const styles = StyleSheet.create({
     remainingCard: {
         alignItems: 'center',
         borderRadius: fantasyTokens.radii.sm,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        backgroundColor: fantasyTokens.sheet.form.card,
         paddingHorizontal: fantasyTokens.spacing.md,
         paddingVertical: fantasyTokens.spacing.md,
-        gap: 2,
+        gap: fantasyTokens.spacing.xs / 2,
     },
     remainingCount: {
         ...fantasyTokens.typography.pageTitle,
         fontSize: 22,
         lineHeight: 28,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.goldLight,
     },
     remainingLabel: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkLight,
+        ...nightFormStyles.label,
         textAlign: 'center',
     },
     asiList: {
         borderRadius: fantasyTokens.radii.md,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        backgroundColor: fantasyTokens.sheet.form.card,
         overflow: 'hidden',
     },
     asiRow: {
@@ -317,42 +307,36 @@ const styles = StyleSheet.create({
         paddingHorizontal: fantasyTokens.spacing.md,
         paddingVertical: fantasyTokens.spacing.md,
         borderBottomWidth: 1,
-        borderBottomColor: fantasyTokens.colors.sheetDivider,
+        borderBottomColor: fantasyTokens.sheet.form.border,
     },
     asiAbilityName: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkDark,
+        ...nightFormStyles.cardTitle,
         flex: 1,
     },
     asiCurrentScore: {
         ...fantasyTokens.typography.pageTitle,
         fontSize: 22,
         lineHeight: 26,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
         minWidth: 34,
         textAlign: 'center',
     },
-    input: {
-        backgroundColor: fantasyTokens.colors.parchmentLight,
-    },
     textArea: {
         minHeight: 108,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
     },
     fieldLabel: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkDark,
+        ...nightFormStyles.label,
     },
     helperText: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.gold,
         marginTop: -fantasyTokens.spacing.sm,
     },
     menuButton: {
         borderWidth: 1,
         borderColor: fantasyTokens.colors.gold,
         borderRadius: fantasyTokens.radii.sm,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        backgroundColor: fantasyTokens.colors.parchment,
         paddingHorizontal: fantasyTokens.spacing.md,
         paddingVertical: fantasyTokens.spacing.md,
     },
@@ -364,7 +348,7 @@ const styles = StyleSheet.create({
         borderRadius: fantasyTokens.radii.sm,
         borderWidth: 1,
         borderColor: fantasyTokens.colors.gold,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        backgroundColor: fantasyTokens.colors.parchment,
     },
     menuItem: {
         minWidth: '100%',

@@ -6,6 +6,7 @@ import { averageLevelUpHitDieValue } from '@/lib/characterLevelUp/hitPoints';
 import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
 import { formatSignedNumber } from '@/lib/characterSheetUtils';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 
 type LevelUpHitPointsStepProps = {
     wizard: UseLevelUpWizardResult;
@@ -32,7 +33,7 @@ export default function LevelUpHitPointsStep({
     const breakdownRollLabel = hitPointsState?.method === 'average' ? 'Average Hit Die' : 'Hit Die Roll';
     const animatedBorderColour = dieGlow.interpolate({
         inputRange: [0, 1],
-        outputRange: [fantasyTokens.colors.sheetDivider, fantasyTokens.colors.claret],
+        outputRange: [fantasyTokens.sheet.form.border, fantasyTokens.colors.gold],
     });
     const animatedBackgroundColour = dieGlow.interpolate({
         inputRange: [0, 1],
@@ -175,7 +176,7 @@ const styles = StyleSheet.create({
     },
     bodyText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
         textAlign: 'center',
     },
     dieWrap: {
@@ -201,9 +202,9 @@ const styles = StyleSheet.create({
         bottom: fantasyTokens.spacing.sm,
         right: fantasyTokens.spacing.sm,
         borderRadius: 999,
-        backgroundColor: fantasyTokens.colors.claret,
+        backgroundColor: fantasyTokens.colors.crimson,
         paddingHorizontal: fantasyTokens.spacing.sm,
-        paddingVertical: 3,
+        paddingVertical: fantasyTokens.spacing.xs * 0.75,
     },
     dieBadgeText: {
         ...fantasyTokens.typography.buttonLabel,
@@ -216,7 +217,7 @@ const styles = StyleSheet.create({
     rollButton: {
         minWidth: 220,
         alignItems: 'center',
-        backgroundColor: fantasyTokens.colors.claret,
+        backgroundColor: fantasyTokens.colors.crimson,
         borderRadius: fantasyTokens.radii.md,
         paddingHorizontal: fantasyTokens.spacing.lg,
         paddingVertical: fantasyTokens.spacing.md,
@@ -230,14 +231,11 @@ const styles = StyleSheet.create({
     },
     averageLinkText: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.goldLight,
         textDecorationLine: 'underline',
     },
     breakdownCard: {
-        backgroundColor: fantasyTokens.colors.parchmentLight,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        borderRadius: fantasyTokens.radii.md,
+        ...nightFormStyles.card,
         padding: fantasyTokens.spacing.lg,
         gap: fantasyTokens.spacing.md,
     },
@@ -249,20 +247,20 @@ const styles = StyleSheet.create({
     },
     breakdownLabel: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     breakdownValue: {
         ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     breakdownTotalRow: {
         paddingTop: fantasyTokens.spacing.sm,
         borderTopWidth: 1,
-        borderTopColor: fantasyTokens.colors.sheetDivider,
+        borderTopColor: fantasyTokens.sheet.form.border,
     },
     breakdownTotalLabel: {
         ...fantasyTokens.typography.sectionLabel,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.gold,
     },
     breakdownTotalValue: {
         ...fantasyTokens.typography.cardTitle,

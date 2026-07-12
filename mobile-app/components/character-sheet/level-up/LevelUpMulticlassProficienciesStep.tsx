@@ -14,6 +14,7 @@ import {
 } from '@/lib/characterSheetUtils';
 import type { ProficiencyLevel, SkillProficiencies } from '@/types/generated_graphql_types';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 
 type LevelUpMulticlassProficienciesStepProps = {
     selectedClass: LevelUpWizardSelectedClass;
@@ -189,62 +190,55 @@ const styles = StyleSheet.create({
     },
     bodyText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     proficiencyCard: {
+        ...nightFormStyles.card,
         borderLeftWidth: 4,
-        borderLeftColor: fantasyTokens.colors.claret,
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        borderLeftColor: fantasyTokens.colors.crimson,
         paddingHorizontal: fantasyTokens.spacing.lg,
         paddingVertical: fantasyTokens.spacing.md,
         gap: fantasyTokens.spacing.xs,
     },
     proficiencyCardTitle: {
         ...fantasyTokens.typography.cardTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
         marginBottom: fantasyTokens.spacing.xs,
     },
     proficiencyItem: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     emptyCard: {
         borderRadius: fantasyTokens.radii.md,
-        backgroundColor: 'rgba(212,201,180,0.45)',
+        backgroundColor: fantasyTokens.sheet.form.card,
         paddingHorizontal: fantasyTokens.spacing.lg,
         paddingVertical: fantasyTokens.spacing.md,
     },
     emptyText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     skillSection: {
+        ...nightFormStyles.card,
         gap: fantasyTokens.spacing.sm,
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
         padding: fantasyTokens.spacing.lg,
     },
     skillSectionTitle: {
         ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     skillSectionBody: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     abilityGroup: {
         gap: fantasyTokens.spacing.xs,
         marginTop: fantasyTokens.spacing.sm,
     },
     abilityGroupLabel: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkSoft,
-        fontSize: 12,
+        ...nightFormStyles.label,
+        fontSize: fantasyTokens.fontSizes.utility,
         letterSpacing: 1,
     },
     skillGrid: {
@@ -255,17 +249,16 @@ const styles = StyleSheet.create({
     skillChip: {
         borderRadius: 999,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        borderColor: fantasyTokens.sheet.form.border,
+        backgroundColor: fantasyTokens.sheet.form.card,
         paddingHorizontal: fantasyTokens.spacing.md,
-        paddingVertical: 8,
+        paddingVertical: fantasyTokens.spacing.sm,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: fantasyTokens.spacing.sm - fantasyTokens.spacing.xs / 2,
     },
     skillChipSelected: {
-        borderColor: fantasyTokens.colors.claret,
-        backgroundColor: 'rgba(140,29,56,0.08)',
+        ...nightFormStyles.cardSelected,
     },
     skillChipAlreadyProficient: {
         opacity: 0.5,
@@ -276,24 +269,24 @@ const styles = StyleSheet.create({
     },
     skillChipText: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     skillChipTextSelected: {
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.parchment,
     },
     skillChipTextAlreadyProficient: {
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
     },
     skillChipTextDisabled: {
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
     },
     skillChipExistingLabel: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.inkSoft,
-        fontSize: 10,
+        color: fantasyTokens.colors.gold,
+        fontSize: fantasyTokens.fontSizes.utility - 2,
     },
     skillCountLabel: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
     },
 });

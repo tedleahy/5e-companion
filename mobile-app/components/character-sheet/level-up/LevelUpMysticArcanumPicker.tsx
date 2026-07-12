@@ -111,17 +111,17 @@ const styles = StyleSheet.create({
     selectionPill: {
         borderRadius: 999,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        backgroundColor: fantasyTokens.colors.parchment,
+        borderColor: fantasyTokens.sheet.form.border,
+        backgroundColor: fantasyTokens.sheet.form.card,
         paddingHorizontal: fantasyTokens.spacing.sm,
-        paddingVertical: 6,
+        paddingVertical: fantasyTokens.spacing.sm - fantasyTokens.spacing.xs / 2,
     },
     selectionPillText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     clearActionText: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.crimson,
+        color: fantasyTokens.colors.goldLight,
     },
 });

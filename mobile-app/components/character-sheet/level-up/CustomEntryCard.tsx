@@ -1,6 +1,9 @@
-import { Pressable, StyleSheet, View } from 'react-native';
-import { Text, TextInput } from 'react-native-paper';
+import { Pressable, StyleSheet } from 'react-native';
+import { Text } from 'react-native-paper';
+import { FantasyFormTextInput } from '@/components/FantasyFormTextInput';
+import { NightFormCard } from '@/components/sheets/NightFormCard';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 
 /**
  * Props for the custom entry card component.
@@ -46,24 +49,20 @@ export default function CustomEntryCard({
     cardTestID,
 }: CustomEntryCardProps) {
     return (
-        <View style={styles.customEntryCard} testID={cardTestID}>
-            <TextInput
+        <NightFormCard style={styles.customEntryCard} testID={cardTestID}>
+            <FantasyFormTextInput
                 label={firstLabel}
                 value={firstValue}
                 onChangeText={onFirstChange}
-                mode="outlined"
                 placeholder={firstPlaceholder}
-                style={styles.textInput}
                 testID={firstTestID}
             />
-            <TextInput
+            <FantasyFormTextInput
                 label={secondLabel}
                 value={secondValue}
                 onChangeText={onSecondChange}
-                mode="outlined"
                 placeholder={secondPlaceholder}
                 multiline={secondMultiline}
-                style={styles.textInput}
                 testID={secondTestID}
             />
             <Pressable
@@ -74,28 +73,20 @@ export default function CustomEntryCard({
             >
                 <Text style={styles.removeCustomButtonText}>{removeLabel}</Text>
             </Pressable>
-        </View>
+        </NightFormCard>
     );
 }
 
 const styles = StyleSheet.create({
     customEntryCard: {
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
         padding: fantasyTokens.spacing.lg,
         gap: fantasyTokens.spacing.sm,
         marginTop: fantasyTokens.spacing.sm,
-    },
-    textInput: {
-        backgroundColor: fantasyTokens.colors.parchmentLight,
     },
     removeCustomButton: {
         alignSelf: 'flex-end',
     },
     removeCustomButtonText: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.ember,
+        ...nightFormStyles.dashedAddButtonText,
     },
 });

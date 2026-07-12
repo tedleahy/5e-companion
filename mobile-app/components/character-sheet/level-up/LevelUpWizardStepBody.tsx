@@ -21,6 +21,7 @@ import LevelUpSubclassSelectionStep from './LevelUpSubclassSelectionStep';
 import LevelUpSummaryStep from './LevelUpSummaryStep';
 import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 
 type LevelUpWizardStepBodyProps = {
     wizard: UseLevelUpWizardResult;
@@ -136,7 +137,7 @@ export default function LevelUpWizardStepBody({
                             options={[...wizard.classOptions]}
                             selected={pickerSelectedId}
                             onSelect={selectClass}
-                            tone="parchment"
+                            tone="night"
                             getOptionTestId={(option) => `level-up-class-option-${option.value}`}
                             getOptionAccessibilityLabel={(option) => `Select ${option.label} for level up`}
                         />
@@ -313,21 +314,21 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         ...fantasyTokens.typography.sectionLabel,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.gold,
     },
     backLinkText: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.gold,
     },
     bodyText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     currentClassCard: {
         alignItems: 'center',
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        backgroundColor: fantasyTokens.sheet.form.card,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.claret,
+        borderColor: fantasyTokens.colors.crimson,
         borderRadius: fantasyTokens.radii.md,
         paddingHorizontal: fantasyTokens.spacing.lg,
         paddingVertical: fantasyTokens.spacing.xl,
@@ -338,15 +339,15 @@ const styles = StyleSheet.create({
     },
     currentClassName: {
         ...fantasyTokens.typography.cardTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     currentClassLevelText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     separatorText: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
         textAlign: 'center',
     },
     multiclassButtonWrap: {
@@ -355,9 +356,9 @@ const styles = StyleSheet.create({
     multiclassButton: {
         alignItems: 'center',
         alignSelf: 'center',
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        backgroundColor: fantasyTokens.sheet.form.card,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.claret,
+        borderColor: fantasyTokens.colors.crimson,
         borderRadius: fantasyTokens.radii.md,
         minWidth: 240,
         paddingHorizontal: fantasyTokens.spacing.lg,
@@ -365,36 +366,28 @@ const styles = StyleSheet.create({
     },
     multiclassButtonText: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.goldLight,
         textAlign: 'center',
     },
     summaryCard: {
-        backgroundColor: fantasyTokens.colors.parchmentLight,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        borderRadius: fantasyTokens.radii.md,
+        ...nightFormStyles.card,
         padding: fantasyTokens.spacing.lg,
         gap: fantasyTokens.spacing.xs,
     },
     summaryLabel: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
     },
     summaryValue: {
         ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     summaryHint: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.gold,
     },
     warningBox: {
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: 'rgba(184,92,31,0.4)',
-        backgroundColor: 'rgba(184,92,31,0.14)',
-        padding: fantasyTokens.spacing.lg,
-        gap: fantasyTokens.spacing.sm,
+        ...nightFormStyles.warningBox,
     },
     warningHeader: {
         flexDirection: 'row',
@@ -403,28 +396,29 @@ const styles = StyleSheet.create({
     },
     warningIcon: {
         fontSize: 18,
+        color: fantasyTokens.colors.goldLight,
     },
     warningTitle: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.ember,
+        color: fantasyTokens.colors.goldLight,
     },
     warningText: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     placeholderPanel: {
         borderRadius: fantasyTokens.radii.md,
-        backgroundColor: 'rgba(212,201,180,0.4)',
+        backgroundColor: fantasyTokens.sheet.form.card,
         padding: fantasyTokens.spacing.lg,
         gap: fantasyTokens.spacing.sm,
     },
     placeholderPanelTitle: {
         ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     placeholderPanelBody: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
 });
 

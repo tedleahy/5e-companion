@@ -2,7 +2,7 @@ import { useEffect, useRef, type ComponentRef } from 'react';
 import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Text } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import ParchmentWizardSheetShell from '@/components/sheets/ParchmentWizardSheetShell';
+import BottomSheetShell from '@/components/sheets/BottomSheetShell';
 import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
 import useBottomSheetMotion from '@/hooks/useBottomSheetMotion';
 import useDismissKeyboardAction from '@/hooks/useDismissKeyboardAction';
@@ -72,13 +72,15 @@ export default function LevelUpWizardSheet({
     }, [visible, wizard.currentStep.id]);
 
     return (
-        <ParchmentWizardSheetShell
+        <BottomSheetShell
             isRendered={isRendered}
             backdropOpacity={backdropOpacity}
             sheetTranslateY={sheetTranslateY}
             sheetDismissGesture={sheetDismissGesture}
             closeAccessibilityLabel="Dismiss level up wizard"
             testID="level-up-wizard-sheet"
+            overlayZIndex={30}
+            sheetStyle={styles.sheet}
             onRequestClose={() => dismissKeyboardAndRun(requestSheetClose)}
         >
             <View style={styles.header}>
@@ -161,7 +163,7 @@ export default function LevelUpWizardSheet({
                     <Text style={styles.nextButtonText}>{wizard.nextButtonLabel}</Text>
                 </Pressable>
             </View>
-        </ParchmentWizardSheetShell>
+        </BottomSheetShell>
     );
 }
 
@@ -169,11 +171,14 @@ export default function LevelUpWizardSheet({
  * Styles for the level-up wizard bottom-sheet shell.
  */
 const styles = StyleSheet.create({
+    sheet: {
+        height: fantasyTokens.sheet.defaultHeight,
+    },
     header: {
         paddingHorizontal: fantasyTokens.spacing.xl,
         paddingBottom: fantasyTokens.spacing.md,
         borderBottomWidth: 1,
-        borderBottomColor: fantasyTokens.colors.sheetDivider,
+        borderBottomColor: fantasyTokens.sheet.form.border,
     },
     titleRow: {
         flexDirection: 'row',
@@ -186,28 +191,28 @@ const styles = StyleSheet.create({
         ...fantasyTokens.typography.pageTitle,
         fontSize: 26,
         lineHeight: 32,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     closeButton: {
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.accordionBorder,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        borderColor: fantasyTokens.sheet.form.border,
+        backgroundColor: fantasyTokens.sheet.form.card,
         borderRadius: fantasyTokens.radii.sm - fantasyTokens.spacing.xs,
         paddingHorizontal: fantasyTokens.spacing.md - 2,
         paddingVertical: fantasyTokens.spacing.sm,
     },
     closeButtonText: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     subtitle: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
         marginBottom: fantasyTokens.spacing.sm + fantasyTokens.spacing.xs,
     },
     stepLabel: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.gold,
         marginBottom: fantasyTokens.spacing.sm + 2,
     },
     body: {
@@ -222,8 +227,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: fantasyTokens.spacing.xl,
         paddingVertical: fantasyTokens.spacing.md,
         borderTopWidth: 1,
-        borderTopColor: fantasyTokens.colors.sheetDivider,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        borderTopColor: fantasyTokens.sheet.form.border,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -238,7 +242,7 @@ const styles = StyleSheet.create({
     },
     backButton: {
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
+        borderColor: fantasyTokens.sheet.form.border,
         backgroundColor: 'transparent',
     },
     backButtonDisabled: {
@@ -246,13 +250,13 @@ const styles = StyleSheet.create({
     },
     backButtonText: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     backButtonTextDisabled: {
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
     },
     nextButton: {
-        backgroundColor: fantasyTokens.colors.claret,
+        backgroundColor: fantasyTokens.colors.crimson,
     },
     confirmButton: {
         backgroundColor: fantasyTokens.colors.success,

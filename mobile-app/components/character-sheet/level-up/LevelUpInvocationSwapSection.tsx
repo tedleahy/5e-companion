@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Pressable, View, StyleSheet } from 'react-native';
-import { Text, TextInput } from 'react-native-paper';
+import { Text } from 'react-native-paper';
+import { FantasyFormTextInput } from '@/components/FantasyFormTextInput';
 import type { LevelUpInvocationState, SrdInvocation } from '@/lib/characterLevelUp/advancedClassChoices';
 import type { InvocationPrerequisiteContext } from '@/lib/characterLevelUp/types';
 import { SRD_INVOCATIONS } from '@/lib/characterLevelUp/advancedClassChoices';
 import { levelUpPickerStyles } from './levelUpPickerStyles';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 import InvocationSwapPicker from './InvocationSwapPicker';
 
 type LevelUpInvocationSwapSectionProps = {
@@ -141,9 +143,8 @@ export default function LevelUpInvocationSwapSection({
 
                     {/* Custom name input (only when custom is selected) */}
                     {isSwapInCustom ? (
-                        <TextInput
+                        <FantasyFormTextInput
                             label="Custom invocation name"
-                            mode="outlined"
                             value={customName}
                             onChangeText={handleCustomNameChange}
                             style={styles.customInput}
@@ -192,17 +193,14 @@ export default function LevelUpInvocationSwapSection({
 
 const styles = StyleSheet.create({
     swapCard: {
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        ...nightFormStyles.card,
         padding: fantasyTokens.spacing.lg,
         gap: fantasyTokens.spacing.sm,
         marginTop: fantasyTokens.spacing.sm,
     },
     selectorInput: {
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
+        borderColor: fantasyTokens.colors.gold,
         borderRadius: fantasyTokens.radii.md,
         paddingHorizontal: fantasyTokens.spacing.md,
         paddingVertical: fantasyTokens.spacing.sm,
@@ -230,7 +228,6 @@ const styles = StyleSheet.create({
         marginTop: fantasyTokens.spacing.sm,
     },
     removeButtonText: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.ember,
+        ...nightFormStyles.dashedAddButtonText,
     },
 });

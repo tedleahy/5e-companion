@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 
 /**
  * Shared styles for level-up picker components.
@@ -11,22 +12,19 @@ export const levelUpPickerStyles = StyleSheet.create({
     },
     bodyText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     resourceCard: {
+        ...nightFormStyles.card,
         borderLeftWidth: 4,
         borderLeftColor: fantasyTokens.colors.success,
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
         paddingHorizontal: fantasyTokens.spacing.lg,
         paddingVertical: fantasyTokens.spacing.md,
         gap: fantasyTokens.spacing.xs,
     },
     resourceLabel: {
         ...fantasyTokens.typography.cardTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     resourceValueRow: {
         flexDirection: 'row',
@@ -34,12 +32,12 @@ export const levelUpPickerStyles = StyleSheet.create({
     },
     resourceOldValue: {
         ...fantasyTokens.typography.bodyLarge,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
         textDecorationLine: 'line-through',
     },
     resourceArrow: {
         ...fantasyTokens.typography.bodyLarge,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     resourceNewValue: {
         ...fantasyTokens.typography.bodyLarge,
@@ -48,20 +46,19 @@ export const levelUpPickerStyles = StyleSheet.create({
     },
     noChangeCard: {
         borderRadius: fantasyTokens.radii.md,
-        backgroundColor: 'rgba(212,201,180,0.45)',
+        backgroundColor: fantasyTokens.sheet.form.card,
         paddingHorizontal: fantasyTokens.spacing.lg,
         paddingVertical: fantasyTokens.spacing.md,
     },
     noChangeText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     unchangedSection: {
         gap: fantasyTokens.spacing.xs,
     },
     unchangedTitle: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkSoft,
+        ...nightFormStyles.label,
     },
     unchangedRow: {
         flexDirection: 'row',
@@ -72,36 +69,27 @@ export const levelUpPickerStyles = StyleSheet.create({
     },
     unchangedLabel: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     unchangedValue: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     pickerSection: {
         gap: fantasyTokens.spacing.sm,
         marginTop: fantasyTokens.spacing.md,
         borderTopWidth: 1,
-        borderTopColor: fantasyTokens.colors.sheetDivider,
+        borderTopColor: fantasyTokens.sheet.form.border,
         paddingTop: fantasyTokens.spacing.md,
     },
     pickerTitle: {
         ...fantasyTokens.typography.sectionLabel,
-        color: fantasyTokens.colors.claret,
-    },
-    textInput: {
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        color: fantasyTokens.colors.gold,
     },
     addCustomButton: {
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.claret,
-        borderStyle: 'dashed',
-        borderRadius: fantasyTokens.radii.md,
-        paddingVertical: fantasyTokens.spacing.md,
+        ...nightFormStyles.dashedAddButton,
     },
     addCustomButtonText: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.claret,
+        ...nightFormStyles.dashedAddButtonText,
     },
 });

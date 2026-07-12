@@ -20,6 +20,7 @@ import {
 } from '@/lib/characterLevelUp/advancedClassChoices';
 import type { SrdInvocation } from '@/lib/characterLevelUp/advancedClassChoices';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 import LevelUpInvocationPicker from './LevelUpInvocationPicker';
 import LevelUpInvocationSwapSection from './LevelUpInvocationSwapSection';
 import LevelUpMetamagicPicker from './LevelUpMetamagicPicker';
@@ -175,22 +176,19 @@ const styles = StyleSheet.create({
     },
     bodyText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     resourceCard: {
+        ...nightFormStyles.card,
         borderLeftWidth: 4,
         borderLeftColor: fantasyTokens.colors.success,
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
         paddingHorizontal: fantasyTokens.spacing.lg,
         paddingVertical: fantasyTokens.spacing.md,
         gap: fantasyTokens.spacing.xs,
     },
     resourceLabel: {
         ...fantasyTokens.typography.cardTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     resourceValueRow: {
         flexDirection: 'row',
@@ -198,12 +196,12 @@ const styles = StyleSheet.create({
     },
     resourceOldValue: {
         ...fantasyTokens.typography.bodyLarge,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
         textDecorationLine: 'line-through',
     },
     resourceArrow: {
         ...fantasyTokens.typography.bodyLarge,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     resourceNewValue: {
         ...fantasyTokens.typography.bodyLarge,
@@ -212,20 +210,20 @@ const styles = StyleSheet.create({
     },
     noChangeCard: {
         borderRadius: fantasyTokens.radii.md,
-        backgroundColor: 'rgba(212,201,180,0.45)',
+        backgroundColor: fantasyTokens.sheet.form.card,
         paddingHorizontal: fantasyTokens.spacing.lg,
         paddingVertical: fantasyTokens.spacing.md,
     },
     noChangeText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     unchangedSection: {
         gap: fantasyTokens.spacing.xs,
     },
     unchangedTitle: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
     },
     unchangedRow: {
         flexDirection: 'row',
@@ -236,10 +234,10 @@ const styles = StyleSheet.create({
     },
     unchangedLabel: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     unchangedValue: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
 });
