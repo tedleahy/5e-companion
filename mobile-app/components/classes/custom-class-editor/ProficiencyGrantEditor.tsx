@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import NumericStepper from '@/components/NumericStepper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 import {
     nextChoiceGroupId,
     type ProficiencyChoiceGroup,
@@ -191,7 +192,7 @@ export default function ProficiencyGrantEditor({
                                 canIncrease={!locked && group.choiceCount < group.values.length}
                                 decrementLabel="Decrease choose count"
                                 incrementLabel="Increase choose count"
-                                tone="parchment"
+                                tone="night"
                                 onDecrease={() =>
                                     updateGroup(group.choiceGroup, {
                                         choiceCount: Math.max(1, group.choiceCount - 1),
@@ -260,15 +261,12 @@ const styles = StyleSheet.create({
     section: { gap: fantasyTokens.spacing.sm },
     sectionTitle: {
         ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     groupCard: {
+        ...nightFormStyles.card,
         gap: fantasyTokens.spacing.sm,
         padding: fantasyTokens.spacing.md,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.accordionBorder,
     },
     groupHeader: {
         flexDirection: 'row',
@@ -277,7 +275,7 @@ const styles = StyleSheet.create({
     },
     groupTitle: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.ember,
+        color: fantasyTokens.colors.gold,
     },
     chooseRow: {
         flexDirection: 'row',
@@ -286,25 +284,25 @@ const styles = StyleSheet.create({
     },
     chooseLabel: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     remove: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.crimson,
+        color: fantasyTokens.colors.goldLight,
     },
     link: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.gold,
     },
     addButton: {
         alignItems: 'center',
         padding: fantasyTokens.spacing.md,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.claret,
+        borderColor: fantasyTokens.colors.crimson,
         borderRadius: fantasyTokens.radii.sm,
     },
     addLabel: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.goldLight,
     },
 });

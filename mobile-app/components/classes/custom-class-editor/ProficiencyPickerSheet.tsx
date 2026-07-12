@@ -6,8 +6,9 @@ import {
     useWindowDimensions,
     View,
 } from 'react-native';
-import { Text, TextInput } from 'react-native-paper';
-import ParchmentWizardSheetShell from '@/components/sheets/ParchmentWizardSheetShell';
+import { Text } from 'react-native-paper';
+import { FantasyFormTextInput } from '@/components/FantasyFormTextInput';
+import BottomSheetShell from '@/components/sheets/BottomSheetShell';
 import useBottomSheetMotion from '@/hooks/useBottomSheetMotion';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { Chip, fieldStyles } from './fields';
@@ -39,7 +40,7 @@ type ProficiencyPickerSheetProps = {
 };
 
 /**
- * Nested parchment sheet for multi-selecting proficiency reference values.
+ * Nested bottom sheet for multi-selecting proficiency reference values.
  */
 export default function ProficiencyPickerSheet({
     visible,
@@ -96,7 +97,7 @@ export default function ProficiencyPickerSheet({
     }
 
     return (
-        <ParchmentWizardSheetShell
+        <BottomSheetShell
             isRendered={isRendered}
             backdropOpacity={backdropOpacity}
             sheetTranslateY={sheetTranslateY}
@@ -125,15 +126,10 @@ export default function ProficiencyPickerSheet({
                     </Pressable>
                 </View>
 
-                <TextInput
-                    mode="outlined"
+                <FantasyFormTextInput
                     label="Search"
                     value={search}
                     onChangeText={setSearch}
-                    outlineColor={fantasyTokens.colors.accordionBorder}
-                    activeOutlineColor={fantasyTokens.colors.claret}
-                    textColor={fantasyTokens.colors.inkDark}
-                    style={styles.search}
                     dense
                 />
 
@@ -180,7 +176,7 @@ export default function ProficiencyPickerSheet({
                     ) : null}
                 </ScrollView>
             </View>
-        </ParchmentWizardSheetShell>
+        </BottomSheetShell>
     );
 }
 
@@ -201,20 +197,17 @@ const styles = StyleSheet.create({
     },
     cancel: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     title: {
         ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
         flex: 1,
         textAlign: 'center',
     },
     confirm: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.claret,
-    },
-    search: {
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        color: fantasyTokens.colors.goldLight,
     },
     list: {
         flex: 1,
@@ -229,13 +222,13 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.md,
         padding: fantasyTokens.spacing.md,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.accordionBorder,
+        borderColor: fantasyTokens.sheet.form.border,
         borderRadius: fantasyTokens.radii.sm,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        backgroundColor: fantasyTokens.sheet.form.card,
     },
     optionSelected: {
-        borderColor: fantasyTokens.colors.claret,
-        backgroundColor: fantasyTokens.colors.claretSoft,
+        borderColor: fantasyTokens.colors.gold,
+        backgroundColor: fantasyTokens.colors.crimson,
     },
     optionText: {
         flex: 1,
@@ -243,15 +236,15 @@ const styles = StyleSheet.create({
     },
     optionName: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     optionMeta: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
     },
     check: {
         ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.goldLight,
         minWidth: fantasyTokens.spacing.md,
         textAlign: 'center',
     },

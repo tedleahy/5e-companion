@@ -56,7 +56,7 @@ export default function SpellSlotsEditor({
                                 canIncrease={!locked && total < MAX_SPELL_SLOT_COUNT}
                                 decrementLabel={`Decrease ${spellSlotLevelLabel(level)} spell slots`}
                                 incrementLabel={`Increase ${spellSlotLevelLabel(level)} spell slots`}
-                                tone="parchment"
+                                tone="night"
                                 valueTestID={`spell-slot-level-${level}`}
                                 onDecrease={() => onChange(withSpellSlotAt(spellSlots, level, total - 1))}
                                 onIncrease={() => onChange(withSpellSlotAt(spellSlots, level, total + 1))}
@@ -99,7 +99,7 @@ function PactMagicSlots({
                         canIncrease={!locked && level < SPELL_SLOT_LEVELS}
                         decrementLabel="Decrease pact slot level"
                         incrementLabel="Increase pact slot level"
-                        tone="parchment"
+                        tone="night"
                         valueTestID="pact-slot-level"
                         onDecrease={() => update(level - 1, count)}
                         onIncrease={() => update(level + 1, count)}
@@ -112,7 +112,7 @@ function PactMagicSlots({
                         canIncrease={!locked && count < MAX_SPELL_SLOT_COUNT}
                         decrementLabel="Decrease pact slot count"
                         incrementLabel="Increase pact slot count"
-                        tone="parchment"
+                        tone="night"
                         valueTestID="pact-slot-count"
                         onDecrease={() => update(level, count - 1)}
                         onIncrease={() => update(level, count + 1)}
@@ -138,14 +138,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: fantasyTokens.spacing.sm,
         paddingHorizontal: fantasyTokens.spacing.xs,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        backgroundColor: fantasyTokens.sheet.form.card,
         borderRadius: fantasyTokens.radii.sm,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.accordionBorder,
+        borderColor: fantasyTokens.sheet.form.border,
     },
     slotLabel: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
         fontSize: fantasyTokens.fontSizes.caption,
     },
 });

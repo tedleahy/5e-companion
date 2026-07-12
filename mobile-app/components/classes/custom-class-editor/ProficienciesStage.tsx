@@ -30,7 +30,7 @@ export default function ProficienciesStage({ draft, locked, onChange }: StagePro
     if (loading && !data) {
         return (
             <View style={styles.centered}>
-                <ActivityIndicator color={fantasyTokens.colors.claret} />
+                <ActivityIndicator color={fantasyTokens.colors.gold} />
             </View>
         );
     }
@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
     },
     error: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.crimson,
+        // Match nightFormStyles.errorText — crimson is unreadable on night.
+        color: fantasyTokens.colors.goldLight,
     },
 });

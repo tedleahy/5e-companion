@@ -44,7 +44,7 @@ function CountStepper({
                 canIncrease={!locked && count < MAX_SPELLCASTING_COUNT}
                 decrementLabel={`Decrease ${label.toLowerCase()}`}
                 incrementLabel={`Increase ${label.toLowerCase()}`}
-                tone="parchment"
+                tone="night"
                 valueTestID={valueTestID}
                 onDecrease={() => onChange(count - 1)}
                 onIncrease={() => onChange(count + 1)}
@@ -123,7 +123,7 @@ export default function ProgressionStage({
                     canIncrease={progressionLevel < 20}
                     decrementLabel="Previous class level"
                     incrementLabel="Next class level"
-                    tone="parchment"
+                    tone="night"
                     onDecrease={goToPreviousLevel}
                     onIncrease={goToNextLevel}
                 />

@@ -63,14 +63,14 @@ describe('CustomClassEditor', () => {
     test('warns before discarding a dirty draft', () => {
         const onClose = renderEditor();
         fireEvent.changeText(screen.getByTestId('custom-class-name'), 'Warden');
-        fireEvent.press(screen.getByTestId('custom-class-cancel'));
+        fireEvent.press(screen.getByLabelText('Dismiss custom class editor'));
         expect(screen.getByText('Discard custom class draft?')).toBeTruthy();
         expect(onClose).not.toHaveBeenCalled();
     });
 
     test('closes without a prompt when the draft is clean', () => {
         const onClose = renderEditor();
-        fireEvent.press(screen.getByTestId('custom-class-cancel'));
+        fireEvent.press(screen.getByLabelText('Dismiss custom class editor'));
         expect(screen.queryByText('Discard custom class draft?')).toBeNull();
         expect(onClose).toHaveBeenCalled();
     });
@@ -78,7 +78,7 @@ describe('CustomClassEditor', () => {
     test('confirms discard and closes the sheet', () => {
         const onClose = renderEditor();
         fireEvent.changeText(screen.getByTestId('custom-class-name'), 'Warden');
-        fireEvent.press(screen.getByTestId('custom-class-cancel'));
+        fireEvent.press(screen.getByLabelText('Dismiss custom class editor'));
         fireEvent.press(screen.getByLabelText('Discard'));
         expect(onClose).toHaveBeenCalled();
     });

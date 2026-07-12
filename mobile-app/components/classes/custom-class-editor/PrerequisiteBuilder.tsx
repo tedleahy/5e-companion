@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 import { ABILITIES } from './types';
 import { Chip, fieldStyles } from './fields';
 
@@ -132,21 +133,18 @@ export default function PrerequisiteBuilder({ value, locked, onChange }: Prerequ
 const styles = StyleSheet.create({
     root: { gap: fantasyTokens.spacing.md },
     groupCard: {
+        ...nightFormStyles.card,
         gap: fantasyTokens.spacing.md,
         padding: fantasyTokens.spacing.md,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.accordionBorder,
     },
     groupTitle: {
         ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     row: { gap: fantasyTokens.spacing.sm },
     orLabel: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
         textTransform: 'uppercase',
     },
     minimumRow: {
@@ -157,7 +155,7 @@ const styles = StyleSheet.create({
     },
     minimumLabel: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.ember,
+        color: fantasyTokens.colors.gold,
     },
     stepper: {
         flexDirection: 'row',
@@ -170,36 +168,36 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.accordionBorder,
+        borderColor: fantasyTokens.sheet.form.border,
         borderRadius: fantasyTokens.radii.sm,
     },
     stepperText: {
         ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     minimumValue: {
         ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
         minWidth: fantasyTokens.spacing.lg,
         textAlign: 'center',
     },
     remove: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.crimson,
+        color: fantasyTokens.colors.goldLight,
     },
     link: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.gold,
     },
     addButton: {
         alignItems: 'center',
         padding: fantasyTokens.spacing.md,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.claret,
+        borderColor: fantasyTokens.colors.crimson,
         borderRadius: fantasyTokens.radii.sm,
     },
     addLabel: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.goldLight,
     },
 });

@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 import ClassSpellListEditor from './ClassSpellListEditor';
 import { Field } from './fields';
 import type { StageProps } from './types';
@@ -103,12 +104,9 @@ export default function FeaturesStage({ draft, locked, onChange }: StageProps) {
 
 const styles = StyleSheet.create({
     featureCard: {
+        ...nightFormStyles.card,
         gap: fantasyTokens.spacing.md,
         padding: fantasyTokens.spacing.md,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.accordionBorder,
     },
     featureHeader: {
         flexDirection: 'row',
@@ -116,21 +114,21 @@ const styles = StyleSheet.create({
     },
     featureTitle: {
         ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     remove: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.crimson,
+        color: fantasyTokens.colors.goldLight,
     },
     addButton: {
         alignItems: 'center',
         padding: fantasyTokens.spacing.md,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.claret,
+        borderColor: fantasyTokens.colors.crimson,
         borderRadius: fantasyTokens.radii.sm,
     },
     addLabel: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.goldLight,
     },
 });

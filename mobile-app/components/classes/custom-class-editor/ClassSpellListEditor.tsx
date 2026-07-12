@@ -117,16 +117,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: fantasyTokens.spacing.md,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.claret,
+        borderColor: fantasyTokens.colors.crimson,
         borderRadius: fantasyTokens.radii.sm,
     },
     addLabel: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.goldLight,
     },
     counter: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
     },
     selectionRow: {
         flexDirection: 'row',
@@ -139,17 +139,17 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.xs,
         borderRadius: fantasyTokens.radii.sm,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.accordionBorder,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        borderColor: fantasyTokens.sheet.form.border,
+        backgroundColor: fantasyTokens.sheet.form.card,
         paddingHorizontal: fantasyTokens.spacing.sm,
         paddingVertical: fantasyTokens.spacing.xs,
     },
     selectionPillText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     selectionPillRemove: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.crimson,
+        color: fantasyTokens.colors.goldLight,
     },
 });

@@ -11,7 +11,6 @@ type EditorChromeProps = {
     lockReason?: string | null;
     pending: boolean;
     validationMessage?: string | null;
-    onCancel: () => void;
     onBack: () => void;
     onContinue: () => void;
     onSave: () => void;
@@ -28,7 +27,6 @@ export default function EditorChrome({
     lockReason,
     pending,
     validationMessage,
-    onCancel,
     onBack,
     onContinue,
     onSave,
@@ -37,21 +35,15 @@ export default function EditorChrome({
     return (
         <View style={styles.root}>
             <View style={styles.header}>
-                <Pressable
-                    testID="custom-class-cancel"
-                    onPress={onCancel}
-                    accessibilityRole="button"
-                    accessibilityLabel="Cancel custom class editor"
-                >
-                    <Text style={styles.cancel}>Cancel</Text>
-                </Pressable>
-                <View style={styles.headerTitle}>
+                <View style={styles.headerTitle} pointerEvents="none">
                     <Text style={styles.eyebrow}>{title}</Text>
                     <Text style={styles.title}>{STAGES[stage]}</Text>
                 </View>
-                <Text style={styles.step}>
-                    {stage + 1}/{STAGES.length}
-                </Text>
+                <View style={styles.stepWrap} pointerEvents="none">
+                    <Text style={styles.step}>
+                        {stage + 1}/{STAGES.length}
+                    </Text>
+                </View>
             </View>
 
             <View style={styles.progress}>
@@ -125,30 +117,34 @@ const styles = StyleSheet.create({
     body: { flex: 1 },
     header: {
         minHeight: 72,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: fantasyTokens.spacing.md,
+        justifyContent: 'center',
         paddingHorizontal: fantasyTokens.spacing.lg,
         borderBottomWidth: 1,
-        borderBottomColor: fantasyTokens.colors.accordionBorder,
+        borderBottomColor: fantasyTokens.sheet.form.border,
     },
-    headerTitle: { flex: 1, alignItems: 'center' },
+    headerTitle: {
+        alignItems: 'center',
+    },
     eyebrow: {
         ...fantasyTokens.typography.eyebrow,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
+        textAlign: 'center',
     },
     title: {
         ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
+        textAlign: 'center',
     },
-    cancel: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.claret,
+    stepWrap: {
+        position: 'absolute',
+        right: fantasyTokens.spacing.lg,
+        top: 0,
+        bottom: 0,
+        justifyContent: 'center',
     },
     step: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
     },
     progress: {
         flexDirection: 'row',
@@ -159,16 +155,16 @@ const styles = StyleSheet.create({
         flex: 1,
         height: 3,
         borderRadius: 2,
-        backgroundColor: fantasyTokens.colors.accordionBorder,
+        backgroundColor: fantasyTokens.sheet.form.border,
     },
-    progressSegmentActive: { backgroundColor: fantasyTokens.colors.claret },
+    progressSegmentActive: { backgroundColor: fantasyTokens.colors.crimson },
     lockBanner: {
         padding: fantasyTokens.spacing.sm,
         backgroundColor: fantasyTokens.colors.crimsonSoft,
     },
     lockText: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.crimson,
+        color: fantasyTokens.colors.parchment,
         textAlign: 'center',
     },
     validationBanner: {
@@ -178,7 +174,7 @@ const styles = StyleSheet.create({
     },
     validationText: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.crimson,
+        color: fantasyTokens.colors.parchment,
         textAlign: 'center',
     },
     footer: {
@@ -189,13 +185,13 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.md,
         padding: fantasyTokens.spacing.md,
         borderTopWidth: 1,
-        borderTopColor: fantasyTokens.colors.accordionBorder,
+        borderTopColor: fantasyTokens.sheet.form.border,
     },
     primary: {
         minWidth: 124,
         alignItems: 'center',
         padding: fantasyTokens.spacing.md,
-        backgroundColor: fantasyTokens.colors.claret,
+        backgroundColor: fantasyTokens.colors.crimson,
         borderRadius: fantasyTokens.radii.sm,
     },
     primaryText: {
@@ -207,12 +203,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: fantasyTokens.spacing.md,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.accordionBorder,
+        borderColor: fantasyTokens.sheet.form.border,
         borderRadius: fantasyTokens.radii.sm,
     },
     secondaryText: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     disabled: { opacity: 0.5 },
 });

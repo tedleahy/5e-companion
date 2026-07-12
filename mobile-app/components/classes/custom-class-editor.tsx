@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } 
 import { BackHandler, StyleSheet, useWindowDimensions } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import ConfirmDialog from '@/components/ConfirmDialog';
-import ParchmentWizardSheetShell from '@/components/sheets/ParchmentWizardSheetShell';
+import BottomSheetShell from '@/components/sheets/BottomSheetShell';
 import { CREATE_CUSTOM_CLASS, GET_AVAILABLE_CLASSES, GET_CUSTOM_CLASSES, UPDATE_CUSTOM_CLASS } from '@/graphql/class.operations';
 import useBottomSheetMotion from '@/hooks/useBottomSheetMotion';
 import useDismissKeyboardAction from '@/hooks/useDismissKeyboardAction';
@@ -153,13 +153,14 @@ export default function CustomClassEditor({ visible, initial, onClose, onSaved }
 
     return (
         <>
-            <ParchmentWizardSheetShell
+            <BottomSheetShell
                 isRendered={isRendered}
                 backdropOpacity={backdropOpacity}
                 sheetTranslateY={sheetTranslateY}
                 sheetDismissGesture={sheetDismissGesture}
                 closeAccessibilityLabel="Dismiss custom class editor"
                 testID="custom-class-editor-sheet"
+                overlayZIndex={30}
                 sheetStyle={styles.tallSheet}
                 onRequestClose={() => dismissKeyboardAndRun(requestSheetClose)}
             >
@@ -170,7 +171,6 @@ export default function CustomClassEditor({ visible, initial, onClose, onSaved }
                     lockReason={initial?.mechanicsLockedReason}
                     pending={pending}
                     validationMessage={stage === 0 ? null : validationMessage}
-                    onCancel={() => dismissKeyboardAndRun(requestSheetClose)}
                     onBack={() => dismissKeyboardAndRun(() => move(-1))}
                     onContinue={() => dismissKeyboardAndRun(() => move(1))}
                     onSave={() => dismissKeyboardAndRun(() => void submit())}
@@ -204,7 +204,7 @@ export default function CustomClassEditor({ visible, initial, onClose, onSaved }
                         {stage === 5 ? <ReviewStage draft={draft} locked={locked} /> : null}
                     </KeyboardAwareScrollView>
                 </EditorChrome>
-            </ParchmentWizardSheetShell>
+            </BottomSheetShell>
 
             <ConfirmDialog
                 visible={discardVisible}

@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, View } from 'react-native';
-import { Text, TextInput } from 'react-native-paper';
+import { Text } from 'react-native-paper';
+import { FantasyFormTextInput } from '@/components/FantasyFormTextInput';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 import { ABILITIES } from './types';
 
 export function Field({
@@ -8,25 +10,17 @@ export function Field({
     helper,
     errorMessage,
     ...props
-}: Omit<React.ComponentProps<typeof TextInput>, 'error'> & {
+}: Omit<React.ComponentProps<typeof FantasyFormTextInput>, 'error'> & {
     label: string;
     helper?: string;
     errorMessage?: string;
 }) {
     return (
-        <View style={styles.field}>
-            <Text style={styles.label}>{label}</Text>
-            {helper ? <Text style={styles.helper}>{helper}</Text> : null}
-            <TextInput
-                mode="outlined"
-                outlineColor={errorMessage ? fantasyTokens.colors.crimson : fantasyTokens.colors.accordionBorder}
-                activeOutlineColor={errorMessage ? fantasyTokens.colors.crimson : fantasyTokens.colors.claret}
-                textColor={fantasyTokens.colors.inkDark}
-                style={styles.input}
-                error={Boolean(errorMessage)}
-                {...props}
-            />
-            {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+        <View style={fieldStyles.field}>
+            <Text style={fieldStyles.label}>{label}</Text>
+            {helper ? <Text style={fieldStyles.helper}>{helper}</Text> : null}
+            <FantasyFormTextInput {...props} error={Boolean(errorMessage)} />
+            {errorMessage ? <Text style={fieldStyles.error}>{errorMessage}</Text> : null}
         </View>
     );
 }
@@ -46,9 +40,9 @@ export function Chip({
         <Pressable
             disabled={disabled}
             onPress={onPress}
-            style={[styles.chip, selected && styles.chipSelected, disabled && styles.disabled]}
+            style={[fieldStyles.chip, selected && fieldStyles.chipSelected, disabled && fieldStyles.disabled]}
         >
-            <Text style={[styles.chipText, selected && styles.chipTextSelected]}>{label}</Text>
+            <Text style={[fieldStyles.chipText, selected && fieldStyles.chipTextSelected]}>{label}</Text>
         </Pressable>
     );
 }
@@ -67,9 +61,9 @@ export function AbilityPicker({
     onPress: (value: string) => void;
 }) {
     return (
-        <View style={styles.field}>
-            <Text style={styles.label}>{label}</Text>
-            <View style={styles.chips}>
+        <View style={fieldStyles.field}>
+            <Text style={fieldStyles.label}>{label}</Text>
+            <View style={fieldStyles.chips}>
                 {ABILITIES.map((ability) => (
                     <Chip
                         key={ability.value}
@@ -80,7 +74,7 @@ export function AbilityPicker({
                     />
                 ))}
             </View>
-            {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+            {errorMessage ? <Text style={fieldStyles.error}>{errorMessage}</Text> : null}
         </View>
     );
 }
@@ -88,61 +82,50 @@ export function AbilityPicker({
 export const fieldStyles = StyleSheet.create({
     field: { gap: fantasyTokens.spacing.xs },
     label: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.ember,
+        ...nightFormStyles.label,
     },
     helper: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
     },
     error: {
-        ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.crimson,
+        ...nightFormStyles.errorText,
     },
     chips: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: fantasyTokens.spacing.sm,
     },
-    checkbox: {
-        padding: fantasyTokens.spacing.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.accordionBorder,
-        borderRadius: fantasyTokens.radii.sm,
-    },
-    checkboxSelected: {
-        borderColor: fantasyTokens.colors.claret,
-        backgroundColor: fantasyTokens.colors.claretSoft,
-    },
-    checkboxText: {
-        ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkDark,
-    },
-    disabled: { opacity: 0.5 },
-});
-
-const styles = StyleSheet.create({
-    field: fieldStyles.field,
-    label: fieldStyles.label,
-    helper: fieldStyles.helper,
-    error: fieldStyles.error,
-    input: { backgroundColor: fantasyTokens.colors.parchmentLight },
-    chips: fieldStyles.chips,
     chip: {
         paddingHorizontal: fantasyTokens.spacing.md,
         paddingVertical: fantasyTokens.spacing.sm,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.accordionBorder,
+        borderColor: fantasyTokens.sheet.form.border,
+        backgroundColor: fantasyTokens.sheet.form.card,
         borderRadius: fantasyTokens.radii.sm,
     },
     chipSelected: {
-        backgroundColor: fantasyTokens.colors.claret,
-        borderColor: fantasyTokens.colors.claret,
+        backgroundColor: fantasyTokens.colors.crimson,
+        borderColor: fantasyTokens.colors.gold,
     },
     chipText: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
-    chipTextSelected: { color: fantasyTokens.colors.parchment },
-    disabled: fieldStyles.disabled,
+    chipTextSelected: { color: fantasyTokens.colors.parchment, fontWeight: '700' },
+    checkbox: {
+        padding: fantasyTokens.spacing.md,
+        borderWidth: 1,
+        borderColor: fantasyTokens.sheet.form.border,
+        borderRadius: fantasyTokens.radii.sm,
+    },
+    checkboxSelected: {
+        borderColor: fantasyTokens.colors.crimson,
+        backgroundColor: fantasyTokens.colors.crimsonSoft,
+    },
+    checkboxText: {
+        ...fantasyTokens.typography.body,
+        color: fantasyTokens.colors.parchmentDeep,
+    },
+    disabled: { opacity: 0.5 },
 });

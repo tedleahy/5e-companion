@@ -33,19 +33,19 @@ const styles = StyleSheet.create({
     review: { gap: fantasyTokens.spacing.md },
     reviewTitle: {
         ...fantasyTokens.typography.pageTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     reviewBody: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     reviewLine: {
         ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.gold,
     },
     lockText: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.crimson,
+        color: fantasyTokens.colors.goldLight,
         textAlign: 'center',
     },
 });

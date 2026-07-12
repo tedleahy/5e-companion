@@ -43,10 +43,10 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.sm,
         paddingVertical: fantasyTokens.spacing.md,
         paddingHorizontal: fantasyTokens.spacing.sm,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        backgroundColor: fantasyTokens.sheet.form.card,
         borderRadius: fantasyTokens.radii.sm,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.accordionBorder,
+        borderColor: fantasyTokens.sheet.form.border,
     },
     field: {
         flex: 1,
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     },
     label: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
         fontSize: fantasyTokens.fontSizes.caption,
         textAlign: 'center',
     },
