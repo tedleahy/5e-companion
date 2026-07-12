@@ -31,6 +31,9 @@ export default function IdentityStage({ draft, locked, errors = {}, onChange }: 
                 label="Description"
                 value={draft.description}
                 multiline
+                numberOfLines={6}
+                style={fieldStyles.textArea}
+                editable={!locked}
                 errorMessage={errors.description}
                 onChangeText={(description) => onChange({ description })}
             />

@@ -91,6 +91,10 @@ export const fieldStyles = StyleSheet.create({
     error: {
         ...nightFormStyles.errorText,
     },
+    /** Tall multiline field — RN has no textarea element; this is the equivalent. */
+    textArea: {
+        minHeight: fantasyTokens.spacing.xxl * 3 + fantasyTokens.spacing.md,
+    },
     chips: {
         flexDirection: 'row',
         flexWrap: 'wrap',
