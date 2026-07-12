@@ -116,10 +116,10 @@ const styles = StyleSheet.create({
         top: 0,
         right: 0,
         left: 0,
+        height: fantasyTokens.spacing.xl + fantasyTokens.spacing.sm,
         zIndex: 1,
         alignItems: 'center',
         paddingTop: fantasyTokens.spacing.sm,
-        paddingBottom: 60,
     },
     handleSpacer: {
         height: fantasyTokens.spacing.md,

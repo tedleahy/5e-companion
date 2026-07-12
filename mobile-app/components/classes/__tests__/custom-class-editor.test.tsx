@@ -153,6 +153,60 @@ describe('CustomClassEditor', () => {
         expect(screen.getByText('+ Add OR alternative')).toBeTruthy();
     });
 
+    test('confirms a proficiency picker selection with Done', async () => {
+        renderEditor();
+        fillIdentityAndContinue();
+
+        await waitFor(() => {
+            expect(screen.getByTestId('add-fixed-STARTING')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getByTestId('add-fixed-STARTING'));
+        expect(screen.getByTestId('proficiency-picker-sheet')).toBeTruthy();
+        expect(screen.queryByText('Cancel')).toBeNull();
+
+        fireEvent.press(screen.getByTestId('proficiency-option-light-armor'));
+        fireEvent.press(screen.getByTestId('proficiency-picker-confirm'));
+
+        await waitFor(() => {
+            expect(screen.queryByTestId('proficiency-picker-sheet')).toBeNull();
+            expect(screen.getByText('Light Armor')).toBeTruthy();
+        });
+    });
+
+    test('confirms before discarding changed proficiency selections', async () => {
+        renderEditor();
+        fillIdentityAndContinue();
+
+        await waitFor(() => {
+            expect(screen.getByTestId('add-fixed-STARTING')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getByTestId('add-fixed-STARTING'));
+        fireEvent.press(screen.getByTestId('proficiency-option-light-armor'));
+        fireEvent.press(screen.getByLabelText('Dismiss proficiency picker'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Discard proficiency changes?')).toBeTruthy();
+        });
+        expect(screen.getByText('Your unsaved proficiency selections will be lost.')).toBeTruthy();
+        expect(screen.getByTestId('proficiency-picker-sheet')).toBeTruthy();
+
+        fireEvent.press(screen.getByLabelText('Keep Editing'));
+        expect(screen.getByTestId('proficiency-picker-sheet')).toBeTruthy();
+
+        fireEvent.press(screen.getByLabelText('Dismiss proficiency picker'));
+        await waitFor(() => {
+            expect(screen.getByText('Discard proficiency changes?')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByLabelText('Discard'));
+
+        await waitFor(() => {
+            expect(screen.queryByTestId('proficiency-picker-sheet')).toBeNull();
+            expect(screen.queryByText('Light Armor')).toBeNull();
+        });
+    });
+
     test('shows structured equipment builders instead of pipe-delimited DSL', async () => {
         renderEditor();
         fillIdentityAndContinue();

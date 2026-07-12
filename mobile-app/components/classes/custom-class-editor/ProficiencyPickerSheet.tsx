@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     Pressable,
     ScrollView,
@@ -9,6 +9,7 @@ import {
 import { Text } from 'react-native-paper';
 import { FantasyFormTextInput } from '@/components/FantasyFormTextInput';
 import BottomSheetShell from '@/components/sheets/BottomSheetShell';
+import useConfirm from '@/hooks/useConfirm';
 import useBottomSheetMotion from '@/hooks/useBottomSheetMotion';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { Chip, fieldStyles } from './fields';
@@ -55,6 +56,32 @@ export default function ProficiencyPickerSheet({
     const [selected, setSelected] = useState<string[]>(initiallySelected);
     const [typeFilter, setTypeFilter] = useState<string>('ALL');
     const [search, setSearch] = useState('');
+    const { confirm, confirmDialogElement } = useConfirm();
+    const skipDiscardCheckRef = useRef(false);
+    const requestSheetCloseRef = useRef<() => void>(() => {});
+
+    const isDirty = useMemo(
+        () => selected.length !== initiallySelected.length
+            || selected.some((value) => !initiallySelected.includes(value)),
+        [initiallySelected, selected],
+    );
+
+    const handleRequestClose = useCallback((): boolean | void => {
+        if (!skipDiscardCheckRef.current && isDirty) {
+            confirm({
+                title: 'Discard proficiency changes?',
+                message: 'Your unsaved proficiency selections will be lost.',
+                confirmLabel: 'Discard',
+                cancelLabel: 'Keep Editing',
+                onConfirm: () => {
+                    skipDiscardCheckRef.current = true;
+                    requestSheetCloseRef.current();
+                    skipDiscardCheckRef.current = false;
+                },
+            });
+            return false;
+        }
+    }, [confirm, isDirty]);
 
     const {
         isRendered,
@@ -66,8 +93,11 @@ export default function ProficiencyPickerSheet({
     } = useBottomSheetMotion({
         visible,
         windowHeight,
+        onRequestClose: handleRequestClose,
         onClose,
     });
+
+    requestSheetCloseRef.current = requestSheetClose;
 
     useEffect(() => {
         if (!visible) return;
@@ -97,86 +127,90 @@ export default function ProficiencyPickerSheet({
     }
 
     return (
-        <BottomSheetShell
-            isRendered={isRendered}
-            backdropOpacity={backdropOpacity}
-            sheetTranslateY={sheetTranslateY}
-            sheetDismissGesture={sheetDismissGesture}
-            closeAccessibilityLabel="Dismiss proficiency picker"
-            testID="proficiency-picker-sheet"
-            overlayZIndex={40}
-            sheetStyle={styles.sheet}
-            onRequestClose={requestSheetClose}
-        >
-            <View style={styles.root}>
-                <View style={styles.header}>
-                    <Pressable onPress={requestSheetClose} accessibilityRole="button">
-                        <Text style={styles.cancel}>Cancel</Text>
-                    </Pressable>
-                    <Text style={styles.title}>{title}</Text>
-                    <Pressable
-                        testID="proficiency-picker-confirm"
-                        onPress={() => {
-                            onConfirm(selected);
-                            requestSheetClose();
-                        }}
-                        accessibilityRole="button"
+        <>
+            <BottomSheetShell
+                isRendered={isRendered}
+                backdropOpacity={backdropOpacity}
+                sheetTranslateY={sheetTranslateY}
+                sheetDismissGesture={sheetDismissGesture}
+                closeAccessibilityLabel="Dismiss proficiency picker"
+                testID="proficiency-picker-sheet"
+                overlayZIndex={40}
+                sheetStyle={styles.sheet}
+                onRequestClose={requestSheetClose}
+            >
+                <View style={styles.root}>
+                    <View style={styles.header}>
+                        <Text style={styles.title}>{title}</Text>
+                        <Pressable
+                            testID="proficiency-picker-confirm"
+                            onPress={() => {
+                                onConfirm(selected);
+                                skipDiscardCheckRef.current = true;
+                                requestSheetClose();
+                                skipDiscardCheckRef.current = false;
+                            }}
+                            accessibilityRole="button"
+                            accessibilityLabel="Done adding proficiencies"
+                            hitSlop={8}
+                        >
+                            <Text style={styles.confirm}>Done</Text>
+                        </Pressable>
+                    </View>
+
+                    <FantasyFormTextInput
+                        label="Search"
+                        value={search}
+                        onChangeText={setSearch}
+                        dense
+                    />
+
+                    <View style={fieldStyles.chips}>
+                        {TYPE_FILTERS.map((filter) => (
+                            <Chip
+                                key={filter.value}
+                                label={filter.label}
+                                selected={typeFilter === filter.value}
+                                onPress={() => setTypeFilter(filter.value)}
+                            />
+                        ))}
+                    </View>
+
+                    <ScrollView
+                        style={styles.list}
+                        contentContainerStyle={styles.listContent}
+                        onScroll={handleScroll}
+                        scrollEventThrottle={16}
+                        keyboardShouldPersistTaps="handled"
                     >
-                        <Text style={styles.confirm}>Done</Text>
-                    </Pressable>
+                        {filtered.map((option) => {
+                            const isSelected = selected.includes(option.value);
+                            return (
+                                <Pressable
+                                    key={option.value}
+                                    testID={`proficiency-option-${option.value}`}
+                                    onPress={() => toggle(option.value)}
+                                    style={[styles.option, isSelected && styles.optionSelected]}
+                                >
+                                    <View style={styles.optionText}>
+                                        <Text style={styles.optionName}>{option.name}</Text>
+                                        <Text style={styles.optionMeta}>
+                                            {option.type}
+                                            {option.isCustom ? ' · Custom' : ''}
+                                        </Text>
+                                    </View>
+                                    <Text style={styles.check}>{isSelected ? '✓' : ''}</Text>
+                                </Pressable>
+                            );
+                        })}
+                        {filtered.length === 0 ? (
+                            <Text style={fieldStyles.helper}>No matching proficiencies.</Text>
+                        ) : null}
+                    </ScrollView>
                 </View>
-
-                <FantasyFormTextInput
-                    label="Search"
-                    value={search}
-                    onChangeText={setSearch}
-                    dense
-                />
-
-                <View style={fieldStyles.chips}>
-                    {TYPE_FILTERS.map((filter) => (
-                        <Chip
-                            key={filter.value}
-                            label={filter.label}
-                            selected={typeFilter === filter.value}
-                            onPress={() => setTypeFilter(filter.value)}
-                        />
-                    ))}
-                </View>
-
-                <ScrollView
-                    style={styles.list}
-                    contentContainerStyle={styles.listContent}
-                    onScroll={handleScroll}
-                    scrollEventThrottle={16}
-                    keyboardShouldPersistTaps="handled"
-                >
-                    {filtered.map((option) => {
-                        const isSelected = selected.includes(option.value);
-                        return (
-                            <Pressable
-                                key={option.value}
-                                testID={`proficiency-option-${option.value}`}
-                                onPress={() => toggle(option.value)}
-                                style={[styles.option, isSelected && styles.optionSelected]}
-                            >
-                                <View style={styles.optionText}>
-                                    <Text style={styles.optionName}>{option.name}</Text>
-                                    <Text style={styles.optionMeta}>
-                                        {option.type}
-                                        {option.isCustom ? ' · Custom' : ''}
-                                    </Text>
-                                </View>
-                                <Text style={styles.check}>{isSelected ? '✓' : ''}</Text>
-                            </Pressable>
-                        );
-                    })}
-                    {filtered.length === 0 ? (
-                        <Text style={fieldStyles.helper}>No matching proficiencies.</Text>
-                    ) : null}
-                </ScrollView>
-            </View>
-        </BottomSheetShell>
+            </BottomSheetShell>
+            {confirmDialogElement}
+        </>
     );
 }
 
@@ -194,10 +228,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: fantasyTokens.spacing.sm,
-    },
-    cancel: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.parchmentDeep,
     },
     title: {
         ...fantasyTokens.typography.sectionTitle,
