@@ -1,4 +1,4 @@
-import { Modal, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Modal, Pressable, StyleSheet, Text as NativeText, View, useWindowDimensions } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
@@ -53,7 +53,7 @@ export default function ConfirmDialog({
                                 accessibilityRole="button"
                                 accessibilityLabel={cancelLabel}
                             >
-                                <Text style={styles.cancelButtonText}>{cancelLabel}</Text>
+                                <NativeText style={styles.cancelButtonText}>{cancelLabel}</NativeText>
                             </Pressable>
                             <Pressable
                                 onPress={onConfirm}
@@ -61,7 +61,7 @@ export default function ConfirmDialog({
                                 accessibilityRole="button"
                                 accessibilityLabel={confirmLabel}
                             >
-                                <Text style={styles.confirmButtonText}>{confirmLabel}</Text>
+                                <NativeText style={styles.confirmButtonText}>{confirmLabel}</NativeText>
                             </Pressable>
                         </View>
                     </View>
@@ -113,25 +113,31 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: fantasyTokens.spacing.sm,
         justifyContent: 'flex-end',
-        flex: 1,
+        alignItems: 'center',
     },
     cancelButton: {
+        minHeight: fantasyTokens.spacing.xxl,
+        alignItems: 'center',
+        justifyContent: 'center',
         borderWidth: 1,
         borderColor: fantasyTokens.colors.accordionBorder,
         backgroundColor: fantasyTokens.colors.parchmentLight,
         borderRadius: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
+        paddingHorizontal: fantasyTokens.spacing.lg,
+        paddingVertical: fantasyTokens.spacing.sm,
     },
     cancelButtonText: {
         ...fantasyTokens.typography.buttonLabel,
         color: fantasyTokens.colors.inkLight,
     },
     confirmButton: {
+        minHeight: fantasyTokens.spacing.xxl,
+        alignItems: 'center',
+        justifyContent: 'center',
         backgroundColor: fantasyTokens.colors.crimson,
         borderRadius: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
+        paddingHorizontal: fantasyTokens.spacing.lg,
+        paddingVertical: fantasyTokens.spacing.sm,
     },
     confirmButtonText: {
         ...fantasyTokens.typography.buttonLabel,
