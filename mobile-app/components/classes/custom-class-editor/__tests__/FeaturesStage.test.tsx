@@ -132,3 +132,22 @@ describe('FeaturesStage spell list', () => {
         expect(onChange).toHaveBeenCalledWith({ spells: [] });
     });
 });
+
+describe('FeaturesStage remove controls', () => {
+    test('uses a top-right trash control to remove a feature card', () => {
+        const feature = {
+            key: 'feature-1',
+            name: 'Fighting Style',
+            description: 'Choose a style.',
+            level: 1,
+        };
+        const { onChange } = renderFeaturesStage({ features: [feature] });
+
+        expect(screen.getByTestId('remove-custom-class-feature-0')).toBeTruthy();
+        expect(screen.queryByText('Remove')).toBeNull();
+
+        fireEvent.press(screen.getByLabelText('Remove feature 1'));
+
+        expect(onChange).toHaveBeenCalledWith({ features: [] });
+    });
+});

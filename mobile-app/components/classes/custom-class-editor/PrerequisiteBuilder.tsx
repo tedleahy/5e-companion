@@ -3,6 +3,7 @@ import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { nightFormStyles } from '@/theme/nightFormStyles';
 import { ABILITIES } from './types';
+import CardRemoveButton from './CardRemoveButton';
 import { Chip, fieldStyles } from './fields';
 
 export type PrerequisiteRow = {
@@ -69,7 +70,16 @@ export default function PrerequisiteBuilder({ value, locked, onChange }: Prerequ
                         </Text>
                         {rows.map(({ item, index }, rowIndex) => (
                             <View key={`${group}-${index}`} style={styles.row}>
-                                {rowIndex > 0 ? <Text style={styles.orLabel}>or</Text> : null}
+                                <View style={styles.rowHeader}>
+                                    {rowIndex > 0 ? <Text style={styles.orLabel}>or</Text> : <View />}
+                                    {!locked ? (
+                                        <CardRemoveButton
+                                            accessibilityLabel={`Remove prerequisite ${group}-${rowIndex + 1}`}
+                                            onPress={() => removeRow(index)}
+                                            testID={`remove-prerequisite-${group}-${rowIndex + 1}`}
+                                        />
+                                    ) : null}
+                                </View>
                                 <View style={fieldStyles.chips}>
                                     {ABILITIES.map((ability) => (
                                         <Chip
@@ -104,11 +114,6 @@ export default function PrerequisiteBuilder({ value, locked, onChange }: Prerequ
                                             <Text style={styles.stepperText}>+</Text>
                                         </Pressable>
                                     </View>
-                                    {!locked ? (
-                                        <Pressable onPress={() => removeRow(index)}>
-                                            <Text style={styles.remove}>Remove</Text>
-                                        </Pressable>
-                                    ) : null}
                                 </View>
                             </View>
                         ))}
@@ -142,6 +147,11 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.parchment,
     },
     row: { gap: fantasyTokens.spacing.sm },
+    rowHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
     orLabel: {
         ...fantasyTokens.typography.bodySmall,
         color: fantasyTokens.colors.gold,
@@ -180,10 +190,6 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.parchment,
         minWidth: fantasyTokens.spacing.lg,
         textAlign: 'center',
-    },
-    remove: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.goldLight,
     },
     link: {
         ...fantasyTokens.typography.buttonLabel,

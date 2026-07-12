@@ -1,9 +1,10 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { FantasyFormTextInput } from '@/components/FantasyFormTextInput';
 import NumericStepper from '@/components/NumericStepper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { nightFormStyles } from '@/theme/nightFormStyles';
+import CardRemoveButton from './CardRemoveButton';
 import type { EquipmentEntry } from './draft';
 
 type EquipmentRowProps = {
@@ -26,13 +27,24 @@ export default function EquipmentRow({
 }: EquipmentRowProps) {
     return (
         <View style={nested ? styles.nestedItemRow : styles.itemRow}>
-            <FantasyFormTextInput
-                label="Name"
-                value={item.name}
-                editable={!locked}
-                testID={`equipment-name-${item.key}`}
-                onChangeText={(name) => onChange({ ...item, name })}
-            />
+            <View style={styles.nameRow}>
+                <View style={styles.nameField}>
+                    <FantasyFormTextInput
+                        label="Name"
+                        value={item.name}
+                        editable={!locked}
+                        testID={`equipment-name-${item.key}`}
+                        onChangeText={(name) => onChange({ ...item, name })}
+                    />
+                </View>
+                {!locked ? (
+                    <CardRemoveButton
+                        accessibilityLabel={nested ? 'Remove equipment option' : 'Remove equipment item'}
+                        onPress={onRemove}
+                        testID={`remove-equipment-item-${item.key}`}
+                    />
+                ) : null}
+            </View>
             <View style={styles.quantityBlock}>
                 <Text style={styles.quantityLabel}>Qty</Text>
                 <NumericStepper
@@ -47,11 +59,6 @@ export default function EquipmentRow({
                     onDecrease={() => onChange({ ...item, quantity: Math.max(1, item.quantity - 1) })}
                     onIncrease={() => onChange({ ...item, quantity: item.quantity + 1 })}
                 />
-                {!locked ? (
-                    <Pressable onPress={onRemove} accessibilityRole="button" accessibilityLabel="Remove item">
-                        <Text style={styles.remove}>Remove</Text>
-                    </Pressable>
-                ) : null}
             </View>
         </View>
     );
@@ -66,6 +73,15 @@ const styles = StyleSheet.create({
     nestedItemRow: {
         gap: fantasyTokens.spacing.sm,
     },
+    nameRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: fantasyTokens.spacing.sm,
+    },
+    nameField: {
+        flex: 1,
+        minWidth: 0,
+    },
     quantityBlock: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -74,9 +90,5 @@ const styles = StyleSheet.create({
     quantityLabel: {
         ...fantasyTokens.typography.buttonLabel,
         color: fantasyTokens.colors.gold,
-    },
-    remove: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.goldLight,
     },
 });

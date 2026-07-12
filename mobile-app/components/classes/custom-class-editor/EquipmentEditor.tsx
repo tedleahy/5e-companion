@@ -9,6 +9,7 @@ import {
     type EquipmentChoiceGroup,
     type EquipmentEntry,
 } from './draft';
+import CardRemoveButton from './CardRemoveButton';
 import EquipmentRow from './EquipmentRow';
 import { fieldStyles } from './fields';
 
@@ -133,13 +134,11 @@ export default function EquipmentEditor({
                         <View style={styles.groupHeader}>
                             <Text style={styles.groupTitle}>Choice group {group.choiceGroup}</Text>
                             {!locked ? (
-                                <Pressable
-                                    accessibilityRole="button"
+                                <CardRemoveButton
                                     accessibilityLabel={`Remove choice group ${group.choiceGroup}`}
                                     onPress={() => removeGroup(group.choiceGroup)}
-                                >
-                                    <Text style={styles.remove}>Remove</Text>
-                                </Pressable>
+                                    testID={`remove-equipment-choice-group-${group.choiceGroup}`}
+                                />
                             ) : null}
                         </View>
                         <View style={styles.chooseRow}>
@@ -223,10 +222,6 @@ const styles = StyleSheet.create({
     chooseLabel: {
         ...fantasyTokens.typography.buttonLabel,
         color: fantasyTokens.colors.parchmentDeep,
-    },
-    remove: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.goldLight,
     },
     link: {
         ...fantasyTokens.typography.buttonLabel,

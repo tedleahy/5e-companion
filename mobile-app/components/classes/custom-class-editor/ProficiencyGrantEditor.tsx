@@ -8,6 +8,7 @@ import {
     nextChoiceGroupId,
     type ProficiencyChoiceGroup,
 } from './draft';
+import CardRemoveButton from './CardRemoveButton';
 import { Chip, fieldStyles } from './fields';
 import ProficiencyPickerSheet, { type ProficiencyOption } from './ProficiencyPickerSheet';
 
@@ -152,7 +153,7 @@ export default function ProficiencyGrantEditor({
                 {fixedValues.length === 0 ? (
                     <Text style={fieldStyles.helper}>No fixed proficiencies yet.</Text>
                 ) : (
-                    <Text style={fieldStyles.helper}>Tap a chip to remove it.</Text>
+                    <Text style={fieldStyles.helper}>Tap a chip to deselect it.</Text>
                 )}
                 {!locked ? (
                     <Pressable
@@ -175,13 +176,11 @@ export default function ProficiencyGrantEditor({
                         <View style={styles.groupHeader}>
                             <Text style={styles.groupTitle}>Choice group {group.choiceGroup}</Text>
                             {!locked ? (
-                                <Pressable
-                                    accessibilityRole="button"
+                                <CardRemoveButton
                                     accessibilityLabel={`Remove choice group ${group.choiceGroup}`}
                                     onPress={() => removeGroup(group.choiceGroup)}
-                                >
-                                    <Text style={styles.remove}>Remove</Text>
-                                </Pressable>
+                                    testID={`remove-proficiency-choice-group-${grant}-${group.choiceGroup}`}
+                                />
                             ) : null}
                         </View>
                         <View style={styles.chooseRow}>
@@ -285,10 +284,6 @@ const styles = StyleSheet.create({
     chooseLabel: {
         ...fantasyTokens.typography.buttonLabel,
         color: fantasyTokens.colors.parchmentDeep,
-    },
-    remove: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.goldLight,
     },
     link: {
         ...fantasyTokens.typography.buttonLabel,

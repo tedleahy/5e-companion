@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { nightFormStyles } from '@/theme/nightFormStyles';
+import CardRemoveButton from './CardRemoveButton';
 import ClassSpellListEditor from './ClassSpellListEditor';
 import { Field } from './fields';
 import type { StageProps } from './types';
@@ -17,15 +18,15 @@ export default function FeaturesStage({ draft, locked, onChange }: StageProps) {
                     <View style={styles.featureHeader}>
                         <Text style={styles.featureTitle}>Feature {index + 1}</Text>
                         {!locked ? (
-                            <Pressable
+                            <CardRemoveButton
+                                accessibilityLabel={`Remove feature ${index + 1}`}
                                 onPress={() =>
                                     onChange({
                                         features: draft.features.filter((item) => item.key !== feature.key),
                                     })
                                 }
-                            >
-                                <Text style={styles.remove}>Remove</Text>
-                            </Pressable>
+                                testID={`remove-custom-class-feature-${index}`}
+                            />
                         ) : null}
                     </View>
                     <Field
@@ -115,10 +116,6 @@ const styles = StyleSheet.create({
     featureTitle: {
         ...fantasyTokens.typography.sectionTitle,
         color: fantasyTokens.colors.parchment,
-    },
-    remove: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.goldLight,
     },
     addButton: {
         alignItems: 'center',
