@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     },
     backdrop: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: fantasyTokens.rail.backdrop,
+        backgroundColor: fantasyTokens.sheet.backdrop,
     },
     backdropPressable: {
         flex: 1,
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderLeftWidth: 1,
         borderRightWidth: 1,
-        borderColor: fantasyTokens.rail.borderStrong,
+        borderColor: fantasyTokens.sheet.form.border,
         overflow: 'hidden',
         elevation: 20,
     },
@@ -128,6 +128,6 @@ const styles = StyleSheet.create({
         width: 42,
         height: 4,
         borderRadius: 2,
-        backgroundColor: fantasyTokens.rail.borderStrong,
+        backgroundColor: fantasyTokens.sheet.form.border,
     },
 });

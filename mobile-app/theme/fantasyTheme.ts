@@ -263,6 +263,20 @@ export const fantasyTokens = {
         handleHeight: 4,
         defaultHeight: '82%' as const,
         tallHeight: '88%' as const,
+        /**
+         * Shared chrome for night BottomSheetShell forms (level-up, class/subclass editors).
+         * Prefer these over `rail.*` so form surfaces are not tied to nav press states.
+         */
+        form: {
+            card: 'rgba(201,146,42,0.07)',
+            border: 'rgba(201,146,42,0.22)',
+            positiveSoft: 'rgba(45,106,79,0.12)',
+            positiveSoftSubtle: 'rgba(45,106,79,0.08)',
+            positiveBorder: 'rgba(45,106,79,0.24)',
+            warningSoft: 'rgba(184,92,31,0.14)',
+            warningBorder: 'rgba(184,92,31,0.4)',
+            glow: '0 0 4px rgba(201,146,42,0.12)',
+        },
     },
     stepper: {
         buttonSize: fantasySpacing.xl + fantasySpacing.sm + fantasySpacing.xs,

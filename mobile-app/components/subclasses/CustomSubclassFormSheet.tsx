@@ -10,8 +10,8 @@ import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
 import type { OptionItem } from '@/lib/characterCreation/options';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { FantasyFormTextInput } from '@/components/FantasyFormTextInput';
 import CustomSubclassFeatureCard from './CustomSubclassFeatureCard';
-import { FantasyFormTextInput } from './FantasyFormTextInput';
 import {
     addCustomSubclassFeatureDraft,
     buildBlankCustomSubclassFeatureDraft,
@@ -383,9 +383,9 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.xs,
         borderRadius: fantasyTokens.radii.sm,
         borderWidth: 1,
-        borderColor: fantasyTokens.rail.borderStrong,
+        borderColor: fantasyTokens.sheet.form.border,
         paddingHorizontal: fantasyTokens.spacing.sm,
-        backgroundColor: fantasyTokens.rail.pressed,
+        backgroundColor: fantasyTokens.sheet.form.card,
     },
     classButtonSelected: {
         backgroundColor: fantasyTokens.colors.crimson,
@@ -458,11 +458,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         borderRadius: fantasyTokens.radii.sm,
         borderWidth: 1,
-        borderColor: fantasyTokens.rail.borderStrong,
+        borderColor: fantasyTokens.sheet.form.border,
         paddingHorizontal: fantasyTokens.spacing.md,
     },
     cancelButtonPressed: {
-        backgroundColor: fantasyTokens.rail.pressed,
+        backgroundColor: fantasyTokens.sheet.form.card,
     },
     cancelButtonText: {
         ...fantasyTokens.typography.buttonLabel,
