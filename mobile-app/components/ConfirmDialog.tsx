@@ -1,5 +1,5 @@
-import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
-import { Dialog, Portal, Text } from 'react-native-paper';
+import { Modal, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 type ConfirmDialogProps = {
@@ -29,42 +29,59 @@ export default function ConfirmDialog({
     const isTablet = width >= 768;
 
     return (
-        <Portal>
-            <Dialog
-                visible={visible}
-                onDismiss={onCancel}
-                style={[styles.dialog, isTablet && styles.dialogTablet]}
-            >
-                <Dialog.Title style={styles.title}>{title}</Dialog.Title>
-                <Dialog.Content>
+        <Modal
+            visible={visible}
+            transparent
+            animationType="fade"
+            onRequestClose={onCancel}
+        >
+            <View style={styles.modalRoot}>
+                <Pressable
+                    style={styles.backdrop}
+                    onPress={onCancel}
+                    accessibilityRole="button"
+                    accessibilityLabel="Dismiss dialog"
+                />
+                <View style={[styles.dialog, isTablet && styles.dialogTablet]}>
+                    <Text style={styles.title}>{title}</Text>
                     <Text style={styles.message}>{message}</Text>
-                </Dialog.Content>
-                <Dialog.Actions style={styles.actions}>
-                    <View style={styles.buttonRow}>
-                        <Pressable
-                            onPress={onCancel}
-                            style={styles.cancelButton}
-                            accessibilityRole="button"
-                            accessibilityLabel={cancelLabel}
-                        >
-                            <Text style={styles.cancelButtonText}>{cancelLabel}</Text>
-                        </Pressable>
-                        <Pressable
-                            onPress={onConfirm}
-                            style={styles.confirmButton}
-                            accessibilityRole="button"
-                            accessibilityLabel={confirmLabel}
-                        >
-                            <Text style={styles.confirmButtonText}>{confirmLabel}</Text>
-                        </Pressable>
+                    <View style={styles.actions}>
+                        <View style={styles.buttonRow}>
+                            <Pressable
+                                onPress={onCancel}
+                                style={styles.cancelButton}
+                                accessibilityRole="button"
+                                accessibilityLabel={cancelLabel}
+                            >
+                                <Text style={styles.cancelButtonText}>{cancelLabel}</Text>
+                            </Pressable>
+                            <Pressable
+                                onPress={onConfirm}
+                                style={styles.confirmButton}
+                                accessibilityRole="button"
+                                accessibilityLabel={confirmLabel}
+                            >
+                                <Text style={styles.confirmButtonText}>{confirmLabel}</Text>
+                            </Pressable>
+                        </View>
                     </View>
-                </Dialog.Actions>
-            </Dialog>
-        </Portal>
+                </View>
+            </View>
+        </Modal>
     );
 }
 
 const styles = StyleSheet.create({
+    modalRoot: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: fantasyTokens.spacing.lg,
+        backgroundColor: fantasyTokens.sheet.backdrop,
+    },
+    backdrop: {
+        ...StyleSheet.absoluteFillObject,
+    },
     dialog: {
         backgroundColor: fantasyTokens.colors.parchment,
         borderRadius: fantasyTokens.radii.md,
@@ -74,6 +91,8 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         width: '90%',
         marginHorizontal: 'auto',
+        padding: fantasyTokens.spacing.xl,
+        gap: fantasyTokens.spacing.md,
     },
     dialogTablet: {
         maxWidth: 480,
@@ -88,8 +107,7 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.inkLight,
     },
     actions: {
-        paddingHorizontal: fantasyTokens.spacing.md,
-        paddingBottom: fantasyTokens.spacing.md,
+        paddingTop: fantasyTokens.spacing.sm,
     },
     buttonRow: {
         flexDirection: 'row',
