@@ -41,4 +41,21 @@ describe('FantasyFormTextInput', () => {
         const flatStyle = StyleSheet.flatten(screen.getByDisplayValue('Custom').props.style);
         expect(flatStyle.paddingTop).toBe(fantasyTokens.spacing.sm);
     });
+
+    it('renders string labels above the field in night-form gold, not as Paper floating labels', () => {
+        renderWithPaper(
+            <FantasyFormTextInput
+                label="Name"
+                value="Longsword"
+                onChangeText={jest.fn()}
+                testID="fantasy-form-named"
+            />,
+        );
+
+        const label = screen.getByText('Name');
+        expect(StyleSheet.flatten(label.props.style).color).toBe(fantasyTokens.colors.gold);
+        // Paper floating labels expose *-label-active / *-label-inactive testIDs.
+        expect(screen.queryByTestId('fantasy-form-named-label-active')).toBeNull();
+        expect(screen.getByDisplayValue('Longsword').props.accessibilityLabel).toBe('Name');
+    });
 });
