@@ -17,7 +17,7 @@ import IdentityStage from './custom-class-editor/IdentityStage';
 import ProficienciesStage from './custom-class-editor/ProficienciesStage';
 import ProgressionStage from './custom-class-editor/ProgressionStage';
 import ReviewStage from './custom-class-editor/ReviewStage';
-import type { CustomClassEditorProps, Draft } from './custom-class-editor/types';
+import type { CustomClassEditorProps, Draft, EditableStageIndex } from './custom-class-editor/types';
 import { STAGES } from './custom-class-editor/types';
 
 /**
@@ -107,6 +107,12 @@ export default function CustomClassEditor({ visible, initial, onClose, onSaved }
             }
         }
         setStage((value) => Math.max(0, Math.min(STAGES.length - 1, value + delta)));
+    }
+
+    /** Jump from Review Edit › links to a prior stage without re-validating. */
+    function jumpToStage(target: EditableStageIndex) {
+        setValidationMessage(null);
+        setStage(target);
     }
 
     async function submit() {
@@ -201,7 +207,13 @@ export default function CustomClassEditor({ visible, initial, onClose, onSaved }
                             />
                         ) : null}
                         {stage === 4 ? <FeaturesStage {...stageProps} /> : null}
-                        {stage === 5 ? <ReviewStage draft={draft} locked={locked} /> : null}
+                        {stage === 5 ? (
+                            <ReviewStage
+                                draft={draft}
+                                locked={locked}
+                                onJumpToStage={(target) => dismissKeyboardAndRun(() => jumpToStage(target))}
+                            />
+                        ) : null}
                     </KeyboardAwareScrollView>
                 </EditorChrome>
             </BottomSheetShell>

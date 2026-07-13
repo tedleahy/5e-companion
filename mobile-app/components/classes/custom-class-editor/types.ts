@@ -50,3 +50,6 @@ export type StageProps = {
 export type IdentityStageProps = StageProps & {
     errors?: IdentityFieldErrors;
 };
+
+/** Stage indexes Review can jump back to (everything except Review itself). */
+export type EditableStageIndex = 0 | 1 | 2 | 3 | 4;
