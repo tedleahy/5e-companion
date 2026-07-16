@@ -156,6 +156,7 @@ export type CharacterStats = {
 
 export type ClassDetails = {
   __typename?: 'ClassDetails';
+  addSpellcastingAbility: Scalars['Boolean']['output'];
   archived: Scalars['Boolean']['output'];
   characterUsageCount: Scalars['Int']['output'];
   description: Array<Scalars['String']['output']>;
@@ -217,7 +218,6 @@ export type ClassFeature = {
 export type ClassLevelProgression = {
   __typename?: 'ClassLevelProgression';
   abilityScoreImprovement: Scalars['Boolean']['output'];
-  addSpellcastingAbility: Scalars['Boolean']['output'];
   cantripsKnown?: Maybe<Scalars['Int']['output']>;
   displayValues: Array<ClassDisplayValue>;
   level: Scalars['Int']['output'];
@@ -228,7 +228,6 @@ export type ClassLevelProgression = {
 
 export type ClassLevelProgressionInput = {
   abilityScoreImprovement: Scalars['Boolean']['input'];
-  addSpellcastingAbility: Scalars['Boolean']['input'];
   cantripsKnown?: InputMaybe<Scalars['Int']['input']>;
   displayValues: Array<ClassDisplayValueInput>;
   level: Scalars['Int']['input'];
@@ -426,6 +425,7 @@ export type ManagedCustomClassFeatureInput = {
 };
 
 export type ManagedCustomClassInput = {
+  addSpellcastingAbility: Scalars['Boolean']['input'];
   description: Scalars['String']['input'];
   equipment: Array<ClassEquipmentDefinitionInput>;
   features: Array<ManagedCustomClassFeatureInput>;
@@ -1263,6 +1263,7 @@ export type CharacterStatsResolvers<ContextType = Context, ParentType extends Re
 };
 
 export type ClassDetailsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ClassDetails'] = ResolversParentTypes['ClassDetails']> = {
+  addSpellcastingAbility?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   archived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   characterUsageCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   description?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
@@ -1312,7 +1313,6 @@ export type ClassFeatureResolvers<ContextType = Context, ParentType extends Reso
 
 export type ClassLevelProgressionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ClassLevelProgression'] = ResolversParentTypes['ClassLevelProgression']> = {
   abilityScoreImprovement?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  addSpellcastingAbility?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   cantripsKnown?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   displayValues?: Resolver<Array<ResolversTypes['ClassDisplayValue']>, ParentType, ContextType>;
   level?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;

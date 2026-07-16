@@ -21,6 +21,7 @@ const summary = {
 };
 const details = {
     ...summary, __typename: 'ClassDetails', archived: false, sourceBook: 'SRD', equipment: [], proficiencies: [],
+    addSpellcastingAbility: false,
     progression: [], features: [], spells: [], characterUsageCount: 0, mechanicsLocked: false, mechanicsLockedReason: null,
 };
 

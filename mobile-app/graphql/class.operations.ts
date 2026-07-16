@@ -29,6 +29,7 @@ export const CLASS_DETAILS_FIELDS = gql`
         savingThrowIndexes
         spellcastingMode
         spellcastingAbility
+        addSpellcastingAbility
         isCustom
         archived
         sourceBook
@@ -42,7 +43,6 @@ export const CLASS_DETAILS_FIELDS = gql`
             cantripsKnown
             spellsKnown
             preparedSpellCount
-            addSpellcastingAbility
             displayValues { key value }
         }
         features { id name description level }

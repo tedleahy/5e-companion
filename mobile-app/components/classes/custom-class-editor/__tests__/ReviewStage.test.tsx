@@ -122,6 +122,7 @@ describe('ReviewStage', () => {
             ],
             spellcastingMode: 'STANDARD',
             spellcastingAbility: 'int',
+            addSpellcastingAbility: true,
             progression: createDraft().progression.map((level) => ({
                 ...level,
                 abilityScoreImprovement: level.level === 4 || level.level === 8,

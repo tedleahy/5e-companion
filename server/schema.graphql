@@ -50,6 +50,7 @@ type ClassDetails {
     savingThrowIndexes: [String!]!
     spellcastingMode: String!
     spellcastingAbility: String
+    addSpellcastingAbility: Boolean!
     isCustom: Boolean!
     archived: Boolean!
     sourceBook: String
@@ -100,7 +101,6 @@ type ClassLevelProgression {
     cantripsKnown: Int
     spellsKnown: Int
     preparedSpellCount: Int
-    addSpellcastingAbility: Boolean!
     displayValues: [ClassDisplayValue!]!
 }
 
@@ -133,6 +133,7 @@ input ManagedCustomClassInput {
     equipment: [ClassEquipmentDefinitionInput!]!
     spellcastingMode: String!
     spellcastingAbility: String
+    addSpellcastingAbility: Boolean!
     progression: [ClassLevelProgressionInput!]!
     features: [ManagedCustomClassFeatureInput!]!
     spellIds: [ID!]!
@@ -165,7 +166,6 @@ input ClassLevelProgressionInput {
     cantripsKnown: Int
     spellsKnown: Int
     preparedSpellCount: Int
-    addSpellcastingAbility: Boolean!
     displayValues: [ClassDisplayValueInput!]!
 }
 

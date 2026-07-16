@@ -43,6 +43,7 @@ export function normaliseClassInput(input: ManagedCustomClassInput) {
     const savingThrowIndexes = uniqueStrings(input.savingThrowIndexes, 'Saving throws');
     const spellcastingMode = input.spellcastingMode.trim().toUpperCase() as ClassSpellcastingMode;
     const spellcastingAbility = input.spellcastingAbility?.trim().toLowerCase() || null;
+    const addSpellcastingAbility = spellcastingMode === 'NONE' ? false : Boolean(input.addSpellcastingAbility);
 
     if (!name || !description) throw new Error('Name and description are required.');
     if (![6, 8, 10, 12].includes(hitDie)) throw new Error('Hit die must be d6, d8, d10, or d12.');
@@ -100,7 +101,6 @@ export function normaliseClassInput(input: ManagedCustomClassInput) {
         cantripsKnown: level.cantripsKnown == null ? null : Number(level.cantripsKnown),
         spellsKnown: level.spellsKnown == null ? null : Number(level.spellsKnown),
         preparedSpellCount: level.preparedSpellCount == null ? null : Number(level.preparedSpellCount),
-        addSpellcastingAbility: level.addSpellcastingAbility,
         classSpecific: Object.fromEntries(level.displayValues.map(({ key, value }) => [key.trim(), value.trim()])),
     })).sort((left, right) => left.level - right.level);
     if (levels.length !== 20 || levels.some((level, index) => level.level !== index + 1)) {
@@ -135,7 +135,7 @@ export function normaliseClassInput(input: ManagedCustomClassInput) {
     return {
         name, description, hitDie, primaryAbilityIndexes, savingThrowIndexes,
         multiclassPrerequisites, proficiencies, equipment, spellcastingMode, spellcastingAbility,
-        levels, features, spellIds: uniqueStrings(input.spellIds, 'Spell list'),
+        addSpellcastingAbility, levels, features, spellIds: uniqueStrings(input.spellIds, 'Spell list'),
     };
 }
 
@@ -157,6 +157,7 @@ export function mapClassDetails(row: ClassDetailsRow) {
         savingThrowIndexes: row.savingThrowIndexes,
         spellcastingMode: row.spellcastingMode,
         spellcastingAbility: row.spellcastingAbility,
+        addSpellcastingAbility: row.addSpellcastingAbility,
         isCustom: row.ownerUserId != null,
         archived: row.archivedAt != null,
         sourceBook: row.sourceBook,
@@ -217,7 +218,8 @@ function mechanicsSnapshot(input: NormalisedClassInput) {
         equipment: sorted(input.equipment),
         spellcastingMode: input.spellcastingMode,
         spellcastingAbility: input.spellcastingAbility,
-        levels: input.levels.map(({ level, abilityScoreImprovement, spellSlots, cantripsKnown, spellsKnown, preparedSpellCount, addSpellcastingAbility, classSpecific }) => ({ level, abilityScoreImprovement, spellSlots, cantripsKnown, spellsKnown, preparedSpellCount, addSpellcastingAbility, classSpecific })),
+        addSpellcastingAbility: input.addSpellcastingAbility,
+        levels: input.levels.map(({ level, abilityScoreImprovement, spellSlots, cantripsKnown, spellsKnown, preparedSpellCount, classSpecific }) => ({ level, abilityScoreImprovement, spellSlots, cantripsKnown, spellsKnown, preparedSpellCount, classSpecific })),
         features: sorted(input.features.map(({ id, level }) => ({ id, level }))),
         spellIds: [...input.spellIds].sort(),
     });
@@ -235,6 +237,7 @@ function rowMechanicsSnapshot(row: ClassDetailsRow): string {
         equipment: jsonArray(row.startingEquipment) as NormalisedClassInput['equipment'],
         spellcastingMode: row.spellcastingMode,
         spellcastingAbility: row.spellcastingAbility,
+        addSpellcastingAbility: row.addSpellcastingAbility,
         levels: row.progression.map((level) => ({
             level: level.level,
             abilityScoreImprovement: level.abilityScoreImprovement,
@@ -242,7 +245,6 @@ function rowMechanicsSnapshot(row: ClassDetailsRow): string {
             cantripsKnown: level.cantripsKnown,
             spellsKnown: level.spellsKnown,
             preparedSpellCount: level.preparedSpellCount,
-            addSpellcastingAbility: level.addSpellcastingAbility,
             classSpecific: (level.classSpecific as Record<string, string>) ?? {},
         })),
         features: row.features.map((feature) => ({ id: feature.id, name: feature.name, description: feature.description.join('\n\n'), level: feature.level ?? 1 })),
@@ -321,7 +323,8 @@ export async function createCustomClass(_parent: unknown, { input }: MutationCre
             ownerUserId: userId, name: values.name, description: [values.description], hitDie: values.hitDie,
             primaryAbilityIndexes: values.primaryAbilityIndexes, savingThrowIndexes: values.savingThrowIndexes,
             multiclassPrerequisites: values.multiclassPrerequisites, startingEquipment: values.equipment,
-            spellcastingMode: values.spellcastingMode, spellcastingAbility: values.spellcastingAbility, sourceBook: 'Custom',
+            spellcastingMode: values.spellcastingMode, spellcastingAbility: values.spellcastingAbility,
+            addSpellcastingAbility: values.addSpellcastingAbility, sourceBook: 'Custom',
         } });
         await writeClassRelations(tx, row.id, userId, values, proficiencyByValue);
         return row.id;
@@ -351,6 +354,7 @@ export async function updateCustomClass(_parent: unknown, { id, input }: Mutatio
             hitDie: values.hitDie, primaryAbilityIndexes: values.primaryAbilityIndexes, savingThrowIndexes: values.savingThrowIndexes,
             multiclassPrerequisites: values.multiclassPrerequisites, startingEquipment: values.equipment,
             spellcastingMode: values.spellcastingMode, spellcastingAbility: values.spellcastingAbility,
+            addSpellcastingAbility: values.addSpellcastingAbility,
         } : {}) } });
         if (!mechanicsLocked) {
             await writeClassRelations(tx, id, userId, values, references!.proficiencyByValue);

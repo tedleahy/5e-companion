@@ -17,11 +17,11 @@ function validInput(): ManagedCustomClassInput {
             level: index + 1,
             abilityScoreImprovement: [4, 8, 12, 16, 19].includes(index + 1),
             spellSlots: Array(9).fill(0),
-            addSpellcastingAbility: false,
             displayValues: [],
         })),
         features: [{ name: 'Vigilance', description: 'Remain alert.', level: 1 }],
         spellIds: [],
+        addSpellcastingAbility: false,
     };
 }
 
@@ -43,6 +43,18 @@ describe('custom class input validation', () => {
         const input = validInput();
         input.progression[0]!.spellSlots[0] = 2;
         expect(() => normaliseClassInput(input)).toThrow('non-spellcasting class');
+    });
+
+    test('normalises the prepared-spell modifier as a class-wide caster setting', () => {
+        const caster = validInput();
+        caster.spellcastingMode = 'STANDARD';
+        caster.spellcastingAbility = 'wis';
+        caster.addSpellcastingAbility = true;
+        expect(normaliseClassInput(caster).addSpellcastingAbility).toBe(true);
+
+        const nonCaster = validInput();
+        nonCaster.addSpellcastingAbility = true;
+        expect(normaliseClassInput(nonCaster).addSpellcastingAbility).toBe(false);
     });
 });
 

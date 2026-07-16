@@ -229,6 +229,35 @@ describe('characterLevelUp spellcasting helpers', () => {
         expect(canContinueFromSpellcastingUpdates(summary, createLevelUpSpellcastingState())).toBe(true);
     });
 
+    it('applies a custom class prepared-spell modifier at every progression level', () => {
+        const summary = buildLevelUpSpellcastingSummary(BASE_CHARACTER as never, {
+            classId: 'custom-cleric',
+            className: 'Custom Cleric',
+            currentLevel: 4,
+            newLevel: 5,
+            isExistingClass: true,
+            subclassId: null,
+            subclassName: null,
+            subclassDescription: null,
+            subclassIsCustom: false,
+            subclassFeatures: [],
+            customSubclass: null,
+            classDefinition: {
+                spellcastingMode: 'STANDARD',
+                spellcastingAbility: 'int',
+                addSpellcastingAbility: true,
+                progression: [
+                    { level: 4, preparedSpellCount: 4, spellSlots: [] },
+                    { level: 5, preparedSpellCount: 5, spellSlots: [] },
+                ],
+                spells: [],
+            } as never,
+        });
+
+        expect(summary.previousPreparedSpellLimit).toBe(8);
+        expect(summary.nextPreparedSpellLimit).toBe(9);
+    });
+
     it('captures warlock pact-magic and known-spell progression separately from standard slots', () => {
         const character = {
             ...BASE_CHARACTER,

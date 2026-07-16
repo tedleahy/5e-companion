@@ -100,8 +100,8 @@ See [`@/home/ted/projects/5e-companion/server/resolvers/character/fieldResolvers
 The reference tables are normalised rather than JSON — `AGENTS.md` is explicit that Prisma is the source of truth for SRD data. Notable relations:
 
 - `Race` → many-to-many to `Trait` and `Language`, plus `AbilityBonus` (join row with bonus) and `Subrace`.
-- `Class` contains the shared SRD/custom definition: description, core abilities/saves, hit die, archive state, multiclass prerequisites, equipment JSON, and spellcasting mode/ability. SRD rows have no owner; custom rows are scoped by `ownerUserId`.
-- `ClassLevelProgression` normalizes levels 1–20, including ASI grants, nine spell-slot counts, cantrips/spells known, prepared-spell configuration, and display-only class-specific values.
+- `Class` contains the shared SRD/custom definition: description, core abilities/saves, hit die, archive state, multiclass prerequisites, equipment JSON, spellcasting mode/ability, and whether prepared-spell counts include the spellcasting ability modifier. SRD rows have no owner; custom rows are scoped by `ownerUserId`.
+- `ClassLevelProgression` normalizes levels 1–20, including ASI grants, nine spell-slot counts, cantrips/spells known, prepared-spell base counts, and display-only class-specific values.
 - `ClassProficiency` distinguishes starting from multiclass grants and represents fixed or grouped choice entries. `ClassSpell` is the explicit custom/SRD class spell-list join.
 - `Class` still has many `Subclass` and `Feature` rows. Custom class features use `CLASS_FEATURE`.
 - `Subclass` → belongs to a `Class`, carries `description: String[]` and the canonical `selectionLevel` (an integer from 1–20). SRD rows have `ownerUserId: null`; reusable custom subclass rows are user-owned and have `srdIndex: null`. The SRD seeder assigns the 2014 levels (Cleric/Sorcerer/Warlock 1, Druid/Wizard 2, all others 3).

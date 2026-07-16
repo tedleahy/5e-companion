@@ -58,7 +58,6 @@ export type CharacterClassReference = {
         cantripsKnown: number | null;
         spellsKnown: number | null;
         preparedSpellCount: number | null;
-        addSpellcastingAbility: boolean;
     }>;
     proficiencies?: Array<{
         srdIndex: string | null;

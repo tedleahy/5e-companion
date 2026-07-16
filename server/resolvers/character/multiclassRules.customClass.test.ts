@@ -19,7 +19,7 @@ function customClass(mode: 'NONE' | 'STANDARD' | 'PACT_MAGIC'): ResolvedCharacte
             progression: Array.from({ length: 20 }, (_, index) => ({
                 level: index + 1, spellSlots: index === 2 ? [mode === 'NONE' ? 0 : 3, mode === 'NONE' ? 0 : 2, 0, 0, 0, 0, 0, 0, 0] : Array(9).fill(0),
                 abilityScoreImprovement: false, cantripsKnown: null, spellsKnown: null,
-                preparedSpellCount: null, addSpellcastingAbility: false,
+                preparedSpellCount: null,
             })),
         },
         subclassRef: null,
@@ -36,7 +36,6 @@ function customHalfCaster(level: number): ResolvedCharacterClass {
         cantripsKnown: null,
         spellsKnown: null,
         preparedSpellCount: null,
-        addSpellcastingAbility: false,
     }));
     return resolved;
 }

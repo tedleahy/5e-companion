@@ -21,6 +21,10 @@ type SpellSlotsEditorProps = {
     onChange: (spellSlots: number[]) => void;
 };
 
+/** Percentage widths keep three slot controls per wrapped row. */
+const SLOT_CELL_WIDTH = '31%';
+const SLOT_CELL_MAX_WIDTH = '32%';
+
 /**
  * Mode-aware spell slot editor: nine-level grid for STANDARD, level+count for PACT_MAGIC.
  */
@@ -57,6 +61,7 @@ export default function SpellSlotsEditor({
                                 decrementLabel={`Decrease ${spellSlotLevelLabel(level)} spell slots`}
                                 incrementLabel={`Increase ${spellSlotLevelLabel(level)} spell slots`}
                                 tone="night"
+                                size="compact"
                                 valueTestID={`spell-slot-level-${level}`}
                                 onDecrease={() => onChange(withSpellSlotAt(spellSlots, level, total - 1))}
                                 onIncrease={() => onChange(withSpellSlotAt(spellSlots, level, total + 1))}
@@ -131,21 +136,23 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.sm,
     },
     cell: {
-        width: '31%',
-        margin: 'auto',
-        minWidth: 96,
+        width: SLOT_CELL_WIDTH,
+        flexGrow: 1,
+        maxWidth: SLOT_CELL_MAX_WIDTH,
         gap: fantasyTokens.spacing.xs,
         alignItems: 'center',
         paddingVertical: fantasyTokens.spacing.sm,
         paddingHorizontal: fantasyTokens.spacing.xs,
-        backgroundColor: fantasyTokens.sheet.form.card,
-        borderRadius: fantasyTokens.radii.sm,
+        backgroundColor: fantasyTokens.colors.nightOverlay,
+        borderRadius: fantasyTokens.radii.sm - 2,
         borderWidth: 1,
         borderColor: fantasyTokens.sheet.form.border,
     },
     slotLabel: {
         ...fantasyTokens.typography.buttonLabel,
         color: fantasyTokens.colors.gold,
-        fontSize: fantasyTokens.fontSizes.caption,
+        fontSize: fantasyTokens.fontSizes.utility,
+        letterSpacing: 0.6,
+        textTransform: 'uppercase',
     },
 });

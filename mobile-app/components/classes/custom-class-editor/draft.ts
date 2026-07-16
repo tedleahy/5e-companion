@@ -3,6 +3,9 @@ import type { Draft, DraftEquipment, DraftLevel, IdentityFieldErrors } from './t
 
 let equipmentKeySeq = 0;
 
+/** Highest class level supported by custom-class progression. */
+export const MAX_CLASS_LEVEL = 20;
+
 /** Stable client key for an equipment row (stripped on serialise). */
 export function newEquipmentKey(): string {
     equipmentKeySeq += 1;
@@ -10,14 +13,13 @@ export function newEquipmentKey(): string {
 }
 
 export function emptyProgression(): DraftLevel[] {
-    return Array.from({ length: 20 }, (_, index) => ({
+    return Array.from({ length: MAX_CLASS_LEVEL }, (_, index) => ({
         level: index + 1,
         abilityScoreImprovement: false,
         spellSlots: Array(9).fill(0),
         cantripsKnown: null,
         spellsKnown: null,
         preparedSpellCount: null,
-        addSpellcastingAbility: false,
         displayValues: [],
     }));
 }
@@ -27,8 +29,7 @@ export function hasDefaultSpellcasting(level: DraftLevel): boolean {
     return level.spellSlots.every((slot) => slot === 0)
         && level.cantripsKnown == null
         && level.spellsKnown == null
-        && level.preparedSpellCount == null
-        && !level.addSpellcastingAbility;
+        && level.preparedSpellCount == null;
 }
 
 /**
@@ -42,7 +43,6 @@ export function copySpellcastingFrom(source: DraftLevel, target: DraftLevel): Dr
         cantripsKnown: source.cantripsKnown,
         spellsKnown: source.spellsKnown,
         preparedSpellCount: source.preparedSpellCount,
-        addSpellcastingAbility: source.addSpellcastingAbility,
     };
 }
 
@@ -58,10 +58,48 @@ export function withPrefillOnLevelAdvance(
     if (toLevel !== fromLevel + 1) return progression;
     const source = progression[fromLevel - 1];
     const target = progression[toLevel - 1];
-    if (!source || !target || !hasDefaultSpellcasting(target)) return progression;
+    if (!source || !target
+        || hasDefaultSpellcasting(source)
+        || !hasDefaultSpellcasting(target)) return progression;
     return progression.map((item) =>
         item.level === toLevel ? copySpellcastingFrom(source, item) : item,
     );
+}
+
+/**
+ * Always copy spellcasting fields from level N−1 onto level N (overwrites).
+ * No-op when N is 1 or either row is missing.
+ */
+export function withCopyFromPreviousLevel(
+    progression: DraftLevel[],
+    level: number,
+): DraftLevel[] {
+    if (level <= 1) return progression;
+    const source = progression[level - 2];
+    const target = progression[level - 1];
+    if (!source || !target) return progression;
+    return progression.map((item) =>
+        item.level === level ? copySpellcastingFrom(source, item) : item,
+    );
+}
+
+/**
+ * Compact slot summary for progression overview (e.g. "4/3/3/1" or "—").
+ * Keeps leading/intermediate zeroes through the highest populated level so
+ * position still maps to spell level (e.g. `[0, 2]` → "0/2", not "2").
+ */
+export function shortSpellSlots(slots: readonly number[]): string {
+    let highest = -1;
+    for (let index = 0; index < slots.length; index += 1) {
+        if ((slots[index] ?? 0) > 0) highest = index;
+    }
+    if (highest < 0) return '—';
+    return slots.slice(0, highest + 1).join('/');
+}
+
+/** True when any spell slot count is greater than zero. */
+export function hasSpellSlots(level: DraftLevel): boolean {
+    return level.spellSlots.some((slot) => slot > 0);
 }
 
 export function createDraft(initial?: ClassDetailsFieldsFragment | null): Draft {
@@ -77,6 +115,7 @@ export function createDraft(initial?: ClassDetailsFieldsFragment | null): Draft 
             equipment: [],
             spellcastingMode: 'NONE',
             spellcastingAbility: null,
+            addSpellcastingAbility: false,
             progression: emptyProgression(),
             features: [],
             spells: [],
@@ -98,6 +137,7 @@ export function createDraft(initial?: ClassDetailsFieldsFragment | null): Draft 
         equipment: initial.equipment.map((item) => ({ ...item, key: newEquipmentKey() })),
         spellcastingMode: initial.spellcastingMode,
         spellcastingAbility: initial.spellcastingAbility,
+        addSpellcastingAbility: initial.addSpellcastingAbility,
         progression: initial.progression.map(({ displayValues, ...level }) => ({
             ...level,
             spellSlots: [...level.spellSlots],

@@ -99,6 +99,7 @@ describe('CustomClassEditor', () => {
                 equipment: [],
                 spellcastingMode: 'NONE',
                 spellcastingAbility: null,
+                addSpellcastingAbility: false,
                 progression: Array.from({ length: 20 }, (_, index) => ({
                     level: index + 1,
                     abilityScoreImprovement: false,
@@ -106,7 +107,6 @@ describe('CustomClassEditor', () => {
                     cantripsKnown: null,
                     spellsKnown: null,
                     preparedSpellCount: null,
-                    addSpellcastingAbility: false,
                     displayValues: [],
                 })),
                 features: [],
@@ -258,6 +258,10 @@ describe('CustomClassEditor', () => {
         expect(screen.queryByText('Prepared base')).toBeNull();
         expect(screen.queryByTestId('custom-class-add-spellcasting-ability')).toBeNull();
 
+        fireEvent.press(screen.getByTestId('progression-level-summary'));
+        fireEvent.press(screen.getByTestId('progression-level-2'));
+        expect(screen.queryByTestId('progression-copy-toast')).toBeNull();
+
         fireEvent.press(screen.getByText('STANDARD'));
         expect(screen.getByTestId('spell-slots-standard')).toBeTruthy();
         expect(screen.getByText('Spell slots by level')).toBeTruthy();
@@ -265,6 +269,8 @@ describe('CustomClassEditor', () => {
         expect(screen.getByTestId('spells-known-at-level')).toBeTruthy();
         expect(screen.getByText('Cantrips known')).toBeTruthy();
         expect(screen.getByTestId('custom-class-add-spellcasting-ability')).toBeTruthy();
+        expect(screen.getByTestId('progression-level-summary')).not.toHaveTextContent('slots');
+        expect(screen.getAllByRole('switch')).toHaveLength(2);
     });
 
     test('uses pact level and count controls for PACT MAGIC', async () => {
@@ -306,7 +312,7 @@ describe('CustomClassEditor', () => {
         expect(screen.getByTestId('spell-slot-level-1')).toHaveTextContent('2');
     });
 
-    test('prefills the next progression level from the previous level', async () => {
+    test('prefills the next progression level from the previous level via the level map', async () => {
         renderEditor();
         fillIdentityAndContinue();
 
@@ -316,6 +322,12 @@ describe('CustomClassEditor', () => {
         fireEvent.press(screen.getByText('Continue'));
         fireEvent.press(screen.getByText('Continue'));
         fireEvent.press(screen.getByText('STANDARD'));
+
+        fireEvent.press(screen.getByTestId('progression-level-summary'));
+        fireEvent.press(screen.getByTestId('progression-level-2'));
+        expect(screen.queryByTestId('progression-copy-toast')).toBeNull();
+        fireEvent.press(screen.getByTestId('progression-level-summary'));
+        fireEvent.press(screen.getByTestId('progression-level-1'));
 
         fireEvent.press(screen.getByLabelText('Increase 1st spell slots'));
         fireEvent.press(screen.getByLabelText('Increase 1st spell slots'));
@@ -328,15 +340,64 @@ describe('CustomClassEditor', () => {
         fireEvent.press(screen.getByLabelText('Increase cantrips known'));
         fireEvent.press(screen.getByTestId('custom-class-add-spellcasting-ability'));
 
-        fireEvent.press(screen.getByLabelText('Next class level'));
+        fireEvent.press(screen.getByTestId('progression-level-summary'));
+        fireEvent.press(screen.getByTestId('progression-level-2'));
 
         expect(screen.getByTestId('spell-slot-level-1')).toHaveTextContent('4');
         expect(screen.getByTestId('spell-slot-level-2')).toHaveTextContent('3');
         expect(screen.getByTestId('cantrips-known')).toHaveTextContent('2');
-        expect(screen.getByText('✓ Add spellcasting ability modifier to prepared spells')).toBeTruthy();
+        expect(screen.getByTestId('custom-class-add-spellcasting-ability').props.accessibilityState).toEqual(
+            expect.objectContaining({ checked: true }),
+        );
+        expect(screen.getByTestId('progression-copy-toast')).toHaveTextContent(/Copied from level 1/);
     });
 
-    test('edits cantrips, spells known, and prepared base with side-by-side steppers', async () => {
+    test('jumps to any level from the heatmap and can copy from the previous level', async () => {
+        renderEditor();
+        fillIdentityAndContinue();
+
+        await waitFor(() => {
+            expect(screen.getByText('Multiclass prerequisites')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByText('Continue'));
+        fireEvent.press(screen.getByText('Continue'));
+        fireEvent.press(screen.getByText('STANDARD'));
+
+        fireEvent.press(screen.getByLabelText('Increase 1st spell slots'));
+        fireEvent.press(screen.getByLabelText('Increase 1st spell slots'));
+        fireEvent.press(screen.getByLabelText('Increase cantrips known'));
+
+        fireEvent.press(screen.getByTestId('progression-level-summary'));
+        expect(screen.getByText('Jump to level')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('progression-level-5'));
+
+        expect(screen.getByTestId('progression-level-detail')).toHaveTextContent(/Level 5/);
+        expect(screen.getByTestId('spell-slot-level-1')).toHaveTextContent('0');
+        expect(screen.queryByTestId('progression-copy-toast')).toBeNull();
+
+        fireEvent.press(screen.getByTestId('progression-level-summary'));
+        fireEvent.press(screen.getByTestId('progression-level-map-close'));
+        expect(screen.getByTestId('progression-level-summary')).toBeTruthy();
+
+        fireEvent.press(screen.getByTestId('progression-level-summary'));
+        fireEvent.press(screen.getByTestId('progression-level-2'));
+
+        expect(screen.getByTestId('progression-level-detail')).toHaveTextContent(/Level 2/);
+        expect(screen.getByTestId('spell-slot-level-1')).toHaveTextContent('0');
+        expect(screen.queryByTestId('progression-copy-toast')).toBeNull();
+
+        fireEvent.press(screen.getByTestId('progression-copy-previous'));
+        expect(screen.getByTestId('spell-slot-level-1')).toHaveTextContent('2');
+        expect(screen.getByTestId('cantrips-known')).toHaveTextContent('1');
+        expect(screen.getByTestId('progression-copy-toast')).toHaveTextContent(/Copied from level 1/);
+
+        fireEvent.press(screen.getByTestId('progression-copy-undo'));
+        expect(screen.getByTestId('spell-slot-level-1')).toHaveTextContent('0');
+        expect(screen.getByTestId('cantrips-known')).toHaveTextContent('0');
+        expect(screen.queryByTestId('progression-copy-toast')).toBeNull();
+    });
+
+    test('edits cantrips, spells known, and prepared base with steppers', async () => {
         renderEditor();
         fillIdentityAndContinue();
 
@@ -378,6 +439,8 @@ describe('CustomClassEditor', () => {
 
         fireEvent.press(screen.getByTestId('custom-class-add-spellcasting-ability'));
 
-        expect(screen.getByText('✓ Add spellcasting ability modifier to prepared spells')).toBeTruthy();
+        expect(screen.getByTestId('custom-class-add-spellcasting-ability').props.accessibilityState).toEqual(
+            expect.objectContaining({ checked: true }),
+        );
     });
 });

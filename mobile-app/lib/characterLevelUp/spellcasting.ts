@@ -204,7 +204,7 @@ export function buildLevelUpSpellcastingSummary(
             if (level?.preparedSpellCount == null) return null;
             const ability = ({ str: 'strength', dex: 'dexterity', con: 'constitution', int: 'intelligence', wis: 'wisdom', cha: 'charisma' } as Record<string, AbilityKey>)[definition.spellcastingAbility ?? ''] ?? null;
             const score = ability ? character.stats?.abilityScores[ability] ?? 10 : 10;
-            return Math.max(0, level.preparedSpellCount + (level.addSpellcastingAbility ? modifier(score) : 0));
+            return Math.max(0, level.preparedSpellCount + (definition.addSpellcastingAbility ? modifier(score) : 0));
         };
         const previousPreparedSpellLimit = preparedLimit(previous);
         const nextPreparedSpellLimit = preparedLimit(next);

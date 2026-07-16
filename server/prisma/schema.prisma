@@ -144,6 +144,7 @@ model Class {
     startingEquipment Json?
     spellcastingMode ClassSpellcastingMode @default(NONE)
     spellcastingAbility String?
+    addSpellcastingAbility Boolean @default(false)
     archivedAt      DateTime?
     sourceBook      String?
     raw             Json?
@@ -171,7 +172,6 @@ model ClassLevelProgression {
     cantripsKnown            Int?
     spellsKnown              Int?
     preparedSpellCount       Int?
-    addSpellcastingAbility   Boolean @default(false)
     classSpecific            Json?
 
     @@unique([classId, level])
