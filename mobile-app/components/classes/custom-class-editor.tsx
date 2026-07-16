@@ -38,19 +38,23 @@ export default function CustomClassEditor({ visible, initial, onClose, onSaved }
 
     const scrollViewRef = useRef<ComponentRef<typeof KeyboardAwareScrollView>>(null);
     const skipDiscardCheckRef = useRef(false);
+    const dirtyRef = useRef(dirty);
     const requestSheetCloseRef = useRef<() => void>(() => {});
     const { height: windowHeight } = useWindowDimensions();
     const dismissKeyboardAndRun = useDismissKeyboardAction();
 
+    dirtyRef.current = dirty;
+
     /**
      * Gates sheet dismissal behind a discard confirmation while the draft is dirty.
+     * Reads dirty via ref so the first keystroke does not recreate sheet dismiss gestures.
      */
     const onRequestClose = useCallback(() => {
-        if (!skipDiscardCheckRef.current && dirty) {
+        if (!skipDiscardCheckRef.current && dirtyRef.current) {
             setDiscardVisible(true);
             return false;
         }
-    }, [dirty]);
+    }, []);
 
     const {
         isRendered,

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import type { StyleProp, TextStyle } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
@@ -23,6 +24,10 @@ type FantasyFormTextInputProps = Omit<TextInputProps, 'mode'> & {
  * Multiline fields get explicit vertical padding: react-native-paper zeroes top
  * padding on Android for outlined inputs without a floating label, which leaves
  * the first line flush with the outline.
+ *
+ * Controlled values are buffered locally so Android does not duplicate characters
+ * when a Paper `Portal` host re-renders on each keystroke
+ * (callstack/react-native-paper#2780).
  */
 export function FantasyFormTextInput({
     label,
@@ -31,13 +36,31 @@ export function FantasyFormTextInput({
     error,
     multiline,
     accessibilityLabel,
+    value,
+    onChangeText,
     ...props
 }: FantasyFormTextInputProps) {
     const externalLabel = typeof label === 'string' ? label : null;
+    const isControlled = value !== undefined;
+    const [localValue, setLocalValue] = useState(value ?? '');
+
+    useEffect(() => {
+        if (isControlled) {
+            setLocalValue(value ?? '');
+        }
+    }, [isControlled, value]);
+
+    function handleChangeText(text: string) {
+        setLocalValue(text);
+        onChangeText?.(text);
+    }
 
     const input = (
         <TextInput
+            autoCorrect={false}
             {...props}
+            value={isControlled ? localValue : value}
+            onChangeText={isControlled ? handleChangeText : onChangeText}
             label={externalLabel === null ? label : undefined}
             multiline={multiline}
             error={error}
