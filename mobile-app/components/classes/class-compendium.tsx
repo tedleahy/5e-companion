@@ -63,7 +63,7 @@ export default function ClassCompendium() {
                         <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.listContent}>
                             {rows.map((row) => (
                                 <Pressable key={row.id} onPress={() => setSelectedValue(row.value)} style={({ pressed }) => [styles.row, pressed && styles.pressed]} testID={`class-row-${row.value}`}>
-                                    <View style={styles.badge}><Text style={styles.badgeText}>d{row.hitDie}</Text></View>
+                                    <View style={styles.badge}><Text style={styles.badgeText}>{row.emoji}</Text></View>
                                     <View style={styles.flex}>
                                         <Text style={styles.rowTitle}>{row.name}</Text>
                                         <Text style={styles.muted}>{row.isCustom ? 'Custom' : 'SRD'} · {row.primaryAbilityIndexes.map((value) => ABILITY_LABELS[value] ?? value).join(', ') || 'No primary ability listed'}</Text>

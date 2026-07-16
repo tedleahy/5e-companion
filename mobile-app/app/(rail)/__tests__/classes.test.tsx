@@ -34,6 +34,7 @@ describe('Classes compendium', () => {
         ]);
 
         await waitFor(() => expect(screen.getByText('Wizard')).toBeTruthy());
+        expect(screen.getByText('📖')).toBeTruthy();
         expect(screen.getByTestId('add-custom-class')).toBeTruthy();
         fireEvent.press(screen.getByTestId('class-row-wizard'));
         await waitFor(() => expect(screen.getByText('Core rules')).toBeTruthy());
