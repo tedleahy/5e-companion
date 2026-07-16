@@ -72,13 +72,42 @@ describe('NumericStepper', () => {
         );
 
         expect(screen.getByTestId('stepper-decrement')).toHaveStyle({
-            backgroundColor: fantasyTokens.stepper.night.button,
+            backgroundColor: 'transparent',
         });
         expect(screen.getByTestId('stepper-value')).toHaveStyle({
             color: fantasyTokens.colors.parchment,
         });
         expect(screen.getByText('+')).toHaveStyle({
-            color: fantasyTokens.colors.gold,
+            color: fantasyTokens.colors.goldLight,
         });
+    });
+
+    it('renders compact mini buttons for dense grids', () => {
+        renderWithPaper(
+            <NumericStepper
+                value={2}
+                tone="night"
+                size="compact"
+                decrementTestID="stepper-decrement"
+                incrementTestID="stepper-increment"
+                valueTestID="stepper-value"
+                onDecrease={jest.fn()}
+                onIncrease={jest.fn()}
+            />,
+        );
+
+        expect(screen.getByTestId('stepper-decrement')).toHaveStyle({
+            width: fantasyTokens.stepper.compact.buttonSize,
+            height: fantasyTokens.stepper.compact.buttonSize,
+            borderColor: fantasyTokens.stepper.night.border,
+            backgroundColor: 'transparent',
+        });
+        expect(screen.getByTestId('stepper-decrement').props.hitSlop).toBe(
+            fantasyTokens.stepper.compact.hitSlop,
+        );
+        expect(screen.getByTestId('stepper-increment').props.hitSlop).toBe(
+            fantasyTokens.stepper.compact.hitSlop,
+        );
+        expect(screen.getByTestId('stepper-value')).toHaveTextContent('2');
     });
 });

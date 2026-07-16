@@ -186,6 +186,7 @@ export const fantasyTokens = {
         crimson: '#7b1e1e',
         crimsonSoft: 'rgba(123, 30, 30, 0.2)',
         success: '#2d6a4f',
+        successSoft: 'rgba(45, 106, 79, 0.28)',
         night: '#1f1711',
         divider: 'rgba(139,90,43,0.3)',
         sheetDivider: '#d4c9b4',
@@ -193,8 +194,17 @@ export const fantasyTokens = {
         accordionBorder: 'rgba(139,90,43,0.22)',
         rowOpenBg: 'rgba(139,90,43,0.06)',
         greenDark: '#1a4a1a',
+        blue: '#6b9ac4',
         blueDark: '#1a2a4a',
         inspired: '#8b1a1a',
+        parchmentMuted: 'rgba(246, 233, 207, 0.55)',
+        parchmentFaint: 'rgba(246, 233, 207, 0.25)',
+        successBannerText: '#b7e0cb',
+        nightOverlay: 'rgba(0, 0, 0, 0.18)',
+        nightOverlayStrong: 'rgba(0, 0, 0, 0.22)',
+        nightOverlayMuted: 'rgba(0, 0, 0, 0.15)',
+        nightOverlayDeep: 'rgba(0, 0, 0, 0.25)',
+        successBorder: 'rgba(45, 106, 79, 0.45)',
     },
     spacing: fantasySpacing,
     radii: {
@@ -279,20 +289,29 @@ export const fantasyTokens = {
         },
     },
     stepper: {
-        buttonSize: fantasySpacing.xl + fantasySpacing.sm + fantasySpacing.xs,
-        valueMinWidth: fantasySpacing.xxl + fantasySpacing.xs / 2,
-        valuePaddingHorizontal: fantasySpacing.sm + fantasySpacing.xs / 2,
+        /** Default unified −/value/+ shell (count rows, forms). */
+        buttonSize: fantasySpacing.xl + fantasySpacing.md, // 40
+        valueMinWidth: fantasySpacing.xxl + fantasySpacing.xs, // 44
+        valuePaddingHorizontal: fantasySpacing.sm,
+        compact: {
+            buttonSize: fantasySpacing.xl - 2, // 22
+            /** Expands the 22px visual to a ~44pt press target without changing layout. */
+            hitSlop: fantasySpacing.sm + fantasySpacing.xs - 1, // 11
+            buttonRadius: fantasySpacing.sm - 2, // 6
+            gap: fantasySpacing.sm - 2, // 6
+            valueMinWidth: fantasySpacing.lg, // 20
+            fontSize: fantasyFontSizes.caption,
+            buttonFontSize: fantasyFontSizes.utility,
+        },
         night: {
             border: 'rgba(201,146,42,0.34)',
-            background: 'rgba(201,146,42,0.12)',
-            button: 'rgba(201,146,42,0.18)',
-            buttonPressed: 'rgba(201,146,42,0.28)',
+            background: 'rgba(0,0,0,0.25)',
+            buttonPressed: 'rgba(201,146,42,0.12)',
         },
         parchment: {
-            border: 'rgba(201,146,42,0.2)',
-            background: 'rgba(240,224,188,0.06)',
-            button: 'rgba(201,146,42,0.08)',
-            buttonPressed: 'rgba(201,146,42,0.16)',
+            border: 'rgba(201,146,42,0.28)',
+            background: 'rgba(240,224,188,0.12)',
+            buttonPressed: 'rgba(201,146,42,0.14)',
         },
     },
     text: {
