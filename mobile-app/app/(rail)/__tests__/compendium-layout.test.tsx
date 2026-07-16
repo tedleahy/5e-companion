@@ -9,9 +9,11 @@ jest.mock('expo-router', () => {
         return <MockView testID="compendium-stack">{children}</MockView>;
     }
 
-    MockStack.Screen = ({ name }: { name: string }) => (
-        <MockView testID={`compendium-stack-screen-${name}`} />
-    );
+    function MockStackScreen({ name }: { name: string }) {
+        return <MockView testID={`compendium-stack-screen-${name}`} />;
+    }
+
+    MockStack.Screen = MockStackScreen;
 
     return {
         Stack: MockStack,

@@ -59,7 +59,6 @@ export default function ProficiencyPickerSheet({
     const { confirm, confirmDialogElement } = useConfirm();
     const skipDiscardCheckRef = useRef(false);
     const requestSheetCloseRef = useRef<() => void>(() => {});
-    const [gestureRevision, setGestureRevision] = useState(0);
 
     const isDirty = useMemo(
         () => selected.length !== initiallySelected.length
@@ -79,11 +78,10 @@ export default function ProficiencyPickerSheet({
                     requestSheetCloseRef.current();
                     skipDiscardCheckRef.current = false;
                 },
-                onCancel: () => setGestureRevision((revision) => revision + 1),
             });
             return false;
         }
-    }, [confirm, gestureRevision, isDirty]);
+    }, [confirm, isDirty]);
 
     const {
         isRendered,
