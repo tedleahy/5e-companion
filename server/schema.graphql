@@ -29,6 +29,7 @@ type AvailableClass {
     value: String!
     srdIndex: String
     name: String!
+    emoji: String!
     description: [String!]!
     hitDie: Int!
     primaryAbilityIndexes: [String!]!
@@ -44,6 +45,7 @@ type ClassDetails {
     value: String!
     srdIndex: String
     name: String!
+    emoji: String!
     description: [String!]!
     hitDie: Int!
     primaryAbilityIndexes: [String!]!
@@ -124,6 +126,7 @@ type ClassSpell {
 
 input ManagedCustomClassInput {
     name: String!
+    emoji: String!
     description: String!
     hitDie: Int!
     primaryAbilityIndexes: [String!]!

@@ -5,6 +5,7 @@ import { assertLockedFeatureMembership, normaliseClassInput } from './customClas
 function validInput(): ManagedCustomClassInput {
     return {
         name: 'Warden',
+        emoji: '🛡️',
         description: 'A stalwart custom class.',
         hitDie: 10,
         primaryAbilityIndexes: ['str'],
@@ -29,8 +30,15 @@ describe('custom class input validation', () => {
     test('normalises a complete level 1–20 definition', () => {
         const result = normaliseClassInput(validInput());
         expect(result.name).toBe('Warden');
+        expect(result.emoji).toBe('🛡️');
         expect(result.levels).toHaveLength(20);
         expect(result.features[0]).toMatchObject({ name: 'Vigilance', level: 1 });
+    });
+
+    test('rejects an empty emoji', () => {
+        const input = validInput();
+        input.emoji = '   ';
+        expect(() => normaliseClassInput(input)).toThrow('emoji');
     });
 
     test('rejects missing progression levels', () => {

@@ -79,7 +79,7 @@ jest.mock('@/components/character-creation-wizard/OptionGrid', () => ({
                         onPress={() => onSelect(option.value)}
                         testID={getOptionTestId?.(option) ?? `option-${option.value}`}
                     >
-                        <Text>{`${option.label}${option.value === selected ? ' (selected)' : ''}`}</Text>
+                        <Text>{`${option.icon} ${option.label}${option.value === selected ? ' (selected)' : ''}`}</Text>
                     </Pressable>
                 ))}
             </View>
@@ -122,6 +122,9 @@ jest.mock('@/components/character-creation-wizard/ClassAllocationRow', () => ({
 const { useCharacterDraft } = jest.requireMock('@/store/characterDraft') as {
     useCharacterDraft: jest.Mock;
 };
+const { useQuery } = jest.requireMock('@apollo/client/react') as {
+    useQuery: jest.Mock;
+};
 
 /**
  * Renders the class step with the Paper provider used by the app.
@@ -137,7 +140,40 @@ function renderScreen() {
 describe('StepClass', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        useQuery.mockReturnValue({ data: undefined, loading: false, error: undefined });
         mockScrollTo.mockClear();
+    });
+
+    it('uses the class emoji returned by the server', () => {
+        useQuery.mockReturnValue({
+            data: {
+                availableClasses: [{
+                    id: 'custom-rune-knight',
+                    value: 'custom-rune-knight',
+                    srdIndex: null,
+                    name: 'Rune Knight',
+                    emoji: '🐉',
+                    description: [],
+                    hitDie: 10,
+                    primaryAbilityIndexes: ['str'],
+                    savingThrowIndexes: ['str', 'con'],
+                    spellcastingMode: 'NONE',
+                    spellcastingAbility: null,
+                    multiclassPrerequisites: [],
+                    isCustom: true,
+                }],
+            },
+            loading: false,
+            error: undefined,
+        });
+        useCharacterDraft.mockReturnValue({
+            draft: { level: 1, classes: [], startingClassId: '' },
+            updateDraft: mockUpdateDraft,
+        });
+
+        renderScreen();
+
+        expect(screen.getByText('🐉 Rune Knight')).toBeTruthy();
     });
 
     it('keeps classes in selection order even when a later class is the starting class', () => {

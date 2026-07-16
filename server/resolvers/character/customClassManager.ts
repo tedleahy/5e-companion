@@ -37,6 +37,7 @@ function uniqueStrings(values: readonly string[], label: string): string[] {
 
 export function normaliseClassInput(input: ManagedCustomClassInput) {
     const name = input.name.trim();
+    const emoji = input.emoji.trim();
     const description = input.description.trim();
     const hitDie = Number(input.hitDie);
     const primaryAbilityIndexes = uniqueStrings(input.primaryAbilityIndexes, 'Primary abilities');
@@ -45,7 +46,8 @@ export function normaliseClassInput(input: ManagedCustomClassInput) {
     const spellcastingAbility = input.spellcastingAbility?.trim().toLowerCase() || null;
     const addSpellcastingAbility = spellcastingMode === 'NONE' ? false : Boolean(input.addSpellcastingAbility);
 
-    if (!name || !description) throw new Error('Name and description are required.');
+    if (!name || !emoji || !description) throw new Error('Name, emoji, and description are required.');
+    if (emoji.length > 32) throw new Error('Emoji must be 32 characters or fewer.');
     if (![6, 8, 10, 12].includes(hitDie)) throw new Error('Hit die must be d6, d8, d10, or d12.');
     if (primaryAbilityIndexes.length === 0 || primaryAbilityIndexes.some((value) => !ABILITY_INDEXES.has(value))) {
         throw new Error('Primary abilities must use valid ability indexes.');
@@ -133,7 +135,7 @@ export function normaliseClassInput(input: ManagedCustomClassInput) {
     });
 
     return {
-        name, description, hitDie, primaryAbilityIndexes, savingThrowIndexes,
+        name, emoji, description, hitDie, primaryAbilityIndexes, savingThrowIndexes,
         multiclassPrerequisites, proficiencies, equipment, spellcastingMode, spellcastingAbility,
         addSpellcastingAbility, levels, features, spellIds: uniqueStrings(input.spellIds, 'Spell list'),
     };
@@ -151,6 +153,7 @@ export function mapClassDetails(row: ClassDetailsRow) {
         value: row.srdIndex ?? row.id,
         srdIndex: row.srdIndex,
         name: row.name,
+        emoji: row.emoji,
         description: row.description,
         hitDie: row.hitDie ?? 0,
         primaryAbilityIndexes: row.primaryAbilityIndexes,
@@ -228,6 +231,7 @@ function mechanicsSnapshot(input: NormalisedClassInput) {
 function rowMechanicsSnapshot(row: ClassDetailsRow): string {
     return mechanicsSnapshot({
         name: row.name,
+        emoji: row.emoji,
         description: row.description.join('\n\n'),
         hitDie: row.hitDie ?? 0,
         primaryAbilityIndexes: row.primaryAbilityIndexes,
@@ -289,6 +293,7 @@ export async function availableClasses(_parent: unknown, _args: unknown, ctx: Co
     });
     return rows.map((row) => ({
         id: row.id, value: row.srdIndex ?? row.id, srdIndex: row.srdIndex, name: row.name,
+        emoji: row.emoji,
         description: row.description, hitDie: row.hitDie ?? 0, primaryAbilityIndexes: row.primaryAbilityIndexes,
         savingThrowIndexes: row.savingThrowIndexes, spellcastingMode: row.spellcastingMode,
         spellcastingAbility: row.spellcastingAbility,
@@ -320,7 +325,7 @@ export async function createCustomClass(_parent: unknown, { input }: MutationCre
     if (duplicate) throw new Error('An active custom class with this name already exists.');
     const classId = await prisma.$transaction(async (tx) => {
         const row = await tx.class.create({ data: {
-            ownerUserId: userId, name: values.name, description: [values.description], hitDie: values.hitDie,
+            ownerUserId: userId, name: values.name, emoji: values.emoji, description: [values.description], hitDie: values.hitDie,
             primaryAbilityIndexes: values.primaryAbilityIndexes, savingThrowIndexes: values.savingThrowIndexes,
             multiclassPrerequisites: values.multiclassPrerequisites, startingEquipment: values.equipment,
             spellcastingMode: values.spellcastingMode, spellcastingAbility: values.spellcastingAbility,
@@ -350,7 +355,7 @@ export async function updateCustomClass(_parent: unknown, { id, input }: Mutatio
     }
     const references = mechanicsLocked ? null : await resolveReferences(userId, values);
     await prisma.$transaction(async (tx) => {
-        await tx.class.update({ where: { id }, data: { name: values.name, description: [values.description], ...(!mechanicsLocked ? {
+        await tx.class.update({ where: { id }, data: { name: values.name, emoji: values.emoji, description: [values.description], ...(!mechanicsLocked ? {
             hitDie: values.hitDie, primaryAbilityIndexes: values.primaryAbilityIndexes, savingThrowIndexes: values.savingThrowIndexes,
             multiclassPrerequisites: values.multiclassPrerequisites, startingEquipment: values.equipment,
             spellcastingMode: values.spellcastingMode, spellcastingAbility: values.spellcastingAbility,

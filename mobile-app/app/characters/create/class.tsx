@@ -41,11 +41,10 @@ export default function StepClass() {
     const [showMulticlassInfo, setShowMulticlassInfo] = useState(false);
     const { data: classData } = useQuery<AvailableClassesQuery>(GET_AVAILABLE_CLASSES, { fetchPolicy: 'cache-first' });
     const classOptions: OptionItem[] = (classData?.availableClasses ?? []).map((classRef) => {
-        const visual = CLASS_OPTIONS.find((option) => option.value === classRef.srdIndex);
         return {
             value: classRef.value,
             label: classRef.name,
-            icon: visual?.icon ?? '⚔️',
+            icon: classRef.emoji,
             hint: classRef.primaryAbilityIndexes.map((ability) => ability.toUpperCase()).join(' / ') || (classRef.isCustom ? 'Custom class' : undefined),
             hitDie: classRef.hitDie,
             multiclassPrerequisites: classRef.multiclassPrerequisites.map((rule) => ({ ...rule })),

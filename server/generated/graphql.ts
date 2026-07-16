@@ -51,6 +51,7 @@ export type AvailableBackground = {
 export type AvailableClass = {
   __typename?: 'AvailableClass';
   description: Array<Scalars['String']['output']>;
+  emoji: Scalars['String']['output'];
   hitDie: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
   isCustom: Scalars['Boolean']['output'];
@@ -160,6 +161,7 @@ export type ClassDetails = {
   archived: Scalars['Boolean']['output'];
   characterUsageCount: Scalars['Int']['output'];
   description: Array<Scalars['String']['output']>;
+  emoji: Scalars['String']['output'];
   equipment: Array<ClassEquipmentDefinition>;
   features: Array<ClassFeature>;
   hitDie: Scalars['Int']['output'];
@@ -427,6 +429,7 @@ export type ManagedCustomClassFeatureInput = {
 export type ManagedCustomClassInput = {
   addSpellcastingAbility: Scalars['Boolean']['input'];
   description: Scalars['String']['input'];
+  emoji: Scalars['String']['input'];
   equipment: Array<ClassEquipmentDefinitionInput>;
   features: Array<ManagedCustomClassFeatureInput>;
   hitDie: Scalars['Int']['input'];
@@ -1158,6 +1161,7 @@ export type AvailableBackgroundResolvers<ContextType = Context, ParentType exten
 
 export type AvailableClassResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AvailableClass'] = ResolversParentTypes['AvailableClass']> = {
   description?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  emoji?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hitDie?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isCustom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -1267,6 +1271,7 @@ export type ClassDetailsResolvers<ContextType = Context, ParentType extends Reso
   archived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   characterUsageCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   description?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  emoji?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   equipment?: Resolver<Array<ResolversTypes['ClassEquipmentDefinition']>, ParentType, ContextType>;
   features?: Resolver<Array<ResolversTypes['ClassFeature']>, ParentType, ContextType>;
   hitDie?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;

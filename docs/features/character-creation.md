@@ -51,7 +51,7 @@ Go to `CHARACTER_CREATION_FLOW.md` for per-step behaviour, the `CharacterDraft` 
 | [`@/home/ted/projects/5e-companion/server/resolvers/character/multiclassRules.ts`](../../server/resolvers/character/multiclassRules.ts) | Rules: proficiency bonus, hit-dice pools, spell slots, class allocation validation, starting HP |
 | [`@/home/ted/projects/5e-companion/server/resolvers/character/subclassReferences.ts`](../../server/resolvers/character/subclassReferences.ts) | Loads visible subclasses (SRD + user-owned), materialises custom subclasses |
 
-The mutation resolves SRD classes by `srdIndex` and current-user custom classes by their database ID. Race and background values remain SRD-backed. The class picker loads `availableClasses`, so active custom classes authored in the Compendium are selectable without adding client constants.
+The mutation resolves SRD classes by `srdIndex` and current-user custom classes by their database ID. Race and background values remain SRD-backed. The class picker loads `availableClasses`, including each class definition's tile emoji, so active custom classes authored in the Compendium are selectable and visually distinct without adding client constants.
 
 ## Custom subclasses
 

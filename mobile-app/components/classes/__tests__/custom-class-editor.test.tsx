@@ -90,6 +90,7 @@ describe('CustomClassEditor', () => {
                 value: 'custom-1',
                 srdIndex: null,
                 name: 'Warden',
+                emoji: '🛡️',
                 description: ['A custom guardian.'],
                 hitDie: 10,
                 primaryAbilityIndexes: ['str'],
@@ -122,6 +123,7 @@ describe('CustomClassEditor', () => {
 
         expect(screen.getByText('Edit custom class')).toBeTruthy();
         expect(screen.getByDisplayValue('Warden')).toBeTruthy();
+        expect(screen.getByDisplayValue('🛡️')).toBeTruthy();
     });
 
     test('handles hardware back through the sheet close path', () => {

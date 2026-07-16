@@ -88,6 +88,7 @@ export const AVAILABLE_CLASSES_MOCK: MockLink.MockedResponse = {
                 value: option.value,
                 srdIndex: option.value,
                 name: option.label,
+                emoji: option.icon,
                 description: [],
                 hitDie: option.value === 'wizard' || option.value === 'sorcerer' ? 6 : 8,
                 primaryAbilityIndexes: [],

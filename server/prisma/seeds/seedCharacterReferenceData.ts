@@ -215,6 +215,22 @@ const SPELLCASTING_ABILITY_BY_CLASS: Record<string, string> = {
     sorcerer: 'cha', warlock: 'cha', wizard: 'int',
 };
 
+/** Tile emoji for each SRD class. */
+const CLASS_EMOJI_BY_INDEX: Record<string, string> = {
+    barbarian: '💪',
+    bard: '🎭',
+    cleric: '🙏',
+    druid: '🌿',
+    fighter: '🗡',
+    monk: '🌊',
+    paladin: '🛡',
+    ranger: '🏇',
+    rogue: '🥷',
+    sorcerer: '💫',
+    warlock: '💥',
+    wizard: '📖',
+};
+
 async function seedClasses(classes: SrdClass[], levels: SrdLevel[], spells: SrdSpellReference[]) {
     for (const srdClass of classes) {
         const proficiencyConnect = (srdClass.proficiencies ?? []).map((proficiency) => ({
@@ -247,6 +263,7 @@ async function seedClasses(classes: SrdClass[], levels: SrdLevel[], spells: SrdS
             where: { srdIndex: srdClass.index },
             update: {
                 name: srdClass.name,
+                emoji: CLASS_EMOJI_BY_INDEX[srdClass.index] ?? '⚔️',
                 hitDie: srdClass.hit_die ?? null,
                 primaryAbilityIndexes: [...new Set(prerequisites.map((rule) => rule.abilityIndex))],
                 savingThrowIndexes: (srdClass.saving_throws ?? []).map((ability) => ability.index),
@@ -263,6 +280,7 @@ async function seedClasses(classes: SrdClass[], levels: SrdLevel[], spells: SrdS
             create: {
                 srdIndex: srdClass.index,
                 name: srdClass.name,
+                emoji: CLASS_EMOJI_BY_INDEX[srdClass.index] ?? '⚔️',
                 hitDie: srdClass.hit_die ?? null,
                 primaryAbilityIndexes: [...new Set(prerequisites.map((rule) => rule.abilityIndex))],
                 savingThrowIndexes: (srdClass.saving_throws ?? []).map((ability) => ability.index),

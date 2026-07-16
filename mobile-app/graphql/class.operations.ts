@@ -6,6 +6,7 @@ export const CLASS_SUMMARY_FIELDS = gql`
         value
         srdIndex
         name
+        emoji
         description
         hitDie
         primaryAbilityIndexes
@@ -23,6 +24,7 @@ export const CLASS_DETAILS_FIELDS = gql`
         value
         srdIndex
         name
+        emoji
         description
         hitDie
         primaryAbilityIndexes

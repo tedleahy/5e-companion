@@ -142,6 +142,7 @@ export default function ReviewStage({ draft, locked, onJumpToStage }: ReviewStag
         <View style={styles.review} testID="custom-class-review">
             <ReviewSection title={STAGES[0]} stageIndex={0} onJumpToStage={onJumpToStage}>
                 <ReviewRow label="Name" value={draft.name.trim() || 'Untitled'} />
+                <ReviewRow label="Emoji" value={draft.emoji.trim() || '⚔️'} />
                 <ReviewRow label="Description" value={descriptionPreview} numberOfLines={4} />
                 <ReviewRow label="Hit die" value={`d${draft.hitDie}`} />
                 <ReviewRow label="Primary abilities" value={formatAbilityList(draft.primaryAbilityIndexes)} />

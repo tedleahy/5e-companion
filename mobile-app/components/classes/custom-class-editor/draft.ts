@@ -106,6 +106,7 @@ export function createDraft(initial?: ClassDetailsFieldsFragment | null): Draft 
     if (!initial) {
         return {
             name: '',
+            emoji: '⚔️',
             description: '',
             hitDie: 8,
             primaryAbilityIndexes: [],
@@ -123,6 +124,7 @@ export function createDraft(initial?: ClassDetailsFieldsFragment | null): Draft 
     }
     return {
         name: initial.name,
+        emoji: initial.emoji,
         description: initial.description.join('\n\n'),
         hitDie: initial.hitDie,
         primaryAbilityIndexes: [...initial.primaryAbilityIndexes],
@@ -172,6 +174,7 @@ export function serialiseDraft(draft: Draft): ManagedCustomClassInput {
 export function identityFieldErrors(draft: Draft): IdentityFieldErrors {
     const errors: IdentityFieldErrors = {};
     if (!draft.name.trim()) errors.name = 'Class name is required.';
+    if (!draft.emoji.trim()) errors.emoji = 'Emoji is required.';
     if (!draft.description.trim()) errors.description = 'Description is required.';
     if (draft.primaryAbilityIndexes.length === 0) {
         errors.primaryAbilities = 'Choose at least one primary ability.';
@@ -186,6 +189,7 @@ export function stageError(stage: number, draft: Draft): string | null {
     if (stage === 0) {
         const errors = identityFieldErrors(draft);
         return errors.name
+            ?? errors.emoji
             ?? errors.description
             ?? errors.primaryAbilities
             ?? errors.savingThrows

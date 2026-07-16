@@ -28,6 +28,15 @@ export default function IdentityStage({ draft, locked, errors = {}, onChange }: 
                 onChangeText={(name) => onChange({ name })}
             />
             <Field
+                testID="custom-class-emoji"
+                label="Emoji"
+                helper="Shown on class selection tiles."
+                value={draft.emoji}
+                errorMessage={errors.emoji}
+                maxLength={32}
+                onChangeText={(emoji) => onChange({ emoji })}
+            />
+            <Field
                 label="Description"
                 value={draft.description}
                 multiline

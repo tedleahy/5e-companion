@@ -29,6 +29,7 @@ export type Draft = Omit<ManagedCustomClassInput, 'progression' | 'features' | '
 
 export type IdentityFieldErrors = {
     name?: string;
+    emoji?: string;
     description?: string;
     primaryAbilities?: string;
     savingThrows?: string;

@@ -16,6 +16,7 @@ function renderCompendium(mocks: ComponentProps<typeof MockedProvider>['mocks'])
 
 const summary = {
     __typename: 'AvailableClass', id: 'class-wizard', value: 'wizard', srdIndex: 'wizard', name: 'Wizard',
+    emoji: '📖',
     description: [], hitDie: 6, primaryAbilityIndexes: ['int'], savingThrowIndexes: ['int', 'wis'],
     spellcastingMode: 'STANDARD', spellcastingAbility: 'int', multiclassPrerequisites: [{ __typename: 'ClassMulticlassPrerequisite', abilityIndex: 'int', minimum: 13, group: 1 }], isCustom: false,
 };

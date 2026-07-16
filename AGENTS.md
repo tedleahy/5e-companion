@@ -100,6 +100,7 @@ Area-specific detail lives in `docs/`; add cross-cutting items here.
 ## Prisma / DB
 
 - **`bun db:migrate` needs Postgres running** — Prisma requires a live shadow DB. If unreachable, write migration SQL by hand under `server/prisma/migrations/` and validate once the DB is back.
+- **The app is pre-release** — prefer clean breaking schema migrations plus canonical reseeding over transitional data-backfill migrations. Do not add migration backfills unless explicitly requested.
 - **Sandbox permissions**: if Prisma needs Docker/host/network access a sandbox can't provide, stop and ask the user to run the command manually.
 
 ## GraphQL codegen

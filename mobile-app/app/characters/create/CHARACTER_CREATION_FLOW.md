@@ -57,7 +57,7 @@ _layout.tsx
 | File | Purpose |
 |---|---|
 | `multiclass.ts` | Core multiclass logic. Types: `CharacterClassDraft`, `CharacterClassDraftValidation`. Functions for creating/sanitising class rows, computing remaining levels, checking subclass unlock, sorting for display, normalising starting class ID, formatting labels, and full validation (`validateCharacterClassDraft`) |
-| `options.ts` | Static visual metadata for races, SRD class icons, subclass fallbacks, and alignments. Selectable classes themselves come from `availableClasses` and can include owned custom classes. |
+| `options.ts` | Static visual metadata for races, loading fallbacks for SRD classes, subclass fallbacks, and alignments. Selectable classes and their tile emoji come from `availableClasses` and can include owned custom classes. |
 | `classRules.ts` | Static D&D rule data: `HIT_DIE_MAP`, armour/weapon proficiencies, `BACKGROUND_SKILL_PROFICIENCIES`, `CLASS_SKILL_OPTIONS` (with `pick` count), `CLASS_SAVING_THROWS`, `CLASS_SPELLCASTING_ABILITY_MAP`, `CLASS_ABILITY_PRIORITY`, `SUBCLASS_UNLOCK_LEVEL_BY_CLASS` |
 | `abilityRules.ts` | Point buy cost table, ASI level thresholds, `roll4d6DropLowest()`, `rollAllAbilityScores()`, `suggestAbilityScores()` (reorders rolled scores by class priority), `asiPointsForLevel()`, `proficiencyBonusForLevel()` |
 | `raceRules.ts` | `RACE_ABILITY_BONUSES`, `RACE_SPEED_MAP`, `applyRacialBonuses()` |
@@ -103,7 +103,7 @@ Default draft starts with level 1, all scores 10, roll mode, empty everything el
 
 ## Single-Class / Multiclass System
 
-The class step defaults to **single-class mode**: the user picks an active SRD or owned custom class from a server-backed tile grid, and it automatically receives all of the character's levels. Its visible SRD and user-owned subclasses are shown together; each option displays its own availability level.
+The class step defaults to **single-class mode**: the user picks an active SRD or owned custom class from a server-backed tile grid, and it automatically receives all of the character's levels. Each class tile uses the emoji stored on its class definition. Its visible SRD and user-owned subclasses are shown together; each option displays its own availability level.
 
 When a class is selected and the character is level 2+, a **"Multiclass"** switch is shown above the class grid, along with an info button that toggles a short explanation of multiclassing. Turning the switch on enters **multiclass mode**, which shows:
 
