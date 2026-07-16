@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Session 2 · D1 Progression mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --night: #1f1711;
+      --night-deep: #110b07;
+      --night-elevated: #2a2118;
+      --parchment: #f6e9cf;
+      --parchment-deep: #f0e0c0;
+      --gold: #c4a470;
+      --gold-light: #e8b84b;
+      --crimson: #7b1e1e;
+      --crimson-soft: rgba(123, 30, 30, 0.22);
+      --blue: #6b9ac4;
+      --success-soft: rgba(45, 106, 79, 0.28);
+      --muted: rgba(246, 233, 207, 0.55);
+      --border: rgba(201, 146, 42, 0.22);
+      --card: rgba(201, 146, 42, 0.07);
+      --radius: 14px;
+      --phone-w: min(390px, 100%);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Source Sans 3", system-ui, sans-serif;
+      background:
+        radial-gradient(ellipse at top, rgba(196, 164, 112, 0.14), transparent 50%),
+        linear-gradient(180deg, var(--night-deep), var(--night) 35%, #18110c);
+      color: var(--parchment);
+      line-height: 1.4;
+      min-height: 100dvh;
+      padding-bottom: calc(32px + var(--safe-bottom));
+    }
+
+    .wrap { max-width: 480px; margin: 0 auto; padding: 20px 16px 0; }
+
+    .eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin: 0 0 8px;
+    }
+    h1 {
+      font-family: Cinzel, Georgia, serif;
+      font-size: clamp(1.45rem, 5.5vw, 1.85rem);
+      margin: 0 0 10px;
+      line-height: 1.15;
+    }
+    .lede {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.98rem;
+    }
+    .hint {
+      border-left: 3px solid var(--gold);
+      padding: 10px 12px;
+      background: var(--card);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin: 0 0 18px;
+    }
+
+    .phone {
+      width: var(--phone-w);
+      margin: 0 auto;
+      background: var(--night-elevated);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.35),
+        0 18px 40px rgba(0,0,0,0.45);
+      overflow: hidden;
+    }
+    .phone-chrome {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.22);
+    }
+    .phone-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+    }
+    .phone-title {
+      font-family: Cinzel, Georgia, serif;
+      font-size: 1.05rem;
+      margin: 0;
+    }
+    .phone-step {
+      font-size: 0.75rem;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .progress-segments {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+      margin-top: 10px;
+    }
+    .progress-segments span {
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(246, 233, 207, 0.12);
+    }
+    .progress-segments span.on { background: var(--crimson); }
+    .progress-segments span.current { background: var(--gold-light); }
+
+    .phone-body {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .label {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin: 0 0 8px;
+      font-weight: 700;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.2);
+      color: var(--parchment-deep);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      user-select: none;
+      appearance: none;
+      font-family: inherit;
+    }
+    .chip.selected {
+      background: var(--crimson-soft);
+      border-color: rgba(123, 30, 30, 0.65);
+      color: var(--parchment);
+    }
+
+    .checkbox {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: rgba(0,0,0,0.18);
+      color: var(--parchment-deep);
+      font-size: 0.9rem;
+      cursor: pointer;
+      user-select: none;
+      text-align: left;
+      width: 100%;
+      font-family: inherit;
+      appearance: none;
+    }
+    .checkbox.on {
+      background: var(--crimson-soft);
+      border-color: rgba(123, 30, 30, 0.55);
+      color: var(--parchment);
+    }
+
+    /* Boolean row — matches Paper Switch pattern (label left, track right) */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: rgba(0,0,0,0.18);
+      cursor: pointer;
+      user-select: none;
+      width: 100%;
+      font-family: inherit;
+      appearance: none;
+      text-align: left;
+      color: var(--parchment-deep);
+    }
+    .toggle-row:active { background: rgba(201, 146, 42, 0.08); }
+    .toggle-row .toggle-label {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.9rem;
+      line-height: 1.35;
+      color: var(--parchment-deep);
+    }
+    .switch {
+      position: relative;
+      flex: 0 0 auto;
+      width: 46px;
+      height: 28px;
+      border-radius: 999px;
+      background: rgba(246, 233, 207, 0.18);
+      border: 1px solid var(--border);
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .switch::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--parchment-deep);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .toggle-row[aria-checked="true"] .switch {
+      background: var(--crimson);
+      border-color: rgba(123, 30, 30, 0.85);
+    }
+    .toggle-row[aria-checked="true"] .switch::after {
+      transform: translateX(18px);
+      background: var(--parchment);
+    }
+    .toggle-row[aria-checked="true"] .toggle-label {
+      color: var(--parchment);
+    }
+
+    .stepper {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(0,0,0,0.25);
+    }
+    .stepper button {
+      width: 40px;
+      height: 40px;
+      border: 0;
+      background: transparent;
+      color: var(--gold-light);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    .stepper .val {
+      min-width: 44px;
+      text-align: center;
+      font-weight: 700;
+      color: var(--parchment);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      line-height: 40px;
+    }
+
+    .slot-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .slot-cell {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 6px;
+      background: rgba(0,0,0,0.18);
+      text-align: center;
+    }
+    .slot-cell .lvl {
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .slot-cell .mini-step {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+    .slot-cell .mini-step .btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      color: var(--gold);
+      font-size: 0.75rem;
+      cursor: pointer;
+      background: transparent;
+      padding: 0;
+    }
+
+    .banner {
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.88rem;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      animation: fadeSlide 0.35s ease;
+    }
+    .banner[hidden] { display: none !important; }
+    .banner.prefill {
+      background: var(--success-soft);
+      border: 1px solid rgba(45, 106, 79, 0.45);
+      color: #b7e0cb;
+    }
+    .banner button {
+      margin-left: auto;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.25);
+      color: var(--gold-light);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      white-space: nowrap;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    /* Level map — D1 accordion + D4 drawer motion */
+    .level-map {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(0,0,0,0.18);
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    .summary-hit {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      border: 0;
+      background: transparent;
+      padding: 2px;
+      text-align: left;
+      color: inherit;
+      cursor: pointer;
+      font-family: inherit;
+      border-radius: 12px;
+    }
+    .summary-hit:active { background: rgba(201, 146, 42, 0.08); }
+    .summary-hit:focus-visible {
+      outline: 2px solid var(--gold-light);
+      outline-offset: 2px;
+    }
+
+    .summary-level {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      border: 2px solid var(--gold-light);
+      background: var(--crimson-soft);
+      display: grid;
+      place-items: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--parchment);
+      position: relative;
+      flex: 0 0 auto;
+    }
+    .summary-level .mini-badge {
+      position: absolute;
+      top: 4px;
+      right: 5px;
+      font-size: 0.55rem;
+      color: var(--gold-light);
+    }
+    .summary-meta {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.82rem;
+      color: var(--parchment-deep);
+      line-height: 1.35;
+    }
+    .summary-meta strong {
+      color: var(--gold-light);
+      font-weight: 600;
+    }
+    .summary-meta .cue {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .level-map.expanded .summary-hit { display: none; }
+
+    .drawer {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.28s ease;
+    }
+    .level-map.expanded .drawer { grid-template-rows: 1fr; }
+    .drawer-inner {
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      padding-top: 2px;
+    }
+    .ov-cell {
+      aspect-ratio: 1;
+      width: 100%;
+      min-width: 0;
+      min-height: 44px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.22);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--parchment-deep);
+      cursor: pointer;
+      position: relative;
+      padding: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      font-family: inherit;
+      transition: transform 0.15s ease, background 0.15s, opacity 0.2s;
+    }
+    .ov-cell:active { transform: scale(0.94); }
+    .ov-cell.selected {
+      outline: 2px solid var(--gold-light);
+      outline-offset: 1px;
+      background: var(--crimson-soft);
+      color: var(--parchment);
+    }
+    .ov-cell .badge {
+      position: absolute;
+      top: 3px;
+      right: 4px;
+      font-size: 0.55rem;
+      color: var(--gold-light);
+      line-height: 1;
+    }
+    .ov-cell.sparse { opacity: 0.4; }
+    .ov-cell.has-slots { box-shadow: inset 0 -3px 0 var(--blue); }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 8px;
+      padding-bottom: 2px;
+    }
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .legend .swatch {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold-light);
+      display: inline-block;
+    }
+    .legend .slots .swatch {
+      background: var(--blue);
+      border-radius: 2px;
+      width: 10px;
+      height: 4px;
+    }
+    .legend .sparse .swatch { background: rgba(246,233,207,0.25); }
+
+    .drawer-close {
+      width: 100%;
+      border: 1px dashed var(--border);
+      background: transparent;
+      color: var(--gold-light);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      font-family: inherit;
+      display: none;
+    }
+    .level-map.expanded .drawer-close { display: block; }
+
+    .detail-panel {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(0,0,0,0.2);
+      animation: fadeSlide 0.25s ease;
+    }
+    .detail-panel h4 {
+      margin: 0 0 10px;
+      font-family: Cinzel, Georgia, serif;
+      font-size: 0.95rem;
+      color: var(--gold-light);
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .detail-panel h4 .of {
+      font-family: "Source Sans 3", sans-serif;
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .counts-row {
+      display: grid;
+      gap: 8px;
+    }
+    .count-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(0,0,0,0.15);
+    }
+    .count-row > span { font-size: 0.88rem; color: var(--parchment-deep); }
+
+    .copy-btn {
+      width: 100%;
+      border: 1px dashed var(--border);
+      background: transparent;
+      color: var(--gold-light);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 4px;
+      font-family: inherit;
+    }
+    .copy-btn:active { background: var(--card); }
+    .copy-btn[hidden] { display: none !important; }
+    .copy-btn.done {
+      border-color: rgba(45,106,79,0.55);
+      color: #b7e0cb;
+    }
+
+    .phone-footer {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 8px;
+      padding: 12px 14px calc(12px + var(--safe-bottom));
+      border-top: 1px solid var(--border);
+      background: rgba(0,0,0,0.28);
+    }
+    .phone-footer button {
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .phone-footer .back {
+      background: transparent;
+      color: var(--parchment-deep);
+    }
+    .phone-footer .next {
+      background: var(--crimson);
+      border-color: rgba(123, 30, 30, 0.8);
+      color: var(--parchment);
+    }
+
+    footer {
+      margin-top: 20px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    footer a { color: var(--gold-light); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="eyebrow">Session 2 · Option D1</p>
+    <h1>Progression level map</h1>
+    <p class="lede">
+      Summary chip when collapsed · tap to open the heatmap drawer · pick a level to edit.
+    </p>
+    <p class="hint">
+      Tap the level summary to open the map. Tap a square (or Close) to collapse.
+      “Copy from previous level” fills slots + known from level N−1 (hidden on level 1).
+    </p>
+
+    <div class="phone" id="demo">
+      <div class="phone-chrome">
+        <div class="phone-title-row">
+          <h2 class="phone-title">Progression</h2>
+          <span class="phone-step">4 / 6</span>
+        </div>
+        <div class="progress-segments" aria-hidden="true">
+          <span class="on"></span><span class="on"></span><span class="on"></span>
+          <span class="current"></span><span></span><span></span>
+        </div>
+      </div>
+
+      <div class="phone-body">
+        <div>
+          <p class="label">Spellcasting mode</p>
+          <div class="chips" id="modes">
+            <button type="button" class="chip" data-mode="NONE">NONE</button>
+            <button type="button" class="chip selected" data-mode="STANDARD">STANDARD</button>
+            <button type="button" class="chip" data-mode="PACT MAGIC">PACT MAGIC</button>
+          </div>
+        </div>
+
+        <button type="button" class="toggle-row" id="add-mod" role="switch" aria-checked="true">
+          <span class="toggle-label">Add spellcasting ability modifier to prepared spells</span>
+          <span class="switch" aria-hidden="true"></span>
+        </button>
+
+        <div class="level-map" id="level-map">
+          <button type="button" class="summary-hit" id="summary-hit" aria-expanded="false">
+            <div class="summary-level" id="summary-level">8<span class="mini-badge">ASI</span></div>
+            <div class="summary-meta" id="summary-meta">
+              <strong>Level 8</strong><br />
+              ASI · slots 4/3/3/1 · cantrips 3 · known 6
+              <br /><span class="cue">Tap to open level map</span>
+            </div>
+          </button>
+
+          <div class="drawer">
+            <div class="drawer-inner">
+              <p class="label" style="margin-top:4px">Jump to level</p>
+              <div class="overview-grid" id="grid"></div>
+              <div class="legend">
+                <span><i class="swatch"></i>ASI</span>
+                <span class="slots"><i class="swatch"></i>Has slots</span>
+                <span class="sparse"><i class="swatch"></i>Unset</span>
+              </div>
+              <button type="button" class="drawer-close" id="drawer-close">Close map</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-panel" id="detail"></div>
+      </div>
+
+      <div class="phone-footer">
+        <button type="button" class="back">Back</button>
+        <button type="button" class="next">Continue</button>
+      </div>
+    </div>
+
+    <footer>
+      Focused D1 mock ·
+      <a href="./session-2-progression-option-d.html">all collapse options</a> ·
+      <a href="./session-2-progression-mockups.html">Session 2 approaches</a>
+    </footer>
+  </div>
+
+  <script>
+    const ASI = new Set([4, 8, 12, 16, 19]);
+    const SLOT_LABELS = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"];
+
+    /** Mutable per-level progression for the mock. */
+    const levels = Array.from({ length: 20 }, (_, i) => makeLevel(i + 1));
+
+    function makeLevel(level) {
+      const filled = level <= 10;
+      return {
+        level,
+        asi: ASI.has(level),
+        slots: filled
+          ? [
+              Math.min(4, 1 + Math.floor(level / 2)),
+              level >= 3 ? Math.min(3, Math.floor((level - 1) / 2)) : 0,
+              level >= 5 ? Math.min(3, Math.floor((level - 3) / 2)) : 0,
+              level >= 7 ? Math.min(2, Math.floor((level - 5) / 2)) : 0,
+              level >= 9 ? 1 : 0,
+              0, 0, 0, 0,
+            ]
+          : [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        cantrips: filled ? Math.min(4, 2 + Math.floor((level - 1) / 4)) : 0,
+        known: filled ? Math.min(11, level + 1) : 0,
+        prepared: filled ? Math.min(8, Math.floor(level / 2) + 1) : 0,
+      };
+    }
+
+    const state = {
+      level: 8,
+      mapOpen: false,
+      lastCopiedFrom: null,
+    };
+
+    const mapEl = document.getElementById("level-map");
+    const gridEl = document.getElementById("grid");
+    const detailEl = document.getElementById("detail");
+    const summaryLevelEl = document.getElementById("summary-level");
+    const summaryMetaEl = document.getElementById("summary-meta");
+    const summaryHit = document.getElementById("summary-hit");
+
+    function shortSlots(slots) {
+      const parts = slots.filter((n) => n > 0);
+      return parts.length ? parts.join("/") : "—";
+    }
+
+    function current() {
+      return levels[state.level - 1];
+    }
+
+    function setMapOpen(open) {
+      state.mapOpen = open;
+      mapEl.classList.toggle("expanded", open);
+      summaryHit.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+
+    function showCopiedToast(from) {
+      state.lastCopiedFrom = from;
+      const toast = detailEl.querySelector("[data-toast]");
+      if (!toast) return;
+      toast.hidden = false;
+      toast.querySelector("[data-from]").textContent = String(from);
+      toast.style.animation = "none";
+      void toast.offsetWidth;
+      toast.style.animation = "";
+    }
+
+    function copyFromPrevious() {
+      if (state.level <= 1) return;
+      const prev = levels[state.level - 2];
+      const cur = current();
+      cur.slots = prev.slots.slice();
+      cur.cantrips = prev.cantrips;
+      cur.known = prev.known;
+      cur.prepared = prev.prepared;
+      renderAll();
+      showCopiedToast(prev.level);
+      const btn = detailEl.querySelector("[data-copy]");
+      if (btn) {
+        btn.classList.add("done");
+        btn.textContent = "Copied from level " + prev.level;
+        setTimeout(() => {
+          btn.classList.remove("done");
+          btn.textContent = "Copy from previous level";
+        }, 1200);
+      }
+    }
+
+    function renderSummary() {
+      const d = current();
+      summaryLevelEl.innerHTML =
+        d.level +
+        (d.asi
+          ? '<span class="mini-badge">ASI</span>'
+          : d.slots.some((n) => n > 0)
+            ? '<span class="mini-badge">●</span>'
+            : "");
+      summaryMetaEl.innerHTML =
+        "<strong>Level " + d.level + "</strong><br />" +
+        (d.asi ? "ASI · " : "") +
+        "slots " + shortSlots(d.slots) +
+        " · cantrips " + d.cantrips +
+        " · known " + d.known +
+        '<br /><span class="cue">Tap to open level map</span>';
+    }
+
+    function renderGrid() {
+      gridEl.innerHTML = "";
+      for (let i = 1; i <= 20; i++) {
+        const d = levels[i - 1];
+        const hasSlots = d.slots.some((n) => n > 0);
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "ov-cell";
+        if (i === state.level) btn.classList.add("selected");
+        if (!hasSlots && !d.asi) btn.classList.add("sparse");
+        if (hasSlots) btn.classList.add("has-slots");
+        btn.innerHTML =
+          i +
+          (d.asi
+            ? '<span class="badge">ASI</span>'
+            : hasSlots
+              ? '<span class="badge">●</span>'
+              : "");
+        btn.addEventListener("click", () => {
+          const prev = state.level;
+          state.level = i;
+          setMapOpen(false);
+          renderAll();
+          // Advancing exactly +1 still hints silent prefill (session goal);
+          // explicit copy is the dashed button.
+          if (i === prev + 1) showCopiedToast(prev);
+        });
+        gridEl.appendChild(btn);
+      }
+    }
+
+    function countRow(label, value, key) {
+      return (
+        '<div class="count-row">' +
+          "<span>" + label + "</span>" +
+          '<div class="stepper">' +
+            '<button type="button" data-count-dir="-1" data-count-key="' + key + '">−</button>' +
+            '<span class="val" data-count-val data-count-key="' + key + '">' + value + "</span>" +
+            '<button type="button" data-count-dir="1" data-count-key="' + key + '">+</button>' +
+          "</div>" +
+        "</div>"
+      );
+    }
+
+    function renderDetail() {
+      const d = current();
+      detailEl.innerHTML =
+        "<h4>Level " + d.level + '<span class="of">of 20</span></h4>' +
+        '<div class="banner prefill" data-toast hidden>Copied from level <span data-from></span>' +
+          '<button type="button" data-undo>Undo</button></div>' +
+        '<button type="button" class="toggle-row" data-asi role="switch" aria-checked="' +
+          (d.asi ? "true" : "false") + '">' +
+          '<span class="toggle-label">Ability Score Improvement</span>' +
+          '<span class="switch" aria-hidden="true"></span></button>' +
+        '<div style="margin-top:12px">' +
+          '<p class="label">Spell slots by level</p>' +
+          '<div class="slot-grid" data-slots></div>' +
+        "</div>" +
+        '<div style="margin-top:12px">' +
+          '<p class="label">Spells known at this level</p>' +
+          '<div class="counts-row">' +
+            countRow("Cantrips", d.cantrips, "cantrips") +
+            countRow("Spells known", d.known, "known") +
+            countRow("Prepared base", d.prepared, "prepared") +
+          "</div>" +
+        "</div>" +
+        '<button type="button" class="copy-btn" data-copy' +
+          (d.level <= 1 ? " hidden" : "") +
+          ">Copy from previous level</button>";
+
+      const slotsEl = detailEl.querySelector("[data-slots]");
+      d.slots.forEach((n, i) => {
+        const cell = document.createElement("div");
+        cell.className = "slot-cell";
+        cell.innerHTML =
+          '<div class="lvl">' + SLOT_LABELS[i] + "</div>" +
+          '<div class="mini-step">' +
+            '<button type="button" class="btn" data-slot-dir="-1" data-slot-i="' + i + '">−</button>' +
+            "<span data-slot-val>" + n + "</span>" +
+            '<button type="button" class="btn" data-slot-dir="1" data-slot-i="' + i + '">+</button>' +
+          "</div>";
+        slotsEl.appendChild(cell);
+      });
+
+      detailEl.querySelector("[data-asi]").addEventListener("click", (e) => {
+        d.asi = !d.asi;
+        e.currentTarget.setAttribute("aria-checked", d.asi ? "true" : "false");
+        renderSummary();
+        renderGrid();
+      });
+
+      detailEl.querySelectorAll("[data-slot-dir]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const i = Number(btn.dataset.slotI);
+          const dir = Number(btn.dataset.slotDir);
+          d.slots[i] = Math.max(0, Math.min(4, d.slots[i] + dir));
+          btn.closest(".mini-step").querySelector("[data-slot-val]").textContent = String(d.slots[i]);
+          renderSummary();
+          renderGrid();
+        });
+      });
+
+      detailEl.querySelectorAll("[data-count-dir]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const key = btn.dataset.countKey;
+          const dir = Number(btn.dataset.countDir);
+          d[key] = Math.max(0, Math.min(20, d[key] + dir));
+          detailEl.querySelector('[data-count-val][data-count-key="' + key + '"]').textContent = String(d[key]);
+          renderSummary();
+        });
+      });
+
+      const copyBtn = detailEl.querySelector("[data-copy]");
+      if (copyBtn) copyBtn.addEventListener("click", copyFromPrevious);
+
+      const undo = detailEl.querySelector("[data-undo]");
+      if (undo) {
+        undo.addEventListener("click", () => {
+          detailEl.querySelector("[data-toast]").hidden = true;
+        });
+      }
+
+      if (state.lastCopiedFrom != null) {
+        showCopiedToast(state.lastCopiedFrom);
+        state.lastCopiedFrom = null;
+      }
+    }
+
+    function renderAll() {
+      renderSummary();
+      renderGrid();
+      renderDetail();
+    }
+
+    summaryHit.addEventListener("click", () => setMapOpen(true));
+    document.getElementById("drawer-close").addEventListener("click", () => setMapOpen(false));
+
+    document.getElementById("add-mod").addEventListener("click", (e) => {
+      const on = e.currentTarget.getAttribute("aria-checked") !== "true";
+      e.currentTarget.setAttribute("aria-checked", on ? "true" : "false");
+    });
+
+    document.querySelectorAll("#modes .chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        document.querySelectorAll("#modes .chip").forEach((c) => c.classList.remove("selected"));
+        chip.classList.add("selected");
+      });
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>

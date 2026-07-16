@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Session 2 · Progression UX Mockups</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --night: #1f1711;
+      --night-deep: #110b07;
+      --night-elevated: #2a2118;
+      --parchment: #f6e9cf;
+      --parchment-deep: #f0e0c0;
+      --gold: #c4a470;
+      --gold-light: #e8b84b;
+      --gold-dark: #9e845b;
+      --crimson: #7b1e1e;
+      --crimson-soft: rgba(123, 30, 30, 0.22);
+      --success: #2d6a4f;
+      --success-soft: rgba(45, 106, 79, 0.28);
+      --muted: rgba(246, 233, 207, 0.55);
+      --border: rgba(201, 146, 42, 0.22);
+      --card: rgba(201, 146, 42, 0.07);
+      --radius: 14px;
+      --phone-w: min(390px, 100%);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Source Sans 3", system-ui, sans-serif;
+      background:
+        radial-gradient(ellipse at top, rgba(196, 164, 112, 0.14), transparent 50%),
+        linear-gradient(180deg, var(--night-deep), var(--night) 35%, #18110c);
+      color: var(--parchment);
+      line-height: 1.4;
+      min-height: 100dvh;
+      padding-bottom: calc(32px + var(--safe-bottom));
+    }
+
+    a { color: var(--gold-light); text-decoration: none; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 0; }
+
+    .eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin: 0 0 8px;
+    }
+    h1 {
+      font-family: Cinzel, Georgia, serif;
+      font-size: clamp(1.55rem, 5.5vw, 2rem);
+      margin: 0 0 10px;
+      line-height: 1.15;
+    }
+    .lede {
+      margin: 0;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 1.02rem;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .pill {
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--gold);
+    }
+    .pill.priority {
+      border-color: rgba(123, 30, 30, 0.55);
+      color: #f0b4b4;
+      background: var(--crimson-soft);
+    }
+
+    nav.toc {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(17, 11, 7, 0.94);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      margin: 18px -16px 22px;
+      padding: 10px 16px;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+    nav.toc a {
+      display: inline-block;
+      margin-right: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--parchment-deep);
+      font-size: 0.78rem;
+      letter-spacing: 0.03em;
+    }
+    nav.toc a:active,
+    nav.toc a:hover { border-color: var(--gold); color: var(--gold-light); }
+
+    section { margin-bottom: 36px; }
+    h2 {
+      font-family: Cinzel, Georgia, serif;
+      font-size: 1.2rem;
+      color: var(--gold-light);
+      margin: 0 0 8px;
+    }
+    h3 {
+      font-family: Cinzel, Georgia, serif;
+      font-size: 1.02rem;
+      margin: 0 0 6px;
+      color: var(--parchment);
+    }
+    .approach-intro {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 0 0 14px;
+    }
+    .note {
+      border-left: 3px solid var(--gold);
+      padding: 10px 12px;
+      background: var(--card);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-bottom: 16px;
+    }
+    .pros {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0 0;
+      display: grid;
+      gap: 6px;
+    }
+    .pros li {
+      font-size: 0.88rem;
+      color: var(--parchment-deep);
+      padding-left: 1.1rem;
+      position: relative;
+    }
+    .pros li::before {
+      content: "·";
+      position: absolute;
+      left: 0;
+      color: var(--gold);
+      font-weight: 700;
+    }
+    .pros li.con::before { content: "–"; color: #f0b4b4; }
+
+    /* Phone frame */
+    .phone {
+      width: var(--phone-w);
+      margin: 0 auto;
+      background: var(--night-elevated);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.35),
+        0 18px 40px rgba(0,0,0,0.45);
+      overflow: hidden;
+    }
+    .phone-chrome {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.22);
+    }
+    .phone-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+    }
+    .phone-title {
+      font-family: Cinzel, Georgia, serif;
+      font-size: 1.05rem;
+      margin: 0;
+    }
+    .phone-step {
+      font-size: 0.75rem;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .progress-segments {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+      margin-top: 10px;
+    }
+    .progress-segments span {
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(246, 233, 207, 0.12);
+    }
+    .progress-segments span.on { background: var(--crimson); }
+    .progress-segments span.current { background: var(--gold-light); }
+
+    .phone-body {
+      padding: 14px 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-height: min(72vh, 640px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .label {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin: 0 0 8px;
+      font-weight: 700;
+    }
+    .field-block { margin: 0; }
+
+    /* Shared night-form controls */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.2);
+      color: var(--parchment-deep);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .chip.selected {
+      background: var(--crimson-soft);
+      border-color: rgba(123, 30, 30, 0.65);
+      color: var(--parchment);
+    }
+    .chip.muted { opacity: 0.55; }
+    .chip.dot::after {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold-light);
+      margin-left: 6px;
+      vertical-align: 1px;
+    }
+
+    .stepper {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(0,0,0,0.25);
+    }
+    .stepper button {
+      width: 40px;
+      height: 40px;
+      border: 0;
+      background: transparent;
+      color: var(--gold-light);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    .stepper .val {
+      min-width: 44px;
+      text-align: center;
+      font-weight: 700;
+      color: var(--parchment);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      line-height: 40px;
+    }
+
+    .checkbox {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: rgba(0,0,0,0.18);
+      color: var(--parchment-deep);
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+    .checkbox.on {
+      background: var(--crimson-soft);
+      border-color: rgba(123, 30, 30, 0.55);
+      color: var(--parchment);
+    }
+
+    .slot-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .slot-cell {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 6px;
+      background: rgba(0,0,0,0.18);
+      text-align: center;
+    }
+    .slot-cell .lvl {
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .slot-cell .mini-step {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+    .slot-cell .mini-step span.btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      color: var(--gold);
+      font-size: 0.75rem;
+    }
+
+    .banner {
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.88rem;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      animation: fadeSlide 0.35s ease;
+    }
+    .banner.prefill {
+      background: var(--success-soft);
+      border: 1px solid rgba(45, 106, 79, 0.45);
+      color: #b7e0cb;
+    }
+    .banner.action {
+      background: rgba(201, 146, 42, 0.1);
+      border: 1px dashed var(--border);
+      color: var(--parchment-deep);
+    }
+    .banner button {
+      margin-left: auto;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.25);
+      color: var(--gold-light);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .phone-footer {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 8px;
+      padding: 12px 14px calc(12px + var(--safe-bottom));
+      border-top: 1px solid var(--border);
+      background: rgba(0,0,0,0.28);
+    }
+    .phone-footer button {
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+    .phone-footer .back {
+      background: transparent;
+      color: var(--parchment-deep);
+    }
+    .phone-footer .next {
+      background: var(--crimson);
+      border-color: rgba(123, 30, 30, 0.8);
+      color: var(--parchment);
+    }
+
+    /* Approach A — level chips */
+    .level-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .level-chips .chip {
+      min-width: 40px;
+      justify-content: center;
+      text-align: center;
+      padding: 8px 0;
+      border-radius: 10px;
+    }
+    .level-chips .chip.has { box-shadow: inset 0 -2px 0 var(--gold-dark); }
+
+    /* Approach B — compact strip */
+    .level-strip-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -4px;
+      padding: 2px 4px 8px;
+    }
+    .level-strip {
+      display: flex;
+      gap: 4px;
+      width: max-content;
+    }
+    .level-strip .cell {
+      width: 36px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.22);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--parchment-deep);
+      position: relative;
+      cursor: pointer;
+    }
+    .level-strip .cell.selected {
+      background: var(--crimson-soft);
+      border-color: rgba(123, 30, 30, 0.7);
+      color: var(--parchment);
+    }
+    .level-strip .cell .mark {
+      font-size: 0.55rem;
+      color: var(--gold-light);
+      line-height: 1;
+      margin-top: 2px;
+    }
+    .level-strip .cell.empty .mark { color: transparent; }
+
+    /* Approach C — matrix overview */
+    .matrix {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.72rem;
+    }
+    .matrix th, .matrix td {
+      padding: 6px 4px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .matrix th {
+      color: var(--gold);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 0.62rem;
+    }
+    .matrix td { color: var(--parchment-deep); }
+    .matrix tr.active td {
+      background: var(--crimson-soft);
+      color: var(--parchment);
+    }
+    .matrix tr { cursor: pointer; }
+    .matrix .asi {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold-light);
+    }
+    .matrix .empty { color: rgba(246,233,207,0.25); }
+    .matrix-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(0,0,0,0.18);
+    }
+
+    /* Approach D — dual pane: overview first */
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+    .ov-cell {
+      aspect-ratio: 1;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.22);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--parchment-deep);
+      cursor: pointer;
+      position: relative;
+    }
+    .ov-cell.selected {
+      outline: 2px solid var(--gold-light);
+      outline-offset: 1px;
+      background: var(--crimson-soft);
+      color: var(--parchment);
+    }
+    .ov-cell .badge {
+      position: absolute;
+      top: 3px;
+      right: 4px;
+      font-size: 0.55rem;
+      color: var(--gold-light);
+    }
+    .ov-cell.sparse { opacity: 0.45; }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 5px;
+      background: var(--gold-light);
+    }
+    .legend .slots::before { background: #6b9ac4; }
+    .legend .sparse::before { background: rgba(246,233,207,0.25); }
+
+    .detail-panel {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(0,0,0,0.2);
+      display: none;
+    }
+    .detail-panel.show { display: block; animation: fadeSlide 0.25s ease; }
+    .detail-panel h4 {
+      margin: 0 0 10px;
+      font-family: Cinzel, Georgia, serif;
+      font-size: 0.95rem;
+      color: var(--gold-light);
+    }
+
+    /* Approach E — hybrid stepper + jump + mini timeline */
+    .timeline {
+      display: flex;
+      gap: 3px;
+      align-items: flex-end;
+      height: 28px;
+      margin-top: 8px;
+    }
+    .timeline i {
+      flex: 1;
+      display: block;
+      border-radius: 2px 2px 0 0;
+      background: rgba(246, 233, 207, 0.12);
+      min-height: 6px;
+    }
+    .timeline i.asi { background: var(--gold-dark); }
+    .timeline i.has { background: rgba(107, 154, 196, 0.55); }
+    .timeline i.current {
+      background: var(--gold-light);
+      box-shadow: 0 0 0 1px rgba(232, 184, 75, 0.4);
+    }
+
+    .fill-btn {
+      width: 100%;
+      border: 1px dashed var(--border);
+      background: transparent;
+      color: var(--gold-light);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .fill-btn:active { background: var(--card); }
+
+    .compare {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .compare .row {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 8px;
+      align-items: start;
+      font-size: 0.88rem;
+    }
+    .compare .row strong {
+      color: var(--gold);
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding-top: 2px;
+    }
+    .verdict-pick {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .verdict-pick button {
+      flex: 1;
+      min-width: 120px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--parchment);
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .verdict-pick button.picked {
+      border-color: var(--gold-light);
+      background: var(--crimson-soft);
+      color: var(--gold-light);
+    }
+
+    .current-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(246,233,207,0.08);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+    .current-badge.warn {
+      color: #f0b4b4;
+      border-color: rgba(123,30,30,0.45);
+      background: var(--crimson-soft);
+    }
+
+    footer {
+      margin-top: 8px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    @media (min-width: 720px) {
+      .wrap { padding-left: 24px; padding-right: 24px; }
+      nav.toc { margin-left: -24px; margin-right: -24px; padding-left: 24px; padding-right: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">5e Companion · Session 2</p>
+      <h1>Progression UX mockups</h1>
+      <p class="lede">
+        Compare approaches for level jump, overview, prefill feedback, and fill-remaining —
+        before picking one for the night-form Progression stage.
+      </p>
+      <div class="meta">
+        <span class="pill priority">Kill the 20× stepper grind</span>
+        <span class="pill">Night sheet form</span>
+        <span class="pill">Tap to try</span>
+      </div>
+    </header>
+
+    <nav class="toc" aria-label="Approaches">
+      <a href="#problem">Problem</a>
+      <a href="#a">A Chips</a>
+      <a href="#b">B Strip</a>
+      <a href="#c">C Matrix</a>
+      <a href="#d">D Grid</a>
+      <a href="#e">E Hybrid</a>
+      <a href="#pick">Pick</a>
+    </nav>
+
+    <section id="problem">
+      <h2>Today’s pain</h2>
+      <p class="approach-intro">
+        Only a −/+ stepper for levels 1–20. Prefill is silent. No overview of ASI / slots / known.
+        Casters also grind 9 slot cells × 20 levels.
+      </p>
+      <div class="phone" aria-label="Current progression UI mock">
+        <div class="phone-chrome">
+          <div class="phone-title-row">
+            <h3 class="phone-title">Custom class</h3>
+            <span class="phone-step">4 / 6</span>
+          </div>
+          <div class="progress-segments" aria-hidden="true">
+            <span class="on"></span><span class="on"></span><span class="on"></span>
+            <span class="current"></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="phone-body">
+          <span class="current-badge warn">Current (pain)</span>
+          <div class="field-block">
+            <p class="label">Spellcasting mode</p>
+            <div class="chips">
+              <span class="chip">NONE</span>
+              <span class="chip selected">STANDARD</span>
+              <span class="chip">PACT MAGIC</span>
+            </div>
+          </div>
+          <div class="field-block">
+            <p class="label">Progression level</p>
+            <div class="stepper" data-demo="current-stepper">
+              <button type="button" data-dir="-1" aria-label="Previous">−</button>
+              <span class="val">3</span>
+              <button type="button" data-dir="1" aria-label="Next">+</button>
+            </div>
+          </div>
+          <div class="checkbox">Ability Score Improvement</div>
+          <div class="field-block">
+            <p class="label">Spell slots by level</p>
+            <div class="slot-grid">
+              <div class="slot-cell"><div class="lvl">1st</div><div class="mini-step"><span class="btn">−</span>2<span class="btn">+</span></div></div>
+              <div class="slot-cell"><div class="lvl">2nd</div><div class="mini-step"><span class="btn">−</span>0<span class="btn">+</span></div></div>
+              <div class="slot-cell"><div class="lvl">3rd</div><div class="mini-step"><span class="btn">−</span>0<span class="btn">+</span></div></div>
+              <div class="slot-cell"><div class="lvl">4th</div><div class="mini-step"><span class="btn">−</span>0<span class="btn">+</span></div></div>
+              <div class="slot-cell"><div class="lvl">5th</div><div class="mini-step"><span class="btn">−</span>0<span class="btn">+</span></div></div>
+              <div class="slot-cell"><div class="lvl">6th</div><div class="mini-step"><span class="btn">−</span>0<span class="btn">+</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-footer">
+          <button type="button" class="back">Back</button>
+          <button type="button" class="next">Continue</button>
+        </div>
+      </div>
+      <div class="note" style="margin-top:14px">
+        Session 2 goal: jump to any level fast, see what’s set at a glance, and surface
+        “Copied from level N” when advancing. Optional: fill remaining like this level.
+      </div>
+    </section>
+
+    <!-- A -->
+    <section id="a">
+      <h2>A · Wrap chips + toast</h2>
+      <p class="approach-intro">
+        Replace stepper with a wrapping 1–20 chip grid. Gold underline marks “has data”.
+        Prefill shows a green toast. Closest to existing Chip language.
+      </p>
+      <div class="phone">
+        <div class="phone-chrome">
+          <div class="phone-title-row">
+            <h3 class="phone-title">Progression</h3>
+            <span class="phone-step">4 / 6</span>
+          </div>
+          <div class="progress-segments" aria-hidden="true">
+            <span class="on"></span><span class="on"></span><span class="on"></span>
+            <span class="current"></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="phone-body">
+          <div class="field-block">
+            <p class="label">Jump to level</p>
+            <div class="level-chips" id="chips-a"></div>
+          </div>
+          <div class="banner prefill" id="toast-a" hidden>
+            Copied slots &amp; known from level <span data-from>2</span>
+          </div>
+          <div class="checkbox on">✓ Ability Score Improvement</div>
+          <div class="field-block">
+            <p class="label">Spell slots · Level <span id="lvl-a">4</span></p>
+            <div class="slot-grid">
+              <div class="slot-cell"><div class="lvl">1st</div><div class="mini-step"><span class="btn">−</span>4<span class="btn">+</span></div></div>
+              <div class="slot-cell"><div class="lvl">2nd</div><div class="mini-step"><span class="btn">−</span>3<span class="btn">+</span></div></div>
+              <div class="slot-cell"><div class="lvl">3rd</div><div class="mini-step"><span class="btn">−</span>2<span class="btn">+</span></div></div>
+            </div>
+          </div>
+          <button type="button" class="fill-btn" data-fill="a">Fill levels 5–20 like this</button>
+        </div>
+        <div class="phone-footer">
+          <button type="button" class="back">Back</button>
+          <button type="button" class="next">Continue</button>
+        </div>
+      </div>
+      <ul class="pros">
+        <li>No horizontal scroll; all levels visible</li>
+        <li>Reuses Chip pattern already in the wizard</li>
+        <li class="con">Tall — eats vertical space before editors</li>
+        <li class="con">20 chips is busy on small phones</li>
+      </ul>
+    </section>
+
+    <!-- B -->
+    <section id="b">
+      <h2>B · Compact strip + markers</h2>
+      <p class="approach-intro">
+        Horizontally scrollable 1–20 strip. Marker under cells with ASI or slots.
+        Keep −/+ for fine nudge; strip for jumps. Prefill toast on advance.
+      </p>
+      <div class="phone">
+        <div class="phone-chrome">
+          <div class="phone-title-row">
+            <h3 class="phone-title">Progression</h3>
+            <span class="phone-step">4 / 6</span>
+          </div>
+          <div class="progress-segments" aria-hidden="true">
+            <span class="on"></span><span class="on"></span><span class="on"></span>
+            <span class="current"></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="phone-body">
+          <div class="field-block">
+            <p class="label">Level</p>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+              <div class="stepper" data-demo="strip-stepper">
+                <button type="button" data-dir="-1">−</button>
+                <span class="val">5</span>
+                <button type="button" data-dir="1">+</button>
+              </div>
+              <span style="font-size:0.8rem;color:var(--muted)">or tap strip</span>
+            </div>
+            <div class="level-strip-wrap">
+              <div class="level-strip" id="strip-b"></div>
+            </div>
+          </div>
+          <div class="banner prefill" id="toast-b" hidden>
+            Copied from level <span data-from>4</span>
+          </div>
+          <div class="checkbox">Ability Score Improvement</div>
+          <div class="field-block">
+            <p class="label">Cantrips / known / prepared</p>
+            <div class="chips">
+              <span class="chip muted">Cantrips 3</span>
+              <span class="chip muted">Known 4</span>
+              <span class="chip muted">Prep 0</span>
+            </div>
+          </div>
+          <button type="button" class="fill-btn" data-fill="b">Fill remaining like level 5</button>
+        </div>
+        <div class="phone-footer">
+          <button type="button" class="back">Back</button>
+          <button type="button" class="next">Continue</button>
+        </div>
+      </div>
+      <ul class="pros">
+        <li>Compact; keeps familiar stepper for ±1</li>
+        <li>Markers give a tiny overview without a table</li>
+        <li class="con">Off-screen levels need a scroll discoverability cue</li>
+        <li class="con">Markers are weak for slot detail</li>
+      </ul>
+    </section>
+
+    <!-- C -->
+    <section id="c">
+      <h2>C · Summary matrix first</h2>
+      <p class="approach-intro">
+        Read-only progression table (ASI · slots · known). Tap a row to open the level editor
+        below. Best “what’s set?” overview; more UI chrome.
+      </p>
+      <div class="phone">
+        <div class="phone-chrome">
+          <div class="phone-title-row">
+            <h3 class="phone-title">Progression</h3>
+            <span class="phone-step">4 / 6</span>
+          </div>
+          <div class="progress-segments" aria-hidden="true">
+            <span class="on"></span><span class="on"></span><span class="on"></span>
+            <span class="current"></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="phone-body">
+          <div class="field-block">
+            <p class="label">Overview · tap a level</p>
+            <div class="matrix-scroll">
+              <table class="matrix" id="matrix-c">
+                <thead>
+                  <tr>
+                    <th>Lv</th><th>ASI</th><th>Slots</th><th>Can</th><th>Kn</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="detail-panel show" id="detail-c">
+            <h4>Editing level <span data-lvl>4</span></h4>
+            <div class="banner prefill" style="margin-bottom:10px" id="toast-c" hidden>
+              Prefill applied from level <span data-from>3</span>
+            </div>
+            <div class="checkbox on" style="margin-bottom:10px">✓ Ability Score Improvement</div>
+            <div class="slot-grid">
+              <div class="slot-cell"><div class="lvl">1st</div><div class="mini-step"><span class="btn">−</span>4<span class="btn">+</span></div></div>
+              <div class="slot-cell"><div class="lvl">2nd</div><div class="mini-step"><span class="btn">−</span>3<span class="btn">+</span></div></div>
+              <div class="slot-cell"><div class="lvl">3rd</div><div class="mini-step"><span class="btn">−</span>2<span class="btn">+</span></div></div>
+            </div>
+            <button type="button" class="fill-btn" style="margin-top:10px" data-fill="c">
+              Fill remaining levels like this
+            </button>
+          </div>
+        </div>
+        <div class="phone-footer">
+          <button type="button" class="back">Back</button>
+          <button type="button" class="next">Continue</button>
+        </div>
+      </div>
+      <ul class="pros">
+        <li>Strongest overview — catches empty / odd levels</li>
+        <li>Natural place for ASI highlight column</li>
+        <li class="con">Dense; table + editor competes for height</li>
+        <li class="con">Feels more “admin spreadsheet” than night form</li>
+      </ul>
+    </section>
+
+    <!-- D -->
+    <section id="d">
+      <h2>D · Heatmap grid → detail sheet</h2>
+      <p class="approach-intro">
+        5×4 level grid as the primary navigator. Opacity / badges show sparseness vs filled.
+        Selecting a cell expands an inline detail panel (mock of bottom-sheet detail).
+      </p>
+      <div class="phone">
+        <div class="phone-chrome">
+          <div class="phone-title-row">
+            <h3 class="phone-title">Progression</h3>
+            <span class="phone-step">4 / 6</span>
+          </div>
+          <div class="progress-segments" aria-hidden="true">
+            <span class="on"></span><span class="on"></span><span class="on"></span>
+            <span class="current"></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="phone-body">
+          <div class="field-block">
+            <p class="label">Levels</p>
+            <div class="overview-grid" id="grid-d"></div>
+            <div class="legend">
+              <span>ASI</span>
+              <span class="slots">Has slots</span>
+              <span class="sparse">Unset</span>
+            </div>
+          </div>
+          <div class="detail-panel show" id="detail-d">
+            <h4>Level <span data-lvl>8</span></h4>
+            <div class="banner action">
+              Copied from level 7 when you advanced
+              <button type="button" type="button">Undo</button>
+            </div>
+            <div class="checkbox on" style="margin-top:10px">✓ Ability Score Improvement</div>
+            <p class="label" style="margin-top:12px">Slots summary</p>
+            <div class="chips">
+              <span class="chip selected">1st×4</span>
+              <span class="chip selected">2nd×3</span>
+              <span class="chip selected">3rd×3</span>
+              <span class="chip selected">4th×1</span>
+            </div>
+            <button type="button" class="fill-btn" style="margin-top:12px" data-fill="d">
+              Apply this pattern to 9–20
+            </button>
+          </div>
+        </div>
+        <div class="phone-footer">
+          <button type="button" class="back">Back</button>
+          <button type="button" class="next">Continue</button>
+        </div>
+      </div>
+      <ul class="pros">
+        <li>Spatial map of all 20 levels — scan for gaps</li>
+        <li>Detail panel keeps edit focused</li>
+        <li class="con">Two-step (pick then edit) vs always-visible fields</li>
+        <li class="con">Badges need a legend; more novel than chips/strip</li>
+      </ul>
+    </section>
+
+    <!-- E -->
+    <section id="e">
+      <h2>E · Hybrid (recommended sketch)</h2>
+      <p class="approach-intro">
+            Keep −/+ , add a scroll strip for jumps, a mini timeline for ASI/slots overview,
+            visible prefill toast, and a dashed fill-remaining action. Smallest delta from today
+            that still hits session goals.
+          </p>
+      <div class="phone">
+        <div class="phone-chrome">
+          <div class="phone-title-row">
+            <h3 class="phone-title">Progression</h3>
+            <span class="phone-step">4 / 6</span>
+          </div>
+          <div class="progress-segments" aria-hidden="true">
+            <span class="on"></span><span class="on"></span><span class="on"></span>
+            <span class="current"></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="phone-body">
+          <div class="field-block">
+            <p class="label">Progression level</p>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <div class="stepper" data-demo="hybrid-stepper">
+                <button type="button" data-dir="-1">−</button>
+                <span class="val">6</span>
+                <button type="button" data-dir="1">+</button>
+              </div>
+              <button type="button" class="chip" id="jump-menu-e" style="border-radius:10px">Jump…</button>
+            </div>
+            <div class="level-strip-wrap" style="margin-top:10px">
+              <div class="level-strip" id="strip-e"></div>
+            </div>
+            <div class="timeline" id="timeline-e" aria-hidden="true"></div>
+          </div>
+          <div class="banner prefill" id="toast-e">
+            Copied from level 5
+          </div>
+          <div class="checkbox">Ability Score Improvement</div>
+          <div class="field-block">
+            <p class="label">Spell slots by level</p>
+            <div class="slot-grid">
+              <div class="slot-cell"><div class="lvl">1st</div><div class="mini-step"><span class="btn">−</span>4<span class="btn">+</span></div></div>
+              <div class="slot-cell"><div class="lvl">2nd</div><div class="mini-step"><span class="btn">−</span>3<span class="btn">+</span></div></div>
+              <div class="slot-cell"><div class="lvl">3rd</div><div class="mini-step"><span class="btn">−</span>3<span class="btn">+</span></div></div>
+            </div>
+          </div>
+          <button type="button" class="fill-btn" data-fill="e">Fill levels 7–20 like this level</button>
+        </div>
+        <div class="phone-footer">
+          <button type="button" class="back">Back</button>
+          <button type="button" class="next">Continue</button>
+        </div>
+      </div>
+      <ul class="pros">
+        <li>Hits jump + overview + prefill + fill without a mode switch</li>
+        <li>Timeline is glanceable without a full table</li>
+        <li>Still night-form; doesn’t fight existing steppers</li>
+        <li class="con">Slightly more chrome than A or B alone</li>
+      </ul>
+    </section>
+
+    <section id="pick">
+      <h2>Quick compare</h2>
+      <div class="compare">
+        <div class="row"><strong>Jump</strong><span>A chips · B/E strip · C row tap · D grid</span></div>
+        <div class="row"><strong>Overview</strong><span>C matrix strongest · D heatmap · E timeline · B markers · A underline</span></div>
+        <div class="row"><strong>Prefill</strong><span>Same green toast on all; E/D also show undo affordance</span></div>
+        <div class="row"><strong>Fill rest</strong><span>Dashed action under editor in A–E</span></div>
+        <div class="row"><strong>Risk</strong><span>C/D denser &amp; more novel · A tall · B/E safest incremental</span></div>
+      </div>
+      <p class="approach-intro" style="margin-top:16px">Tap a favourite so you remember which one won on the phone:</p>
+      <div class="verdict-pick" id="verdict">
+        <button type="button" data-pick="A">A Chips</button>
+        <button type="button" data-pick="B">B Strip</button>
+        <button type="button" data-pick="C">C Matrix</button>
+        <button type="button" data-pick="D">D Grid</button>
+        <button type="button" data-pick="E">E Hybrid</button>
+      </div>
+      <p id="pick-note" class="note" style="margin-top:12px;display:none"></p>
+    </section>
+
+    <footer>
+      Session 2 of <span style="color:var(--gold)">custom-class-wizard-ux-plan</span> ·
+      mock only — not wired to the app
+    </footer>
+  </div>
+
+  <script>
+    const ASI = new Set([4, 8, 12, 16, 19]);
+    const FILLED = new Set([1, 2, 3, 4, 5, 6, 8]);
+
+    function mockSlots(level) {
+      if (level <= 1) return "2";
+      if (level <= 3) return "2+1";
+      if (level <= 5) return "4+2";
+      if (level <= 8) return "4+3+2";
+      return "—";
+    }
+
+    // Approach A chips
+    const chipsA = document.getElementById("chips-a");
+    let levelA = 4;
+    function renderChipsA() {
+      chipsA.innerHTML = "";
+      for (let i = 1; i <= 20; i++) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "chip" + (i === levelA ? " selected" : "") + (FILLED.has(i) || ASI.has(i) ? " has" : "");
+        b.textContent = String(i);
+        b.addEventListener("click", () => {
+          const prev = levelA;
+          levelA = i;
+          document.getElementById("lvl-a").textContent = String(i);
+          renderChipsA();
+          if (i === prev + 1) showToast("toast-a", prev);
+        });
+        chipsA.appendChild(b);
+      }
+    }
+    renderChipsA();
+
+    // Approach B strip
+    const stripB = document.getElementById("strip-b");
+    let levelB = 5;
+    function renderStripB() {
+      stripB.innerHTML = "";
+      for (let i = 1; i <= 20; i++) {
+        const cell = document.createElement("button");
+        cell.type = "button";
+        cell.className = "cell" + (i === levelB ? " selected" : "") + (!(FILLED.has(i) || ASI.has(i)) ? " empty" : "");
+        cell.innerHTML = i + '<span class="mark">' + (ASI.has(i) ? "ASI" : FILLED.has(i) ? "●" : "·") + "</span>";
+        cell.addEventListener("click", () => {
+          const prev = levelB;
+          levelB = i;
+          const stepper = document.querySelector('[data-demo="strip-stepper"] .val');
+          if (stepper) stepper.textContent = String(i);
+          renderStripB();
+          cell.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+          if (i === prev + 1) showToast("toast-b", prev);
+        });
+        stripB.appendChild(cell);
+      }
+    }
+    renderStripB();
+
+    // Approach C matrix
+    const tbodyC = document.querySelector("#matrix-c tbody");
+    let levelC = 4;
+    function renderMatrixC() {
+      tbodyC.innerHTML = "";
+      for (let i = 1; i <= 12; i++) {
+        const tr = document.createElement("tr");
+        if (i === levelC) tr.className = "active";
+        const known = FILLED.has(i) ? Math.min(i, 6) : "—";
+        const can = FILLED.has(i) ? Math.min(2 + Math.floor(i / 4), 4) : "—";
+        tr.innerHTML =
+          "<td>" + i + "</td>" +
+          "<td>" + (ASI.has(i) ? '<span class="asi"></span>' : '<span class="empty">·</span>') + "</td>" +
+          "<td>" + (FILLED.has(i) ? mockSlots(i) : '<span class="empty">—</span>') + "</td>" +
+          "<td>" + can + "</td>" +
+          "<td>" + known + "</td>";
+        tr.addEventListener("click", () => {
+          const prev = levelC;
+          levelC = i;
+          document.querySelector("#detail-c [data-lvl]").textContent = String(i);
+          renderMatrixC();
+          if (i === prev + 1) showToast("toast-c", prev);
+        });
+        tbodyC.appendChild(tr);
+      }
+      const more = document.createElement("tr");
+      more.innerHTML = '<td colspan="5" style="color:var(--muted);font-style:italic">… levels 13–20</td>';
+      tbodyC.appendChild(more);
+    }
+    renderMatrixC();
+
+    // Approach D grid
+    const gridD = document.getElementById("grid-d");
+    let levelD = 8;
+    function renderGridD() {
+      gridD.innerHTML = "";
+      for (let i = 1; i <= 20; i++) {
+        const cell = document.createElement("button");
+        cell.type = "button";
+        const sparse = !(FILLED.has(i) || ASI.has(i));
+        cell.className = "ov-cell" + (i === levelD ? " selected" : "") + (sparse ? " sparse" : "");
+        cell.innerHTML = i + (ASI.has(i) ? '<span class="badge">ASI</span>' : FILLED.has(i) ? '<span class="badge">●</span>' : "");
+        cell.addEventListener("click", () => {
+          levelD = i;
+          document.querySelector("#detail-d [data-lvl]").textContent = String(i);
+          renderGridD();
+        });
+        gridD.appendChild(cell);
+      }
+    }
+    renderGridD();
+
+    // Approach E hybrid
+    const stripE = document.getElementById("strip-e");
+    const timelineE = document.getElementById("timeline-e");
+    let levelE = 6;
+    function renderHybridE() {
+      stripE.innerHTML = "";
+      timelineE.innerHTML = "";
+      for (let i = 1; i <= 20; i++) {
+        const cell = document.createElement("button");
+        cell.type = "button";
+        cell.className = "cell" + (i === levelE ? " selected" : "");
+        cell.textContent = String(i);
+        cell.addEventListener("click", () => setLevelE(i, true));
+        stripE.appendChild(cell);
+
+        const bar = document.createElement("i");
+        let h = 8;
+        if (ASI.has(i)) { bar.classList.add("asi"); h = 26; }
+        else if (FILLED.has(i)) { bar.classList.add("has"); h = 14 + (i % 5) * 2; }
+        if (i === levelE) bar.classList.add("current");
+        bar.style.height = h + "px";
+        timelineE.appendChild(bar);
+      }
+      const stepperVal = document.querySelector('[data-demo="hybrid-stepper"] .val');
+      if (stepperVal) stepperVal.textContent = String(levelE);
+    }
+    function setLevelE(i, fromStrip) {
+      const prev = levelE;
+      levelE = i;
+      renderHybridE();
+      if (fromStrip) {
+        const selected = stripE.querySelector(".selected");
+        if (selected) selected.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+      }
+      if (i === prev + 1) {
+        const t = document.getElementById("toast-e");
+        t.hidden = false;
+        t.innerHTML = "Copied from level " + prev;
+      }
+    }
+    renderHybridE();
+
+    document.getElementById("jump-menu-e").addEventListener("click", () => {
+      const n = prompt("Jump to level (1–20)", String(levelE));
+      const v = Number(n);
+      if (v >= 1 && v <= 20) setLevelE(v, true);
+    });
+
+    // Shared steppers
+    document.querySelectorAll("[data-demo]").forEach((el) => {
+      const val = el.querySelector(".val");
+      el.querySelectorAll("button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const dir = Number(btn.getAttribute("data-dir"));
+          let n = Number(val.textContent) + dir;
+          n = Math.max(1, Math.min(20, n));
+          const prev = Number(val.textContent);
+          val.textContent = String(n);
+          if (el.getAttribute("data-demo") === "strip-stepper") {
+            levelB = n;
+            renderStripB();
+            if (n === prev + 1) showToast("toast-b", prev);
+          }
+          if (el.getAttribute("data-demo") === "hybrid-stepper") {
+            setLevelE(n, true);
+          }
+          if (el.getAttribute("data-demo") === "current-stepper" && n === prev + 1) {
+            // silent — demonstrates the problem
+          }
+        });
+      });
+    });
+
+    function showToast(id, from) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.hidden = false;
+      const span = el.querySelector("[data-from]");
+      if (span) span.textContent = String(from);
+      el.style.animation = "none";
+      void el.offsetWidth;
+      el.style.animation = "";
+    }
+
+    document.querySelectorAll("[data-fill]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const label = btn.textContent;
+        btn.textContent = "Filled ✓";
+        btn.style.borderColor = "rgba(45,106,79,0.55)";
+        btn.style.color = "#b7e0cb";
+        setTimeout(() => {
+          btn.textContent = label;
+          btn.style.borderColor = "";
+          btn.style.color = "";
+        }, 1400);
+      });
+    });
+
+    // Verdict pick
+    const pickNote = document.getElementById("pick-note");
+    document.querySelectorAll("#verdict button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#verdict button").forEach((b) => b.classList.remove("picked"));
+        btn.classList.add("picked");
+        pickNote.style.display = "block";
+        pickNote.textContent = "Noted: Approach " + btn.dataset.pick + ". Tell the implementer which one to build.";
+        try { localStorage.setItem("s2-progression-pick", btn.dataset.pick); } catch (_) {}
+      });
+    });
+    try {
+      const saved = localStorage.getItem("s2-progression-pick");
+      if (saved) {
+        const btn = document.querySelector('#verdict button[data-pick="' + saved + '"]');
+        if (btn) btn.click();
+      }
+    } catch (_) {}
+  </script>
+</body>
+</html>
