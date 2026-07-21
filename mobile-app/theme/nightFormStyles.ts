@@ -35,8 +35,8 @@ export const nightFormStyles = {
     } satisfies TextStyle,
     errorText: {
         ...fantasyTokens.typography.bodySmall,
-        // Crimson is too dark on night surfaces; goldLight keeps errors readable.
-        color: fantasyTokens.colors.goldLight,
+        // Crimson is too dark on night surfaces; claretLight stays red and readable.
+        color: fantasyTokens.colors.claretLight,
     } satisfies TextStyle,
     dashedAddButton: {
         alignItems: 'center',

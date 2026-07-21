@@ -294,14 +294,14 @@ export const fantasyTokens = {
         valueMinWidth: fantasySpacing.xxl + fantasySpacing.xs, // 44
         valuePaddingHorizontal: fantasySpacing.sm,
         compact: {
-            buttonSize: fantasySpacing.xl - 2, // 22
-            /** Expands the 22px visual to a ~44pt press target without changing layout. */
-            hitSlop: fantasySpacing.sm + fantasySpacing.xs - 1, // 11
-            buttonRadius: fantasySpacing.sm - 2, // 6
-            gap: fantasySpacing.sm - 2, // 6
-            valueMinWidth: fantasySpacing.lg, // 20
+            buttonSize: fantasySpacing.xl + fantasySpacing.xs, // 28
+            /** Expands the 28px visual to a ~44pt press target without changing layout. */
+            hitSlop: fantasySpacing.sm, // 8
+            buttonRadius: fantasySpacing.sm - 1, // 7
+            gap: fantasySpacing.xs, // 4
+            valueMinWidth: fantasySpacing.lg - fantasySpacing.xs, // 16
             fontSize: fantasyFontSizes.caption,
-            buttonFontSize: fantasyFontSizes.utility,
+            buttonFontSize: fantasyFontSizes.caption,
         },
         night: {
             border: 'rgba(201,146,42,0.34)',
