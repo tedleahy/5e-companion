@@ -98,52 +98,77 @@ export default function EquipmentEditor({
 
     return (
         <View style={styles.root} testID="equipment-editor">
-            <Text style={fieldStyles.label}>Starting equipment</Text>
-            <Text style={fieldStyles.helper}>
-                Always-granted gear plus optional choice groups (for example, choose 1 of several weapons).
-            </Text>
+            <View style={styles.intro}>
+                <Text style={fieldStyles.label}>Starting equipment</Text>
+                <Text style={fieldStyles.helper}>
+                    Gear every member starts with, plus optional pick-N choice groups.
+                </Text>
+            </View>
 
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Always granted</Text>
+                <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>Always granted</Text>
+                    {fixedItems.length > 0 ? (
+                        <Text style={styles.countBadge}>{fixedItems.length}</Text>
+                    ) : null}
+                </View>
                 {fixedItems.length === 0 ? (
-                    <Text style={fieldStyles.helper}>No fixed equipment yet.</Text>
-                ) : null}
-                {fixedItems.map((item) => (
-                    <EquipmentRow
-                        key={item.key}
-                        item={item}
-                        locked={locked}
-                        onChange={(next) => updateFixed(item.key, next)}
-                        onRemove={() => removeFixed(item.key)}
-                    />
-                ))}
+                    <View style={styles.emptyHint}>
+                        <Text style={styles.emptyHintText}>No fixed gear yet.</Text>
+                    </View>
+                ) : (
+                    <View style={styles.list}>
+                        {fixedItems.map((item) => (
+                            <EquipmentRow
+                                key={item.key}
+                                item={item}
+                                locked={locked}
+                                onChange={(next) => updateFixed(item.key, next)}
+                                onRemove={() => removeFixed(item.key)}
+                            />
+                        ))}
+                    </View>
+                )}
                 {!locked ? (
-                    <Pressable style={styles.addButton} testID="add-fixed-equipment" onPress={addFixed}>
+                    <Pressable
+                        style={styles.addButton}
+                        testID="add-fixed-equipment"
+                        onPress={addFixed}
+                    >
                         <Text style={styles.addLabel}>+ Add equipment</Text>
                     </Pressable>
                 ) : null}
             </View>
 
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Choice groups</Text>
-                <Text style={fieldStyles.helper}>
-                    Players pick N options from each group.
-                </Text>
+                <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>Choice groups</Text>
+                    {choiceGroups.length > 0 ? (
+                        <Text style={styles.countBadge}>{choiceGroups.length}</Text>
+                    ) : null}
+                </View>
+                <Text style={styles.sectionHelper}>Players pick N options from each group.</Text>
                 {choiceGroups.map((group) => (
-                    <View key={group.choiceGroup} style={styles.groupCard} testID={`equipment-choice-group-${group.choiceGroup}`}>
+                    <View
+                        key={group.choiceGroup}
+                        style={styles.groupCard}
+                        testID={`equipment-choice-group-${group.choiceGroup}`}
+                    >
                         <View style={styles.groupHeader}>
-                            <Text style={styles.groupTitle}>Choice group {group.choiceGroup}</Text>
+                            <Text style={styles.groupTitle}>Group {group.choiceGroup}</Text>
                             {!locked ? (
                                 <CardRemoveButton
                                     accessibilityLabel={`Remove choice group ${group.choiceGroup}`}
                                     onPress={() => removeGroup(group.choiceGroup)}
                                     testID={`remove-equipment-choice-group-${group.choiceGroup}`}
+                                    style={styles.groupRemove}
                                 />
                             ) : null}
                         </View>
                         <View style={styles.chooseRow}>
                             <Text style={styles.chooseLabel}>Choose</Text>
                             <NumericStepper
+                                size="compact"
                                 value={group.choiceCount}
                                 canDecrease={!locked && group.choiceCount > 1}
                                 canIncrease={!locked && group.choiceCount < group.items.length}
@@ -161,20 +186,28 @@ export default function EquipmentEditor({
                                     })
                                 }
                             />
+                            <Text style={styles.chooseOf}>
+                                of {group.items.length} option{group.items.length === 1 ? '' : 's'}
+                            </Text>
                         </View>
-                        {group.items.map((item) => (
-                            <EquipmentRow
-                                key={item.key}
-                                item={item}
-                                locked={locked}
-                                nested
-                                onChange={(next) => updateOption(group.choiceGroup, item.key, next)}
-                                onRemove={() => removeOption(group.choiceGroup, item.key)}
-                            />
-                        ))}
+                        <View style={styles.list}>
+                            {group.items.map((item) => (
+                                <EquipmentRow
+                                    key={item.key}
+                                    item={item}
+                                    locked={locked}
+                                    nested
+                                    onChange={(next) => updateOption(group.choiceGroup, item.key, next)}
+                                    onRemove={() => removeOption(group.choiceGroup, item.key)}
+                                />
+                            ))}
+                        </View>
                         {!locked ? (
-                            <Pressable onPress={() => addOption(group.choiceGroup)}>
-                                <Text style={styles.link}>+ Add option</Text>
+                            <Pressable
+                                style={styles.ghostAdd}
+                                onPress={() => addOption(group.choiceGroup)}
+                            >
+                                <Text style={styles.ghostAddLabel}>+ Add option</Text>
                             </Pressable>
                         ) : null}
                     </View>
@@ -195,10 +228,50 @@ export default function EquipmentEditor({
 
 const styles = StyleSheet.create({
     root: { gap: fantasyTokens.spacing.lg },
+    intro: { gap: fantasyTokens.spacing.xs },
     section: { gap: fantasyTokens.spacing.sm },
+    sectionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: fantasyTokens.spacing.sm,
+    },
     sectionTitle: {
         ...fantasyTokens.typography.sectionTitle,
         color: fantasyTokens.colors.parchment,
+        fontSize: 18,
+    },
+    countBadge: {
+        ...fantasyTokens.typography.buttonLabel,
+        fontSize: 10,
+        letterSpacing: 0.5,
+        textTransform: 'uppercase',
+        paddingHorizontal: fantasyTokens.spacing.sm,
+        paddingVertical: 3,
+        borderRadius: 999,
+        overflow: 'hidden',
+        backgroundColor: fantasyTokens.colors.crimsonSoft,
+        color: fantasyTokens.colors.goldLight,
+    },
+    sectionHelper: {
+        ...fantasyTokens.typography.bodySmall,
+        color: fantasyTokens.colors.gold,
+        marginTop: -fantasyTokens.spacing.xs,
+    },
+    list: { gap: fantasyTokens.spacing.sm },
+    emptyHint: {
+        paddingVertical: fantasyTokens.spacing.md,
+        paddingHorizontal: fantasyTokens.spacing.md,
+        borderRadius: fantasyTokens.radii.sm,
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        borderColor: fantasyTokens.sheet.form.border,
+    },
+    emptyHintText: {
+        ...fantasyTokens.typography.bodySmall,
+        color: fantasyTokens.colors.gold,
+        fontStyle: 'italic',
+        opacity: 0.85,
+        textAlign: 'center',
     },
     groupCard: {
         ...nightFormStyles.card,
@@ -213,29 +286,49 @@ const styles = StyleSheet.create({
     groupTitle: {
         ...fantasyTokens.typography.buttonLabel,
         color: fantasyTokens.colors.gold,
+        letterSpacing: 1,
+        textTransform: 'uppercase',
+        fontSize: 11,
+    },
+    groupRemove: {
+        width: 36,
+        height: 36,
     },
     chooseRow: {
         flexDirection: 'row',
         alignItems: 'center',
+        flexWrap: 'wrap',
         gap: fantasyTokens.spacing.sm,
+        paddingVertical: fantasyTokens.spacing.xs,
+        paddingHorizontal: fantasyTokens.spacing.sm,
+        borderRadius: fantasyTokens.radii.sm,
+        backgroundColor: fantasyTokens.colors.nightOverlayMuted,
     },
     chooseLabel: {
         ...fantasyTokens.typography.buttonLabel,
         color: fantasyTokens.colors.parchmentDeep,
     },
-    link: {
-        ...fantasyTokens.typography.buttonLabel,
+    chooseOf: {
+        ...fantasyTokens.typography.bodySmall,
         color: fantasyTokens.colors.gold,
     },
-    addButton: {
-        alignItems: 'center',
-        padding: fantasyTokens.spacing.md,
+    ghostAdd: {
+        alignSelf: 'flex-start',
+        paddingHorizontal: fantasyTokens.spacing.md,
+        paddingVertical: fantasyTokens.spacing.sm,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.crimson,
+        borderStyle: 'dashed',
+        borderColor: fantasyTokens.sheet.form.border,
         borderRadius: fantasyTokens.radii.sm,
     },
-    addLabel: {
+    ghostAddLabel: {
         ...fantasyTokens.typography.buttonLabel,
         color: fantasyTokens.colors.goldLight,
+    },
+    addButton: {
+        ...nightFormStyles.dashedAddButton,
+    },
+    addLabel: {
+        ...nightFormStyles.dashedAddButtonText,
     },
 });
