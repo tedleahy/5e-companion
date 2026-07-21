@@ -89,4 +89,20 @@ describe('spellsResolver', () => {
         expect(result).toHaveLength(1);
         expect((result as unknown[])[0]).toEqual({ id: '1', name: 'Fireball' });
     });
+
+    test('resolves custom class spell lists through ClassSpell membership', async () => {
+        const ctx = { userId: 'user-abc' };
+        const customClassId = 'custom-class-id';
+
+        await spellsResolver({}, { filter: { classes: [customClassId], levels: [1] } }, ctx);
+
+        const callArgs = findManyMock.mock.calls[0]![0] as Record<string, unknown>;
+        expect(callArgs.where).toEqual({
+            level: { in: [1] },
+            OR: [
+                { classIndexes: { hasSome: [customClassId] } },
+                { classSpellLists: { some: { classId: { in: [customClassId] } } } },
+            ],
+        });
+    });
 });
