@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Text } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import BottomSheetShell from '@/components/sheets/BottomSheetShell';
+import { OVERLAY_LAYER } from '@/components/sheets/overlayLayers';
 import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
 import useBottomSheetMotion from '@/hooks/useBottomSheetMotion';
 import useDismissKeyboardAction from '@/hooks/useDismissKeyboardAction';
@@ -79,7 +80,7 @@ export default function LevelUpWizardSheet({
             sheetDismissGesture={sheetDismissGesture}
             closeAccessibilityLabel="Dismiss level up wizard"
             testID="level-up-wizard-sheet"
-            overlayZIndex={30}
+            overlayZIndex={OVERLAY_LAYER.sheet}
             sheetStyle={styles.sheet}
             onRequestClose={() => dismissKeyboardAndRun(requestSheetClose)}
         >

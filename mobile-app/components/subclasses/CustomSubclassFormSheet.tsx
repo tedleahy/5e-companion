@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { HelperText, Text } from 'react-native-paper';
 import BottomSheetShell from '@/components/sheets/BottomSheetShell';
+import { OVERLAY_LAYER } from '@/components/sheets/overlayLayers';
 import useBottomSheetMotion from '@/hooks/useBottomSheetMotion';
 import useConfirm from '@/hooks/useConfirm';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
@@ -151,7 +152,7 @@ export default function CustomSubclassFormSheet({
                 onRequestClose={requestSheetClose}
                 closeAccessibilityLabel="Close custom subclass form"
                 testID="custom-subclass-form-sheet"
-                overlayZIndex={30}
+                overlayZIndex={OVERLAY_LAYER.sheet}
             >
                 <KeyboardAwareScrollView
                     {...keyboardAwareScrollProps}

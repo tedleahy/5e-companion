@@ -7,6 +7,7 @@ import {
     getMainContentFrameStyle,
 } from '@/components/layout/mainContentFrameStyle';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { OVERLAY_LAYER } from '@/components/sheets/overlayLayers';
 
 type BottomSheetShellProps = {
     isRendered: boolean;
@@ -34,7 +35,7 @@ export default function BottomSheetShell({
     children,
     onRequestClose,
     testID,
-    overlayZIndex = 20,
+    overlayZIndex = OVERLAY_LAYER.base,
     sheetStyle,
     backdropStyle,
 }: BottomSheetShellProps) {

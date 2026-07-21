@@ -10,6 +10,7 @@ import { Text } from 'react-native-paper';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { FantasyFormTextInput } from '@/components/FantasyFormTextInput';
 import BottomSheetShell from '@/components/sheets/BottomSheetShell';
+import { OVERLAY_LAYER } from '@/components/sheets/overlayLayers';
 import useConfirm from '@/hooks/useConfirm';
 import useBottomSheetMotion from '@/hooks/useBottomSheetMotion';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -160,7 +161,7 @@ export default function ProficiencyPickerSheet({
                 sheetDismissGesture={sheetDismissGesture}
                 closeAccessibilityLabel="Dismiss proficiency picker"
                 testID="proficiency-picker-sheet"
-                overlayZIndex={40}
+                overlayZIndex={OVERLAY_LAYER.nestedSheet}
                 sheetStyle={styles.sheet}
                 onRequestClose={requestSheetClose}
             >

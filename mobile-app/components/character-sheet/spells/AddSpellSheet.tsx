@@ -3,6 +3,7 @@ import { Snackbar } from 'react-native-paper';
 import { GestureDetector } from 'react-native-gesture-handler';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import BottomSheetShell from '@/components/sheets/BottomSheetShell';
+import { OVERLAY_LAYER, type OverlayLayer } from '@/components/sheets/overlayLayers';
 import AddSpellBottomBar from './add-sheet/AddSpellBottomBar';
 import AddSpellFilterPanel from './add-sheet/AddSpellFilterPanel';
 import AddSpellSectionList from './add-sheet/AddSpellSectionList';
@@ -26,6 +27,8 @@ type AddSpellSheetProps = {
     title?: string;
     subtitle?: string;
     showFilterButton?: boolean;
+    /** Portal layer; defaults above parent editor/wizard sheets. */
+    overlayZIndex?: OverlayLayer;
     onSpellAdded: (spell: AddSpellListItem) => Promise<void>;
     onSpellRemoved: (spell: AddSpellListItem) => Promise<void>;
 };
@@ -49,6 +52,7 @@ export default function AddSpellSheet({
     title,
     subtitle,
     showFilterButton = true,
+    overlayZIndex = OVERLAY_LAYER.nestedSheet,
     onSpellAdded,
     onSpellRemoved,
 }: AddSpellSheetProps) {
@@ -129,6 +133,7 @@ export default function AddSpellSheet({
             onRequestClose={requestSheetClose}
             closeAccessibilityLabel="Close add spell sheet"
             testID="add-spell-sheet"
+            overlayZIndex={overlayZIndex}
             sheetStyle={styles.sheet}
         >
             <AddSpellSheetHeader

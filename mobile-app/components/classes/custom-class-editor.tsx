@@ -4,6 +4,7 @@ import { BackHandler, StyleSheet, useWindowDimensions } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import BottomSheetShell from '@/components/sheets/BottomSheetShell';
+import { OVERLAY_LAYER } from '@/components/sheets/overlayLayers';
 import { CREATE_CUSTOM_CLASS, GET_AVAILABLE_CLASSES, GET_CUSTOM_CLASSES, UPDATE_CUSTOM_CLASS } from '@/graphql/class.operations';
 import useBottomSheetMotion from '@/hooks/useBottomSheetMotion';
 import useDismissKeyboardAction from '@/hooks/useDismissKeyboardAction';
@@ -170,7 +171,7 @@ export default function CustomClassEditor({ visible, initial, onClose, onSaved }
                 sheetDismissGesture={sheetDismissGesture}
                 closeAccessibilityLabel="Dismiss custom class editor"
                 testID="custom-class-editor-sheet"
-                overlayZIndex={30}
+                overlayZIndex={OVERLAY_LAYER.sheet}
                 sheetStyle={styles.tallSheet}
                 onRequestClose={() => dismissKeyboardAndRun(requestSheetClose)}
             >
