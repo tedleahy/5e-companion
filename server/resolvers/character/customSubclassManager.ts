@@ -443,7 +443,7 @@ export async function updateCustomSubclass(
         throw new Error(`Unknown class: ${classId}`);
     }
 
-    const classChanged = existingSubclass.classRef.srdIndex !== classRef.srdIndex;
+    const classChanged = existingSubclass.classId !== classRef.id;
 
     if (classChanged) {
         if (existingSubclass._count.characterClasses > 0) {
