@@ -133,7 +133,26 @@ describe('FeaturesStage spell list', () => {
     });
 });
 
-describe('FeaturesStage remove controls', () => {
+describe('FeaturesStage feature cards', () => {
+    test('shows an empty hint and adds a feature card', () => {
+        const { onChange } = renderFeaturesStage({ features: [], spellcastingMode: 'NONE' });
+
+        expect(screen.getByText(/No features yet/i)).toBeTruthy();
+        expect(screen.queryByTestId('custom-class-feature-0')).toBeNull();
+
+        fireEvent.press(screen.getByTestId('add-custom-class-feature'));
+
+        expect(onChange).toHaveBeenCalledWith({
+            features: [
+                expect.objectContaining({
+                    name: '',
+                    description: '',
+                    level: 1,
+                }),
+            ],
+        });
+    });
+
     test('uses a top-right trash control to remove a feature card', () => {
         const feature = {
             key: 'feature-1',
@@ -144,10 +163,28 @@ describe('FeaturesStage remove controls', () => {
         const { onChange } = renderFeaturesStage({ features: [feature] });
 
         expect(screen.getByTestId('remove-custom-class-feature-0')).toBeTruthy();
+        expect(screen.getByTestId('feature-level-0')).toBeTruthy();
+        expect(screen.getByText('Fighting Style')).toBeTruthy();
         expect(screen.queryByText('Remove')).toBeNull();
 
         fireEvent.press(screen.getByLabelText('Remove feature 1'));
 
         expect(onChange).toHaveBeenCalledWith({ features: [] });
+    });
+
+    test('raises feature level with the stepper', () => {
+        const feature = {
+            key: 'feature-1',
+            name: 'Extra Attack',
+            description: 'Attack twice.',
+            level: 5,
+        };
+        const { onChange } = renderFeaturesStage({ features: [feature] });
+
+        fireEvent.press(screen.getByLabelText('Increase level for Extra Attack'));
+
+        expect(onChange).toHaveBeenCalledWith({
+            features: [{ ...feature, level: 6 }],
+        });
     });
 });

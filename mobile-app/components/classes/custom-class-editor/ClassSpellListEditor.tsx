@@ -4,6 +4,7 @@ import { Text } from 'react-native-paper';
 import AddSpellSheet from '@/components/character-sheet/spells/AddSpellSheet';
 import { spellLevelLabel } from '@/lib/spellPresentation';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 import { fieldStyles } from './fields';
 import type { DraftSpell } from './types';
 
@@ -31,10 +32,66 @@ export default function ClassSpellListEditor({
 
     return (
         <View style={styles.spellSection} testID="custom-class-spell-list">
-            <Text style={fieldStyles.label}>Class spell list</Text>
+            <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Class spell list</Text>
+                {spells.length > 0 ? (
+                    <Text style={styles.countBadge}>{spells.length}</Text>
+                ) : null}
+            </View>
             <Text style={fieldStyles.helper}>
                 Spells on this list are available to characters of this class.
             </Text>
+
+            {spells.length === 0 ? (
+                <View style={styles.emptyHint}>
+                    <Text style={styles.emptyHintText}>
+                        {locked ? 'No spells on this list.' : 'No spells selected yet.'}
+                    </Text>
+                </View>
+            ) : (
+                <View style={styles.selectionCard}>
+                    <Text style={styles.counter}>
+                        {`${spells.length} spell${spells.length === 1 ? '' : 's'} selected`}
+                    </Text>
+                    <View style={styles.selectionRow}>
+                        {spells.map((spell) => (
+                            <View
+                                key={spell.id}
+                                style={styles.selectionPill}
+                                testID={`custom-class-spell-${spell.id}`}
+                            >
+                                <View style={styles.pillLevel}>
+                                    <Text style={styles.pillLevelText}>
+                                        {spell.level === 0 ? 'C' : spell.level}
+                                    </Text>
+                                </View>
+                                <Text style={styles.selectionPillText} numberOfLines={1}>
+                                    {spell.name}
+                                </Text>
+                                <Text style={styles.pillLevelHint}>
+                                    {spellLevelLabel(spell.level)}
+                                </Text>
+                                {!locked ? (
+                                    <Pressable
+                                        onPress={() => {
+                                            const next = spellsRef.current.filter(
+                                                (item) => item.id !== spell.id,
+                                            );
+                                            spellsRef.current = next;
+                                            onChangeSpells(next);
+                                        }}
+                                        accessibilityRole="button"
+                                        accessibilityLabel={`Remove ${spell.name}`}
+                                        hitSlop={8}
+                                    >
+                                        <Text style={styles.selectionPillRemove}>×</Text>
+                                    </Pressable>
+                                ) : null}
+                            </View>
+                        ))}
+                    </View>
+                </View>
+            )}
 
             {!locked ? (
                 <Pressable
@@ -48,37 +105,6 @@ export default function ClassSpellListEditor({
                         {spells.length > 0 ? 'Edit class spells' : '+ Add class spells'}
                     </Text>
                 </Pressable>
-            ) : null}
-
-            <Text style={styles.counter}>
-                {spells.length === 0
-                    ? 'No spells selected'
-                    : `${spells.length} spell${spells.length === 1 ? '' : 's'} selected`}
-            </Text>
-
-            {spells.length > 0 ? (
-                <View style={styles.selectionRow}>
-                    {spells.map((spell) => (
-                        <View key={spell.id} style={styles.selectionPill} testID={`custom-class-spell-${spell.id}`}>
-                            <Text style={styles.selectionPillText}>
-                                {`${spell.name} (${spellLevelLabel(spell.level)})`}
-                            </Text>
-                            {!locked ? (
-                                <Pressable
-                                    onPress={() => {
-                                        const next = spellsRef.current.filter((item) => item.id !== spell.id);
-                                        spellsRef.current = next;
-                                        onChangeSpells(next);
-                                    }}
-                                    accessibilityRole="button"
-                                    accessibilityLabel={`Remove ${spell.name}`}
-                                >
-                                    <Text style={styles.selectionPillRemove}>×</Text>
-                                </Pressable>
-                            ) : null}
-                        </View>
-                    ))}
-                </View>
             ) : null}
 
             {!locked ? (
@@ -113,16 +139,53 @@ const styles = StyleSheet.create({
     spellSection: {
         gap: fantasyTokens.spacing.sm,
     },
-    addButton: {
+    sectionHeader: {
+        flexDirection: 'row',
         alignItems: 'center',
-        padding: fantasyTokens.spacing.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.crimson,
+        gap: fantasyTokens.spacing.sm,
+    },
+    sectionTitle: {
+        ...fantasyTokens.typography.sectionTitle,
+        color: fantasyTokens.colors.parchment,
+        fontSize: fantasyTokens.fontSizes.bodyLarge,
+    },
+    countBadge: {
+        ...fantasyTokens.typography.buttonLabel,
+        fontSize: fantasyTokens.fontSizes.utility - 2,
+        letterSpacing: 0.5,
+        textTransform: 'uppercase',
+        paddingHorizontal: fantasyTokens.spacing.sm,
+        paddingVertical: 3,
+        borderRadius: 999,
+        overflow: 'hidden',
+        backgroundColor: fantasyTokens.colors.crimsonSoft,
+        color: fantasyTokens.colors.goldLight,
+    },
+    emptyHint: {
+        paddingVertical: fantasyTokens.spacing.md,
+        paddingHorizontal: fantasyTokens.spacing.md,
         borderRadius: fantasyTokens.radii.sm,
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        borderColor: fantasyTokens.sheet.form.border,
+    },
+    emptyHintText: {
+        ...fantasyTokens.typography.bodySmall,
+        color: fantasyTokens.colors.gold,
+        fontStyle: 'italic',
+        opacity: 0.85,
+        textAlign: 'center',
+    },
+    selectionCard: {
+        ...nightFormStyles.card,
+        gap: fantasyTokens.spacing.sm,
+        padding: fantasyTokens.spacing.md,
+    },
+    addButton: {
+        ...nightFormStyles.dashedAddButton,
     },
     addLabel: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.goldLight,
+        ...nightFormStyles.dashedAddButtonText,
     },
     counter: {
         ...fantasyTokens.typography.bodySmall,
@@ -137,16 +200,40 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: fantasyTokens.spacing.xs,
+        maxWidth: '100%',
         borderRadius: fantasyTokens.radii.sm,
         borderWidth: 1,
         borderColor: fantasyTokens.sheet.form.border,
-        backgroundColor: fantasyTokens.sheet.form.card,
+        backgroundColor: fantasyTokens.colors.nightOverlayMuted,
         paddingHorizontal: fantasyTokens.spacing.sm,
-        paddingVertical: fantasyTokens.spacing.xs,
+        paddingVertical: fantasyTokens.spacing.xs + 2,
+    },
+    pillLevel: {
+        minWidth: fantasyTokens.spacing.md + fantasyTokens.spacing.xs,
+        height: fantasyTokens.spacing.md + fantasyTokens.spacing.xs,
+        borderRadius: fantasyTokens.radii.sm - 4,
+        backgroundColor: fantasyTokens.colors.crimsonSoft,
+        borderWidth: 1,
+        borderColor: fantasyTokens.colors.goldDark,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 3,
+    },
+    pillLevelText: {
+        ...fantasyTokens.typography.buttonLabel,
+        fontSize: fantasyTokens.fontSizes.utility - 2,
+        color: fantasyTokens.colors.goldLight,
+        lineHeight: fantasyTokens.fontSizes.utility,
     },
     selectionPillText: {
         ...fantasyTokens.typography.body,
         color: fantasyTokens.colors.parchmentDeep,
+        flexShrink: 1,
+    },
+    pillLevelHint: {
+        ...fantasyTokens.typography.bodySmall,
+        color: fantasyTokens.colors.parchmentMuted,
+        fontSize: fantasyTokens.fontSizes.utility - 1,
     },
     selectionPillRemove: {
         ...fantasyTokens.typography.buttonLabel,
