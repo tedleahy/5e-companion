@@ -46,6 +46,7 @@ bun test --test-name-pattern "longRest"   # Filter by test name
 ### Gotchas
 
 - **Don't install partial `mock.module('../prisma/prisma')` fakes in individual test files.** Bun test file ordering can differ between local and GitHub Actions, so a partial Prisma fake from one suite can leak into another. Reuse the shared resolver test Prisma mock and extend it when a new delegate is needed.
+- **Don't `mock.module('@prisma/client', …)`.** Seed and pure helpers import runtime enums (`ProficiencyType`, etc.) from that package. Replace only the local Prisma singleton (`../prisma/prisma`); a partial client mock makes the full suite order-dependent.
 - **No DB connection** required — tests mock Prisma. Do not introduce tests that require live Postgres unless absolutely necessary.
 - `DATABASE_URL` is still required by `server/prisma.config.ts` at parse time. In CI the unit-tests workflow sets a dummy URL — see `.github/workflows/unit-tests.yml`.
 

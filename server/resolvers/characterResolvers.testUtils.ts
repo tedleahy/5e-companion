@@ -241,20 +241,9 @@ function createMockPrismaClient() {
     };
 }
 
-mock.module('@prisma/adapter-pg', () => ({
-    PrismaPg: class {
-        constructor(_args: unknown) {}
-    },
-}));
-
-mock.module('@prisma/client', () => ({
-    PrismaClient: class {
-        constructor() {
-            return createMockPrismaClient();
-        }
-    },
-}));
-
+// Mock only the local Prisma singleton. Do not replace `@prisma/client` —
+// seed/unit modules import runtime enums like `ProficiencyType` from that
+// package, and a partial global mock makes the suite order-dependent.
 mock.module('../prisma/prisma', () => ({
     default: createMockPrismaClient(),
 }));
