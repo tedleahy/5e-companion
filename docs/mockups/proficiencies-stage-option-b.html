@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Proficiencies Stage — B · By category</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --studio-bg:#161310;
+  --studio-bg-alt:#1d1914;
+  --studio-ink:#eee7d8;
+  --studio-ink-soft:#a89c86;
+  --studio-line:#332c22;
+  --studio-accent:#c4894f;
+  --studio-card:#1f1a15;
+  --studio-mono:'IBM Plex Mono','SF Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--studio-bg);
+  color:var(--studio-ink);
+  font-family:'Spectral',Georgia,'Iowan Old Style',serif;
+  min-height:100vh;
+}
+.wrap{max-width:920px;margin:0 auto;padding:2.25rem 1.25rem 5rem;}
+
+.masthead{
+  display:flex;flex-direction:column;gap:.4rem;
+  margin-bottom:1.75rem;padding-bottom:1.25rem;
+  border-bottom:1px solid var(--studio-line);
+}
+.masthead .eyebrow{
+  font-family:var(--studio-mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--studio-accent);
+}
+.masthead h1{margin:0;font-size:1.85rem;font-weight:700;text-wrap:balance;}
+.masthead p{margin:.15rem 0 0;max-width:70ch;color:var(--studio-ink-soft);font-size:1rem;line-height:1.55;}
+
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:2.25rem;align-items:start;}
+@media (max-width:860px){.layout{grid-template-columns:1fr;}}
+.stage{display:flex;justify-content:center;padding:.5rem 0 2rem;}
+
+.notes{display:flex;flex-direction:column;gap:1rem;position:sticky;top:1.25rem;}
+.notes h2{
+  font-family:var(--studio-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--studio-accent);margin:0;
+}
+.note{background:var(--studio-card);border:1px solid var(--studio-line);border-radius:10px;padding:1rem 1.1rem;}
+.note.win{border-left:3px solid #2d6a4f;}
+.note .n-title{font-weight:600;font-size:.92rem;margin-bottom:.3rem;}
+.note .n-body{font-size:.85rem;line-height:1.5;color:var(--studio-ink-soft);}
+.note .n-body code{
+  font-family:var(--studio-mono);font-size:.78em;background:var(--studio-bg-alt);
+  padding:.05em .35em;border-radius:4px;
+}
+
+/* App chrome — fantasyTheme tokens */
+.app-tokens{
+  --night:#1f1711;
+  --parchment:#f6e9cf;
+  --parchment-deep:#f0e0c0;
+  --gold:#c4a470;
+  --gold-light:#e8b84b;
+  --gold-dark:#9e845b;
+  --crimson:#7b1e1e;
+  --crimson-soft:rgba(123,30,30,.2);
+  --form-card:rgba(201,146,42,.07);
+  --form-border:rgba(201,146,42,.22);
+  font-family:'Spectral',Georgia,serif;
+}
+.device{
+  background:var(--night);border-radius:30px;
+  box-shadow:0 30px 60px -20px rgba(0,0,0,.55), 0 0 0 1px rgba(0,0,0,.4);
+  overflow:hidden;position:relative;display:flex;flex-direction:column;
+  width:390px;height:800px;
+}
+
+.ec-header{
+  min-height:66px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:12px 20px;border-bottom:1px solid var(--form-border);position:relative;
+}
+.ec-eyebrow{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);}
+.ec-title{font-size:20px;font-weight:600;color:var(--parchment);}
+.ec-step{
+  position:absolute;right:20px;top:50%;transform:translateY(-50%);
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);
+}
+.ec-progress{display:flex;gap:4px;padding:8px;}
+.ec-seg{flex:1;height:3px;border-radius:2px;background:var(--form-border);}
+.ec-seg.active{background:var(--crimson);}
+.ec-body{flex:1;overflow-y:auto;padding:16px 18px 8px;}
+.ec-body::-webkit-scrollbar{width:0;}
+.ec-footer{
+  min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:14px 16px;border-top:1px solid var(--form-border);
+}
+.btn-primary{
+  min-width:124px;text-align:center;padding:14px 16px;background:var(--crimson);
+  border-radius:12px;color:var(--parchment);border:none;
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;cursor:pointer;
+  font-family:'Spectral',serif;
+}
+.btn-secondary{
+  min-width:96px;text-align:center;padding:14px 16px;background:transparent;
+  border:1px solid var(--form-border);border-radius:12px;color:var(--parchment-deep);
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;cursor:pointer;
+  font-family:'Spectral',serif;
+}
+
+.f-label{
+  font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600;
+}
+.f-helper{font-size:13px;line-height:1.5;color:var(--gold);opacity:.85;font-style:italic;}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border:1px solid var(--form-border);background:var(--form-card);
+  border-radius:12px;color:var(--parchment-deep);font-size:12px;letter-spacing:.08em;
+  text-transform:uppercase;font-family:'Spectral',serif;cursor:pointer;user-select:none;
+}
+.chip.selected{background:var(--crimson);border-color:var(--gold);color:var(--parchment);font-weight:700;}
+.chip.ghost{background:transparent;border-style:dashed;color:var(--gold-light);}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.stepper{display:inline-flex;align-items:center;gap:8px;}
+.stepper button{
+  width:34px;height:34px;border-radius:8px;border:1px solid var(--form-border);
+  background:rgba(0,0,0,.25);color:var(--parchment);font-size:18px;cursor:pointer;line-height:1;
+}
+.stepper .val{min-width:26px;text-align:center;color:var(--parchment);font-size:18px;font-weight:600;}
+.stack{display:flex;flex-direction:column;}
+.stack.gap-sm{gap:8px;}
+.stack.gap-md{gap:16px;}
+
+.seg{
+  display:flex;border:1px solid var(--form-border);border-radius:12px;overflow:hidden;
+}
+.seg button{
+  flex:1;border:none;background:transparent;color:var(--gold);opacity:.8;
+  font-family:'Spectral',serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  padding:10px 4px;cursor:pointer;font-weight:600;
+}
+.seg button + button{border-left:1px solid var(--form-border);}
+.seg button.active{background:var(--crimson);color:var(--parchment);opacity:1;}
+
+.acc-row{border:1px solid var(--form-border);border-radius:14px;background:var(--form-card);overflow:hidden;}
+.acc-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  padding:18px 18px 16px;cursor:pointer;user-select:none;
+}
+.acc-head .ah-left{display:flex;align-items:flex-start;gap:12px;min-width:0;flex:1;}
+.acc-head .ah-icon{font-size:18px;width:22px;text-align:center;flex:0 0 auto;line-height:1.45;padding-top:1px;}
+.acc-head .ah-name{font-size:15px;color:var(--parchment);font-weight:600;}
+.acc-head .ah-sum{font-size:12px;color:var(--gold);opacity:.85;line-height:1.35;margin-top:3px;display:block;}
+.acc-head .ah-chev{color:var(--gold);font-size:12px;flex:0 0 auto;padding-top:4px;}
+.acc-badges{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;align-self:flex-start;padding-top:2px;}
+.acc-badge{
+  font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;
+  padding:3px 8px;border-radius:999px;background:var(--crimson-soft);color:var(--gold-light);
+  white-space:nowrap;
+}
+.acc-badge.muted{background:rgba(0,0,0,.25);color:var(--gold);opacity:.9;}
+.acc-body{
+  padding:18px;border-top:1px solid var(--form-border);
+  display:none;flex-direction:column;gap:16px;
+}
+.acc-row.open .acc-body{display:flex;}
+
+.block-label{
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);
+  font-weight:700;opacity:.9;
+}
+.grant-block,.choice-block{
+  display:flex;flex-direction:column;gap:10px;
+}
+.choice-block{
+  padding-top:16px;border-top:1px dashed var(--form-border);
+}
+.choice-block[hidden]{display:none;}
+
+.mini-toggle{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:12px 14px;border:1px solid var(--form-border);border-radius:10px;background:rgba(0,0,0,.15);
+  cursor:pointer;user-select:none;
+}
+.mini-toggle .mt-label{font-size:13px;color:var(--parchment-deep);line-height:1.35;}
+.mini-toggle .mt-sub{display:block;font-size:11px;color:var(--gold);opacity:.8;font-style:italic;margin-top:2px;}
+.switch{width:42px;height:24px;border-radius:999px;background:var(--crimson);position:relative;flex:0 0 auto;}
+.switch::after{content:"";position:absolute;top:2px;left:20px;width:20px;height:20px;border-radius:50%;background:var(--parchment);transition:left .15s ease;}
+.switch.off{background:rgba(0,0,0,.35);}
+.switch.off::after{left:2px;background:var(--gold-dark);}
+
+.choice-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+
+.callout{
+  border-radius:14px;border:1px solid var(--form-border);background:rgba(0,0,0,.18);
+  padding:14px 16px;font-size:13px;line-height:1.55;color:var(--parchment-deep);
+}
+.callout b{color:var(--gold-light);}
+
+.tab-panel[hidden]{display:none;}
+
+.prereq-card{
+  border-radius:14px;border:1px solid var(--form-border);background:var(--form-card);
+  padding:18px 16px;display:flex;flex-direction:column;gap:12px;
+}
+.prereq-line{display:flex;align-items:center;flex-wrap:wrap;gap:8px;}
+.prereq-op{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:700;opacity:.8;}
+.abchip{
+  padding:6px 10px;border-radius:10px;border:1px solid var(--form-border);background:rgba(0,0,0,.2);
+  color:var(--parchment);font-size:12px;font-weight:600;cursor:pointer;
+}
+.abchip.selected{border-color:var(--gold);background:var(--crimson-soft);}
+.abchip b{color:var(--gold-light);}
+.link{color:var(--gold);font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;cursor:pointer;align-self:flex-start;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <span class="eyebrow">Custom Class Editor · Stage 4 of 6 · Option B</span>
+    <h1>Proficiencies — By category</h1>
+    <p>
+      Each category has an <em>Always granted</em> list and an optional separate
+      <em>Player also chooses</em> pool — so fixed + choice can coexist (Artificer tools).
+      Toggle the choice block on or off without wiping the grants.
+    </p>
+  </header>
+
+  <div class="layout">
+    <div class="stage">
+      <div class="device app-tokens">
+        <div class="ec-header">
+          <span class="ec-eyebrow">The Warden</span>
+          <span class="ec-title">Proficiencies</span>
+          <span class="ec-step">4/6</span>
+        </div>
+        <div class="ec-progress">
+          <span class="ec-seg active"></span><span class="ec-seg active"></span>
+          <span class="ec-seg active"></span><span class="ec-seg active"></span>
+          <span class="ec-seg"></span><span class="ec-seg"></span>
+        </div>
+        <div class="ec-body">
+          <div class="stack gap-md">
+            <div class="seg" id="grantTabs" role="tablist">
+              <button type="button" class="active" data-tab="starting" role="tab" aria-selected="true">Starting</button>
+              <button type="button" data-tab="multiclass" role="tab" aria-selected="false">Multiclass</button>
+            </div>
+
+            <!-- ========== STARTING ========== -->
+            <div class="tab-panel stack gap-md" data-panel="starting" role="tabpanel">
+              <span class="f-helper" style="margin-top:-4px;">What a brand-new Warden gets at level 1. Grants and pick-N pools live side by side per type.</span>
+
+              <!-- Armor: granted only -->
+              <div class="acc-row" data-acc data-mode="granted">
+                <div class="acc-head">
+                  <span class="ah-left"><span class="ah-icon">🛡</span>
+                    <span><span class="ah-name">Armor</span><br/><span class="ah-sum">Light, Medium, Shields granted</span></span>
+                  </span>
+                  <span class="ah-chev">▸</span>
+                </div>
+                <div class="acc-body">
+                  <div class="grant-block">
+                    <span class="block-label">Always granted</span>
+                    <div class="chips" data-chips>
+                      <span class="chip selected">Light</span><span class="chip selected">Medium</span>
+                      <span class="chip">Heavy</span><span class="chip selected">Shields</span>
+                    </div>
+                  </div>
+                  <div class="mini-toggle" data-choice-toggle>
+                    <span class="mt-label">Also let players choose<span class="mt-sub">Adds a separate pick-N pool</span></span>
+                    <span class="switch off"></span>
+                  </div>
+                  <div class="choice-block" data-choice-block hidden>
+                    <span class="block-label">Player chooses</span>
+                    <div class="choice-controls">
+                      <span class="f-label" style="letter-spacing:.1em;">Choose</span>
+                      <span class="stepper"><button type="button">−</button><span class="val">1</span><button type="button">+</button></span>
+                      <span class="f-helper">from the options below</span>
+                    </div>
+                    <div class="chips" data-chips>
+                      <span class="chip">Heavy</span>
+                      <span class="chip ghost">+ add option</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Weapons: granted only -->
+              <div class="acc-row" data-acc data-mode="granted">
+                <div class="acc-head">
+                  <span class="ah-left"><span class="ah-icon">⚔</span>
+                    <span><span class="ah-name">Weapons</span><br/><span class="ah-sum">Simple granted</span></span>
+                  </span>
+                  <span class="ah-chev">▸</span>
+                </div>
+                <div class="acc-body">
+                  <div class="grant-block">
+                    <span class="block-label">Always granted</span>
+                    <div class="chips" data-chips>
+                      <span class="chip selected">Simple</span><span class="chip">Martial</span>
+                      <span class="chip ghost">+ specific</span>
+                    </div>
+                  </div>
+                  <div class="mini-toggle" data-choice-toggle>
+                    <span class="mt-label">Also let players choose<span class="mt-sub">Adds a separate pick-N pool</span></span>
+                    <span class="switch off"></span>
+                  </div>
+                  <div class="choice-block" data-choice-block hidden>
+                    <span class="block-label">Player chooses</span>
+                    <div class="choice-controls">
+                      <span class="f-label" style="letter-spacing:.1em;">Choose</span>
+                      <span class="stepper"><button type="button">−</button><span class="val">1</span><button type="button">+</button></span>
+                      <span class="f-helper">from the options below</span>
+                    </div>
+                    <div class="chips" data-chips>
+                      <span class="chip">Martial</span>
+                      <span class="chip ghost">+ add option</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Skills: choice only -->
+              <div class="acc-row open" data-acc data-mode="choice">
+                <div class="acc-head">
+                  <span class="ah-left"><span class="ah-icon">◎</span>
+                    <span><span class="ah-name">Skills</span><br/><span class="ah-sum">Choose 2 of 5</span></span>
+                  </span>
+                  <span class="acc-badges"><span class="acc-badge">Choice</span></span>
+                </div>
+                <div class="acc-body">
+                  <div class="grant-block">
+                    <span class="block-label">Always granted</span>
+                    <div class="chips" data-chips>
+                      <span class="chip ghost">+ add granted skill</span>
+                    </div>
+                    <span class="f-helper">Rare for classes — leave empty unless you want a fixed skill.</span>
+                  </div>
+                  <div class="mini-toggle" data-choice-toggle>
+                    <span class="mt-label">Also let players choose<span class="mt-sub">Adds a separate pick-N pool</span></span>
+                    <span class="switch"></span>
+                  </div>
+                  <div class="choice-block" data-choice-block>
+                    <span class="block-label">Player chooses</span>
+                    <div class="choice-controls">
+                      <span class="f-label" style="letter-spacing:.1em;">Choose</span>
+                      <span class="stepper"><button type="button">−</button><span class="val">2</span><button type="button">+</button></span>
+                      <span class="f-helper">of 5 options</span>
+                    </div>
+                    <div class="chips" data-chips>
+                      <span class="chip selected">Athletics</span><span class="chip selected">Insight</span>
+                      <span class="chip selected">Perception</span><span class="chip selected">Survival</span>
+                      <span class="chip selected">Nature</span>
+                      <span class="chip">Arcana</span><span class="chip">History</span>
+                      <span class="chip ghost">+ more</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tools: FIXED + CHOICE (Artificer pattern) -->
+              <div class="acc-row open" data-acc data-mode="both">
+                <div class="acc-head">
+                  <span class="ah-left"><span class="ah-icon">⚒</span>
+                    <span><span class="ah-name">Tools</span><br/><span class="ah-sum">Thieves’, Tinker’s + choose 1</span></span>
+                  </span>
+                  <span class="acc-badges">
+                    <span class="acc-badge muted">Granted</span>
+                    <span class="acc-badge">Choice</span>
+                  </span>
+                </div>
+                <div class="acc-body">
+                  <div class="callout">
+                    Artificer-style: everyone gets <b>Thieves’ tools</b> and <b>Tinker’s tools</b>, then picks <b>1</b> artisan’s tool.
+                  </div>
+                  <div class="grant-block">
+                    <span class="block-label">Always granted</span>
+                    <div class="chips" data-chips>
+                      <span class="chip selected">Thieves’ Tools</span>
+                      <span class="chip selected">Tinker’s Tools</span>
+                      <span class="chip ghost">+ add</span>
+                    </div>
+                  </div>
+                  <div class="mini-toggle" data-choice-toggle>
+                    <span class="mt-label">Also let players choose<span class="mt-sub">Adds a separate pick-N pool</span></span>
+                    <span class="switch"></span>
+                  </div>
+                  <div class="choice-block" data-choice-block>
+                    <span class="block-label">Player chooses</span>
+                    <div class="choice-controls">
+                      <span class="f-label" style="letter-spacing:.1em;">Choose</span>
+                      <span class="stepper"><button type="button">−</button><span class="val">1</span><button type="button">+</button></span>
+                      <span class="f-helper">of 4 artisan options</span>
+                    </div>
+                    <div class="chips" data-chips>
+                      <span class="chip selected">Smith’s Tools</span>
+                      <span class="chip selected">Carpenter’s Tools</span>
+                      <span class="chip selected">Leatherworker’s Tools</span>
+                      <span class="chip selected">Woodcarver’s Tools</span>
+                      <span class="chip ghost">+ more</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ========== MULTICLASS ========== -->
+            <div class="tab-panel stack gap-md" data-panel="multiclass" role="tabpanel" hidden>
+              <span class="f-helper" style="margin-top:-4px;">Granted when someone multiclasses <em>into</em> Warden. Same fixed + optional-choice layout — usually fewer picks.</span>
+
+              <div class="prereq-card">
+                <span class="f-label">Ability prerequisite</span>
+                <div class="prereq-line">
+                  <span class="abchip selected">DEX <b>13+</b></span>
+                  <span class="prereq-op">or</span>
+                  <span class="abchip">WIS <b>13+</b></span>
+                </div>
+                <span class="link">+ Add requirement</span>
+                <span class="f-helper" style="margin:0;">Same row = OR. Separate rows = AND. Mirrors PHB multiclass tables.</span>
+              </div>
+
+              <div class="callout">
+                Multiclass into Warden gains <b>Light armor</b> and <b>Simple weapons</b>. Tools could still offer a slim pick (e.g. Bard: light armor + 1 instrument).
+              </div>
+
+              <div class="acc-row open" data-acc data-mode="granted">
+                <div class="acc-head">
+                  <span class="ah-left"><span class="ah-icon">🛡</span>
+                    <span><span class="ah-name">Armor</span><br/><span class="ah-sum">Light granted</span></span>
+                  </span>
+                  <span class="ah-chev">▾</span>
+                </div>
+                <div class="acc-body">
+                  <div class="grant-block">
+                    <span class="block-label">Always granted</span>
+                    <div class="chips" data-chips>
+                      <span class="chip selected">Light</span><span class="chip">Medium</span>
+                      <span class="chip">Heavy</span><span class="chip">Shields</span>
+                    </div>
+                  </div>
+                  <div class="mini-toggle" data-choice-toggle>
+                    <span class="mt-label">Also let players choose<span class="mt-sub">Adds a separate pick-N pool</span></span>
+                    <span class="switch off"></span>
+                  </div>
+                  <div class="choice-block" data-choice-block hidden>
+                    <span class="block-label">Player chooses</span>
+                    <div class="choice-controls">
+                      <span class="f-label" style="letter-spacing:.1em;">Choose</span>
+                      <span class="stepper"><button type="button">−</button><span class="val">1</span><button type="button">+</button></span>
+                      <span class="f-helper">from the options below</span>
+                    </div>
+                    <div class="chips" data-chips>
+                      <span class="chip ghost">+ add option</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="acc-row open" data-acc data-mode="granted">
+                <div class="acc-head">
+                  <span class="ah-left"><span class="ah-icon">⚔</span>
+                    <span><span class="ah-name">Weapons</span><br/><span class="ah-sum">Simple granted</span></span>
+                  </span>
+                  <span class="ah-chev">▾</span>
+                </div>
+                <div class="acc-body">
+                  <div class="grant-block">
+                    <span class="block-label">Always granted</span>
+                    <div class="chips" data-chips>
+                      <span class="chip selected">Simple</span><span class="chip">Martial</span>
+                      <span class="chip ghost">+ specific</span>
+                    </div>
+                  </div>
+                  <div class="mini-toggle" data-choice-toggle>
+                    <span class="mt-label">Also let players choose<span class="mt-sub">Adds a separate pick-N pool</span></span>
+                    <span class="switch off"></span>
+                  </div>
+                  <div class="choice-block" data-choice-block hidden>
+                    <span class="block-label">Player chooses</span>
+                    <div class="choice-controls">
+                      <span class="f-label" style="letter-spacing:.1em;">Choose</span>
+                      <span class="stepper"><button type="button">−</button><span class="val">1</span><button type="button">+</button></span>
+                      <span class="f-helper">from the options below</span>
+                    </div>
+                    <div class="chips" data-chips>
+                      <span class="chip ghost">+ add option</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="acc-row" data-acc data-mode="empty">
+                <div class="acc-head">
+                  <span class="ah-left"><span class="ah-icon">◎</span>
+                    <span><span class="ah-name">Skills</span><br/><span class="ah-sum" style="opacity:.6;">None — typical for martial entry</span></span>
+                  </span>
+                  <span class="ah-chev">▸</span>
+                </div>
+                <div class="acc-body">
+                  <div class="grant-block">
+                    <span class="block-label">Always granted</span>
+                    <div class="chips" data-chips>
+                      <span class="chip ghost">+ add granted skill</span>
+                    </div>
+                  </div>
+                  <div class="mini-toggle" data-choice-toggle>
+                    <span class="mt-label">Also let players choose<span class="mt-sub">Adds a separate pick-N pool</span></span>
+                    <span class="switch off"></span>
+                  </div>
+                  <div class="choice-block" data-choice-block hidden>
+                    <span class="block-label">Player chooses</span>
+                    <div class="choice-controls">
+                      <span class="f-label" style="letter-spacing:.1em;">Choose</span>
+                      <span class="stepper"><button type="button">−</button><span class="val">1</span><button type="button">+</button></span>
+                      <span class="f-helper">from the options below</span>
+                    </div>
+                    <div class="chips" data-chips>
+                      <span class="chip">Athletics</span><span class="chip">Insight</span>
+                      <span class="chip">Perception</span><span class="chip">Survival</span>
+                      <span class="chip">Nature</span>
+                      <span class="chip ghost">+ more</span>
+                    </div>
+                  </div>
+                  <span class="f-helper">Only a few SRD classes (Bard, Ranger, Rogue) offer a multiclass skill pick.</span>
+                </div>
+              </div>
+
+              <!-- Multiclass tools: granted + choice (Bard-like slim entry) -->
+              <div class="acc-row" data-acc data-mode="both">
+                <div class="acc-head">
+                  <span class="ah-left"><span class="ah-icon">⚒</span>
+                    <span><span class="ah-name">Tools</span><br/><span class="ah-sum">Choose 1 instrument</span></span>
+                  </span>
+                  <span class="acc-badges"><span class="acc-badge">Choice</span></span>
+                </div>
+                <div class="acc-body">
+                  <div class="grant-block">
+                    <span class="block-label">Always granted</span>
+                    <div class="chips" data-chips>
+                      <span class="chip ghost">+ add granted tool</span>
+                    </div>
+                  </div>
+                  <div class="mini-toggle" data-choice-toggle>
+                    <span class="mt-label">Also let players choose<span class="mt-sub">Adds a separate pick-N pool</span></span>
+                    <span class="switch"></span>
+                  </div>
+                  <div class="choice-block" data-choice-block>
+                    <span class="block-label">Player chooses</span>
+                    <div class="choice-controls">
+                      <span class="f-label" style="letter-spacing:.1em;">Choose</span>
+                      <span class="stepper"><button type="button">−</button><span class="val">1</span><button type="button">+</button></span>
+                      <span class="f-helper">instrument (Bard-style)</span>
+                    </div>
+                    <div class="chips" data-chips>
+                      <span class="chip selected">Lute</span>
+                      <span class="chip selected">Flute</span>
+                      <span class="chip selected">Drum</span>
+                      <span class="chip selected">Lyre</span>
+                      <span class="chip ghost">+ more</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ec-footer">
+          <button class="btn-secondary" type="button">Back</button>
+          <button class="btn-primary" type="button">Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="notes">
+      <h2>B · By category</h2>
+      <div class="note win">
+        <div class="n-title">Fixed + choice coexist</div>
+        <div class="n-body">Each category has <code>Always granted</code> chips and an optional separate pick-N pool. Toggling choice on does <em>not</em> convert or clear the grants — Artificer tools need both.</div>
+      </div>
+      <div class="note win">
+        <div class="n-title">Three natural states</div>
+        <div class="n-body"><b>Granted only</b> (armor), <b>Choice only</b> (skills), <b>Both</b> (tools). Header summary + badges reflect which are active.</div>
+      </div>
+      <div class="note win">
+        <div class="n-title">Tools is the showcase</div>
+        <div class="n-body">Starting Tools mocks Artificer: Thieves’ + Tinker’s granted, choose 1 artisan tool. Multiclass Tools mocks Bard-style instrument pick.</div>
+      </div>
+      <div class="note">
+        <div class="n-title">Still open</div>
+        <div class="n-body">Multiple independent choice groups within one type (choose 2 skills <em>and</em> choose 1 tool-from-another-list) may still need “+ Add another choice”. Prereqs on Multiclass tab vs third tab.</div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+  const grantTabs = document.getElementById('grantTabs');
+  const panels = document.querySelectorAll('[data-panel]');
+
+  function syncBadges(row) {
+    const head = row.querySelector('.acc-head');
+    let badges = head.querySelector('.acc-badges');
+    if (!badges) {
+      badges = document.createElement('span');
+      badges.className = 'acc-badges';
+      const chev = head.querySelector('.ah-chev');
+      if (chev) head.insertBefore(badges, chev);
+      else head.appendChild(badges);
+    }
+    const choiceOn = !row.querySelector('[data-choice-toggle] .switch')?.classList.contains('off');
+    const grantedSelected = row.querySelectorAll('.grant-block .chip.selected').length > 0;
+    badges.innerHTML = '';
+    if (grantedSelected) {
+      const g = document.createElement('span');
+      g.className = 'acc-badge muted';
+      g.textContent = 'Granted';
+      badges.appendChild(g);
+    }
+    if (choiceOn) {
+      const c = document.createElement('span');
+      c.className = 'acc-badge';
+      c.textContent = 'Choice';
+      badges.appendChild(c);
+    }
+  }
+
+  grantTabs.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-tab]');
+    if (!btn) return;
+    const tab = btn.dataset.tab;
+    grantTabs.querySelectorAll('button').forEach((b) => {
+      const on = b === btn;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    panels.forEach((p) => { p.hidden = p.dataset.panel !== tab; });
+  });
+
+  document.querySelectorAll('[data-acc]').forEach((row) => {
+    const head = row.querySelector('.acc-head');
+    const chev = row.querySelector('.ah-chev');
+    head.addEventListener('click', (e) => {
+      if (e.target.closest('.acc-badges')) return;
+      row.classList.toggle('open');
+      if (chev) chev.textContent = row.classList.contains('open') ? '▾' : '▸';
+    });
+    if (chev) chev.textContent = row.classList.contains('open') ? '▾' : '▸';
+    syncBadges(row);
+  });
+
+  document.querySelectorAll('[data-choice-toggle]').forEach((toggle) => {
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const sw = toggle.querySelector('.switch');
+      const row = toggle.closest('[data-acc]');
+      const block = row.querySelector('[data-choice-block]');
+      const on = sw.classList.contains('off');
+      sw.classList.toggle('off', !on);
+      if (block) block.hidden = !on;
+      syncBadges(row);
+    });
+  });
+
+  document.querySelectorAll('[data-chips]').forEach((group) => {
+    group.addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip');
+      if (!chip || chip.classList.contains('ghost')) return;
+      chip.classList.toggle('selected');
+      const row = chip.closest('[data-acc]');
+      if (row) syncBadges(row);
+    });
+  });
+
+  document.querySelectorAll('.stepper').forEach((stepper) => {
+    const val = stepper.querySelector('.val');
+    stepper.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn || !val) return;
+      e.stopPropagation();
+      let n = parseInt(val.textContent, 10) || 1;
+      if (btn.textContent === '−') n = Math.max(1, n - 1);
+      else n += 1;
+      val.textContent = String(n);
+    });
+  });
+
+  document.querySelectorAll('.abchip').forEach((chip) => {
+    chip.addEventListener('click', () => chip.classList.toggle('selected'));
+  });
+</script>
+</body>
+</html>

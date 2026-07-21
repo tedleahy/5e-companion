@@ -136,20 +136,32 @@ describe('CustomClassEditor', () => {
         expect(onClose).toHaveBeenCalled();
     });
 
-    test('shows structured proficiency builders instead of free-text syntax', async () => {
+    test('shows category proficiency builders with Starting/Multiclass tabs', async () => {
         renderEditor();
         fillIdentityAndContinue();
 
         await waitFor(() => {
-            expect(screen.getByText('Multiclass prerequisites')).toBeTruthy();
+            expect(screen.getByTestId('proficiency-tab-STARTING')).toBeTruthy();
         });
-        expect(screen.getByTestId('add-prerequisite')).toBeTruthy();
-        expect(screen.getByTestId('add-fixed-STARTING')).toBeTruthy();
-        expect(screen.getByTestId('add-choice-group-STARTING')).toBeTruthy();
-        expect(screen.getByText('Starting proficiencies')).toBeTruthy();
-        expect(screen.getByText('Multiclass proficiencies')).toBeTruthy();
+        expect(screen.getByTestId('proficiency-tab-MULTICLASS')).toBeTruthy();
+        expect(screen.getByTestId('proficiency-category-STARTING-ARMOR')).toBeTruthy();
+        expect(screen.getByTestId('proficiency-category-STARTING-OTHER')).toBeTruthy();
+        expect(screen.getByTestId('proficiency-tab-STARTING').props.accessibilityState).toEqual({
+            selected: true,
+        });
         expect(screen.queryByText(/Comma-separated proficiency values/)).toBeNull();
 
+        // Empty categories start collapsed — expand Armor to reach the add control.
+        fireEvent.press(screen.getByLabelText('Armor. None'));
+        expect(screen.getByTestId('add-fixed-STARTING-ARMOR')).toBeTruthy();
+        expect(screen.getByTestId('toggle-choice-STARTING-ARMOR')).toBeTruthy();
+
+        fireEvent.press(screen.getByTestId('proficiency-tab-MULTICLASS'));
+        expect(screen.getByTestId('proficiency-tab-MULTICLASS').props.accessibilityState).toEqual({
+            selected: true,
+        });
+        expect(screen.getByText('Multiclass prerequisites')).toBeTruthy();
+        expect(screen.getByTestId('add-prerequisite')).toBeTruthy();
         fireEvent.press(screen.getByTestId('add-prerequisite'));
         expect(screen.getByTestId('prerequisite-group-1')).toBeTruthy();
         expect(screen.getByText('+ Add OR alternative')).toBeTruthy();
@@ -160,10 +172,11 @@ describe('CustomClassEditor', () => {
         fillIdentityAndContinue();
 
         await waitFor(() => {
-            expect(screen.getByTestId('add-fixed-STARTING')).toBeTruthy();
+            expect(screen.getByLabelText('Armor. None')).toBeTruthy();
         });
+        fireEvent.press(screen.getByLabelText('Armor. None'));
 
-        fireEvent.press(screen.getByTestId('add-fixed-STARTING'));
+        fireEvent.press(screen.getByTestId('add-fixed-STARTING-ARMOR'));
         expect(screen.getByTestId('proficiency-picker-sheet')).toBeTruthy();
         expect(screen.queryByText('Cancel')).toBeNull();
 
@@ -181,10 +194,11 @@ describe('CustomClassEditor', () => {
         fillIdentityAndContinue();
 
         await waitFor(() => {
-            expect(screen.getByTestId('add-fixed-STARTING')).toBeTruthy();
+            expect(screen.getByLabelText('Armor. None')).toBeTruthy();
         });
+        fireEvent.press(screen.getByLabelText('Armor. None'));
 
-        fireEvent.press(screen.getByTestId('add-fixed-STARTING'));
+        fireEvent.press(screen.getByTestId('add-fixed-STARTING-ARMOR'));
         fireEvent.press(screen.getByTestId('proficiency-option-light-armor'));
         fireEvent.press(screen.getByLabelText('Dismiss proficiency picker'));
 
@@ -214,7 +228,7 @@ describe('CustomClassEditor', () => {
         fillIdentityAndContinue();
 
         await waitFor(() => {
-            expect(screen.getByText('Multiclass prerequisites')).toBeTruthy();
+            expect(screen.getByTestId('proficiency-tab-STARTING')).toBeTruthy();
         });
         fireEvent.press(screen.getByText('Continue'));
 
@@ -224,8 +238,9 @@ describe('CustomClassEditor', () => {
         expect(screen.queryByText(/One per line/)).toBeNull();
 
         fireEvent.press(screen.getByTestId('add-fixed-equipment'));
-        expect(screen.getByText('Qty')).toBeTruthy();
         const nameInput = screen.getAllByTestId(/equipment-name-/)[0]!;
+        expect(nameInput).toBeTruthy();
+        expect(screen.getAllByTestId(/equipment-qty-/)[0]).toHaveTextContent('1');
         fireEvent.changeText(nameInput, 'Shield');
         fireEvent.press(screen.getAllByTestId(/equipment-qty-inc-/)[0]!);
         expect(screen.getAllByTestId(/equipment-qty-/)[0]).toHaveTextContent('2');
@@ -247,7 +262,7 @@ describe('CustomClassEditor', () => {
         fillIdentityAndContinue();
 
         await waitFor(() => {
-            expect(screen.getByText('Multiclass prerequisites')).toBeTruthy();
+            expect(screen.getByTestId('proficiency-tab-STARTING')).toBeTruthy();
         });
         fireEvent.press(screen.getByText('Continue'));
         fireEvent.press(screen.getByText('Continue'));
@@ -280,7 +295,7 @@ describe('CustomClassEditor', () => {
         fillIdentityAndContinue();
 
         await waitFor(() => {
-            expect(screen.getByText('Multiclass prerequisites')).toBeTruthy();
+            expect(screen.getByTestId('proficiency-tab-STARTING')).toBeTruthy();
         });
         fireEvent.press(screen.getByText('Continue'));
         fireEvent.press(screen.getByText('Continue'));
@@ -302,7 +317,7 @@ describe('CustomClassEditor', () => {
         fillIdentityAndContinue();
 
         await waitFor(() => {
-            expect(screen.getByText('Multiclass prerequisites')).toBeTruthy();
+            expect(screen.getByTestId('proficiency-tab-STARTING')).toBeTruthy();
         });
         fireEvent.press(screen.getByText('Continue'));
         fireEvent.press(screen.getByText('Continue'));
@@ -319,7 +334,7 @@ describe('CustomClassEditor', () => {
         fillIdentityAndContinue();
 
         await waitFor(() => {
-            expect(screen.getByText('Multiclass prerequisites')).toBeTruthy();
+            expect(screen.getByTestId('proficiency-tab-STARTING')).toBeTruthy();
         });
         fireEvent.press(screen.getByText('Continue'));
         fireEvent.press(screen.getByText('Continue'));
@@ -359,7 +374,7 @@ describe('CustomClassEditor', () => {
         fillIdentityAndContinue();
 
         await waitFor(() => {
-            expect(screen.getByText('Multiclass prerequisites')).toBeTruthy();
+            expect(screen.getByTestId('proficiency-tab-STARTING')).toBeTruthy();
         });
         fireEvent.press(screen.getByText('Continue'));
         fireEvent.press(screen.getByText('Continue'));
@@ -404,7 +419,7 @@ describe('CustomClassEditor', () => {
         fillIdentityAndContinue();
 
         await waitFor(() => {
-            expect(screen.getByText('Multiclass prerequisites')).toBeTruthy();
+            expect(screen.getByTestId('proficiency-tab-STARTING')).toBeTruthy();
         });
         fireEvent.press(screen.getByText('Continue'));
         fireEvent.press(screen.getByText('Continue'));
@@ -432,7 +447,7 @@ describe('CustomClassEditor', () => {
         fillIdentityAndContinue();
 
         await waitFor(() => {
-            expect(screen.getByText('Multiclass prerequisites')).toBeTruthy();
+            expect(screen.getByTestId('proficiency-tab-STARTING')).toBeTruthy();
         });
         fireEvent.press(screen.getByText('Continue'));
         fireEvent.press(screen.getByText('Continue'));

@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<title>Proficiencies Stage — UX Alternatives (opus)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+/* ---------- Studio chrome (the review page around the phone) ---------- */
+:root{
+  --studio-bg:#161310;
+  --studio-bg-alt:#1d1914;
+  --studio-ink:#eee7d8;
+  --studio-ink-soft:#a89c86;
+  --studio-line:#332c22;
+  --studio-accent:#c4894f;
+  --studio-card:#1f1a15;
+  --studio-mono:'IBM Plex Mono','SF Mono',ui-monospace,monospace;
+}
+:root[data-theme="light"]{
+  --studio-bg:#eeebe4; --studio-bg-alt:#e2ddd0; --studio-ink:#241f19;
+  --studio-ink-soft:#5c5346; --studio-line:#d3ccbc; --studio-accent:#7b1e1e; --studio-card:#ffffff;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--studio-bg);
+  color:var(--studio-ink);
+  font-family:'Spectral',Georgia,'Iowan Old Style',serif;
+  min-height:100vh;
+}
+.wrap{max-width:1220px;margin:0 auto;padding:2.25rem 1.25rem 5rem;}
+
+.masthead{
+  display:flex;flex-direction:column;gap:.4rem;
+  margin-bottom:1.75rem;padding-bottom:1.25rem;
+  border-bottom:1px solid var(--studio-line);
+}
+.masthead .eyebrow{
+  font-family:var(--studio-mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--studio-accent);
+}
+.masthead h1{margin:0;font-size:1.85rem;font-weight:700;text-wrap:balance;}
+.masthead p{margin:.15rem 0 0;max-width:70ch;color:var(--studio-ink-soft);font-size:1rem;line-height:1.55;}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:1.25rem;}
+.control-group{
+  display:inline-flex;border:1px solid var(--studio-line);border-radius:999px;
+  overflow:hidden;background:var(--studio-card);
+}
+.control-group button{
+  font-family:var(--studio-mono);font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;
+  border:none;background:transparent;color:var(--studio-ink-soft);
+  padding:.5rem .95rem;cursor:pointer;transition:background .15s ease,color .15s ease;
+}
+.control-group button + button{border-left:1px solid var(--studio-line);}
+.control-group button.active{background:var(--studio-accent);color:#fff9ee;}
+.control-group button:hover:not(.active){background:var(--studio-bg-alt);}
+.spacer{flex:1;}
+
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:2.25rem;align-items:start;}
+@media (max-width:980px){.layout{grid-template-columns:1fr;}}
+.stage{display:flex;justify-content:center;padding:.5rem 0 2rem;}
+
+/* ---------- Notes panel ---------- */
+.notes{display:flex;flex-direction:column;gap:1rem;position:sticky;top:1.25rem;}
+.notes h2{
+  font-family:var(--studio-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--studio-accent);margin:0;
+}
+.note{background:var(--studio-card);border:1px solid var(--studio-line);border-radius:10px;padding:.85rem 1rem;}
+.note.problem{border-left:3px solid #b4472e;}
+.note.win{border-left:3px solid #2d6a4f;}
+.note .n-title{font-weight:600;font-size:.92rem;margin-bottom:.3rem;}
+.note .n-body{font-size:.85rem;line-height:1.5;color:var(--studio-ink-soft);}
+.note .n-body code{
+  font-family:var(--studio-mono);font-size:.78em;background:var(--studio-bg-alt);
+  padding:.05em .35em;border-radius:4px;
+}
+.variant-note[hidden]{display:none;}
+
+/* ================================================================
+   APP CHROME — faithful to mobile-app/theme/fantasyTheme.ts
+   ================================================================ */
+.app-tokens{
+  --night:#1f1711;
+  --parchment:#f6e9cf;
+  --parchment-deep:#f0e0c0;
+  --ink-dark:#2b1c11;
+  --gold:#c4a470;
+  --gold-light:#e8b84b;
+  --gold-dark:#9e845b;
+  --claret:#8c1d38;
+  --crimson:#7b1e1e;
+  --crimson-soft:rgba(123,30,30,.2);
+  --success:#2d6a4f;
+  --success-soft:rgba(45,106,79,.14);
+  --success-border:rgba(45,106,79,.45);
+  --form-card:rgba(201,146,42,.07);
+  --form-border:rgba(201,146,42,.22);
+  --form-border-strong:rgba(201,146,42,.4);
+  --divider:rgba(139,90,43,.3);
+  font-family:'Spectral',Georgia,serif;
+}
+.device{
+  background:var(--night);border-radius:30px;
+  box-shadow:0 30px 60px -20px rgba(0,0,0,.55), 0 0 0 1px rgba(0,0,0,.4);
+  overflow:hidden;position:relative;display:flex;flex-direction:column;
+  width:390px;height:800px;
+}
+.device[hidden]{display:none;}
+
+/* ---- Editor chrome (EditorChrome.tsx) ---- */
+.ec-header{
+  min-height:66px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:12px 20px;border-bottom:1px solid var(--form-border);position:relative;
+}
+.ec-eyebrow{
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);
+}
+.ec-title{font-size:20px;font-weight:600;color:var(--parchment);}
+.ec-step{
+  position:absolute;right:20px;top:50%;transform:translateY(-50%);
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);
+}
+.ec-progress{display:flex;gap:4px;padding:8px;}
+.ec-seg{flex:1;height:3px;border-radius:2px;background:var(--form-border);}
+.ec-seg.active{background:var(--crimson);}
+
+.ec-body{flex:1;overflow-y:auto;padding:16px 18px 8px;}
+.ec-body::-webkit-scrollbar{width:0;}
+
+.ec-footer{
+  min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:14px 16px;border-top:1px solid var(--form-border);
+}
+.btn-primary{
+  min-width:124px;text-align:center;padding:14px 16px;background:var(--crimson);
+  border-radius:12px;color:var(--parchment);border:none;
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;cursor:pointer;
+  font-family:'Spectral',serif;
+}
+.btn-secondary{
+  min-width:96px;text-align:center;padding:14px 16px;background:transparent;
+  border:1px solid var(--form-border);border-radius:12px;color:var(--parchment-deep);
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;cursor:pointer;
+  font-family:'Spectral',serif;
+}
+
+/* ---- shared form atoms ---- */
+.f-label{
+  font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600;
+}
+.f-helper{font-size:13px;line-height:1.5;color:var(--gold);opacity:.85;font-style:italic;}
+.f-section-title{font-size:16px;color:var(--parchment);font-weight:600;}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border:1px solid var(--form-border);background:var(--form-card);
+  border-radius:12px;color:var(--parchment-deep);font-size:12px;letter-spacing:.08em;
+  text-transform:uppercase;font-family:'Spectral',serif;cursor:pointer;
+}
+.chip.selected{background:var(--crimson);border-color:var(--gold);color:var(--parchment);font-weight:700;}
+.chip.ghost{background:transparent;border-style:dashed;color:var(--gold-light);}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.card{
+  border-radius:16px;border:1px solid var(--form-border);background:var(--form-card);
+  padding:16px;
+}
+.add-btn{
+  display:block;width:100%;text-align:center;padding:14px;border-radius:12px;
+  border:1px solid var(--crimson);background:transparent;color:var(--gold-light);
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;cursor:pointer;
+  font-family:'Spectral',serif;
+}
+.add-btn.dashed{border-style:dashed;}
+.link{color:var(--gold);font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;cursor:pointer;}
+.remove-x{
+  width:26px;height:26px;border-radius:8px;border:1px solid var(--form-border);
+  background:transparent;color:var(--gold);font-size:14px;cursor:pointer;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+}
+.stepper{display:inline-flex;align-items:center;gap:8px;}
+.stepper button{
+  width:34px;height:34px;border-radius:8px;border:1px solid var(--form-border);
+  background:rgba(0,0,0,.25);color:var(--parchment);font-size:18px;cursor:pointer;line-height:1;
+}
+.stepper .val{min-width:26px;text-align:center;color:var(--parchment);font-size:18px;font-weight:600;}
+.stack{display:flex;flex-direction:column;}
+.stack.gap-sm{gap:8px;}
+.stack.gap-md{gap:16px;}
+.stack.gap-lg{gap:20px;}
+
+/* preview / summary bits */
+.preview{
+  border-radius:16px;border:1px solid var(--success-border);background:var(--success-soft);
+  padding:14px 16px;
+}
+.preview .pv-eyebrow{
+  font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--success);
+  font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px;
+}
+.preview .pv-line{font-size:14px;line-height:1.6;color:var(--parchment);}
+.preview .pv-line b{color:var(--gold-light);font-weight:700;}
+
+.pill-tab{
+  display:inline-flex;border:1px solid var(--form-border);border-radius:999px;overflow:hidden;
+  background:rgba(0,0,0,.2);
+}
+.pill-tab button{
+  border:none;background:transparent;color:var(--gold);opacity:.75;
+  font-family:'Spectral',serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  padding:8px 12px;cursor:pointer;font-weight:600;
+}
+.pill-tab button.active{background:var(--crimson);color:var(--parchment);opacity:1;}
+
+.seg{
+  display:flex;border:1px solid var(--form-border);border-radius:12px;overflow:hidden;
+}
+.seg button{
+  flex:1;border:none;background:transparent;color:var(--gold);opacity:.8;
+  font-family:'Spectral',serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  padding:10px 4px;cursor:pointer;font-weight:600;
+}
+.seg button + button{border-left:1px solid var(--form-border);}
+.seg button.active{background:var(--crimson);color:var(--parchment);opacity:1;}
+
+/* sentence builder */
+.sentence{font-size:16px;line-height:2.1;color:var(--parchment);}
+.slot{
+  display:inline-flex;align-items:center;gap:4px;
+  border-bottom:1.5px dashed var(--gold);color:var(--gold-light);
+  padding:2px 6px;border-radius:6px 6px 0 0;background:rgba(201,146,42,.08);cursor:pointer;font-weight:600;
+}
+.slot .caret{font-size:9px;opacity:.7;}
+.slot.count{background:rgba(123,30,30,.25);border-bottom-color:var(--crimson);color:var(--parchment);}
+
+/* accordion */
+.acc-row{border:1px solid var(--form-border);border-radius:14px;background:var(--form-card);overflow:hidden;}
+.acc-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 16px;cursor:pointer;
+}
+.acc-head .ah-left{display:flex;align-items:center;gap:12px;}
+.acc-head .ah-icon{font-size:18px;width:22px;text-align:center;}
+.acc-head .ah-name{font-size:15px;color:var(--parchment);font-weight:600;}
+.acc-head .ah-sum{font-size:12px;color:var(--gold);opacity:.85;}
+.acc-head .ah-chev{color:var(--gold);font-size:12px;}
+.acc-badge{
+  font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;
+  padding:3px 8px;border-radius:999px;background:var(--crimson-soft);color:var(--gold-light);
+}
+.acc-body{padding:0 16px 16px;border-top:1px solid var(--form-border);display:flex;flex-direction:column;gap:12px;}
+.mini-toggle{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 12px;border:1px solid var(--form-border);border-radius:10px;background:rgba(0,0,0,.15);
+}
+.mini-toggle .mt-label{font-size:13px;color:var(--parchment-deep);}
+.switch{width:42px;height:24px;border-radius:999px;background:var(--crimson);position:relative;flex:0 0 auto;}
+.switch::after{content:"";position:absolute;top:2px;left:20px;width:20px;height:20px;border-radius:50%;background:var(--parchment);}
+.switch.off{background:rgba(0,0,0,.35);}
+.switch.off::after{left:2px;background:var(--gold-dark);}
+
+/* granted vs choice columns */
+.gc-col-head{
+  display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.12em;
+  text-transform:uppercase;font-weight:700;margin-bottom:2px;
+}
+.gc-col-head.granted{color:var(--gold-light);}
+.gc-col-head.choice{color:var(--claret);filter:brightness(1.5);}
+.dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;}
+.dot.gold{background:var(--gold-light);}
+.dot.claret{background:var(--claret);}
+
+.callout{
+  border-radius:14px;border:1px solid var(--form-border);background:rgba(0,0,0,.18);
+  padding:12px 14px;font-size:13px;line-height:1.55;color:var(--parchment-deep);
+}
+.callout b{color:var(--gold-light);}
+
+/* prerequisite visual chips */
+.prereq-line{display:flex;align-items:center;flex-wrap:wrap;gap:8px;}
+.prereq-op{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:700;opacity:.8;}
+.abchip{
+  padding:6px 10px;border-radius:10px;border:1px solid var(--form-border);background:rgba(0,0,0,.2);
+  color:var(--parchment);font-size:12px;font-weight:600;
+}
+.abchip b{color:var(--gold-light);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <span class="eyebrow">Custom Class Editor · Stage 4 of 6</span>
+    <h1>Proficiencies Stage — UX Alternatives</h1>
+    <p>
+      The current stage stacks three dense editors (multiclass prerequisites, starting
+      proficiencies, multiclass proficiencies), each split into an "Always granted" chip list
+      and one or more numbered "Choice groups". It's functional but jargon-heavy and hard to
+      scan. Below is the baseline plus three redesign directions. Use the switcher to compare.
+    </p>
+  </header>
+
+  <div class="toolbar">
+    <div class="control-group" id="variantSwitch">
+      <button data-variant="baseline" class="active">Baseline (current)</button>
+      <button data-variant="sentence">A · Plain-language</button>
+      <button data-variant="category">B · By category</button>
+      <button data-variant="preview">C · Granted + preview</button>
+    </div>
+    <span class="spacer"></span>
+    <div class="control-group" id="themeSwitch">
+      <button data-theme="dark" class="active">Dark studio</button>
+      <button data-theme="light">Light studio</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="stage">
+      <!-- ================= BASELINE ================= -->
+      <div class="device app-tokens" data-device="baseline">
+        <div class="ec-header">
+          <span class="ec-eyebrow">The Warden</span>
+          <span class="ec-title">Proficiencies</span>
+          <span class="ec-step">4/6</span>
+        </div>
+        <div class="ec-progress">
+          <span class="ec-seg active"></span><span class="ec-seg active"></span>
+          <span class="ec-seg active"></span><span class="ec-seg active"></span>
+          <span class="ec-seg"></span><span class="ec-seg"></span>
+        </div>
+        <div class="ec-body">
+          <div class="stack gap-lg">
+            <!-- prereqs -->
+            <div class="stack gap-sm">
+              <span class="f-label">Multiclass prerequisites</span>
+              <span class="f-helper">Same group = OR. Different groups = AND. Example: STR 13 or DEX 13 share a group.</span>
+              <div class="card stack gap-md">
+                <span class="f-section-title">Group 1 (any one)</span>
+                <div class="chips">
+                  <span class="chip">STR</span><span class="chip selected">DEX</span>
+                  <span class="chip">CON</span><span class="chip">INT</span>
+                  <span class="chip">WIS</span><span class="chip">CHA</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span class="f-label" style="letter-spacing:.1em;">Minimum</span>
+                  <span class="stepper"><button>−</button><span class="val">13</span><button>+</button></span>
+                </div>
+                <span class="link">+ Add OR alternative</span>
+              </div>
+              <button class="add-btn">+ Add requirement</button>
+            </div>
+
+            <!-- starting profs -->
+            <div class="stack gap-md">
+              <span class="f-label">Starting proficiencies</span>
+              <div class="stack gap-sm">
+                <span class="f-section-title">Always granted</span>
+                <div class="chips">
+                  <span class="chip selected">Light Armor</span>
+                  <span class="chip selected">Medium Armor</span>
+                  <span class="chip selected">Shields</span>
+                  <span class="chip selected">Simple Weapons</span>
+                </div>
+                <span class="f-helper">Tap a chip to deselect it.</span>
+                <button class="add-btn">+ Add proficiencies</button>
+              </div>
+              <div class="stack gap-sm">
+                <span class="f-section-title">Choice groups</span>
+                <span class="f-helper">Players pick N options from each group (for example, choose 2 skills).</span>
+                <div class="card stack gap-sm">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span class="f-label" style="color:var(--gold);">Choice group 1</span>
+                    <button class="remove-x">×</button>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="f-label" style="letter-spacing:.1em;">Choose</span>
+                    <span class="stepper"><button>−</button><span class="val">2</span><button>+</button></span>
+                  </div>
+                  <div class="chips">
+                    <span class="chip selected">Athletics</span><span class="chip selected">Insight</span>
+                    <span class="chip selected">Perception</span><span class="chip selected">Survival</span>
+                    <span class="chip selected">Nature</span>
+                  </div>
+                  <span class="link">+ Edit options</span>
+                </div>
+                <button class="add-btn">+ Add choice group</button>
+              </div>
+            </div>
+
+            <!-- multiclass profs -->
+            <div class="stack gap-md">
+              <span class="f-label">Multiclass proficiencies</span>
+              <div class="stack gap-sm">
+                <span class="f-section-title">Always granted</span>
+                <div class="chips">
+                  <span class="chip selected">Light Armor</span>
+                  <span class="chip selected">Simple Weapons</span>
+                </div>
+                <span class="f-helper">Tap a chip to deselect it.</span>
+                <button class="add-btn">+ Add proficiencies</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ec-footer">
+          <button class="btn-secondary">Back</button>
+          <button class="btn-primary">Continue</button>
+        </div>
+      </div>
+
+      <!-- ================= A · PLAIN LANGUAGE ================= -->
+      <div class="device app-tokens" data-device="sentence" hidden>
+        <div class="ec-header">
+          <span class="ec-eyebrow">The Warden</span>
+          <span class="ec-title">Proficiencies</span>
+          <span class="ec-step">4/6</span>
+        </div>
+        <div class="ec-progress">
+          <span class="ec-seg active"></span><span class="ec-seg active"></span>
+          <span class="ec-seg active"></span><span class="ec-seg active"></span>
+          <span class="ec-seg"></span><span class="ec-seg"></span>
+        </div>
+        <div class="ec-body">
+          <div class="stack gap-lg">
+            <div class="pill-tab">
+              <button class="active">Starting</button>
+              <button>Multiclass</button>
+              <button>Prereqs</button>
+            </div>
+
+            <div class="stack gap-sm">
+              <span class="f-label">A Warden begins play…</span>
+              <div class="card">
+                <p class="sentence" style="margin:0;">
+                  proficient with
+                  <span class="slot">Light armor <span class="caret">▾</span></span>,
+                  <span class="slot">Medium armor <span class="caret">▾</span></span>,
+                  <span class="slot">Shields <span class="caret">▾</span></span>,
+                  <span class="slot">Simple weapons <span class="caret">▾</span></span>,
+                  <span class="slot ghost" style="border-bottom-style:dashed;">+ add <span class="caret">▾</span></span>
+                  &nbsp;&mdash;&nbsp; and chooses
+                  <span class="slot count">2 <span class="caret">▾</span></span>
+                  from
+                  <span class="slot">Athletics <span class="caret">▾</span></span>,
+                  <span class="slot">Insight</span>,
+                  <span class="slot">Perception</span>,
+                  <span class="slot">Survival</span>,
+                  <span class="slot">Nature</span>,
+                  <span class="slot ghost">+ add</span>.
+                </p>
+              </div>
+              <span class="f-helper">Tap any underlined word to swap or remove it. Everything reads back the way it appears on a character sheet.</span>
+            </div>
+
+            <button class="link" style="align-self:flex-start;">+ Add another player choice</button>
+
+            <div class="preview">
+              <div class="pv-eyebrow">◆ Character-sheet preview</div>
+              <p class="pv-line" style="margin:0;">
+                <b>Armor:</b> Light, Medium, Shields<br/>
+                <b>Weapons:</b> Simple<br/>
+                <b>Skills:</b> Choose <b>2</b> — Athletics, Insight, Perception, Survival, Nature
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="ec-footer">
+          <button class="btn-secondary">Back</button>
+          <button class="btn-primary">Continue</button>
+        </div>
+      </div>
+
+      <!-- ================= B · BY CATEGORY ================= -->
+      <div class="device app-tokens" data-device="category" hidden>
+        <div class="ec-header">
+          <span class="ec-eyebrow">The Warden</span>
+          <span class="ec-title">Proficiencies</span>
+          <span class="ec-step">4/6</span>
+        </div>
+        <div class="ec-progress">
+          <span class="ec-seg active"></span><span class="ec-seg active"></span>
+          <span class="ec-seg active"></span><span class="ec-seg active"></span>
+          <span class="ec-seg"></span><span class="ec-seg"></span>
+        </div>
+        <div class="ec-body">
+          <div class="stack gap-md">
+            <div class="seg">
+              <button class="active">Starting</button>
+              <button>Multiclass</button>
+            </div>
+            <span class="f-helper" style="margin-top:-4px;">Manage each proficiency type in one place. Flip “Player chooses” to turn fixed grants into a pick-N choice.</span>
+
+            <!-- Armor: open, fixed -->
+            <div class="acc-row">
+              <div class="acc-head">
+                <span class="ah-left"><span class="ah-icon">🛡️</span>
+                  <span><span class="ah-name">Armor</span><br/><span class="ah-sum">Light, Medium, Shields granted</span></span>
+                </span>
+                <span class="ah-chev">▾</span>
+              </div>
+              <div class="acc-body">
+                <div class="chips">
+                  <span class="chip selected">Light</span><span class="chip selected">Medium</span>
+                  <span class="chip selected">Heavy</span><span class="chip selected">Shields</span>
+                </div>
+                <div class="mini-toggle">
+                  <span class="mt-label">Player chooses a subset</span>
+                  <span class="switch off"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Weapons: collapsed -->
+            <div class="acc-row">
+              <div class="acc-head">
+                <span class="ah-left"><span class="ah-icon">⚔️</span>
+                  <span><span class="ah-name">Weapons</span><br/><span class="ah-sum">Simple granted</span></span>
+                </span>
+                <span class="ah-chev">▸</span>
+              </div>
+            </div>
+
+            <!-- Skills: open, choice -->
+            <div class="acc-row">
+              <div class="acc-head">
+                <span class="ah-left"><span class="ah-icon">🎯</span>
+                  <span><span class="ah-name">Skills</span><br/><span class="ah-sum">Choose 2 of 5</span></span>
+                </span>
+                <span class="acc-badge">Choice</span>
+              </div>
+              <div class="acc-body">
+                <div class="mini-toggle">
+                  <span class="mt-label">Player chooses a subset</span>
+                  <span class="switch"></span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <span class="f-label" style="letter-spacing:.1em;">Choose</span>
+                  <span class="stepper"><button>−</button><span class="val">2</span><button>+</button></span>
+                  <span class="f-helper">of 5 selected</span>
+                </div>
+                <div class="chips">
+                  <span class="chip selected">Athletics</span><span class="chip selected">Insight</span>
+                  <span class="chip selected">Perception</span><span class="chip selected">Survival</span>
+                  <span class="chip selected">Nature</span>
+                  <span class="chip">Arcana</span><span class="chip">History</span>
+                  <span class="chip ghost">+ more</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tools: collapsed empty -->
+            <div class="acc-row">
+              <div class="acc-head">
+                <span class="ah-left"><span class="ah-icon">🔧</span>
+                  <span><span class="ah-name">Tools</span><br/><span class="ah-sum" style="opacity:.6;">None yet</span></span>
+                </span>
+                <span class="ah-chev">▸</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ec-footer">
+          <button class="btn-secondary">Back</button>
+          <button class="btn-primary">Continue</button>
+        </div>
+      </div>
+
+      <!-- ================= C · GRANTED + CHOICE + PREVIEW ================= -->
+      <div class="device app-tokens" data-device="preview" hidden>
+        <div class="ec-header">
+          <span class="ec-eyebrow">The Warden</span>
+          <span class="ec-title">Proficiencies</span>
+          <span class="ec-step">4/6</span>
+        </div>
+        <div class="ec-progress">
+          <span class="ec-seg active"></span><span class="ec-seg active"></span>
+          <span class="ec-seg active"></span><span class="ec-seg active"></span>
+          <span class="ec-seg"></span><span class="ec-seg"></span>
+        </div>
+        <div class="ec-body">
+          <div class="stack gap-md">
+            <!-- live preview pinned at top -->
+            <div class="preview">
+              <div class="pv-eyebrow">◆ What players will see</div>
+              <p class="pv-line" style="margin:0;">
+                Every Warden gains <b>Light armor</b>, <b>Medium armor</b>, <b>Shields</b>,
+                <b>Simple weapons</b>, then picks <b>2 skills</b> from a list of 5.
+              </p>
+            </div>
+
+            <div class="seg">
+              <button class="active">Starting</button>
+              <button>Multiclass</button>
+              <button>Prereqs</button>
+            </div>
+
+            <!-- GRANTED -->
+            <div class="card stack gap-sm">
+              <span class="gc-col-head granted"><span class="dot gold"></span>Always granted</span>
+              <div class="chips">
+                <span class="chip selected">Light Armor ×</span>
+                <span class="chip selected">Medium Armor ×</span>
+                <span class="chip selected">Shields ×</span>
+                <span class="chip selected">Simple Weapons ×</span>
+                <span class="chip ghost">+ Add</span>
+              </div>
+            </div>
+
+            <!-- CHOICE -->
+            <div class="card stack gap-sm">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span class="gc-col-head choice" style="margin:0;"><span class="dot claret"></span>Player picks</span>
+                <button class="remove-x">×</button>
+              </div>
+              <div class="callout">
+                Player chooses <b>2</b>
+                <span class="stepper" style="margin:0 4px;vertical-align:middle;">
+                  <button>−</button><span class="val">2</span><button>+</button>
+                </span>
+                of the <b>5</b> skills below
+              </div>
+              <div class="chips">
+                <span class="chip selected">Athletics ×</span><span class="chip selected">Insight ×</span>
+                <span class="chip selected">Perception ×</span><span class="chip selected">Survival ×</span>
+                <span class="chip selected">Nature ×</span>
+                <span class="chip ghost">+ Add option</span>
+              </div>
+            </div>
+
+            <button class="add-btn dashed">+ Add another “player picks” choice</button>
+          </div>
+        </div>
+        <div class="ec-footer">
+          <button class="btn-secondary">Back</button>
+          <button class="btn-primary">Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= NOTES ================= -->
+    <aside class="notes">
+      <h2 id="notesHeading">Baseline — pain points</h2>
+
+      <!-- baseline notes -->
+      <div class="variant-note" data-notes="baseline">
+        <div class="note problem">
+          <div class="n-title">Developer jargon leaks to users</div>
+          <div class="n-body"><code>Choice group 1</code>, "Always granted", "pick N options" describe the data model, not the player's intent ("choose 2 skills").</div>
+        </div>
+        <div class="note problem">
+          <div class="n-title">Three near-identical editors stack vertically</div>
+          <div class="n-body">Starting and Multiclass grants look the same and sit far apart — easy to edit the wrong one, and a lot of scrolling on a phone.</div>
+        </div>
+        <div class="note problem">
+          <div class="n-title">Hidden "tap to remove"</div>
+          <div class="n-body">Selected chips are removed by tapping, explained only by helper text. No affordance (×) and it clashes with selectable filter chips elsewhere in the app.</div>
+        </div>
+        <div class="note problem">
+          <div class="n-title">Abstract prerequisite logic</div>
+          <div class="n-body">"Same group = OR, different groups = AND" asks the user to think like a boolean expression parser.</div>
+        </div>
+        <div class="note problem">
+          <div class="n-title">No result preview</div>
+          <div class="n-body">Nothing shows how the finished grant reads on a character sheet.</div>
+        </div>
+      </div>
+
+      <!-- sentence notes -->
+      <div class="variant-note" data-notes="sentence" hidden>
+        <div class="note win">
+          <div class="n-title">Reads like the rulebook</div>
+          <div class="n-body">The grant is a fill-in-the-blank sentence. Underlined <span style="color:var(--studio-accent)">slots</span> are editable; the whole thing mirrors SRD phrasing ("proficient with… and chooses 2 from…").</div>
+        </div>
+        <div class="note win">
+          <div class="n-title">Fixed & choice unified</div>
+          <div class="n-body">No separate "Always granted" vs "Choice groups" sections — a fixed grant is just a slot without a count; a choice adds the <span class="n-body"><code>chooses N</code></span> clause inline.</div>
+        </div>
+        <div class="note win">
+          <div class="n-title">Tabs replace the tall stack</div>
+          <div class="n-body">Starting / Multiclass / Prereqs become tabs, killing the scroll and the "edited the wrong block" trap.</div>
+        </div>
+        <div class="note">
+          <div class="n-title">Trade-off</div>
+          <div class="n-body">Sentence wrapping can get busy with many options; needs care for long tool/weapon names and RTL/accessibility.</div>
+        </div>
+      </div>
+
+      <!-- category notes -->
+      <div class="variant-note" data-notes="category" hidden>
+        <div class="note win">
+          <div class="n-title">One home per proficiency type</div>
+          <div class="n-body">Armor / Weapons / Tools / Skills accordions. Users think "what armor?" not "is this fixed or a choice?".</div>
+        </div>
+        <div class="note win">
+          <div class="n-title">Fixed↔choice is a single switch</div>
+          <div class="n-body">"Player chooses a subset" toggle converts a granted list into a pick-N choice in place — no separate add-choice-group flow.</div>
+        </div>
+        <div class="note win">
+          <div class="n-title">Scannable collapsed state</div>
+          <div class="n-body">Each header summarises itself ("Choose 2 of 5", "Simple granted"), so the whole stage fits without opening anything.</div>
+        </div>
+        <div class="note">
+          <div class="n-title">Trade-off</div>
+          <div class="n-body">"Other" proficiencies that don't fit a type need a catch-all bucket; multiple independent choices within one type (rare) need an "add another choice" affordance.</div>
+        </div>
+      </div>
+
+      <!-- preview notes -->
+      <div class="variant-note" data-notes="preview" hidden>
+        <div class="note win">
+          <div class="n-title">Preview pinned at the top</div>
+          <div class="n-body">A live "what players will see" card keeps the outcome visible while editing — the missing feedback loop from the baseline.</div>
+        </div>
+        <div class="note win">
+          <div class="n-title">Colour-coded intent</div>
+          <div class="n-body">Gold = always granted, claret = player picks. The distinction is visual, not a section heading you have to read.</div>
+        </div>
+        <div class="note win">
+          <div class="n-title">Explicit remove affordance</div>
+          <div class="n-body">Chips carry an <code>×</code>; the count stepper is embedded in a plain-language callout ("Player chooses 2 of the 5 skills below").</div>
+        </div>
+        <div class="note win">
+          <div class="n-title">Closest to current architecture</div>
+          <div class="n-body">Keeps the fixed-list + choice-group data model intact, so it's the lowest-risk to ship — mostly presentation changes.</div>
+        </div>
+      </div>
+
+      <div class="note" style="border-left:3px solid var(--studio-accent);">
+        <div class="n-title">Recommendation</div>
+        <div class="n-body">Ship <b>C</b> first (low risk, adds preview + clarity), then consider <b>B</b>'s per-type toggle to remove the fixed/choice split entirely.</div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+  const variantSwitch = document.getElementById('variantSwitch');
+  const themeSwitch = document.getElementById('themeSwitch');
+  const notesHeading = document.getElementById('notesHeading');
+  const headings = {
+    baseline: 'Baseline — pain points',
+    sentence: 'A · Plain-language — notes',
+    category: 'B · By category — notes',
+    preview: 'C · Granted + preview — notes',
+  };
+
+  variantSwitch.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const v = btn.dataset.variant;
+    variantSwitch.querySelectorAll('button').forEach((b) => b.classList.toggle('active', b === btn));
+    document.querySelectorAll('[data-device]').forEach((d) => { d.hidden = d.dataset.device !== v; });
+    document.querySelectorAll('[data-notes]').forEach((n) => { n.hidden = n.dataset.notes !== v; });
+    notesHeading.textContent = headings[v];
+  });
+
+  themeSwitch.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    themeSwitch.querySelectorAll('button').forEach((b) => b.classList.toggle('active', b === btn));
+    document.documentElement.dataset.theme = btn.dataset.theme;
+  });
+</script>
+</body>
+</html>

@@ -219,6 +219,21 @@ export type ProficiencyChoiceGroup = {
     values: string[];
 };
 
+export type ProficiencyCategoryType = 'ARMOR' | 'WEAPON' | 'SKILL' | 'TOOL' | 'OTHER';
+
+export const PROFICIENCY_CATEGORIES: ReadonlyArray<{
+    type: ProficiencyCategoryType;
+    label: string;
+    icon: string;
+}> = [
+    // Prefer emoji presentation (FE0F) so icons stay colorful on Android/web, not thin text glyphs.
+    { type: 'ARMOR', label: 'Armor', icon: '🛡️' },
+    { type: 'WEAPON', label: 'Weapons', icon: '⚔️' },
+    { type: 'SKILL', label: 'Skills', icon: '🎯' },
+    { type: 'TOOL', label: 'Tools', icon: '🔧' },
+    { type: 'OTHER', label: 'Other', icon: '✨' },
+];
+
 export type EquipmentEntry = {
     key: string;
     name: string;
@@ -231,11 +246,33 @@ export type EquipmentChoiceGroup = {
     items: EquipmentEntry[];
 };
 
+/** Resolve a proficiency value's category; unknown values fall into Other. */
+export function proficiencyCategoryForValue(
+    value: string,
+    typeByValue: ReadonlyMap<string, string>,
+): ProficiencyCategoryType {
+    const type = typeByValue.get(value);
+    if (type === 'ARMOR' || type === 'WEAPON' || type === 'SKILL' || type === 'TOOL') return type;
+    return 'OTHER';
+}
+
 /** Fixed (non-choice) proficiency values for a grant. */
 export function fixedProficiencyValues(draft: Draft, grant: string): string[] {
     return draft.proficiencies
         .filter((item) => item.grant === grant && item.choiceGroup == null)
         .map((item) => item.value);
+}
+
+/** Fixed proficiency values for one grant + category. */
+export function fixedProficiencyValuesForType(
+    draft: Draft,
+    grant: string,
+    type: ProficiencyCategoryType,
+    typeByValue: ReadonlyMap<string, string>,
+): string[] {
+    return fixedProficiencyValues(draft, grant).filter(
+        (value) => proficiencyCategoryForValue(value, typeByValue) === type,
+    );
 }
 
 /** Choice groups for a grant, sorted by group id. */
@@ -258,6 +295,43 @@ export function proficiencyChoiceGroups(draft: Draft, grant: string): Proficienc
     return [...groups.values()].sort((left, right) => left.choiceGroup - right.choiceGroup);
 }
 
+/**
+ * Single choice pool for a grant + category (v1: one pool per type).
+ * When legacy drafts have multiple same-type groups, they are merged.
+ */
+export function proficiencyChoiceGroupForType(
+    draft: Draft,
+    grant: string,
+    type: ProficiencyCategoryType,
+    typeByValue: ReadonlyMap<string, string>,
+): ProficiencyChoiceGroup | null {
+    const ofType = proficiencyChoiceGroups(draft, grant).filter((group) =>
+        group.values.some((value) => proficiencyCategoryForValue(value, typeByValue) === type),
+    );
+    if (ofType.length === 0) return null;
+    const [first, ...rest] = ofType;
+    if (!first) return null;
+    if (rest.length === 0) {
+        return {
+            ...first,
+            values: first.values.filter(
+                (value) => proficiencyCategoryForValue(value, typeByValue) === type,
+            ),
+        };
+    }
+    const values = ofType.flatMap((group) =>
+        group.values.filter((value) => proficiencyCategoryForValue(value, typeByValue) === type),
+    );
+    return {
+        choiceGroup: first.choiceGroup,
+        choiceCount: Math.min(
+            Math.max(1, first.choiceCount),
+            Math.max(1, values.length),
+        ),
+        values,
+    };
+}
+
 /** Replace fixed proficiency values for a grant, preserving choice groups. */
 export function withFixedProficiencies(
     draft: Draft,
@@ -273,6 +347,20 @@ export function withFixedProficiencies(
             choiceCount: null,
         })),
     ];
+}
+
+/** Replace fixed values for one category, preserving other fixed values and all choice groups. */
+export function withFixedProficienciesForType(
+    draft: Draft,
+    grant: string,
+    type: ProficiencyCategoryType,
+    values: string[],
+    typeByValue: ReadonlyMap<string, string>,
+): Draft['proficiencies'] {
+    const keptFixed = fixedProficiencyValues(draft, grant).filter(
+        (value) => proficiencyCategoryForValue(value, typeByValue) !== type,
+    );
+    return withFixedProficiencies(draft, grant, [...keptFixed, ...values]);
 }
 
 /** Replace choice groups for a grant, preserving fixed values. */
@@ -292,6 +380,27 @@ export function withChoiceGroups(
             })),
         ),
     ];
+}
+
+/**
+ * Set or clear the single choice pool for a grant + category.
+ * Pass null to remove all choice groups of that type.
+ */
+export function withChoiceGroupForType(
+    draft: Draft,
+    grant: string,
+    type: ProficiencyCategoryType,
+    group: ProficiencyChoiceGroup | null,
+    typeByValue: ReadonlyMap<string, string>,
+): Draft['proficiencies'] {
+    const kept = proficiencyChoiceGroups(draft, grant).filter(
+        (entry) =>
+            !entry.values.some((value) => proficiencyCategoryForValue(value, typeByValue) === type),
+    );
+    if (group && group.values.length > 0) {
+        return withChoiceGroups(draft, grant, [...kept, group]);
+    }
+    return withChoiceGroups(draft, grant, kept);
 }
 
 /** Next unused choice-group id. */

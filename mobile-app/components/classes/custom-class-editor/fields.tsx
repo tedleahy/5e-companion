@@ -47,6 +47,35 @@ export function Chip({
     );
 }
 
+/** Selected proficiency/spell-style pill with an explicit × remove control. */
+export function RemovableChip({
+    label,
+    disabled,
+    onRemove,
+    testID,
+}: {
+    label: string;
+    disabled?: boolean;
+    onRemove: () => void;
+    testID?: string;
+}) {
+    return (
+        <View style={fieldStyles.removableChip} testID={testID}>
+            <Text style={fieldStyles.removableChipText}>{label}</Text>
+            {!disabled ? (
+                <Pressable
+                    onPress={onRemove}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Remove ${label}`}
+                    hitSlop={8}
+                >
+                    <Text style={fieldStyles.removableChipRemove}>×</Text>
+                </Pressable>
+            ) : null}
+        </View>
+    );
+}
+
 export function AbilityPicker({
     label,
     selected,
@@ -117,6 +146,25 @@ export const fieldStyles = StyleSheet.create({
         color: fantasyTokens.colors.parchmentDeep,
     },
     chipTextSelected: { color: fantasyTokens.colors.parchment, fontWeight: '700' },
+    removableChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: fantasyTokens.spacing.xs,
+        borderRadius: fantasyTokens.radii.sm,
+        borderWidth: 1,
+        borderColor: fantasyTokens.sheet.form.border,
+        backgroundColor: fantasyTokens.sheet.form.card,
+        paddingHorizontal: fantasyTokens.spacing.sm,
+        paddingVertical: fantasyTokens.spacing.xs,
+    },
+    removableChipText: {
+        ...fantasyTokens.typography.body,
+        color: fantasyTokens.colors.parchmentDeep,
+    },
+    removableChipRemove: {
+        ...fantasyTokens.typography.buttonLabel,
+        color: fantasyTokens.colors.goldLight,
+    },
     checkbox: {
         padding: fantasyTokens.spacing.md,
         borderWidth: 1,
