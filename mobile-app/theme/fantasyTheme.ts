@@ -182,6 +182,8 @@ export const fantasyTokens = {
         claret: '#8c1d38',
         claretLight: '#a62b4a',
         claretSoft: 'rgba(140, 29, 56, 0.02)',
+        /** Press wash for claret controls on parchment; claretSoft is too faint to register. */
+        claretPressed: 'rgba(140, 29, 56, 0.12)',
         claretSubtle: 'rgba(140, 29, 56, 0.35)',
         crimson: '#7b1e1e',
         crimsonSoft: 'rgba(123, 30, 30, 0.2)',

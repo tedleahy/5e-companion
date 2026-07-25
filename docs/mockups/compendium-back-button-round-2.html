@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Back to Compendium — round two</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      /* app tokens — fantasyTheme.ts */
+      --night: #1f1711;
+      --night-deep: #110b07;
+      --parchment: #f6e9cf;
+      --parchment-deep: #f0e0c0;
+      --card-bg: #f0e0bc;
+      --ink: #2b1c11;
+      --ink-soft: rgba(110, 81, 48, 0.62);
+      --gold: #c4a470;
+      --gold-light: #e8b84b;
+      --gold-line: rgba(201, 146, 42, 0.15);
+      --gold-line-strong: rgba(201, 146, 42, 0.34);
+      --claret: #8c1d38;
+      --claret-light: #a62b4a;
+      --accordion-border: rgba(139, 90, 43, 0.22);
+
+      /* sheet chrome — deliberately not the app's voice */
+      --board: #15100b;
+      --board-raised: #1c150e;
+      --board-line: rgba(201, 146, 42, 0.14);
+      --board-text: #e6dccb;
+      --board-soft: #a29279;
+      --serif: "Spectral", Georgia, serif;
+      --sans: "IBM Plex Sans", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background:
+        radial-gradient(ellipse 90% 60% at 50% -20%, rgba(201, 146, 42, 0.09), transparent 60%),
+        var(--board);
+      color: var(--board-text);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    a:focus-visible, [tabindex]:focus-visible {
+      outline: 2px solid var(--gold-light);
+      outline-offset: 3px;
+    }
+
+    .wrap { max-width: 1240px; margin: 0 auto; padding: 3rem 1.5rem 4.5rem; }
+
+    /* ---------- masthead ---------- */
+    .masthead { max-width: 62ch; margin-bottom: 2.75rem; }
+    .masthead .kicker {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin: 0 0 0.9rem;
+    }
+    .masthead h1 {
+      font-family: var(--serif);
+      font-weight: 700;
+      font-size: clamp(2rem, 4vw, 2.9rem);
+      line-height: 1.1;
+      margin: 0;
+      color: var(--parchment);
+    }
+    .masthead p {
+      margin: 1rem 0 0;
+      color: var(--board-soft);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+    .masthead strong { color: var(--board-text); font-weight: 600; }
+
+    /* ---------- plates ---------- */
+    .plates { display: grid; gap: 1.25rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (max-width: 1000px) { .plates { grid-template-columns: 1fr; } }
+
+    .plate {
+      background: var(--board-raised);
+      border: 1px solid var(--board-line);
+      border-radius: 16px;
+      padding: 1.35rem 1.35rem 1.15rem;
+    }
+    .plate--wide { grid-column: 1 / -1; }
+
+    .plate-head { display: flex; gap: 0.9rem; align-items: baseline; }
+    .plate-head .letter {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      color: var(--night-deep);
+      background: var(--gold);
+      border-radius: 4px;
+      padding: 0.15rem 0.45rem;
+      flex: none;
+    }
+    .plate-head h2 {
+      font-family: var(--serif);
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin: 0;
+      color: var(--parchment);
+      letter-spacing: 0.01em;
+    }
+    .plate-head p { margin: 0.3rem 0 0; color: var(--board-soft); font-size: 0.88rem; line-height: 1.5; }
+
+    .frames {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+      margin-top: 1.15rem;
+    }
+    @media (max-width: 560px) { .frames { grid-template-columns: 1fr; } }
+
+    figure { margin: 0; }
+    figcaption {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--board-soft);
+      margin-bottom: 0.45rem;
+    }
+
+    .note {
+      margin: 1.05rem 0 0;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--board-line);
+      font-size: 0.82rem;
+      line-height: 1.55;
+      color: var(--board-soft);
+    }
+    .note code { font-family: var(--mono); font-size: 0.76rem; color: var(--gold); }
+    .note b { color: var(--gold); font-weight: 600; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; margin-right: 0.5rem; }
+
+    /* ---------- the phone screen ---------- */
+    .screen {
+      position: relative;
+      height: 330px;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid rgba(201, 146, 42, 0.18);
+      background-image:
+        radial-gradient(ellipse 120% 70% at 50% 0%, rgba(201, 146, 42, 0.07), transparent 55%),
+        linear-gradient(180deg, #241910 0%, var(--night) 42%, #1a120d 100%);
+      padding: 0.9rem 0.75rem 0;
+      display: flex;
+      flex-direction: column;
+      font-family: var(--serif);
+    }
+
+    .hdr { text-align: center; padding-bottom: 0.6rem; border-bottom: 1px solid var(--gold-line); }
+    .eyebrow {
+      margin: 0;
+      color: var(--gold);
+      opacity: 0.7;
+      font-size: 0.62rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .ttl { margin: 0.2rem 0 0; color: var(--parchment); font-size: 1.5rem; font-weight: 700; letter-spacing: 0.01em; }
+
+    .card {
+      flex: 1;
+      background: var(--parchment);
+      border-radius: 14px 14px 0 0;
+      overflow: hidden;
+      box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.35);
+      margin-top: 0.7rem;
+    }
+
+    .crow {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.7rem 0.85rem; border-bottom: 1px solid var(--accordion-border);
+    }
+    .crow strong { display: block; color: var(--ink); font-size: 0.9rem; font-weight: 600; }
+    .crow small { color: var(--ink-soft); font-size: 0.72rem; }
+    .sw { width: 38px; height: 22px; border-radius: 999px; background: var(--claret); position: relative; flex: none; }
+    .sw::after { content: ""; position: absolute; top: 3px; right: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--parchment); }
+
+    .lrow { display: flex; align-items: center; gap: 0.7rem; padding: 0.6rem 0.85rem; border-bottom: 1px solid var(--accordion-border); }
+    .badge { width: 36px; height: 36px; border-radius: 11px; background: var(--parchment-deep); display: grid; place-items: center; font-size: 1.05rem; flex: none; }
+    .lrow div { flex: 1; }
+    .lrow strong { display: block; color: var(--ink); font-size: 0.92rem; font-weight: 600; }
+    .lrow small { color: var(--ink-soft); font-size: 0.72rem; }
+    .lrow .go { color: var(--ink-soft); font-size: 1rem; }
+
+    /* detail card */
+    .detail { padding: 0.85rem; }
+    .dttl { margin: 0; color: var(--ink); font-size: 1.35rem; font-weight: 700; }
+    .dsub { margin: 0.15rem 0 0; color: var(--ink-soft); font-size: 0.78rem; font-style: italic; }
+    .chips { display: flex; gap: 0.4rem; margin: 0.65rem 0 0; }
+    .chips span {
+      font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--claret); border: 1px solid rgba(140, 29, 56, 0.28);
+      background: rgba(140, 29, 56, 0.06); border-radius: 6px; padding: 0.2rem 0.45rem;
+    }
+    .dbody { margin: 0.75rem 0 0; color: var(--ink); opacity: 0.82; font-size: 0.82rem; line-height: 1.5; }
+
+    /* =====================================================
+       A — TRAIL: the eyebrow is the way back
+       ===================================================== */
+    .a-trail {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      text-decoration: none; color: var(--gold);
+      font-size: 0.62rem; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 500;
+      padding-bottom: 3px;
+      border-bottom: 1px solid rgba(201, 146, 42, 0.3);
+    }
+    .a-trail .q { font-size: 1rem; letter-spacing: 0; line-height: 0.8; transition: transform 160ms ease; }
+    .a-trail:hover { color: var(--gold-light); border-bottom-color: var(--gold-light); }
+    .a-trail:hover .q { transform: translateX(-3px); }
+
+    .a-trail--ink { color: var(--claret); border-bottom-color: rgba(140, 29, 56, 0.3); }
+    .a-trail--ink:hover { color: var(--claret-light); border-bottom-color: var(--claret-light); }
+    .a-detail-head { margin-bottom: 0.55rem; }
+
+    /* =====================================================
+       B — CODEX BAR: one nav row, bare chevron, no chrome
+       ===================================================== */
+    .b-bar {
+      display: grid; grid-template-columns: 40px 1fr 40px; align-items: center;
+      padding-bottom: 0.55rem; border-bottom: 1px solid var(--gold-line);
+    }
+    .b-arrow {
+      width: 34px; height: 34px; display: grid; place-items: center;
+      border-radius: 10px; text-decoration: none;
+      color: var(--gold); font-size: 1.5rem; line-height: 1; padding-bottom: 3px;
+      transition: background 140ms ease, color 140ms ease;
+    }
+    .b-arrow:hover { background: rgba(201, 146, 42, 0.1); color: var(--gold-light); }
+    .b-arrow--ink { color: var(--claret); }
+    .b-arrow--ink:hover { background: rgba(140, 29, 56, 0.08); color: var(--claret-light); }
+
+    .b-cardbar {
+      display: grid; grid-template-columns: 34px 1fr 34px; align-items: center;
+      padding: 0.5rem 0.55rem; border-bottom: 1px solid var(--accordion-border);
+      margin: -0.85rem -0.85rem 0.75rem;
+    }
+    .b-cardbar .b-name { text-align: center; color: var(--ink); font-size: 1.05rem; font-weight: 700; }
+
+    /* =====================================================
+       F — CODEX BAR, SWORD: B with a blade for the glyph
+       ===================================================== */
+    .f-arrow {
+      width: 38px; height: 34px; display: grid; place-items: center;
+      border-radius: 10px; text-decoration: none; color: var(--gold);
+      transition: background 140ms ease, color 140ms ease;
+    }
+    .f-arrow svg { width: 28px; height: 13px; fill: currentColor; display: block; transition: transform 160ms ease; }
+    .f-arrow:hover { background: rgba(201, 146, 42, 0.1); color: var(--gold-light); }
+    .f-arrow:hover svg { transform: translateX(-3px); }
+    .f-arrow--ink { color: var(--claret); }
+    .f-arrow--ink:hover { background: rgba(140, 29, 56, 0.08); color: var(--claret-light); }
+    .f-cardbar { grid-template-columns: 38px 1fr 38px; }
+
+    /* =====================================================
+       F1–F4 — making the blade read as “back”
+       ===================================================== */
+    .sect {
+      grid-column: 1 / -1;
+      margin: 1.75rem 0 0;
+      padding-top: 1.75rem;
+      border-top: 1px solid var(--board-line);
+    }
+    .sect h2 {
+      font-family: var(--serif); font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+      font-weight: 600; margin: 0; color: var(--parchment);
+    }
+    .sect p { margin: 0.6rem 0 0; max-width: 66ch; color: var(--board-soft); font-size: 0.94rem; line-height: 1.6; }
+
+    /* F2 — sword plus the destination */
+    .f2-hdr { padding-bottom: 0.55rem; border-bottom: 1px solid var(--gold-line); }
+    .f2-nav {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      text-decoration: none; color: var(--gold);
+      padding: 0.15rem 0.4rem 0.15rem 0.15rem; border-radius: 8px;
+      transition: color 140ms ease, background 140ms ease;
+    }
+    .f2-nav svg { width: 24px; height: 11px; fill: currentColor; display: block; transition: transform 160ms ease; }
+    .f2-nav .word { font-size: 0.6rem; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 500; }
+    .f2-nav:hover { color: var(--gold-light); background: rgba(201, 146, 42, 0.08); }
+    .f2-nav:hover svg { transform: translateX(-3px); }
+    .f2-hdr .ttl { text-align: center; }
+    .f2-nav--ink { color: var(--claret); }
+    .f2-nav--ink:hover { color: var(--claret-light); background: rgba(140, 29, 56, 0.07); }
+    .f2-cardnav {
+      display: block; margin: -0.85rem -0.85rem 0.7rem; padding: 0.5rem 0.7rem;
+      border-bottom: 1px solid var(--accordion-border);
+    }
+
+    /* F3 — sword over a caption */
+    .f3-arrow {
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      width: 46px; padding: 0.2rem 0; border-radius: 10px;
+      text-decoration: none; color: var(--gold);
+      transition: background 140ms ease, color 140ms ease;
+    }
+    .f3-arrow svg { width: 26px; height: 12px; fill: currentColor; display: block; transition: transform 160ms ease; }
+    .f3-arrow .cap {
+      font-family: var(--serif); font-size: 0.52rem; line-height: 1;
+      letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.9;
+    }
+    .f3-arrow:hover { color: var(--gold-light); background: rgba(201, 146, 42, 0.1); }
+    .f3-arrow:hover svg { transform: translateX(-3px); }
+    .f3-arrow--ink { color: var(--claret); }
+    .f3-arrow--ink:hover { color: var(--claret-light); background: rgba(140, 29, 56, 0.08); }
+    .f3-bar { grid-template-columns: 46px 1fr 46px; }
+
+    /* F4 — chevron leads, sword follows */
+    .f4-arrow {
+      display: flex; align-items: center; gap: 3px;
+      width: 50px; height: 34px; justify-content: center; border-radius: 10px;
+      text-decoration: none; color: var(--gold);
+      transition: background 140ms ease, color 140ms ease;
+    }
+    .f4-arrow .q { font-size: 1.35rem; line-height: 0.8; padding-bottom: 3px; }
+    .f4-arrow svg { width: 21px; height: 10px; fill: currentColor; opacity: 0.55; display: block; }
+    .f4-arrow:hover { color: var(--gold-light); background: rgba(201, 146, 42, 0.1); }
+    .f4-arrow:hover svg { opacity: 0.85; }
+    .f4-arrow--ink { color: var(--claret); }
+    .f4-arrow--ink:hover { color: var(--claret-light); background: rgba(140, 29, 56, 0.08); }
+    .f4-bar { grid-template-columns: 50px 1fr 50px; }
+
+    /* =====================================================
+       C — PENNANT: a claret banner tucked under the rule
+       ===================================================== */
+    .c-stage { position: relative; display: flex; flex-direction: column; flex: 1; }
+    .c-tab {
+      position: absolute; z-index: 3; top: -2px; left: 14px;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.42rem 0.85rem 0.85rem;
+      text-decoration: none; color: var(--parchment);
+      font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 500;
+      background: linear-gradient(180deg, var(--claret-light) 0%, var(--claret) 55%, #6e1730 100%);
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 74%, 0 100%);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.45);
+      transition: transform 160ms ease;
+    }
+    .c-tab .q { color: var(--gold-light); font-size: 0.9rem; letter-spacing: 0; line-height: 0.8; }
+    .c-tab:hover { transform: translateY(-2px); }
+    .c-stage .card { margin-top: 1.5rem; padding-top: 0.2rem; }
+    .c-stage .card.detail { padding-top: 1.1rem; }
+
+    /* =====================================================
+       D — QUILL MARK: an inked stroke that redraws
+       ===================================================== */
+    .d-mark {
+      display: flex; align-items: center; gap: 0.5rem;
+      text-decoration: none; margin: 0.7rem 0 0.1rem; padding: 0.15rem 0.1rem;
+      color: var(--gold);
+    }
+    .d-mark svg { width: 40px; height: 15px; flex: none; overflow: visible; }
+    .d-mark path {
+      fill: none; stroke: currentColor; stroke-width: 1.4;
+      stroke-linecap: round; stroke-linejoin: round;
+      stroke-dasharray: 62; stroke-dashoffset: 0;
+    }
+    .d-mark:hover path { animation: ink 620ms ease forwards; }
+    @keyframes ink { from { stroke-dashoffset: 62; } to { stroke-dashoffset: 0; } }
+    .d-mark .word { font-size: 0.95rem; font-style: italic; font-weight: 500; letter-spacing: 0.01em; }
+    .d-mark .rule { flex: 1; height: 1px; background: linear-gradient(90deg, currentColor, transparent 90%); opacity: 0.35; }
+    .d-mark:hover { color: var(--gold-light); }
+    .d-mark--ink { color: var(--claret); margin: 0 0 0.5rem; }
+    .d-mark--ink:hover { color: var(--claret-light); }
+
+    /* =====================================================
+       E — SPINE: a margin label that always names the parent
+       ===================================================== */
+    .e-body { display: flex; flex: 1; gap: 0.55rem; margin-top: 0.7rem; }
+    .e-spine {
+      flex: none; width: 30px;
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      padding-top: 0.35rem;
+      text-decoration: none; color: var(--gold);
+      border-right: 1px solid var(--gold-line);
+      transition: color 140ms ease, border-color 140ms ease;
+    }
+    .e-spine .q { font-size: 1.15rem; line-height: 0.8; }
+    .e-spine .word {
+      writing-mode: vertical-rl; transform: rotate(180deg);
+      font-size: 0.58rem; letter-spacing: 0.24em; text-transform: uppercase;
+      opacity: 0.85;
+    }
+    .e-spine:hover { color: var(--gold-light); border-right-color: rgba(232, 184, 75, 0.45); }
+    .e-body .card { margin-top: 0; border-radius: 14px 14px 0 0; }
+
+    /* ---------- footer ---------- */
+    .footer {
+      margin-top: 2.5rem; padding-top: 1.4rem; border-top: 1px solid var(--board-line);
+      font-family: var(--mono); font-size: 0.72rem; line-height: 1.8; color: var(--board-soft);
+    }
+    .footer code { color: var(--gold); }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position: absolute" aria-hidden="true" focusable="false">
+    <symbol id="sword" viewBox="0 0 34 16">
+      <path d="M0.5 8 L11 5.5 L18.6 6.2 L18.6 9.8 L11 10.5 Z" />
+      <rect x="18.6" y="1.6" width="2.2" height="12.8" rx="1.1" />
+      <rect x="20.8" y="7" width="8" height="2" rx="1" />
+      <circle cx="30.7" cy="8" r="2.3" />
+    </symbol>
+    <symbol id="sword-barbed" viewBox="0 0 34 16">
+      <path d="M0.5 8 L10.6 2.4 L9 6.3 L18.6 6.3 L18.6 9.7 L9 9.7 L10.6 13.6 Z" />
+      <rect x="18.6" y="1.6" width="2.2" height="12.8" rx="1.1" />
+      <rect x="20.8" y="7" width="8" height="2" rx="1" />
+      <circle cx="30.7" cy="8" r="2.3" />
+    </symbol>
+  </svg>
+
+  <div class="wrap">
+    <header class="masthead">
+      <p class="kicker">Compendium · back affordance · round two</p>
+      <h1>Five ways out of a category</h1>
+      <p>
+        Every option is shown twice: on the <strong>category screen</strong> (night canvas, back to the hub)
+        and on the <strong>class detail</strong> (parchment, back to the list). The two levels use the same
+        device in each option, so one decision covers both. Hover a control to see its state.
+      </p>
+    </header>
+
+    <div class="plates">
+
+      <!-- ============ A ============ -->
+      <article class="plate">
+        <div class="plate-head">
+          <span class="letter">A</span>
+          <div>
+            <h2>Trail</h2>
+            <p>The eyebrow already says “Compendium”. Make it the link and the extra button disappears — the label you tap is the place you land.</p>
+          </div>
+        </div>
+        <div class="frames">
+          <figure>
+            <figcaption>Category</figcaption>
+            <div class="screen">
+              <div class="hdr">
+                <a class="a-trail" href="#" onclick="return false"><span class="q">‹</span>Compendium</a>
+                <h3 class="ttl">Classes</h3>
+              </div>
+              <div class="card">
+                <div class="crow"><div><strong>Include SRD classes</strong><small>12 classes</small></div><span class="sw"></span></div>
+                <div class="lrow"><span class="badge">⚔️</span><div><strong>Barbarian</strong><small>SRD · Strength</small></div><span class="go">›</span></div>
+                <div class="lrow"><span class="badge">🎻</span><div><strong>Bard</strong><small>SRD · Charisma</small></div><span class="go">›</span></div>
+              </div>
+            </div>
+          </figure>
+          <figure>
+            <figcaption>Class detail</figcaption>
+            <div class="screen">
+              <div class="hdr">
+                <a class="a-trail" href="#" onclick="return false"><span class="q">‹</span>Compendium</a>
+                <h3 class="ttl">Classes</h3>
+              </div>
+              <div class="card detail">
+                <div class="a-detail-head">
+                  <a class="a-trail a-trail--ink" href="#" onclick="return false"><span class="q">‹</span>Classes</a>
+                </div>
+                <h4 class="dttl">Barbarian</h4>
+                <p class="dsub">d12 hit die · Strength</p>
+                <div class="chips"><span>Str save</span><span>Con save</span></div>
+                <p class="dbody">A fierce warrior of primitive background who can enter a battle rage.</p>
+              </div>
+            </div>
+          </figure>
+        </div>
+        <p class="note"><b>Trade-off</b> Nothing is added to the layout, and the path reads top-down: Compendium → Classes → Barbarian. Quietest of the five; the underline is doing all the work of saying “tappable”.</p>
+      </article>
+
+      <!-- ============ B ============ -->
+      <article class="plate">
+        <div class="plate-head">
+          <span class="letter">B</span>
+          <div>
+            <h2>Codex bar</h2>
+            <p>One nav row instead of a header plus a floating chip. Bare gold chevron on the left, title stays centred, 44pt target with no visible chrome until you touch it.</p>
+          </div>
+        </div>
+        <div class="frames">
+          <figure>
+            <figcaption>Category</figcaption>
+            <div class="screen">
+              <div class="b-bar">
+                <a class="b-arrow" href="#" onclick="return false">‹</a>
+                <div>
+                  <p class="eyebrow">Compendium</p>
+                  <h3 class="ttl">Classes</h3>
+                </div>
+                <span></span>
+              </div>
+              <div class="card">
+                <div class="crow"><div><strong>Include SRD classes</strong><small>12 classes</small></div><span class="sw"></span></div>
+                <div class="lrow"><span class="badge">⚔️</span><div><strong>Barbarian</strong><small>SRD · Strength</small></div><span class="go">›</span></div>
+                <div class="lrow"><span class="badge">🎻</span><div><strong>Bard</strong><small>SRD · Charisma</small></div><span class="go">›</span></div>
+              </div>
+            </div>
+          </figure>
+          <figure>
+            <figcaption>Class detail</figcaption>
+            <div class="screen">
+              <div class="b-bar">
+                <a class="b-arrow" href="#" onclick="return false">‹</a>
+                <div>
+                  <p class="eyebrow">Compendium</p>
+                  <h3 class="ttl">Classes</h3>
+                </div>
+                <span></span>
+              </div>
+              <div class="card detail">
+                <div class="b-cardbar">
+                  <a class="b-arrow b-arrow--ink" href="#" onclick="return false">‹</a>
+                  <span class="b-name">Barbarian</span>
+                  <span></span>
+                </div>
+                <p class="dsub">d12 hit die · Strength</p>
+                <div class="chips"><span>Str save</span><span>Con save</span></div>
+                <p class="dbody">A fierce warrior of primitive background who can enter a battle rage.</p>
+              </div>
+            </div>
+          </figure>
+        </div>
+        <p class="note"><b>Trade-off</b> The safe one: reads instantly, matches platform muscle memory, gains back a whole row of vertical space. The chevron carries no label, so it leans on the eyebrow beside it to say where “back” goes.</p>
+      </article>
+
+      <!-- ============ C ============ -->
+      <article class="plate">
+        <div class="plate-head">
+          <span class="letter">C</span>
+          <div>
+            <h2>Pennant</h2>
+            <p>A claret banner hung from the header rule, its fishtail tucked behind the parchment. The card looks pinned to the page rather than floating on the dark.</p>
+          </div>
+        </div>
+        <div class="frames">
+          <figure>
+            <figcaption>Category</figcaption>
+            <div class="screen">
+              <div class="hdr">
+                <p class="eyebrow">Compendium</p>
+                <h3 class="ttl">Classes</h3>
+              </div>
+              <div class="c-stage">
+                <a class="c-tab" href="#" onclick="return false"><span class="q">‹</span>Compendium</a>
+                <div class="card">
+                  <div class="crow"><div><strong>Include SRD classes</strong><small>12 classes</small></div><span class="sw"></span></div>
+                  <div class="lrow"><span class="badge">⚔️</span><div><strong>Barbarian</strong><small>SRD · Strength</small></div><span class="go">›</span></div>
+                  <div class="lrow"><span class="badge">🎻</span><div><strong>Bard</strong><small>SRD · Charisma</small></div><span class="go">›</span></div>
+                </div>
+              </div>
+            </div>
+          </figure>
+          <figure>
+            <figcaption>Class detail</figcaption>
+            <div class="screen">
+              <div class="hdr">
+                <p class="eyebrow">Compendium</p>
+                <h3 class="ttl">Classes</h3>
+              </div>
+              <div class="c-stage">
+                <a class="c-tab" href="#" onclick="return false"><span class="q">‹</span>All classes</a>
+                <div class="card detail">
+                  <h4 class="dttl">Barbarian</h4>
+                  <p class="dsub">d12 hit die · Strength</p>
+                  <div class="chips"><span>Str save</span><span>Con save</span></div>
+                  <p class="dbody">A fierce warrior of primitive background who can enter a battle rage.</p>
+                </div>
+              </div>
+            </div>
+          </figure>
+        </div>
+        <p class="note"><b>Trade-off</b> The most characterful, and the one device that stays put while the label under it changes with depth. Costs ~14px of card height and needs care so the toggle row never sits under the tail.</p>
+      </article>
+
+      <!-- ============ D ============ -->
+      <article class="plate">
+        <div class="plate-head">
+          <span class="letter">D</span>
+          <div>
+            <h2>Quill mark</h2>
+            <p>No pill, no fill: a drawn arrow in gold ink, an italic word, and a rule that runs off to the right. On press the stroke redraws itself, left to right.</p>
+          </div>
+        </div>
+        <div class="frames">
+          <figure>
+            <figcaption>Category</figcaption>
+            <div class="screen">
+              <div class="hdr">
+                <p class="eyebrow">Compendium</p>
+                <h3 class="ttl">Classes</h3>
+              </div>
+              <a class="d-mark" href="#" onclick="return false">
+                <svg viewBox="0 0 44 16" aria-hidden="true">
+                  <path d="M43 8C32 8.4 17 8.2 5 8M13 1.5C10.2 4 7.6 6.1 5 8c2.6 1.9 5.2 4 8 6.5" />
+                </svg>
+                <span class="word">Compendium</span>
+                <span class="rule"></span>
+              </a>
+              <div class="card">
+                <div class="crow"><div><strong>Include SRD classes</strong><small>12 classes</small></div><span class="sw"></span></div>
+                <div class="lrow"><span class="badge">⚔️</span><div><strong>Barbarian</strong><small>SRD · Strength</small></div><span class="go">›</span></div>
+                <div class="lrow"><span class="badge">🎻</span><div><strong>Bard</strong><small>SRD · Charisma</small></div><span class="go">›</span></div>
+              </div>
+            </div>
+          </figure>
+          <figure>
+            <figcaption>Class detail</figcaption>
+            <div class="screen">
+              <div class="hdr">
+                <p class="eyebrow">Compendium</p>
+                <h3 class="ttl">Classes</h3>
+              </div>
+              <div class="card detail">
+                <a class="d-mark d-mark--ink" href="#" onclick="return false">
+                  <svg viewBox="0 0 44 16" aria-hidden="true">
+                    <path d="M43 8C32 8.4 17 8.2 5 8M13 1.5C10.2 4 7.6 6.1 5 8c2.6 1.9 5.2 4 8 6.5" />
+                  </svg>
+                  <span class="word">All classes</span>
+                  <span class="rule"></span>
+                </a>
+                <h4 class="dttl">Barbarian</h4>
+                <p class="dsub">d12 hit die · Strength</p>
+                <div class="chips"><span>Str save</span><span>Con save</span></div>
+                <p class="dbody">A fierce warrior of primitive background who can enter a battle rage.</p>
+              </div>
+            </div>
+          </figure>
+        </div>
+        <p class="note"><b>Trade-off</b> Handwritten where everything else is set type, and the full-width rule gives the thin stroke a real target. Needs a react-native-svg path and a Reanimated dash to survive the port; static, it is still the lightest of the five.</p>
+      </article>
+
+      <!-- ============ E ============ -->
+      <article class="plate plate--wide">
+        <div class="plate-head">
+          <span class="letter">E</span>
+          <div>
+            <h2>Spine</h2>
+            <p>The riskiest: back moves out of the vertical flow entirely and into a 30px left margin, running bottom-to-top like the spine of the book you came from. It always names the level above — “Compendium” in the list, “Classes” in the detail — so depth is legible without a breadcrumb.</p>
+          </div>
+        </div>
+        <div class="frames">
+          <figure>
+            <figcaption>Category</figcaption>
+            <div class="screen">
+              <div class="hdr">
+                <p class="eyebrow">Compendium</p>
+                <h3 class="ttl">Classes</h3>
+              </div>
+              <div class="e-body">
+                <a class="e-spine" href="#" onclick="return false">
+                  <span class="q">‹</span>
+                  <span class="word">Compendium</span>
+                </a>
+                <div class="card">
+                  <div class="crow"><div><strong>Include SRD classes</strong><small>12 classes</small></div><span class="sw"></span></div>
+                  <div class="lrow"><span class="badge">⚔️</span><div><strong>Barbarian</strong><small>SRD · Strength</small></div><span class="go">›</span></div>
+                  <div class="lrow"><span class="badge">🎻</span><div><strong>Bard</strong><small>SRD · Charisma</small></div><span class="go">›</span></div>
+                </div>
+              </div>
+            </div>
+          </figure>
+          <figure>
+            <figcaption>Class detail</figcaption>
+            <div class="screen">
+              <div class="hdr">
+                <p class="eyebrow">Compendium</p>
+                <h3 class="ttl">Classes</h3>
+              </div>
+              <div class="e-body">
+                <a class="e-spine" href="#" onclick="return false">
+                  <span class="q">‹</span>
+                  <span class="word">Classes</span>
+                </a>
+                <div class="card detail">
+                  <h4 class="dttl">Barbarian</h4>
+                  <p class="dsub">d12 hit die · Strength</p>
+                  <div class="chips"><span>Str save</span><span>Con save</span></div>
+                  <p class="dbody">A fierce warrior of primitive background who can enter a battle rage.</p>
+                </div>
+              </div>
+            </div>
+          </figure>
+        </div>
+        <p class="note"><b>Trade-off</b> Buys back every pixel of vertical space and never competes with the title — but it costs 30px of width on a phone, sits where a swipe-back gesture lives, and vertical type is slower to read. Worth prototyping before committing.</p>
+      </article>
+
+      <!-- ============ F ============ -->
+      <article class="plate plate--wide">
+        <div class="plate-head">
+          <span class="letter">F</span>
+          <div>
+            <h2>Codex bar · sword</h2>
+            <p>B, with the chevron swapped for a shortsword laid point-left — blade, crossguard, grip, pommel. Same row, same target, same centred title; the glyph is the only thing that changes. It nudges a few pixels toward the tip on press.</p>
+          </div>
+        </div>
+        <div class="frames">
+          <figure>
+            <figcaption>Category</figcaption>
+            <div class="screen">
+              <div class="b-bar f-cardbar">
+                <a class="f-arrow" href="#" onclick="return false" aria-label="Back to Compendium">
+                  <svg viewBox="0 0 34 16" aria-hidden="true">
+                    <path d="M0.5 8 L11 5.5 L18.6 6.2 L18.6 9.8 L11 10.5 Z" />
+                    <rect x="18.6" y="1.6" width="2.2" height="12.8" rx="1.1" />
+                    <rect x="20.8" y="7" width="8" height="2" rx="1" />
+                    <circle cx="30.7" cy="8" r="2.3" />
+                  </svg>
+                </a>
+                <div>
+                  <p class="eyebrow">Compendium</p>
+                  <h3 class="ttl">Classes</h3>
+                </div>
+                <span></span>
+              </div>
+              <div class="card">
+                <div class="crow"><div><strong>Include SRD classes</strong><small>12 classes</small></div><span class="sw"></span></div>
+                <div class="lrow"><span class="badge">⚔️</span><div><strong>Barbarian</strong><small>SRD · Strength</small></div><span class="go">›</span></div>
+                <div class="lrow"><span class="badge">🎻</span><div><strong>Bard</strong><small>SRD · Charisma</small></div><span class="go">›</span></div>
+              </div>
+            </div>
+          </figure>
+          <figure>
+            <figcaption>Class detail</figcaption>
+            <div class="screen">
+              <div class="b-bar f-cardbar">
+                <a class="f-arrow" href="#" onclick="return false" aria-label="Back to Compendium">
+                  <svg viewBox="0 0 34 16" aria-hidden="true">
+                    <path d="M0.5 8 L11 5.5 L18.6 6.2 L18.6 9.8 L11 10.5 Z" />
+                    <rect x="18.6" y="1.6" width="2.2" height="12.8" rx="1.1" />
+                    <rect x="20.8" y="7" width="8" height="2" rx="1" />
+                    <circle cx="30.7" cy="8" r="2.3" />
+                  </svg>
+                </a>
+                <div>
+                  <p class="eyebrow">Compendium</p>
+                  <h3 class="ttl">Classes</h3>
+                </div>
+                <span></span>
+              </div>
+              <div class="card detail">
+                <div class="b-cardbar f-cardbar">
+                  <a class="f-arrow f-arrow--ink" href="#" onclick="return false" aria-label="Back to all classes">
+                    <svg viewBox="0 0 34 16" aria-hidden="true">
+                      <path d="M0.5 8 L11 5.5 L18.6 6.2 L18.6 9.8 L11 10.5 Z" />
+                      <rect x="18.6" y="1.6" width="2.2" height="12.8" rx="1.1" />
+                      <rect x="20.8" y="7" width="8" height="2" rx="1" />
+                      <circle cx="30.7" cy="8" r="2.3" />
+                    </svg>
+                  </a>
+                  <span class="b-name">Barbarian</span>
+                  <span></span>
+                </div>
+                <p class="dsub">d12 hit die · Strength</p>
+                <div class="chips"><span>Str save</span><span>Con save</span></div>
+                <p class="dbody">A fierce warrior of primitive background who can enter a battle rage.</p>
+              </div>
+            </div>
+          </figure>
+        </div>
+        <p class="note"><b>Trade-off</b> Carries the setting in a spot that is usually generic, and the blade's long axis still reads as “leftward” at a glance. It is a custom <code>react-native-svg</code> shape rather than an Ionicon, and it wants a screenshot at real device scale — a 28×13 sword can silt up on a low-density phone.</p>
+      </article>
+
+      <!-- ============ variants on F ============ -->
+      <div class="sect">
+        <h2>Making the blade say “back”</h2>
+        <p>
+          A bare sword names a weapon, not a direction. Four ways to fix that, in increasing order of how much
+          they lean on words: reshape the blade, add the destination, add a caption, or let a chevron lead and
+          keep the sword as flavour. F2 is the only one that is unambiguous on first sight without a learned icon.
+        </p>
+      </div>
+
+      <!-- ---- F1 ---- -->
+      <article class="plate">
+        <div class="plate-head">
+          <span class="letter">F1</span>
+          <div>
+            <h2>Barbed</h2>
+            <p>The point becomes a proper arrowhead with swept barbs, so the silhouette is an arrow first and a sword second. No words added.</p>
+          </div>
+        </div>
+        <div class="frames">
+          <figure>
+            <figcaption>Category</figcaption>
+            <div class="screen">
+              <div class="b-bar f-cardbar">
+                <a class="f-arrow" href="#" onclick="return false" aria-label="Back to Compendium">
+                  <svg aria-hidden="true"><use href="#sword-barbed" /></svg>
+                </a>
+                <div>
+                  <p class="eyebrow">Compendium</p>
+                  <h3 class="ttl">Classes</h3>
+                </div>
+                <span></span>
+              </div>
+              <div class="card">
+                <div class="crow"><div><strong>Include SRD classes</strong><small>12 classes</small></div><span class="sw"></span></div>
+                <div class="lrow"><span class="badge">⚔️</span><div><strong>Barbarian</strong><small>SRD · Strength</small></div><span class="go">›</span></div>
+                <div class="lrow"><span class="badge">🎻</span><div><strong>Bard</strong><small>SRD · Charisma</small></div><span class="go">›</span></div>
+              </div>
+            </div>
+          </figure>
+          <figure>
+            <figcaption>Class detail</figcaption>
+            <div class="screen">
+              <div class="b-bar f-cardbar">
+                <a class="f-arrow" href="#" onclick="return false" aria-label="Back to Compendium">
+                  <svg aria-hidden="true"><use href="#sword-barbed" /></svg>
+                </a>
+                <div>
+                  <p class="eyebrow">Compendium</p>
+                  <h3 class="ttl">Classes</h3>
+                </div>
+                <span></span>
+              </div>
+              <div class="card detail">
+                <div class="b-cardbar f-cardbar">
+                  <a class="f-arrow f-arrow--ink" href="#" onclick="return false" aria-label="Back to all classes">
+                    <svg aria-hidden="true"><use href="#sword-barbed" /></svg>
+                  </a>
+                  <span class="b-name">Barbarian</span>
+                  <span></span>
+                </div>
+                <p class="dsub">d12 hit die · Strength</p>
+                <div class="chips"><span>Str save</span><span>Con save</span></div>
+                <p class="dbody">A fierce warrior of primitive background who can enter a battle rage.</p>
+              </div>
+            </div>
+          </figure>
+        </div>
+        <p class="note"><b>Trade-off</b> Keeps F's economy and borrows the one shape everyone already reads as “this way”. The barbs cost the blade its clean taper, so it drifts from sword toward hunting arrow.</p>
+      </article>
+
+      <!-- ---- F2 ---- -->
+      <article class="plate">
+        <div class="plate-head">
+          <span class="letter">F2</span>
+          <div>
+            <h2>Named</h2>
+            <p>Sword plus the place it returns to. The nav line takes over from the eyebrow — no word is repeated — and the title keeps its own line.</p>
+          </div>
+        </div>
+        <div class="frames">
+          <figure>
+            <figcaption>Category</figcaption>
+            <div class="screen">
+              <div class="f2-hdr">
+                <a class="f2-nav" href="#" onclick="return false">
+                  <svg aria-hidden="true"><use href="#sword" /></svg>
+                  <span class="word">Compendium</span>
+                </a>
+                <h3 class="ttl">Classes</h3>
+              </div>
+              <div class="card">
+                <div class="crow"><div><strong>Include SRD classes</strong><small>12 classes</small></div><span class="sw"></span></div>
+                <div class="lrow"><span class="badge">⚔️</span><div><strong>Barbarian</strong><small>SRD · Strength</small></div><span class="go">›</span></div>
+                <div class="lrow"><span class="badge">🎻</span><div><strong>Bard</strong><small>SRD · Charisma</small></div><span class="go">›</span></div>
+              </div>
+            </div>
+          </figure>
+          <figure>
+            <figcaption>Class detail</figcaption>
+            <div class="screen">
+              <div class="f2-hdr">
+                <a class="f2-nav" href="#" onclick="return false">
+                  <svg aria-hidden="true"><use href="#sword" /></svg>
+                  <span class="word">Compendium</span>
+                </a>
+                <h3 class="ttl">Classes</h3>
+              </div>
+              <div class="card detail">
+                <div class="f2-cardnav">
+                  <a class="f2-nav f2-nav--ink" href="#" onclick="return false">
+                    <svg aria-hidden="true"><use href="#sword" /></svg>
+                    <span class="word">All classes</span>
+                  </a>
+                </div>
+                <h4 class="dttl">Barbarian</h4>
+                <p class="dsub">d12 hit die · Strength</p>
+                <div class="chips"><span>Str save</span><span>Con save</span></div>
+                <p class="dbody">A fierce warrior of primitive background who can enter a battle rage.</p>
+              </div>
+            </div>
+          </figure>
+        </div>
+        <p class="note"><b>Trade-off</b> Nothing to decode: the label says where you land, and the sword is pure flavour beside it. Costs the row of vertical space that plain F saves, and the title is no longer optically centred against a lone glyph.</p>
+      </article>
+
+      <!-- ---- F3 ---- -->
+      <article class="plate">
+        <div class="plate-head">
+          <span class="letter">F3</span>
+          <div>
+            <h2>Captioned</h2>
+            <p>One fixed control at every depth: blade over a small-caps “Back”. The word never changes, so the same component drops in anywhere.</p>
+          </div>
+        </div>
+        <div class="frames">
+          <figure>
+            <figcaption>Category</figcaption>
+            <div class="screen">
+              <div class="b-bar f3-bar">
+                <a class="f3-arrow" href="#" onclick="return false">
+                  <svg aria-hidden="true"><use href="#sword" /></svg>
+                  <span class="cap">Back</span>
+                </a>
+                <div>
+                  <p class="eyebrow">Compendium</p>
+                  <h3 class="ttl">Classes</h3>
+                </div>
+                <span></span>
+              </div>
+              <div class="card">
+                <div class="crow"><div><strong>Include SRD classes</strong><small>12 classes</small></div><span class="sw"></span></div>
+                <div class="lrow"><span class="badge">⚔️</span><div><strong>Barbarian</strong><small>SRD · Strength</small></div><span class="go">›</span></div>
+                <div class="lrow"><span class="badge">🎻</span><div><strong>Bard</strong><small>SRD · Charisma</small></div><span class="go">›</span></div>
+              </div>
+            </div>
+          </figure>
+          <figure>
+            <figcaption>Class detail</figcaption>
+            <div class="screen">
+              <div class="b-bar f3-bar">
+                <a class="f3-arrow" href="#" onclick="return false">
+                  <svg aria-hidden="true"><use href="#sword" /></svg>
+                  <span class="cap">Back</span>
+                </a>
+                <div>
+                  <p class="eyebrow">Compendium</p>
+                  <h3 class="ttl">Classes</h3>
+                </div>
+                <span></span>
+              </div>
+              <div class="card detail">
+                <div class="b-cardbar f3-bar">
+                  <a class="f3-arrow f3-arrow--ink" href="#" onclick="return false">
+                    <svg aria-hidden="true"><use href="#sword" /></svg>
+                    <span class="cap">Back</span>
+                  </a>
+                  <span class="b-name">Barbarian</span>
+                  <span></span>
+                </div>
+                <p class="dsub">d12 hit die · Strength</p>
+                <div class="chips"><span>Str save</span><span>Con save</span></div>
+                <p class="dbody">A fierce warrior of primitive background who can enter a battle rage.</p>
+              </div>
+            </div>
+          </figure>
+        </div>
+        <p class="note"><b>Trade-off</b> Explicit and reusable, and it keeps the title centred. “Back” is generic where the rest of the screen names things — and at 8px the caption is doing a lot of work on a small phone.</p>
+      </article>
+
+      <!-- ---- F4 ---- -->
+      <article class="plate">
+        <div class="plate-head">
+          <span class="letter">F4</span>
+          <div>
+            <h2>Escort</h2>
+            <p>The chevron does the navigating; the sword trails it at half strength as a flourish. Direction is carried by the shape people already know.</p>
+          </div>
+        </div>
+        <div class="frames">
+          <figure>
+            <figcaption>Category</figcaption>
+            <div class="screen">
+              <div class="b-bar f4-bar">
+                <a class="f4-arrow" href="#" onclick="return false" aria-label="Back to Compendium">
+                  <span class="q">‹</span>
+                  <svg aria-hidden="true"><use href="#sword" /></svg>
+                </a>
+                <div>
+                  <p class="eyebrow">Compendium</p>
+                  <h3 class="ttl">Classes</h3>
+                </div>
+                <span></span>
+              </div>
+              <div class="card">
+                <div class="crow"><div><strong>Include SRD classes</strong><small>12 classes</small></div><span class="sw"></span></div>
+                <div class="lrow"><span class="badge">⚔️</span><div><strong>Barbarian</strong><small>SRD · Strength</small></div><span class="go">›</span></div>
+                <div class="lrow"><span class="badge">🎻</span><div><strong>Bard</strong><small>SRD · Charisma</small></div><span class="go">›</span></div>
+              </div>
+            </div>
+          </figure>
+          <figure>
+            <figcaption>Class detail</figcaption>
+            <div class="screen">
+              <div class="b-bar f4-bar">
+                <a class="f4-arrow" href="#" onclick="return false" aria-label="Back to Compendium">
+                  <span class="q">‹</span>
+                  <svg aria-hidden="true"><use href="#sword" /></svg>
+                </a>
+                <div>
+                  <p class="eyebrow">Compendium</p>
+                  <h3 class="ttl">Classes</h3>
+                </div>
+                <span></span>
+              </div>
+              <div class="card detail">
+                <div class="b-cardbar f4-bar">
+                  <a class="f4-arrow f4-arrow--ink" href="#" onclick="return false" aria-label="Back to all classes">
+                    <span class="q">‹</span>
+                    <svg aria-hidden="true"><use href="#sword" /></svg>
+                  </a>
+                  <span class="b-name">Barbarian</span>
+                  <span></span>
+                </div>
+                <p class="dsub">d12 hit die · Strength</p>
+                <div class="chips"><span>Str save</span><span>Con save</span></div>
+                <p class="dbody">A fierce warrior of primitive background who can enter a battle rage.</p>
+              </div>
+            </div>
+          </figure>
+        </div>
+        <p class="note"><b>Trade-off</b> Safest of the four: it cannot be misread, and the blade still marks the screen as this app's. Two marks in one target is more visual noise than any single glyph, and the sword reads as decoration rather than the control.</p>
+      </article>
+
+    </div>
+
+    <p class="footer">
+      File: <code>docs/mockups/compendium-back-button-round-2.html</code><br />
+      Reply with A / B / C / D / E / F (or F1–F4), or a hybrid — and I will wire it into <code>CompendiumBackButton</code> plus the
+      <code>All classes</code> control in <code>class-compendium.tsx</code>.
+    </p>
+  </div>
+</body>
+</html>

@@ -352,9 +352,11 @@ export default function CustomSubclassesScreen() {
 
     return (
         <View style={styles.container}>
-            <CompendiumScreenHeader eyebrow="Compendium" title="Subclasses" />
-
-            <CompendiumBackButton />
+            <CompendiumScreenHeader
+                eyebrow="Compendium"
+                title="Subclasses"
+                leading={<CompendiumBackButton />}
+            />
 
             <View style={styles.contentArea}>
                 <SubclassManagerCard

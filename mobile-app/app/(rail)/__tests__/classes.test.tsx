@@ -163,6 +163,26 @@ describe('Classes compendium', () => {
         expect(screen.getByTestId('class-detail-all-classes')).toBeTruthy();
     });
 
+    test('names the selected class in the back bar while details load', async () => {
+        renderCompendium([
+            { request: { query: GET_COMPENDIUM_COUNTS }, result: { data: { compendiumCounts: COUNTS_ONE_CUSTOM } }, maxUsageCount: Number.POSITIVE_INFINITY },
+            { request: { query: GET_AVAILABLE_CLASSES }, result: { data: { availableClasses: [summary] } } },
+            {
+                request: { query: GET_CLASS_DETAILS, variables: { value: 'wizard' } },
+                result: { data: { classDetails: details } },
+                delay: 80,
+            },
+        ]);
+
+        await waitFor(() => expect(screen.getByText('Wizard')).toBeTruthy());
+        fireEvent.press(screen.getByTestId('class-row-wizard'));
+
+        await waitFor(() => expect(screen.getByTestId('class-detail-loading')).toBeTruthy());
+        expect(screen.getByText('Wizard')).toBeTruthy();
+
+        await waitFor(() => expect(screen.getByTestId('class-detail-loaded')).toBeTruthy());
+    });
+
     test('shows an error state with retry and retains All classes', async () => {
         let detailCalls = 0;
         renderCompendium([

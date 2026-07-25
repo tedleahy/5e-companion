@@ -5,6 +5,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Switch, Text } from 'react-native-paper';
 import Animated, { FadeIn, SlideInRight } from 'react-native-reanimated';
 import CompendiumBackButton from '@/components/compendium/compendium-back-button';
+import CompendiumDetailBackBar from '@/components/compendium/compendium-detail-back-bar';
 import CompendiumScreenHeader from '@/components/compendium/compendium-screen-header';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import CustomClassEditor from '@/components/classes/custom-class-editor';
@@ -19,6 +20,9 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { AvailableClassesQuery, ClassDetailsFieldsFragment, ClassDetailsQuery, ClassDetailsQueryVariables } from '@/types/generated_graphql_types';
 
 const ABILITY_LABELS: Record<string, string> = { str: 'Strength', dex: 'Dexterity', con: 'Constitution', int: 'Intelligence', wis: 'Wisdom', cha: 'Charisma' };
+
+/** Padding of the detail scroll content; the back bar bleeds past it to the card edges. */
+const DETAIL_CONTENT_PADDING = fantasyTokens.spacing.lg;
 
 export default function ClassCompendium() {
     const [showSrd, setShowSrd] = useState(true);
@@ -72,8 +76,11 @@ export default function ClassCompendium() {
 
     return (
         <View style={styles.container}>
-            <CompendiumScreenHeader eyebrow="Compendium" title="Classes" />
-            <CompendiumBackButton />
+            <CompendiumScreenHeader
+                eyebrow="Compendium"
+                title="Classes"
+                leading={<CompendiumBackButton />}
+            />
             <View style={styles.card}>
                 {selectedValue == null ? (
                     <Animated.View entering={FadeIn.duration(fantasyTokens.motion.quick)} style={styles.flex}>
@@ -103,6 +110,11 @@ export default function ClassCompendium() {
                             detailsLoading={details.loading && !selectedMatches}
                             detailsError={details.error?.message ?? null}
                             selected={selectedMatches ? selected : null}
+                            heading={
+                                selectedMatches
+                                    ? selected.name
+                                    : rows.find((row) => row.value === selectedValue)?.name ?? null
+                            }
                             proficiencyLines={proficiencyLines}
                             equipmentLines={equipmentLines}
                             onBack={() => setSelectedValue(null)}
@@ -150,6 +162,7 @@ type ClassDetailPaneProps = {
     detailsLoading: boolean;
     detailsError: string | null;
     selected: ClassDetailsFieldsFragment | null;
+    heading: string | null;
     proficiencyLines: ReturnType<typeof formatGroupedProficiencyLines>;
     equipmentLines: ReturnType<typeof formatGroupedEquipmentLines>;
     onBack: () => void;
@@ -160,12 +173,13 @@ type ClassDetailPaneProps = {
 
 /**
  * Detail pane with explicit loading, error, not-found, and loaded states.
- * Every state keeps an All classes action; errors also offer retry.
+ * Every state keeps an F3 back control; errors also offer retry.
  */
 function ClassDetailPane({
     detailsLoading,
     detailsError,
     selected,
+    heading,
     proficiencyLines,
     equipmentLines,
     onBack,
@@ -175,10 +189,13 @@ function ClassDetailPane({
 }: ClassDetailPaneProps) {
     return (
         <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.detailContent}>
-            <Pressable onPress={onBack} style={styles.inlineBack} testID="class-detail-all-classes">
-                <Ionicons name="arrow-back" size={18} color={fantasyTokens.colors.claret} />
-                <Text style={styles.inlineBackText}>All classes</Text>
-            </Pressable>
+            <CompendiumDetailBackBar
+                title={heading}
+                accessibilityLabel="Back to all classes"
+                onBack={onBack}
+                bleed={DETAIL_CONTENT_PADDING}
+                testID="class-detail-all-classes"
+            />
             {detailsLoading ? (
                 <Loading message="Opening class details..." parchment testID="class-detail-loading" />
             ) : detailsError != null ? (
@@ -195,10 +212,7 @@ function ClassDetailPane({
             ) : (
                 <View testID="class-detail-loaded">
                     <View style={styles.detailHeading}>
-                        <View>
-                            <Text style={styles.detailTitle}>{selected.name}</Text>
-                            <Text style={styles.muted}>{selected.isCustom ? 'Custom class' : selected.sourceBook ?? 'SRD'}</Text>
-                        </View>
+                        <Text style={styles.muted}>{selected.isCustom ? 'Custom class' : selected.sourceBook ?? 'SRD'}</Text>
                         <View style={styles.badgeLarge}>
                             <Text style={styles.badgeLargeText}>d{selected.hitDie}</Text>
                             <Text style={styles.statLabel}>Hit die</Text>
@@ -346,25 +360,16 @@ const styles = StyleSheet.create({
     badgeText: { ...fantasyTokens.typography.sectionTitle, color: fantasyTokens.colors.claret },
     rowTitle: { ...fantasyTokens.typography.sectionTitle, color: fantasyTokens.colors.inkDark },
     detailContent: {
-        padding: fantasyTokens.spacing.lg,
+        padding: DETAIL_CONTENT_PADDING,
         gap: fantasyTokens.spacing.md,
         paddingBottom: fantasyTokens.spacing.xxl,
     },
-    inlineBack: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: fantasyTokens.spacing.sm,
-        alignSelf: 'flex-start',
-        paddingVertical: fantasyTokens.spacing.xs,
-    },
-    inlineBackText: { ...fantasyTokens.typography.buttonLabel, color: fantasyTokens.colors.claret },
     detailHeading: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
         gap: fantasyTokens.spacing.md,
     },
-    detailTitle: { ...fantasyTokens.typography.pageTitle, color: fantasyTokens.colors.inkDark },
     badgeLarge: {
         alignItems: 'center',
         minWidth: 72,
