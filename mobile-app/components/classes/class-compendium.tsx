@@ -1,8 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useMutation, useQuery } from '@apollo/client/react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Snackbar, Switch, Text } from 'react-native-paper';
+import { ActivityIndicator, Switch, Text } from 'react-native-paper';
 import Animated, { FadeIn, SlideInRight } from 'react-native-reanimated';
 import CompendiumBackButton from '@/components/compendium/compendium-back-button';
 import CompendiumScreenHeader from '@/components/compendium/compendium-screen-header';
@@ -14,6 +14,7 @@ import {
 } from '@/components/classes/class-detail-presentation';
 import FloatingAddButton from '@/components/floating-add-button';
 import { ARCHIVE_CUSTOM_CLASS, GET_AVAILABLE_CLASSES, GET_CLASS_DETAILS } from '@/graphql/class.operations';
+import { GET_COMPENDIUM_COUNTS } from '@/graphql/compendium.operations';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { AvailableClassesQuery, ClassDetailsFieldsFragment, ClassDetailsQuery, ClassDetailsQueryVariables } from '@/types/generated_graphql_types';
 
@@ -23,7 +24,9 @@ export default function ClassCompendium() {
     const [showSrd, setShowSrd] = useState(true);
     const [selectedValue, setSelectedValue] = useState<string | null>(null);
     const [archiveCandidate, setArchiveCandidate] = useState<{ id: string; name: string } | null>(null);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [archiveErrorMessage, setArchiveErrorMessage] = useState<string | null>(null);
+    const [archiveSubmitting, setArchiveSubmitting] = useState(false);
+    const archiveInFlightRef = useRef(false);
     const [editorVisible, setEditorVisible] = useState(false);
     const [editorInitial, setEditorInitial] = useState<ClassDetailsFieldsFragment | null>(null);
     const available = useQuery<AvailableClassesQuery>(GET_AVAILABLE_CLASSES, { fetchPolicy: 'cache-and-network' });
@@ -31,7 +34,7 @@ export default function ClassCompendium() {
         variables: { value: selectedValue ?? '' },
         skip: selectedValue == null,
     });
-    const [archiveClass, archiveState] = useMutation(ARCHIVE_CUSTOM_CLASS);
+    const [archiveClass] = useMutation(ARCHIVE_CUSTOM_CLASS);
     const rows = useMemo(() => (available.data?.availableClasses ?? []).filter((row) => showSrd || row.isCustom), [available.data, showSrd]);
     const selected = details.data?.classDetails;
     const selectedMatches = selected != null && selected.value === selectedValue;
@@ -45,14 +48,22 @@ export default function ClassCompendium() {
     );
 
     async function confirmArchive() {
-        if (!archiveCandidate) return;
+        if (!archiveCandidate || archiveInFlightRef.current) return;
+        archiveInFlightRef.current = true;
+        setArchiveSubmitting(true);
+        setArchiveErrorMessage(null);
         try {
-            await archiveClass({ variables: { id: archiveCandidate.id } });
+            await archiveClass({
+                variables: { id: archiveCandidate.id },
+                refetchQueries: [GET_AVAILABLE_CLASSES, GET_COMPENDIUM_COUNTS],
+            });
             setArchiveCandidate(null);
             setSelectedValue(null);
-            await available.refetch();
         } catch (error) {
-            setErrorMessage(error instanceof Error ? error.message : 'Unable to archive class.');
+            setArchiveErrorMessage(error instanceof Error ? error.message : 'Unable to archive class.');
+        } finally {
+            archiveInFlightRef.current = false;
+            setArchiveSubmitting(false);
         }
     }
 
@@ -97,14 +108,28 @@ export default function ClassCompendium() {
                             onBack={() => setSelectedValue(null)}
                             onRetry={() => { void details.refetch(); }}
                             onEdit={(classDetails) => { setEditorInitial(classDetails); setEditorVisible(true); }}
-                            onArchive={(classDetails) => setArchiveCandidate({ id: classDetails.id, name: classDetails.name })}
+                            onArchive={(classDetails) => {
+                                setArchiveErrorMessage(null);
+                                setArchiveCandidate({ id: classDetails.id, name: classDetails.name });
+                            }}
                         />
                     </Animated.View>
                 )}
             </View>
             {selectedValue == null ? <FloatingAddButton accessibilityLabel="Add custom class" testID="add-custom-class" onPress={() => { setEditorInitial(null); setEditorVisible(true); }} /> : null}
-            <ConfirmDialog visible={archiveCandidate != null} title="Archive custom class?" message={archiveCandidate ? `${archiveCandidate.name} will no longer be available to new characters. Existing characters keep it.` : ''} confirmLabel={archiveState.loading ? 'Archiving...' : 'Archive'} onConfirm={() => void confirmArchive()} onCancel={() => setArchiveCandidate(null)} />
-            <Snackbar visible={errorMessage != null} onDismiss={() => setErrorMessage(null)}>{errorMessage ?? ''}</Snackbar>
+            <ConfirmDialog
+                visible={archiveCandidate != null}
+                title="Archive custom class?"
+                message={archiveCandidate ? `${archiveCandidate.name} will no longer be available to new characters. Existing characters keep it.` : ''}
+                confirmLabel={archiveSubmitting ? 'Archiving...' : 'Archive'}
+                pending={archiveSubmitting}
+                errorMessage={archiveErrorMessage}
+                onConfirm={() => void confirmArchive()}
+                onCancel={() => {
+                    setArchiveCandidate(null);
+                    setArchiveErrorMessage(null);
+                }}
+            />
             <CustomClassEditor
                 visible={editorVisible}
                 initial={editorInitial}

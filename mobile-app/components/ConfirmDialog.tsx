@@ -8,6 +8,10 @@ type ConfirmDialogProps = {
     message: string;
     confirmLabel?: string;
     cancelLabel?: string;
+    /** When true, blocks confirm/cancel/dismiss and disables both actions. */
+    pending?: boolean;
+    /** Error shown inside the dialog (e.g. mutation failure while still open). */
+    errorMessage?: string | null;
     onConfirm: () => void;
     onCancel: () => void;
 };
@@ -22,44 +26,67 @@ export default function ConfirmDialog({
     message,
     confirmLabel = 'Confirm',
     cancelLabel = 'Cancel',
+    pending = false,
+    errorMessage = null,
     onConfirm,
     onCancel,
 }: ConfirmDialogProps) {
     const { width } = useWindowDimensions();
     const isTablet = width >= 768;
 
+    function handleCancel() {
+        if (pending) return;
+        onCancel();
+    }
+
+    function handleConfirm() {
+        if (pending) return;
+        onConfirm();
+    }
+
     return (
         <Modal
             visible={visible}
             transparent
             animationType="fade"
-            onRequestClose={onCancel}
+            onRequestClose={handleCancel}
         >
             <View style={styles.modalRoot}>
                 <Pressable
                     style={styles.backdrop}
-                    onPress={onCancel}
+                    onPress={handleCancel}
+                    disabled={pending}
                     accessibilityRole="button"
                     accessibilityLabel="Dismiss dialog"
+                    accessibilityState={{ disabled: pending }}
                 />
                 <View style={[styles.dialog, isTablet && styles.dialogTablet]}>
                     <Text style={styles.title}>{title}</Text>
                     <Text style={styles.message}>{message}</Text>
+                    {errorMessage ? (
+                        <Text style={styles.error} testID="confirm-dialog-error">{errorMessage}</Text>
+                    ) : null}
                     <View style={styles.actions}>
                         <View style={styles.buttonRow}>
                             <Pressable
-                                onPress={onCancel}
-                                style={styles.cancelButton}
+                                onPress={handleCancel}
+                                disabled={pending}
+                                style={[styles.cancelButton, pending && styles.disabledButton]}
                                 accessibilityRole="button"
                                 accessibilityLabel={cancelLabel}
+                                accessibilityState={{ disabled: pending }}
+                                testID="confirm-dialog-cancel"
                             >
                                 <NativeText style={styles.cancelButtonText}>{cancelLabel}</NativeText>
                             </Pressable>
                             <Pressable
-                                onPress={onConfirm}
-                                style={styles.confirmButton}
+                                onPress={handleConfirm}
+                                disabled={pending}
+                                style={[styles.confirmButton, pending && styles.disabledButton]}
                                 accessibilityRole="button"
                                 accessibilityLabel={confirmLabel}
+                                accessibilityState={{ disabled: pending }}
+                                testID="confirm-dialog-confirm"
                             >
                                 <NativeText style={styles.confirmButtonText}>{confirmLabel}</NativeText>
                             </Pressable>
@@ -106,6 +133,10 @@ const styles = StyleSheet.create({
         ...fantasyTokens.typography.body,
         color: fantasyTokens.colors.inkLight,
     },
+    error: {
+        ...fantasyTokens.typography.body,
+        color: fantasyTokens.colors.crimson,
+    },
     actions: {
         paddingTop: fantasyTokens.spacing.sm,
     },
@@ -142,5 +173,8 @@ const styles = StyleSheet.create({
     confirmButtonText: {
         ...fantasyTokens.typography.buttonLabel,
         color: fantasyTokens.colors.parchment,
+    },
+    disabledButton: {
+        opacity: 0.55,
     },
 });

@@ -6,6 +6,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import BottomSheetShell from '@/components/sheets/BottomSheetShell';
 import { OVERLAY_LAYER } from '@/components/sheets/overlayLayers';
 import { CREATE_CUSTOM_CLASS, GET_AVAILABLE_CLASSES, GET_CUSTOM_CLASSES, UPDATE_CUSTOM_CLASS } from '@/graphql/class.operations';
+import { GET_COMPENDIUM_COUNTS } from '@/graphql/compendium.operations';
 import useBottomSheetMotion from '@/hooks/useBottomSheetMotion';
 import useDismissKeyboardAction from '@/hooks/useDismissKeyboardAction';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
@@ -128,7 +129,7 @@ export default function CustomClassEditor({ visible, initial, onClose, onSaved }
             } else {
                 await createClass({
                     variables: { input: serialiseDraft(draft) },
-                    refetchQueries: [GET_AVAILABLE_CLASSES, GET_CUSTOM_CLASSES],
+                    refetchQueries: [GET_AVAILABLE_CLASSES, GET_CUSTOM_CLASSES, GET_COMPENDIUM_COUNTS],
                 });
             }
             onSaved?.();

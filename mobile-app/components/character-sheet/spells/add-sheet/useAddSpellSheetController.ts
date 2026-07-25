@@ -135,6 +135,11 @@ export default function useAddSpellSheetController({
     const [selectedSpell, setSelectedSpell] = useState<AddSpellListItem | null>(null);
     const [hasMore, setHasMore] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
+    const queryGenerationRef = useRef(0);
+    const loadMoreInFlightRef = useRef(false);
+    const filterInputRef = useRef<ReturnType<typeof buildAddSpellFilterInput>>(undefined);
+    const spellCountRef = useRef(0);
+    const hasMoreRef = useRef(true);
     const prefetchedSpellDetailIdsRef = useRef<Set<string>>(new Set());
     const {
         pendingSpellIds,
@@ -176,6 +181,7 @@ export default function useAddSpellSheetController({
     const filterInput = useMemo(() => {
         return buildAddSpellFilterInput(effectiveFilters, debouncedSearchQuery);
     }, [debouncedSearchQuery, effectiveFilters]);
+    filterInputRef.current = filterInput;
 
     const queryVariables = useMemo<AddSpellSheetSpellsQueryVariables>(() => ({
         pagination: {
@@ -193,15 +199,22 @@ export default function useAddSpellSheetController({
             notifyOnNetworkStatusChange: true,
         },
     );
+    spellCountRef.current = data?.spells?.length ?? 0;
 
     useEffect(() => {
+        queryGenerationRef.current += 1;
+        loadMoreInFlightRef.current = false;
+        hasMoreRef.current = true;
         setHasMore(true);
+        setLoadingMore(false);
     }, [queryVariables]);
 
     useEffect(() => {
         if (!data?.spells || loadingMore) return;
         if (data.spells.length <= ADD_SPELL_SHEET_PAGE_SIZE) {
-            setHasMore(data.spells.length === ADD_SPELL_SHEET_PAGE_SIZE);
+            const nextHasMore = data.spells.length === ADD_SPELL_SHEET_PAGE_SIZE;
+            hasMoreRef.current = nextHasMore;
+            setHasMore(nextHasMore);
         }
     }, [data, loadingMore]);
 
@@ -270,13 +283,20 @@ export default function useAddSpellSheetController({
 
     /**
      * Fetches the next page of spells and appends them to the current list.
+     * Ignores completions whose query generation no longer matches (stale after filter/search change).
      */
     const loadMoreSpells = useCallback(() => {
-        if (!visible || loading || loadingMore || !hasMore) return;
+        const currentCount = spellCountRef.current;
+        const activeFilter = filterInputRef.current;
+        // Do not gate on Apollo `loading`: an in-flight fetchMore for a prior generation can keep
+        // network status busy after filters change and would otherwise block legitimate pagination.
+        if (!visible || loadMoreInFlightRef.current || !hasMoreRef.current || currentCount === 0) return;
 
-        const currentCount = data?.spells?.length ?? 0;
+        const requestGeneration = queryGenerationRef.current;
         let fetchedCount = 0;
+        let applied = false;
 
+        loadMoreInFlightRef.current = true;
         setLoadingMore(true);
 
         void fetchMore({
@@ -285,11 +305,16 @@ export default function useAddSpellSheetController({
                     limit: ADD_SPELL_SHEET_PAGE_SIZE,
                     offset: currentCount,
                 },
-                ...(filterInput ? { filter: filterInput } : {}),
+                ...(activeFilter ? { filter: activeFilter } : {}),
             },
             updateQuery(previousResult, { fetchMoreResult }) {
+                if (queryGenerationRef.current !== requestGeneration) {
+                    return previousResult;
+                }
+
                 const nextSpells = fetchMoreResult?.spells ?? [];
                 fetchedCount = nextSpells.length;
+                applied = true;
 
                 if (nextSpells.length === 0) return previousResult;
 
@@ -303,13 +328,19 @@ export default function useAddSpellSheetController({
                 };
             },
         }).then(() => {
-            setHasMore(fetchedCount === ADD_SPELL_SHEET_PAGE_SIZE);
+            if (queryGenerationRef.current !== requestGeneration || !applied) return;
+            const nextHasMore = fetchedCount === ADD_SPELL_SHEET_PAGE_SIZE;
+            hasMoreRef.current = nextHasMore;
+            setHasMore(nextHasMore);
         }).catch((fetchError) => {
+            if (queryGenerationRef.current !== requestGeneration) return;
             console.error(fetchError);
         }).finally(() => {
+            if (queryGenerationRef.current !== requestGeneration) return;
+            loadMoreInFlightRef.current = false;
             setLoadingMore(false);
         });
-    }, [data?.spells?.length, fetchMore, filterInput, hasMore, loading, loadingMore, visible]);
+    }, [fetchMore, visible]);
 
     /**
      * Warms Apollo cache for spell details before the full press completes.
