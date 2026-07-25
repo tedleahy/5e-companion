@@ -311,11 +311,57 @@ export function canContinueFromSpellcastingUpdates(
         return false;
     }
 
+    if (hasCrossBucketSpellDuplicate(state)) {
+        return false;
+    }
+
     return true;
 }
 
 /**
- * Adds one spell to the requested local spell selection bucket.
+ * One local spellcasting selection bucket that must stay unique across the others.
+ */
+type LevelUpSpellcastingBucket = 'learnedSpells' | 'cantripSpells' | 'swapReplacementSpell';
+
+/**
+ * Returns whether a spell id is already selected in a bucket other than the given one.
+ */
+function isSpellSelectedInAnotherBucket(
+    state: LevelUpSpellcastingState,
+    bucket: LevelUpSpellcastingBucket,
+    spellId: string,
+): boolean {
+    if (bucket !== 'learnedSpells' && state.learnedSpells.some((spell) => spell.id === spellId)) {
+        return true;
+    }
+
+    if (bucket !== 'cantripSpells' && state.cantripSpells.some((spell) => spell.id === spellId)) {
+        return true;
+    }
+
+    if (bucket !== 'swapReplacementSpell' && state.swapReplacementSpell?.id === spellId) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Returns whether any spell id appears in more than one selection bucket.
+ */
+function hasCrossBucketSpellDuplicate(state: LevelUpSpellcastingState): boolean {
+    const selectedIds = [
+        ...state.learnedSpells.map((spell) => spell.id),
+        ...state.cantripSpells.map((spell) => spell.id),
+        ...(state.swapReplacementSpell ? [state.swapReplacementSpell.id] : []),
+    ];
+
+    return new Set(selectedIds).size !== selectedIds.length;
+}
+
+/**
+ * Adds one spell to the requested local spell selection bucket. Ignored when the
+ * spell is already selected in another bucket, so one spell cannot fill two grants.
  */
 export function addLevelUpSpellSelection(
     state: LevelUpSpellcastingState,
@@ -323,6 +369,10 @@ export function addLevelUpSpellSelection(
     spell: LevelUpSpellSelection,
     maximum: number,
 ): LevelUpSpellcastingState {
+    if (isSpellSelectedInAnotherBucket(state, bucket, spell.id)) {
+        return state;
+    }
+
     const currentBucket = state[bucket].filter((currentSpell) => currentSpell.id !== spell.id);
     const nextBucket = [...currentBucket, spell].slice(0, maximum);
 
@@ -369,12 +419,17 @@ export function setLevelUpSwapOutSpell(
 }
 
 /**
- * Sets the replacement spell chosen for an optional swap.
+ * Sets the replacement spell chosen for an optional swap. Ignored when the spell is
+ * already selected as a learned spell or cantrip, so one spell cannot fill two grants.
  */
 export function setLevelUpSwapReplacementSpell(
     state: LevelUpSpellcastingState,
     spell: LevelUpSpellSelection | null,
 ): LevelUpSpellcastingState {
+    if (spell && isSpellSelectedInAnotherBucket(state, 'swapReplacementSpell', spell.id)) {
+        return state;
+    }
+
     return {
         ...state,
         swapReplacementSpell: spell,

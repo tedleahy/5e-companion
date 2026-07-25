@@ -34,22 +34,38 @@ export default function LevelUpSpellcastingStep({
     } = wizard;
     const [pickerMode, setPickerMode] = useState<SpellPickerMode>(null);
     const blockedSpellIds = useMemo(() => {
+        // Block every already-known spell plus anything selected in another bucket,
+        // so one spell cannot fill the learned, cantrip, and swap grants at once.
         const blockedIds = new Set(spellcastingSummary.currentKnownSpellIds);
 
         for (const spell of spellcastingState.learnedSpells) {
-            blockedIds.delete(spell.id);
+            blockedIds.add(spell.id);
         }
 
         for (const spell of spellcastingState.cantripSpells) {
-            blockedIds.delete(spell.id);
+            blockedIds.add(spell.id);
         }
 
         if (spellcastingState.swapReplacementSpell) {
+            blockedIds.add(spellcastingState.swapReplacementSpell.id);
+        }
+
+        // Unblock the current picker's own selections so they stay toggleable.
+        if (pickerMode === 'learned') {
+            for (const spell of spellcastingState.learnedSpells) {
+                blockedIds.delete(spell.id);
+            }
+        } else if (pickerMode === 'cantrip') {
+            for (const spell of spellcastingState.cantripSpells) {
+                blockedIds.delete(spell.id);
+            }
+        } else if (pickerMode === 'swap' && spellcastingState.swapReplacementSpell) {
             blockedIds.delete(spellcastingState.swapReplacementSpell.id);
         }
 
         return [...blockedIds];
     }, [
+        pickerMode,
         spellcastingState.cantripSpells,
         spellcastingState.learnedSpells,
         spellcastingState.swapReplacementSpell,
