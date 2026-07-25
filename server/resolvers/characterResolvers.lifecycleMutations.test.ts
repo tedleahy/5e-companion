@@ -484,7 +484,6 @@ describe('characterResolvers — createCharacter', () => {
                 ],
             },
         ]);
-        subclassFindManyMock.mockResolvedValueOnce([]);
         raceFindFirstMock.mockResolvedValueOnce({ id: 'race-human-id', name: 'Human', languages: [], traits: [] });
         backgroundFindFirstMock.mockResolvedValueOnce({
             id: 'background-soldier-id', name: 'Soldier', proficiencies: [], languages: [], languageChoiceCount: null,
@@ -579,7 +578,6 @@ describe('characterResolvers — createCharacter', () => {
         ];
 
         classFindManyMock.mockResolvedValueOnce(classes);
-        subclassFindManyMock.mockResolvedValueOnce([]);
         raceFindFirstMock.mockResolvedValueOnce({ id: 'race-human-id', name: 'Human', languages: [], traits: [] });
         backgroundFindFirstMock.mockResolvedValueOnce({
             id: 'background-acolyte-id', name: 'Acolyte', proficiencies: [], languages: [], languageChoiceCount: null,
@@ -609,7 +607,6 @@ describe('characterResolvers — createCharacter', () => {
         } as any, authedCtx)).rejects.toThrow('Choose exactly 1 proficiency from rogue choice group 1');
 
         classFindManyMock.mockResolvedValueOnce(classes);
-        subclassFindManyMock.mockResolvedValueOnce([]);
         raceFindFirstMock.mockResolvedValueOnce({ id: 'race-human-id', name: 'Human', languages: [], traits: [] });
         backgroundFindFirstMock.mockResolvedValueOnce({
             id: 'background-acolyte-id', name: 'Acolyte', proficiencies: [], languages: [], languageChoiceCount: null,
@@ -660,7 +657,6 @@ describe('characterResolvers — createCharacter', () => {
         ]);
         raceFindFirstMock.mockResolvedValueOnce({ id: 'race-elf-id', name: 'Elf', languages: [], traits: [] });
         backgroundFindFirstMock.mockResolvedValueOnce({ id: 'background-acolyte-id', name: 'Acolyte', proficiencies: [], languages: [], languageChoiceCount: null });
-        featureFindManyMock.mockResolvedValueOnce([]);
 
         expect(resolvers.createCharacter({}, {
             input: {
