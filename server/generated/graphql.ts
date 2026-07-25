@@ -301,7 +301,22 @@ export type CreateCharacterInput = {
   featureChoices?: InputMaybe<Array<FeatureChoiceInput>>;
   initiative: Scalars['Int']['input'];
   name: Scalars['String']['input'];
+  /**
+   * Generic proficiency picks for every class row: STARTING groups on the
+   * starting class and MULTICLASS groups on secondary classes. Includes SKILL
+   * and named (armor/weapon/tool/other) groups. Identity is `(classId, choiceGroup)`;
+   * values are proficiency identities (`srdIndex ?? id`). The server validates
+   * each group independently and derives persisted skill/trait grants from these
+   * picks plus fixed class and background grants — `skillProficiencies` is not
+   * choice provenance.
+   */
+  proficiencyChoices?: InputMaybe<Array<ProficiencyChoiceSelectionInput>>;
   race: Scalars['String']['input'];
+  /**
+   * Compatibility field. Creation derives persisted skill proficiencies from
+   * validated `proficiencyChoices` plus fixed class/background grants. Client
+   * values are not used as choice-group provenance.
+   */
   skillProficiencies: SkillProficienciesInput;
   speed: Scalars['Int']['input'];
   startingClassId: Scalars['String']['input'];
@@ -625,6 +640,16 @@ export type MutationUpdateSkillProficienciesArgs = {
   input: SkillProficienciesInput;
 };
 
+export type ProficiencyChoiceSelectionInput = {
+  choiceGroup: Scalars['Int']['input'];
+  /**
+   * Class selection value (SRD `srdIndex` or owned custom class id), matching
+   * `CreateCharacterClassInput.classId`. Choice groups are unique per class.
+   */
+  classId: Scalars['String']['input'];
+  values: Array<Scalars['String']['input']>;
+};
+
 export enum ProficiencyLevel {
   Expert = 'expert',
   None = 'none',
@@ -641,6 +666,7 @@ export type ProficiencyRef = {
 
 export type Query = {
   __typename?: 'Query';
+  attachedClassDetails: Array<ClassDetails>;
   availableBackgrounds: Array<AvailableBackground>;
   availableClasses: Array<AvailableClass>;
   availableSubclasses: Array<AvailableSubclass>;
@@ -654,6 +680,11 @@ export type Query = {
   proficiencies: Array<ProficiencyRef>;
   spell?: Maybe<Spell>;
   spells: Array<Spell>;
+};
+
+
+export type QueryAttachedClassDetailsArgs = {
+  values: Array<Scalars['String']['input']>;
 };
 
 
@@ -722,8 +753,18 @@ export type SaveCharacterSheetInput = {
   hp: HpInput;
   initiative: Scalars['Int']['input'];
   inventory: Array<SaveCharacterSheetInventoryItemInput>;
+  /**
+   * MULTICLASS proficiency choice provenance for classes newly added in this
+   * save. Includes SKILL and named (armor/weapon/tool/other) groups. Required
+   * when the save introduces new class rows that grant MULTICLASS choice groups;
+   * must be omitted or empty when no class is newly added so ordinary manual
+   * trait/skill edits stay unconstrained. Option values use `srdIndex ?? id`.
+   * Identity is `(classId, choiceGroup)`.
+   */
+  proficiencyChoices?: InputMaybe<Array<ProficiencyChoiceSelectionInput>>;
   skillProficiencies: SkillProficienciesInput;
   speed: Scalars['Int']['input'];
+  spellbook: Array<SaveCharacterSheetSpellInput>;
   traits: TraitsInput;
   weapons: Array<SaveCharacterSheetWeaponInput>;
 };
@@ -736,6 +777,11 @@ export type SaveCharacterSheetInventoryItemInput = {
   name: Scalars['String']['input'];
   quantity: Scalars['Int']['input'];
   weight?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type SaveCharacterSheetSpellInput = {
+  prepared: Scalars['Boolean']['input'];
+  spellId: Scalars['ID']['input'];
 };
 
 export type SaveCharacterSheetWeaponInput = {
@@ -1036,6 +1082,7 @@ export type ResolversTypes = {
   ManagedCustomSubclassFeatureInput: ManagedCustomSubclassFeatureInput;
   ManagedCustomSubclassInput: ManagedCustomSubclassInput;
   Mutation: ResolverTypeWrapper<{}>;
+  ProficiencyChoiceSelectionInput: ProficiencyChoiceSelectionInput;
   ProficiencyLevel: ProficiencyLevel;
   ProficiencyRef: ResolverTypeWrapper<ProficiencyRef>;
   Query: ResolverTypeWrapper<{}>;
@@ -1043,6 +1090,7 @@ export type ResolversTypes = {
   SaveCharacterSheetFeatureInput: SaveCharacterSheetFeatureInput;
   SaveCharacterSheetInput: SaveCharacterSheetInput;
   SaveCharacterSheetInventoryItemInput: SaveCharacterSheetInventoryItemInput;
+  SaveCharacterSheetSpellInput: SaveCharacterSheetSpellInput;
   SaveCharacterSheetWeaponInput: SaveCharacterSheetWeaponInput;
   SaveCustomSubclassFeatureInput: SaveCustomSubclassFeatureInput;
   SavingThrowProficienciesInput: SavingThrowProficienciesInput;
@@ -1114,12 +1162,14 @@ export type ResolversParentTypes = {
   ManagedCustomSubclassFeatureInput: ManagedCustomSubclassFeatureInput;
   ManagedCustomSubclassInput: ManagedCustomSubclassInput;
   Mutation: {};
+  ProficiencyChoiceSelectionInput: ProficiencyChoiceSelectionInput;
   ProficiencyRef: ProficiencyRef;
   Query: {};
   SaveCharacterSheetClassInput: SaveCharacterSheetClassInput;
   SaveCharacterSheetFeatureInput: SaveCharacterSheetFeatureInput;
   SaveCharacterSheetInput: SaveCharacterSheetInput;
   SaveCharacterSheetInventoryItemInput: SaveCharacterSheetInventoryItemInput;
+  SaveCharacterSheetSpellInput: SaveCharacterSheetSpellInput;
   SaveCharacterSheetWeaponInput: SaveCharacterSheetWeaponInput;
   SaveCustomSubclassFeatureInput: SaveCustomSubclassFeatureInput;
   SavingThrowProficienciesInput: SavingThrowProficienciesInput;
@@ -1454,6 +1504,7 @@ export type ProficiencyRefResolvers<ContextType = Context, ParentType extends Re
 };
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  attachedClassDetails?: Resolver<Array<ResolversTypes['ClassDetails']>, ParentType, ContextType, RequireFields<QueryAttachedClassDetailsArgs, 'values'>>;
   availableBackgrounds?: Resolver<Array<ResolversTypes['AvailableBackground']>, ParentType, ContextType>;
   availableClasses?: Resolver<Array<ResolversTypes['AvailableClass']>, ParentType, ContextType>;
   availableSubclasses?: Resolver<Array<ResolversTypes['AvailableSubclass']>, ParentType, ContextType, Partial<QueryAvailableSubclassesArgs>>;

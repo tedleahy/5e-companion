@@ -1,4 +1,29 @@
+import {
+    isNamedTraitProficiencyType,
+    splitProficiencyRules,
+    type ClassProficiencyChoiceGroupBase,
+} from '@/lib/characterCreation/classRules';
+import type { DraftProficiencyChoice } from '@/lib/characterCreation/proficiencyChoiceDraft';
+import { findSkillDefinitionByLabel } from '@/lib/characterSheetUtils';
 import type { LevelUpWizardSelectedClass } from './types';
+
+/**
+ * Stable skill option value matching server `srdIndex` (`skill-athletics`).
+ */
+function skillSrdIndexFromLabel(label: string): string {
+    return `skill-${label.trim().toLowerCase().replace(/\s+/g, '-')}`;
+}
+
+/**
+ * Builds a SKILL choice-group option with a server-aligned identity value.
+ */
+function skillChoiceOption(label: string): { value: string; name: string; type: 'SKILL' } {
+    return {
+        value: skillSrdIndexFromLabel(label),
+        name: label,
+        type: 'SKILL',
+    };
+}
 
 /**
  * Multiclass proficiency gains per class (SRD rules).
@@ -7,111 +32,163 @@ export type MulticlassProficiencyGains = {
     armor: string[];
     weapons: string[];
     tools: string[];
-    skillChoices: number;
-    skillOptions: string[];
+    /** Skill proficiencies granted automatically (no choice involved). */
+    automaticSkills: string[];
+    /** Independently limited choice groups of every type (skills + non-skills). */
+    choiceGroups: ClassProficiencyChoiceGroupBase[];
 };
 
 /**
- * SRD multiclass proficiency gain table.
+ * SRD multiclass proficiency gain table used when a class definition has not
+ * loaded configured MULTICLASS proficiency rules.
  */
 const MULTICLASS_PROFICIENCY_TABLE: Record<string, MulticlassProficiencyGains> = {
     barbarian: {
         armor: ['Shields'],
         weapons: ['Simple weapons', 'Martial weapons'],
         tools: [],
-        skillChoices: 0,
-        skillOptions: [],
+        automaticSkills: [],
+        choiceGroups: [],
     },
     bard: {
         armor: ['Light armour'],
         weapons: ['Simple weapons'],
-        tools: ['One musical instrument of your choice'],
-        skillChoices: 1,
-        skillOptions: [
-            'Acrobatics', 'Animal Handling', 'Arcana', 'Athletics', 'Deception',
-            'History', 'Insight', 'Intimidation', 'Investigation', 'Medicine',
-            'Nature', 'Perception', 'Performance', 'Persuasion', 'Religion',
-            'Sleight of Hand', 'Stealth', 'Survival',
+        tools: [],
+        automaticSkills: [],
+        choiceGroups: [
+            {
+                choiceGroup: 1,
+                pick: 1,
+                type: 'SKILL',
+                options: [
+                    'Acrobatics', 'Animal Handling', 'Arcana', 'Athletics', 'Deception',
+                    'History', 'Insight', 'Intimidation', 'Investigation', 'Medicine',
+                    'Nature', 'Perception', 'Performance', 'Persuasion', 'Religion',
+                    'Sleight of Hand', 'Stealth', 'Survival',
+                ].map(skillChoiceOption),
+            },
+            {
+                choiceGroup: 2,
+                pick: 1,
+                type: 'TOOL',
+                options: [
+                    'Bagpipes', 'Drum', 'Dulcimer', 'Flute', 'Lute',
+                    'Lyre', 'Horn', 'Pan flute', 'Shawm', 'Viol',
+                ].map((name) => ({
+                    value: name.toLowerCase().replace(/\s+/g, '-'),
+                    name,
+                    type: 'TOOL',
+                })),
+            },
         ],
     },
     cleric: {
         armor: ['Light armour', 'Medium armour', 'Shields'],
         weapons: [],
         tools: [],
-        skillChoices: 0,
-        skillOptions: [],
+        automaticSkills: [],
+        choiceGroups: [],
     },
     druid: {
         armor: ['Light armour', 'Medium armour', 'Shields (non-metal)'],
         weapons: ['Clubs', 'Daggers', 'Darts', 'Javelins', 'Maces', 'Quarterstaffs', 'Scimitars', 'Sickles', 'Slings', 'Spears'],
         tools: ['Herbalism kit'],
-        skillChoices: 0,
-        skillOptions: [],
+        automaticSkills: [],
+        choiceGroups: [],
     },
     fighter: {
         armor: ['Light armour', 'Medium armour', 'Shields'],
         weapons: ['Simple weapons', 'Martial weapons'],
         tools: [],
-        skillChoices: 0,
-        skillOptions: [],
+        automaticSkills: [],
+        choiceGroups: [],
     },
     monk: {
         armor: [],
         weapons: ['Simple weapons', 'Shortswords'],
         tools: [],
-        skillChoices: 0,
-        skillOptions: [],
+        automaticSkills: [],
+        choiceGroups: [],
     },
     paladin: {
         armor: ['Light armour', 'Medium armour', 'Shields'],
         weapons: ['Simple weapons', 'Martial weapons'],
         tools: [],
-        skillChoices: 0,
-        skillOptions: [],
+        automaticSkills: [],
+        choiceGroups: [],
     },
     ranger: {
         armor: ['Light armour', 'Medium armour', 'Shields'],
         weapons: ['Simple weapons', 'Martial weapons'],
         tools: [],
-        skillChoices: 1,
-        skillOptions: [
-            'Animal Handling', 'Athletics', 'Insight', 'Investigation',
-            'Nature', 'Perception', 'Stealth', 'Survival',
-        ],
+        automaticSkills: [],
+        choiceGroups: [{
+            choiceGroup: 1,
+            pick: 1,
+            type: 'SKILL',
+            options: [
+                'Animal Handling', 'Athletics', 'Insight', 'Investigation',
+                'Nature', 'Perception', 'Stealth', 'Survival',
+            ].map(skillChoiceOption),
+        }],
     },
     rogue: {
         armor: ['Light armour'],
         weapons: [],
         tools: ["Thieves' tools"],
-        skillChoices: 1,
-        skillOptions: [
-            'Acrobatics', 'Athletics', 'Deception', 'Insight', 'Intimidation',
-            'Investigation', 'Perception', 'Performance', 'Persuasion',
-            'Sleight of Hand', 'Stealth',
-        ],
+        automaticSkills: [],
+        choiceGroups: [{
+            choiceGroup: 1,
+            pick: 1,
+            type: 'SKILL',
+            options: [
+                'Acrobatics', 'Athletics', 'Deception', 'Insight', 'Intimidation',
+                'Investigation', 'Perception', 'Performance', 'Persuasion',
+                'Sleight of Hand', 'Stealth',
+            ].map(skillChoiceOption),
+        }],
     },
     sorcerer: {
         armor: [],
         weapons: [],
         tools: [],
-        skillChoices: 0,
-        skillOptions: [],
+        automaticSkills: [],
+        choiceGroups: [],
     },
     warlock: {
         armor: ['Light armour'],
         weapons: ['Simple weapons'],
         tools: [],
-        skillChoices: 0,
-        skillOptions: [],
+        automaticSkills: [],
+        choiceGroups: [],
     },
     wizard: {
         armor: [],
         weapons: [],
         tools: [],
-        skillChoices: 0,
-        skillOptions: [],
+        automaticSkills: [],
+        choiceGroups: [],
     },
 };
+
+/**
+ * Builds gains from configured MULTICLASS proficiency rules on a class definition.
+ */
+function gainsFromConfiguredRules(
+    configured: Array<{ value: string; name: string; type: string; choiceGroup?: number | null; choiceCount?: number | null }>,
+): MulticlassProficiencyGains {
+    const { automatic, choiceGroups } = splitProficiencyRules(configured);
+
+    return {
+        armor: automatic.filter((rule) => rule.type === 'ARMOR').map((rule) => rule.name),
+        weapons: automatic.filter((rule) => rule.type === 'WEAPON').map((rule) => rule.name),
+        tools: automatic
+            .filter((rule) => rule.type === 'TOOL' || rule.type === 'OTHER')
+            .map((rule) => rule.name),
+        automaticSkills: automatic.filter((rule) => rule.type === 'SKILL').map((rule) => rule.name),
+        choiceGroups,
+    };
+}
 
 /**
  * Returns the multiclass proficiency gains for a given class id, or null if
@@ -120,31 +197,78 @@ const MULTICLASS_PROFICIENCY_TABLE: Record<string, MulticlassProficiencyGains> =
 export function getMulticlassProficiencyGains(classId: string, selectedClass?: LevelUpWizardSelectedClass): MulticlassProficiencyGains | null {
     const configured = selectedClass?.classDefinition?.proficiencies.filter((rule) => rule.grant === 'MULTICLASS') ?? [];
     if (configured.length > 0) {
-        const fixed = configured.filter((rule) => rule.choiceGroup == null);
-        const skillChoices = Math.max(0, ...configured.filter((rule) => rule.type === 'SKILL').map((rule) => rule.choiceCount ?? 0));
-        return {
-            armor: fixed.filter((rule) => rule.type === 'ARMOR').map((rule) => rule.name),
-            weapons: fixed.filter((rule) => rule.type === 'WEAPON').map((rule) => rule.name),
-            tools: fixed.filter((rule) => rule.type === 'TOOL').map((rule) => rule.name),
-            skillChoices,
-            skillOptions: configured.filter((rule) => rule.type === 'SKILL').map((rule) => rule.name),
-        };
+        return gainsFromConfiguredRules(configured);
     }
     return MULTICLASS_PROFICIENCY_TABLE[classId] ?? null;
+}
+
+/**
+ * Returns non-skill choice groups that need a picker on the multiclass step.
+ */
+export function getNonSkillMulticlassChoiceGroups(gains: MulticlassProficiencyGains): ClassProficiencyChoiceGroupBase[] {
+    return gains.choiceGroups.filter((group) => isNamedTraitProficiencyType(group.type));
+}
+
+/**
+ * Returns SKILL choice groups that need a picker on the multiclass step.
+ */
+export function getSkillMulticlassChoiceGroups(gains: MulticlassProficiencyGains): ClassProficiencyChoiceGroupBase[] {
+    return gains.choiceGroups.filter((group) => group.type === 'SKILL');
+}
+
+/**
+ * Selected option values for one choice group in level-up proficiency state.
+ */
+export function selectedMulticlassProficiencyValues(
+    state: LevelUpMulticlassProficiencyState,
+    choiceGroup: number,
+): string[] {
+    return state.selections.find((entry) => entry.choiceGroup === choiceGroup)?.values ?? [];
+}
+
+/**
+ * Builds save/create-shaped proficiency choice provenance for the selected class.
+ */
+export function buildPendingMulticlassProficiencyChoices(
+    classId: string,
+    state: LevelUpMulticlassProficiencyState,
+): DraftProficiencyChoice[] {
+    return state.selections
+        .filter((selection) => selection.values.length > 0)
+        .map((selection) => ({
+            classId,
+            choiceGroup: selection.choiceGroup,
+            values: [...selection.values],
+        }));
+}
+
+/**
+ * Display labels for selected options across every choice group.
+ */
+export function labelsForMulticlassProficiencySelections(
+    gains: MulticlassProficiencyGains,
+    state: LevelUpMulticlassProficiencyState,
+): string[] {
+    return gains.choiceGroups.flatMap((group) => {
+        const selected = new Set(selectedMulticlassProficiencyValues(state, group.choiceGroup));
+        return group.options
+            .filter((option) => selected.has(option.value))
+            .map((option) => option.name);
+    });
 }
 
 /**
  * Returns a flat list of automatic (non-choice) proficiency labels for display.
  */
 export function getAutomaticProficiencyLabels(gains: MulticlassProficiencyGains): string[] {
-    return [...gains.armor, ...gains.weapons, ...gains.tools];
+    return [...gains.armor, ...gains.weapons, ...gains.tools, ...gains.automaticSkills];
 }
 
 /**
  * Returns whether a class grants any proficiencies at all when multiclassing.
  */
-export function hasAnyMulticlassProficiencies(classId: string): boolean {
-    const gains = MULTICLASS_PROFICIENCY_TABLE[classId];
+export function hasAnyMulticlassProficiencies(classId: string, selectedClass?: LevelUpWizardSelectedClass): boolean {
+    const gains = getMulticlassProficiencyGains(classId, selectedClass);
 
     if (!gains) {
         return false;
@@ -153,7 +277,8 @@ export function hasAnyMulticlassProficiencies(classId: string): boolean {
     return gains.armor.length > 0
         || gains.weapons.length > 0
         || gains.tools.length > 0
-        || gains.skillChoices > 0;
+        || gains.automaticSkills.length > 0
+        || gains.choiceGroups.length > 0;
 }
 
 /**
@@ -165,42 +290,66 @@ export function needsMulticlassProficienciesStep(selectedClass: LevelUpWizardSel
 }
 
 /**
- * Route-local state for the multiclass proficiency skill choice.
+ * Route-local state for multiclass proficiency choices.
+ * Same identity shape as create/save `ProficiencyChoiceSelectionInput`
+ * (`choiceGroup` + option values); `classId` is attached when building pending
+ * draft/save provenance.
  */
 export type LevelUpMulticlassProficiencyState = {
-    selectedSkills: string[];
+    selections: Array<{
+        choiceGroup: number;
+        values: string[];
+    }>;
 };
 
 /**
  * Creates the initial multiclass proficiency state.
  */
 export function createLevelUpMulticlassProficiencyState(): LevelUpMulticlassProficiencyState {
-    return { selectedSkills: [] };
+    return { selections: [] };
 }
 
 /**
- * Toggles a skill in the selected list, respecting the maximum choice count.
+ * Toggles one option inside a choice group (SKILL or named), respecting pick.
  */
-export function toggleMulticlassProficiencySkill(
+export function toggleMulticlassProficiencyChoice(
     state: LevelUpMulticlassProficiencyState,
-    skill: string,
+    choiceGroup: number,
+    value: string,
     maxChoices: number,
 ): LevelUpMulticlassProficiencyState {
-    const isSelected = state.selectedSkills.includes(skill);
+    const currentValues = selectedMulticlassProficiencyValues(state, choiceGroup);
+    const isSelected = currentValues.includes(value);
+    const nextValues = isSelected
+        ? currentValues.filter((entry) => entry !== value)
+        : currentValues.length >= maxChoices
+            ? currentValues
+            : [...currentValues, value];
 
-    if (isSelected) {
-        return {
-            selectedSkills: state.selectedSkills.filter((s) => s !== skill),
-        };
-    }
-
-    if (state.selectedSkills.length >= maxChoices) {
-        return state;
+    const otherSelections = state.selections.filter((entry) => entry.choiceGroup !== choiceGroup);
+    if (nextValues.length === 0) {
+        return { selections: otherSelections };
     }
 
     return {
-        selectedSkills: [...state.selectedSkills, skill],
+        selections: [...otherSelections, { choiceGroup, values: nextValues }],
     };
+}
+
+/**
+ * @deprecated Prefer {@link toggleMulticlassProficiencyChoice} with skill srdIndex values.
+ * Resolves a display label to its skill option value, then toggles that group.
+ */
+export function toggleMulticlassProficiencySkill(
+    state: LevelUpMulticlassProficiencyState,
+    skillLabel: string,
+    maxChoices: number,
+    choiceGroup = 1,
+): LevelUpMulticlassProficiencyState {
+    const value = findSkillDefinitionByLabel(skillLabel)
+        ? skillSrdIndexFromLabel(skillLabel)
+        : skillLabel;
+    return toggleMulticlassProficiencyChoice(state, choiceGroup, value, maxChoices);
 }
 
 /**
@@ -212,9 +361,11 @@ export function canContinueFromMulticlassProficiencies(
 ): boolean {
     const gains = getMulticlassProficiencyGains(selectedClass.classId, selectedClass);
 
-    if (!gains || gains.skillChoices === 0) {
+    if (!gains) {
         return true;
     }
 
-    return state.selectedSkills.length === gains.skillChoices;
+    return gains.choiceGroups.every((group) => (
+        selectedMulticlassProficiencyValues(state, group.choiceGroup).length === group.pick
+    ));
 }

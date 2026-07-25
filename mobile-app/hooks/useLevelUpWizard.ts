@@ -45,7 +45,7 @@ import { createLevelUpHitPointsState } from '@/lib/characterLevelUp/hitPoints';
 import {
     canContinueFromMulticlassProficiencies,
     createLevelUpMulticlassProficiencyState,
-    toggleMulticlassProficiencySkill,
+    toggleMulticlassProficiencyChoice,
     getMulticlassProficiencyGains,
 } from '@/lib/characterLevelUp/multiclassProficiencies';
 import type { LevelUpMulticlassProficiencyState } from '@/lib/characterLevelUp/multiclassProficiencies';
@@ -161,7 +161,7 @@ export type UseLevelUpWizardResult = {
     removeCantripSpell: (spellId: string) => void;
     setSwapOutSpellId: (spellId: string | null) => void;
     setSwapReplacementSpell: (spell: LevelUpSpellSelection | null) => void;
-    toggleMulticlassSkill: (skill: string) => void;
+    toggleMulticlassProficiency: (choiceGroup: number, value: string) => void;
     toggleInvocation: (invocationId: string) => void;
     changeCustomInvocation: (custom: { name: string; description: string } | null) => void;
     changeInvocationSwapOut: (invocationId: string | null) => void;
@@ -484,11 +484,14 @@ export default function useLevelUpWizard(
         setSpellcastingState((previousState) => setLevelUpSwapReplacementSpell(previousState, spell));
     }, []);
 
-    const toggleMulticlassSkill = useCallback((skill: string) => {
+    const toggleMulticlassProficiency = useCallback((choiceGroup: number, value: string) => {
         const gains = getMulticlassProficiencyGains(selectedClassId, selectedClass);
-        const maxChoices = gains?.skillChoices ?? 0;
+        const group = gains?.choiceGroups.find((entry) => entry.choiceGroup === choiceGroup);
+        const maxChoices = group?.pick ?? 0;
 
-        setMulticlassProficiencyState((previousState) => toggleMulticlassProficiencySkill(previousState, skill, maxChoices));
+        setMulticlassProficiencyState((previousState) => (
+            toggleMulticlassProficiencyChoice(previousState, choiceGroup, value, maxChoices)
+        ));
     }, [selectedClass, selectedClassId]);
 
     const toggleInvocation = useCallback((invocationId: string) => {
@@ -554,7 +557,7 @@ export default function useLevelUpWizard(
         || spellcastingState.learnedSpells.length > 0
         || spellcastingState.cantripSpells.length > 0
         || spellcastingState.swapOutSpellId != null
-        || multiclassProficiencyState.selectedSkills.length > 0
+        || multiclassProficiencyState.selections.length > 0
         || invocationState.selectedInvocations.length > 0
         || invocationState.customInvocation != null
         || metamagicState.selectedMetamagicIds.length > 0
@@ -639,7 +642,7 @@ export default function useLevelUpWizard(
         removeCantripSpell,
         setSwapOutSpellId,
         setSwapReplacementSpell,
-        toggleMulticlassSkill,
+        toggleMulticlassProficiency,
         toggleInvocation,
         changeCustomInvocation,
         changeInvocationSwapOut,

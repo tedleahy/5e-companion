@@ -73,7 +73,7 @@ export default function LevelUpWizardStepBody({
         changeCustomFeature,
         removeCustomFeature,
         selectFeatureChoice,
-        toggleMulticlassSkill,
+        toggleMulticlassProficiency,
         toggleInvocation,
         changeCustomInvocation,
         changeInvocationSwapOut,
@@ -134,7 +134,7 @@ export default function LevelUpWizardStepBody({
                         </Text>
 
                         <ClassOptionGrid
-                            options={[...wizard.classOptions]}
+                            options={wizard.classOptions.filter((option) => !option.hiddenFromNewClassPicker)}
                             selected={pickerSelectedId}
                             onSelect={selectClass}
                             tone="night"
@@ -231,7 +231,7 @@ export default function LevelUpWizardStepBody({
                 selectedClass={selectedClass}
                 proficiencyState={multiclassProficiencyState}
                 existingSkillProficiencies={existingSkillProficiencies}
-                onToggleSkill={toggleMulticlassSkill}
+                onToggleProficiency={toggleMulticlassProficiency}
             />
         );
     }

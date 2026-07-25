@@ -341,7 +341,7 @@ describe('applyLevelUpToDraft', () => {
                 swapReplacementSpell: null,
             },
             multiclassProficiencyState: {
-                selectedSkills: [],
+                selections: [],
             },
             invocationState: createLevelUpInvocationState(),
             metamagicState: createLevelUpMetamagicState(),
@@ -443,7 +443,7 @@ describe('applyLevelUpToDraft', () => {
                 swapReplacementSpell: null,
             },
             multiclassProficiencyState: {
-                selectedSkills: [],
+                selections: [],
             },
             invocationState: createLevelUpInvocationState(),
             metamagicState: createLevelUpMetamagicState(),
@@ -502,7 +502,14 @@ describe('applyLevelUpToDraft', () => {
                         { grant: 'MULTICLASS', type: 'ARMOR', name: 'Medium armour', choiceGroup: null },
                         { grant: 'MULTICLASS', type: 'WEAPON', name: 'Longbows', choiceGroup: null },
                         { grant: 'MULTICLASS', type: 'TOOL', name: "Smith's tools", choiceGroup: null },
-                        { grant: 'MULTICLASS', type: 'SKILL', name: 'Athletics', choiceGroup: 1, choiceCount: 1 },
+                        {
+                            grant: 'MULTICLASS',
+                            type: 'SKILL',
+                            name: 'Athletics',
+                            value: 'skill-athletics',
+                            choiceGroup: 1,
+                            choiceCount: 1,
+                        },
                     ],
                 } as never,
             },
@@ -521,7 +528,7 @@ describe('applyLevelUpToDraft', () => {
                 swapReplacementSpell: null,
             },
             multiclassProficiencyState: {
-                selectedSkills: ['Athletics'],
+                selections: [{ choiceGroup: 1, values: ['skill-athletics'] }],
             },
             invocationState: createLevelUpInvocationState(),
             metamagicState: createLevelUpMetamagicState(),
@@ -533,5 +540,156 @@ describe('applyLevelUpToDraft', () => {
         expect(nextDraft.traits.armorProficiencies).toEqual(['Medium armour']);
         expect(nextDraft.traits.weaponProficiencies).toEqual(['Daggers', 'Longbows']);
         expect(nextDraft.traits.toolProficiencies).toEqual(["Smith's tools"]);
+    });
+
+    it('applies selected non-skill multiclass proficiency choices into traits', () => {
+        const draft = createCharacterSheetDraft(BASE_CHARACTER as never);
+
+        const nextDraft = applyLevelUpToDraft(draft, {
+            selectedClass: {
+                classId: 'custom-class-id',
+                className: 'Skald',
+                currentLevel: 0,
+                newLevel: 1,
+                isExistingClass: false,
+                subclassId: null,
+                subclassName: null,
+                subclassDescription: null,
+                subclassIsCustom: false,
+                subclassFeatures: [],
+                customSubclass: null,
+                classDefinition: {
+                    proficiencies: [
+                        { grant: 'MULTICLASS', type: 'ARMOR', name: 'Light armour', choiceGroup: null },
+                        { grant: 'MULTICLASS', type: 'TOOL', name: 'Lute', value: 'lute', choiceGroup: 2, choiceCount: 1 },
+                        { grant: 'MULTICLASS', type: 'TOOL', name: 'Flute', value: 'flute', choiceGroup: 2, choiceCount: 1 },
+                    ],
+                } as never,
+            },
+            hitPointsState: {
+                method: 'average',
+                hitDieSize: 8,
+                hitDieValue: 5,
+                constitutionModifier: 2,
+                hpGained: 7,
+            },
+            asiOrFeatState: null,
+            spellcastingState: {
+                learnedSpells: [],
+                cantripSpells: [],
+                swapOutSpellId: null,
+                swapReplacementSpell: null,
+            },
+            multiclassProficiencyState: {
+                selections: [{ choiceGroup: 2, values: ['lute'] }],
+            },
+            invocationState: createLevelUpInvocationState(),
+            metamagicState: createLevelUpMetamagicState(),
+            mysticArcanumState: createLevelUpMysticArcanumState(),
+            features: [],
+        });
+
+        expect(nextDraft.traits.armorProficiencies).toEqual(['Light armour']);
+        expect(nextDraft.traits.toolProficiencies).toEqual(['Lute']);
+    });
+
+    it('auto-applies a fixed custom multiclass skill grant even when no choice is selected', () => {
+        const draft = createCharacterSheetDraft(BASE_CHARACTER as never);
+
+        const nextDraft = applyLevelUpToDraft(draft, {
+            selectedClass: {
+                classId: 'custom-class-id',
+                className: 'Warden',
+                currentLevel: 0,
+                newLevel: 1,
+                isExistingClass: false,
+                subclassId: null,
+                subclassName: null,
+                subclassDescription: null,
+                subclassIsCustom: false,
+                subclassFeatures: [],
+                customSubclass: null,
+                classDefinition: {
+                    proficiencies: [
+                        // Fixed grant (choiceGroup == null) — must apply automatically.
+                        { grant: 'MULTICLASS', type: 'SKILL', name: 'Survival', choiceGroup: null },
+                    ],
+                } as never,
+            },
+            hitPointsState: {
+                method: 'average',
+                hitDieSize: 8,
+                hitDieValue: 5,
+                constitutionModifier: 2,
+                hpGained: 7,
+            },
+            asiOrFeatState: null,
+            spellcastingState: {
+                learnedSpells: [],
+                cantripSpells: [],
+                swapOutSpellId: null,
+                swapReplacementSpell: null,
+            },
+            multiclassProficiencyState: {
+                selections: [],
+            },
+            invocationState: createLevelUpInvocationState(),
+            metamagicState: createLevelUpMetamagicState(),
+            mysticArcanumState: createLevelUpMysticArcanumState(),
+            features: [],
+        });
+
+        expect(nextDraft.skillProficiencies.survival).toBe('proficient');
+    });
+
+    it('stores pending proficiency choice provenance for saveCharacterSheet', () => {
+        const draft = createCharacterSheetDraft(BASE_CHARACTER as never);
+
+        const nextDraft = applyLevelUpToDraft(draft, {
+            selectedClass: {
+                classId: 'bard',
+                className: 'Bard',
+                currentLevel: 0,
+                newLevel: 1,
+                isExistingClass: false,
+                subclassId: null,
+                subclassName: null,
+                subclassDescription: null,
+                subclassIsCustom: false,
+                subclassFeatures: [],
+                customSubclass: null,
+            },
+            hitPointsState: {
+                method: 'average',
+                hitDieSize: 8,
+                hitDieValue: 5,
+                constitutionModifier: 2,
+                hpGained: 7,
+            },
+            asiOrFeatState: null,
+            spellcastingState: {
+                learnedSpells: [],
+                cantripSpells: [],
+                swapOutSpellId: null,
+                swapReplacementSpell: null,
+            },
+            multiclassProficiencyState: {
+                selections: [
+                    { choiceGroup: 1, values: ['skill-stealth'] },
+                    { choiceGroup: 2, values: ['lute'] },
+                ],
+            },
+            invocationState: createLevelUpInvocationState(),
+            metamagicState: createLevelUpMetamagicState(),
+            mysticArcanumState: createLevelUpMysticArcanumState(),
+            features: [],
+        });
+
+        expect(nextDraft.pendingProficiencyChoices).toEqual([
+            { classId: 'bard', choiceGroup: 1, values: ['skill-stealth'] },
+            { classId: 'bard', choiceGroup: 2, values: ['lute'] },
+        ]);
+        expect(nextDraft.skillProficiencies.stealth).toBe('proficient');
+        expect(nextDraft.traits.toolProficiencies).toContain('Lute');
     });
 });

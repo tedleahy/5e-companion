@@ -61,6 +61,16 @@ Custom subclasses can also be archived by the subclass manager. Archived custom 
 
 Custom classes follow the same preservation rule. Starting HP, hit dice, saving throws, fixed class proficiencies, configured starting skill choice groups, spell slots, spellcasting profiles, and class features are derived from the resolved class definition. Each starting skill choice group is presented and limited independently. Custom standard-caster slot tables also determine their effective multiclass caster contribution. Pact slots at the same level are combined into one persisted pool. Starting-equipment definitions are displayed and authorable but are not copied to inventory automatically.
 
+### Skill and proficiency choices (starting + multiclass)
+
+Fixed skill grants (`choiceGroup == null`) for the starting class (`STARTING`) and every secondary class (`MULTICLASS`) are shown as locked selections on the skills step, alongside locked background skills — the same "auto-selected, not choosable away" treatment. Fixed grants and background skills are never stored as draft choice picks; `createCharacter` derives them via `deriveCreationSkillRequirements` / `deriveBackgroundSkillKeys` and merges them into persisted `skillProficiencies`.
+
+All pick-N proficiency groups — **SKILL and named** (armor / weapon / tool / other) — share one class-scoped model. Selections live in `draft.proficiencyChoices` keyed by `(classId, choiceGroup)` with option values `srdIndex ?? id` (e.g. `skill-athletics`, `lute`, custom proficiency ids). The same shape is submitted as `CreateCharacterInput.proficiencyChoices`. The server validates every group independently with `deriveCreationProficiencyChoiceRequirements` / `validateCreationProficiencyChoices`, then derives persisted skills from validated SKILL picks plus fixed/background grants (`skillKeysFromValidatedChoices` / `derivePersistedCreationSkillProficiencies`). `CreateCharacterInput.skillProficiencies` is a compatibility field only — not choice provenance. Nested SRD choice pools are flattened at seed time so one group includes every leaf option.
+
+Changing the class set or starting-class designation clears proficiency draft picks. When async class definitions finish loading, `WizardShell` reconciles draft picks against the current option groups so invalid hidden selections cannot survive. Step completion checks option membership and exact unique counts, and blocks while requirements are loading or failed.
+
+`useCreationProficiencyRequirements` (shared by the skills step, review display, and `WizardShell`) loads every selected class definition via `attachedClassDetails`. GraphQL failures and settled but incomplete batches (any selected class missing from the response) both surface as a requirements error with the skills-step retry UI; "Continue" stays disabled until every selected class resolves and every required group is filled. Soft SRD skill-table fallback applies only when a resolved starting-class definition has no STARTING SKILL choice rules — never when a selected class is absent from the batch. The review step shows chosen skill labels (from class-scoped picks + fixed/background) and selected named proficiency labels.
+
 ## Adding a new step
 
 1. Add the screen `.tsx` under `mobile-app/app/characters/create/`.

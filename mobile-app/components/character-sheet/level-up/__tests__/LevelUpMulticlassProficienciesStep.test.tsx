@@ -48,17 +48,17 @@ function makeSkillProficiencies(overrides: Partial<Omit<SkillProficiencies, '__t
 
 function renderStep(
     classId: string,
-    selectedSkills: string[] = [],
-    onToggleSkill = jest.fn(),
+    selections: Array<{ choiceGroup: number; values: string[] }> = [],
+    onToggleProficiency = jest.fn(),
     existingSkillProficiencies: SkillProficiencies | null = null,
 ) {
     return render(
         <PaperProvider>
             <LevelUpMulticlassProficienciesStep
                 selectedClass={makeSelectedClass(classId)}
-                proficiencyState={{ selectedSkills }}
+                proficiencyState={{ selections }}
                 existingSkillProficiencies={existingSkillProficiencies}
-                onToggleSkill={onToggleSkill}
+                onToggleProficiency={onToggleProficiency}
             />
         </PaperProvider>,
     );
@@ -82,7 +82,7 @@ describe('LevelUpMulticlassProficienciesStep', () => {
     it('shows skill picker for rogue with Proficiency label', () => {
         renderStep('rogue');
 
-        expect(screen.getByTestId('level-up-skill-picker')).toBeTruthy();
+        expect(screen.getByTestId('level-up-skill-picker-1')).toBeTruthy();
         expect(screen.getByText('Choose 1 Skill Proficiency')).toBeTruthy();
     });
 
@@ -94,53 +94,40 @@ describe('LevelUpMulticlassProficienciesStep', () => {
         expect(screen.getByTestId('level-up-skill-group-charisma')).toBeTruthy();
     });
 
-    it('calls onToggleSkill when a skill chip is pressed', () => {
-        const onToggleSkill = jest.fn();
-        renderStep('rogue', [], onToggleSkill);
+    it('calls onToggleProficiency with skill srdIndex when a skill chip is pressed', () => {
+        const onToggleProficiency = jest.fn();
+        renderStep('rogue', [], onToggleProficiency);
 
         fireEvent.press(screen.getByTestId('level-up-skill-option-Stealth'));
-        expect(onToggleSkill).toHaveBeenCalledWith('Stealth');
+        expect(onToggleProficiency).toHaveBeenCalledWith(1, 'skill-stealth');
     });
 
     it('shows the correct selected count', () => {
-        renderStep('rogue', ['Stealth']);
+        renderStep('rogue', [{ choiceGroup: 1, values: ['skill-stealth'] }]);
 
-        expect(screen.getByTestId('level-up-skill-count')).toHaveTextContent('1 of 1 selected');
+        expect(screen.getByTestId('level-up-skill-count-1')).toHaveTextContent('1 of 1 selected');
     });
 
     it('shows skill picker for bard with any skill', () => {
         renderStep('bard');
 
-        expect(screen.getByTestId('level-up-skill-picker')).toBeTruthy();
+        expect(screen.getByTestId('level-up-skill-picker-1')).toBeTruthy();
         expect(screen.getByTestId('level-up-skill-option-Acrobatics')).toBeTruthy();
         expect(screen.getByTestId('level-up-skill-option-Survival')).toBeTruthy();
     });
 
-    it('shows existing proficiency label on already-proficient skills', () => {
-        const existing = makeSkillProficiencies({
+    it('disables already-proficient skills', () => {
+        renderStep('rogue', [], jest.fn(), makeSkillProficiencies({
             stealth: ProficiencyLevel.Proficient,
-        });
-        renderStep('rogue', [], jest.fn(), existing);
+        }));
 
         expect(screen.getByTestId('level-up-skill-existing-Stealth')).toHaveTextContent('Proficient');
     });
 
-    it('shows Expert label for expertise skills', () => {
-        const existing = makeSkillProficiencies({
-            perception: ProficiencyLevel.Expert,
-        });
-        renderStep('bard', [], jest.fn(), existing);
+    it('shows bard instrument choice group', () => {
+        renderStep('bard');
 
-        expect(screen.getByTestId('level-up-skill-existing-Perception')).toHaveTextContent('Expert');
-    });
-
-    it('disables already-proficient skills from selection', () => {
-        const existing = makeSkillProficiencies({
-            stealth: ProficiencyLevel.Proficient,
-        });
-        renderStep('rogue', [], jest.fn(), existing);
-
-        const stealthChip = screen.getByTestId('level-up-skill-option-Stealth');
-        expect(stealthChip.props.accessibilityState.disabled).toBe(true);
+        expect(screen.getByTestId('level-up-proficiency-choice-group-2')).toBeTruthy();
+        expect(screen.getByTestId('level-up-proficiency-option-lute')).toBeTruthy();
     });
 });

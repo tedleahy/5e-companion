@@ -1,7 +1,13 @@
 import { ClassSpellcastingMode, FeatureKind, Prisma, ProficiencyType } from '@prisma/client';
 import prisma from '../prisma';
 import { baseClassProgressionLevels } from './classProgressionSeed';
-import { classMulticlassPrerequisites, type SrdMulticlassing } from './classPrerequisiteSeed';
+import {
+    classMulticlassPrerequisites,
+    classMulticlassProficiencyRules,
+    classProficiencyChoiceRules,
+    type SrdMulticlassing,
+    type SrdProficiencyChoiceOption,
+} from './classPrerequisiteSeed';
 
 type SrdReference = {
     index: string;
@@ -34,14 +40,12 @@ type SrdClass = {
     proficiencies?: SrdReference[];
     proficiency_choices?: Array<{
         choose?: number;
-        from?: { options?: Array<{ item?: SrdReference }> };
+        from?: { options?: SrdProficiencyChoiceOption[] };
     }>;
     saving_throws?: SrdReference[];
     starting_equipment?: Array<{ equipment: SrdReference; quantity: number }>;
     starting_equipment_options?: Array<{ desc?: string; choose?: number }>;
-    multi_classing?: SrdMulticlassing & {
-        proficiencies?: SrdReference[];
-    };
+    multi_classing?: SrdMulticlassing;
 };
 
 type SrdLevel = {
@@ -296,26 +300,14 @@ async function seedClasses(classes: SrdClass[], levels: SrdLevel[], spells: SrdS
             },
         });
 
-        const choiceRules = (srdClass.proficiency_choices ?? []).flatMap((choice, groupIndex) =>
-            (choice.from?.options ?? []).flatMap((option) => option.item ? [{
-                value: option.item.index,
-                grant: 'STARTING' as const,
-                choiceGroup: groupIndex + 1,
-                choiceCount: choice.choose ?? 1,
-            }] : []),
-        );
+        const choiceRules = classProficiencyChoiceRules(srdClass.proficiency_choices, 'STARTING');
         const fixedRules = (srdClass.proficiencies ?? []).map((proficiency) => ({
             value: proficiency.index,
             grant: 'STARTING' as const,
             choiceGroup: null,
             choiceCount: null,
         }));
-        const multiclassRules = (srdClass.multi_classing?.proficiencies ?? []).map((proficiency) => ({
-            value: proficiency.index,
-            grant: 'MULTICLASS' as const,
-            choiceGroup: null,
-            choiceCount: null,
-        }));
+        const multiclassRules = classMulticlassProficiencyRules(srdClass.multi_classing);
         const rules = [...fixedRules, ...choiceRules, ...multiclassRules];
         const proficiencyRows = await prisma.proficiency.findMany({
             where: { srdIndex: { in: rules.map((rule) => rule.value) } },

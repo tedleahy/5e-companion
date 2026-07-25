@@ -49,7 +49,13 @@ export type CharacterClassReference = {
     proficiencyRules?: Array<{
         grant: 'STARTING' | 'MULTICLASS';
         choiceGroup: number | null;
-        proficiencyRef: { srdIndex: string | null; name: string; type: ProficiencyType };
+        choiceCount?: number | null;
+        proficiencyRef: {
+            id?: string | null;
+            srdIndex: string | null;
+            name: string;
+            type: ProficiencyType;
+        };
     }>;
     progression?: Array<{
         level: number;
@@ -152,7 +158,8 @@ export const MULTICLASS_PROFICIENCIES_BY_CLASS_SRD_INDEX: Record<string, Derived
     bard: {
         armor: ['Light armour'],
         weapons: ['Simple weapons'],
-        tools: ['One musical instrument of your choice'],
+        // Instrument proficiency is a MULTICLASS choice group, not a fixed grant.
+        tools: [],
     },
     cleric: {
         armor: ['Light armour', 'Medium armour', 'Shields'],
@@ -325,6 +332,102 @@ const ABILITY_KEY_BY_SRD_INDEX: Record<string, keyof CharacterAbilityScores> = {
     wis: 'wisdom',
     cha: 'charisma',
 };
+
+/**
+ * Maps SKILL proficiency SRD indexes to their `SkillProficiencies` schema field keys.
+ */
+const SKILL_KEY_BY_SRD_INDEX: Record<string, string> = {
+    'skill-acrobatics': 'acrobatics',
+    'skill-animal-handling': 'animalHandling',
+    'skill-arcana': 'arcana',
+    'skill-athletics': 'athletics',
+    'skill-deception': 'deception',
+    'skill-history': 'history',
+    'skill-insight': 'insight',
+    'skill-intimidation': 'intimidation',
+    'skill-investigation': 'investigation',
+    'skill-medicine': 'medicine',
+    'skill-nature': 'nature',
+    'skill-perception': 'perception',
+    'skill-performance': 'performance',
+    'skill-persuasion': 'persuasion',
+    'skill-religion': 'religion',
+    'skill-sleight-of-hand': 'sleightOfHand',
+    'skill-stealth': 'stealth',
+    'skill-survival': 'survival',
+};
+
+/**
+ * One independently limited SKILL choice group derived from class rules,
+ * scoped to the class selection value used in create/level-up inputs.
+ */
+export type ClassScopedSkillChoiceGroup = {
+    classId: string;
+    choiceGroup: number;
+    pick: number;
+    optionKeys: string[];
+};
+
+/**
+ * Fixed SKILL grants plus independently limited choice groups across the
+ * character's class rows, expressed as `SkillProficiencies` schema field keys.
+ */
+export type CreationSkillRequirements = {
+    automaticSkillKeys: string[];
+    choiceGroups: ClassScopedSkillChoiceGroup[];
+};
+
+/**
+ * @deprecated Prefer {@link CreationSkillRequirements}. Kept as an alias for
+ * starting-class-only call sites and tests.
+ */
+export type StartingSkillChoiceGroup = Omit<ClassScopedSkillChoiceGroup, 'classId'>;
+
+/**
+ * @deprecated Prefer {@link CreationSkillRequirements}.
+ */
+export type StartingSkillRequirements = {
+    automaticSkillKeys: string[];
+    choiceGroups: StartingSkillChoiceGroup[];
+};
+
+/** One independently limited named (non-skill) proficiency choice group. */
+export type ClassScopedProficiencyChoiceGroup = {
+    classId: string;
+    choiceGroup: number;
+    pick: number;
+    options: Array<{ value: string; name: string; type: ProficiencyType }>;
+};
+
+/**
+ * @deprecated Prefer {@link ClassScopedProficiencyChoiceGroup}.
+ */
+export type StartingProficiencyChoiceGroup = Omit<ClassScopedProficiencyChoiceGroup, 'classId'>;
+
+/** One submitted pick-N selection from a class-scoped proficiency choice group. */
+export type SubmittedProficiencyChoice = {
+    classId: string;
+    choiceGroup: number;
+    values: string[];
+};
+
+/**
+ * Stable option value for a proficiency ref: SRD index when present, otherwise
+ * the owned custom proficiency database id. Never falls back to the display name.
+ */
+export function proficiencyOptionValue(ref: {
+    id?: string | null;
+    srdIndex: string | null;
+}): string | null {
+    return ref.srdIndex ?? ref.id ?? null;
+}
+
+/**
+ * Map key for a class-scoped choice submission.
+ */
+export function proficiencyChoiceKey(classId: string, choiceGroup: number): string {
+    return `${classId}::${choiceGroup}`;
+}
 
 /**
  * Full casters contribute one slot-caster level per class level.
@@ -585,7 +688,33 @@ export function deriveHitDicePools(classes: ResolvedCharacterClass[]): DerivedHi
 }
 
 /**
+ * Returns whether a proficiency type contributes to armour/weapon/tool trait lists.
+ * SRD kit indexes typed as OTHER (e.g. thieves' tools) display with tools.
+ */
+export function isNamedTraitProficiencyType(type: ProficiencyType): boolean {
+    return type === PROFICIENCY_TYPE.ARMOR
+        || type === PROFICIENCY_TYPE.WEAPON
+        || type === PROFICIENCY_TYPE.TOOL
+        || type === PROFICIENCY_TYPE.OTHER;
+}
+
+/**
+ * Adds one proficiency label to the matching trait bucket.
+ */
+function addNamedProficiency(
+    target: { armor: Set<string>; weapons: Set<string>; tools: Set<string> },
+    type: ProficiencyType,
+    name: string,
+): void {
+    if (type === PROFICIENCY_TYPE.ARMOR) target.armor.add(name);
+    if (type === PROFICIENCY_TYPE.WEAPON) target.weapons.add(name);
+    if (type === PROFICIENCY_TYPE.TOOL || type === PROFICIENCY_TYPE.OTHER) target.tools.add(name);
+}
+
+/**
  * Derives displayable non-skill proficiencies for starting and multiclass class rows.
+ * Only fixed grants (`choiceGroup == null`) are included; choice-group picks are
+ * applied separately from the client's validated selections.
  */
 export function deriveNamedClassProficiencies(
     classes: ResolvedCharacterClass[],
@@ -594,23 +723,20 @@ export function deriveNamedClassProficiencies(
     const armor = new Set<string>();
     const weapons = new Set<string>();
     const tools = new Set<string>();
+    const buckets = { armor, weapons, tools };
 
     for (const [index, resolvedClass] of classes.entries()) {
         const configuredRules = (resolvedClass.classRef.proficiencyRules ?? [])
             .filter((rule) => rule.choiceGroup == null && rule.grant === (index === startingClassIndex ? 'STARTING' : 'MULTICLASS'));
         if (configuredRules.length > 0) {
             for (const { proficiencyRef } of configuredRules) {
-                if (proficiencyRef.type === PROFICIENCY_TYPE.ARMOR) armor.add(proficiencyRef.name);
-                if (proficiencyRef.type === PROFICIENCY_TYPE.WEAPON) weapons.add(proficiencyRef.name);
-                if (proficiencyRef.type === PROFICIENCY_TYPE.TOOL) tools.add(proficiencyRef.name);
+                addNamedProficiency(buckets, proficiencyRef.type, proficiencyRef.name);
             }
             continue;
         }
         if (index === startingClassIndex) {
             for (const proficiency of resolvedClass.classRef.proficiencies ?? []) {
-                if (proficiency.type === PROFICIENCY_TYPE.ARMOR) armor.add(proficiency.name);
-                if (proficiency.type === PROFICIENCY_TYPE.WEAPON) weapons.add(proficiency.name);
-                if (proficiency.type === PROFICIENCY_TYPE.TOOL) tools.add(proficiency.name);
+                addNamedProficiency(buckets, proficiency.type, proficiency.name);
             }
             continue;
         }
@@ -627,6 +753,588 @@ export function deriveNamedClassProficiencies(
         armor: sortValuesOrNone(Array.from(armor)),
         weapons: sortValuesOrNone(Array.from(weapons)),
         tools: sortValuesOrNone(Array.from(tools)),
+    };
+}
+
+/**
+ * Derives SKILL proficiency requirements for one class ref and grant type:
+ * fixed grants (`choiceGroup == null`) and independently limited choice groups.
+ */
+export function deriveSkillRequirementsForGrant(
+    classRef: CharacterClassReference,
+    grant: 'STARTING' | 'MULTICLASS',
+    classId: string,
+): CreationSkillRequirements {
+    const skillRules = (classRef.proficiencyRules ?? []).filter((rule) => (
+        rule.grant === grant && rule.proficiencyRef.type === PROFICIENCY_TYPE.SKILL
+    ));
+
+    const automaticSkillKeys = skillRules
+        .filter((rule) => rule.choiceGroup == null)
+        .flatMap((rule) => skillKeyForSrdIndex(rule.proficiencyRef.srdIndex));
+
+    const choiceRules = skillRules.filter((rule) => rule.choiceGroup != null);
+    const rulesByGroup = new Map<number, typeof choiceRules>();
+    for (const rule of choiceRules) {
+        const group = rulesByGroup.get(rule.choiceGroup!) ?? [];
+        group.push(rule);
+        rulesByGroup.set(rule.choiceGroup!, group);
+    }
+
+    const choiceGroups = [...rulesByGroup.entries()]
+        .sort(([leftGroup], [rightGroup]) => leftGroup - rightGroup)
+        .map(([choiceGroup, groupRules]) => ({
+            classId,
+            choiceGroup,
+            pick: Math.max(...groupRules.map((rule) => rule.choiceCount ?? 0)),
+            optionKeys: [...new Set(groupRules.flatMap((rule) => skillKeyForSrdIndex(rule.proficiencyRef.srdIndex)))],
+        }));
+
+    return { automaticSkillKeys, choiceGroups };
+}
+
+/**
+ * Derives creation-time SKILL requirements: STARTING grants on the starting
+ * class plus MULTICLASS grants on every secondary class. Fixed grants are
+ * collected for automatic merge; choice groups stay independently limited.
+ */
+export function deriveCreationSkillRequirements(
+    classes: ResolvedCharacterClass[],
+    startingClassIndex: number,
+): CreationSkillRequirements {
+    const automaticSkillKeys: string[] = [];
+    const choiceGroups: ClassScopedSkillChoiceGroup[] = [];
+
+    for (const [index, resolvedClass] of classes.entries()) {
+        const grant = index === startingClassIndex ? 'STARTING' : 'MULTICLASS';
+        const classId = resolvedClass.classRow.classId;
+        const requirements = deriveSkillRequirementsForGrant(resolvedClass.classRef, grant, classId);
+        automaticSkillKeys.push(...requirements.automaticSkillKeys);
+        choiceGroups.push(...requirements.choiceGroups);
+    }
+
+    return {
+        automaticSkillKeys: [...new Set(automaticSkillKeys)],
+        choiceGroups,
+    };
+}
+
+/**
+ * Derives the starting class's SKILL proficiency requirements.
+ */
+export function deriveStartingSkillRequirements(
+    startingClassRef: CharacterClassReference,
+    classId: string = startingClassRef.srdIndex ?? startingClassRef.id,
+): StartingSkillRequirements {
+    const { automaticSkillKeys, choiceGroups } = deriveSkillRequirementsForGrant(
+        startingClassRef,
+        'STARTING',
+        classId,
+    );
+
+    return {
+        automaticSkillKeys,
+        choiceGroups: choiceGroups.map(({ choiceGroup, pick, optionKeys }) => ({
+            choiceGroup,
+            pick,
+            optionKeys,
+        })),
+    };
+}
+
+/**
+ * Derives fixed SKILL proficiency grants from a background reference.
+ */
+export function deriveBackgroundSkillKeys(
+    backgroundRef: { proficiencies: Array<{ srdIndex: string | null; type: ProficiencyType }> },
+): string[] {
+    return backgroundRef.proficiencies
+        .filter((proficiency) => proficiency.type === PROFICIENCY_TYPE.SKILL)
+        .flatMap((proficiency) => skillKeyForSrdIndex(proficiency.srdIndex));
+}
+
+/**
+ * @deprecated Creation validates SKILL groups via {@link validateCreationProficiencyChoices}
+ * on class-scoped `proficiencyChoices`. Kept for older call sites: excludes
+ * fixed/background keys from choice quotas and only counts non-fixed submitted skills.
+ */
+export function validateCreationSkillProficiencies(
+    requirements: CreationSkillRequirements | StartingSkillRequirements,
+    backgroundSkillKeys: string[],
+    submittedSkillProficiencies: Record<string, string | null | undefined>,
+): void {
+    const fixedKeys = new Set([...requirements.automaticSkillKeys, ...backgroundSkillKeys]);
+    const selectedKeys = new Set(
+        Object.entries(submittedSkillProficiencies)
+            .filter(([, level]) => level != null && level !== 'none')
+            .map(([key]) => key)
+            .filter((key) => !fixedKeys.has(key)),
+    );
+    const allowedChoiceKeys = new Set(requirements.choiceGroups.flatMap((group) => group.optionKeys));
+
+    for (const key of selectedKeys) {
+        if (!allowedChoiceKeys.has(key)) {
+            throw new Error(`Skill proficiency "${key}" is not granted by the selected classes or background.`);
+        }
+    }
+
+    for (const group of requirements.choiceGroups) {
+        const selectedInGroup = group.optionKeys.filter((key) => selectedKeys.has(key));
+        if (selectedInGroup.length !== group.pick) {
+            throw new Error(
+                `Choose exactly ${group.pick} skill proficienc${group.pick === 1 ? 'y' : 'ies'} from the class skill list.`,
+            );
+        }
+    }
+}
+
+/**
+ * @deprecated Prefer {@link validateCreationSkillProficiencies}.
+ */
+export function validateStartingSkillProficiencies(
+    requirements: StartingSkillRequirements | CreationSkillRequirements,
+    backgroundSkillKeys: string[],
+    submittedSkillProficiencies: Record<string, string | null | undefined>,
+): void {
+    validateCreationSkillProficiencies(requirements, backgroundSkillKeys, submittedSkillProficiencies);
+}
+
+/**
+ * Derives independently limited proficiency choice groups for one class ref and
+ * grant type. Option values use {@link proficiencyOptionValue} (`srdIndex ?? id`).
+ * Pass `namedOnly` to exclude SKILL groups (creation named-choice path).
+ */
+export function deriveProficiencyChoiceRequirementsForGrant(
+    classRef: CharacterClassReference,
+    grant: 'STARTING' | 'MULTICLASS',
+    classId: string,
+    namedOnly = false,
+): ClassScopedProficiencyChoiceGroup[] {
+    const choiceRules = (classRef.proficiencyRules ?? []).filter((rule) => (
+        rule.grant === grant
+        && rule.choiceGroup != null
+        && (!namedOnly || isNamedTraitProficiencyType(rule.proficiencyRef.type))
+    ));
+
+    const rulesByGroup = new Map<number, typeof choiceRules>();
+    for (const rule of choiceRules) {
+        const group = rulesByGroup.get(rule.choiceGroup!) ?? [];
+        group.push(rule);
+        rulesByGroup.set(rule.choiceGroup!, group);
+    }
+
+    return [...rulesByGroup.entries()]
+        .sort(([leftGroup], [rightGroup]) => leftGroup - rightGroup)
+        .map(([choiceGroup, groupRules]) => {
+            const optionsByValue = new Map<string, { value: string; name: string; type: ProficiencyType }>();
+            for (const rule of groupRules) {
+                const value = proficiencyOptionValue(rule.proficiencyRef);
+                if (!value || optionsByValue.has(value)) continue;
+                optionsByValue.set(value, {
+                    value,
+                    name: rule.proficiencyRef.name,
+                    type: rule.proficiencyRef.type,
+                });
+            }
+
+            return {
+                classId,
+                choiceGroup,
+                pick: Math.max(...groupRules.map((rule) => rule.choiceCount ?? 0)),
+                options: [...optionsByValue.values()],
+            };
+        })
+        .filter((group) => group.options.length > 0);
+}
+
+/**
+ * Derives independently limited named proficiency choice groups
+ * (armor/weapon/tool/other) for one class ref and grant type.
+ */
+export function deriveNamedProficiencyChoiceRequirementsForGrant(
+    classRef: CharacterClassReference,
+    grant: 'STARTING' | 'MULTICLASS',
+    classId: string,
+): ClassScopedProficiencyChoiceGroup[] {
+    return deriveProficiencyChoiceRequirementsForGrant(classRef, grant, classId, true);
+}
+
+/**
+ * Derives MULTICLASS choice groups (SKILL + named) for every newly added class.
+ */
+export function deriveNewlyAddedMulticlassProficiencyChoiceRequirements(
+    newlyAddedClasses: ResolvedCharacterClass[],
+): ClassScopedProficiencyChoiceGroup[] {
+    return newlyAddedClasses.flatMap((resolvedClass) => (
+        deriveProficiencyChoiceRequirementsForGrant(
+            resolvedClass.classRef,
+            'MULTICLASS',
+            resolvedClass.classRow.classId,
+        )
+    ));
+}
+
+/**
+ * Returns submitted class rows whose selection value is not already persisted
+ * on the character. Existing rows are matched by class DB id or SRD index.
+ */
+export function findNewlyAddedClassRows<T extends { classId: string }>(
+    submittedClasses: T[],
+    existingClassDbIds: readonly string[],
+    classRefsBySelectionValue: Map<string, CharacterClassReference>,
+): T[] {
+    const existingSelectionValues = new Set<string>();
+    for (const dbId of existingClassDbIds) {
+        const classRef = classRefsBySelectionValue.get(dbId);
+        if (!classRef) {
+            existingSelectionValues.add(dbId);
+            continue;
+        }
+        existingSelectionValues.add(classRef.id);
+        if (classRef.srdIndex) {
+            existingSelectionValues.add(classRef.srdIndex);
+        }
+    }
+
+    return submittedClasses.filter((classRow) => !existingSelectionValues.has(classRow.classId));
+}
+
+/**
+ * Derives all proficiency choice groups for character creation (SKILL + named):
+ * STARTING on the starting class and MULTICLASS on every secondary class.
+ */
+export function deriveCreationProficiencyChoiceRequirements(
+    classes: ResolvedCharacterClass[],
+    startingClassIndex: number,
+): ClassScopedProficiencyChoiceGroup[] {
+    return classes.flatMap((resolvedClass, index) => {
+        const grant = index === startingClassIndex ? 'STARTING' : 'MULTICLASS';
+        return deriveProficiencyChoiceRequirementsForGrant(
+            resolvedClass.classRef,
+            grant,
+            resolvedClass.classRow.classId,
+            false,
+        );
+    });
+}
+
+/**
+ * Derives named-only proficiency choice groups for character creation.
+ * Prefer {@link deriveCreationProficiencyChoiceRequirements} for the unified path.
+ */
+export function deriveCreationNamedProficiencyChoiceRequirements(
+    classes: ResolvedCharacterClass[],
+    startingClassIndex: number,
+): ClassScopedProficiencyChoiceGroup[] {
+    return classes.flatMap((resolvedClass, index) => {
+        const grant = index === startingClassIndex ? 'STARTING' : 'MULTICLASS';
+        return deriveNamedProficiencyChoiceRequirementsForGrant(
+            resolvedClass.classRef,
+            grant,
+            resolvedClass.classRow.classId,
+        );
+    });
+}
+
+/**
+ * Collects SkillProficiencies field keys from validated SKILL options in
+ * class-scoped proficiency choice submissions.
+ */
+export function skillKeysFromValidatedChoices(
+    groups: ClassScopedProficiencyChoiceGroup[],
+    submitted: SubmittedProficiencyChoice[] | null | undefined,
+): string[] {
+    const submittedByKey = new Map(
+        (submitted ?? []).map((selection) => [
+            proficiencyChoiceKey(selection.classId, selection.choiceGroup),
+            selection.values,
+        ]),
+    );
+    const keys = new Set<string>();
+
+    for (const group of groups) {
+        const selectedValues = submittedByKey.get(proficiencyChoiceKey(group.classId, group.choiceGroup)) ?? [];
+        for (const value of selectedValues) {
+            const option = group.options.find((candidate) => candidate.value === value);
+            if (!option || option.type !== PROFICIENCY_TYPE.SKILL) continue;
+            for (const key of skillKeyForSrdIndex(value.startsWith('skill-') ? value : option.value)) {
+                keys.add(key);
+            }
+        }
+    }
+
+    return [...keys];
+}
+
+/**
+ * Builds the persisted creation skill map from fixed grants, background grants,
+ * and validated class-scoped SKILL choice picks. Does not treat client
+ * `skillProficiencies` as choice provenance.
+ */
+export function derivePersistedCreationSkillProficiencies(args: {
+    automaticSkillKeys: readonly string[];
+    backgroundSkillKeys: readonly string[];
+    choiceSkillKeys: readonly string[];
+    defaults?: Record<string, string>;
+}): Record<string, string> {
+    const {
+        automaticSkillKeys,
+        backgroundSkillKeys,
+        choiceSkillKeys,
+        defaults = {},
+    } = args;
+
+    const next = { ...defaults };
+    for (const key of [...automaticSkillKeys, ...backgroundSkillKeys, ...choiceSkillKeys]) {
+        next[key] = 'proficient';
+    }
+    return next;
+}
+
+/**
+ * Derives independently limited non-skill STARTING proficiency choice groups
+ * from the starting class definition.
+ */
+export function deriveStartingProficiencyChoiceRequirements(
+    startingClassRef: CharacterClassReference,
+    classId: string = startingClassRef.srdIndex ?? startingClassRef.id,
+): StartingProficiencyChoiceGroup[] {
+    return deriveNamedProficiencyChoiceRequirementsForGrant(startingClassRef, 'STARTING', classId)
+        .map(({ choiceGroup, pick, options }) => ({ choiceGroup, pick, options }));
+}
+
+/**
+ * Validates submitted named proficiency choices against class-scoped pick-N
+ * groups. Each group must submit exactly `pick` unique values drawn from that
+ * group's option list. Identity is `(classId, choiceGroup)`.
+ */
+export function validateCreationProficiencyChoices(
+    groups: ClassScopedProficiencyChoiceGroup[],
+    submitted: SubmittedProficiencyChoice[] | null | undefined,
+): void {
+    const submittedByKey = new Map<string, string[]>();
+    for (const selection of submitted ?? []) {
+        const key = proficiencyChoiceKey(selection.classId, selection.choiceGroup);
+        if (submittedByKey.has(key)) {
+            throw new Error(
+                `Duplicate proficiency choice submission for ${selection.classId} group ${selection.choiceGroup}.`,
+            );
+        }
+        submittedByKey.set(key, selection.values);
+    }
+
+    if (groups.length === 0) {
+        if ((submitted ?? []).length > 0) {
+            throw new Error('Selected classes do not grant proficiency choices.');
+        }
+        return;
+    }
+
+    for (const group of groups) {
+        const key = proficiencyChoiceKey(group.classId, group.choiceGroup);
+        const values = submittedByKey.get(key) ?? [];
+        const uniqueValues = [...new Set(values)];
+        if (uniqueValues.length !== values.length) {
+            throw new Error(
+                `Proficiency choice group ${group.choiceGroup} for ${group.classId} contains duplicate selections.`,
+            );
+        }
+        if (uniqueValues.length !== group.pick) {
+            throw new Error(
+                `Choose exactly ${group.pick} proficienc${group.pick === 1 ? 'y' : 'ies'} from ${group.classId} choice group ${group.choiceGroup}.`,
+            );
+        }
+
+        const allowed = new Set(group.options.map((option) => option.value));
+        for (const value of uniqueValues) {
+            if (!allowed.has(value)) {
+                throw new Error(
+                    `Proficiency "${value}" is not an option in ${group.classId} choice group ${group.choiceGroup}.`,
+                );
+            }
+        }
+        submittedByKey.delete(key);
+    }
+
+    if (submittedByKey.size > 0) {
+        const unexpected = [...submittedByKey.keys()].join(', ');
+        throw new Error(`Unexpected proficiency choice group(s): ${unexpected}.`);
+    }
+}
+
+/**
+ * Validates starting-class-only named choices. Accepts legacy submissions that
+ * omit `classId` by attributing them to the provided starting class id.
+ */
+export function validateStartingProficiencyChoices(
+    groups: StartingProficiencyChoiceGroup[],
+    submitted: Array<{ classId?: string; choiceGroup: number; values: string[] }> | null | undefined,
+    startingClassId = 'starting',
+): void {
+    validateCreationProficiencyChoices(
+        groups.map((group) => ({ ...group, classId: startingClassId })),
+        (submitted ?? []).map((selection) => ({
+            classId: selection.classId ?? startingClassId,
+            choiceGroup: selection.choiceGroup,
+            values: selection.values,
+        })),
+    );
+}
+
+/**
+ * Resolves validated named proficiency choices into trait-list labels.
+ */
+export function namedProficienciesFromChoices(
+    groups: ClassScopedProficiencyChoiceGroup[] | StartingProficiencyChoiceGroup[],
+    submitted: Array<{ classId?: string; choiceGroup: number; values: string[] }> | null | undefined,
+    fallbackClassId = 'starting',
+): DerivedNamedProficiencies {
+    const armor = new Set<string>();
+    const weapons = new Set<string>();
+    const tools = new Set<string>();
+    const buckets = { armor, weapons, tools };
+    const scopedGroups: ClassScopedProficiencyChoiceGroup[] = groups.map((group) => (
+        'classId' in group
+            ? group
+            : { ...group, classId: fallbackClassId }
+    ));
+    const submittedByKey = new Map(
+        (submitted ?? []).map((selection) => [
+            proficiencyChoiceKey(selection.classId ?? fallbackClassId, selection.choiceGroup),
+            selection.values,
+        ]),
+    );
+
+    for (const group of scopedGroups) {
+        const selectedValues = new Set(
+            submittedByKey.get(proficiencyChoiceKey(group.classId, group.choiceGroup)) ?? [],
+        );
+        for (const option of group.options) {
+            if (selectedValues.has(option.value)) {
+                addNamedProficiency(buckets, option.type, option.name);
+            }
+        }
+    }
+
+    return {
+        armor: sortValuesOrNone(Array.from(armor)),
+        weapons: sortValuesOrNone(Array.from(weapons)),
+        tools: sortValuesOrNone(Array.from(tools)),
+    };
+}
+
+/**
+ * Returns the `SkillProficiencies` schema field key for one SKILL proficiency
+ * SRD index, or an empty list when the index is unrecognised.
+ */
+function skillKeyForSrdIndex(srdIndex: string | null): string[] {
+    const key = srdIndex ? SKILL_KEY_BY_SRD_INDEX[srdIndex] : undefined;
+    return key ? [key] : [];
+}
+
+/** Trait proficiency lists mutated when applying multiclass grants on save. */
+export type SheetTraitProficiencies = {
+    armorProficiencies: string[];
+    weaponProficiencies: string[];
+    toolProficiencies: string[];
+};
+
+/**
+ * Unions unique non-"None" labels, preserving existing order then appending new.
+ */
+function unionTraitLabels(existing: readonly string[], additions: readonly string[]): string[] {
+    const next = existing.filter((label) => label !== 'None');
+    const seen = new Set(next.map((label) => label.toLowerCase()));
+    for (const label of additions) {
+        if (!label || label === 'None') continue;
+        const key = label.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        next.push(label);
+    }
+    return next.length > 0 ? next : ['None'];
+}
+
+/**
+ * Applies fixed MULTICLASS grants and validated choice picks for newly added
+ * classes into submitted skill/trait maps. Existing proficient/expert skills
+ * and trait labels are preserved (never downgraded or removed).
+ */
+export function applyNewlyAddedMulticlassProficiencyGrants(args: {
+    newlyAddedClasses: ResolvedCharacterClass[];
+    choiceGroups: ClassScopedProficiencyChoiceGroup[];
+    submittedChoices: SubmittedProficiencyChoice[] | null | undefined;
+    skillProficiencies: Record<string, string>;
+    traits: SheetTraitProficiencies;
+}): {
+    skillProficiencies: Record<string, string>;
+    traits: SheetTraitProficiencies;
+} {
+    const {
+        newlyAddedClasses,
+        choiceGroups,
+        submittedChoices,
+        skillProficiencies,
+        traits,
+    } = args;
+
+    const nextSkills = { ...skillProficiencies };
+    const grantSkill = (key: string) => {
+        const current = nextSkills[key];
+        if (current == null || current === 'none') {
+            nextSkills[key] = 'proficient';
+        }
+    };
+
+    for (const resolvedClass of newlyAddedClasses) {
+        const skillRequirements = deriveSkillRequirementsForGrant(
+            resolvedClass.classRef,
+            'MULTICLASS',
+            resolvedClass.classRow.classId,
+        );
+        for (const key of skillRequirements.automaticSkillKeys) {
+            grantSkill(key);
+        }
+    }
+
+    const chosenNamed = namedProficienciesFromChoices(choiceGroups, submittedChoices);
+    const fixedNamed = deriveNamedClassProficiencies(
+        newlyAddedClasses.map((resolvedClass) => resolvedClass),
+        // Treat every newly added row as a secondary class so STARTING grants
+        // are never applied here.
+        -1,
+    );
+
+    for (const group of choiceGroups) {
+        const selection = (submittedChoices ?? []).find((entry) => (
+            entry.classId === group.classId && entry.choiceGroup === group.choiceGroup
+        ));
+        if (!selection) continue;
+        for (const value of selection.values) {
+            const option = group.options.find((candidate) => candidate.value === value);
+            if (!option || option.type !== PROFICIENCY_TYPE.SKILL) continue;
+            for (const key of skillKeyForSrdIndex(value)) {
+                grantSkill(key);
+            }
+        }
+    }
+
+    return {
+        skillProficiencies: nextSkills,
+        traits: {
+            armorProficiencies: unionTraitLabels(
+                traits.armorProficiencies,
+                [...fixedNamed.armor, ...chosenNamed.armor],
+            ),
+            weaponProficiencies: unionTraitLabels(
+                traits.weaponProficiencies,
+                [...fixedNamed.weapons, ...chosenNamed.weapons],
+            ),
+            toolProficiencies: unionTraitLabels(
+                traits.toolProficiencies,
+                [...fixedNamed.tools, ...chosenNamed.tools],
+            ),
+        },
     };
 }
 

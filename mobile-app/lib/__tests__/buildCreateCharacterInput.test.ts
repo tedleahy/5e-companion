@@ -57,4 +57,44 @@ describe('buildCreateCharacterInput', () => {
             chosenChildSrdIndex: 'pact-of-the-chain',
         }]);
     });
+
+    it('includes class-scoped proficiencyChoices as create mutation provenance', () => {
+        const input = buildCreateCharacterInput({
+            ...createDefaultDraft(),
+            name: 'Brom',
+            race: 'Human',
+            level: 2,
+            classes: [
+                { classId: 'fighter', subclassId: '', level: 1 },
+                { classId: 'rogue', subclassId: '', level: 1 },
+            ],
+            startingClassId: 'fighter',
+            background: 'Soldier',
+            proficiencyChoices: [
+                {
+                    classId: 'fighter',
+                    choiceGroup: 1,
+                    values: ['skill-athletics', 'skill-perception'],
+                },
+                {
+                    classId: 'rogue',
+                    choiceGroup: 1,
+                    values: ['skill-stealth'],
+                },
+            ],
+        });
+
+        expect(input.proficiencyChoices).toEqual([
+            {
+                classId: 'fighter',
+                choiceGroup: 1,
+                values: ['skill-athletics', 'skill-perception'],
+            },
+            {
+                classId: 'rogue',
+                choiceGroup: 1,
+                values: ['skill-stealth'],
+            },
+        ]);
+    });
 });

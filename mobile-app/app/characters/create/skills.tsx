@@ -1,14 +1,15 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useQuery } from '@apollo/client/react';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { SKILL_DEFINITIONS, ABILITY_ABBREVIATIONS, type AbilityKey, type SkillKey } from '@/lib/characterSheetUtils';
 import {
     BACKGROUND_SKILL_PROFICIENCIES,
     CLASS_SAVING_THROWS,
-    CLASS_SKILL_OPTIONS,
-    configuredStartingClassSkillOptions,
+    proficiencyTypeLabel,
+    skillKeyFromProficiencyValue,
+    SKILL_SRD_INDEX_BY_KEY,
+    type ClassProficiencyChoiceGroup,
 } from '@/lib/characterCreation/classRules';
 import {
     classLabel,
@@ -16,29 +17,50 @@ import {
 } from '@/lib/characterCreation/multiclass';
 import ProficiencyItem from '@/components/character-creation-wizard/ProficiencyItem';
 import { wizardStepStyles } from '@/components/character-creation-wizard/styles/wizardStepStyles';
-import { GET_CLASS_DETAILS } from '@/graphql/class.operations';
-import type { ClassDetailsQuery, ClassDetailsQueryVariables } from '@/types/generated_graphql_types';
+import useCreationProficiencyRequirements from '@/hooks/useCreationProficiencyRequirements';
 
 export default function StepSkills() {
-    const { draft, toggleSkillProficiency } = useCharacterDraft();
+    const { draft, toggleProficiencyChoice } = useCharacterDraft();
     const startingClass = startingClassRow(draft.classes, draft.startingClassId);
     const startingClassId = startingClass?.classId ?? '';
-    const { data: classData } = useQuery<ClassDetailsQuery, ClassDetailsQueryVariables>(GET_CLASS_DETAILS, {
-        variables: { value: startingClassId },
-        skip: startingClassId.length === 0,
-        fetchPolicy: 'cache-first',
-    });
+    const {
+        proficiencyChoiceGroups,
+        fixedSkillKeys,
+        loading,
+        error,
+        refetch,
+    } = useCreationProficiencyRequirements(draft.classes, draft.startingClassId);
     const savingThrows = CLASS_SAVING_THROWS[startingClassId] ?? [];
 
     const backgroundSkillProfs: SkillKey[] = BACKGROUND_SKILL_PROFICIENCIES[draft.background] ?? [];
     const backgroundSkills = SKILL_DEFINITIONS.filter((skill) => backgroundSkillProfs.includes(skill.key));
+    const backgroundSkillValues = new Set(
+        backgroundSkillProfs.map((skillKey) => SKILL_SRD_INDEX_BY_KEY[skillKey]),
+    );
 
-    const loadedClassDefinition = classData?.classDetails?.value === startingClassId
-        ? classData.classDetails
-        : null;
-    const fallbackClassOptions = CLASS_SKILL_OPTIONS[startingClassId];
-    const classOptionGroups = configuredStartingClassSkillOptions(loadedClassDefinition)
-        ?? (fallbackClassOptions ? [{ choiceGroup: 1, ...fallbackClassOptions }] : []);
+    const fixedClassSkillKeys = fixedSkillKeys.filter((skillKey) => !backgroundSkillProfs.includes(skillKey));
+    const fixedClassSkills = SKILL_DEFINITIONS.filter((skill) => fixedClassSkillKeys.includes(skill.key));
+
+    const startingGroups = proficiencyChoiceGroups.filter((group) => group.classId === startingClassId);
+    const secondaryGroups = proficiencyChoiceGroups.filter((group) => group.classId !== startingClassId);
+
+    if (error) {
+        return (
+            <ScrollView style={wizardStepStyles.scroll} contentContainerStyle={wizardStepStyles.container}>
+                <Text style={wizardStepStyles.heading}>Choose your skills.</Text>
+                <Text style={styles.errorText} testID="create-skills-requirements-error">
+                    Could not load class proficiency requirements. Check your connection and try again.
+                </Text>
+                <Pressable
+                    onPress={refetch}
+                    style={styles.retryButton}
+                    testID="create-skills-requirements-retry"
+                >
+                    <Text style={styles.retryButtonText}>Retry</Text>
+                </Pressable>
+            </ScrollView>
+        );
+    }
 
     return (
         <ScrollView style={wizardStepStyles.scroll} contentContainerStyle={wizardStepStyles.container}>
@@ -46,6 +68,12 @@ export default function StepSkills() {
             <Text style={wizardStepStyles.sub}>
                 Select the proficiencies that suit your character&apos;s background and class.
             </Text>
+
+            {loading ? (
+                <Text style={styles.loadingText} testID="create-skills-requirements-loading">
+                    Loading class proficiency requirements…
+                </Text>
+            ) : null}
 
             {savingThrows.length > 0 && (
                 <>
@@ -85,55 +113,135 @@ export default function StepSkills() {
                 </>
             )}
 
-            {classOptionGroups.length > 0 && (
+            {fixedClassSkills.length > 0 && (
                 <>
-                    {classOptionGroups.map((group, groupIndex) => {
-                        const selectedCount = draft.skillProficiencies.filter(
-                            (skill) => group.options.includes(skill) && !backgroundSkillProfs.includes(skill),
-                        ).length;
-                        const atGroupLimit = selectedCount >= group.pick;
-                        return (
-                            <View key={group.choiceGroup} style={groupIndex > 0 ? styles.sectionGap : undefined}>
-                                <Text style={[
-                                    wizardStepStyles.sectionLabel,
-                                    groupIndex === 0 && backgroundSkills.length > 0 && styles.sectionGap,
-                                ]}>
-                                    Class Skills{classOptionGroups.length > 1 ? ` ${groupIndex + 1}` : ''} — Pick {group.pick}
-                                    {group.pick > 0 && ` (${selectedCount}/${group.pick})`}
-                                </Text>
-                                <View style={styles.list}>
-                                    {SKILL_DEFINITIONS.filter(
-                                        (skill) => group.options.includes(skill.key) && !backgroundSkillProfs.includes(skill.key),
-                                    ).map((skill) => {
-                                        const isSelected = draft.skillProficiencies.includes(skill.key);
-                                        return (
-                                            <ProficiencyItem
-                                                key={skill.key}
-                                                testID={`create-skill-class-${skill.key}`}
-                                                name={skill.label}
-                                                abilityAbbr={ABILITY_ABBREVIATIONS[skill.ability]}
-                                                selected={isSelected}
-                                                disabled={!isSelected && atGroupLimit}
-                                                onToggle={() => toggleSkillProficiency(skill.key)}
-                                            />
-                                        );
-                                    })}
-                                </View>
-                            </View>
-                        );
-                    })}
-                    {draft.classes.length > 1 ? (
-                        <Text style={styles.multiclassHint}>
-                            Extra multiclass proficiencies are derived on the server when the character is created.
-                        </Text>
-                    ) : null}
+                    <Text style={wizardStepStyles.sectionLabel}>
+                        Class Skills (automatic)
+                    </Text>
+                    <View style={styles.list}>
+                        {fixedClassSkills.map((skill) => (
+                            <ProficiencyItem
+                                key={skill.key}
+                                testID={`create-skill-class-fixed-${skill.key}`}
+                                name={skill.label}
+                                abilityAbbr={ABILITY_ABBREVIATIONS[skill.ability]}
+                                selected
+                                locked
+                                onToggle={() => {}}
+                            />
+                        ))}
+                    </View>
                 </>
             )}
+
+            <ProficiencyChoiceGroupList
+                groups={startingGroups}
+                draftChoices={draft.proficiencyChoices}
+                lockedOptionValues={backgroundSkillValues}
+                onToggle={toggleProficiencyChoice}
+                showGapAbove={backgroundSkills.length > 0 || fixedClassSkills.length > 0}
+            />
+
+            {secondaryGroups.length > 0 ? (
+                <>
+                    <Text style={[wizardStepStyles.sectionLabel, styles.sectionGap]}>
+                        Multiclass Proficiencies
+                    </Text>
+                    <Text style={styles.multiclassHint}>
+                        Choose the required MULTICLASS proficiency options for each secondary class.
+                    </Text>
+                    <ProficiencyChoiceGroupList
+                        groups={secondaryGroups}
+                        draftChoices={draft.proficiencyChoices}
+                        lockedOptionValues={backgroundSkillValues}
+                        onToggle={toggleProficiencyChoice}
+                        labelClassNames
+                    />
+                </>
+            ) : null}
 
             <Text style={styles.hint}>
                 You can add more proficiencies later from the Skills tab on your character sheet.
             </Text>
         </ScrollView>
+    );
+}
+
+type ProficiencyChoiceGroupListProps = {
+    groups: ClassProficiencyChoiceGroup[];
+    draftChoices: Array<{ classId: string; choiceGroup: number; values: string[] }>;
+    lockedOptionValues: ReadonlySet<string>;
+    onToggle: (classId: string, choiceGroup: number, value: string, maxChoices: number) => void;
+    showGapAbove?: boolean;
+    labelClassNames?: boolean;
+};
+
+/**
+ * Renders independently limited proficiency choice groups (skills + named).
+ */
+function ProficiencyChoiceGroupList({
+    groups,
+    draftChoices,
+    lockedOptionValues,
+    onToggle,
+    showGapAbove = false,
+    labelClassNames = false,
+}: ProficiencyChoiceGroupListProps) {
+    return (
+        <>
+            {groups.map((group, groupIndex) => {
+                const selectedValues = draftChoices.find(
+                    (entry) => entry.classId === group.classId && entry.choiceGroup === group.choiceGroup,
+                )?.values ?? [];
+                const atGroupLimit = selectedValues.length >= group.pick;
+                const typeLabel = proficiencyTypeLabel(group.type);
+                const classPrefix = labelClassNames ? `${classLabel(group.classId)} ` : '';
+                const choosableOptions = group.options.filter(
+                    (option) => !lockedOptionValues.has(option.value),
+                );
+
+                return (
+                    <View
+                        key={`proficiency-${group.classId}-${group.choiceGroup}`}
+                        style={groupIndex > 0 || showGapAbove ? styles.sectionGap : undefined}
+                        testID={`create-proficiency-choice-group-${group.classId}-${group.choiceGroup}`}
+                    >
+                        <Text style={wizardStepStyles.sectionLabel}>
+                            {classPrefix}Class {typeLabel}s — Pick {group.pick}
+                            {group.pick > 0 && ` (${selectedValues.length}/${group.pick})`}
+                        </Text>
+                        <View style={styles.list}>
+                            {choosableOptions.map((option) => {
+                                const isSelected = selectedValues.includes(option.value);
+                                const skillKey = skillKeyFromProficiencyValue(option.value);
+                                const abilityAbbr = skillKey
+                                    ? ABILITY_ABBREVIATIONS[
+                                        SKILL_DEFINITIONS.find((skill) => skill.key === skillKey)!.ability
+                                    ]
+                                    : undefined;
+
+                                return (
+                                    <ProficiencyItem
+                                        key={`${group.classId}-${option.value}`}
+                                        testID={`create-proficiency-choice-${group.classId}-${option.value}`}
+                                        name={option.name}
+                                        abilityAbbr={abilityAbbr}
+                                        selected={isSelected}
+                                        disabled={!isSelected && atGroupLimit}
+                                        onToggle={() => onToggle(
+                                            group.classId,
+                                            group.choiceGroup,
+                                            option.value,
+                                            group.pick,
+                                        )}
+                                    />
+                                );
+                            })}
+                        </View>
+                    </View>
+                );
+            })}
+        </>
     );
 }
 
@@ -176,7 +284,34 @@ const styles = StyleSheet.create({
         fontSize: fantasyTokens.fontSizes.caption,
         fontStyle: 'italic',
         color: 'rgba(201,146,42,0.45)',
-        marginTop: 6,
+        marginBottom: 8,
+    },
+    loadingText: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: fantasyTokens.fontSizes.caption,
+        fontStyle: 'italic',
+        color: 'rgba(201,146,42,0.55)',
+        marginBottom: 12,
+    },
+    errorText: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: fantasyTokens.fontSizes.body,
+        color: fantasyTokens.colors.claretLight,
+        marginBottom: 12,
+    },
+    retryButton: {
+        alignSelf: 'flex-start',
+        borderWidth: 1,
+        borderColor: fantasyTokens.colors.goldDark,
+        borderRadius: fantasyTokens.radii.md,
+        paddingVertical: fantasyTokens.spacing.sm,
+        paddingHorizontal: fantasyTokens.spacing.md,
+    },
+    retryButtonText: {
+        fontFamily: fantasyTokens.fonts.regular,
+        fontSize: fantasyTokens.fontSizes.caption,
+        letterSpacing: 1,
+        color: fantasyTokens.colors.goldLight,
     },
     hint: {
         fontFamily: fantasyTokens.fonts.regular,

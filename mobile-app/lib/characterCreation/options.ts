@@ -10,6 +10,13 @@ export type OptionItem = {
     hitDie?: number;
     multiclassPrerequisites?: Array<{ abilityIndex: string; minimum: number; group: number }>;
     classDefinition?: ClassDetailsFieldsFragment;
+    /**
+     * True for options added only so an existing class relation (e.g. an
+     * archived custom class the character is already levelled into) can
+     * resolve its `classDefinition`. Pickers for choosing a *new* class
+     * should filter these out.
+     */
+    hiddenFromNewClassPicker?: boolean;
 };
 
 /** Race options shown in the character creation wizard. */

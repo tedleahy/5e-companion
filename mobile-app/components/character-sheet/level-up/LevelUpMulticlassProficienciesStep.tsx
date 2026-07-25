@@ -1,11 +1,15 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import type { LevelUpWizardSelectedClass } from '@/lib/characterLevelUp/types';
-import type { MulticlassProficiencyGains, LevelUpMulticlassProficiencyState } from '@/lib/characterLevelUp/multiclassProficiencies';
+import type { LevelUpMulticlassProficiencyState } from '@/lib/characterLevelUp/multiclassProficiencies';
 import {
     getAutomaticProficiencyLabels,
     getMulticlassProficiencyGains,
+    getNonSkillMulticlassChoiceGroups,
+    getSkillMulticlassChoiceGroups,
+    selectedMulticlassProficiencyValues,
 } from '@/lib/characterLevelUp/multiclassProficiencies';
+import { proficiencyTypeLabel, type ClassProficiencyChoiceGroupBase } from '@/lib/characterCreation/classRules';
 import {
     ABILITY_KEYS,
     ABILITY_ABBREVIATIONS,
@@ -20,7 +24,7 @@ type LevelUpMulticlassProficienciesStepProps = {
     selectedClass: LevelUpWizardSelectedClass;
     proficiencyState: LevelUpMulticlassProficiencyState;
     existingSkillProficiencies: SkillProficiencies | null;
-    onToggleSkill: (skill: string) => void;
+    onToggleProficiency: (choiceGroup: number, value: string) => void;
 };
 
 /**
@@ -30,10 +34,13 @@ export default function LevelUpMulticlassProficienciesStep({
     selectedClass,
     proficiencyState,
     existingSkillProficiencies,
-    onToggleSkill,
+    onToggleProficiency,
 }: LevelUpMulticlassProficienciesStepProps) {
     const gains = getMulticlassProficiencyGains(selectedClass.classId, selectedClass);
     const automaticLabels = gains ? getAutomaticProficiencyLabels(gains) : [];
+    const skillChoiceGroups = gains ? getSkillMulticlassChoiceGroups(gains) : [];
+    const nonSkillChoiceGroups = gains ? getNonSkillMulticlassChoiceGroups(gains) : [];
+    const hasAnyChoices = skillChoiceGroups.length > 0 || nonSkillChoiceGroups.length > 0;
 
     return (
         <View style={styles.section} testID="level-up-step-multiclass_proficiencies">
@@ -48,22 +55,77 @@ export default function LevelUpMulticlassProficienciesStep({
                         <Text key={label} style={styles.proficiencyItem}>{`\u2022 ${label}`}</Text>
                     ))}
                 </View>
-            ) : (
+            ) : !hasAnyChoices ? (
                 <View style={styles.emptyCard} testID="level-up-no-proficiencies">
                     <Text style={styles.emptyText}>
                         {`${selectedClass.className} does not grant additional proficiencies when multiclassing.`}
                     </Text>
                 </View>
-            )}
-
-            {gains && gains.skillChoices > 0 ? (
-                <SkillPicker
-                    gains={gains}
-                    selectedSkills={proficiencyState.selectedSkills}
-                    existingSkillProficiencies={existingSkillProficiencies}
-                    onToggleSkill={onToggleSkill}
-                />
             ) : null}
+
+            {skillChoiceGroups.map((group) => (
+                <SkillPicker
+                    key={group.choiceGroup}
+                    group={group}
+                    selectedValues={selectedMulticlassProficiencyValues(proficiencyState, group.choiceGroup)}
+                    existingSkillProficiencies={existingSkillProficiencies}
+                    onToggle={(value) => onToggleProficiency(group.choiceGroup, value)}
+                />
+            ))}
+
+            {nonSkillChoiceGroups.map((group) => {
+                const selectedValues = selectedMulticlassProficiencyValues(proficiencyState, group.choiceGroup);
+                const typeLabel = proficiencyTypeLabel(group.type);
+                return (
+                    <View
+                        key={group.choiceGroup}
+                        style={styles.skillSection}
+                        testID={`level-up-proficiency-choice-group-${group.choiceGroup}`}
+                    >
+                        <Text style={styles.skillSectionTitle}>
+                            {`Choose ${group.pick} ${typeLabel} ${group.pick > 1 ? 'Proficiencies' : 'Proficiency'}`}
+                        </Text>
+                        <View style={styles.skillGrid}>
+                            {group.options.map((option) => {
+                                const isSelected = selectedValues.includes(option.value);
+                                const isDisabled = !isSelected && selectedValues.length >= group.pick;
+                                return (
+                                    <Pressable
+                                        key={option.value}
+                                        onPress={() => onToggleProficiency(group.choiceGroup, option.value)}
+                                        disabled={isDisabled}
+                                        accessibilityRole="checkbox"
+                                        accessibilityState={{ checked: isSelected, disabled: isDisabled }}
+                                        accessibilityLabel={`${option.name} proficiency`}
+                                        style={[
+                                            styles.skillChip,
+                                            isSelected && styles.skillChipSelected,
+                                            isDisabled && styles.skillChipDisabled,
+                                        ]}
+                                        testID={`level-up-proficiency-option-${option.value}`}
+                                    >
+                                        <Text
+                                            style={[
+                                                styles.skillChipText,
+                                                isSelected && styles.skillChipTextSelected,
+                                                isDisabled && styles.skillChipTextDisabled,
+                                            ]}
+                                        >
+                                            {option.name}
+                                        </Text>
+                                    </Pressable>
+                                );
+                            })}
+                        </View>
+                        <Text
+                            style={styles.skillCountLabel}
+                            testID={`level-up-proficiency-count-${group.choiceGroup}`}
+                        >
+                            {`${selectedValues.length} of ${group.pick} selected`}
+                        </Text>
+                    </View>
+                );
+            })}
         </View>
     );
 }
@@ -95,32 +157,35 @@ function proficiencyLabel(
 }
 
 type SkillPickerProps = {
-    gains: MulticlassProficiencyGains;
-    selectedSkills: string[];
+    group: ClassProficiencyChoiceGroupBase;
+    selectedValues: string[];
     existingSkillProficiencies: SkillProficiencies | null;
-    onToggleSkill: (skill: string) => void;
+    onToggle: (value: string) => void;
 };
 
 /**
- * Renders the skill choice picker grouped by ability score.
+ * Renders one skill choice-group picker grouped by ability score.
  */
-function SkillPicker({ gains, selectedSkills, existingSkillProficiencies, onToggleSkill }: SkillPickerProps) {
-    const skillOptionSet = new Set(gains.skillOptions);
+function SkillPicker({ group, selectedValues, existingSkillProficiencies, onToggle }: SkillPickerProps) {
+    const optionsByLabel = new Map(group.options.map((option) => [option.name, option]));
 
-    // Group available skill options by ability
     const groupedSkills = ABILITY_KEYS.map((ability) => {
         const skills = SKILL_DEFINITIONS
-            .filter((s) => s.ability === ability && skillOptionSet.has(s.label));
+            .filter((skill) => skill.ability === ability && optionsByLabel.has(skill.label))
+            .map((skill) => ({
+                skillDef: skill,
+                option: optionsByLabel.get(skill.label)!,
+            }));
         return { ability, skills };
-    }).filter((group) => group.skills.length > 0);
+    }).filter((entry) => entry.skills.length > 0);
 
     return (
-        <View style={styles.skillSection} testID="level-up-skill-picker">
+        <View style={styles.skillSection} testID={`level-up-skill-picker-${group.choiceGroup}`}>
             <Text style={styles.skillSectionTitle}>
-                {`Choose ${gains.skillChoices} Skill ${gains.skillChoices > 1 ? 'Proficiencies' : 'Proficiency'}`}
+                {`Choose ${group.pick} Skill ${group.pick > 1 ? 'Proficiencies' : 'Proficiency'}`}
             </Text>
             <Text style={styles.skillSectionBody}>
-                {`Select from the ${gains.skillOptions.length > 10 ? 'full' : 'class'} skill list below.`}
+                {`Select from the ${group.options.length > 10 ? 'full' : 'class'} skill list below.`}
             </Text>
 
             {groupedSkills.map(({ ability, skills }) => (
@@ -129,28 +194,27 @@ function SkillPicker({ gains, selectedSkills, existingSkillProficiencies, onTogg
                         {ABILITY_ABBREVIATIONS[ability]}
                     </Text>
                     <View style={styles.skillGrid}>
-                        {skills.map((skillDef) => {
-                            const skill = skillDef.label;
-                            const isSelected = selectedSkills.includes(skill);
+                        {skills.map(({ skillDef, option }) => {
+                            const isSelected = selectedValues.includes(option.value);
                             const alreadyProficient = isAlreadyProficient(skillDef, existingSkillProficiencies);
-                            const isDisabled = !isSelected && (selectedSkills.length >= gains.skillChoices || alreadyProficient);
+                            const isDisabled = !isSelected && (selectedValues.length >= group.pick || alreadyProficient);
                             const existingLabel = proficiencyLabel(skillDef, existingSkillProficiencies);
 
                             return (
                                 <Pressable
-                                    key={skill}
-                                    onPress={() => onToggleSkill(skill)}
+                                    key={option.value}
+                                    onPress={() => onToggle(option.value)}
                                     disabled={isDisabled}
                                     accessibilityRole="checkbox"
                                     accessibilityState={{ checked: isSelected, disabled: isDisabled }}
-                                    accessibilityLabel={`${skill} proficiency`}
+                                    accessibilityLabel={`${option.name} proficiency`}
                                     style={[
                                         styles.skillChip,
                                         isSelected && styles.skillChipSelected,
                                         alreadyProficient && styles.skillChipAlreadyProficient,
                                         isDisabled && !alreadyProficient && styles.skillChipDisabled,
                                     ]}
-                                    testID={`level-up-skill-option-${skill}`}
+                                    testID={`level-up-skill-option-${option.name}`}
                                 >
                                     <Text
                                         style={[
@@ -160,12 +224,12 @@ function SkillPicker({ gains, selectedSkills, existingSkillProficiencies, onTogg
                                             isDisabled && !alreadyProficient && styles.skillChipTextDisabled,
                                         ]}
                                     >
-                                        {skill}
+                                        {option.name}
                                     </Text>
                                     {existingLabel ? (
                                         <Text
                                             style={styles.skillChipExistingLabel}
-                                            testID={`level-up-skill-existing-${skill}`}
+                                            testID={`level-up-skill-existing-${option.name}`}
                                         >
                                             {existingLabel}
                                         </Text>
@@ -177,8 +241,8 @@ function SkillPicker({ gains, selectedSkills, existingSkillProficiencies, onTogg
                 </View>
             ))}
 
-            <Text style={styles.skillCountLabel} testID="level-up-skill-count">
-                {`${selectedSkills.length} of ${gains.skillChoices} selected`}
+            <Text style={styles.skillCountLabel} testID={`level-up-skill-count-${group.choiceGroup}`}>
+                {`${selectedValues.length} of ${group.pick} selected`}
             </Text>
         </View>
     );

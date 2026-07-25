@@ -423,11 +423,31 @@ type CharacterSpell {
 # Character Inputs
 # ---------------------------------------------------------------------------
 
+input ProficiencyChoiceSelectionInput {
+    """
+    Class selection value (SRD `srdIndex` or owned custom class id), matching
+    `CreateCharacterClassInput.classId`. Choice groups are unique per class.
+    """
+    classId: String!
+    choiceGroup: Int!
+    values: [String!]!
+}
+
 input CreateCharacterInput {
     name: String!
     race: String!
     classes: [CreateCharacterClassInput!]!
     featureChoices: [FeatureChoiceInput!]
+    """
+    Generic proficiency picks for every class row: STARTING groups on the
+    starting class and MULTICLASS groups on secondary classes. Includes SKILL
+    and named (armor/weapon/tool/other) groups. Identity is `(classId, choiceGroup)`;
+    values are proficiency identities (`srdIndex ?? id`). The server validates
+    each group independently and derives persisted skill/trait grants from these
+    picks plus fixed class and background grants — `skillProficiencies` is not
+    choice provenance.
+    """
+    proficiencyChoices: [ProficiencyChoiceSelectionInput!]
     startingClassId: String!
     alignment: String!
     background: String!
@@ -435,6 +455,11 @@ input CreateCharacterInput {
     speed: Int!
     initiative: Int!
     abilityScores: AbilityScoresInput!
+    """
+    Compatibility field. Creation derives persisted skill proficiencies from
+    validated `proficiencyChoices` plus fixed class/background grants. Client
+    values are not used as choice-group provenance.
+    """
     skillProficiencies: SkillProficienciesInput!
     traits: TraitsInput
     currency: CurrencyInput
@@ -627,6 +652,11 @@ input SaveCustomSubclassFeatureInput {
     level: Int!
 }
 
+input SaveCharacterSheetSpellInput {
+    spellId: ID!
+    prepared: Boolean!
+}
+
 input SaveCharacterSheetClassInput {
     id: ID
     classId: String!
@@ -650,6 +680,16 @@ input SaveCharacterSheetInput {
     weapons: [SaveCharacterSheetWeaponInput!]!
     inventory: [SaveCharacterSheetInventoryItemInput!]!
     features: [SaveCharacterSheetFeatureInput!]!
+    spellbook: [SaveCharacterSheetSpellInput!]!
+    """
+    MULTICLASS proficiency choice provenance for classes newly added in this
+    save. Includes SKILL and named (armor/weapon/tool/other) groups. Required
+    when the save introduces new class rows that grant MULTICLASS choice groups;
+    must be omitted or empty when no class is newly added so ordinary manual
+    trait/skill edits stay unconstrained. Option values use `srdIndex ?? id`.
+    Identity is `(classId, choiceGroup)`.
+    """
+    proficiencyChoices: [ProficiencyChoiceSelectionInput!]
 }
 
 # ---------------------------------------------------------------------------
@@ -661,6 +701,7 @@ type Query {
     availableClasses: [AvailableClass!]!
     classDetails(value: String!): ClassDetails
     customClasses: [ClassDetails!]!
+    attachedClassDetails(values: [String!]!): [ClassDetails!]!
     spells(filter: SpellFilter, pagination: SpellPagination): [Spell!]!
     spell(id: ID!): Spell
     character(id: ID!): Character

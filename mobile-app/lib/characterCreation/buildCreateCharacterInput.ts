@@ -1,7 +1,4 @@
 import { ABILITY_KEYS, abilityModifier, SKILL_DEFINITIONS, type AbilityKey } from '@/lib/characterSheetUtils';
-import {
-    BACKGROUND_SKILL_PROFICIENCIES,
-} from '@/lib/characterCreation/classRules';
 import { applyRacialBonuses, RACE_SPEED_MAP } from '@/lib/characterCreation/raceRules';
 import {
     sanitiseCharacterClassRow,
@@ -12,19 +9,14 @@ import type { CharacterDraft } from '@/store/characterDraft';
 import { ProficiencyLevel, type CreateCharacterInput } from '@/types/generated_graphql_types';
 
 /**
- * Builds the GraphQL skill proficiency map from the character draft.
+ * Compatibility skill map. Creation derives persisted skills server-side from
+ * validated `proficiencyChoices` plus fixed grants; this is not provenance.
  */
-function buildSkillProficiencies(draft: CharacterDraft): CreateCharacterInput['skillProficiencies'] {
-    const backgroundSkills = BACKGROUND_SKILL_PROFICIENCIES[draft.background] ?? [];
-    const allProficientSkills = new Set([...draft.skillProficiencies, ...backgroundSkills]);
+function buildCompatibilitySkillProficiencies(): CreateCharacterInput['skillProficiencies'] {
     const skillProficiencies: Record<string, ProficiencyLevel> = {};
-
     for (const skill of SKILL_DEFINITIONS) {
-        skillProficiencies[skill.key] = allProficientSkills.has(skill.key)
-            ? ProficiencyLevel.Proficient
-            : ProficiencyLevel.None;
+        skillProficiencies[skill.key] = ProficiencyLevel.None;
     }
-
     return skillProficiencies as CreateCharacterInput['skillProficiencies'];
 }
 
@@ -71,7 +63,10 @@ export function buildCreateCharacterInput(
         initiative: dexterityModifier,
         speed: RACE_SPEED_MAP[draft.race] ?? 30,
         abilityScores: finalScores,
-        skillProficiencies: buildSkillProficiencies(draft),
+        skillProficiencies: buildCompatibilitySkillProficiencies(),
+        ...(draft.proficiencyChoices.length > 0
+            ? { proficiencyChoices: draft.proficiencyChoices }
+            : {}),
         ...(hasTraits
             ? {
                   traits: {

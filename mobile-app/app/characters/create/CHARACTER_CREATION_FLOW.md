@@ -42,7 +42,7 @@ _layout.tsx
 
 | File | Purpose |
 |---|---|
-| `store/characterDraft.tsx` | `CharacterDraftProvider` context + `useCharacterDraft()` hook. Holds the full `CharacterDraft` type, including `featureChoices` (one row per selected child benefit, so multi-pick parents have multiple rows). Provides `updateDraft()` (partial merge), `setAbilityScore()`, `setAllAbilityScores()`, `toggleSkillProficiency()`, `resetDraft()`, `hasDraftData()` |
+| `store/characterDraft.tsx` | `CharacterDraftProvider` context + `useCharacterDraft()` hook. Holds the full `CharacterDraft` type, including `featureChoices` (one row per selected child benefit, so multi-pick parents have multiple rows) and `proficiencyChoices` (SKILL + named pick-N groups keyed by `classId` + `choiceGroup`, values = `srdIndex ?? id`). Clears proficiency picks when the class set or starting class changes. Provides `updateDraft()` (partial merge), `setAbilityScore()`, `setAllAbilityScores()`, `toggleProficiencyChoice()`, `resetDraft()`, `hasDraftData()` |
 
 ### Wizard infrastructure
 
@@ -50,7 +50,7 @@ _layout.tsx
 |---|---|
 | `components/wizard/WizardShell.tsx` | Wraps all steps. Manages navigation (back/next/cancel), progress bar, step dots. Calls `isCreateCharacterStepComplete()` to gate the Continue button. On the last step, calls `buildCreateCharacterInput()` then fires `CREATE_CHARACTER` GraphQL mutation. On success, navigates to `/character/{id}` |
 | `lib/characterCreation/routes.ts` | Defines `CREATE_CHARACTER_ROUTES` constant (typed `Href` values), `getCreateCharacterStepRoutes()` (returns the ordered route array, inserting `features` after skills only when needed), and `deriveCreateCharacterStepIndex()` (maps pathname to step index) |
-| `lib/characterCreation/stepCompletion.ts` | `isCreateCharacterStepComplete(route, draft)` — per-step validation that gates the Continue button. Identity requires a name and race, class requires full validation, `features` requires the configured number of selections for every unlocked parent/child choice, background requires a selection. Abilities, skills, and review always pass |
+| `lib/characterCreation/stepCompletion.ts` | `isCreateCharacterStepComplete(route, draft)` — per-step validation that gates the Continue button. Identity requires a name and race, class requires full validation, `features` requires the configured number of selections for every unlocked parent/child choice, background requires a selection, skills requires exact unique membership for every class-scoped skill/named proficiency group. Abilities and review always pass |
 
 ### Business logic (`lib/characterCreation/`)
 
@@ -93,7 +93,9 @@ type CharacterDraft = {
     ideals: string;
     bonds: string;
     flaws: string;
-    skillProficiencies: SkillKey[];
+    // SKILL + named picks for STARTING + MULTICLASS groups.
+    // Identity is (classId, choiceGroup); values are srdIndex ?? custom proficiency id.
+    proficiencyChoices: Array<{ classId: string; choiceGroup: number; values: string[] }>;
     asiAllocations: Record<AbilityKey, number>;  // ASI points distributed
     abilityMode: 'roll' | 'pointBuy';
 };
@@ -138,7 +140,7 @@ The WizardShell's Continue button is disabled until `isCreateCharacterStepComple
 | Additional Class Benefits | Every applicable parent feature has its configured number of chosen child options |
 | Abilities | Always passes |
 | Background | `background !== ''` |
-| Skills | Always passes |
+| Skills | Every class-scoped proficiency choice group (SKILL + named) is filled with exact unique option membership; blocked while class definitions are loading, failed, or the settled `attachedClassDetails` batch is missing any selected class |
 | Review | Always passes |
 
 ## Submission Flow

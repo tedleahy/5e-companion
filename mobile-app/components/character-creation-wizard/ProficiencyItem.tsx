@@ -4,7 +4,8 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
 
 type Props = {
     name: string;
-    abilityAbbr: string;
+    /** Optional ability abbreviation shown for skill rows; omit for tool/armor/weapon picks. */
+    abilityAbbr?: string;
     selected: boolean;
     onToggle: () => void;
     /** If true, the item is locked (auto-selected, not toggleable). */
@@ -40,7 +41,7 @@ export default function ProficiencyItem({
             <Text style={[styles.name, selected && styles.nameSelected, locked && styles.nameLocked]}>
                 {name}
             </Text>
-            <Text style={styles.attr}>{abilityAbbr}</Text>
+            {abilityAbbr ? <Text style={styles.attr}>{abilityAbbr}</Text> : null}
             {locked && <Text style={styles.lockedTag}>BG</Text>}
         </Pressable>
     );

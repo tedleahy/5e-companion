@@ -11,6 +11,7 @@ import type { ErrorLike } from '@apollo/client';
 import { useMutation } from '@apollo/client/react';
 import MainContentFrame from '@/components/layout/MainContentFrame';
 import useAvailableSubclasses from '@/hooks/useAvailableSubclasses';
+import useCreationProficiencyRequirements from '@/hooks/useCreationProficiencyRequirements';
 import useConfirm from '@/hooks/useConfirm';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
@@ -20,6 +21,10 @@ import {
     getCreateCharacterStepRoutes,
 } from '@/lib/characterCreation/routes';
 import { isCreateCharacterStepComplete } from '@/lib/characterCreation/stepCompletion';
+import {
+    proficiencyChoicesEqual,
+    reconcileProficiencyChoices,
+} from '@/lib/characterCreation/proficiencyChoiceDraft';
 import { CREATE_CHARACTER, GET_CURRENT_USER_CHARACTER_ROSTER } from '@/graphql/characterSheet.operations';
 
 type Props = { children: ReactNode };
@@ -27,11 +32,34 @@ type Props = { children: ReactNode };
 export default function WizardShell({ children }: Props) {
     const pathname = usePathname();
     const router = useRouter();
-    const { draft, resetDraft, hasDraftData } = useCharacterDraft();
+    const { draft, updateDraft, resetDraft, hasDraftData } = useCharacterDraft();
     const { confirm, confirmDialogElement } = useConfirm();
     const { subclassOptionItemsByClassId } = useAvailableSubclasses(
         draft.classes.map((classRow) => classRow.classId),
     );
+    const {
+        proficiencyChoiceGroups,
+        loading: skillRequirementsLoading,
+        error: skillRequirementsError,
+    } = useCreationProficiencyRequirements(draft.classes, draft.startingClassId);
+
+    // Prune stale class-scoped picks when async requirements finish loading or change.
+    useEffect(() => {
+        if (skillRequirementsLoading || skillRequirementsError) return;
+        const reconciled = reconcileProficiencyChoices(
+            draft.proficiencyChoices,
+            proficiencyChoiceGroups,
+        );
+        if (!proficiencyChoicesEqual(draft.proficiencyChoices, reconciled)) {
+            updateDraft({ proficiencyChoices: reconciled });
+        }
+    }, [
+        draft.proficiencyChoices,
+        proficiencyChoiceGroups,
+        skillRequirementsLoading,
+        skillRequirementsError,
+        updateDraft,
+    ]);
 
     const stepRoutes = useMemo(() => getCreateCharacterStepRoutes(draft), [draft]);
     const totalSteps = stepRoutes.length;
@@ -58,8 +86,23 @@ export default function WizardShell({ children }: Props) {
 
     // Validation: is the current step complete enough to proceed?
     const canContinue = useMemo(
-        () => isCreateCharacterStepComplete(currentRoute, draft, subclassOptionItemsByClassId),
-        [currentRoute, draft, subclassOptionItemsByClassId],
+        () => isCreateCharacterStepComplete(
+            currentRoute,
+            draft,
+            subclassOptionItemsByClassId,
+            [],
+            skillRequirementsLoading,
+            proficiencyChoiceGroups,
+            Boolean(skillRequirementsError),
+        ),
+        [
+            currentRoute,
+            draft,
+            subclassOptionItemsByClassId,
+            skillRequirementsLoading,
+            proficiencyChoiceGroups,
+            skillRequirementsError,
+        ],
     );
 
     const progressWidth = ((currentStep + 1) / totalSteps) * 100;

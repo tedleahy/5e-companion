@@ -5,7 +5,11 @@ import type { AbilityKey } from '@/lib/characterSheetUtils';
 import { formatSignedNumber } from '@/lib/characterSheetUtils';
 import { LEVEL_UP_ABILITY_LABELS } from '@/lib/characterLevelUp/asiOrFeat';
 import { getClassResourceChanges } from '@/lib/characterLevelUp/classResources';
-import { getMulticlassProficiencyGains, getAutomaticProficiencyLabels } from '@/lib/characterLevelUp/multiclassProficiencies';
+import {
+    getMulticlassProficiencyGains,
+    getAutomaticProficiencyLabels,
+    labelsForMulticlassProficiencySelections,
+} from '@/lib/characterLevelUp/multiclassProficiencies';
 import { spellLevelLabel } from '@/lib/spellPresentation';
 import type {
     LevelUpAsiOrFeatState,
@@ -63,9 +67,17 @@ export default function LevelUpSummaryStep({
 }: LevelUpSummaryStepProps) {
     const nextMaxHitPoints = currentHitPoints.max + hitPointsState.hpGained;
     const abilityScoreChanges = abilityScoreSummaryRows(abilityScores, asiOrFeatState);
-    const proficiencyGains = !selectedClass.isExistingClass ? getMulticlassProficiencyGains(selectedClass.classId) : null;
+    const proficiencyGains = !selectedClass.isExistingClass
+        ? getMulticlassProficiencyGains(selectedClass.classId, selectedClass)
+        : null;
     const automaticProfLabels = proficiencyGains ? getAutomaticProficiencyLabels(proficiencyGains) : [];
-    const allProficiencyLabels = [...automaticProfLabels, ...multiclassProficiencyState.selectedSkills];
+    const chosenProficiencyLabels = proficiencyGains
+        ? labelsForMulticlassProficiencySelections(proficiencyGains, multiclassProficiencyState)
+        : [];
+    const allProficiencyLabels = [
+        ...automaticProfLabels,
+        ...chosenProficiencyLabels,
+    ];
     const resourceChanges = getClassResourceChanges(selectedClass.classId, selectedClass.currentLevel, selectedClass.newLevel)
         .filter((change) => change.changed);
 

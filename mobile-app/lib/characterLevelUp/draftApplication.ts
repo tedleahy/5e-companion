@@ -13,7 +13,13 @@ import {
     derivePreviewSpellcastingProfiles,
 } from './spellcasting';
 import type { LevelUpMulticlassProficiencyState } from './multiclassProficiencies';
-import { getMulticlassProficiencyGains } from './multiclassProficiencies';
+import {
+    buildPendingMulticlassProficiencyChoices,
+    getMulticlassProficiencyGains,
+    getNonSkillMulticlassChoiceGroups,
+    getSkillMulticlassChoiceGroups,
+    selectedMulticlassProficiencyValues,
+} from './multiclassProficiencies';
 import { findSrdInvocation, findSrdMetamagic, formatMysticArcanumSpellLabel } from './advancedClassChoices';
 import type { LevelUpInvocationState, LevelUpMetamagicState, LevelUpMysticArcanumState } from './advancedClassChoices';
 import type {
@@ -68,6 +74,17 @@ export function applyLevelUpToDraft(
     );
 
     const traits = applyLevelUpProficiencies(draft.traits, input.selectedClass, input.multiclassProficiencyState);
+    const pendingProficiencyChoices = input.selectedClass.isExistingClass
+        ? draft.pendingProficiencyChoices
+        : [
+            ...draft.pendingProficiencyChoices.filter((choice) => (
+                choice.classId !== input.selectedClass.classId
+            )),
+            ...buildPendingMulticlassProficiencyChoices(
+                input.selectedClass.classId,
+                input.multiclassProficiencyState,
+            ),
+        ];
 
     const advancedFeatures = buildAdvancedChoiceFeatures(
         input.selectedClass,
@@ -92,6 +109,7 @@ export function applyLevelUpToDraft(
         hp,
         skillProficiencies,
         traits,
+        pendingProficiencyChoices,
         features: applyLevelUpFeatures(filteredFeatures, input.asiOrFeatState, [...input.features, ...advancedFeatures]),
     };
 }
@@ -267,14 +285,27 @@ function applyLevelUpProficiencies(
         return traits;
     }
 
-    const armorGains = gains.armor.filter((label) => !traits.armorProficiencies.includes(label));
-    const weaponGains = gains.weapons.filter((label) => !traits.weaponProficiencies.includes(label));
-    const toolGains = gains.tools.filter((label) => !traits.toolProficiencies.includes(label));
+    const chosenArmor: string[] = [];
+    const chosenWeapons: string[] = [];
+    const chosenTools: string[] = [];
+
+    for (const group of getNonSkillMulticlassChoiceGroups(gains)) {
+        const selectedValues = new Set(selectedMulticlassProficiencyValues(proficiencyState, group.choiceGroup));
+        for (const option of group.options) {
+            if (!selectedValues.has(option.value)) continue;
+            if (option.type === 'ARMOR') chosenArmor.push(option.name);
+            else if (option.type === 'WEAPON') chosenWeapons.push(option.name);
+            else chosenTools.push(option.name);
+        }
+    }
+
+    const armorGains = [...gains.armor, ...chosenArmor].filter((label) => !traits.armorProficiencies.includes(label));
+    const weaponGains = [...gains.weapons, ...chosenWeapons].filter((label) => !traits.weaponProficiencies.includes(label));
+    const toolGains = [...gains.tools, ...chosenTools].filter((label) => !traits.toolProficiencies.includes(label));
 
     const hasChanges = armorGains.length > 0
         || weaponGains.length > 0
-        || toolGains.length > 0
-        || proficiencyState.selectedSkills.length > 0;
+        || toolGains.length > 0;
 
     if (!hasChanges) {
         return traits;
@@ -296,14 +327,31 @@ function applyLevelUpSkillProficiencies(
     selectedClass: LevelUpWizardSelectedClass,
     proficiencyState: LevelUpMulticlassProficiencyState,
 ): CharacterSheetDraft['skillProficiencies'] {
-    if (selectedClass.isExistingClass || proficiencyState.selectedSkills.length === 0) {
+    if (selectedClass.isExistingClass) {
+        return skillProficiencies;
+    }
+
+    const gains = getMulticlassProficiencyGains(selectedClass.classId, selectedClass);
+    // Fixed grants (choiceGroup == null) are automatic and must apply even when the
+    // user makes no choice-group selection; user picks only ever come from choice groups.
+    const chosenSkillLabels = gains
+        ? getSkillMulticlassChoiceGroups(gains).flatMap((group) => {
+            const selected = new Set(selectedMulticlassProficiencyValues(proficiencyState, group.choiceGroup));
+            return group.options
+                .filter((option) => selected.has(option.value))
+                .map((option) => option.name);
+        })
+        : [];
+    const grantedSkillLabels = [...(gains?.automaticSkills ?? []), ...chosenSkillLabels];
+
+    if (grantedSkillLabels.length === 0) {
         return skillProficiencies;
     }
 
     let hasChanges = false;
     const nextSkillProficiencies = { ...skillProficiencies };
 
-    for (const skillLabel of proficiencyState.selectedSkills) {
+    for (const skillLabel of grantedSkillLabels) {
         const skillDefinition = findSkillDefinitionByLabel(skillLabel);
 
         if (!skillDefinition || nextSkillProficiencies[skillDefinition.key] !== ProficiencyLevel.None) {
