@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import type { ManagedCustomClassInput } from '../../generated/graphql';
-import { assertLockedFeatureMembership, normaliseClassInput } from './customClassManager';
+import {
+    assertLockedFeatureMembership,
+    canonicaliseMechanicsValue,
+    normaliseClassInput,
+    sortByCanonicalForm,
+} from './customClassManager';
 
 function validInput(): ManagedCustomClassInput {
     return {
@@ -53,6 +58,23 @@ describe('custom class input validation', () => {
         expect(() => normaliseClassInput(input)).toThrow('non-spellcasting class');
     });
 
+    test('rejects a pact magic level with more than one populated spell-slot level', () => {
+        const input = validInput();
+        input.spellcastingMode = 'PACT_MAGIC';
+        input.spellcastingAbility = 'cha';
+        input.progression[0]!.spellSlots[0] = 1;
+        input.progression[0]!.spellSlots[1] = 1;
+        expect(() => normaliseClassInput(input)).toThrow('single spell-slot level');
+    });
+
+    test('accepts a pact magic level with a single populated spell-slot level', () => {
+        const input = validInput();
+        input.spellcastingMode = 'PACT_MAGIC';
+        input.spellcastingAbility = 'cha';
+        input.progression[0]!.spellSlots[1] = 2;
+        expect(() => normaliseClassInput(input)).not.toThrow();
+    });
+
     test('normalises the prepared-spell modifier as a class-wide caster setting', () => {
         const caster = validInput();
         caster.spellcastingMode = 'STANDARD';
@@ -63,6 +85,52 @@ describe('custom class input validation', () => {
         const nonCaster = validInput();
         nonCaster.addSpellcastingAbility = true;
         expect(normaliseClassInput(nonCaster).addSpellcastingAbility).toBe(false);
+    });
+});
+
+describe('canonical mechanics serialisation', () => {
+    test('treats objects with differently ordered keys as equal', () => {
+        const insertionOrder = canonicaliseMechanicsValue({ value: 'shield', grant: 'STARTING', choiceGroup: null });
+        const jsonbOrder = canonicaliseMechanicsValue({ choiceGroup: null, value: 'shield', grant: 'STARTING' });
+        expect(insertionOrder).toBe(jsonbOrder);
+    });
+
+    test('treats deeply nested objects with reordered keys as equal', () => {
+        const left = canonicaliseMechanicsValue({
+            level: 4,
+            classSpecific: { rageDamage: '+2', rageCount: '3' },
+        });
+        const right = canonicaliseMechanicsValue({
+            classSpecific: { rageCount: '3', rageDamage: '+2' },
+            level: 4,
+        });
+        expect(left).toBe(right);
+    });
+
+    test('still distinguishes objects with genuinely different values', () => {
+        const left = canonicaliseMechanicsValue({ value: 'shield', grant: 'STARTING' });
+        const right = canonicaliseMechanicsValue({ value: 'shield', grant: 'MULTICLASS' });
+        expect(left).not.toBe(right);
+    });
+
+    test('sorts a set-like collection into the same order regardless of input order or key order', () => {
+        const rows = [
+            { grant: 'STARTING', value: 'light-armor' },
+            { value: 'simple-weapons', grant: 'STARTING' },
+        ];
+        const reversedWithReorderedKeys = [
+            { grant: 'STARTING', value: 'simple-weapons' },
+            { value: 'light-armor', grant: 'STARTING' },
+        ];
+        expect(sortByCanonicalForm(rows).map(canonicaliseMechanicsValue)).toEqual(
+            sortByCanonicalForm(reversedWithReorderedKeys).map(canonicaliseMechanicsValue),
+        );
+    });
+
+    test('preserves array element order (levels are not treated as set-like)', () => {
+        const ordered = canonicaliseMechanicsValue([{ level: 1 }, { level: 2 }]);
+        const reordered = canonicaliseMechanicsValue([{ level: 2 }, { level: 1 }]);
+        expect(ordered).not.toBe(reordered);
     });
 });
 

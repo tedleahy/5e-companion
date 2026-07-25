@@ -18,6 +18,7 @@ export {
     availableClasses,
     classDetails,
     customClasses,
+    attachedClassDetails,
     createCustomClass,
     updateCustomClass,
     archiveCustomClass,

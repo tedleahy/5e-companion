@@ -76,6 +76,21 @@ export const GET_CUSTOM_CLASSES = gql`
     ${CLASS_DETAILS_FIELDS}
 `;
 
+/**
+ * Loads full class definitions for a character's attached class ids, including
+ * archived custom classes. Use this to keep level-up mechanics (progression,
+ * features, spellcasting) available for a class the character is already in,
+ * even after its owner archives it — `availableClasses`/`customClasses` both
+ * exclude archived rows, which is correct for *new*-class pickers but loses the
+ * definition for an existing relation.
+ */
+export const GET_ATTACHED_CLASS_DETAILS = gql`
+    query AttachedClassDetails($values: [String!]!) {
+        attachedClassDetails(values: $values) { ...ClassDetailsFields }
+    }
+    ${CLASS_DETAILS_FIELDS}
+`;
+
 export const CREATE_CUSTOM_CLASS = gql`
     mutation CreateCustomClass($input: ManagedCustomClassInput!) {
         createCustomClass(input: $input) { ...ClassDetailsFields }

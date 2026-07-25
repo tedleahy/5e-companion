@@ -7,6 +7,10 @@ import {
     characterFeatureUpdateMock,
     characterClassFindManyMock,
     characterFindFirstMock,
+    characterSpellCreateMock,
+    characterSpellDeleteManyMock,
+    characterSpellFindManyMock,
+    characterSpellUpdateMock,
     characterUpdateMock,
     classFindManyMock,
     clearAllCharacterResolverMocks,
@@ -22,6 +26,7 @@ import {
     inventoryItemFindManyMock,
     inventoryItemUpdateMock,
     resolvers,
+    spellFindManyMock,
     spellSlotFindManyMock,
     statsFindUniqueMock,
     statsUpdateMock,
@@ -89,8 +94,14 @@ function mockClassReferenceLookups() {
         fakeCharacterClasses[1]!.classRef,
     ]);
     characterClassFindManyMock.mockResolvedValueOnce([
-        { subclassId: fakeCharacterClasses[0]!.subclassId },
-        { subclassId: fakeCharacterClasses[1]!.subclassId },
+        {
+            classId: fakeCharacterClasses[0]!.classId,
+            subclassId: fakeCharacterClasses[0]!.subclassId,
+        },
+        {
+            classId: fakeCharacterClasses[1]!.classId,
+            subclassId: fakeCharacterClasses[1]!.subclassId,
+        },
     ]);
     subclassFindManyMock.mockResolvedValueOnce([
         fakeCharacterClasses[0]!.subclassRef,
@@ -112,7 +123,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
             fakeCharacterClasses[0]!.classRef,
         ]);
         characterClassFindManyMock.mockResolvedValueOnce([
-            { subclassId: 'other-subclass-id' },
+            { classId: 'class-wizard-id', subclassId: 'other-subclass-id' },
         ]);
         subclassFindManyMock.mockResolvedValueOnce([]);
 
@@ -139,6 +150,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                 weapons: [],
                 inventory: [],
                 features: [],
+                spellbook: [],
             },
         } as any, authedCtx)).rejects.toThrow('Unknown subclass: archived-custom-id');
 
@@ -170,7 +182,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
             fakeCharacterClasses[0]!.classRef,
         ]);
         characterClassFindManyMock.mockResolvedValueOnce([
-            { subclassId: 'archived-custom-id' },
+            { classId: 'class-wizard-id', subclassId: 'archived-custom-id' },
         ]);
         subclassFindManyMock.mockResolvedValueOnce([archivedSubclass]);
         characterUpdateMock.mockResolvedValueOnce({
@@ -208,6 +220,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                 weapons: [],
                 inventory: [],
                 features: [],
+                spellbook: [],
             },
         } as any, authedCtx);
 
@@ -311,6 +324,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                     { id: 'feature-1', name: 'Arcane Recovery', source: 'Wizard 1', description: 'Recover slots', usesMax: 1, usesRemaining: 1, recharge: 'long' },
                     { name: 'Keen Mind', source: 'Feat', description: 'Always know north', usesMax: null, usesRemaining: null, recharge: null },
                 ],
+                spellbook: [],
             },
         }, authedCtx);
 
@@ -458,6 +472,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                 ],
                 inventory: [],
                 features: [],
+                spellbook: [],
             },
         }, authedCtx)).rejects.toThrow('Database write failed');
 
@@ -509,6 +524,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                     { id: 'item-other', name: 'Staff', quantity: 1, weight: 4, description: 'Arcane focus', equipped: true, magical: true },
                 ],
                 features: [],
+                spellbook: [],
             },
         }, authedCtx)).rejects.toThrow('Inventory item not found.');
     });
@@ -558,6 +574,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                 features: [
                     { id: 'feature-other', name: 'Arcane Recovery', source: 'Wizard 1', description: 'Recover slots', usesMax: 1, usesRemaining: 1, recharge: 'long' },
                 ],
+                spellbook: [],
             },
         }, authedCtx)).rejects.toThrow('Feature not found.');
     });
@@ -615,6 +632,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                 weapons: [],
                 inventory: [],
                 features: [],
+                spellbook: [],
             },
         } as any, authedCtx);
 
@@ -724,6 +742,7 @@ describe('characterResolvers — saveCharacterSheet', () => {
                         },
                     },
                 ],
+                spellbook: [],
             },
         } as any, authedCtx);
 
@@ -751,5 +770,321 @@ describe('characterResolvers — saveCharacterSheet', () => {
                 recharge: null,
             },
         });
+    });
+
+    test('reconciles spellbook learn/forget/prepared changes inside the sheet save transaction', async () => {
+        characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
+        mockClassReferenceLookups();
+        characterUpdateMock.mockResolvedValueOnce({
+            ...fakeCharacter,
+            proficiencyBonus: 4,
+        });
+        statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
+        statsUpdateMock.mockResolvedValueOnce(fakeStats);
+        hitDicePoolFindManyMock.mockResolvedValueOnce(fakeHitDicePools);
+        spellSlotFindManyMock.mockResolvedValueOnce([]);
+        weaponFindManyMock.mockResolvedValueOnce([]);
+        inventoryItemFindManyMock.mockResolvedValueOnce([]);
+        characterFeatureFindManyMock.mockResolvedValueOnce([]);
+        spellFindManyMock.mockResolvedValueOnce([
+            { id: 'spell-keep' },
+            { id: 'spell-new' },
+        ]);
+        characterSpellFindManyMock.mockResolvedValueOnce([
+            { spellId: 'spell-keep', prepared: false },
+            { spellId: 'spell-old', prepared: true },
+        ]);
+        characterSpellCreateMock.mockResolvedValueOnce({});
+        characterSpellUpdateMock.mockResolvedValueOnce({});
+        characterSpellDeleteManyMock.mockResolvedValueOnce({ count: 1 });
+
+        await resolvers.saveCharacterSheet({}, {
+            characterId: 'char-1',
+            input: {
+                ac: 12,
+                speed: 30,
+                initiative: 2,
+                conditions: [],
+                hp: { current: 10, max: 10, temp: 0 },
+                abilityScores: fakeStats.abilityScores,
+                skillProficiencies: BASE_SAVE_SKILL_PROFICIENCIES,
+                currency: fakeStats.currency,
+                traits: fakeStats.traits,
+                classes: [BASE_SAVE_CLASSES[0]],
+                weapons: [],
+                inventory: [],
+                features: [],
+                spellbook: [
+                    { spellId: 'spell-keep', prepared: true },
+                    { spellId: 'spell-new', prepared: false },
+                ],
+            },
+        } as any, authedCtx);
+
+        expect(characterSpellDeleteManyMock).toHaveBeenCalledWith({
+            where: { characterId: 'char-1', spellId: { in: ['spell-old'] } },
+        });
+        expect(characterSpellCreateMock).toHaveBeenCalledWith({
+            data: {
+                characterId: 'char-1',
+                spellId: 'spell-new',
+                prepared: false,
+            },
+        });
+        expect(characterSpellUpdateMock).toHaveBeenCalledWith({
+            where: { characterId_spellId: { characterId: 'char-1', spellId: 'spell-keep' } },
+            data: { prepared: true },
+        });
+    });
+
+    test('rejects newly added multiclass rows that omit required proficiencyChoices', async () => {
+        const bardRef = {
+            id: 'class-bard-id',
+            srdIndex: 'bard',
+            name: 'Bard',
+            hitDie: 8,
+            spellcastingAbility: 'cha',
+            spellcastingMode: 'STANDARD',
+            proficiencyRules: [
+                {
+                    grant: 'MULTICLASS',
+                    choiceGroup: 1,
+                    choiceCount: 1,
+                    proficiencyRef: { id: 'prof-stealth', srdIndex: 'skill-stealth', name: 'Stealth', type: 'SKILL' },
+                },
+                {
+                    grant: 'MULTICLASS',
+                    choiceGroup: 1,
+                    choiceCount: 1,
+                    proficiencyRef: { id: 'prof-performance', srdIndex: 'skill-performance', name: 'Performance', type: 'SKILL' },
+                },
+            ],
+            proficiencies: [],
+            progression: [],
+        };
+
+        characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
+        classFindManyMock.mockResolvedValueOnce([
+            fakeCharacterClasses[0]!.classRef,
+            bardRef,
+        ]);
+        characterClassFindManyMock.mockResolvedValueOnce([
+            { classId: fakeCharacterClasses[0]!.classId, subclassId: fakeCharacterClasses[0]!.subclassId },
+        ]);
+        subclassFindManyMock.mockResolvedValueOnce([
+            fakeCharacterClasses[0]!.subclassRef,
+        ]);
+
+        await expect(resolvers.saveCharacterSheet({}, {
+            characterId: 'char-1',
+            input: {
+                ac: 12,
+                speed: 30,
+                initiative: 2,
+                conditions: [],
+                hp: fakeStats.hp,
+                abilityScores: fakeStats.abilityScores,
+                skillProficiencies: BASE_SAVE_SKILL_PROFICIENCIES,
+                currency: fakeStats.currency,
+                traits: fakeStats.traits,
+                classes: [
+                    {
+                        id: 'char-class-1',
+                        classId: 'wizard',
+                        subclassId: 'evocation',
+                        level: 9,
+                        isStartingClass: true,
+                    },
+                    {
+                        classId: 'bard',
+                        subclassId: null,
+                        level: 1,
+                        isStartingClass: false,
+                    },
+                ],
+                weapons: [],
+                inventory: [],
+                features: [],
+                spellbook: [],
+            },
+        } as any, authedCtx)).rejects.toThrow('Choose exactly 1 proficiency from bard choice group 1');
+    });
+
+    test('accepts newly added multiclass rows with valid proficiencyChoices and merges grants', async () => {
+        const bardRef = {
+            id: 'class-bard-id',
+            srdIndex: 'bard',
+            name: 'Bard',
+            hitDie: 8,
+            spellcastingAbility: 'cha',
+            spellcastingMode: 'STANDARD',
+            proficiencyRules: [
+                {
+                    grant: 'MULTICLASS',
+                    choiceGroup: null,
+                    choiceCount: null,
+                    proficiencyRef: { id: 'prof-light', srdIndex: 'light-armor', name: 'Light armour', type: 'ARMOR' },
+                },
+                {
+                    grant: 'MULTICLASS',
+                    choiceGroup: 1,
+                    choiceCount: 1,
+                    proficiencyRef: { id: 'prof-stealth', srdIndex: 'skill-stealth', name: 'Stealth', type: 'SKILL' },
+                },
+                {
+                    grant: 'MULTICLASS',
+                    choiceGroup: 1,
+                    choiceCount: 1,
+                    proficiencyRef: { id: 'prof-performance', srdIndex: 'skill-performance', name: 'Performance', type: 'SKILL' },
+                },
+                {
+                    grant: 'MULTICLASS',
+                    choiceGroup: 2,
+                    choiceCount: 1,
+                    proficiencyRef: { id: 'prof-lute', srdIndex: 'lute', name: 'Lute', type: 'TOOL' },
+                },
+                {
+                    grant: 'MULTICLASS',
+                    choiceGroup: 2,
+                    choiceCount: 1,
+                    proficiencyRef: { id: 'prof-flute', srdIndex: 'flute', name: 'Flute', type: 'TOOL' },
+                },
+            ],
+            proficiencies: [],
+            progression: [],
+        };
+
+        characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
+        classFindManyMock.mockResolvedValueOnce([
+            {
+                ...fakeCharacterClasses[0]!.classRef,
+                proficiencyRules: [],
+                proficiencies: [],
+                progression: [],
+            },
+            bardRef,
+        ]);
+        characterClassFindManyMock.mockResolvedValueOnce([
+            { classId: fakeCharacterClasses[0]!.classId, subclassId: fakeCharacterClasses[0]!.subclassId },
+        ]);
+        subclassFindManyMock.mockResolvedValueOnce([
+            fakeCharacterClasses[0]!.subclassRef,
+        ]);
+        characterUpdateMock.mockResolvedValueOnce({
+            ...fakeCharacter,
+            proficiencyBonus: 4,
+        });
+        statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
+        statsUpdateMock.mockResolvedValueOnce(fakeStats);
+        hitDicePoolFindManyMock.mockResolvedValueOnce(fakeHitDicePools.slice(0, 1));
+        spellSlotFindManyMock.mockResolvedValueOnce([]);
+        weaponFindManyMock.mockResolvedValueOnce([]);
+        inventoryItemFindManyMock.mockResolvedValueOnce([]);
+        characterFeatureFindManyMock.mockResolvedValueOnce([]);
+        characterSpellFindManyMock.mockResolvedValueOnce([]);
+
+        await resolvers.saveCharacterSheet({}, {
+            characterId: 'char-1',
+            input: {
+                ac: 12,
+                speed: 30,
+                initiative: 2,
+                conditions: [],
+                hp: fakeStats.hp,
+                abilityScores: fakeStats.abilityScores,
+                skillProficiencies: {
+                    ...BASE_SAVE_SKILL_PROFICIENCIES,
+                    stealth: 'none',
+                    performance: 'none',
+                },
+                currency: fakeStats.currency,
+                traits: {
+                    ...fakeStats.traits,
+                    armorProficiencies: [],
+                    toolProficiencies: [],
+                },
+                classes: [
+                    {
+                        id: 'char-class-1',
+                        classId: 'wizard',
+                        subclassId: 'evocation',
+                        level: 9,
+                        isStartingClass: true,
+                    },
+                    {
+                        classId: 'bard',
+                        subclassId: null,
+                        level: 1,
+                        isStartingClass: false,
+                    },
+                ],
+                weapons: [],
+                inventory: [],
+                features: [],
+                spellbook: [],
+                proficiencyChoices: [
+                    { classId: 'bard', choiceGroup: 1, values: ['skill-stealth'] },
+                    { classId: 'bard', choiceGroup: 2, values: ['lute'] },
+                ],
+            },
+        } as any, authedCtx);
+
+        const statsUpdateArgs = statsUpdateMock.mock.calls[0]![0] as {
+            data: {
+                skillProficiencies: Record<string, string>;
+                traits: {
+                    armorProficiencies: string[];
+                    toolProficiencies: string[];
+                };
+            };
+        };
+        expect(statsUpdateArgs.data.skillProficiencies.stealth).toBe('proficient');
+        expect(statsUpdateArgs.data.traits.armorProficiencies).toContain('Light armour');
+        expect(statsUpdateArgs.data.traits.toolProficiencies).toContain('Lute');
+    });
+
+    test('allows ordinary trait edits without proficiencyChoices when no class is newly added', async () => {
+        characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
+        mockClassReferenceLookups();
+        characterUpdateMock.mockResolvedValueOnce({
+            ...fakeCharacter,
+            proficiencyBonus: 4,
+        });
+        statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
+        statsUpdateMock.mockResolvedValueOnce(fakeStats);
+        hitDicePoolFindManyMock.mockResolvedValueOnce(fakeHitDicePools);
+        spellSlotFindManyMock.mockResolvedValueOnce([]);
+        weaponFindManyMock.mockResolvedValueOnce([]);
+        inventoryItemFindManyMock.mockResolvedValueOnce([]);
+        characterFeatureFindManyMock.mockResolvedValueOnce([]);
+        characterSpellFindManyMock.mockResolvedValueOnce([]);
+
+        await resolvers.saveCharacterSheet({}, {
+            characterId: 'char-1',
+            input: {
+                ac: 12,
+                speed: 30,
+                initiative: 2,
+                conditions: [],
+                hp: fakeStats.hp,
+                abilityScores: fakeStats.abilityScores,
+                skillProficiencies: BASE_SAVE_SKILL_PROFICIENCIES,
+                currency: fakeStats.currency,
+                traits: {
+                    ...fakeStats.traits,
+                    toolProficiencies: ['Custom tool'],
+                },
+                classes: [...BASE_SAVE_CLASSES],
+                weapons: [],
+                inventory: [],
+                features: [],
+                spellbook: [],
+            },
+        } as any, authedCtx);
+
+        const statsUpdateArgs = statsUpdateMock.mock.calls[0]![0] as {
+            data: { traits: { toolProficiencies: string[] } };
+        };
+        expect(statsUpdateArgs.data.traits.toolProficiencies).toEqual(['Custom tool']);
     });
 });

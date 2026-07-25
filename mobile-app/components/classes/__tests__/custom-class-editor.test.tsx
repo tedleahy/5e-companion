@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler/jestSetup';
 import { BackHandler } from 'react-native';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { MockedProvider } from '@apollo/client/testing/react';
 import type { MockedResponse } from '@apollo/client/testing';
 import { PaperProvider } from 'react-native-paper';
@@ -165,6 +165,35 @@ describe('CustomClassEditor', () => {
         fireEvent.press(screen.getByTestId('add-prerequisite'));
         expect(screen.getByTestId('prerequisite-group-1')).toBeTruthy();
         expect(screen.getByText('+ Add OR alternative')).toBeTruthy();
+    });
+
+    test('hardware back closes the nested proficiency picker before the outer editor sheet', async () => {
+        const onClose = renderEditor();
+        fillIdentityAndContinue();
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Armor. None')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByLabelText('Armor. None'));
+        fireEvent.press(screen.getByTestId('add-fixed-STARTING-ARMOR'));
+        expect(screen.getByTestId('proficiency-picker-sheet')).toBeTruthy();
+
+        // The picker's own listener is registered after the editor's, since it can
+        // only mount once the editor sheet is already open — it must run first.
+        const backHandler = (BackHandler.addEventListener as jest.Mock).mock.calls.at(-1)?.[1] as
+            | (() => boolean)
+            | undefined;
+        expect(backHandler).toBeTruthy();
+        act(() => {
+            expect(backHandler?.()).toBe(true);
+        });
+
+        await waitFor(() => {
+            expect(screen.queryByTestId('proficiency-picker-sheet')).toBeNull();
+        });
+        // The outer editor sheet is untouched by the picker's back handling.
+        expect(screen.getByTestId('custom-class-editor-sheet')).toBeTruthy();
+        expect(onClose).not.toHaveBeenCalled();
     });
 
     test('confirms a proficiency picker selection with Done', async () => {

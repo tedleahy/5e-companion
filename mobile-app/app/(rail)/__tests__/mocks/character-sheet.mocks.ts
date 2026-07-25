@@ -490,6 +490,10 @@ export const SAVE_CORE_CHARACTER_MOCKS: MockLink.MockedResponse[] = [
                             customSubclassFeature: null,
                         },
                     ],
+                    spellbook: MOCK_CHARACTER.spellbook.map((entry) => ({
+                        spellId: entry.spell.id,
+                        prepared: entry.prepared,
+                    })),
                 },
             },
         },

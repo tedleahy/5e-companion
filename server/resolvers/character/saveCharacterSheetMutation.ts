@@ -5,18 +5,23 @@ import type {
     SaveCharacterSheetClassInput,
     SaveCharacterSheetFeatureInput,
     SaveCharacterSheetInventoryItemInput,
+    SaveCharacterSheetSpellInput,
     SaveCharacterSheetWeaponInput,
 } from "../../generated/graphql";
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
 import { findOwnedCharacter } from "./helpers";
 import {
+    applyNewlyAddedMulticlassProficiencyGrants,
     deriveHitDicePools,
+    deriveNewlyAddedMulticlassProficiencyChoiceRequirements,
     deriveProficiencyBonus,
     deriveSpellSlots,
     deriveSpellcastingProfiles,
+    findNewlyAddedClassRows,
     findStartingClassIndex,
     validateClassAllocations,
+    validateCreationProficiencyChoices,
     type CharacterAbilityScores,
     type CharacterClassReference,
     type CharacterSubclassReference,
@@ -92,7 +97,11 @@ export async function saveCharacterSheet(
     const submittedClasses = normaliseSubmittedClasses(input.classes);
     const submittedFeatures = normaliseSubmittedFeatures(input.features);
     const startingClassId = extractStartingClassId(input.classes);
-    const { classRefsBySrdIndex, subclassRefsBySelectionValue } = await resolveSaveCharacterClassReferences(
+    const {
+        classRefsBySrdIndex,
+        subclassRefsBySelectionValue,
+        existingClassDbIds,
+    } = await resolveSaveCharacterClassReferences(
         userId,
         characterId,
         submittedClasses,
@@ -111,6 +120,35 @@ export async function saveCharacterSheet(
             resolvedClasses.map((resolvedClass) => resolvedClass.classRow),
             startingClassId,
         );
+        const newlyAddedSubmittedRows = findNewlyAddedClassRows(
+            submittedClasses,
+            existingClassDbIds,
+            classRefsBySrdIndex,
+        );
+        const newlyAddedResolvedClasses = newlyAddedSubmittedRows.map((classRow) => {
+            const resolvedClass = resolvedClasses.find((candidate) => (
+                candidate.classRow.classId === classRow.classId
+            ));
+            if (!resolvedClass) {
+                throw new Error(`Unable to resolve newly added class ${classRow.classId}.`);
+            }
+            return resolvedClass;
+        });
+        const multiclassChoiceGroups = deriveNewlyAddedMulticlassProficiencyChoiceRequirements(
+            newlyAddedResolvedClasses,
+        );
+        validateCreationProficiencyChoices(multiclassChoiceGroups, input.proficiencyChoices);
+        const mergedProficiencies = applyNewlyAddedMulticlassProficiencyGrants({
+            newlyAddedClasses: newlyAddedResolvedClasses,
+            choiceGroups: multiclassChoiceGroups,
+            submittedChoices: input.proficiencyChoices,
+            skillProficiencies: input.skillProficiencies as Record<string, string>,
+            traits: {
+                armorProficiencies: input.traits.armorProficiencies ?? [],
+                weaponProficiencies: input.traits.weaponProficiencies ?? [],
+                toolProficiencies: input.traits.toolProficiencies ?? [],
+            },
+        });
         const proficiencyBonus = deriveProficiencyBonus(
             submittedClasses.reduce((total, classRow) => total + classRow.level, 0),
         );
@@ -181,15 +219,21 @@ export async function saveCharacterSheet(
             data: {
                 hp: input.hp,
                 abilityScores: input.abilityScores,
-                skillProficiencies: input.skillProficiencies,
+                skillProficiencies: mergedProficiencies.skillProficiencies,
                 currency: input.currency,
-                traits: input.traits,
+                traits: {
+                    ...input.traits,
+                    armorProficiencies: mergedProficiencies.traits.armorProficiencies,
+                    weaponProficiencies: mergedProficiencies.traits.weaponProficiencies,
+                    toolProficiencies: mergedProficiencies.traits.toolProficiencies,
+                },
             },
         });
 
         await reconcileWeapons(tx, characterId, input.weapons);
         await reconcileInventory(tx, characterId, input.inventory);
         await reconcileFeatures(tx, characterId, submittedFeatures, resolvedClasses, userId);
+        await reconcileSpellbook(tx, characterId, input.spellbook);
 
         return updatedCharacter;
     });
@@ -245,6 +289,7 @@ async function resolveSaveCharacterClassReferences(
 ): Promise<{
     classRefsBySrdIndex: Map<string, CharacterClassReference>;
     subclassRefsBySelectionValue: Map<string, CharacterSubclassReference>;
+    existingClassDbIds: string[];
 }> {
     const subclassSelectionValues = classes
         .map((classRow) => classRow.subclassId)
@@ -254,12 +299,14 @@ async function resolveSaveCharacterClassReferences(
         where: { characterId },
         select: { classId: true, subclassId: true },
     });
-    const existingClassIds = existingCharacterClassRows.map((row) => row.classId).filter((classId): classId is string => typeof classId === 'string');
+    const existingClassDbIds = existingCharacterClassRows
+        .map((row) => row.classId)
+        .filter((classId): classId is string => typeof classId === 'string');
     const classRefs = await prisma.class.findMany({ where: {
             OR: [
                 { srdIndex: { in: classes.map((classRow) => classRow.classId) }, ownerUserId: null },
                 { id: { in: classes.map((classRow) => classRow.classId) }, ownerUserId: userId, archivedAt: null },
-                { id: { in: existingClassIds }, ownerUserId: userId },
+                { id: { in: existingClassDbIds }, ownerUserId: userId },
             ],
         }, include: {
             proficiencies: true,
@@ -297,6 +344,7 @@ async function resolveSaveCharacterClassReferences(
     return {
         classRefsBySrdIndex,
         subclassRefsBySelectionValue,
+        existingClassDbIds,
     };
 }
 
@@ -541,4 +589,69 @@ async function resolvePersistedFeatureIdForSave(
     );
 
     return persistedFeature.id;
+}
+
+/**
+ * Reconciles the persisted spellbook against the submitted sheet payload.
+ *
+ * CharacterSpell uses a composite `(characterId, spellId)` identity, so this
+ * mirrors the collection reconciler by spell id rather than a surrogate row id.
+ */
+async function reconcileSpellbook(
+    tx: Prisma.TransactionClient,
+    characterId: string,
+    nextSpellbook: SaveCharacterSheetSpellInput[],
+) {
+    const uniqueSpellIds = [...new Set(nextSpellbook.map((entry) => entry.spellId))];
+    if (uniqueSpellIds.length !== nextSpellbook.length) {
+        throw new Error('Spellbook entries must be unique by spell.');
+    }
+
+    if (uniqueSpellIds.length > 0) {
+        const knownSpells = await tx.spell.findMany({
+            where: { id: { in: uniqueSpellIds } },
+            select: { id: true },
+        });
+        if (knownSpells.length !== uniqueSpellIds.length) {
+            throw new Error('Unknown spell in spellbook.');
+        }
+    }
+
+    const existingItems = await tx.characterSpell.findMany({
+        where: { characterId },
+        select: { spellId: true, prepared: true },
+    });
+    const existingBySpellId = new Map(existingItems.map((item) => [item.spellId, item]));
+    const submittedSpellIds = new Set(uniqueSpellIds);
+
+    const removedSpellIds = existingItems
+        .filter((item) => !submittedSpellIds.has(item.spellId))
+        .map((item) => item.spellId);
+
+    if (removedSpellIds.length > 0) {
+        await tx.characterSpell.deleteMany({
+            where: { characterId, spellId: { in: removedSpellIds } },
+        });
+    }
+
+    for (const entry of nextSpellbook) {
+        const existing = existingBySpellId.get(entry.spellId);
+        if (!existing) {
+            await tx.characterSpell.create({
+                data: {
+                    characterId,
+                    spellId: entry.spellId,
+                    prepared: entry.prepared,
+                },
+            });
+            continue;
+        }
+
+        if (existing.prepared !== entry.prepared) {
+            await tx.characterSpell.update({
+                where: { characterId_spellId: { characterId, spellId: entry.spellId } },
+                data: { prepared: entry.prepared },
+            });
+        }
+    }
 }

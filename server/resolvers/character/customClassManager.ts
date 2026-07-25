@@ -5,6 +5,7 @@ import type {
     MutationArchiveCustomClassArgs,
     MutationCreateCustomClassArgs,
     MutationUpdateCustomClassArgs,
+    QueryAttachedClassDetailsArgs,
     QueryClassDetailsArgs,
 } from '../../generated/graphql';
 import { requireUser } from '../../lib/auth';
@@ -118,6 +119,9 @@ export function normaliseClassInput(input: ManagedCustomClassInput) {
         || level.cantripsKnown != null || level.spellsKnown != null || level.preparedSpellCount != null)) {
         throw new Error('A non-spellcasting class cannot define a spell progression.');
     }
+    if (spellcastingMode === 'PACT_MAGIC' && levels.some((level) => level.spellSlots.filter((slot) => slot > 0).length > 1)) {
+        throw new Error('Pact magic levels may only define a single spell-slot level at a time.');
+    }
 
     const featureKeys = new Set<string>();
     const features = input.features.map((feature, index) => {
@@ -209,36 +213,85 @@ async function resolveReferences(userId: string, input: NormalisedClassInput) {
     return { proficiencyByValue };
 }
 
-function mechanicsSnapshot(input: NormalisedClassInput) {
-    const sorted = <T>(values: T[]) => [...values].sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right)));
-    return JSON.stringify({
+/**
+ * Deterministically serialises a value for structural mechanics comparison.
+ * Object keys are sorted recursively so Postgres jsonb key reordering (which
+ * does not preserve original insertion order) can never produce a false
+ * "mechanics changed" positive. Array element order is preserved as-is —
+ * callers that need order-independent ("set-like") comparison should sort
+ * the array with {@link sortByCanonicalForm} before it reaches this function.
+ */
+export function canonicaliseMechanicsValue(value: unknown): string {
+    if (Array.isArray(value)) {
+        return `[${value.map((item) => canonicaliseMechanicsValue(item)).join(',')}]`;
+    }
+    if (value !== null && typeof value === 'object') {
+        const record = value as Record<string, unknown>;
+        const entries = Object.keys(record).sort().map(
+            (key) => `${JSON.stringify(key)}:${canonicaliseMechanicsValue(record[key])}`,
+        );
+        return `{${entries.join(',')}}`;
+    }
+    return JSON.stringify(value ?? null);
+}
+
+/**
+ * Sorts a set-like collection by each item's canonical form so item order
+ * (which jsonb storage and query results do not guarantee) cannot affect
+ * structural equality.
+ */
+export function sortByCanonicalForm<T>(values: readonly T[]): T[] {
+    return [...values].sort((left, right) => (
+        canonicaliseMechanicsValue(left).localeCompare(canonicaliseMechanicsValue(right))
+    ));
+}
+
+/** Structural mechanics fields compared to detect a locked class's mechanics changing. */
+type MechanicsSnapshotInput = {
+    name: string;
+    hitDie: number;
+    primaryAbilityIndexes: string[];
+    savingThrowIndexes: string[];
+    multiclassPrerequisites: unknown[];
+    proficiencies: unknown[];
+    equipment: unknown[];
+    spellcastingMode: string;
+    spellcastingAbility: string | null;
+    addSpellcastingAbility: boolean;
+    levels: unknown[];
+    features: unknown[];
+    spellIds: string[];
+};
+
+/** Builds the canonical mechanics snapshot for a freshly normalised class input. */
+function mechanicsSnapshot(input: NormalisedClassInput): string {
+    return canonicaliseMechanicsValue({
         name: input.name,
         hitDie: input.hitDie,
         primaryAbilityIndexes: [...input.primaryAbilityIndexes].sort(),
         savingThrowIndexes: [...input.savingThrowIndexes].sort(),
-        multiclassPrerequisites: sorted(input.multiclassPrerequisites),
-        proficiencies: sorted(input.proficiencies),
-        equipment: sorted(input.equipment),
+        multiclassPrerequisites: sortByCanonicalForm(input.multiclassPrerequisites),
+        proficiencies: sortByCanonicalForm(input.proficiencies),
+        equipment: sortByCanonicalForm(input.equipment),
         spellcastingMode: input.spellcastingMode,
         spellcastingAbility: input.spellcastingAbility,
         addSpellcastingAbility: input.addSpellcastingAbility,
         levels: input.levels.map(({ level, abilityScoreImprovement, spellSlots, cantripsKnown, spellsKnown, preparedSpellCount, classSpecific }) => ({ level, abilityScoreImprovement, spellSlots, cantripsKnown, spellsKnown, preparedSpellCount, classSpecific })),
-        features: sorted(input.features.map(({ id, level }) => ({ id, level }))),
+        features: sortByCanonicalForm(input.features.map(({ id, level }) => ({ id, level }))),
         spellIds: [...input.spellIds].sort(),
-    });
+    } satisfies MechanicsSnapshotInput);
 }
 
+/** Builds the canonical mechanics snapshot for a persisted class row. */
 function rowMechanicsSnapshot(row: ClassDetailsRow): string {
-    return mechanicsSnapshot({
+    return canonicaliseMechanicsValue({
         name: row.name,
-        emoji: row.emoji,
-        description: row.description.join('\n\n'),
         hitDie: row.hitDie ?? 0,
-        primaryAbilityIndexes: row.primaryAbilityIndexes,
-        savingThrowIndexes: row.savingThrowIndexes,
-        multiclassPrerequisites: jsonArray(row.multiclassPrerequisites) as NormalisedClassInput['multiclassPrerequisites'],
-        proficiencies: row.proficiencyRules.map((rule) => ({ value: rule.proficiencyRef.srdIndex ?? rule.proficiencyRef.id, grant: rule.grant, choiceGroup: rule.choiceGroup, choiceCount: rule.choiceCount })),
-        equipment: jsonArray(row.startingEquipment) as NormalisedClassInput['equipment'],
+        primaryAbilityIndexes: [...row.primaryAbilityIndexes].sort(),
+        savingThrowIndexes: [...row.savingThrowIndexes].sort(),
+        multiclassPrerequisites: sortByCanonicalForm(jsonArray(row.multiclassPrerequisites)),
+        proficiencies: sortByCanonicalForm(row.proficiencyRules.map((rule) => ({ value: rule.proficiencyRef.srdIndex ?? rule.proficiencyRef.id, grant: rule.grant, choiceGroup: rule.choiceGroup, choiceCount: rule.choiceCount }))),
+        equipment: sortByCanonicalForm(jsonArray(row.startingEquipment)),
         spellcastingMode: row.spellcastingMode,
         spellcastingAbility: row.spellcastingAbility,
         addSpellcastingAbility: row.addSpellcastingAbility,
@@ -251,9 +304,9 @@ function rowMechanicsSnapshot(row: ClassDetailsRow): string {
             preparedSpellCount: level.preparedSpellCount,
             classSpecific: (level.classSpecific as Record<string, string>) ?? {},
         })),
-        features: row.features.map((feature) => ({ id: feature.id, name: feature.name, description: feature.description.join('\n\n'), level: feature.level ?? 1 })),
-        spellIds: row.spellList.map((entry) => entry.spellId).sort(),
-    });
+        features: sortByCanonicalForm(row.features.map((feature) => ({ id: feature.id, level: feature.level ?? 1 }))),
+        spellIds: [...row.spellList.map((entry) => entry.spellId)].sort(),
+    } satisfies MechanicsSnapshotInput);
 }
 
 /** Rejects feature membership changes after a class becomes mechanics-locked. */
@@ -309,6 +362,26 @@ export async function classDetails(_parent: unknown, { value }: QueryClassDetail
         include: CLASS_DETAILS_INCLUDE,
     });
     return row ? mapClassDetails(row) : null;
+}
+
+/**
+ * Batch-loads full class definitions for a character's attached class ids,
+ * regardless of archived status. Unlike {@link availableClasses} and
+ * {@link customClasses}, this does not filter out archived rows: a custom
+ * class a character is already levelled into must keep exposing its full
+ * mechanics (progression, features, spellcasting) even after the owner
+ * archives it, so level-up derivation never silently loses data. Callers
+ * resolve which ids to request by inspecting `Character.classes`, so this
+ * never surfaces archived classes as options for a *new* class pick.
+ */
+export async function attachedClassDetails(_parent: unknown, { values }: QueryAttachedClassDetailsArgs, ctx: Context) {
+    const userId = requireUser(ctx);
+    if (values.length === 0) return [];
+    const rows = await prisma.class.findMany({
+        where: { OR: [{ srdIndex: { in: values }, ownerUserId: null }, { id: { in: values }, ownerUserId: userId }] },
+        include: CLASS_DETAILS_INCLUDE,
+    });
+    return rows.map(mapClassDetails);
 }
 
 export async function customClasses(_parent: unknown, _args: unknown, ctx: Context) {

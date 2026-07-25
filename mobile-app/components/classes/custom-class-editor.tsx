@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client/react';
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
-import { BackHandler, StyleSheet, useWindowDimensions } from 'react-native';
+import { StyleSheet, useWindowDimensions } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import BottomSheetShell from '@/components/sheets/BottomSheetShell';
@@ -87,16 +87,6 @@ export default function CustomClassEditor({ visible, initial, onClose, onSaved }
         if (!visible) return;
         scrollViewRef.current?.scrollTo({ y: 0, animated: false });
     }, [visible, stage]);
-
-    // Restore hardware-back dismissal now that the editor is a state overlay rather than a route.
-    useEffect(() => {
-        if (!visible) return undefined;
-        const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
-            requestSheetClose();
-            return true;
-        });
-        return () => subscription.remove();
-    }, [visible, requestSheetClose]);
 
     function update(patch: Partial<Draft>) {
         setDraft((value) => ({ ...value, ...patch }));

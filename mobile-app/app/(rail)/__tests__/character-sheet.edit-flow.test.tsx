@@ -59,7 +59,7 @@ describe('CharacterByIdScreen edit flow', () => {
         });
 
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-            'Failed to save core character sheet edits',
+            'Failed to save character sheet edits',
             expect.any(Error),
         );
         expect(screen.queryByText('Saved')).toBeNull();

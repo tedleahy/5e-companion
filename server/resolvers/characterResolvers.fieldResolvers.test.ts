@@ -92,6 +92,56 @@ describe('characterResolvers — field resolvers', () => {
         ]);
     });
 
+    test('characterSpellcastingProfiles reports PACT_MAGIC for a custom pact-magic class', async () => {
+        // A character whose classes/stats are not preloaded on the parent, so the
+        // resolver falls through to loading + mapping raw Prisma rows itself —
+        // this is the path that previously dropped `spellcastingMode` and always
+        // reported custom pact classes as STANDARD.
+        characterClassFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'char-class-warden',
+                characterId: 'char-1',
+                classId: 'custom-warden-id',
+                subclassId: null,
+                level: 5,
+                isStartingClass: true,
+                classRef: {
+                    id: 'custom-warden-id',
+                    ownerUserId: 'user-abc',
+                    srdIndex: null,
+                    name: 'Warden',
+                    hitDie: 8,
+                    spellcastingAbility: 'wis',
+                    spellcastingMode: 'PACT_MAGIC',
+                    savingThrowIndexes: ['wis', 'cha'],
+                    proficiencies: [],
+                    proficiencyRules: [],
+                    progression: [
+                        { level: 5, spellSlots: [0, 2, 0, 0, 0, 0, 0, 0, 0], abilityScoreImprovement: false, cantripsKnown: null, spellsKnown: null, preparedSpellCount: null },
+                    ],
+                },
+                subclassRef: null,
+            },
+        ]);
+        statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
+
+        const result = await resolvers.characterSpellcastingProfiles(fakeCharacter as any);
+
+        expect(result).toEqual([
+            {
+                classId: 'custom-warden-id',
+                className: 'Warden',
+                subclassId: null,
+                subclassName: null,
+                classLevel: 5,
+                spellcastingAbility: 'wisdom',
+                spellSaveDC: 12,
+                spellAttackBonus: 4,
+                slotKind: 'PACT_MAGIC',
+            },
+        ]);
+    });
+
     test('characterStats returns preloaded stats without querying Prisma', async () => {
         const result = await resolvers.characterStats(fakeCharacterDetail as any);
 

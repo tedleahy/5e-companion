@@ -248,7 +248,12 @@ async function loadCharacterClasses(characterId: string) {
 }
 
 /**
- * Converts loaded Prisma class rows into the pure derivation shape.
+ * Converts loaded Prisma class rows into the pure derivation shape. Carries every
+ * field {@link deriveSpellcastingProfiles} and {@link deriveSpellSlots} read from a
+ * class reference — `spellcastingMode`, `progression`, `savingThrowIndexes`, and
+ * `proficiencyRules` — so custom classes derive their real mechanics (e.g. a custom
+ * Pact Magic class) instead of silently falling back to STANDARD/no-mechanics
+ * behaviour because only the SRD warlock happened to be hard-coded elsewhere.
  */
 function toResolvedCharacterClasses(classRows: LoadedCharacterClassRow[]): ResolvedCharacterClass[] {
     return classRows.map((classRow) => ({
@@ -257,13 +262,7 @@ function toResolvedCharacterClasses(classRows: LoadedCharacterClassRow[]): Resol
             subclassId: classRow.subclassRef?.srdIndex ?? classRow.subclassId ?? null,
             level: classRow.level,
         },
-        classRef: {
-            id: classRow.classRef.id,
-            srdIndex: classRow.classRef.srdIndex,
-            name: classRow.classRef.name,
-            hitDie: classRow.classRef.hitDie,
-            spellcastingAbility: classRow.classRef.spellcastingAbility,
-        } satisfies CharacterClassReference,
+        classRef: toCharacterClassReference(classRow.classRef),
         subclassRef: classRow.subclassRef
             ? {
                   id: classRow.subclassRef.id,
@@ -274,6 +273,27 @@ function toResolvedCharacterClasses(classRows: LoadedCharacterClassRow[]): Resol
               } satisfies CharacterSubclassReference
             : null,
     }));
+}
+
+/**
+ * Maps a Prisma `Class` row (with `proficiencies`, `proficiencyRules.proficiencyRef`,
+ * and `progression` loaded) to the complete {@link CharacterClassReference} shape used
+ * by multiclass/spellcasting derivation. Centralised here so every caller — including
+ * future ones — exposes the same mechanics rather than a partial, resolver-specific subset.
+ */
+function toCharacterClassReference(classRef: LoadedCharacterClassRow['classRef']): CharacterClassReference {
+    return {
+        id: classRef.id,
+        srdIndex: classRef.srdIndex,
+        name: classRef.name,
+        hitDie: classRef.hitDie,
+        spellcastingAbility: classRef.spellcastingAbility,
+        spellcastingMode: classRef.spellcastingMode,
+        savingThrowIndexes: classRef.savingThrowIndexes,
+        proficiencyRules: classRef.proficiencyRules,
+        progression: classRef.progression,
+        proficiencies: classRef.proficiencies,
+    };
 }
 
 /**

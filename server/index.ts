@@ -95,6 +95,7 @@ const resolvers: Resolvers = {
         availableClasses: characterResolvers.availableClasses,
         classDetails: characterResolvers.classDetails,
         customClasses: characterResolvers.customClasses,
+        attachedClassDetails: characterResolvers.attachedClassDetails,
         spells: spellsResolver,
         spell: spellResolver,
         character: characterResolvers.character,

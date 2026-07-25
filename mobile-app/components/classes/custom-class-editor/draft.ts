@@ -1,4 +1,5 @@
 import type { ClassDetailsFieldsFragment, ManagedCustomClassInput } from '@/types/generated_graphql_types';
+import { emptySpellSlots, pactFromSpellSlots, spellSlotsFromPact } from './spellSlots';
 import type { Draft, DraftEquipment, DraftLevel, IdentityFieldErrors } from './types';
 
 let equipmentKeySeq = 0;
@@ -160,12 +161,48 @@ export function createDraft(initial?: ClassDetailsFieldsFragment | null): Draft 
     };
 }
 
+/**
+ * Canonicalises progression levels for submission based on spellcasting mode,
+ * without mutating the draft the editor keeps in state. This lets the user
+ * switch spellcasting modes back and forth in the UI while only ever sending
+ * the server data that matches the currently selected mode:
+ * - `NONE` strips spell slots/known/prepared counts to their empty shape so
+ *   leftover draft data from a previous STANDARD/PACT_MAGIC selection never
+ *   reaches the "non-spellcasting class" server validation.
+ * - `PACT_MAGIC` collapses each level's spell slots down to the single valid
+ *   pact slot level + count, in case leftover STANDARD-mode data left more
+ *   than one populated slot level.
+ * - `STANDARD` is sent unchanged.
+ */
+export function canonicaliseProgressionForSubmit(
+    progression: readonly DraftLevel[],
+    spellcastingMode: Draft['spellcastingMode'],
+): DraftLevel[] {
+    if (spellcastingMode === 'NONE') {
+        return progression.map((level) => ({
+            ...level,
+            spellSlots: emptySpellSlots(),
+            cantripsKnown: null,
+            spellsKnown: null,
+            preparedSpellCount: null,
+        }));
+    }
+    if (spellcastingMode === 'PACT_MAGIC') {
+        return progression.map((level) => {
+            const pact = pactFromSpellSlots(level.spellSlots);
+            return { ...level, spellSlots: spellSlotsFromPact(pact.level, pact.count) };
+        });
+    }
+    return progression.map((level) => ({ ...level }));
+}
+
 export function serialiseDraft(draft: Draft): ManagedCustomClassInput {
-    const { spells, features, equipment, ...rest } = draft;
+    const { spells, features, equipment, progression, ...rest } = draft;
     return {
         ...rest,
         features: features.map(({ key: _key, ...feature }) => feature),
         equipment: equipment.map(({ key: _key, ...item }) => item),
+        progression: canonicaliseProgressionForSubmit(progression, draft.spellcastingMode),
         spellIds: spells.map((spell) => spell.id),
     };
 }

@@ -8,7 +8,12 @@ import {
 } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@apollo/client/react';
-import type { AvailableClassesQuery, CustomClassesQuery, SkillProficiencies } from '@/types/generated_graphql_types';
+import type {
+    AttachedClassDetailsQuery,
+    AvailableClassesQuery,
+    CustomClassesQuery,
+    SkillProficiencies,
+} from '@/types/generated_graphql_types';
 import { registerUnsavedChanges, unregisterUnsavedChanges } from '@/lib/unsavedChanges';
 import CharacterSheetHeader, { CHARACTER_SHEET_TABS } from '@/components/character-sheet/CharacterSheetHeader';
 import type { CharacterSheetTab } from '@/components/character-sheet/CharacterSheetHeader';
@@ -49,7 +54,7 @@ import {
 } from '@/lib/characterClassSummary';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
 import type { OptionItem } from '@/lib/characterCreation/options';
-import { GET_AVAILABLE_CLASSES, GET_CUSTOM_CLASSES } from '@/graphql/class.operations';
+import { GET_ATTACHED_CLASS_DETAILS, GET_AVAILABLE_CLASSES, GET_CUSTOM_CLASSES } from '@/graphql/class.operations';
 import { isAbilityKey, skillModifier } from '@/lib/characterSheetUtils';
 import type { CharacterSheetDraftTraitTextField } from '@/lib/character-sheet/characterSheetDraft';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -104,6 +109,46 @@ export default function CharacterByIdScreen() {
         handleSaveCharacterSheet,
         handleToggleEquip,
     } = useCharacterSheetData(characterId);
+    // Class ids the character is already levelled into but that `levelUpClassOptions`
+    // doesn't cover — i.e. custom classes the owner has since archived. Archived classes
+    // are correctly excluded from the "add a new class" picker, but a character already
+    // in one still needs its full definition (progression, features, spellcasting) to
+    // level up accurately, so it's loaded separately via `attachedClassDetails`.
+    const attachedOnlyClassIds = useMemo(() => {
+        // Wait for `availableClasses` to load first — otherwise every id would
+        // briefly look "unknown" on the first render and trigger a wasted query.
+        if (!character || !availableClassData) return [];
+        const knownValues = new Set(levelUpClassOptions.map((option) => option.value));
+        return Array.from(new Set(
+            character.classes
+                .map((classRow) => classRow.classId)
+                .filter((classId) => !knownValues.has(classId)),
+        ));
+    }, [character, availableClassData, levelUpClassOptions]);
+    const { data: attachedClassDetailsData } = useQuery<AttachedClassDetailsQuery>(GET_ATTACHED_CLASS_DETAILS, {
+        variables: { values: attachedOnlyClassIds },
+        skip: attachedOnlyClassIds.length === 0,
+        fetchPolicy: 'cache-first',
+    });
+    /**
+     * `levelUpClassOptions` plus hidden entries for archived classes the character is
+     * already levelled into. `hiddenFromNewClassPicker` keeps them out of the
+     * "choose a class to multiclass into" grid while still letting `useLevelUpWizard`
+     * resolve `classDefinition` for the character's existing class rows.
+     */
+    const levelUpClassOptionsWithAttached = useMemo<OptionItem[]>(() => {
+        const attachedOnlyOptions = (attachedClassDetailsData?.attachedClassDetails ?? []).map((classDetail) => ({
+            value: classDetail.value,
+            label: classDetail.name,
+            icon: classDetail.emoji,
+            hint: classDetail.primaryAbilityIndexes.map((ability) => ability.toUpperCase()).join(' / '),
+            hitDie: classDetail.hitDie,
+            multiclassPrerequisites: classDetail.multiclassPrerequisites.map((rule) => ({ ...rule })),
+            classDefinition: classDetail,
+            hiddenFromNewClassPicker: true,
+        }));
+        return [...levelUpClassOptions, ...attachedOnlyOptions];
+    }, [levelUpClassOptions, attachedClassDetailsData]);
     const {
         draft,
         editMode,
@@ -172,12 +217,12 @@ export default function CharacterByIdScreen() {
         };
     }, [character, draft?.abilityScores, draft?.classes, draft?.hp, draft?.level, draft?.spellSlots, draft?.spellbook, draft?.spellcastingProfiles, draftSkillProficiencies]);
     const allSubclassClassIds = useMemo(
-        () => (levelUpClassOptions.length > 0 ? levelUpClassOptions : CLASS_OPTIONS).map((option) => option.value),
-        [levelUpClassOptions],
+        () => (levelUpClassOptionsWithAttached.length > 0 ? levelUpClassOptionsWithAttached : CLASS_OPTIONS).map((option) => option.value),
+        [levelUpClassOptionsWithAttached],
     );
     const { availableSubclasses, availableSubclassesByClassId } = useAvailableSubclasses(allSubclassClassIds);
     const { confirm, confirmDialogElement } = useConfirm();
-    const levelUpWizard = useLevelUpWizard(wizardCharacter, levelUpSheetVisible, availableSubclasses, levelUpClassOptions.length > 0 ? levelUpClassOptions : CLASS_OPTIONS);
+    const levelUpWizard = useLevelUpWizard(wizardCharacter, levelUpSheetVisible, availableSubclasses, levelUpClassOptionsWithAttached.length > 0 ? levelUpClassOptionsWithAttached : CLASS_OPTIONS);
     const levelUpAvailableSubclasses = availableSubclassesByClassId[levelUpWizard.selectedClass.classId] ?? [];
 
     useEffect(() => {
@@ -440,32 +485,18 @@ export default function CharacterByIdScreen() {
         }
 
         const saveInput = buildSaveInput();
-        const draftSpellbook = draft?.spellbook ?? character.spellbook;
-        const currentSpellIds = new Set(character.spellbook.map((entry) => entry.spell.id));
-        const draftSpellIds = new Set(draftSpellbook.map((entry) => entry.spell.id));
-        const spellIdsToLearn = draftSpellbook
-            .filter((entry) => !currentSpellIds.has(entry.spell.id))
-            .map((entry) => entry.spell.id);
-        const spellIdsToForget = character.spellbook
-            .filter((entry) => !draftSpellIds.has(entry.spell.id))
-            .map((entry) => entry.spell.id);
-
-        if (saveInput) {
-            try {
-                await handleSaveCharacterSheet(saveInput);
-            } catch (saveError) {
-                console.error('Failed to save core character sheet edits', saveError);
-                setSaveErrorVisible(true);
-                return;
-            }
+        if (!saveInput) {
+            clearDraft();
+            return;
         }
 
-        await Promise.all([
-            ...spellIdsToLearn.map((spellId) => handleLearnSpell(spellId)),
-            ...spellIdsToForget.map((spellId) => handleForgetSpell(spellId)),
-        ]).catch((spellError) => {
-            console.error('Failed to save spellbook changes', spellError);
-        });
+        try {
+            await handleSaveCharacterSheet(saveInput);
+        } catch (saveError) {
+            console.error('Failed to save character sheet edits', saveError);
+            setSaveErrorVisible(true);
+            return;
+        }
 
         clearDraft();
     }
