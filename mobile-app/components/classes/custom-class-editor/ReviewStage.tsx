@@ -1,14 +1,12 @@
 import { type ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
+import {
+    formatGroupedChoiceLines,
+    formatGroupedEquipmentLines,
+} from '@/components/classes/class-detail-presentation';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { nightFormStyles } from '@/theme/nightFormStyles';
-import {
-    equipmentChoiceGroups,
-    fixedEquipment,
-    fixedProficiencyValues,
-    proficiencyChoiceGroups,
-} from './draft';
 import { fieldStyles } from './fields';
 import { ABILITIES, STAGES, type Draft, type EditableStageIndex } from './types';
 
@@ -52,30 +50,32 @@ export function formatMulticlassPrerequisites(draft: Draft): string {
         .join(' · ');
 }
 
-/** Fixed count + choice-group count for a proficiency grant. */
+/** Grouped proficiency lines for one grant, using the shared class-detail formatter. */
 export function formatProficiencyGrantSummary(draft: Draft, grant: 'STARTING' | 'MULTICLASS'): string {
-    const fixedCount = fixedProficiencyValues(draft, grant).length;
-    const groups = proficiencyChoiceGroups(draft, grant);
-    if (fixedCount === 0 && groups.length === 0) return 'None';
-    const parts: string[] = [];
-    if (fixedCount > 0) parts.push(`${fixedCount} fixed`);
-    if (groups.length > 0) {
-        parts.push(`${groups.length} choice group${groups.length === 1 ? '' : 's'}`);
-    }
-    return parts.join(' · ');
+    const lines = formatGroupedChoiceLines(
+        draft.proficiencies
+            .filter((item) => item.grant === grant)
+            .map((item) => ({
+                label: item.value,
+                choiceGroup: item.choiceGroup,
+                choiceCount: item.choiceCount,
+            })),
+        `review-${grant}`,
+    );
+    return lines.length > 0 ? lines.map((line) => line.text).join(' · ') : 'None';
 }
 
-/** Fixed equipment + choice-group summary. */
+/** Grouped equipment lines using the shared class-detail formatter. */
 export function formatEquipmentSummary(draft: Draft): string {
-    const fixed = fixedEquipment(draft);
-    const groups = equipmentChoiceGroups(draft);
-    if (fixed.length === 0 && groups.length === 0) return 'None';
-    const parts: string[] = [];
-    if (fixed.length > 0) parts.push(`${fixed.length} fixed`);
-    if (groups.length > 0) {
-        parts.push(`${groups.length} choice group${groups.length === 1 ? '' : 's'}`);
-    }
-    return parts.join(' · ');
+    const lines = formatGroupedEquipmentLines(
+        draft.equipment.map((item) => ({
+            name: item.name,
+            quantity: item.quantity,
+            choiceGroup: item.choiceGroup,
+            choiceCount: item.choiceCount,
+        })),
+    );
+    return lines.length > 0 ? lines.map((line) => line.text).join(' · ') : 'None';
 }
 
 /** Levels marked for Ability Score Improvement. */

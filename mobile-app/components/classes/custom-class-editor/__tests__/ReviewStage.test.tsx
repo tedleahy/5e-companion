@@ -68,16 +68,18 @@ describe('ReviewStage summary helpers', () => {
         expect(formatAbilityList([])).toBe('None');
         expect(formatMulticlassPrerequisites(draft)).toBe('STR 13 · DEX 13');
         expect(formatMulticlassPrerequisites(createDraft())).toBe('None');
-        expect(formatProficiencyGrantSummary(draft, 'STARTING')).toBe('1 fixed · 1 choice group');
-        expect(formatProficiencyGrantSummary(draft, 'MULTICLASS')).toBe('1 fixed');
+        expect(formatProficiencyGrantSummary(draft, 'STARTING')).toBe(
+            'skill-athletics · Choose 1 of skill-acrobatics, skill-stealth',
+        );
+        expect(formatProficiencyGrantSummary(draft, 'MULTICLASS')).toBe('armor-light');
         expect(formatProficiencyGrantSummary(createDraft(), 'STARTING')).toBe('None');
         expect(formatProficiencyGrantSummary({
             ...createDraft(),
             proficiencies: [
                 { value: 'skill-acrobatics', grant: 'STARTING', choiceGroup: 1, choiceCount: 1 },
             ],
-        }, 'STARTING')).toBe('1 choice group');
-        expect(formatEquipmentSummary(draft)).toBe('1 fixed · 1 choice group');
+        }, 'STARTING')).toBe('Choose 1 of skill-acrobatics');
+        expect(formatEquipmentSummary(draft)).toBe('1× Longsword · Choose 1 of 1× Mace, 1× Warhammer');
         expect(formatEquipmentSummary(createDraft())).toBe('None');
         expect(formatAsiLevels(draft)).toBe('4, 8, 12');
         expect(formatAsiLevels(createDraft())).toBe('None');
@@ -141,10 +143,10 @@ describe('ReviewStage', () => {
         expect(screen.getAllByText('STR, WIS')).toHaveLength(2);
         expect(screen.getByText('Proficiencies')).toBeTruthy();
         expect(screen.getByText('STR 13')).toBeTruthy();
-        expect(screen.getByText('1 fixed')).toBeTruthy();
-        expect(screen.getByText('2 fixed')).toBeTruthy();
+        expect(screen.getByText('skill-athletics')).toBeTruthy();
+        expect(screen.getByText('armor-light · armor-medium')).toBeTruthy();
         expect(screen.getByText('Equipment')).toBeTruthy();
-        expect(screen.getByText('1 fixed · 1 choice group')).toBeTruthy();
+        expect(screen.getByText('1× Shield · Choose 1 of 1× Mace, 1× Warhammer')).toBeTruthy();
         expect(screen.getByText('Progression')).toBeTruthy();
         expect(screen.getByText('STANDARD')).toBeTruthy();
         expect(screen.getByText('INT')).toBeTruthy();
