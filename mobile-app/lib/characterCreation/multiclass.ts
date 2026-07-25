@@ -3,12 +3,33 @@ import {
     SUBCLASS_OPTIONS,
     type OptionItem,
 } from '@/lib/characterCreation/options';
+import { CLASS_SAVING_THROWS } from '@/lib/characterCreation/classRules';
+import type { AbilityKey } from '@/lib/characterSheetUtils';
 
 /** One class row in the local create-character draft. */
 export type CharacterClassDraft = {
     classId: string;
     subclassId: string;
     level: number;
+};
+
+/**
+ * Server-resolved presentation for a selected class in the create wizard.
+ * Carries display name and saving-throw indexes (`str`, `dex`, …) so Skills
+ * and Review do not fall back to hard-coded SRD maps for custom classes.
+ */
+export type CreateClassPresentation = {
+    name: string;
+    savingThrowIndexes: string[];
+};
+
+const ABILITY_KEY_BY_INDEX: Record<string, AbilityKey> = {
+    str: 'strength',
+    dex: 'dexterity',
+    con: 'constitution',
+    int: 'intelligence',
+    wis: 'wisdom',
+    cha: 'charisma',
 };
 
 /** Validation summary for the multiclass allocation step. */
@@ -61,6 +82,116 @@ export function classOptionById(classId: string, classOptions: OptionItem[] = CL
  */
 export function classLabel(classId: string, classOptions: OptionItem[] = CLASS_OPTIONS): string {
     return classOptionById(classId, classOptions)?.label ?? 'Unknown class';
+}
+
+/**
+ * Captures server-resolved presentation for a selected available class.
+ */
+export function createClassPresentation(
+    classRef: Pick<CreateClassPresentation, 'name' | 'savingThrowIndexes'>,
+): CreateClassPresentation {
+    return {
+        name: classRef.name,
+        savingThrowIndexes: [...classRef.savingThrowIndexes],
+    };
+}
+
+/**
+ * Upserts presentation for `classId` from the loaded available-class list.
+ */
+export function withClassPresentation(
+    previous: Record<string, CreateClassPresentation>,
+    classId: string,
+    availableClasses: ReadonlyArray<{ value: string } & CreateClassPresentation>,
+): Record<string, CreateClassPresentation> {
+    const classRef = availableClasses.find((entry) => entry.value === classId);
+    if (!classRef) return previous;
+    return {
+        ...previous,
+        [classId]: createClassPresentation(classRef),
+    };
+}
+
+/**
+ * Drops presentation entries for class ids that are no longer selected.
+ */
+export function pruneClassPresentation(
+    previous: Record<string, CreateClassPresentation>,
+    classIds: readonly string[],
+): Record<string, CreateClassPresentation> {
+    const keep = new Set(classIds.filter((classId) => classId.trim().length > 0));
+    return Object.fromEntries(
+        Object.entries(previous).filter(([classId]) => keep.has(classId)),
+    );
+}
+
+/**
+ * Resolves a class display label from draft presentation, falling back to SRD options.
+ */
+export function presentationClassLabel(
+    classId: string,
+    presentationById: Record<string, CreateClassPresentation>,
+): string {
+    return presentationById[classId]?.name ?? classLabel(classId);
+}
+
+/**
+ * Resolves starting saving throws from draft presentation, falling back to SRD maps.
+ */
+export function presentationSavingThrows(
+    classId: string,
+    presentationById: Record<string, CreateClassPresentation>,
+): AbilityKey[] {
+    const indexes = presentationById[classId]?.savingThrowIndexes;
+    if (indexes != null) {
+        return indexes.flatMap((index) => {
+            const ability = ABILITY_KEY_BY_INDEX[index];
+            return ability ? [ability] : [];
+        });
+    }
+    return CLASS_SAVING_THROWS[classId] ?? [];
+}
+
+/**
+ * Class-row label using draft presentation for the class name.
+ */
+export function formatPresentedClassRowLabel(
+    classRow: CharacterClassDraft,
+    presentationById: Record<string, CreateClassPresentation>,
+    subclassOptionsByClassId: Record<string, OptionItem[]> = SUBCLASS_OPTIONS,
+): string {
+    const currentClassLabel = presentationClassLabel(classRow.classId, presentationById);
+    const currentSubclassLabel = subclassLabel(
+        classRow.classId,
+        classRow.subclassId,
+        subclassOptionsByClassId,
+    );
+    if (currentSubclassLabel) {
+        return `${currentSubclassLabel} ${currentClassLabel}`;
+    }
+    return currentClassLabel;
+}
+
+/**
+ * Compact multiclass summary using draft presentation labels.
+ */
+export function formatPresentedClassSummary(
+    classRows: CharacterClassDraft[],
+    startingClassId = '',
+    presentationById: Record<string, CreateClassPresentation> = {},
+): string {
+    if (classRows.length === 0) {
+        return 'No classes selected';
+    }
+
+    const sortedClassRows = sortClassRowsForDisplay(classRows, startingClassId);
+    if (sortedClassRows.length === 1) {
+        return formatPresentedClassRowLabel(sortedClassRows[0]!, presentationById);
+    }
+
+    return sortedClassRows
+        .map((classRow) => `${presentationClassLabel(classRow.classId, presentationById)} ${classRow.level}`)
+        .join(' / ');
 }
 
 /**

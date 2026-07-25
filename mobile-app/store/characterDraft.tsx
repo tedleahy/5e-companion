@@ -3,6 +3,7 @@ import { ABILITY_KEYS, type AbilityKey } from '@/lib/characterSheetUtils';
 import {
     normaliseStartingClassId,
     type CharacterClassDraft,
+    type CreateClassPresentation,
 } from '@/lib/characterCreation/multiclass';
 import {
     getCreateFeatureChoiceGroups,
@@ -12,6 +13,12 @@ import {
     didClassCompositionChange,
     type DraftProficiencyChoice,
 } from '@/lib/characterCreation/proficiencyChoiceDraft';
+
+export type { CreateClassPresentation };
+export {
+    presentationClassLabel,
+    presentationSavingThrows,
+} from '@/lib/characterCreation/multiclass';
 
 export type CharacterDraft = {
     name: string;
@@ -39,6 +46,11 @@ export type CharacterDraft = {
     asiAllocations: Record<AbilityKey, number>;
     /** Method used to determine ability scores. */
     abilityMode: 'roll' | 'pointBuy';
+    /**
+     * Presentation metadata keyed by class identity (`AvailableClass.value`),
+     * captured when the user selects a class from `availableClasses`.
+     */
+    classPresentationById: Record<string, CreateClassPresentation>;
 };
 
 const DEFAULT_SCORES: Record<AbilityKey, number> = {
@@ -71,6 +83,7 @@ export function createDefaultDraft(): CharacterDraft {
         proficiencyChoices: [],
         asiAllocations: { strength: 0, dexterity: 0, constitution: 0, intelligence: 0, wisdom: 0, charisma: 0 },
         abilityMode: 'roll',
+        classPresentationById: {},
     };
 }
 

@@ -167,13 +167,55 @@ describe('StepClass', () => {
             error: undefined,
         });
         useCharacterDraft.mockReturnValue({
-            draft: { level: 1, classes: [], startingClassId: '' },
+            draft: { level: 1, classes: [], startingClassId: '', classPresentationById: {} },
             updateDraft: mockUpdateDraft,
         });
 
         renderScreen();
 
         expect(screen.getByText('🐉 Rune Knight')).toBeTruthy();
+    });
+
+    it('stores server-resolved presentation metadata when selecting a custom class', () => {
+        useQuery.mockReturnValue({
+            data: {
+                availableClasses: [{
+                    id: 'custom-rune-knight',
+                    value: 'custom-rune-knight',
+                    srdIndex: null,
+                    name: 'Rune Knight',
+                    emoji: '🐉',
+                    description: [],
+                    hitDie: 10,
+                    primaryAbilityIndexes: ['str'],
+                    savingThrowIndexes: ['str', 'con'],
+                    spellcastingMode: 'NONE',
+                    spellcastingAbility: null,
+                    multiclassPrerequisites: [],
+                    isCustom: true,
+                }],
+            },
+            loading: false,
+            error: undefined,
+        });
+        useCharacterDraft.mockReturnValue({
+            draft: { level: 1, classes: [], startingClassId: '', classPresentationById: {} },
+            updateDraft: mockUpdateDraft,
+        });
+
+        renderScreen();
+        fireEvent.press(screen.getByTestId('option-custom-rune-knight'));
+
+        expect(mockUpdateDraft).toHaveBeenCalledWith(expect.objectContaining({
+            startingClassId: 'custom-rune-knight',
+            classes: [{ classId: 'custom-rune-knight', subclassId: '', level: 1 }],
+            classPresentationById: {
+                'custom-rune-knight': {
+                    name: 'Rune Knight',
+                    savingThrowIndexes: ['str', 'con'],
+                },
+            },
+        }));
     });
 
     it('keeps classes in selection order even when a later class is the starting class', () => {
@@ -185,6 +227,7 @@ describe('StepClass', () => {
                     { classId: 'rogue', level: 2, subclassId: '' },
                 ],
                 startingClassId: 'rogue',
+                classPresentationById: {},
             },
             updateDraft: mockUpdateDraft,
         });
@@ -205,6 +248,7 @@ describe('StepClass', () => {
                     { classId: 'wizard', level: 1, subclassId: '' },
                 ],
                 startingClassId: 'wizard',
+                classPresentationById: {},
             });
 
             return {
@@ -253,6 +297,7 @@ describe('StepClass', () => {
                 level: 2,
                 classes: [],
                 startingClassId: '',
+                classPresentationById: {},
             });
 
             return {

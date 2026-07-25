@@ -51,7 +51,7 @@ Go to `CHARACTER_CREATION_FLOW.md` for per-step behaviour, the `CharacterDraft` 
 | [`@/home/ted/projects/5e-companion/server/resolvers/character/multiclassRules.ts`](../../server/resolvers/character/multiclassRules.ts) | Rules: proficiency bonus, hit-dice pools, spell slots, class allocation validation, starting HP |
 | [`@/home/ted/projects/5e-companion/server/resolvers/character/subclassReferences.ts`](../../server/resolvers/character/subclassReferences.ts) | Loads visible subclasses (SRD + user-owned), materialises custom subclasses |
 
-The mutation resolves SRD classes by `srdIndex` and current-user custom classes by their database ID. Race and background values remain SRD-backed. The class picker loads `availableClasses`, including each class definition's tile emoji, so active custom classes authored in the Compendium are selectable and visually distinct without adding client constants.
+The mutation resolves SRD classes by `srdIndex` and current-user custom classes by their database ID. Race and background values remain SRD-backed. The class picker loads `availableClasses`, including each class definition's tile emoji, so active custom classes authored in the Compendium are selectable and visually distinct without adding client constants. Selecting a class also stores its server-resolved presentation (`name`, `savingThrowIndexes`) on the draft so Skills and Review can show custom-class labels and starting saves without hard-coded SRD maps.
 
 ## Custom subclasses
 
@@ -59,7 +59,7 @@ The class step loads every visible subclass for each selected parent class. Each
 
 Custom subclasses can also be archived by the subclass manager. Archived custom subclasses are hidden from future creation and level-up subclass pickers, and the create mutation rejects archived custom subclass ids even if the caller submits one directly. Existing characters keep their archived subclass relation for display; `saveCharacterSheet` may preserve an archived subclass id only when that subclass is already attached to the same character.
 
-Custom classes follow the same preservation rule. Starting HP, hit dice, saving throws, fixed class proficiencies, configured starting skill choice groups, spell slots, spellcasting profiles, and class features are derived from the resolved class definition. Each starting skill choice group is presented and limited independently. Custom standard-caster slot tables also determine their effective multiclass caster contribution. Pact slots at the same level are combined into one persisted pool. Starting-equipment definitions are displayed and authorable but are not copied to inventory automatically.
+Custom classes follow the same preservation rule. Starting HP, hit dice, saving throws, fixed class proficiencies, configured starting skill choice groups, spell slots, spellcasting profiles, and class features are derived from the resolved class definition. During creation, the class step stores each selected class's presentation metadata (`name`, `savingThrowIndexes`) in `draft.classPresentationById` so the skills and review steps can show custom labels and starting saving throws without SRD-only maps. Each starting skill choice group is presented and limited independently. Custom standard-caster slot tables also determine their effective multiclass caster contribution. Pact slots at the same level are combined into one persisted pool. Starting-equipment definitions are displayed and authorable but are not copied to inventory automatically.
 
 ### Skill and proficiency choices (starting + multiclass)
 

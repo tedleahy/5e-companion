@@ -34,15 +34,15 @@ _layout.tsx
 | `class.tsx` | 2 - Class | Level stepper (1-20), single-class selection via `OptionGrid` by default. Shows all visible subclass options with database-backed availability levels and disables those above the allocation. A "Multiclass" switch (with an info button that reveals an explanation) appears when a class is selected and level is 2+; toggling it on enters multiclass mode with full allocation UI |
 | `abilities.tsx` | 3 - Abilities | Toggle between Roll (4d6 drop lowest) and Point Buy modes. Also handles ASI (Ability Score Increase) allocation for higher levels |
 | `background.tsx` | 4 - Background | Background selection via `OptionGrid` from `useAvailableBackgrounds()` (includes info button with feature description), alignment (3x3 grid), and personality trait text fields (traits, ideals, bonds, flaws) |
-| `skills.tsx` | 5 - Skills | Saving throws (display-only, from starting class), background skills (locked), class skill picks (each configured choice group is capped independently) |
+| `skills.tsx` | 5 - Skills | Saving throws (display-only, from starting class presentation metadata stored in the draft), background skills (locked), class skill picks (each configured choice group is capped independently) |
 | `features.tsx` | 6 - Additional Class Benefits (conditional) | Inserted after skills when the selected SRD classes/subclasses unlock parent/child feature choices (for example Eldritch Invocations, Metamagic, Pact Boon, Circle of the Land, Fighting Style, Hunter's Prey). Renders one card per parent feature and requires the configured number of child selections before continuing |
-| `review.tsx` | Final step - Review | Read-only summary of all choices. Each section is tappable to jump back to its step for editing. "Create Character" triggers the GraphQL mutation |
+| `review.tsx` | Final step - Review | Read-only summary of all choices, including class labels and starting saving throws from draft presentation metadata. Each section is tappable to jump back to its step for editing. "Create Character" triggers the GraphQL mutation |
 
 ### State management
 
 | File | Purpose |
 |---|---|
-| `store/characterDraft.tsx` | `CharacterDraftProvider` context + `useCharacterDraft()` hook. Holds the full `CharacterDraft` type, including `featureChoices` (one row per selected child benefit, so multi-pick parents have multiple rows) and `proficiencyChoices` (SKILL + named pick-N groups keyed by `classId` + `choiceGroup`, values = `srdIndex ?? id`). Clears proficiency picks when the class set or starting class changes. Provides `updateDraft()` (partial merge), `setAbilityScore()`, `setAllAbilityScores()`, `toggleProficiencyChoice()`, `resetDraft()`, `hasDraftData()` |
+| `store/characterDraft.tsx` | `CharacterDraftProvider` context + `useCharacterDraft()` hook. Holds the full `CharacterDraft` type, including `featureChoices` (one row per selected child benefit, so multi-pick parents have multiple rows), `proficiencyChoices` (SKILL + named pick-N groups keyed by `classId` + `choiceGroup`, values = `srdIndex ?? id`), and `classPresentationById` (server-resolved name + saving-throw indexes captured on class selection for Skills/Review labels). Clears proficiency picks when the class set or starting class changes. Provides `updateDraft()` (partial merge), `setAbilityScore()`, `setAllAbilityScores()`, `toggleProficiencyChoice()`, `resetDraft()`, `hasDraftData()` |
 
 ### Wizard infrastructure
 
@@ -98,6 +98,9 @@ type CharacterDraft = {
     proficiencyChoices: Array<{ classId: string; choiceGroup: number; values: string[] }>;
     asiAllocations: Record<AbilityKey, number>;  // ASI points distributed
     abilityMode: 'roll' | 'pointBuy';
+    // Captured from availableClasses when a class is selected; drives Skills/Review
+    // labels and starting saving throws (including custom classes).
+    classPresentationById: Record<string, { name: string; savingThrowIndexes: string[] }>;
 };
 ```
 
@@ -119,6 +122,7 @@ Multiclass rules:
 - Total allocated levels across all class rows must equal the character's total level
 - Each class can only appear once (no duplicates)
 - `startingClassId` determines which class grants saving throws and starting proficiencies
+- Selecting a class stores its `availableClasses` presentation (`name`, `savingThrowIndexes`) in `draft.classPresentationById` so Skills and Review show custom labels/saves without SRD-only maps
 - When there's only one class row, it's automatically the starting class
 - When multiclassing, a radio selector appears to pick the starting class
 - Subclass eligibility comes from each option's GraphQL `selectionLevel`; there is no mobile class-level unlock map

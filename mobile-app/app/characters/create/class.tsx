@@ -15,9 +15,11 @@ import {
     createCharacterClassDraft,
     isSubclassUnlocked,
     normaliseStartingClassId,
+    pruneClassPresentation,
     remainingClassLevels,
     sanitiseCharacterClassRow,
     validateCharacterClassDraft,
+    withClassPresentation,
 } from '@/lib/characterCreation/multiclass';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -40,7 +42,8 @@ export default function StepClass() {
     );
     const [showMulticlassInfo, setShowMulticlassInfo] = useState(false);
     const { data: classData } = useQuery<AvailableClassesQuery>(GET_AVAILABLE_CLASSES, { fetchPolicy: 'cache-first' });
-    const classOptions: OptionItem[] = (classData?.availableClasses ?? []).map((classRef) => {
+    const availableClassRows = classData?.availableClasses ?? [];
+    const classOptions: OptionItem[] = availableClassRows.map((classRef) => {
         return {
             value: classRef.value,
             label: classRef.name,
@@ -109,6 +112,10 @@ export default function StepClass() {
         updateDraft({
             classes: [classRow],
             startingClassId: classId,
+            classPresentationById: pruneClassPresentation(
+                withClassPresentation(draft.classPresentationById, classId, availableClassRows),
+                [classId],
+            ),
         });
     }
 
@@ -139,6 +146,10 @@ export default function StepClass() {
             updateDraft({
                 classes: [sanitised],
                 startingClassId: sanitised.classId,
+                classPresentationById: pruneClassPresentation(
+                    draft.classPresentationById,
+                    [sanitised.classId],
+                ),
             });
         }
     }
@@ -157,7 +168,11 @@ export default function StepClass() {
         scrollViewRef.current?.scrollTo({ y: event.nativeEvent.layout.y, animated: true });
     }
 
-    function updateClasses(nextClasses: typeof draft.classes, nextStartingClassId = draft.startingClassId) {
+    function updateClasses(
+        nextClasses: typeof draft.classes,
+        nextStartingClassId = draft.startingClassId,
+        nextPresentation = draft.classPresentationById,
+    ) {
         const sanitisedClasses = nextClasses.map((classRow) => sanitiseCharacterClassRow(
             classRow,
             subclassOptionItemsByClassId,
@@ -165,6 +180,10 @@ export default function StepClass() {
         updateDraft({
             classes: sanitisedClasses,
             startingClassId: normaliseStartingClassId(sanitisedClasses, nextStartingClassId),
+            classPresentationById: pruneClassPresentation(
+                nextPresentation,
+                sanitisedClasses.map((classRow) => classRow.classId),
+            ),
         });
     }
 
@@ -174,6 +193,7 @@ export default function StepClass() {
         updateClasses(
             [...draft.classes, createCharacterClassDraft(classId)],
             draft.startingClassId || classId,
+            withClassPresentation(draft.classPresentationById, classId, availableClassRows),
         );
     }
 
@@ -217,6 +237,10 @@ export default function StepClass() {
                 updateDraft({
                     classes: [sanitiseCharacterClassRow(solo, subclassOptionItemsByClassId)],
                     startingClassId: solo.classId,
+                    classPresentationById: pruneClassPresentation(
+                        draft.classPresentationById,
+                        [solo.classId],
+                    ),
                 });
             }
         }

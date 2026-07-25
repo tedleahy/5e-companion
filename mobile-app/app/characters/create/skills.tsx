@@ -5,20 +5,20 @@ import { useCharacterDraft } from '@/store/characterDraft';
 import { SKILL_DEFINITIONS, ABILITY_ABBREVIATIONS, type AbilityKey, type SkillKey } from '@/lib/characterSheetUtils';
 import {
     BACKGROUND_SKILL_PROFICIENCIES,
-    CLASS_SAVING_THROWS,
     proficiencyTypeLabel,
     skillKeyFromProficiencyValue,
     SKILL_SRD_INDEX_BY_KEY,
     type ClassProficiencyChoiceGroup,
 } from '@/lib/characterCreation/classRules';
 import {
-    classLabel,
+    presentationClassLabel,
+    presentationSavingThrows,
     startingClassRow,
+    type CreateClassPresentation,
 } from '@/lib/characterCreation/multiclass';
 import ProficiencyItem from '@/components/character-creation-wizard/ProficiencyItem';
 import { wizardStepStyles } from '@/components/character-creation-wizard/styles/wizardStepStyles';
 import useCreationProficiencyRequirements from '@/hooks/useCreationProficiencyRequirements';
-
 export default function StepSkills() {
     const { draft, toggleProficiencyChoice } = useCharacterDraft();
     const startingClass = startingClassRow(draft.classes, draft.startingClassId);
@@ -30,7 +30,8 @@ export default function StepSkills() {
         error,
         refetch,
     } = useCreationProficiencyRequirements(draft.classes, draft.startingClassId);
-    const savingThrows = CLASS_SAVING_THROWS[startingClassId] ?? [];
+    const savingThrows = presentationSavingThrows(startingClassId, draft.classPresentationById);
+    const startingClassName = presentationClassLabel(startingClassId, draft.classPresentationById);
 
     const backgroundSkillProfs: SkillKey[] = BACKGROUND_SKILL_PROFICIENCIES[draft.background] ?? [];
     const backgroundSkills = SKILL_DEFINITIONS.filter((skill) => backgroundSkillProfs.includes(skill.key));
@@ -79,7 +80,7 @@ export default function StepSkills() {
                 <>
                     <Text style={wizardStepStyles.sectionLabel}>Saving Throw Proficiencies</Text>
                     <Text style={styles.savingThrowNote}>
-                        Granted by your starting class ({classLabel(startingClassId)})
+                        Granted by your starting class ({startingClassName})
                     </Text>
                     <View style={styles.savingThrowRow}>
                         {savingThrows.map((ability: AbilityKey) => (
@@ -140,6 +141,7 @@ export default function StepSkills() {
                 lockedOptionValues={backgroundSkillValues}
                 onToggle={toggleProficiencyChoice}
                 showGapAbove={backgroundSkills.length > 0 || fixedClassSkills.length > 0}
+                classPresentationById={draft.classPresentationById}
             />
 
             {secondaryGroups.length > 0 ? (
@@ -156,6 +158,7 @@ export default function StepSkills() {
                         lockedOptionValues={backgroundSkillValues}
                         onToggle={toggleProficiencyChoice}
                         labelClassNames
+                        classPresentationById={draft.classPresentationById}
                     />
                 </>
             ) : null}
@@ -174,6 +177,7 @@ type ProficiencyChoiceGroupListProps = {
     onToggle: (classId: string, choiceGroup: number, value: string, maxChoices: number) => void;
     showGapAbove?: boolean;
     labelClassNames?: boolean;
+    classPresentationById: Record<string, CreateClassPresentation>;
 };
 
 /**
@@ -186,6 +190,7 @@ function ProficiencyChoiceGroupList({
     onToggle,
     showGapAbove = false,
     labelClassNames = false,
+    classPresentationById,
 }: ProficiencyChoiceGroupListProps) {
     return (
         <>
@@ -195,7 +200,9 @@ function ProficiencyChoiceGroupList({
                 )?.values ?? [];
                 const atGroupLimit = selectedValues.length >= group.pick;
                 const typeLabel = proficiencyTypeLabel(group.type);
-                const classPrefix = labelClassNames ? `${classLabel(group.classId)} ` : '';
+                const classPrefix = labelClassNames
+                    ? `${presentationClassLabel(group.classId, classPresentationById)} `
+                    : '';
                 const choosableOptions = group.options.filter(
                     (option) => !lockedOptionValues.has(option.value),
                 );
