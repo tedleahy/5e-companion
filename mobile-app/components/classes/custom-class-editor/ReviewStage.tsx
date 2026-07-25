@@ -5,6 +5,7 @@ import {
     formatGroupedChoiceLines,
     formatGroupedEquipmentLines,
 } from '@/components/classes/class-detail-presentation';
+import { formatMulticlassPrerequisiteRules } from '@/lib/multiclassPrerequisites';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { nightFormStyles } from '@/theme/nightFormStyles';
 import { fieldStyles } from './fields';
@@ -42,12 +43,9 @@ export function formatAbilityList(indexes: string[]): string {
     return indexes.map(abilityLabel).join(', ');
 }
 
-/** Compact multiclass prerequisite summary, e.g. "STR 13 · DEX 13". */
+/** Compact multiclass prerequisite summary using shared OR/AND grouping. */
 export function formatMulticlassPrerequisites(draft: Draft): string {
-    if (draft.multiclassPrerequisites.length === 0) return 'None';
-    return draft.multiclassPrerequisites
-        .map((item) => `${abilityLabel(item.abilityIndex)} ${item.minimum}`)
-        .join(' · ');
+    return formatMulticlassPrerequisiteRules(draft.multiclassPrerequisites);
 }
 
 /** Grouped proficiency lines for one grant, using the shared class-detail formatter. */

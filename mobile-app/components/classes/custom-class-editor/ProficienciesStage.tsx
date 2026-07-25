@@ -83,7 +83,7 @@ export default function ProficienciesStage({ draft, locked, onChange }: StagePro
                     draft={draft}
                     options={options}
                     locked={locked}
-                    onChange={(proficiencies) => onChange({ proficiencies })}
+                    onChange={onChange}
                 />
             </View>
             <View
@@ -105,7 +105,7 @@ export default function ProficienciesStage({ draft, locked, onChange }: StagePro
                     draft={draft}
                     options={options}
                     locked={locked}
-                    onChange={(proficiencies) => onChange({ proficiencies })}
+                    onChange={onChange}
                 />
             </View>
         </View>

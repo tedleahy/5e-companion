@@ -66,5 +66,7 @@ export default function useProtectedNavigation() {
         router.back();
     }, [router]);
 
-    return { push, replace, back };
+    const canGoBack = useCallback(() => router.canGoBack(), [router]);
+
+    return { push, replace, back, canGoBack };
 }

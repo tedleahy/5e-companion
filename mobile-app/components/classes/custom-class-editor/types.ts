@@ -20,11 +20,36 @@ export type DraftSpell = {
     name: string;
     level: number;
 };
+
+/** In-progress or stashed proficiency choice pool (may be empty while enabled). */
+export type DraftChoicePool = {
+    choiceGroup?: number;
+    choiceCount: number;
+    values: string[];
+};
+
+/** Per-category choice-toggle / stash state for one grant tab. */
+export type DraftCategoryChoiceUi = {
+    enabled: boolean;
+    pool?: DraftChoicePool;
+    stash?: DraftChoicePool;
+};
+
+export type ProficiencyCategoryType = 'ARMOR' | 'WEAPON' | 'SKILL' | 'TOOL' | 'OTHER';
+
+/** Client-only proficiency choice editor state keyed by grant then category. */
+export type DraftProficiencyChoiceUi = {
+    STARTING: Partial<Record<ProficiencyCategoryType, DraftCategoryChoiceUi>>;
+    MULTICLASS: Partial<Record<ProficiencyCategoryType, DraftCategoryChoiceUi>>;
+};
+
 export type Draft = Omit<ManagedCustomClassInput, 'progression' | 'features' | 'equipment' | 'spellIds'> & {
     progression: DraftLevel[];
     features: DraftFeature[];
     equipment: DraftEquipment[];
     spells: DraftSpell[];
+    /** Transient choice-pool editing state; stripped on serialise. */
+    proficiencyChoiceUi: DraftProficiencyChoiceUi;
 };
 
 export type IdentityFieldErrors = {

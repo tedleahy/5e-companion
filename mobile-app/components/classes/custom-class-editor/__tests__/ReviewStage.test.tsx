@@ -66,8 +66,23 @@ describe('ReviewStage summary helpers', () => {
 
         expect(formatAbilityList(draft.primaryAbilityIndexes)).toBe('STR, WIS');
         expect(formatAbilityList([])).toBe('None');
-        expect(formatMulticlassPrerequisites(draft)).toBe('STR 13 · DEX 13');
+        expect(formatMulticlassPrerequisites(draft)).toBe('STR 13 or DEX 13');
         expect(formatMulticlassPrerequisites(createDraft())).toBe('None');
+        expect(formatMulticlassPrerequisites({
+            ...createDraft(),
+            multiclassPrerequisites: [
+                { abilityIndex: 'str', minimum: 13, group: 0 },
+                { abilityIndex: 'dex', minimum: 13, group: 0 },
+                { abilityIndex: 'cha', minimum: 13, group: 1 },
+            ],
+        })).toBe('STR 13 or DEX 13 and CHA 13');
+        expect(formatMulticlassPrerequisites({
+            ...createDraft(),
+            multiclassPrerequisites: [
+                { abilityIndex: 'dex', minimum: 13, group: 0 },
+                { abilityIndex: 'wis', minimum: 13, group: 1 },
+            ],
+        })).toBe('DEX 13 and WIS 13');
         expect(formatProficiencyGrantSummary(draft, 'STARTING')).toBe(
             'skill-athletics · Choose 1 of skill-acrobatics, skill-stealth',
         );

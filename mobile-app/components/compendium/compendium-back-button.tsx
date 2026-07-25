@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 import useProtectedNavigation from '@/hooks/useProtectedNavigation';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
-/** Returns from a Compendium category to the category hub. */
+/** Returns from a Compendium category to the previous screen, or the hub on direct entry. */
 export default function CompendiumBackButton() {
     const protectedRouter = useProtectedNavigation();
 
@@ -11,6 +11,10 @@ export default function CompendiumBackButton() {
             accessibilityRole="button"
             accessibilityLabel="Back to all Compendium categories"
             onPress={() => {
+                if (protectedRouter.canGoBack()) {
+                    void protectedRouter.back();
+                    return;
+                }
                 void protectedRouter.replace('/compendium');
             }}
             style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}

@@ -1,6 +1,16 @@
 import type { ClassDetailsFieldsFragment, ManagedCustomClassInput } from '@/types/generated_graphql_types';
 import { emptySpellSlots, pactFromSpellSlots, spellSlotsFromPact } from './spellSlots';
-import type { Draft, DraftEquipment, DraftLevel, IdentityFieldErrors } from './types';
+import type {
+    Draft,
+    DraftCategoryChoiceUi,
+    DraftEquipment,
+    DraftLevel,
+    DraftProficiencyChoiceUi,
+    IdentityFieldErrors,
+    ProficiencyCategoryType,
+} from './types';
+
+export type { ProficiencyCategoryType } from './types';
 
 let equipmentKeySeq = 0;
 
@@ -121,6 +131,7 @@ export function createDraft(initial?: ClassDetailsFieldsFragment | null): Draft 
             progression: emptyProgression(),
             features: [],
             spells: [],
+            proficiencyChoiceUi: emptyProficiencyChoiceUi(),
         };
     }
     return {
@@ -158,6 +169,7 @@ export function createDraft(initial?: ClassDetailsFieldsFragment | null): Draft 
             name: spell.name,
             level: spell.level,
         })),
+        proficiencyChoiceUi: emptyProficiencyChoiceUi(),
     };
 }
 
@@ -197,7 +209,7 @@ export function canonicaliseProgressionForSubmit(
 }
 
 export function serialiseDraft(draft: Draft): ManagedCustomClassInput {
-    const { spells, features, equipment, progression, ...rest } = draft;
+    const { spells, features, equipment, progression, proficiencyChoiceUi: _ui, ...rest } = draft;
     return {
         ...rest,
         features: features.map(({ key: _key, ...feature }) => feature),
@@ -232,6 +244,9 @@ export function stageError(stage: number, draft: Draft): string | null {
             ?? errors.savingThrows
             ?? null;
     }
+    if (stage === 1) {
+        return incompleteProficiencyChoiceError(draft);
+    }
     if (stage === 2) {
         if (draft.equipment.some((item) => !item.name.trim() || item.quantity < 1)) {
             return 'Every equipment entry needs a name and a quantity of at least 1.';
@@ -256,8 +271,6 @@ export type ProficiencyChoiceGroup = {
     values: string[];
 };
 
-export type ProficiencyCategoryType = 'ARMOR' | 'WEAPON' | 'SKILL' | 'TOOL' | 'OTHER';
-
 export const PROFICIENCY_CATEGORIES: ReadonlyArray<{
     type: ProficiencyCategoryType;
     label: string;
@@ -270,6 +283,58 @@ export const PROFICIENCY_CATEGORIES: ReadonlyArray<{
     { type: 'TOOL', label: 'Tools', icon: '🔧' },
     { type: 'OTHER', label: 'Other', icon: '✨' },
 ];
+
+/** Empty client-only proficiency choice UI state. */
+export function emptyProficiencyChoiceUi(): DraftProficiencyChoiceUi {
+    return { STARTING: {}, MULTICLASS: {} };
+}
+
+/**
+ * Allocates a choice-group id, reusing `preferred` only when it is not already occupied.
+ */
+export function allocateAvailableChoiceGroupId(
+    groups: { choiceGroup: number }[],
+    preferred?: number,
+): number {
+    if (preferred != null && !groups.some((group) => group.choiceGroup === preferred)) {
+        return preferred;
+    }
+    return nextChoiceGroupId(groups);
+}
+
+/** Clear error when any enabled choice pool still has zero options. */
+export function incompleteProficiencyChoiceError(draft: Draft): string | null {
+    for (const grant of ['STARTING', 'MULTICLASS'] as const) {
+        const categories = draft.proficiencyChoiceUi[grant];
+        for (const state of Object.values(categories)) {
+            if (state?.enabled && (state.pool?.values.length ?? 0) === 0) {
+                return 'Each enabled proficiency choice pool needs at least one option.';
+            }
+        }
+    }
+    return null;
+}
+
+/**
+ * Patches one category's choice UI under a grant, preserving the other grant/categories.
+ */
+export function withProficiencyCategoryChoiceUi(
+    draft: Draft,
+    grant: 'STARTING' | 'MULTICLASS',
+    type: ProficiencyCategoryType,
+    next: DraftCategoryChoiceUi | undefined,
+): DraftProficiencyChoiceUi {
+    const grantUi = { ...draft.proficiencyChoiceUi[grant] };
+    if (next == null) {
+        delete grantUi[type];
+    } else {
+        grantUi[type] = next;
+    }
+    return {
+        ...draft.proficiencyChoiceUi,
+        [grant]: grantUi,
+    };
+}
 
 export type EquipmentEntry = {
     key: string;

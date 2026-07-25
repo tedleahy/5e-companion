@@ -1,6 +1,7 @@
 import { HIT_DIE_MAP } from '@/lib/characterCreation/classRules';
 import { CLASS_OPTIONS, type OptionItem } from '@/lib/characterCreation/options';
 import { ABILITY_ABBREVIATIONS, type AbilityKey } from '@/lib/characterSheetUtils';
+import { formatMulticlassPrerequisiteRules } from '@/lib/multiclassPrerequisites';
 import type {
     LevelUpClassSelectionState,
     LevelUpWizardCharacter,
@@ -243,7 +244,7 @@ function appendPrerequisiteWarning(
             return ability != null && abilityScores[ability] >= rule.minimum;
         }));
         if (failedGroups.length === 0) return;
-        const requirement = [...groups.values()].map((rules) => rules.map((rule) => `${rule.abilityIndex.toUpperCase()} ${rule.minimum}`).join(' or ')).join(' and ');
+        const requirement = formatMulticlassPrerequisiteRules(configuredRules);
         warnings.push(`${prefix} multiclass requirement not met for ${classOption?.label ?? 'Unknown class'}: ${requirement}.`);
         return;
     }

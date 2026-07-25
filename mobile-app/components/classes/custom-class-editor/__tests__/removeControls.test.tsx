@@ -54,9 +54,9 @@ describe('custom class editor remove controls', () => {
         fireEvent.press(screen.getByLabelText('Remove Athletics'));
 
         expect(onChange).toHaveBeenCalled();
-        const next = onChange.mock.calls[0][0] as typeof draft.proficiencies;
-        expect(next.some((item) => item.value === 'skill-athletics')).toBe(false);
-        expect(next.some((item) => item.value === 'skill-acrobatics')).toBe(true);
+        const next = onChange.mock.calls[0][0] as { proficiencies: typeof draft.proficiencies };
+        expect(next.proficiencies.some((item) => item.value === 'skill-athletics')).toBe(false);
+        expect(next.proficiencies.some((item) => item.value === 'skill-acrobatics')).toBe(true);
     });
 
     test('uses trash controls for equipment cards and rows', () => {

@@ -1,11 +1,11 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Switch, Text } from 'react-native-paper';
 import NumericStepper from '@/components/NumericStepper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { nightFormStyles } from '@/theme/nightFormStyles';
 import {
-    nextChoiceGroupId,
+    allocateAvailableChoiceGroupId,
     PROFICIENCY_CATEGORIES,
     proficiencyCategoryForValue,
     proficiencyChoiceGroupForType,
@@ -14,36 +14,32 @@ import {
     type ProficiencyChoiceGroup,
     withChoiceGroupForType,
     withFixedProficienciesForType,
+    withProficiencyCategoryChoiceUi,
 } from './draft';
 import { fieldStyles, RemovableChip } from './fields';
 import ProficiencyPickerSheet, { type ProficiencyOption } from './ProficiencyPickerSheet';
-import type { Draft } from './types';
+import type { Draft, DraftCategoryChoiceUi, DraftChoicePool } from './types';
 
 type PickerTarget =
     | { kind: 'fixed'; type: ProficiencyCategoryType }
     | { kind: 'choice'; type: ProficiencyCategoryType };
-
-type StashedPool = {
-    choiceGroup?: number;
-    choiceCount: number;
-    values: string[];
-};
 
 type ProficiencyGrantEditorProps = {
     grant: 'STARTING' | 'MULTICLASS';
     draft: Draft;
     options: ProficiencyOption[];
     locked: boolean;
-    onChange: (proficiencies: Draft['proficiencies']) => void;
+    onChange: (patch: Partial<Draft>) => void;
 };
 
-function emptyPool(): StashedPool {
+function emptyPool(): DraftChoicePool {
     return { choiceCount: 1, values: [] };
 }
 
 /**
  * Category accordion editor for one proficiency grant (STARTING or MULTICLASS).
  * Each type has always-granted chips plus an optional pick-N pool (hide-and-keep on toggle).
+ * Choice-pool editing state lives on the draft so it survives stage remounts.
  */
 export default function ProficiencyGrantEditor({
     grant,
@@ -55,10 +51,6 @@ export default function ProficiencyGrantEditor({
     const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
     /** User-explicit expand/collapse overrides auto-open-when-content. */
     const [openOverride, setOpenOverride] = useState<Partial<Record<ProficiencyCategoryType, boolean>>>({});
-    const [choiceEnabled, setChoiceEnabled] = useState<Partial<Record<ProficiencyCategoryType, boolean>>>({});
-    /** In-progress empty pools (not yet persisted because values.length === 0). */
-    const [localPools, setLocalPools] = useState<Partial<Record<ProficiencyCategoryType, StashedPool>>>({});
-    const stashRef = useRef<Partial<Record<ProficiencyCategoryType, StashedPool>>>({});
 
     const typeByValue = useMemo(() => {
         const map = new Map<string, string>();
@@ -75,6 +67,10 @@ export default function ProficiencyGrantEditor({
         return nameByValue.get(value) ?? value;
     }
 
+    function categoryUi(type: ProficiencyCategoryType): DraftCategoryChoiceUi | undefined {
+        return draft.proficiencyChoiceUi[grant][type];
+    }
+
     function fixedFor(type: ProficiencyCategoryType) {
         return draft.proficiencies
             .filter((item) => item.grant === grant && item.choiceGroup == null)
@@ -87,11 +83,12 @@ export default function ProficiencyGrantEditor({
     }
 
     function isChoiceOn(type: ProficiencyCategoryType) {
-        if (choiceEnabled[type] != null) return choiceEnabled[type] === true;
-        return persistedChoice(type) != null || localPools[type] != null;
+        const ui = categoryUi(type);
+        if (ui != null) return ui.enabled;
+        return persistedChoice(type) != null;
     }
 
-    function activeChoice(type: ProficiencyCategoryType): StashedPool {
+    function activeChoice(type: ProficiencyCategoryType): DraftChoicePool {
         const persisted = persistedChoice(type);
         if (persisted) {
             return {
@@ -100,39 +97,62 @@ export default function ProficiencyGrantEditor({
                 values: persisted.values,
             };
         }
-        return localPools[type] ?? stashRef.current[type] ?? emptyPool();
+        const ui = categoryUi(type);
+        if (ui?.enabled && ui.pool) return ui.pool;
+        if (ui?.stash) return ui.stash;
+        return emptyPool();
     }
 
-    function allocateChoiceGroupId(preferred?: number): number {
-        if (preferred != null) return preferred;
-        return nextChoiceGroupId(proficiencyChoiceGroups(draft, grant));
+    function setCategoryUi(type: ProficiencyCategoryType, next: DraftCategoryChoiceUi | undefined) {
+        onChange({
+            proficiencyChoiceUi: withProficiencyCategoryChoiceUi(draft, grant, type, next),
+        });
     }
 
-    function persistChoice(type: ProficiencyCategoryType, pool: StashedPool) {
+    function persistChoice(type: ProficiencyCategoryType, pool: DraftChoicePool) {
         if (pool.values.length === 0) {
-            setLocalPools((current) => ({ ...current, [type]: pool }));
-            if (persistedChoice(type)) {
-                onChange(withChoiceGroupForType(draft, grant, type, null, typeByValue));
-            }
+            onChange({
+                proficiencies: persistedChoice(type)
+                    ? withChoiceGroupForType(draft, grant, type, null, typeByValue)
+                    : draft.proficiencies,
+                proficiencyChoiceUi: withProficiencyCategoryChoiceUi(draft, grant, type, {
+                    enabled: true,
+                    pool,
+                    stash: categoryUi(type)?.stash,
+                }),
+            });
             return;
         }
 
-        const choiceGroup = allocateChoiceGroupId(pool.choiceGroup ?? persistedChoice(type)?.choiceGroup);
+        const selfId = persistedChoice(type)?.choiceGroup;
+        const occupied = proficiencyChoiceGroups(draft, grant).filter(
+            (group) => group.choiceGroup !== selfId,
+        );
+        // Prefer the pool's id, then the currently persisted id for this type; never reuse another type's id.
+        const choiceGroup = allocateAvailableChoiceGroupId(
+            occupied,
+            pool.choiceGroup ?? selfId,
+        );
         const next: ProficiencyChoiceGroup = {
             choiceGroup,
             choiceCount: Math.min(Math.max(1, pool.choiceCount), pool.values.length),
             values: pool.values,
         };
-        setLocalPools((current) => {
-            const copy = { ...current };
-            delete copy[type];
-            return copy;
+        onChange({
+            proficiencies: withChoiceGroupForType(draft, grant, type, next, typeByValue),
+            proficiencyChoiceUi: withProficiencyCategoryChoiceUi(draft, grant, type, {
+                enabled: true,
+                pool: {
+                    choiceGroup,
+                    choiceCount: next.choiceCount,
+                    values: next.values,
+                },
+            }),
         });
-        onChange(withChoiceGroupForType(draft, grant, type, next, typeByValue));
     }
 
-    function setChoicePool(type: ProficiencyCategoryType, pool: StashedPool) {
-        const next: StashedPool = {
+    function setChoicePool(type: ProficiencyCategoryType, pool: DraftChoicePool) {
+        const next: DraftChoicePool = {
             ...pool,
             choiceCount: Math.max(1, Math.min(pool.choiceCount, Math.max(1, pool.values.length || 1))),
         };
@@ -141,33 +161,55 @@ export default function ProficiencyGrantEditor({
 
     function toggleChoice(type: ProficiencyCategoryType, enabled: boolean) {
         if (enabled) {
-            const restored = stashRef.current[type] ?? localPools[type] ?? emptyPool();
-            setChoiceEnabled((current) => ({ ...current, [type]: true }));
-            setLocalPools((current) => ({ ...current, [type]: restored }));
-            if (restored.values.length > 0) {
-                persistChoice(type, restored);
+            const ui = categoryUi(type);
+            const restored = ui?.stash ?? ui?.pool ?? emptyPool();
+            const occupied = proficiencyChoiceGroups(draft, grant);
+            const choiceGroup = allocateAvailableChoiceGroupId(occupied, restored.choiceGroup);
+            const restoredPool: DraftChoicePool = { ...restored, choiceGroup };
+
+            if (restoredPool.values.length > 0) {
+                const next: ProficiencyChoiceGroup = {
+                    choiceGroup,
+                    choiceCount: Math.min(
+                        Math.max(1, restoredPool.choiceCount),
+                        restoredPool.values.length,
+                    ),
+                    values: restoredPool.values,
+                };
+                onChange({
+                    proficiencies: withChoiceGroupForType(draft, grant, type, next, typeByValue),
+                    proficiencyChoiceUi: withProficiencyCategoryChoiceUi(draft, grant, type, {
+                        enabled: true,
+                        pool: {
+                            choiceGroup,
+                            choiceCount: next.choiceCount,
+                            values: next.values,
+                        },
+                    }),
+                });
+            } else {
+                setCategoryUi(type, { enabled: true, pool: restoredPool });
             }
             setOpenOverride((current) => ({ ...current, [type]: true }));
             return;
         }
 
         const current = activeChoice(type);
-        stashRef.current[type] = current;
-        setChoiceEnabled((currentEnabled) => ({ ...currentEnabled, [type]: false }));
-        setLocalPools((currentLocal) => {
-            const next = { ...currentLocal };
-            delete next[type];
-            return next;
+        onChange({
+            proficiencies: persistedChoice(type)
+                ? withChoiceGroupForType(draft, grant, type, null, typeByValue)
+                : draft.proficiencies,
+            proficiencyChoiceUi: withProficiencyCategoryChoiceUi(draft, grant, type, {
+                enabled: false,
+                stash: current,
+            }),
         });
         // Keep the accordion open so the user can re-enable without hunting for the header.
         setOpenOverride((currentOpen) => ({ ...currentOpen, [type]: true }));
-        if (persistedChoice(type)) {
-            onChange(withChoiceGroupForType(draft, grant, type, null, typeByValue));
-        }
     }
 
     function hasContent(type: ProficiencyCategoryType) {
-        return fixedFor(type).length > 0 || isChoiceOn(type);
+        return fixedFor(type).length > 0 || isChoiceOn(type) || categoryUi(type)?.stash != null;
     }
 
     function isOpen(type: ProficiencyCategoryType) {
@@ -211,23 +253,29 @@ export default function ProficiencyGrantEditor({
         if (!pickerTarget) return [] as string[];
         if (pickerTarget.kind === 'fixed') return activeChoice(pickerTarget.type).values;
         return fixedFor(pickerTarget.type);
-        // draft/localPools drive activeChoice/fixedFor
+        // draft drives activeChoice/fixedFor
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [draft.proficiencies, localPools, pickerTarget, typeByValue]);
+    }, [draft.proficiencies, draft.proficiencyChoiceUi, pickerTarget, typeByValue]);
 
     const pickerSelected = useMemo(() => {
         if (!pickerTarget) return [] as string[];
         if (pickerTarget.kind === 'fixed') return fixedFor(pickerTarget.type);
         return activeChoice(pickerTarget.type).values;
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [draft.proficiencies, localPools, pickerTarget, typeByValue]);
+    }, [draft.proficiencies, draft.proficiencyChoiceUi, pickerTarget, typeByValue]);
 
     function handlePickerConfirm(values: string[]) {
         if (!pickerTarget) return;
         if (pickerTarget.kind === 'fixed') {
-            onChange(
-                withFixedProficienciesForType(draft, grant, pickerTarget.type, values, typeByValue),
-            );
+            onChange({
+                proficiencies: withFixedProficienciesForType(
+                    draft,
+                    grant,
+                    pickerTarget.type,
+                    values,
+                    typeByValue,
+                ),
+            });
             return;
         }
         const current = activeChoice(pickerTarget.type);
@@ -289,15 +337,15 @@ export default function ProficiencyGrantEditor({
                                                 disabled={locked}
                                                 testID={`fixed-proficiency-${grant}-${value}`}
                                                 onRemove={() =>
-                                                    onChange(
-                                                        withFixedProficienciesForType(
+                                                    onChange({
+                                                        proficiencies: withFixedProficienciesForType(
                                                             draft,
                                                             grant,
                                                             category.type,
                                                             fixed.filter((entry) => entry !== value),
                                                             typeByValue,
                                                         ),
-                                                    )
+                                                    })
                                                 }
                                             />
                                         ))}

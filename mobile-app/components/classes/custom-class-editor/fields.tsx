@@ -9,6 +9,7 @@ export function Field({
     label,
     helper,
     errorMessage,
+    accessibilityLabel,
     ...props
 }: Omit<React.ComponentProps<typeof FantasyFormTextInput>, 'error'> & {
     label: string;
@@ -19,8 +20,21 @@ export function Field({
         <View style={fieldStyles.field}>
             <Text style={fieldStyles.label}>{label}</Text>
             {helper ? <Text style={fieldStyles.helper}>{helper}</Text> : null}
-            <FantasyFormTextInput {...props} error={Boolean(errorMessage)} />
-            {errorMessage ? <Text style={fieldStyles.error}>{errorMessage}</Text> : null}
+            <FantasyFormTextInput
+                {...props}
+                accessibilityLabel={accessibilityLabel ?? label}
+                error={Boolean(errorMessage)}
+                accessibilityHint={errorMessage}
+            />
+            {errorMessage ? (
+                <Text
+                    accessibilityRole="alert"
+                    accessibilityLiveRegion="polite"
+                    style={fieldStyles.error}
+                >
+                    {errorMessage}
+                </Text>
+            ) : null}
         </View>
     );
 }
@@ -40,6 +54,9 @@ export function Chip({
         <Pressable
             disabled={disabled}
             onPress={onPress}
+            accessibilityRole="checkbox"
+            accessibilityLabel={label}
+            accessibilityState={{ checked: selected, disabled: Boolean(disabled) }}
             style={[fieldStyles.chip, selected && fieldStyles.chipSelected, disabled && fieldStyles.disabled]}
         >
             <Text style={[fieldStyles.chipText, selected && fieldStyles.chipTextSelected]}>{label}</Text>
@@ -103,7 +120,15 @@ export function AbilityPicker({
                     />
                 ))}
             </View>
-            {errorMessage ? <Text style={fieldStyles.error}>{errorMessage}</Text> : null}
+            {errorMessage ? (
+                <Text
+                    accessibilityRole="alert"
+                    accessibilityLiveRegion="polite"
+                    style={fieldStyles.error}
+                >
+                    {errorMessage}
+                </Text>
+            ) : null}
         </View>
     );
 }

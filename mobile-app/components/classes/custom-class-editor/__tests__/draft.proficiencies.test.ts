@@ -1,10 +1,13 @@
 import {
+    allocateAvailableChoiceGroupId,
     createDraft,
     fixedProficiencyValues,
     fixedProficiencyValuesForType,
+    incompleteProficiencyChoiceError,
     nextChoiceGroupId,
     proficiencyChoiceGroupForType,
     proficiencyChoiceGroups,
+    stageError,
     withChoiceGroupForType,
     withChoiceGroups,
     withFixedProficiencies,
@@ -181,5 +184,32 @@ describe('custom class proficiency draft helpers', () => {
     test('nextChoiceGroupId increments past the highest group', () => {
         expect(nextChoiceGroupId([])).toBe(1);
         expect(nextChoiceGroupId([{ choiceGroup: 1 }, { choiceGroup: 3 }])).toBe(4);
+    });
+
+    test('allocateAvailableChoiceGroupId reuses a free preferred id', () => {
+        expect(allocateAvailableChoiceGroupId([{ choiceGroup: 2 }], 1)).toBe(1);
+    });
+
+    test('allocateAvailableChoiceGroupId allocates a fresh id when preferred is occupied', () => {
+        expect(allocateAvailableChoiceGroupId([{ choiceGroup: 1 }], 1)).toBe(2);
+    });
+
+    test('incomplete enabled pools surface a clear stage validation error', () => {
+        const incomplete = {
+            ...createDraft(),
+            proficiencyChoiceUi: {
+                STARTING: {
+                    SKILL: { enabled: true, pool: { choiceCount: 1, values: [] } },
+                },
+                MULTICLASS: {},
+            },
+        };
+        expect(incompleteProficiencyChoiceError(incomplete)).toBe(
+            'Each enabled proficiency choice pool needs at least one option.',
+        );
+        expect(stageError(1, incomplete)).toBe(
+            'Each enabled proficiency choice pool needs at least one option.',
+        );
+        expect(stageError(1, createDraft())).toBeNull();
     });
 });
