@@ -1,11 +1,22 @@
 import { describe, expect, test } from 'bun:test';
+import { Prisma } from '@prisma/client';
 import type { ManagedCustomClassInput } from '../../generated/graphql';
+import './loadTestEnv';
 import {
+    ACTIVE_CUSTOM_CLASS_NAME_INDEX,
+    assertGroupedChoiceInvariants,
     assertLockedFeatureMembership,
+    assertValidPactMagicSlots,
     canonicaliseMechanicsValue,
     normaliseClassInput,
+    proficiencyReferenceWhere,
     sortByCanonicalForm,
+    translateActiveCustomClassNameConflict,
 } from './customClassManager';
+import {
+    ACTIVE_CUSTOM_SUBCLASS_NAME_INDEX,
+    translateActiveCustomSubclassNameConflict,
+} from './customSubclassManager';
 
 function validInput(): ManagedCustomClassInput {
     return {
@@ -85,6 +96,160 @@ describe('custom class input validation', () => {
         const nonCaster = validInput();
         nonCaster.addSpellcastingAbility = true;
         expect(normaliseClassInput(nonCaster).addSpellcastingAbility).toBe(false);
+    });
+
+    test('rejects duplicate proficiency rules with a domain error', () => {
+        const input = validInput();
+        input.proficiencies = [
+            { value: 'light-armor', grant: 'STARTING', choiceGroup: null, choiceCount: null },
+            { value: 'light-armor', grant: 'STARTING', choiceGroup: null, choiceCount: null },
+        ];
+        expect(() => normaliseClassInput(input)).toThrow('Duplicate proficiency rules are not allowed.');
+    });
+
+    test('rejects proficiency choice groups with inconsistent counts', () => {
+        const input = validInput();
+        input.proficiencies = [
+            { value: 'skill-athletics', grant: 'STARTING', choiceGroup: 1, choiceCount: 1 },
+            { value: 'skill-acrobatics', grant: 'STARTING', choiceGroup: 1, choiceCount: 2 },
+        ];
+        expect(() => normaliseClassInput(input)).toThrow('inconsistent choice counts');
+    });
+
+    test('rejects proficiency choice groups that request more picks than options', () => {
+        const input = validInput();
+        input.proficiencies = [
+            { value: 'skill-athletics', grant: 'STARTING', choiceGroup: 1, choiceCount: 2 },
+        ];
+        expect(() => normaliseClassInput(input)).toThrow('requests 2 picks from 1 options');
+    });
+
+    test('rejects equipment with a negative choice group', () => {
+        const input = validInput();
+        input.equipment = [
+            { name: 'Longsword', quantity: 1, choiceGroup: -1, choiceCount: 1 },
+            { name: 'Battleaxe', quantity: 1, choiceGroup: -1, choiceCount: 1 },
+        ];
+        expect(() => normaliseClassInput(input)).toThrow('positive integers');
+    });
+
+    test('rejects equipment choice groups that request more picks than options', () => {
+        const input = validInput();
+        input.equipment = [
+            { name: 'Longsword', quantity: 1, choiceGroup: 1, choiceCount: 2 },
+        ];
+        expect(() => normaliseClassInput(input)).toThrow('requests 2 picks from 1 options');
+    });
+});
+
+describe('grouped choice and pact validators', () => {
+    test('accepts a coherent pick-N proficiency group', () => {
+        expect(() => assertGroupedChoiceInvariants([
+            { choiceGroup: 1, choiceCount: 2, optionKey: 'a' },
+            { choiceGroup: 1, choiceCount: 2, optionKey: 'b' },
+            { choiceGroup: 1, choiceCount: 2, optionKey: 'c' },
+        ], 'class proficiency definition')).not.toThrow();
+    });
+
+    test('rejects duplicate options inside one choice group', () => {
+        expect(() => assertGroupedChoiceInvariants([
+            { choiceGroup: 1, choiceCount: 1, optionKey: 'lute' },
+            { choiceGroup: 1, choiceCount: 1, optionKey: 'lute' },
+        ], 'starting equipment definition')).toThrow('duplicate option');
+    });
+
+    test('rejects pact rows with several non-zero slot levels', () => {
+        expect(() => assertValidPactMagicSlots([0, 2, 1, 0, 0, 0, 0, 0, 0])).toThrow('single spell-slot level');
+    });
+});
+
+describe('proficiency reference scoping', () => {
+    test('scopes SRD indexes to global rows and custom ids to the caller', () => {
+        expect(proficiencyReferenceWhere('user-a', ['light-armor', 'custom-prof-id'])).toEqual({
+            OR: [
+                { srdIndex: { in: ['light-armor', 'custom-prof-id'] }, ownerUserId: null },
+                { id: { in: ['light-armor', 'custom-prof-id'] }, ownerUserId: 'user-a' },
+            ],
+        });
+    });
+
+    test('cross-user custom proficiency ids cannot match via the SRD index branch alone', () => {
+        const where = proficiencyReferenceWhere('caller', ['other-user-proficiency-id']);
+        const srdBranch = where.OR[0]!;
+        const idBranch = where.OR[1]!;
+        expect(srdBranch).toEqual({
+            srdIndex: { in: ['other-user-proficiency-id'] },
+            ownerUserId: null,
+        });
+        expect(idBranch).toEqual({
+            id: { in: ['other-user-proficiency-id'] },
+            ownerUserId: 'caller',
+        });
+        expect(idBranch.ownerUserId).not.toBe('other-owner');
+    });
+});
+
+describe('active custom class name conflicts', () => {
+    test('translates a partial-index P2002 without modelName into a domain error', () => {
+        const error = new Prisma.PrismaClientKnownRequestError(
+            `Unique constraint failed on the constraint: \`${ACTIVE_CUSTOM_CLASS_NAME_INDEX}\``,
+            {
+                code: 'P2002',
+                clientVersion: 'test',
+                meta: { target: ACTIVE_CUSTOM_CLASS_NAME_INDEX },
+            },
+        );
+        expect(error.meta?.modelName).toBeUndefined();
+        expect(() => translateActiveCustomClassNameConflict(error)).toThrow(
+            'An active custom class with this name already exists.',
+        );
+    });
+
+    test('translates when the index name appears only in the P2002 message', () => {
+        const error = new Prisma.PrismaClientKnownRequestError(
+            `Unique constraint failed on the constraint: ${ACTIVE_CUSTOM_CLASS_NAME_INDEX}`,
+            {
+                code: 'P2002',
+                clientVersion: 'test',
+            },
+        );
+        expect(() => translateActiveCustomClassNameConflict(error)).toThrow(
+            'An active custom class with this name already exists.',
+        );
+    });
+
+    test('rethrows unrelated unique violations unchanged', () => {
+        const error = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+            code: 'P2002',
+            clientVersion: 'test',
+            meta: { target: ['classId', 'proficiencyId', 'grant'] },
+        });
+        expect(() => translateActiveCustomClassNameConflict(error)).toThrow(error);
+    });
+});
+
+describe('active custom subclass name conflicts', () => {
+    test('translates a partial-index P2002 into a domain error', () => {
+        const error = new Prisma.PrismaClientKnownRequestError(
+            `Unique constraint failed on the constraint: \`${ACTIVE_CUSTOM_SUBCLASS_NAME_INDEX}\``,
+            {
+                code: 'P2002',
+                clientVersion: 'test',
+                meta: { target: ACTIVE_CUSTOM_SUBCLASS_NAME_INDEX },
+            },
+        );
+        expect(() => translateActiveCustomSubclassNameConflict(error, 'Circle of Ash', 'Druid')).toThrow(
+            'You already have a custom subclass named "Circle of Ash" for Druid.',
+        );
+    });
+
+    test('rethrows unrelated unique violations unchanged', () => {
+        const error = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+            code: 'P2002',
+            clientVersion: 'test',
+            meta: { target: ['srdIndex'] },
+        });
+        expect(() => translateActiveCustomSubclassNameConflict(error, 'Circle of Ash', 'Druid')).toThrow(error);
     });
 });
 

@@ -161,6 +161,9 @@ model Class {
     @@index([ownerUserId])
     @@index([name])
     @@index([archivedAt])
+    // Active custom name uniqueness is enforced by a partial expression unique index
+    // (ownerUserId, lower(name) WHERE ownerUserId IS NOT NULL AND archivedAt IS NULL)
+    // in migrations/20260725140000_active_custom_class_subclass_name_uniqueness.
 }
 
 model ClassLevelProgression {
@@ -223,6 +226,9 @@ model Subclass {
     @@index([classId])
     @@index([name])
     @@index([archivedAt])
+    // Active custom name uniqueness is enforced by a partial expression unique index
+    // (ownerUserId, classId, lower(name) WHERE ownerUserId IS NOT NULL AND archivedAt IS NULL)
+    // in migrations/20260725140000_active_custom_class_subclass_name_uniqueness.
 }
 
 model Background {

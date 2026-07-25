@@ -1,6 +1,7 @@
 import { SpellSlotKind } from '@/types/generated_graphql_types';
 import type {
     CharacterSpellbookEntryFieldsFragment,
+    ClassDetailsFieldsFragment,
     SpellSlot,
     SpellcastingProfile,
 } from '@/types/generated_graphql_types';
@@ -140,7 +141,25 @@ const SPELLCASTING_ABILITY_BY_CLASS_ID: Record<string, AbilityKey> = {
     wizard: 'intelligence',
 };
 
+const SPELLCASTING_ABILITY_FROM_INDEX: Record<string, AbilityKey> = {
+    str: 'strength',
+    dex: 'dexterity',
+    con: 'constitution',
+    int: 'intelligence',
+    wis: 'wisdom',
+    cha: 'charisma',
+};
+
+/**
+ * Minimal class definition fields needed to preview custom spellcasting locally.
+ */
+export type LevelUpResolvedSpellcastingDefinition = Pick<
+    ClassDetailsFieldsFragment,
+    'spellcastingMode' | 'spellcastingAbility' | 'progression'
+>;
+
 type ClassRow = LevelUpWizardCharacter['classes'][number];
+type ResolvedSpellcastingDefinitions = ReadonlyMap<string, LevelUpResolvedSpellcastingDefinition>;
 
 /**
  * Returns a blank route-local spellcasting state.
@@ -485,8 +504,9 @@ export function applyLevelUpSpellbookChanges(
 export function derivePreviewSpellSlots(
     classes: LevelUpWizardCharacter['classes'],
     currentSpellSlots: SpellSlot[] = [],
+    resolvedDefinitions?: ResolvedSpellcastingDefinitions,
 ): SpellSlot[] {
-    return deriveSpellSlotsForClasses(classes).map((slot) => {
+    return deriveSpellSlotsForClasses(classes, resolvedDefinitions ?? new Map()).map((slot) => {
         const previousSlot = currentSpellSlots.find((currentSlot) => (
             currentSlot.kind === slot.kind && currentSlot.level === slot.level
         ));
@@ -508,17 +528,35 @@ export function derivePreviewSpellSlots(
 export function derivePreviewSpellcastingProfiles(
     classes: LevelUpWizardCharacter['classes'],
     abilityScores: NonNullable<LevelUpWizardCharacter['stats']>['abilityScores'],
+    resolvedDefinitions?: ResolvedSpellcastingDefinitions,
 ): SpellcastingProfile[] {
     const totalLevel = classes.reduce((sum, classRow) => sum + classRow.level, 0);
     const proficiencyBonus = 2 + Math.floor(Math.max(0, totalLevel - 1) / 4);
 
     return classes
         .map((classRow) => {
-            const spellcastingAbility = SPELLCASTING_ABILITY_BY_CLASS_ID[classRow.classId];
-            const classSlots = deriveClassSpellSlots(classRow.classId, classRow.level, classRow.subclassId ?? null);
-            const pactMagic = classRow.classId === 'warlock' && (PACT_MAGIC_SLOT_TABLE[classRow.level]?.total ?? 0) > 0;
+            const definition = resolvedDefinitions?.get(classRow.classId);
+            const hasResolvedSpellcasting = definition != null
+                && definition.spellcastingMode != null
+                && Array.isArray(definition.progression);
+            const spellcastingAbility = hasResolvedSpellcasting
+                ? SPELLCASTING_ABILITY_FROM_INDEX[definition.spellcastingAbility ?? ''] ?? null
+                : SPELLCASTING_ABILITY_BY_CLASS_ID[classRow.classId] ?? null;
+            const classSlots = deriveClassSpellSlots(
+                classRow.classId,
+                classRow.level,
+                classRow.subclassId ?? null,
+                hasResolvedSpellcasting ? definition : null,
+            );
+            const pactMagic = hasResolvedSpellcasting
+                ? definition.spellcastingMode === 'PACT_MAGIC' && classSlots.some((slot) => slot > 0)
+                : classRow.classId === 'warlock' && (PACT_MAGIC_SLOT_TABLE[classRow.level]?.total ?? 0) > 0;
 
             if (!spellcastingAbility) {
+                return null;
+            }
+
+            if (hasResolvedSpellcasting && definition.spellcastingMode === 'NONE') {
                 return null;
             }
 
@@ -539,7 +577,11 @@ export function derivePreviewSpellcastingProfiles(
                 spellcastingAbility,
                 spellSaveDC: 8 + spellAttackBonus,
                 spellAttackBonus,
-                slotKind: classRow.classId === 'warlock' ? 'PACT_MAGIC' as never : 'STANDARD' as never,
+                slotKind: (hasResolvedSpellcasting
+                    ? definition.spellcastingMode === 'PACT_MAGIC'
+                    : classRow.classId === 'warlock')
+                    ? 'PACT_MAGIC' as never
+                    : 'STANDARD' as never,
             };
 
             return profile;
@@ -620,7 +662,16 @@ function deriveClassSpellSlots(
     classId: string,
     classLevel: number,
     subclassId: string | null,
+    definition?: LevelUpResolvedSpellcastingDefinition | null,
 ): readonly number[] {
+    if (definition?.progression) {
+        if (definition.spellcastingMode === 'NONE') {
+            return [];
+        }
+
+        return definition.progression.find((row) => row.level === classLevel)?.spellSlots ?? [];
+    }
+
     if (FULL_CASTER_CLASS_IDS.has(classId)) {
         return STANDARD_SPELL_SLOT_TABLE[classLevel] ?? [];
     }
@@ -691,34 +742,75 @@ function applySelectedClassLevel(
 }
 
 /**
- * Derives overall standard and pact spell slots for one class allocation.
+ * Converts a definition progression row into typed preview slot rows.
  */
-function deriveSpellSlotsForClasses(classes: readonly ClassRow[]): Array<Pick<SpellSlot, 'kind' | 'level' | 'total'>> {
-    const spellSlots: Array<Pick<SpellSlot, 'kind' | 'level' | 'total'>> = [];
-    const standardSlots = classes.length === 1
-        ? deriveClassSpellSlots(classes[0]!.classId, classes[0]!.level, classes[0]!.subclassId ?? null)
-        : (STANDARD_SPELL_SLOT_TABLE[deriveStandardCasterLevel(classes)] ?? []);
+function spellSlotRowsFromDefinition(
+    definition: LevelUpResolvedSpellcastingDefinition,
+    classLevel: number,
+): Array<Pick<SpellSlot, 'kind' | 'level' | 'total'>> {
+    if (definition.spellcastingMode === 'NONE' || !definition.progression) {
+        return [];
+    }
 
-    for (const [index, total] of standardSlots.entries()) {
-        if (total <= 0) {
+    const kind: SpellSlot['kind'] = definition.spellcastingMode === 'PACT_MAGIC'
+        ? SpellSlotKind.PactMagic
+        : SpellSlotKind.Standard;
+    const slots = definition.progression.find((row) => row.level === classLevel)?.spellSlots ?? [];
+
+    return slots.flatMap((total, index) => (
+        total > 0 ? [{ kind, level: index + 1, total }] : []
+    ));
+}
+
+/**
+ * Derives overall standard and pact spell slots for one class allocation.
+ * Custom classes with resolved definitions contribute their authored progression
+ * instead of falling through the SRD-only tables.
+ */
+function deriveSpellSlotsForClasses(
+    classes: readonly ClassRow[],
+    resolvedDefinitions: ResolvedSpellcastingDefinitions = new Map(),
+): Array<Pick<SpellSlot, 'kind' | 'level' | 'total'>> {
+    const spellSlots: Array<Pick<SpellSlot, 'kind' | 'level' | 'total'>> = [];
+
+    if (classes.length === 1) {
+        const only = classes[0]!;
+        const definition = resolvedDefinitions.get(only.classId);
+        if (definition?.progression) {
+            return spellSlotRowsFromDefinition(definition, only.level);
+        }
+
+        const standardSlots = deriveClassSpellSlots(only.classId, only.level, only.subclassId ?? null);
+        for (const [index, total] of standardSlots.entries()) {
+            if (total <= 0) continue;
+            spellSlots.push({ kind: 'STANDARD' as never, level: index + 1, total });
+        }
+    } else {
+        const standardSlots = STANDARD_SPELL_SLOT_TABLE[deriveStandardCasterLevel(classes, resolvedDefinitions)] ?? [];
+        for (const [index, total] of standardSlots.entries()) {
+            if (total <= 0) continue;
+            spellSlots.push({ kind: 'STANDARD' as never, level: index + 1, total });
+        }
+    }
+
+    for (const classRow of classes) {
+        const definition = resolvedDefinitions.get(classRow.classId);
+        if (definition?.spellcastingMode === 'PACT_MAGIC') {
+            for (const slot of spellSlotRowsFromDefinition(definition, classRow.level)) {
+                spellSlots.push(slot);
+            }
             continue;
         }
 
-        spellSlots.push({
-            kind: 'STANDARD' as never,
-            level: index + 1,
-            total,
-        });
-    }
-
-    const warlockLevel = classes.find((classRow) => classRow.classId === 'warlock')?.level ?? 0;
-    const pactMagic = PACT_MAGIC_SLOT_TABLE[warlockLevel] ?? { level: 0, total: 0 };
-    if (pactMagic.level > 0 && pactMagic.total > 0) {
-        spellSlots.push({
-            kind: 'PACT_MAGIC' as never,
-            level: pactMagic.level,
-            total: pactMagic.total,
-        });
+        if (classRow.classId !== 'warlock') continue;
+        const pactMagic = PACT_MAGIC_SLOT_TABLE[classRow.level] ?? { level: 0, total: 0 };
+        if (pactMagic.level > 0 && pactMagic.total > 0) {
+            spellSlots.push({
+                kind: 'PACT_MAGIC' as never,
+                level: pactMagic.level,
+                total: pactMagic.total,
+            });
+        }
     }
 
     return spellSlots.sort((left, right) => {
@@ -732,11 +824,24 @@ function deriveSpellSlotsForClasses(classes: readonly ClassRow[]): Array<Pick<Sp
 
 /**
  * Returns the effective multiclass caster level for standard slots.
+ * Custom STANDARD casters with resolved definitions count as full casters;
+ * custom PACT_MAGIC classes do not contribute to the shared standard pool.
  */
-function deriveStandardCasterLevel(classes: readonly ClassRow[]): number {
+function deriveStandardCasterLevel(
+    classes: readonly ClassRow[],
+    resolvedDefinitions: ResolvedSpellcastingDefinitions = new Map(),
+): number {
     let casterLevel = 0;
 
     for (const classRow of classes) {
+        const definition = resolvedDefinitions.get(classRow.classId);
+        if (definition) {
+            if (definition.spellcastingMode === 'STANDARD') {
+                casterLevel += classRow.level;
+            }
+            continue;
+        }
+
         if (FULL_CASTER_CLASS_IDS.has(classRow.classId)) {
             casterLevel += classRow.level;
             continue;

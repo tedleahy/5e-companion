@@ -1009,3 +1009,35 @@ describe('customSubclassManager — archiveCustomSubclass', () => {
         expect(result).toBe(true);
     });
 });
+
+describe('active custom subclass name conflict translation', () => {
+    test('translates a partial-index P2002 without modelName into a domain error', async () => {
+        const { ACTIVE_CUSTOM_SUBCLASS_NAME_INDEX, translateActiveCustomSubclassNameConflict } = await import(
+            './character/customSubclassManager'
+        );
+        const { Prisma } = await import('@prisma/client');
+        const error = new Prisma.PrismaClientKnownRequestError(
+            `Unique constraint failed on the constraint: \`${ACTIVE_CUSTOM_SUBCLASS_NAME_INDEX}\``,
+            {
+                code: 'P2002',
+                clientVersion: 'test',
+                meta: { target: ACTIVE_CUSTOM_SUBCLASS_NAME_INDEX },
+            },
+        );
+        expect(error.meta?.modelName).toBeUndefined();
+        expect(() => translateActiveCustomSubclassNameConflict(error, 'Oath of Ash', 'Paladin')).toThrow(
+            'You already have a custom subclass named "Oath of Ash" for Paladin.',
+        );
+    });
+
+    test('rethrows unrelated unique violations unchanged', async () => {
+        const { translateActiveCustomSubclassNameConflict } = await import('./character/customSubclassManager');
+        const { Prisma } = await import('@prisma/client');
+        const error = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+            code: 'P2002',
+            clientVersion: 'test',
+            meta: { target: ['id'] },
+        });
+        expect(() => translateActiveCustomSubclassNameConflict(error, 'Oath of Ash', 'Paladin')).toThrow(error);
+    });
+});

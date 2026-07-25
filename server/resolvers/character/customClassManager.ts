@@ -1,4 +1,4 @@
-import type { ClassProficiencyGrant, ClassSpellcastingMode, Prisma } from '@prisma/client';
+import { ClassProficiencyGrant, ClassSpellcastingMode, Prisma } from '@prisma/client';
 import type { Context } from '../..';
 import type {
     ManagedCustomClassInput,
@@ -14,6 +14,30 @@ import prisma from '../../prisma/prisma';
 const ABILITY_INDEXES = new Set(['str', 'dex', 'con', 'int', 'wis', 'cha']);
 const SPELLCASTING_MODES = new Set<ClassSpellcastingMode>(['NONE', 'STANDARD', 'PACT_MAGIC']);
 const PROFICIENCY_GRANTS = new Set<ClassProficiencyGrant>(['STARTING', 'MULTICLASS']);
+const ACTIVE_CUSTOM_CLASS_NAME_EXISTS = 'An active custom class with this name already exists.';
+/** Partial unique index from migrations/20260725140000_active_custom_class_subclass_name_uniqueness. */
+export const ACTIVE_CUSTOM_CLASS_NAME_INDEX = 'Class_ownerUserId_lower_name_active_key';
+
+/**
+ * Collects Prisma unique-constraint target identifiers from a P2002 error.
+ * Expression/partial indexes often omit `meta.modelName` and put the index name in `target`.
+ */
+export function uniqueConstraintTargets(error: Prisma.PrismaClientKnownRequestError): string[] {
+    const target = error.meta?.target;
+    if (typeof target === 'string') return [target];
+    if (Array.isArray(target)) return target.map(String);
+    return [];
+}
+
+/**
+ * True when a P2002 is the active custom-class name unique index (not other Class uniques).
+ */
+export function isActiveCustomClassNameConflict(error: Prisma.PrismaClientKnownRequestError): boolean {
+    if (error.code !== 'P2002') return false;
+    const targets = uniqueConstraintTargets(error);
+    if (targets.some((value) => value === ACTIVE_CUSTOM_CLASS_NAME_INDEX)) return true;
+    return error.message.includes(ACTIVE_CUSTOM_CLASS_NAME_INDEX);
+}
 
 const CLASS_DETAILS_INCLUDE = {
     proficiencyRules: { include: { proficiencyRef: true }, orderBy: { proficiencyRef: { name: 'asc' as const } } },
@@ -34,6 +58,89 @@ function uniqueStrings(values: readonly string[], label: string): string[] {
     const normalised = values.map((value) => value.trim().toLowerCase()).filter(Boolean);
     if (new Set(normalised).size !== normalised.length) throw new Error(`${label} must not contain duplicates.`);
     return normalised;
+}
+
+type GroupedChoiceRow = {
+    choiceGroup: number | null;
+    choiceCount: number | null;
+    optionKey: string;
+};
+
+/**
+ * Validates pick-N choice groups: positive integer group/count, one count per group,
+ * unique options within a group, and count never exceeding the option pool.
+ */
+export function assertGroupedChoiceInvariants(
+    rows: readonly GroupedChoiceRow[],
+    label: string,
+): void {
+    const groups = new Map<number, { choiceCount: number; optionKeys: string[] }>();
+
+    for (const row of rows) {
+        const hasGroup = row.choiceGroup != null;
+        const hasCount = row.choiceCount != null;
+        if (hasGroup !== hasCount) {
+            throw new Error(`Invalid ${label}: choice group and count must both be set or both be omitted.`);
+        }
+        if (!hasGroup || !hasCount) continue;
+
+        if (!Number.isInteger(row.choiceGroup) || row.choiceGroup! < 1
+            || !Number.isInteger(row.choiceCount) || row.choiceCount! < 1) {
+            throw new Error(`Invalid ${label}: choice group and count must be positive integers.`);
+        }
+
+        const existing = groups.get(row.choiceGroup!);
+        if (!existing) {
+            groups.set(row.choiceGroup!, { choiceCount: row.choiceCount!, optionKeys: [row.optionKey] });
+            continue;
+        }
+        if (existing.choiceCount !== row.choiceCount) {
+            throw new Error(`Invalid ${label}: choice group ${row.choiceGroup} has inconsistent choice counts.`);
+        }
+        if (existing.optionKeys.includes(row.optionKey)) {
+            throw new Error(`Invalid ${label}: duplicate option in choice group ${row.choiceGroup}.`);
+        }
+        existing.optionKeys.push(row.optionKey);
+    }
+
+    for (const [group, { choiceCount, optionKeys }] of groups) {
+        if (choiceCount > optionKeys.length) {
+            throw new Error(`Invalid ${label}: choice group ${group} requests ${choiceCount} picks from ${optionKeys.length} options.`);
+        }
+    }
+}
+
+/**
+ * Rejects Pact Magic progression rows that define more than one populated slot level.
+ */
+export function assertValidPactMagicSlots(spellSlots: readonly number[]): void {
+    if (spellSlots.filter((slot) => slot > 0).length > 1) {
+        throw new Error('Pact magic levels may only define a single spell-slot level at a time.');
+    }
+}
+
+/**
+ * Builds the owner-scoped proficiency lookup used when resolving class proficiency refs.
+ * SRD indexes resolve only global rows; custom IDs resolve only for the caller.
+ */
+export function proficiencyReferenceWhere(userId: string, values: readonly string[]) {
+    return {
+        OR: [
+            { srdIndex: { in: [...values] }, ownerUserId: null },
+            { id: { in: [...values] }, ownerUserId: userId },
+        ],
+    };
+}
+
+/**
+ * Translates a race on the active custom-class name unique index into a domain error.
+ * Other unique violations (e.g. proficiency rules) are rethrown unchanged.
+ */
+export function translateActiveCustomClassNameConflict(error: unknown): never {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && isActiveCustomClassNameConflict(error)) {
+        throw new Error(ACTIVE_CUSTOM_CLASS_NAME_EXISTS);
+    }
+    throw error;
 }
 
 export function normaliseClassInput(input: ManagedCustomClassInput) {
@@ -80,10 +187,25 @@ export function normaliseClassInput(input: ManagedCustomClassInput) {
         choiceCount: rule.choiceCount == null ? null : Number(rule.choiceCount),
     }));
     if (proficiencies.some((rule) => !rule.value || !PROFICIENCY_GRANTS.has(rule.grant)
-        || (rule.choiceGroup == null) !== (rule.choiceCount == null)
-        || (rule.choiceGroup != null && (!Number.isInteger(rule.choiceGroup) || rule.choiceGroup < 1))
-        || (rule.choiceCount != null && (!Number.isInteger(rule.choiceCount) || rule.choiceCount < 1)))) {
+        || (rule.choiceGroup == null) !== (rule.choiceCount == null))) {
         throw new Error('Invalid class proficiency definition.');
+    }
+    const proficiencyKeys = proficiencies.map((rule) => `${rule.grant}:${rule.value}`);
+    if (new Set(proficiencyKeys).size !== proficiencyKeys.length) {
+        throw new Error('Duplicate proficiency rules are not allowed.');
+    }
+    // Choice-group numbers are scoped per grant (STARTING vs MULTICLASS), matching gameplay.
+    for (const grant of PROFICIENCY_GRANTS) {
+        assertGroupedChoiceInvariants(
+            proficiencies
+                .filter((rule) => rule.grant === grant)
+                .map((rule) => ({
+                    choiceGroup: rule.choiceGroup,
+                    choiceCount: rule.choiceCount,
+                    optionKey: rule.value,
+                })),
+            `${grant.toLowerCase()} proficiency definition`,
+        );
     }
 
     const equipment = input.equipment.map((item) => ({
@@ -96,6 +218,14 @@ export function normaliseClassInput(input: ManagedCustomClassInput) {
         || (item.choiceGroup == null) !== (item.choiceCount == null))) {
         throw new Error('Invalid starting equipment definition.');
     }
+    assertGroupedChoiceInvariants(
+        equipment.map((item) => ({
+            choiceGroup: item.choiceGroup,
+            choiceCount: item.choiceCount,
+            optionKey: item.name.toLowerCase(),
+        })),
+        'starting equipment definition',
+    );
 
     const levels = input.progression.map((level) => ({
         level: Number(level.level),
@@ -119,8 +249,8 @@ export function normaliseClassInput(input: ManagedCustomClassInput) {
         || level.cantripsKnown != null || level.spellsKnown != null || level.preparedSpellCount != null)) {
         throw new Error('A non-spellcasting class cannot define a spell progression.');
     }
-    if (spellcastingMode === 'PACT_MAGIC' && levels.some((level) => level.spellSlots.filter((slot) => slot > 0).length > 1)) {
-        throw new Error('Pact magic levels may only define a single spell-slot level at a time.');
+    if (spellcastingMode === 'PACT_MAGIC') {
+        for (const level of levels) assertValidPactMagicSlots(level.spellSlots);
     }
 
     const featureKeys = new Set<string>();
@@ -201,9 +331,10 @@ export function mapClassDetails(row: ClassDetailsRow) {
 }
 
 async function resolveReferences(userId: string, input: NormalisedClassInput) {
+    const values = input.proficiencies.map((rule) => rule.value);
     const [proficiencies, spells] = await Promise.all([
         prisma.proficiency.findMany({
-            where: { OR: [{ srdIndex: { in: input.proficiencies.map((rule) => rule.value) } }, { id: { in: input.proficiencies.map((rule) => rule.value) }, ownerUserId: userId }] },
+            where: proficiencyReferenceWhere(userId, values),
         }),
         prisma.spell.findMany({ where: { id: { in: input.spellIds } }, select: { id: true } }),
     ]);
@@ -395,18 +526,23 @@ export async function createCustomClass(_parent: unknown, { input }: MutationCre
     const values = normaliseClassInput(input);
     const { proficiencyByValue } = await resolveReferences(userId, values);
     const duplicate = await prisma.class.findFirst({ where: { ownerUserId: userId, archivedAt: null, name: { equals: values.name, mode: 'insensitive' } }, select: { id: true } });
-    if (duplicate) throw new Error('An active custom class with this name already exists.');
-    const classId = await prisma.$transaction(async (tx) => {
-        const row = await tx.class.create({ data: {
-            ownerUserId: userId, name: values.name, emoji: values.emoji, description: [values.description], hitDie: values.hitDie,
-            primaryAbilityIndexes: values.primaryAbilityIndexes, savingThrowIndexes: values.savingThrowIndexes,
-            multiclassPrerequisites: values.multiclassPrerequisites, startingEquipment: values.equipment,
-            spellcastingMode: values.spellcastingMode, spellcastingAbility: values.spellcastingAbility,
-            addSpellcastingAbility: values.addSpellcastingAbility, sourceBook: 'Custom',
-        } });
-        await writeClassRelations(tx, row.id, userId, values, proficiencyByValue);
-        return row.id;
-    });
+    if (duplicate) throw new Error(ACTIVE_CUSTOM_CLASS_NAME_EXISTS);
+    let classId: string;
+    try {
+        classId = await prisma.$transaction(async (tx) => {
+            const row = await tx.class.create({ data: {
+                ownerUserId: userId, name: values.name, emoji: values.emoji, description: [values.description], hitDie: values.hitDie,
+                primaryAbilityIndexes: values.primaryAbilityIndexes, savingThrowIndexes: values.savingThrowIndexes,
+                multiclassPrerequisites: values.multiclassPrerequisites, startingEquipment: values.equipment,
+                spellcastingMode: values.spellcastingMode, spellcastingAbility: values.spellcastingAbility,
+                addSpellcastingAbility: values.addSpellcastingAbility, sourceBook: 'Custom',
+            } });
+            await writeClassRelations(tx, row.id, userId, values, proficiencyByValue);
+            return row.id;
+        });
+    } catch (error) {
+        translateActiveCustomClassNameConflict(error);
+    }
     const created = await classDetails({}, { value: classId }, ctx);
     if (!created) throw new Error('Failed to load the created custom class.');
     return created;
@@ -418,7 +554,7 @@ export async function updateCustomClass(_parent: unknown, { id, input }: Mutatio
     const current = await prisma.class.findFirst({ where: { id, ownerUserId: userId, archivedAt: null }, include: CLASS_DETAILS_INCLUDE });
     if (!current) throw new Error('Custom class not found.');
     const duplicate = await prisma.class.findFirst({ where: { ownerUserId: userId, archivedAt: null, id: { not: id }, name: { equals: values.name, mode: 'insensitive' } }, select: { id: true } });
-    if (duplicate) throw new Error('An active custom class with this name already exists.');
+    if (duplicate) throw new Error(ACTIVE_CUSTOM_CLASS_NAME_EXISTS);
     const mechanicsLocked = current._count.characterClasses > 0;
     if (mechanicsLocked) {
         assertLockedFeatureMembership(values.features, current.features);
@@ -427,21 +563,25 @@ export async function updateCustomClass(_parent: unknown, { id, input }: Mutatio
         }
     }
     const references = mechanicsLocked ? null : await resolveReferences(userId, values);
-    await prisma.$transaction(async (tx) => {
-        await tx.class.update({ where: { id }, data: { name: values.name, emoji: values.emoji, description: [values.description], ...(!mechanicsLocked ? {
-            hitDie: values.hitDie, primaryAbilityIndexes: values.primaryAbilityIndexes, savingThrowIndexes: values.savingThrowIndexes,
-            multiclassPrerequisites: values.multiclassPrerequisites, startingEquipment: values.equipment,
-            spellcastingMode: values.spellcastingMode, spellcastingAbility: values.spellcastingAbility,
-            addSpellcastingAbility: values.addSpellcastingAbility,
-        } : {}) } });
-        if (!mechanicsLocked) {
-            await writeClassRelations(tx, id, userId, values, references!.proficiencyByValue);
-        } else {
-            for (const feature of values.features) {
-                await tx.feature.updateMany({ where: { id: feature.id!, classId: id, ownerUserId: userId, kind: 'CLASS_FEATURE' }, data: { name: feature.name, description: [feature.description] } });
+    try {
+        await prisma.$transaction(async (tx) => {
+            await tx.class.update({ where: { id }, data: { name: values.name, emoji: values.emoji, description: [values.description], ...(!mechanicsLocked ? {
+                hitDie: values.hitDie, primaryAbilityIndexes: values.primaryAbilityIndexes, savingThrowIndexes: values.savingThrowIndexes,
+                multiclassPrerequisites: values.multiclassPrerequisites, startingEquipment: values.equipment,
+                spellcastingMode: values.spellcastingMode, spellcastingAbility: values.spellcastingAbility,
+                addSpellcastingAbility: values.addSpellcastingAbility,
+            } : {}) } });
+            if (!mechanicsLocked) {
+                await writeClassRelations(tx, id, userId, values, references!.proficiencyByValue);
+            } else {
+                for (const feature of values.features) {
+                    await tx.feature.updateMany({ where: { id: feature.id!, classId: id, ownerUserId: userId, kind: 'CLASS_FEATURE' }, data: { name: feature.name, description: [feature.description] } });
+                }
             }
-        }
-    });
+        });
+    } catch (error) {
+        translateActiveCustomClassNameConflict(error);
+    }
     const updated = await classDetails({}, { value: id }, ctx);
     if (!updated) throw new Error('Failed to load the updated custom class.');
     return updated;

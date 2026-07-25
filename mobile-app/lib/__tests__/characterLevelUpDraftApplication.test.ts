@@ -692,4 +692,111 @@ describe('applyLevelUpToDraft', () => {
         expect(nextDraft.skillProficiencies.stealth).toBe('proficient');
         expect(nextDraft.traits.toolProficiencies).toContain('Lute');
     });
+
+    it('preserves custom-class spell slots and profiles from the resolved definition', () => {
+        const draft = createCharacterSheetDraft({
+            ...BASE_CHARACTER,
+            classes: [{
+                id: 'class-custom',
+                classId: 'custom-mage-id',
+                className: 'Star Mage',
+                subclassId: null,
+                subclassName: null,
+                level: 4,
+                isStartingClass: true,
+            }],
+            spellSlots: [{
+                __typename: 'SpellSlot',
+                id: 'slot-1',
+                kind: 'STANDARD',
+                level: 1,
+                total: 4,
+                used: 1,
+            }],
+            spellcastingProfiles: [{
+                __typename: 'SpellcastingProfile',
+                classId: 'custom-mage-id',
+                className: 'Star Mage',
+                subclassId: null,
+                subclassName: null,
+                classLevel: 4,
+                spellcastingAbility: 'intelligence',
+                spellSaveDC: 14,
+                spellAttackBonus: 6,
+                slotKind: 'STANDARD',
+            }],
+        } as never);
+
+        const progression = Array.from({ length: 20 }, (_, index) => ({
+            level: index + 1,
+            abilityScoreImprovement: false,
+            spellSlots: index + 1 >= 5
+                ? [4, 3, 2, 0, 0, 0, 0, 0, 0]
+                : index + 1 >= 3
+                    ? [4, 2, 0, 0, 0, 0, 0, 0, 0]
+                    : [2, 0, 0, 0, 0, 0, 0, 0, 0],
+            cantripsKnown: 3,
+            spellsKnown: null,
+            preparedSpellCount: 4,
+            displayValues: [],
+        }));
+
+        const nextDraft = applyLevelUpToDraft(draft, {
+            selectedClass: {
+                classId: 'custom-mage-id',
+                className: 'Star Mage',
+                currentLevel: 4,
+                newLevel: 5,
+                isExistingClass: true,
+                subclassId: null,
+                subclassName: null,
+                subclassDescription: null,
+                subclassIsCustom: false,
+                subclassFeatures: [],
+                customSubclass: null,
+                classDefinition: {
+                    spellcastingMode: 'STANDARD',
+                    spellcastingAbility: 'int',
+                    addSpellcastingAbility: true,
+                    progression,
+                } as never,
+            },
+            hitPointsState: {
+                method: 'average',
+                hitDieSize: 6,
+                hitDieValue: 4,
+                constitutionModifier: 2,
+                hpGained: 6,
+            },
+            asiOrFeatState: null,
+            spellcastingState: {
+                learnedSpells: [],
+                cantripSpells: [],
+                swapOutSpellId: null,
+                swapReplacementSpell: null,
+            },
+            multiclassProficiencyState: {
+                selections: [],
+            },
+            invocationState: createLevelUpInvocationState(),
+            metamagicState: createLevelUpMetamagicState(),
+            mysticArcanumState: createLevelUpMysticArcanumState(),
+            features: [],
+        });
+
+        expect(nextDraft.spellSlots).toEqual(expect.arrayContaining([
+            expect.objectContaining({ kind: 'STANDARD', level: 1, total: 4, used: 1 }),
+            expect.objectContaining({ kind: 'STANDARD', level: 2, total: 3, used: 0 }),
+            expect.objectContaining({ kind: 'STANDARD', level: 3, total: 2, used: 0 }),
+        ]));
+        expect(nextDraft.spellcastingProfiles).toEqual([
+            expect.objectContaining({
+                classId: 'custom-mage-id',
+                className: 'Star Mage',
+                classLevel: 5,
+                spellcastingAbility: 'intelligence',
+                slotKind: 'STANDARD',
+            }),
+        ]);
+    });
 });

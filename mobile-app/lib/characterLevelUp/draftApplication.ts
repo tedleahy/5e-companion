@@ -65,8 +65,16 @@ export function applyLevelUpToDraft(
         max: draft.hp.max + input.hitPointsState.hpGained,
     };
     const spellbook = applyLevelUpSpellbookChanges(draft.spellbook, input.spellcastingState);
-    const spellSlots = derivePreviewSpellSlots(classes, draft.spellSlots);
-    const spellcastingProfiles = derivePreviewSpellcastingProfiles(classes, abilityScores);
+    const definition = input.selectedClass.classDefinition;
+    const resolvedDefinitions = definition?.progression
+        ? new Map([[input.selectedClass.classId, definition]])
+        : undefined;
+    const spellSlots = derivePreviewSpellSlots(classes, draft.spellSlots, resolvedDefinitions);
+    const spellcastingProfiles = derivePreviewSpellcastingProfiles(
+        classes,
+        abilityScores,
+        resolvedDefinitions,
+    );
     const skillProficiencies = applyLevelUpSkillProficiencies(
         draft.skillProficiencies,
         input.selectedClass,
