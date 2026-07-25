@@ -58,6 +58,18 @@ Canonical code-style and workflow guide. [`AGENTS.md`](../AGENTS.md) holds the s
   - another detail
   ```
 - Allowed prefixes: `feat`, `refactor`, `chore`, `bug` (others OK if they fit). Add `(mobile)` or `(api)` when scoped.
+- **Pass multi-line commit messages via HEREDOC**, never via `-m '...\\n...'`. A literal `\n` inside a single-quoted `-m` string is stored as the two characters `\` and `n`, not a newline:
+
+```bash
+git commit -m "$(cat <<'EOF'
+feat(mobile): short subject
+
+- detail on its own line
+- another detail
+EOF
+)"
+```
+
 - **Don't commit markdown or plain-text files** in the project root except `AGENTS.md` (commit `docs/` when the user asks).
 
 ## Testing discipline

@@ -54,6 +54,8 @@ Full style guide: [`docs/conventions.md`](./docs/conventions.md). Non-negotiable
 
 Examples: `feat(mobile): …`, `feat(api): …`, `refactor(mobile): …`, `bug(api): …`. Add bullet details on separate lines. See [`docs/conventions.md`](./docs/conventions.md) for full commit conventions.
 
+**Always use a HEREDOC for multi-line commit messages** (`git commit -m "$(cat <<'EOF' … EOF)"`). Never put `\n` inside a `-m` string — that stores a literal backslash-n, not a newline.
+
 ---
 
 # Commands
