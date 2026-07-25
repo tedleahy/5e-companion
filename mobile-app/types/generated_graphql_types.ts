@@ -670,7 +670,7 @@ export type Query = {
   classDetails?: Maybe<ClassDetails>;
   compendiumCounts: CompendiumCounts;
   currentUserCharacters: Array<Character>;
-  customClasses: Array<ClassDetails>;
+  customClasses: Array<AvailableClass>;
   customSubclasses: Array<CustomSubclass>;
   hasCurrentUserCharacters: Scalars['Boolean']['output'];
   proficiencies: Array<ProficiencyRef>;
@@ -1130,7 +1130,7 @@ export type ClassDetailsQuery = { __typename?: 'Query', classDetails?: { __typen
 export type CustomClassesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CustomClassesQuery = { __typename?: 'Query', customClasses: Array<{ __typename?: 'ClassDetails', id: string, value: string, srdIndex?: string | null, name: string, emoji: string, description: Array<string>, hitDie: number, primaryAbilityIndexes: Array<string>, savingThrowIndexes: Array<string>, spellcastingMode: string, spellcastingAbility?: string | null, addSpellcastingAbility: boolean, isCustom: boolean, archived: boolean, sourceBook?: string | null, characterUsageCount: number, mechanicsLocked: boolean, mechanicsLockedReason?: string | null, multiclassPrerequisites: Array<{ __typename?: 'ClassMulticlassPrerequisite', abilityIndex: string, minimum: number, group: number }>, proficiencies: Array<{ __typename?: 'ClassProficiency', value: string, name: string, type: string, grant: string, choiceGroup?: number | null, choiceCount?: number | null }>, equipment: Array<{ __typename?: 'ClassEquipmentDefinition', name: string, quantity: number, choiceGroup?: number | null, choiceCount?: number | null }>, progression: Array<{ __typename?: 'ClassLevelProgression', level: number, abilityScoreImprovement: boolean, spellSlots: Array<number>, cantripsKnown?: number | null, spellsKnown?: number | null, preparedSpellCount?: number | null, displayValues: Array<{ __typename?: 'ClassDisplayValue', key: string, value: string }> }>, features: Array<{ __typename?: 'ClassFeature', id: string, name: string, description: string, level: number }>, spells: Array<{ __typename?: 'ClassSpell', id: string, name: string, level: number }> }> };
+export type CustomClassesQuery = { __typename?: 'Query', customClasses: Array<{ __typename?: 'AvailableClass', id: string, value: string, srdIndex?: string | null, name: string, emoji: string, description: Array<string>, hitDie: number, primaryAbilityIndexes: Array<string>, savingThrowIndexes: Array<string>, spellcastingMode: string, spellcastingAbility?: string | null, isCustom: boolean, multiclassPrerequisites: Array<{ __typename?: 'ClassMulticlassPrerequisite', abilityIndex: string, minimum: number, group: number }> }> };
 
 export type AttachedClassDetailsQueryVariables = Exact<{
   values: Array<Scalars['String']['input']> | Scalars['String']['input'];

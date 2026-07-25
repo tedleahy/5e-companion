@@ -7,6 +7,11 @@ import CardRemoveButton from './CardRemoveButton';
 import ClassSpellListEditor from './ClassSpellListEditor';
 import { MAX_CLASS_LEVEL } from './draft';
 import { Field, fieldStyles } from './fields';
+import {
+    canAddFeature,
+    CUSTOM_CLASS_FEATURE_DESCRIPTION_MAX_LENGTH,
+    CUSTOM_CLASS_FEATURE_NAME_MAX_LENGTH,
+} from './limits';
 import type { DraftFeature, StageProps } from './types';
 
 /**
@@ -28,6 +33,7 @@ export default function FeaturesStage({ draft, locked, onChange }: StageProps) {
     }
 
     function addFeature() {
+        if (!canAddFeature(draft.features.length)) return;
         onChange({
             features: [
                 ...draft.features,
@@ -120,6 +126,7 @@ export default function FeaturesStage({ draft, locked, onChange }: StageProps) {
                                         label="Name"
                                         value={feature.name}
                                         placeholder="e.g. Fighting Style"
+                                        maxLength={CUSTOM_CLASS_FEATURE_NAME_MAX_LENGTH}
                                         onChangeText={(name) => updateFeature(feature.key, { name })}
                                     />
                                     <Field
@@ -129,6 +136,7 @@ export default function FeaturesStage({ draft, locked, onChange }: StageProps) {
                                         numberOfLines={4}
                                         style={fieldStyles.textArea}
                                         placeholder="What this feature does"
+                                        maxLength={CUSTOM_CLASS_FEATURE_DESCRIPTION_MAX_LENGTH}
                                         onChangeText={(description) =>
                                             updateFeature(feature.key, { description })
                                         }
@@ -139,7 +147,7 @@ export default function FeaturesStage({ draft, locked, onChange }: StageProps) {
                     </View>
                 )}
 
-                {!locked ? (
+                {!locked && canAddFeature(draft.features.length) ? (
                     <Pressable
                         style={styles.addButton}
                         onPress={addFeature}

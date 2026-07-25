@@ -6,6 +6,7 @@ import { spellLevelLabel } from '@/lib/spellPresentation';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { nightFormStyles } from '@/theme/nightFormStyles';
 import { fieldStyles } from './fields';
+import { canAddSpell } from './limits';
 import type { DraftSpell } from './types';
 
 type ClassSpellListEditorProps = {
@@ -117,6 +118,7 @@ export default function ClassSpellListEditor({
                     subtitle="Choose spells that appear on this class's spell list."
                     onSpellAdded={async (spell) => {
                         if (spellsRef.current.some((item) => item.id === spell.id)) return;
+                        if (!canAddSpell(spellsRef.current.length)) return;
                         const next = [
                             ...spellsRef.current,
                             { id: spell.id, name: spell.name, level: spell.level },

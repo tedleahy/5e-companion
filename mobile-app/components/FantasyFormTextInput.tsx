@@ -70,8 +70,9 @@ export function FantasyFormTextInput({
             style={[styles.input, style]}
             contentStyle={[multiline ? styles.multilineContent : null, contentStyle]}
             textColor={fantasyTokens.colors.inkDark}
+            theme={{ colors: { error: fantasyTokens.colors.crimson } }}
             outlineColor={error ? fantasyTokens.colors.crimson : fantasyTokens.colors.gold}
-            activeOutlineColor={fantasyTokens.colors.crimson}
+            activeOutlineColor={error ? fantasyTokens.colors.crimson : fantasyTokens.colors.gold}
         />
     );
 

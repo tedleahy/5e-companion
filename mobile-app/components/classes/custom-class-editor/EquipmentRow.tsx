@@ -6,6 +6,7 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
 import { nightFormStyles } from '@/theme/nightFormStyles';
 import CardRemoveButton from './CardRemoveButton';
 import type { EquipmentEntry } from './draft';
+import { CUSTOM_CLASS_EQUIPMENT_NAME_MAX_LENGTH } from './limits';
 
 type EquipmentRowProps = {
     item: EquipmentEntry;
@@ -34,6 +35,7 @@ export default function EquipmentRow({
                     editable={!locked}
                     placeholder="Item name"
                     accessibilityLabel="Equipment name"
+                    maxLength={CUSTOM_CLASS_EQUIPMENT_NAME_MAX_LENGTH}
                     testID={`equipment-name-${item.key}`}
                     onChangeText={(name) => onChange({ ...item, name })}
                 />

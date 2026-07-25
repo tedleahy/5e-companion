@@ -11,7 +11,6 @@ import { useQuery } from '@apollo/client/react';
 import type {
     AttachedClassDetailsQuery,
     AvailableClassesQuery,
-    CustomClassesQuery,
     SkillProficiencies,
 } from '@/types/generated_graphql_types';
 import { registerUnsavedChanges, unregisterUnsavedChanges } from '@/lib/unsavedChanges';
@@ -54,7 +53,7 @@ import {
 } from '@/lib/characterClassSummary';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
 import type { OptionItem } from '@/lib/characterCreation/options';
-import { GET_ATTACHED_CLASS_DETAILS, GET_AVAILABLE_CLASSES, GET_CUSTOM_CLASSES } from '@/graphql/class.operations';
+import { GET_ATTACHED_CLASS_DETAILS, GET_AVAILABLE_CLASSES } from '@/graphql/class.operations';
 import { isAbilityKey, skillModifier } from '@/lib/characterSheetUtils';
 import type { CharacterSheetDraftTraitTextField } from '@/lib/character-sheet/characterSheetDraft';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -86,12 +85,6 @@ export default function CharacterByIdScreen() {
     const router = useRouter();
     const navigation = useNavigation();
     const characterId = normaliseCharacterId(id);
-    const { data: availableClassData } = useQuery<AvailableClassesQuery>(GET_AVAILABLE_CLASSES, { fetchPolicy: 'cache-first' });
-    const { data: customClassData } = useQuery<CustomClassesQuery>(GET_CUSTOM_CLASSES, { fetchPolicy: 'cache-first' });
-    const levelUpClassOptions = useMemo<OptionItem[]>(() => (availableClassData?.availableClasses ?? []).map((classRef) => {
-        const visual = CLASS_OPTIONS.find((option) => option.value === classRef.srdIndex);
-        return { value: classRef.value, label: classRef.name, icon: visual?.icon ?? '⚔️', hint: classRef.primaryAbilityIndexes.map((ability) => ability.toUpperCase()).join(' / '), hitDie: classRef.hitDie, multiclassPrerequisites: classRef.multiclassPrerequisites.map((rule) => ({ ...rule })), classDefinition: customClassData?.customClasses.find((customClass) => customClass.id === classRef.id) };
-    }), [availableClassData, customClassData]);
     const {
         character,
         hasCurrentUserCharacters,
@@ -109,46 +102,84 @@ export default function CharacterByIdScreen() {
         handleSaveCharacterSheet,
         handleToggleEquip,
     } = useCharacterSheetData(characterId);
-    // Class ids the character is already levelled into but that `levelUpClassOptions`
-    // doesn't cover — i.e. custom classes the owner has since archived. Archived classes
-    // are correctly excluded from the "add a new class" picker, but a character already
-    // in one still needs its full definition (progression, features, spellcasting) to
-    // level up accurately, so it's loaded separately via `attachedClassDetails`.
-    const attachedOnlyClassIds = useMemo(() => {
-        // Wait for `availableClasses` to load first — otherwise every id would
-        // briefly look "unknown" on the first render and trigger a wasted query.
-        if (!character || !availableClassData) return [];
-        const knownValues = new Set(levelUpClassOptions.map((option) => option.value));
+    const { data: availableClassData } = useQuery<AvailableClassesQuery>(GET_AVAILABLE_CLASSES, { fetchPolicy: 'cache-first' });
+    // Extra custom-class ids selected during level-up (e.g. multiclass into a custom class
+    // the character is not yet attached to). Character-attached custom classes are always
+    // included below; we never load the unbounded customClasses full graph for level-up.
+    const [selectedCustomClassDetailIds, setSelectedCustomClassDetailIds] = useState<string[]>([]);
+    const availableByValue = useMemo(() => {
+        const map = new Map<string, AvailableClassesQuery['availableClasses'][number]>();
+        for (const classRef of availableClassData?.availableClasses ?? []) {
+            map.set(classRef.value, classRef);
+            map.set(classRef.id, classRef);
+        }
+        return map;
+    }, [availableClassData]);
+    const characterAttachedCustomClassIds = useMemo(() => {
+        if (!character) return [];
+        // Wait for availableClasses so SRD attachments are not treated as "unknown custom".
+        if (!availableClassData) return [];
         return Array.from(new Set(
             character.classes
                 .map((classRow) => classRow.classId)
-                .filter((classId) => !knownValues.has(classId)),
+                .filter((classId) => {
+                    const available = availableByValue.get(classId);
+                    return !available || available.isCustom;
+                }),
         ));
-    }, [character, availableClassData, levelUpClassOptions]);
+    }, [character, availableClassData, availableByValue]);
+    const customClassDetailIds = useMemo(
+        () => Array.from(new Set([...characterAttachedCustomClassIds, ...selectedCustomClassDetailIds])),
+        [characterAttachedCustomClassIds, selectedCustomClassDetailIds],
+    );
     const { data: attachedClassDetailsData } = useQuery<AttachedClassDetailsQuery>(GET_ATTACHED_CLASS_DETAILS, {
-        variables: { values: attachedOnlyClassIds },
-        skip: attachedOnlyClassIds.length === 0,
+        variables: { values: customClassDetailIds },
+        skip: customClassDetailIds.length === 0,
         fetchPolicy: 'cache-first',
     });
+    const classDetailsByValue = useMemo(() => {
+        const map = new Map<string, AttachedClassDetailsQuery['attachedClassDetails'][number]>();
+        for (const details of attachedClassDetailsData?.attachedClassDetails ?? []) {
+            map.set(details.value, details);
+            map.set(details.id, details);
+        }
+        return map;
+    }, [attachedClassDetailsData]);
     /**
-     * `levelUpClassOptions` plus hidden entries for archived classes the character is
-     * already levelled into. `hiddenFromNewClassPicker` keeps them out of the
-     * "choose a class to multiclass into" grid while still letting `useLevelUpWizard`
-     * resolve `classDefinition` for the character's existing class rows.
+     * Lightweight available-class picker options, enriched with full definitions only for
+     * custom classes that are character-attached or explicitly selected for level-up.
+     * Archived attached customs that left `availableClasses` appear as hidden options.
      */
     const levelUpClassOptionsWithAttached = useMemo<OptionItem[]>(() => {
-        const attachedOnlyOptions = (attachedClassDetailsData?.attachedClassDetails ?? []).map((classDetail) => ({
-            value: classDetail.value,
-            label: classDetail.name,
-            icon: classDetail.emoji,
-            hint: classDetail.primaryAbilityIndexes.map((ability) => ability.toUpperCase()).join(' / '),
-            hitDie: classDetail.hitDie,
-            multiclassPrerequisites: classDetail.multiclassPrerequisites.map((rule) => ({ ...rule })),
-            classDefinition: classDetail,
-            hiddenFromNewClassPicker: true,
-        }));
-        return [...levelUpClassOptions, ...attachedOnlyOptions];
-    }, [levelUpClassOptions, attachedClassDetailsData]);
+        const fromAvailable = (availableClassData?.availableClasses ?? []).map((classRef) => {
+            const visual = CLASS_OPTIONS.find((option) => option.value === classRef.srdIndex);
+            return {
+                value: classRef.value,
+                label: classRef.name,
+                icon: visual?.icon ?? classRef.emoji ?? '⚔️',
+                hint: classRef.primaryAbilityIndexes.map((ability) => ability.toUpperCase()).join(' / '),
+                hitDie: classRef.hitDie,
+                multiclassPrerequisites: classRef.multiclassPrerequisites.map((rule) => ({ ...rule })),
+                classDefinition: classRef.isCustom
+                    ? classDetailsByValue.get(classRef.value) ?? classDetailsByValue.get(classRef.id)
+                    : undefined,
+            };
+        });
+        const knownValues = new Set(fromAvailable.map((option) => option.value));
+        const attachedOnlyOptions = (attachedClassDetailsData?.attachedClassDetails ?? [])
+            .filter((classDetail) => !knownValues.has(classDetail.value))
+            .map((classDetail) => ({
+                value: classDetail.value,
+                label: classDetail.name,
+                icon: classDetail.emoji,
+                hint: classDetail.primaryAbilityIndexes.map((ability) => ability.toUpperCase()).join(' / '),
+                hitDie: classDetail.hitDie,
+                multiclassPrerequisites: classDetail.multiclassPrerequisites.map((rule) => ({ ...rule })),
+                classDefinition: classDetail,
+                hiddenFromNewClassPicker: true,
+            }));
+        return [...fromAvailable, ...attachedOnlyOptions];
+    }, [availableClassData, classDetailsByValue, attachedClassDetailsData]);
     const {
         draft,
         editMode,
@@ -224,6 +255,24 @@ export default function CharacterByIdScreen() {
     const { confirm, confirmDialogElement } = useConfirm();
     const levelUpWizard = useLevelUpWizard(wizardCharacter, levelUpSheetVisible, availableSubclasses, levelUpClassOptionsWithAttached.length > 0 ? levelUpClassOptionsWithAttached : CLASS_OPTIONS);
     const levelUpAvailableSubclasses = availableSubclassesByClassId[levelUpWizard.selectedClass.classId] ?? [];
+
+    // When the level-up picker selects a custom class the character is not yet in,
+    // fetch that class's full definition (without loading every custom class up front).
+    useEffect(() => {
+        if (!levelUpSheetVisible) return;
+        const candidateId = levelUpWizard.pickerSelectedClassId ?? levelUpWizard.selectedClassId;
+        if (!candidateId) return;
+        const available = availableByValue.get(candidateId);
+        if (!available?.isCustom) return;
+        setSelectedCustomClassDetailIds((previous) => (
+            previous.includes(candidateId) ? previous : [...previous, candidateId]
+        ));
+    }, [
+        levelUpSheetVisible,
+        levelUpWizard.pickerSelectedClassId,
+        levelUpWizard.selectedClassId,
+        availableByValue,
+    ]);
 
     useEffect(() => {
         if (isUnauthenticated) router.replace('/(auth)/sign-in');

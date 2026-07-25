@@ -674,7 +674,7 @@ export type Query = {
   classDetails?: Maybe<ClassDetails>;
   compendiumCounts: CompendiumCounts;
   currentUserCharacters: Array<Character>;
-  customClasses: Array<ClassDetails>;
+  customClasses: Array<AvailableClass>;
   customSubclasses: Array<CustomSubclass>;
   hasCurrentUserCharacters: Scalars['Boolean']['output'];
   proficiencies: Array<ProficiencyRef>;
@@ -1512,7 +1512,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   classDetails?: Resolver<Maybe<ResolversTypes['ClassDetails']>, ParentType, ContextType, RequireFields<QueryClassDetailsArgs, 'value'>>;
   compendiumCounts?: Resolver<ResolversTypes['CompendiumCounts'], ParentType, ContextType>;
   currentUserCharacters?: Resolver<Array<ResolversTypes['Character']>, ParentType, ContextType>;
-  customClasses?: Resolver<Array<ResolversTypes['ClassDetails']>, ParentType, ContextType>;
+  customClasses?: Resolver<Array<ResolversTypes['AvailableClass']>, ParentType, ContextType>;
   customSubclasses?: Resolver<Array<ResolversTypes['CustomSubclass']>, ParentType, ContextType, Partial<QueryCustomSubclassesArgs>>;
   hasCurrentUserCharacters?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   proficiencies?: Resolver<Array<ResolversTypes['ProficiencyRef']>, ParentType, ContextType, Partial<QueryProficienciesArgs>>;

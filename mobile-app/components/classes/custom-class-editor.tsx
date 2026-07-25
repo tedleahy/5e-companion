@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client/react';
-import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
+import { useCallback, useEffect, useRef, useState, type ComponentRef } from 'react';
 import { StyleSheet, useWindowDimensions } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -12,6 +12,7 @@ import useDismissKeyboardAction from '@/hooks/useDismissKeyboardAction';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { createDraft, identityFieldErrors, serialiseDraft, stageError } from './custom-class-editor/draft';
+import { applyDraftPatch, isEditorSessionOpenChange } from './custom-class-editor/editorSession';
 import EditorChrome from './custom-class-editor/EditorChrome';
 import EquipmentStage from './custom-class-editor/EquipmentStage';
 import FeaturesStage from './custom-class-editor/FeaturesStage';
@@ -26,8 +27,8 @@ import { STAGES } from './custom-class-editor/types';
  * Bottom-sheet editor for creating or editing a custom class across six stages.
  */
 export default function CustomClassEditor({ visible, initial, onClose, onSaved }: CustomClassEditorProps) {
-    const initialDraft = useMemo(() => createDraft(initial), [initial]);
-    const [draft, setDraft] = useState(initialDraft);
+    const [draft, setDraft] = useState(() => createDraft(initial));
+    const [dirty, setDirty] = useState(false);
     const [stage, setStage] = useState(0);
     const [progressionLevel, setProgressionLevel] = useState(1);
     const [validationMessage, setValidationMessage] = useState<string | null>(null);
@@ -36,15 +37,17 @@ export default function CustomClassEditor({ visible, initial, onClose, onSaved }
     const [updateClass, updateState] = useMutation(UPDATE_CUSTOM_CLASS);
     const pending = createState.loading || updateState.loading;
     const locked = initial?.mechanicsLocked ?? false;
-    const dirty = JSON.stringify(draft) !== JSON.stringify(initialDraft);
 
     const scrollViewRef = useRef<ComponentRef<typeof KeyboardAwareScrollView>>(null);
     const skipDiscardCheckRef = useRef(false);
     const dirtyRef = useRef(dirty);
+    const wasVisibleRef = useRef(false);
+    const initialRef = useRef(initial);
     const requestSheetCloseRef = useRef<() => void>(() => {});
     const { height: windowHeight } = useWindowDimensions();
     const dismissKeyboardAndRun = useDismissKeyboardAction();
 
+    initialRef.current = initial;
     dirtyRef.current = dirty;
 
     /**
@@ -74,15 +77,19 @@ export default function CustomClassEditor({ visible, initial, onClose, onSaved }
 
     requestSheetCloseRef.current = requestSheetClose;
 
-    // Start each opening from a clean draft so reopening for another class never shows stale edits.
+    // Seed a new draft only when the sheet opens — not when a parent re-renders with
+    // an equivalent `initial` object identity (Apollo cache updates, list refreshes).
     useEffect(() => {
-        if (!visible) return;
-        setDraft(initialDraft);
-        setStage(0);
-        setProgressionLevel(1);
-        setValidationMessage(null);
-        setDiscardVisible(false);
-    }, [visible, initialDraft]);
+        if (isEditorSessionOpenChange(visible, wasVisibleRef.current)) {
+            setDraft(createDraft(initialRef.current));
+            setDirty(false);
+            setStage(0);
+            setProgressionLevel(1);
+            setValidationMessage(null);
+            setDiscardVisible(false);
+        }
+        wasVisibleRef.current = visible;
+    }, [visible]);
 
     useEffect(() => {
         if (!visible) return;
@@ -90,7 +97,11 @@ export default function CustomClassEditor({ visible, initial, onClose, onSaved }
     }, [visible, stage]);
 
     function update(patch: Partial<Draft>) {
-        setDraft((value) => ({ ...value, ...patch }));
+        setDraft((value) => {
+            const { next } = applyDraftPatch(value, patch);
+            return next;
+        });
+        setDirty(true);
         setValidationMessage(null);
     }
 
@@ -133,6 +144,7 @@ export default function CustomClassEditor({ visible, initial, onClose, onSaved }
                 });
             }
             onSaved?.();
+            setDirty(false);
             skipDiscardCheckRef.current = true;
             requestSheetCloseRef.current();
             skipDiscardCheckRef.current = false;

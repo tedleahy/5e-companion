@@ -12,6 +12,7 @@ import {
 import CardRemoveButton from './CardRemoveButton';
 import EquipmentRow from './EquipmentRow';
 import { fieldStyles } from './fields';
+import { canAddEquipmentEntry, STARTING_EQUIPMENT_REFERENCE_COPY } from './limits';
 
 type EquipmentEditorProps = {
     fixedItems: EquipmentEntry[];
@@ -23,6 +24,7 @@ type EquipmentEditorProps = {
 
 /**
  * Editor for starting equipment: fixed grants plus choice groups.
+ * Definitions are reference metadata only — they are not written to inventory.
  */
 export default function EquipmentEditor({
     fixedItems,
@@ -31,6 +33,10 @@ export default function EquipmentEditor({
     onChangeFixed,
     onChangeChoiceGroups,
 }: EquipmentEditorProps) {
+    const equipmentCount = fixedItems.length
+        + choiceGroups.reduce((total, group) => total + group.items.length, 0);
+    const canAddEquipment = !locked && canAddEquipmentEntry(equipmentCount);
+
     function updateFixed(key: string, item: EquipmentEntry) {
         onChangeFixed(fixedItems.map((entry) => (entry.key === key ? item : entry)));
     }
@@ -40,6 +46,7 @@ export default function EquipmentEditor({
     }
 
     function addFixed() {
+        if (!canAddEquipment) return;
         onChangeFixed([...fixedItems, { key: newEquipmentKey(), name: '', quantity: 1 }]);
     }
 
@@ -78,6 +85,7 @@ export default function EquipmentEditor({
     }
 
     function addOption(choiceGroup: number) {
+        if (!canAddEquipment) return;
         const group = choiceGroups.find((entry) => entry.choiceGroup === choiceGroup);
         if (!group) return;
         updateGroup(choiceGroup, {
@@ -86,6 +94,7 @@ export default function EquipmentEditor({
     }
 
     function addChoiceGroup() {
+        if (!canAddEquipment) return;
         onChangeChoiceGroups([
             ...choiceGroups,
             {
@@ -100,8 +109,8 @@ export default function EquipmentEditor({
         <View style={styles.root} testID="equipment-editor">
             <View style={styles.intro}>
                 <Text style={fieldStyles.label}>Starting equipment</Text>
-                <Text style={fieldStyles.helper}>
-                    Gear every member starts with, plus optional pick-N choice groups.
+                <Text style={fieldStyles.helper} testID="equipment-reference-copy">
+                    {STARTING_EQUIPMENT_REFERENCE_COPY}
                 </Text>
             </View>
 
@@ -129,7 +138,7 @@ export default function EquipmentEditor({
                         ))}
                     </View>
                 )}
-                {!locked ? (
+                {canAddEquipment ? (
                     <Pressable
                         style={styles.addButton}
                         testID="add-fixed-equipment"
@@ -202,7 +211,7 @@ export default function EquipmentEditor({
                                 />
                             ))}
                         </View>
-                        {!locked ? (
+                        {canAddEquipment ? (
                             <Pressable
                                 style={styles.ghostAdd}
                                 onPress={() => addOption(group.choiceGroup)}
@@ -212,7 +221,7 @@ export default function EquipmentEditor({
                         ) : null}
                     </View>
                 ))}
-                {!locked ? (
+                {canAddEquipment ? (
                     <Pressable
                         style={styles.addButton}
                         testID="add-equipment-choice-group"

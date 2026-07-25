@@ -10,6 +10,18 @@ import type {
 } from '../../generated/graphql';
 import { requireUser } from '../../lib/auth';
 import prisma from '../../prisma/prisma';
+import {
+    CUSTOM_CLASS_DESCRIPTION_MAX_LENGTH,
+    CUSTOM_CLASS_EMOJI_MAX_LENGTH,
+    CUSTOM_CLASS_EQUIPMENT_MAX_COUNT,
+    CUSTOM_CLASS_EQUIPMENT_NAME_MAX_LENGTH,
+    CUSTOM_CLASS_FEATURE_DESCRIPTION_MAX_LENGTH,
+    CUSTOM_CLASS_FEATURE_MAX_COUNT,
+    CUSTOM_CLASS_FEATURE_NAME_MAX_LENGTH,
+    CUSTOM_CLASS_NAME_MAX_LENGTH,
+    CUSTOM_CLASS_PROFICIENCY_MAX_COUNT,
+    CUSTOM_CLASS_SPELL_LIST_MAX_COUNT,
+} from '../../../shared/constants/customClassLimits';
 
 const ABILITY_INDEXES = new Set(['str', 'dex', 'con', 'int', 'wis', 'cha']);
 const SPELLCASTING_MODES = new Set<ClassSpellcastingMode>(['NONE', 'STANDARD', 'PACT_MAGIC']);
@@ -155,7 +167,15 @@ export function normaliseClassInput(input: ManagedCustomClassInput) {
     const addSpellcastingAbility = spellcastingMode === 'NONE' ? false : Boolean(input.addSpellcastingAbility);
 
     if (!name || !emoji || !description) throw new Error('Name, emoji, and description are required.');
-    if (emoji.length > 32) throw new Error('Emoji must be 32 characters or fewer.');
+    if (name.length > CUSTOM_CLASS_NAME_MAX_LENGTH) {
+        throw new Error(`Name must be ${CUSTOM_CLASS_NAME_MAX_LENGTH} characters or fewer.`);
+    }
+    if (description.length > CUSTOM_CLASS_DESCRIPTION_MAX_LENGTH) {
+        throw new Error(`Description must be ${CUSTOM_CLASS_DESCRIPTION_MAX_LENGTH} characters or fewer.`);
+    }
+    if (emoji.length > CUSTOM_CLASS_EMOJI_MAX_LENGTH) {
+        throw new Error(`Emoji must be ${CUSTOM_CLASS_EMOJI_MAX_LENGTH} characters or fewer.`);
+    }
     if (![6, 8, 10, 12].includes(hitDie)) throw new Error('Hit die must be d6, d8, d10, or d12.');
     if (primaryAbilityIndexes.length === 0 || primaryAbilityIndexes.some((value) => !ABILITY_INDEXES.has(value))) {
         throw new Error('Primary abilities must use valid ability indexes.');
@@ -186,6 +206,9 @@ export function normaliseClassInput(input: ManagedCustomClassInput) {
         choiceGroup: rule.choiceGroup == null ? null : Number(rule.choiceGroup),
         choiceCount: rule.choiceCount == null ? null : Number(rule.choiceCount),
     }));
+    if (proficiencies.length > CUSTOM_CLASS_PROFICIENCY_MAX_COUNT) {
+        throw new Error(`Proficiency rules are limited to ${CUSTOM_CLASS_PROFICIENCY_MAX_COUNT} entries.`);
+    }
     if (proficiencies.some((rule) => !rule.value || !PROFICIENCY_GRANTS.has(rule.grant)
         || (rule.choiceGroup == null) !== (rule.choiceCount == null))) {
         throw new Error('Invalid class proficiency definition.');
@@ -214,6 +237,12 @@ export function normaliseClassInput(input: ManagedCustomClassInput) {
         choiceGroup: item.choiceGroup == null ? null : Number(item.choiceGroup),
         choiceCount: item.choiceCount == null ? null : Number(item.choiceCount),
     }));
+    if (equipment.length > CUSTOM_CLASS_EQUIPMENT_MAX_COUNT) {
+        throw new Error(`Starting equipment is limited to ${CUSTOM_CLASS_EQUIPMENT_MAX_COUNT} entries.`);
+    }
+    if (equipment.some((item) => item.name.length > CUSTOM_CLASS_EQUIPMENT_NAME_MAX_LENGTH)) {
+        throw new Error(`Equipment names must be ${CUSTOM_CLASS_EQUIPMENT_NAME_MAX_LENGTH} characters or fewer.`);
+    }
     if (equipment.some((item) => !item.name || !Number.isInteger(item.quantity) || item.quantity < 1
         || (item.choiceGroup == null) !== (item.choiceCount == null))) {
         throw new Error('Invalid starting equipment definition.');
@@ -253,6 +282,9 @@ export function normaliseClassInput(input: ManagedCustomClassInput) {
         for (const level of levels) assertValidPactMagicSlots(level.spellSlots);
     }
 
+    if (input.features.length > CUSTOM_CLASS_FEATURE_MAX_COUNT) {
+        throw new Error(`Class features are limited to ${CUSTOM_CLASS_FEATURE_MAX_COUNT}.`);
+    }
     const featureKeys = new Set<string>();
     const features = input.features.map((feature, index) => {
         const id = feature.id?.trim() || null;
@@ -263,15 +295,26 @@ export function normaliseClassInput(input: ManagedCustomClassInput) {
         if (!featureName || !featureDescription || !Number.isInteger(level) || level < 1 || level > 20) {
             throw new Error(`Feature ${index + 1} is invalid.`);
         }
+        if (featureName.length > CUSTOM_CLASS_FEATURE_NAME_MAX_LENGTH) {
+            throw new Error(`Feature ${index + 1} name must be ${CUSTOM_CLASS_FEATURE_NAME_MAX_LENGTH} characters or fewer.`);
+        }
+        if (featureDescription.length > CUSTOM_CLASS_FEATURE_DESCRIPTION_MAX_LENGTH) {
+            throw new Error(`Feature ${index + 1} description must be ${CUSTOM_CLASS_FEATURE_DESCRIPTION_MAX_LENGTH} characters or fewer.`);
+        }
         if (featureKeys.has(key)) throw new Error(`Duplicate feature "${featureName}" at level ${level}.`);
         featureKeys.add(key);
         return { id, name: featureName, description: featureDescription, level };
     });
 
+    const spellIds = uniqueStrings(input.spellIds, 'Spell list');
+    if (spellIds.length > CUSTOM_CLASS_SPELL_LIST_MAX_COUNT) {
+        throw new Error(`Class spell list is limited to ${CUSTOM_CLASS_SPELL_LIST_MAX_COUNT} spells.`);
+    }
+
     return {
         name, emoji, description, hitDie, primaryAbilityIndexes, savingThrowIndexes,
         multiclassPrerequisites, proficiencies, equipment, spellcastingMode, spellcastingAbility,
-        addSpellcastingAbility, levels, features, spellIds: uniqueStrings(input.spellIds, 'Spell list'),
+        addSpellcastingAbility, levels, features, spellIds,
     };
 }
 
@@ -498,12 +541,14 @@ export async function classDetails(_parent: unknown, { value }: QueryClassDetail
 /**
  * Batch-loads full class definitions for a character's attached class ids,
  * regardless of archived status. Unlike {@link availableClasses} and
- * {@link customClasses}, this does not filter out archived rows: a custom
+ * {@link customClasses} (which return lightweight summaries and exclude
+ * archived rows), this does not filter out archived rows: a custom
  * class a character is already levelled into must keep exposing its full
  * mechanics (progression, features, spellcasting) even after the owner
  * archives it, so level-up derivation never silently loses data. Callers
- * resolve which ids to request by inspecting `Character.classes`, so this
- * never surfaces archived classes as options for a *new* class pick.
+ * resolve which ids to request by inspecting `Character.classes` (and any
+ * newly selected custom class during level-up), so this never surfaces
+ * archived classes as options for a *new* class pick.
  */
 export async function attachedClassDetails(_parent: unknown, { values }: QueryAttachedClassDetailsArgs, ctx: Context) {
     const userId = requireUser(ctx);
@@ -517,8 +562,29 @@ export async function attachedClassDetails(_parent: unknown, { values }: QueryAt
 
 export async function customClasses(_parent: unknown, _args: unknown, ctx: Context) {
     const userId = requireUser(ctx);
-    const rows = await prisma.class.findMany({ where: { ownerUserId: userId, archivedAt: null }, orderBy: { name: 'asc' }, include: CLASS_DETAILS_INCLUDE });
-    return rows.map(mapClassDetails);
+    const rows = await prisma.class.findMany({
+        where: { ownerUserId: userId, archivedAt: null },
+        orderBy: { name: 'asc' },
+    });
+    return rows.map((row) => ({
+        id: row.id,
+        value: row.srdIndex ?? row.id,
+        srdIndex: row.srdIndex,
+        name: row.name,
+        emoji: row.emoji,
+        description: row.description,
+        hitDie: row.hitDie ?? 0,
+        primaryAbilityIndexes: row.primaryAbilityIndexes,
+        savingThrowIndexes: row.savingThrowIndexes,
+        spellcastingMode: row.spellcastingMode,
+        spellcastingAbility: row.spellcastingAbility,
+        multiclassPrerequisites: jsonArray(row.multiclassPrerequisites).map((rule) => ({
+            abilityIndex: String(rule.abilityIndex ?? ''),
+            minimum: Number(rule.minimum),
+            group: Number(rule.group),
+        })),
+        isCustom: true,
+    }));
 }
 
 export async function createCustomClass(_parent: unknown, { input }: MutationCreateCustomClassArgs, ctx: Context) {

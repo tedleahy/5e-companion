@@ -1,4 +1,4 @@
-import { canonicaliseProgressionForSubmit, createDraft, emptyProgression, serialiseDraft } from '../draft';
+import { canonicaliseProgressionForSubmit, createDraft, emptyProgression, serialiseDraft, stageError } from '../draft';
 import type { Draft } from '../types';
 
 /** Builds a minimal draft with a fully populated progression for canonicalisation tests. */
@@ -97,5 +97,21 @@ describe('serialiseDraft spellcasting canonicalisation', () => {
         const submitted = serialiseDraft(draft);
 
         expect(submitted.progression[2]?.spellSlots.filter((slot) => slot > 0)).toHaveLength(1);
+    });
+});
+
+describe('serialiseDraft and shared limits', () => {
+    test('stageError rejects drafts that exceed shared payload limits before submit', () => {
+        const draft = draftWithProgression('NONE');
+        draft.name = 'A'.repeat(101);
+        expect(stageError(0, draft)).toMatch(/Class name must be/);
+
+        draft.name = 'Warden';
+        draft.spells = Array.from({ length: 101 }, (_, index) => ({
+            id: `spell-${index}`,
+            name: `Spell ${index}`,
+            level: 1,
+        }));
+        expect(stageError(4, draft)).toMatch(/Class spell list is limited/);
     });
 });

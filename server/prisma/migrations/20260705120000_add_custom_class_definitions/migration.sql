@@ -8,6 +8,8 @@ ADD COLUMN "savingThrowIndexes" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
 ADD COLUMN "multiclassPrerequisites" JSONB,
 ADD COLUMN "startingEquipment" JSONB,
 ADD COLUMN "spellcastingMode" "ClassSpellcastingMode" NOT NULL DEFAULT 'NONE',
+ADD COLUMN "addSpellcastingAbility" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "emoji" TEXT NOT NULL DEFAULT '⚔️',
 ADD COLUMN "archivedAt" TIMESTAMP(3);
 
 CREATE TABLE "ClassLevelProgression" (
@@ -19,7 +21,6 @@ CREATE TABLE "ClassLevelProgression" (
     "cantripsKnown" INTEGER,
     "spellsKnown" INTEGER,
     "preparedSpellCount" INTEGER,
-    "addSpellcastingAbility" BOOLEAN NOT NULL DEFAULT false,
     "classSpecific" JSONB,
     CONSTRAINT "ClassLevelProgression_pkey" PRIMARY KEY ("id")
 );

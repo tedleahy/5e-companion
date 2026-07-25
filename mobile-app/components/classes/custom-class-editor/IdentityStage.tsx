@@ -1,6 +1,11 @@
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { AbilityPicker, Chip, Field, fieldStyles } from './fields';
+import {
+    CUSTOM_CLASS_DESCRIPTION_MAX_LENGTH,
+    CUSTOM_CLASS_EMOJI_MAX_LENGTH,
+    CUSTOM_CLASS_NAME_MAX_LENGTH,
+} from './limits';
 import type { IdentityStageProps } from './types';
 
 /**
@@ -24,6 +29,7 @@ export default function IdentityStage({ draft, locked, errors = {}, onChange }: 
                 label="Class name"
                 value={draft.name}
                 editable={!locked}
+                maxLength={CUSTOM_CLASS_NAME_MAX_LENGTH}
                 errorMessage={errors.name}
                 onChangeText={(name) => onChange({ name })}
             />
@@ -33,7 +39,7 @@ export default function IdentityStage({ draft, locked, errors = {}, onChange }: 
                 helper="Shown on class selection tiles."
                 value={draft.emoji}
                 errorMessage={errors.emoji}
-                maxLength={32}
+                maxLength={CUSTOM_CLASS_EMOJI_MAX_LENGTH}
                 onChangeText={(emoji) => onChange({ emoji })}
             />
             <Field
@@ -43,6 +49,7 @@ export default function IdentityStage({ draft, locked, errors = {}, onChange }: 
                 numberOfLines={6}
                 style={fieldStyles.textArea}
                 editable={!locked}
+                maxLength={CUSTOM_CLASS_DESCRIPTION_MAX_LENGTH}
                 errorMessage={errors.description}
                 onChangeText={(description) => onChange({ description })}
             />

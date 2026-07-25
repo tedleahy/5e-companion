@@ -46,6 +46,11 @@ type ProficiencyPickerSheetProps = {
     excludedValues?: string[];
     /** When true, hide the Armor/Weapons/… filter chips (caller already scoped options). */
     hideTypeFilters?: boolean;
+    /**
+     * Hard cap on how many values may be selected in this picker session.
+     * Deselect always works; selecting another value is blocked at the limit.
+     */
+    maxSelected?: number;
     onConfirm: (values: string[]) => void;
     onClose: () => void;
 };
@@ -60,6 +65,7 @@ export default function ProficiencyPickerSheet({
     initiallySelected,
     excludedValues = [],
     hideTypeFilters = false,
+    maxSelected,
     onConfirm,
     onClose,
 }: ProficiencyPickerSheetProps) {
@@ -70,6 +76,9 @@ export default function ProficiencyPickerSheet({
     const { confirm, confirmDialogElement } = useConfirm();
     const skipDiscardCheckRef = useRef(false);
     const requestSheetCloseRef = useRef<() => void>(() => {});
+
+    const selectionCap = maxSelected ?? Number.POSITIVE_INFINITY;
+    const atSelectionCap = selected.length >= selectionCap;
 
     const isDirty = useMemo(
         () => selected.length !== initiallySelected.length
@@ -132,9 +141,15 @@ export default function ProficiencyPickerSheet({
     }, [excluded, options, search, selected, typeFilter]);
 
     function toggle(value: string) {
-        setSelected((current) =>
-            current.includes(value) ? current.filter((entry) => entry !== value) : [...current, value],
-        );
+        setSelected((current) => {
+            if (current.includes(value)) {
+                return current.filter((entry) => entry !== value);
+            }
+            if (current.length >= selectionCap) {
+                return current;
+            }
+            return [...current, value];
+        });
     }
 
     function confirmSelection() {
@@ -150,7 +165,12 @@ export default function ProficiencyPickerSheet({
         : `${filtered.length} matches`;
     const selectionLabel = selectedCount === 0
         ? 'Tap rows to select'
-        : `${selectedCount} selected`;
+        : Number.isFinite(selectionCap)
+            ? `${selectedCount} of ${selectionCap} selected`
+            : `${selectedCount} selected`;
+    const limitHint = atSelectionCap && Number.isFinite(selectionCap)
+        ? 'Proficiency limit reached — remove a selection before adding another.'
+        : null;
 
     return (
         <>
@@ -199,6 +219,11 @@ export default function ProficiencyPickerSheet({
                             {selectionLabel}
                         </Text>
                     </View>
+                    {limitHint ? (
+                        <Text style={styles.limitHint} testID="proficiency-picker-limit-hint">
+                            {limitHint}
+                        </Text>
+                    ) : null}
 
                     <ScrollView
                         style={styles.list}
@@ -209,6 +234,7 @@ export default function ProficiencyPickerSheet({
                     >
                         {filtered.map((option) => {
                             const isSelected = selected.includes(option.value);
+                            const selectionBlocked = !isSelected && atSelectionCap;
                             const category = CATEGORY_BY_TYPE.get(
                                 option.type as (typeof PROFICIENCY_CATEGORIES)[number]['type'],
                             );
@@ -220,14 +246,16 @@ export default function ProficiencyPickerSheet({
                                     key={option.value}
                                     testID={`proficiency-option-${option.value}`}
                                     onPress={() => toggle(option.value)}
+                                    disabled={selectionBlocked}
                                     style={({ pressed }) => [
                                         styles.option,
                                         isSelected && styles.optionSelected,
-                                        pressed && !isSelected && styles.optionPressed,
+                                        selectionBlocked && styles.optionBlocked,
+                                        pressed && !isSelected && !selectionBlocked && styles.optionPressed,
                                     ]}
                                     accessibilityRole="checkbox"
-                                    accessibilityState={{ checked: isSelected }}
-                                    accessibilityLabel={`${option.name}${isSelected ? ', selected' : ''}`}
+                                    accessibilityState={{ checked: isSelected, disabled: selectionBlocked }}
+                                    accessibilityLabel={`${option.name}${isSelected ? ', selected' : ''}${selectionBlocked ? ', limit reached' : ''}`}
                                 >
                                     <View style={[styles.iconBadge, isSelected && styles.iconBadgeSelected]}>
                                         <Text style={styles.iconBadgeText}>{category?.icon ?? '✨'}</Text>
@@ -371,6 +399,13 @@ const styles = StyleSheet.create({
         borderColor: fantasyTokens.colors.gold,
         backgroundColor: fantasyTokens.colors.crimsonSoft,
         boxShadow: fantasyTokens.sheet.form.glow,
+    },
+    optionBlocked: {
+        opacity: 0.55,
+    },
+    limitHint: {
+        ...fantasyTokens.typography.bodySmall,
+        color: fantasyTokens.colors.goldLight,
     },
     iconBadge: {
         width: fantasyTokens.spacing.xl + fantasyTokens.spacing.sm,

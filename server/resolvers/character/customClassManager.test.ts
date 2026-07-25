@@ -140,6 +140,45 @@ describe('custom class input validation', () => {
         ];
         expect(() => normaliseClassInput(input)).toThrow('requests 2 picks from 1 options');
     });
+
+    test('rejects oversized name, description, equipment, feature, and spell payloads', () => {
+        const longName = validInput();
+        longName.name = 'A'.repeat(101);
+        expect(() => normaliseClassInput(longName)).toThrow('Name must be 100 characters or fewer.');
+
+        const longDescription = validInput();
+        longDescription.description = 'A'.repeat(10001);
+        expect(() => normaliseClassInput(longDescription)).toThrow('Description must be 10000 characters or fewer.');
+
+        const tooMuchEquipment = validInput();
+        tooMuchEquipment.equipment = Array.from({ length: 41 }, (_, index) => ({
+            name: `Item ${index}`,
+            quantity: 1,
+            choiceGroup: null,
+            choiceCount: null,
+        }));
+        expect(() => normaliseClassInput(tooMuchEquipment)).toThrow('Starting equipment is limited to 40 entries.');
+
+        const longEquipmentName = validInput();
+        longEquipmentName.equipment = [{ name: 'A'.repeat(101), quantity: 1, choiceGroup: null, choiceCount: null }];
+        expect(() => normaliseClassInput(longEquipmentName)).toThrow('Equipment names must be 100 characters or fewer.');
+
+        const tooManyFeatures = validInput();
+        tooManyFeatures.features = Array.from({ length: 41 }, (_, index) => ({
+            name: `Feature ${index}`,
+            description: 'Rules.',
+            level: 1,
+        }));
+        expect(() => normaliseClassInput(tooManyFeatures)).toThrow('Class features are limited to 40.');
+
+        const longFeature = validInput();
+        longFeature.features = [{ name: 'A'.repeat(101), description: 'Rules.', level: 1 }];
+        expect(() => normaliseClassInput(longFeature)).toThrow('Feature 1 name must be 100 characters or fewer.');
+
+        const tooManySpells = validInput();
+        tooManySpells.spellIds = Array.from({ length: 101 }, (_, index) => `spell-${index}`);
+        expect(() => normaliseClassInput(tooManySpells)).toThrow('Class spell list is limited to 100 spells.');
+    });
 });
 
 describe('grouped choice and pact validators', () => {

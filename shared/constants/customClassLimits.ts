@@ -1,0 +1,16 @@
+/** Shared payload limits for custom class create/update (server + mobile). */
+
+export const CUSTOM_CLASS_NAME_MAX_LENGTH = 100;
+export const CUSTOM_CLASS_DESCRIPTION_MAX_LENGTH = 10000;
+export const CUSTOM_CLASS_EMOJI_MAX_LENGTH = 32;
+
+export const CUSTOM_CLASS_FEATURE_NAME_MAX_LENGTH = 100;
+export const CUSTOM_CLASS_FEATURE_DESCRIPTION_MAX_LENGTH = 10000;
+export const CUSTOM_CLASS_FEATURE_MAX_COUNT = 40;
+
+export const CUSTOM_CLASS_EQUIPMENT_NAME_MAX_LENGTH = 100;
+export const CUSTOM_CLASS_EQUIPMENT_MAX_COUNT = 40;
+
+export const CUSTOM_CLASS_PROFICIENCY_MAX_COUNT = 60;
+
+export const CUSTOM_CLASS_SPELL_LIST_MAX_COUNT = 100;

@@ -5,7 +5,14 @@ import { MockedProvider } from '@apollo/client/testing/react';
 import type { MockedResponse } from '@apollo/client/testing';
 import { PaperProvider } from 'react-native-paper';
 import CustomClassEditor from '../custom-class-editor';
-import { GET_PROFICIENCIES } from '@/graphql/class.operations';
+import {
+    CREATE_CUSTOM_CLASS,
+    GET_AVAILABLE_CLASSES,
+    GET_CUSTOM_CLASSES,
+    GET_PROFICIENCIES,
+    UPDATE_CUSTOM_CLASS,
+} from '@/graphql/class.operations';
+import { GET_COMPENDIUM_COUNTS } from '@/graphql/compendium.operations';
 import type { ClassDetailsFieldsFragment } from '@/types/generated_graphql_types';
 
 const proficiencyMocks: MockedResponse[] = [
@@ -26,18 +33,68 @@ const proficiencyMocks: MockedResponse[] = [
     },
 ];
 
+function emptyProgression() {
+    return Array.from({ length: 20 }, (_, index) => ({
+        level: index + 1,
+        abilityScoreImprovement: false,
+        spellSlots: Array(9).fill(0),
+        cantripsKnown: null,
+        spellsKnown: null,
+        preparedSpellCount: null,
+        displayValues: [],
+    }));
+}
+
+function classDetailsFixture(
+    overrides: Partial<ClassDetailsFieldsFragment> = {},
+): ClassDetailsFieldsFragment {
+    return {
+        id: 'custom-1',
+        value: 'custom-1',
+        srdIndex: null,
+        name: 'Warden',
+        emoji: '🛡️',
+        description: ['A custom guardian.'],
+        hitDie: 10,
+        primaryAbilityIndexes: ['str'],
+        savingThrowIndexes: ['str', 'con'],
+        multiclassPrerequisites: [],
+        proficiencies: [],
+        equipment: [],
+        spellcastingMode: 'NONE',
+        spellcastingAbility: null,
+        addSpellcastingAbility: false,
+        progression: emptyProgression(),
+        features: [],
+        spells: [],
+        isCustom: true,
+        archived: false,
+        sourceBook: null,
+        characterUsageCount: 0,
+        mechanicsLocked: false,
+        mechanicsLockedReason: null,
+        ...overrides,
+    };
+}
+
 function renderEditor(
     onClose = jest.fn(),
-    props: { initial?: ClassDetailsFieldsFragment | null; onSaved?: () => void } = {},
+    props: {
+        initial?: ClassDetailsFieldsFragment | null;
+        onSaved?: () => void;
+        mocks?: MockedResponse[];
+        visible?: boolean;
+    } = {},
 ) {
-    render(
-        <MockedProvider mocks={proficiencyMocks}>
+    const { mocks = proficiencyMocks, visible = true, ...editorProps } = props;
+    const view = render(
+        <MockedProvider mocks={mocks}>
             <PaperProvider>
-                <CustomClassEditor visible onClose={onClose} {...props} />
+                <CustomClassEditor visible={visible} onClose={onClose} {...editorProps} />
             </PaperProvider>
         </MockedProvider>,
     );
-    return onClose;
+    return { onClose, ...view };
 }
 
 function fillIdentityAndContinue() {
@@ -46,6 +103,14 @@ function fillIdentityAndContinue() {
     fireEvent.press(screen.getAllByText('STR')[0]!);
     fireEvent.press(screen.getAllByText('STR')[1]!);
     fireEvent.press(screen.getAllByText('CON')[1]!);
+    fireEvent.press(screen.getByText('Continue'));
+}
+
+function advanceToReview() {
+    fillIdentityAndContinue();
+    fireEvent.press(screen.getByText('Continue'));
+    fireEvent.press(screen.getByText('Continue'));
+    fireEvent.press(screen.getByText('Continue'));
     fireEvent.press(screen.getByText('Continue'));
 }
 
@@ -61,7 +126,7 @@ describe('CustomClassEditor', () => {
     });
 
     test('warns before discarding a dirty draft', () => {
-        const onClose = renderEditor();
+        const { onClose } = renderEditor();
         fireEvent.changeText(screen.getByTestId('custom-class-name'), 'Warden');
         fireEvent.press(screen.getByLabelText('Dismiss custom class editor'));
         expect(screen.getByText('Discard custom class draft?')).toBeTruthy();
@@ -69,14 +134,14 @@ describe('CustomClassEditor', () => {
     });
 
     test('closes without a prompt when the draft is clean', () => {
-        const onClose = renderEditor();
+        const { onClose } = renderEditor();
         fireEvent.press(screen.getByLabelText('Dismiss custom class editor'));
         expect(screen.queryByText('Discard custom class draft?')).toBeNull();
         expect(onClose).toHaveBeenCalled();
     });
 
     test('confirms discard and closes the sheet', () => {
-        const onClose = renderEditor();
+        const { onClose } = renderEditor();
         fireEvent.changeText(screen.getByTestId('custom-class-name'), 'Warden');
         fireEvent.press(screen.getByLabelText('Dismiss custom class editor'));
         fireEvent.press(screen.getByLabelText('Discard'));
@@ -85,40 +150,7 @@ describe('CustomClassEditor', () => {
 
     test('seeds edit mode from the initial class details', () => {
         renderEditor(jest.fn(), {
-            initial: {
-                id: 'custom-1',
-                value: 'custom-1',
-                srdIndex: null,
-                name: 'Warden',
-                emoji: '🛡️',
-                description: ['A custom guardian.'],
-                hitDie: 10,
-                primaryAbilityIndexes: ['str'],
-                savingThrowIndexes: ['str', 'con'],
-                multiclassPrerequisites: [],
-                proficiencies: [],
-                equipment: [],
-                spellcastingMode: 'NONE',
-                spellcastingAbility: null,
-                addSpellcastingAbility: false,
-                progression: Array.from({ length: 20 }, (_, index) => ({
-                    level: index + 1,
-                    abilityScoreImprovement: false,
-                    spellSlots: Array(9).fill(0),
-                    cantripsKnown: null,
-                    spellsKnown: null,
-                    preparedSpellCount: null,
-                    displayValues: [],
-                })),
-                features: [],
-                spells: [],
-                isCustom: true,
-                archived: false,
-                sourceBook: null,
-                characterUsageCount: 0,
-                mechanicsLocked: false,
-                mechanicsLockedReason: null,
-            },
+            initial: classDetailsFixture(),
         });
 
         expect(screen.getByText('Edit custom class')).toBeTruthy();
@@ -126,8 +158,30 @@ describe('CustomClassEditor', () => {
         expect(screen.getByDisplayValue('🛡️')).toBeTruthy();
     });
 
+    test('preserves unsaved edits when the parent rerenders with equivalent initial data', () => {
+        const initial = classDetailsFixture();
+        const { rerender, onClose } = renderEditor(jest.fn(), { initial });
+
+        fireEvent.changeText(screen.getByTestId('custom-class-name'), 'Night Warden');
+        expect(screen.getByDisplayValue('Night Warden')).toBeTruthy();
+
+        rerender(
+            <MockedProvider mocks={proficiencyMocks}>
+                <PaperProvider>
+                    <CustomClassEditor
+                        visible
+                        onClose={onClose}
+                        initial={classDetailsFixture()}
+                    />
+                </PaperProvider>
+            </MockedProvider>,
+        );
+
+        expect(screen.getByDisplayValue('Night Warden')).toBeTruthy();
+    });
+
     test('handles hardware back through the sheet close path', () => {
-        const onClose = renderEditor();
+        const { onClose } = renderEditor();
         const backHandler = (BackHandler.addEventListener as jest.Mock).mock.calls.at(-1)?.[1] as
             | (() => boolean)
             | undefined;
@@ -168,7 +222,7 @@ describe('CustomClassEditor', () => {
     });
 
     test('hardware back closes the nested proficiency picker before the outer editor sheet', async () => {
-        const onClose = renderEditor();
+        const { onClose } = renderEditor();
         fillIdentityAndContinue();
 
         await waitFor(() => {
@@ -488,5 +542,147 @@ describe('CustomClassEditor', () => {
         expect(screen.getByTestId('custom-class-add-spellcasting-ability').props.accessibilityState).toEqual(
             expect.objectContaining({ checked: true }),
         );
+    });
+
+    test('submits a create mutation from review and closes on success', async () => {
+        const created = classDetailsFixture({ id: 'custom-new', value: 'custom-new', name: 'Warden' });
+        const onSaved = jest.fn();
+        const { onClose } = renderEditor(jest.fn(), {
+            onSaved,
+            mocks: [
+                ...proficiencyMocks,
+                {
+                    request: { query: CREATE_CUSTOM_CLASS, variables: () => true },
+                    result: { data: { createCustomClass: created } },
+                },
+                {
+                    request: { query: GET_AVAILABLE_CLASSES },
+                    result: { data: { availableClasses: [] } },
+                    maxUsageCount: Number.POSITIVE_INFINITY,
+                },
+                {
+                    request: { query: GET_CUSTOM_CLASSES },
+                    result: { data: { customClasses: [] } },
+                    maxUsageCount: Number.POSITIVE_INFINITY,
+                },
+                {
+                    request: { query: GET_COMPENDIUM_COUNTS },
+                    result: {
+                        data: {
+                            compendiumCounts: {
+                                srdClassCount: 12,
+                                customClassCount: 1,
+                                srdSubclassCount: 0,
+                                customSubclassCount: 0,
+                                spellCount: 0,
+                            },
+                        },
+                    },
+                    maxUsageCount: Number.POSITIVE_INFINITY,
+                },
+            ],
+        });
+
+        advanceToReview();
+        await waitFor(() => expect(screen.getByLabelText('Save custom class')).toBeTruthy());
+        fireEvent.press(screen.getByLabelText('Save custom class'));
+
+        await waitFor(() => expect(onSaved).toHaveBeenCalled());
+        expect(onClose).toHaveBeenCalled();
+    });
+
+    test('submits an update mutation for an existing class', async () => {
+        const initial = classDetailsFixture();
+        const onSaved = jest.fn();
+        renderEditor(jest.fn(), {
+            initial,
+            onSaved,
+            mocks: [
+                ...proficiencyMocks,
+                {
+                    request: { query: UPDATE_CUSTOM_CLASS, variables: () => true },
+                    result: { data: { updateCustomClass: initial } },
+                },
+                {
+                    request: { query: GET_AVAILABLE_CLASSES },
+                    result: { data: { availableClasses: [] } },
+                    maxUsageCount: Number.POSITIVE_INFINITY,
+                },
+                {
+                    request: { query: GET_CUSTOM_CLASSES },
+                    result: { data: { customClasses: [] } },
+                    maxUsageCount: Number.POSITIVE_INFINITY,
+                },
+            ],
+        });
+
+        fireEvent.changeText(screen.getByTestId('text-input-outlined'), 'Updated description.');
+        for (let index = 0; index < 5; index += 1) {
+            fireEvent.press(screen.getByText('Continue'));
+        }
+        await waitFor(() => expect(screen.getByLabelText('Save custom class')).toBeTruthy());
+        fireEvent.press(screen.getByLabelText('Save custom class'));
+
+        await waitFor(() => expect(onSaved).toHaveBeenCalled());
+    });
+
+    test('surfaces mutation failures without closing the editor', async () => {
+        renderEditor(jest.fn(), {
+            mocks: [
+                ...proficiencyMocks,
+                {
+                    request: { query: CREATE_CUSTOM_CLASS, variables: () => true },
+                    error: new Error('Name already exists.'),
+                },
+            ],
+        });
+
+        advanceToReview();
+        await waitFor(() => expect(screen.getByLabelText('Save custom class')).toBeTruthy());
+        fireEvent.press(screen.getByLabelText('Save custom class'));
+
+        await waitFor(() => expect(screen.getByText('Name already exists.')).toBeTruthy());
+        expect(screen.getByTestId('custom-class-editor-sheet')).toBeTruthy();
+    });
+
+    test('allows locked descriptive saves while keeping mechanics read-only', async () => {
+        const initial = classDetailsFixture({
+            mechanicsLocked: true,
+            mechanicsLockedReason: 'Mechanics are locked because 1 character(s) use this class.',
+            characterUsageCount: 1,
+            features: [{ id: 'feat-1', name: 'Vigilance', description: 'Remain alert.', level: 1 }],
+        });
+        const onSaved = jest.fn();
+        renderEditor(jest.fn(), {
+            initial,
+            onSaved,
+            mocks: [
+                ...proficiencyMocks,
+                {
+                    request: { query: UPDATE_CUSTOM_CLASS, variables: () => true },
+                    result: { data: { updateCustomClass: initial } },
+                },
+                {
+                    request: { query: GET_AVAILABLE_CLASSES },
+                    result: { data: { availableClasses: [] } },
+                    maxUsageCount: Number.POSITIVE_INFINITY,
+                },
+                {
+                    request: { query: GET_CUSTOM_CLASSES },
+                    result: { data: { customClasses: [] } },
+                    maxUsageCount: Number.POSITIVE_INFINITY,
+                },
+            ],
+        });
+
+        expect(screen.getByText(/Mechanics are locked/)).toBeTruthy();
+        fireEvent.changeText(screen.getByTestId('text-input-outlined'), 'Still editable flavour.');
+        for (let index = 0; index < 5; index += 1) {
+            fireEvent.press(screen.getByText('Continue'));
+        }
+        await waitFor(() => expect(screen.getByLabelText('Save custom class')).toBeTruthy());
+        fireEvent.press(screen.getByLabelText('Save custom class'));
+
+        await waitFor(() => expect(onSaved).toHaveBeenCalled());
     });
 });

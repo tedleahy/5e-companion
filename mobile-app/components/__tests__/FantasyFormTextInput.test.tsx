@@ -113,4 +113,35 @@ describe('FantasyFormTextInput', () => {
 
         expect(screen.getByTestId('fantasy-form-autocorrect').props.autoCorrect).toBe(false);
     });
+
+    it('uses the gold active outline when focused and valid', () => {
+        renderWithPaper(
+            <FantasyFormTextInput value="Warden" onChangeText={jest.fn()} testID="fantasy-form-valid" />,
+        );
+
+        fireEvent(screen.getByTestId('fantasy-form-valid'), 'focus');
+        const outline = screen.UNSAFE_getAllByType(require('react-native').View)
+            .map((node) => StyleSheet.flatten(node.props.style))
+            .find((style) => style?.borderColor === fantasyTokens.colors.gold && style?.borderWidth);
+
+        expect(outline?.borderColor).toBe(fantasyTokens.colors.gold);
+    });
+
+    it('uses the crimson active outline when focused with an error', () => {
+        renderWithPaper(
+            <FantasyFormTextInput
+                value="Warden"
+                onChangeText={jest.fn()}
+                error
+                testID="fantasy-form-error"
+            />,
+        );
+
+        fireEvent(screen.getByTestId('fantasy-form-error'), 'focus');
+        const outline = screen.UNSAFE_getAllByType(require('react-native').View)
+            .map((node) => StyleSheet.flatten(node.props.style))
+            .find((style) => style?.borderColor === fantasyTokens.colors.crimson && style?.borderWidth);
+
+        expect(outline?.borderColor).toBe(fantasyTokens.colors.crimson);
+    });
 });

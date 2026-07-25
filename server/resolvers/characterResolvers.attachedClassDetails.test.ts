@@ -71,3 +71,52 @@ describe('characterResolvers.attachedClassDetails', () => {
         ]);
     });
 });
+
+describe('characterResolvers.customClasses', () => {
+    beforeEach(clearAllCharacterResolverMocks);
+
+    test('requires authentication', async () => {
+        await expect(resolvers.customClasses({}, {}, unauthedCtx)).rejects.toThrow('UNAUTHENTICATED');
+    });
+
+    test('returns lightweight summaries without loading the full class graph', async () => {
+        classFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'custom-warden-id',
+                ownerUserId: 'user-abc',
+                srdIndex: null,
+                name: 'Warden',
+                emoji: '🛡️',
+                description: ['A stalwart custom class.'],
+                hitDie: 10,
+                primaryAbilityIndexes: ['str'],
+                savingThrowIndexes: ['str', 'con'],
+                multiclassPrerequisites: [{ abilityIndex: 'str', minimum: 13, group: 1 }],
+                spellcastingMode: 'NONE',
+                spellcastingAbility: null,
+            },
+        ]);
+
+        const result = await resolvers.customClasses({}, {}, authedCtx);
+
+        expect(classFindManyMock).toHaveBeenCalledTimes(1);
+        const args = classFindManyMock.mock.calls[0]![0] as Record<string, any>;
+        expect(args.include).toBeUndefined();
+        expect(args.where).toEqual({ ownerUserId: 'user-abc', archivedAt: null });
+        expect(result).toEqual([
+            expect.objectContaining({
+                id: 'custom-warden-id',
+                value: 'custom-warden-id',
+                name: 'Warden',
+                emoji: '🛡️',
+                isCustom: true,
+                spellcastingMode: 'NONE',
+            }),
+        ]);
+        expect(result[0]).not.toHaveProperty('progression');
+        expect(result[0]).not.toHaveProperty('features');
+        expect(result[0]).not.toHaveProperty('spells');
+        expect(result[0]).not.toHaveProperty('proficiencies');
+        expect(result[0]).not.toHaveProperty('equipment');
+    });
+});

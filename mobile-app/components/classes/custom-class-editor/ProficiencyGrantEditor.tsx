@@ -17,6 +17,11 @@ import {
     withProficiencyCategoryChoiceUi,
 } from './draft';
 import { fieldStyles, RemovableChip } from './fields';
+import {
+    canFitProficiencies,
+    CUSTOM_CLASS_PROFICIENCY_MAX_COUNT,
+    maxSelectableProficiencies,
+} from './limits';
 import ProficiencyPickerSheet, { type ProficiencyOption } from './ProficiencyPickerSheet';
 import type { Draft, DraftCategoryChoiceUi, DraftChoicePool } from './types';
 
@@ -124,7 +129,13 @@ export default function ProficiencyGrantEditor({
             return;
         }
 
-        const selfId = persistedChoice(type)?.choiceGroup;
+        const existingChoice = persistedChoice(type);
+        const outsideCount = draft.proficiencies.length - (existingChoice?.values.length ?? 0);
+        if (!canFitProficiencies(outsideCount, pool.values.length)) {
+            return;
+        }
+
+        const selfId = existingChoice?.choiceGroup;
         const occupied = proficiencyChoiceGroups(draft, grant).filter(
             (group) => group.choiceGroup !== selfId,
         );
@@ -168,6 +179,10 @@ export default function ProficiencyGrantEditor({
             const restoredPool: DraftChoicePool = { ...restored, choiceGroup };
 
             if (restoredPool.values.length > 0) {
+                // Refusing oversized restores keeps the toggle off — no silent truncation.
+                if (!canFitProficiencies(draft.proficiencies.length, restoredPool.values.length)) {
+                    return;
+                }
                 const next: ProficiencyChoiceGroup = {
                     choiceGroup,
                     choiceCount: Math.min(
@@ -266,6 +281,11 @@ export default function ProficiencyGrantEditor({
 
     function handlePickerConfirm(values: string[]) {
         if (!pickerTarget) return;
+        const editingCount = pickerSelected.length;
+        const maxSelected = maxSelectableProficiencies(draft.proficiencies.length, editingCount);
+        if (values.length > maxSelected) {
+            return;
+        }
         if (pickerTarget.kind === 'fixed') {
             onChange({
                 proficiencies: withFixedProficienciesForType(
@@ -285,6 +305,10 @@ export default function ProficiencyGrantEditor({
             values,
         });
     }
+
+    const pickerMaxSelected = pickerTarget
+        ? maxSelectableProficiencies(draft.proficiencies.length, pickerSelected.length)
+        : CUSTOM_CLASS_PROFICIENCY_MAX_COUNT;
 
     return (
         <View style={styles.root} testID={`proficiency-grant-${grant}`}>
@@ -480,6 +504,7 @@ export default function ProficiencyGrantEditor({
                 initiallySelected={pickerSelected}
                 excludedValues={usedElsewhere}
                 hideTypeFilters
+                maxSelected={pickerMaxSelected}
                 onConfirm={handlePickerConfirm}
                 onClose={() => setPickerTarget(null)}
             />

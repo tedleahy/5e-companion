@@ -4,6 +4,7 @@ import { PaperProvider } from 'react-native-paper';
 import { createDraft } from '../draft';
 import ProficiencyGrantEditor from '../ProficiencyGrantEditor';
 import type { Draft } from '../types';
+import { CUSTOM_CLASS_PROFICIENCY_MAX_COUNT } from '../limits';
 
 const options = [
     { value: 'skill-athletics', name: 'Athletics', type: 'SKILL', isCustom: false },
@@ -155,5 +156,193 @@ describe('ProficiencyGrantEditor', () => {
         );
         expect(restored?.proficiencies.some((item) => item.value === 'light-armor' && item.choiceGroup === 1))
             .toBe(true);
+    });
+
+    test('blocks adding another proficiency when the shared class-wide cap is already reached', () => {
+        const fillerOptions = Array.from({ length: CUSTOM_CLASS_PROFICIENCY_MAX_COUNT }, (_, index) => ({
+            value: `other-prof-${index}`,
+            name: `Other ${index}`,
+            type: 'OTHER',
+            isCustom: false,
+        }));
+        const allOptions = [
+            ...fillerOptions,
+            { value: 'light-armor', name: 'Light Armor', type: 'ARMOR', isCustom: false },
+            { value: 'skill-athletics', name: 'Athletics', type: 'SKILL', isCustom: false },
+        ];
+        let latest: Draft = {
+            ...createDraft(),
+            proficiencies: fillerOptions.map((option) => ({
+                value: option.value,
+                grant: 'STARTING' as const,
+                choiceGroup: null,
+                choiceCount: null,
+            })),
+        };
+
+        render(
+            <PaperProvider>
+                <ProficiencyGrantEditor
+                    grant="STARTING"
+                    draft={latest}
+                    options={allOptions}
+                    locked={false}
+                    onChange={(patch) => {
+                        latest = { ...latest, ...patch };
+                    }}
+                />
+            </PaperProvider>,
+        );
+
+        fireEvent.press(screen.getByLabelText(/Armor\./));
+        // Armor may already be open when it has grants; ensure the add control is visible.
+        if (!screen.queryByTestId('add-fixed-STARTING-ARMOR')) {
+            fireEvent.press(screen.getByLabelText(/Armor\./));
+        }
+        fireEvent.press(screen.getByTestId('add-fixed-STARTING-ARMOR'));
+
+        expect(screen.getByTestId('proficiency-picker-sheet')).toBeTruthy();
+        expect(screen.getByTestId('proficiency-picker-limit-hint')).toBeTruthy();
+        expect(screen.getByTestId('proficiency-option-light-armor').props.accessibilityState).toEqual(
+            expect.objectContaining({ disabled: true }),
+        );
+
+        fireEvent.press(screen.getByTestId('proficiency-option-light-armor'));
+        fireEvent.press(screen.getByTestId('proficiency-picker-confirm'));
+
+        expect(latest.proficiencies).toHaveLength(CUSTOM_CLASS_PROFICIENCY_MAX_COUNT);
+        expect(latest.proficiencies.some((item) => item.value === 'light-armor')).toBe(false);
+    });
+
+    test('allows removing and replacing a proficiency while at the shared cap', () => {
+        const fillerCount = CUSTOM_CLASS_PROFICIENCY_MAX_COUNT - 1;
+        const fillerOptions = Array.from({ length: fillerCount }, (_, index) => ({
+            value: `other-prof-${index}`,
+            name: `Other ${index}`,
+            type: 'OTHER',
+            isCustom: false,
+        }));
+        const allOptions = [
+            ...fillerOptions,
+            { value: 'light-armor', name: 'Light Armor', type: 'ARMOR', isCustom: false },
+            { value: 'medium-armor', name: 'Medium Armor', type: 'ARMOR', isCustom: false },
+        ];
+        let latest: Draft = {
+            ...createDraft(),
+            proficiencies: [
+                ...fillerOptions.map((option) => ({
+                    value: option.value,
+                    grant: 'STARTING' as const,
+                    choiceGroup: null,
+                    choiceCount: null,
+                })),
+                {
+                    value: 'light-armor',
+                    grant: 'STARTING',
+                    choiceGroup: null,
+                    choiceCount: null,
+                },
+            ],
+        };
+
+        function Harness() {
+            const [draft, setDraft] = useState(latest);
+            return (
+                <PaperProvider>
+                    <ProficiencyGrantEditor
+                        grant="STARTING"
+                        draft={draft}
+                        options={allOptions}
+                        locked={false}
+                        onChange={(patch) => {
+                            setDraft((current) => {
+                                const next = { ...current, ...patch };
+                                latest = next;
+                                return next;
+                            });
+                        }}
+                    />
+                </PaperProvider>
+            );
+        }
+
+        render(<Harness />);
+
+        const armorHeader = screen.getByLabelText(/Armor\./);
+        if (!armorHeader.props.accessibilityState?.expanded) {
+            fireEvent.press(armorHeader);
+        }
+        expect(screen.getByTestId('fixed-proficiency-STARTING-light-armor')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('add-fixed-STARTING-ARMOR'));
+
+        // Deselect the current grant, then select a replacement — stays at the cap.
+        fireEvent.press(screen.getByTestId('proficiency-option-light-armor'));
+        fireEvent.press(screen.getByTestId('proficiency-option-medium-armor'));
+        fireEvent.press(screen.getByTestId('proficiency-picker-confirm'));
+
+        expect(latest.proficiencies).toHaveLength(CUSTOM_CLASS_PROFICIENCY_MAX_COUNT);
+        expect(latest.proficiencies.some((item) => item.value === 'light-armor')).toBe(false);
+        expect(latest.proficiencies.some((item) => item.value === 'medium-armor')).toBe(true);
+
+        fireEvent.press(screen.getByLabelText('Remove Medium Armor'));
+        expect(latest.proficiencies).toHaveLength(CUSTOM_CLASS_PROFICIENCY_MAX_COUNT - 1);
+        expect(latest.proficiencies.some((item) => item.value === 'medium-armor')).toBe(false);
+    });
+
+    test('blocks choice-pool adds that would exceed the shared proficiency cap', () => {
+        const fillerOptions = Array.from({ length: CUSTOM_CLASS_PROFICIENCY_MAX_COUNT }, (_, index) => ({
+            value: `other-prof-${index}`,
+            name: `Other ${index}`,
+            type: 'OTHER',
+            isCustom: false,
+        }));
+        const allOptions = [
+            ...fillerOptions,
+            { value: 'skill-athletics', name: 'Athletics', type: 'SKILL', isCustom: false },
+            { value: 'skill-acrobatics', name: 'Acrobatics', type: 'SKILL', isCustom: false },
+        ];
+        let latest: Draft = {
+            ...createDraft(),
+            proficiencies: fillerOptions.map((option) => ({
+                value: option.value,
+                grant: 'STARTING' as const,
+                choiceGroup: null,
+                choiceCount: null,
+            })),
+        };
+
+        function Harness() {
+            const [draft, setDraft] = useState(latest);
+            return (
+                <PaperProvider>
+                    <ProficiencyGrantEditor
+                        grant="STARTING"
+                        draft={draft}
+                        options={allOptions}
+                        locked={false}
+                        onChange={(patch) => {
+                            setDraft((current) => {
+                                const next = { ...current, ...patch };
+                                latest = next;
+                                return next;
+                            });
+                        }}
+                    />
+                </PaperProvider>
+            );
+        }
+
+        render(<Harness />);
+
+        fireEvent.press(screen.getByLabelText(/Skills\./));
+        fireEvent.press(screen.getByTestId('toggle-choice-STARTING-SKILL'));
+        fireEvent.press(screen.getByTestId('add-choice-STARTING-SKILL'));
+
+        expect(screen.getByTestId('proficiency-picker-limit-hint')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('proficiency-option-skill-athletics'));
+        fireEvent.press(screen.getByTestId('proficiency-picker-confirm'));
+
+        expect(latest.proficiencies).toHaveLength(CUSTOM_CLASS_PROFICIENCY_MAX_COUNT);
+        expect(latest.proficiencies.some((item) => item.choiceGroup != null)).toBe(false);
     });
 });

@@ -81,6 +81,9 @@ describe('custom class editor remove controls', () => {
         expect(screen.getByTestId('remove-equipment-choice-group-1')).toBeTruthy();
         expect(screen.getByTestId('remove-equipment-item-option-1')).toBeTruthy();
         expect(screen.queryByText('Remove')).toBeNull();
+        expect(screen.getByTestId('equipment-reference-copy')).toHaveTextContent(
+            /not automatically added to a character's inventory/i,
+        );
 
         fireEvent.press(screen.getByLabelText('Remove choice group 1'));
         expect(onChangeChoiceGroups).toHaveBeenCalledWith([]);

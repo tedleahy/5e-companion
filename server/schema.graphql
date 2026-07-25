@@ -700,7 +700,7 @@ type Query {
     compendiumCounts: CompendiumCounts!
     availableClasses: [AvailableClass!]!
     classDetails(value: String!): ClassDetails
-    customClasses: [ClassDetails!]!
+    customClasses: [AvailableClass!]!
     attachedClassDetails(values: [String!]!): [ClassDetails!]!
     spells(filter: SpellFilter, pagination: SpellPagination): [Spell!]!
     spell(id: ID!): Spell

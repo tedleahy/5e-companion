@@ -1,4 +1,10 @@
 import type { ClassDetailsFieldsFragment, ManagedCustomClassInput } from '@/types/generated_graphql_types';
+import {
+    CUSTOM_CLASS_DESCRIPTION_MAX_LENGTH,
+    CUSTOM_CLASS_EMOJI_MAX_LENGTH,
+    CUSTOM_CLASS_NAME_MAX_LENGTH,
+    draftLimitError,
+} from './limits';
 import { emptySpellSlots, pactFromSpellSlots, spellSlotsFromPact } from './spellSlots';
 import type {
     Draft,
@@ -223,8 +229,17 @@ export function serialiseDraft(draft: Draft): ManagedCustomClassInput {
 export function identityFieldErrors(draft: Draft): IdentityFieldErrors {
     const errors: IdentityFieldErrors = {};
     if (!draft.name.trim()) errors.name = 'Class name is required.';
+    else if (draft.name.trim().length > CUSTOM_CLASS_NAME_MAX_LENGTH) {
+        errors.name = `Class name must be ${CUSTOM_CLASS_NAME_MAX_LENGTH} characters or fewer.`;
+    }
     if (!draft.emoji.trim()) errors.emoji = 'Emoji is required.';
+    else if (draft.emoji.trim().length > CUSTOM_CLASS_EMOJI_MAX_LENGTH) {
+        errors.emoji = `Emoji must be ${CUSTOM_CLASS_EMOJI_MAX_LENGTH} characters or fewer.`;
+    }
     if (!draft.description.trim()) errors.description = 'Description is required.';
+    else if (draft.description.trim().length > CUSTOM_CLASS_DESCRIPTION_MAX_LENGTH) {
+        errors.description = `Description must be ${CUSTOM_CLASS_DESCRIPTION_MAX_LENGTH} characters or fewer.`;
+    }
     if (draft.primaryAbilityIndexes.length === 0) {
         errors.primaryAbilities = 'Choose at least one primary ability.';
     }
@@ -235,6 +250,8 @@ export function identityFieldErrors(draft: Draft): IdentityFieldErrors {
 }
 
 export function stageError(stage: number, draft: Draft): string | null {
+    const limitError = draftLimitError(draft);
+    if (limitError) return limitError;
     if (stage === 0) {
         const errors = identityFieldErrors(draft);
         return errors.name
