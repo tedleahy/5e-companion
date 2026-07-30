@@ -48,6 +48,10 @@ export function e2eEnv(): NodeJS.ProcessEnv {
         EXPO_PUBLIC_API_URL: E2E_API_URL,
         PORT: String(E2E_SERVER_PORT),
         CORS_ALLOWED_ORIGINS: E2E_WEB_BASE_URL,
+        // Parallel workers fire hundreds of GraphQL requests per minute;
+        // the production default (120/min) 429s mid-suite. This is harness
+        // config for the e2e-spawned server, not a production conditional.
+        GRAPHQL_RATE_LIMIT_MAX_REQUESTS: '10000',
     };
 }
 

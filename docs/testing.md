@@ -87,6 +87,8 @@ bun e2e:reset        # reset local Supabase DB
 ### Gotchas
 
 - **Don't target plain RN `TextInput` fields with `input[type="text"]` in Playwright.** React Native Web may omit the `type` attribute. Prefer accessible labels, placeholders, or stable `testID` selectors.
+- **The e2e server raises the GraphQL rate limit** (`GRAPHQL_RATE_LIMIT_MAX_REQUESTS=10000` in `e2e/env.ts`). Parallel workers fire hundreds of requests per minute; the production default (120/min) 429s mid-suite and surfaces as unrelated locator timeouts. If you see `Received status code 429` in an error-context snapshot, check which server the app is actually talking to before touching locators.
+- **Use unique page landmarks for readiness checks, not page titles.** Compendium titles (e.g. "Subclasses") also match hidden navigation/category labels and fail Playwright strict mode. Wait on a page-specific `testID` (e.g. `subclass-manager-card`) instead.
 
 ### When to add e2e
 

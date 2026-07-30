@@ -12,7 +12,9 @@ export function uniqueSubclassName(prefix: string): string {
  */
 export async function openSubclassManager(page: Page): Promise<void> {
     await page.goto('/compendium/subclasses');
-    await expect(page.getByText('Subclasses', { exact: true })).toBeVisible();
+    // The manager card is the unique page landmark; the "Subclasses" title text
+    // also matches the hidden compendium category label, so it cannot be used
+    // as a readiness check under Playwright strict mode.
     await expect(page.getByTestId('subclass-manager-card')).toBeVisible();
 }
 

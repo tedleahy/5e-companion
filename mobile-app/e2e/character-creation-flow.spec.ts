@@ -42,7 +42,7 @@ test.describe('Character creation — full wizard flow', () => {
         await completeClassStep(page, 'Fighter');
         await completeAbilitiesStep(page);
         await completeBackgroundStep(page);
-        await selectClassSkills(page, ['athletics', 'perception']);
+        await selectClassSkills(page, 'fighter', ['athletics', 'perception']);
         await continueFromSkillsStep(page);
 
         await selectFeatureChoice(
