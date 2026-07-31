@@ -15,6 +15,27 @@ import {
 import { GET_COMPENDIUM_COUNTS } from '@/graphql/compendium.operations';
 import type { ClassDetailsFieldsFragment } from '@/types/generated_graphql_types';
 
+let mockCreateClass: jest.Mock | null = null;
+
+jest.mock('@apollo/client/react', () => {
+    const actual = jest.requireActual('@apollo/client/react');
+
+    return {
+        ...actual,
+        useMutation: (document: { definitions?: { kind: string; name?: { value: string } }[] }) => {
+            const operationName = document.definitions
+                ?.find((definition) => definition.kind === 'OperationDefinition')
+                ?.name?.value;
+
+            if (operationName === 'CreateCustomClass' && mockCreateClass) {
+                return [mockCreateClass, { loading: false }];
+            }
+
+            return actual.useMutation(document);
+        },
+    };
+});
+
 const proficiencyMocks: MockedResponse[] = [
     {
         request: { query: GET_PROFICIENCIES },
@@ -115,6 +136,10 @@ function advanceToReview() {
 }
 
 describe('CustomClassEditor', () => {
+    beforeEach(() => {
+        mockCreateClass = null;
+    });
+
     test('validates the identity stage locally', () => {
         renderEditor();
         fireEvent.press(screen.getByText('Continue'));
@@ -547,47 +572,22 @@ describe('CustomClassEditor', () => {
     test('submits a create mutation from review and closes on success', async () => {
         const created = classDetailsFixture({ id: 'custom-new', value: 'custom-new', name: 'Warden' });
         const onSaved = jest.fn();
+        mockCreateClass = jest.fn().mockResolvedValue({ data: { createCustomClass: created } });
         const { onClose } = renderEditor(jest.fn(), {
             onSaved,
-            mocks: [
-                ...proficiencyMocks,
-                {
-                    request: { query: CREATE_CUSTOM_CLASS, variables: () => true },
-                    result: { data: { createCustomClass: created } },
-                },
-                {
-                    request: { query: GET_AVAILABLE_CLASSES },
-                    result: { data: { availableClasses: [] } },
-                    maxUsageCount: Number.POSITIVE_INFINITY,
-                },
-                {
-                    request: { query: GET_CUSTOM_CLASSES },
-                    result: { data: { customClasses: [] } },
-                    maxUsageCount: Number.POSITIVE_INFINITY,
-                },
-                {
-                    request: { query: GET_COMPENDIUM_COUNTS },
-                    result: {
-                        data: {
-                            compendiumCounts: {
-                                srdClassCount: 12,
-                                customClassCount: 1,
-                                srdSubclassCount: 0,
-                                customSubclassCount: 0,
-                                spellCount: 0,
-                            },
-                        },
-                    },
-                    maxUsageCount: Number.POSITIVE_INFINITY,
-                },
-            ],
         });
 
         advanceToReview();
         await waitFor(() => expect(screen.getByLabelText('Save custom class')).toBeTruthy());
         fireEvent.press(screen.getByLabelText('Save custom class'));
 
-        await waitFor(() => expect(onSaved).toHaveBeenCalled());
+        await waitFor(() => {
+            expect(mockCreateClass).toHaveBeenCalledWith(expect.objectContaining({
+                variables: { input: expect.any(Object) },
+                refetchQueries: [GET_AVAILABLE_CLASSES, GET_CUSTOM_CLASSES, GET_COMPENDIUM_COUNTS],
+            }));
+            expect(onSaved).toHaveBeenCalled();
+        });
         expect(onClose).toHaveBeenCalled();
     });
 
