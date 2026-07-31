@@ -19,6 +19,27 @@ import {
 import { GET_COMPENDIUM_COUNTS } from '@/graphql/compendium.operations';
 import type { CompendiumCountsQuery } from '@/types/generated_graphql_types';
 
+let mockArchiveClass: jest.Mock | null = null;
+
+jest.mock('@apollo/client/react', () => {
+    const actual = jest.requireActual('@apollo/client/react');
+
+    return {
+        ...actual,
+        useMutation: (document: { definitions?: { kind: string; name?: { value: string } }[] }) => {
+            const operationName = document.definitions
+                ?.find((definition) => definition.kind === 'OperationDefinition')
+                ?.name?.value;
+
+            if (operationName === 'ArchiveCustomClass' && mockArchiveClass) {
+                return [mockArchiveClass, { loading: false }];
+            }
+
+            return actual.useMutation(document);
+        },
+    };
+});
+
 /**
  * Keeps GET_COMPENDIUM_COUNTS active so mutation refetchQueries can refresh it.
  */
@@ -142,6 +163,10 @@ function fillEditorThroughReview() {
 }
 
 describe('Classes compendium', () => {
+    beforeEach(() => {
+        mockArchiveClass = null;
+    });
+
     test('opens full class details and hides the add action', async () => {
         renderCompendium([
             { request: { query: GET_COMPENDIUM_COUNTS }, result: { data: { compendiumCounts: COUNTS_ONE_CUSTOM } }, maxUsageCount: Number.POSITIVE_INFINITY },
@@ -295,22 +320,15 @@ describe('Classes compendium', () => {
         await waitFor(() => expect(screen.queryByText('Archive custom class?')).toBeNull(), { timeout: 5_000 });
     });
 
-    test('archives a custom class and refreshes compendium counts', async () => {
-        let countsCalls = 0;
+    test('archives a custom class and requests refreshed compendium data', async () => {
+        mockArchiveClass = jest.fn().mockResolvedValue({ data: { archiveCustomClass: true } });
 
         renderCompendium([
             {
                 request: { query: GET_COMPENDIUM_COUNTS },
                 maxUsageCount: Number.POSITIVE_INFINITY,
                 delay: 0,
-                result: () => {
-                    countsCalls += 1;
-                    return {
-                        data: {
-                            compendiumCounts: countsCalls === 1 ? COUNTS_ONE_CUSTOM : COUNTS_ZERO_CUSTOM,
-                        },
-                    };
-                },
+                result: { data: { compendiumCounts: COUNTS_ONE_CUSTOM } },
             },
             {
                 request: { query: GET_AVAILABLE_CLASSES },
@@ -318,23 +336,12 @@ describe('Classes compendium', () => {
                 result: { data: { availableClasses: [customSummary] } },
             },
             {
-                request: { query: GET_AVAILABLE_CLASSES },
-                delay: 0,
-                result: { data: { availableClasses: [] } },
-            },
-            {
                 request: { query: GET_CLASS_DETAILS, variables: { value: 'custom-warden' } },
                 delay: 0,
                 result: { data: { classDetails: customDetails } },
             },
-            {
-                request: { query: ARCHIVE_CUSTOM_CLASS, variables: { id: 'custom-warden' } },
-                delay: 0,
-                result: { data: { archiveCustomClass: true } },
-            },
         ]);
 
-        await waitFor(() => expect(screen.getByTestId('probe-custom-class-count')).toHaveTextContent('1'));
         await waitFor(() => expect(screen.getByText('Warden')).toBeTruthy());
         fireEvent.press(screen.getByTestId('class-row-custom-warden'));
         await waitFor(() => expect(screen.getByTestId('class-detail-loaded')).toBeTruthy());
@@ -342,9 +349,14 @@ describe('Classes compendium', () => {
         await waitFor(() => expect(screen.getByText('Archive custom class?')).toBeTruthy());
         fireEvent.press(screen.getByTestId('confirm-dialog-confirm'));
 
-        await waitFor(() => expect(screen.queryByText('Archive custom class?')).toBeNull(), { timeout: 5_000 });
-        await waitFor(() => expect(screen.getByTestId('probe-custom-class-count')).toHaveTextContent('0'));
-        expect(countsCalls).toBeGreaterThan(1);
+        await waitFor(() => {
+            expect(mockArchiveClass).toHaveBeenCalledWith({
+                variables: { id: 'custom-warden' },
+                refetchQueries: [GET_AVAILABLE_CLASSES, GET_COMPENDIUM_COUNTS],
+            });
+            expect(screen.getByTestId('add-custom-class')).toBeTruthy();
+            expect(screen.queryByTestId('class-detail-loaded')).toBeNull();
+        });
     });
 
     test('creates a custom class and refreshes compendium counts', async () => {
