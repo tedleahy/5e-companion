@@ -211,7 +211,9 @@ describe('CustomClassEditor', () => {
             | (() => boolean)
             | undefined;
         expect(backHandler).toBeTruthy();
-        expect(backHandler?.()).toBe(true);
+        act(() => {
+            expect(backHandler?.()).toBe(true);
+        });
         expect(onClose).toHaveBeenCalled();
     });
 
