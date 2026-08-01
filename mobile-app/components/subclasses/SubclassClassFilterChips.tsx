@@ -1,11 +1,13 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Chip } from 'react-native-paper';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
+import type { OptionItem } from '@/lib/characterCreation/options';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 type SubclassClassFilterChipsProps = {
     selectedClassId: string;
     onSelectClassId: (classId: string) => void;
+    classOptions?: OptionItem[];
 };
 
 const ALL_CLASSES_FILTER = 'all';
@@ -17,10 +19,11 @@ export const FILTER_CHIP_HEIGHT = 32;
 export default function SubclassClassFilterChips({
     selectedClassId,
     onSelectClassId,
+    classOptions = CLASS_OPTIONS,
 }: SubclassClassFilterChipsProps) {
     const options = [
         { value: ALL_CLASSES_FILTER, label: 'All' },
-        ...CLASS_OPTIONS.map((option) => ({ value: option.value, label: option.label })),
+        ...classOptions.map((option) => ({ value: option.value, label: option.label })),
     ];
 
     return (

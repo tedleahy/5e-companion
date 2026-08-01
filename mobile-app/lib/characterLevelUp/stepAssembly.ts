@@ -1,4 +1,5 @@
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
+import type { OptionItem } from '@/lib/characterCreation/options';
 import { sortCharacterClasses } from '@/lib/characterClassSummary';
 import type { AvailableSubclassOption } from '@/lib/subclasses';
 import { hasClassResourceChanges } from './classResources';
@@ -105,9 +106,10 @@ export function selectedLevelUpClass(
     selectedClassId: string,
     subclassSelection: LevelUpSubclassSelectionState = createLevelUpSubclassSelectionState(),
     availableSubclasses: readonly AvailableSubclassOption[] = [],
+    classOptions: readonly OptionItem[] = CLASS_OPTIONS,
 ): LevelUpWizardSelectedClass {
     const matchingClassRow = character?.classes.find((classRow) => classRow.classId === selectedClassId) ?? null;
-    const classOption = CLASS_OPTIONS.find((option) => option.value === selectedClassId) ?? null;
+    const classOption = classOptions.find((option) => option.value === selectedClassId) ?? null;
 
     if (matchingClassRow) {
         const matchingSubclassOption = availableSubclasses.find((subclass) => (
@@ -128,6 +130,7 @@ export function selectedLevelUpClass(
             subclassFeatures: matchingSubclassOption?.features ?? [],
             subclassSelectedThisLevel: false,
             customSubclass: null,
+            classDefinition: classOption?.classDefinition,
         };
         const resolvedSubclass = resolveSelectedClassSubclass(baseSelectedClass, subclassSelection);
 
@@ -151,6 +154,7 @@ export function selectedLevelUpClass(
         subclassFeatures: [],
         subclassSelectedThisLevel: false,
         customSubclass: null,
+        classDefinition: classOption?.classDefinition,
     };
     const resolvedSubclass = resolveSelectedClassSubclass(baseSelectedClass, subclassSelection);
 
@@ -209,7 +213,8 @@ export function buildLevelUpStepList(
 ): LevelUpWizardStep[] {
     const stepIds: LevelUpWizardStepId[] = ['choose_class', 'hit_points'];
 
-    if (isAsiLevel(selectedClass.classId, selectedClass.newLevel)) {
+    if (selectedClass.classDefinition?.progression.find((level) => level.level === selectedClass.newLevel)?.abilityScoreImprovement
+        || isAsiLevel(selectedClass.classId, selectedClass.newLevel)) {
         stepIds.push('asi_or_feat');
     }
 

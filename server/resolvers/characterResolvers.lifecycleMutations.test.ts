@@ -42,6 +42,20 @@ describe('characterResolvers — createCharacter', () => {
                     { srdIndex: 'saving-throw-int', name: 'INT', type: 'SAVING_THROW' },
                     { srdIndex: 'saving-throw-wis', name: 'WIS', type: 'SAVING_THROW' },
                 ],
+                proficiencyRules: [
+                    {
+                        grant: 'STARTING',
+                        choiceGroup: 1,
+                        choiceCount: 1,
+                        proficiencyRef: { srdIndex: 'skill-arcana', name: 'Arcana', type: 'SKILL' },
+                    },
+                    {
+                        grant: 'STARTING',
+                        choiceGroup: 1,
+                        choiceCount: 1,
+                        proficiencyRef: { srdIndex: 'skill-history', name: 'History', type: 'SKILL' },
+                    },
+                ],
             },
             {
                 id: 'class-warlock-id',
@@ -88,7 +102,10 @@ describe('characterResolvers — createCharacter', () => {
             speed: 30,
             initiative: 3,
             abilityScores: { strength: 8, dexterity: 16, constitution: 14, intelligence: 20, wisdom: 13, charisma: 14 },
-            skillProficiencies: { arcana: 'expert' },
+            skillProficiencies: {},
+            proficiencyChoices: [
+                { classId: 'wizard', choiceGroup: 1, values: ['skill-arcana'] },
+            ],
         };
 
         await resolvers.createCharacter({}, { input: input as any }, authedCtx);
@@ -100,6 +117,7 @@ describe('characterResolvers — createCharacter', () => {
         expect(callArgs.data.proficiencyBonus).toBe(4);
         expect(callArgs.data.stats.create.hp).toEqual({ current: 77, max: 77, temp: 0 });
         expect(callArgs.data.stats.create.savingThrowProficiencies).toEqual(['intelligence', 'wisdom']);
+        expect(callArgs.data.stats.create.skillProficiencies.arcana).toBe('proficient');
         expect(callArgs.data.classes.create).toEqual([
             { classId: 'class-wizard-id', subclassId: 'subclass-evocation-id', level: 9, isStartingClass: true },
             { classId: 'class-warlock-id', subclassId: 'subclass-fiend-id', level: 3, isStartingClass: false },
@@ -118,6 +136,511 @@ describe('characterResolvers — createCharacter', () => {
         ]);
     });
 
+    test('auto-grants fixed starting and background skill proficiencies even when omitted from input', async () => {
+        characterCreateMock.mockResolvedValueOnce({ id: 'char-new', ownerUserId: 'user-abc' });
+        classFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'class-fighter-id',
+                srdIndex: 'fighter',
+                name: 'Fighter',
+                hitDie: 10,
+                spellcastingAbility: null,
+                proficiencies: [],
+                proficiencyRules: [
+                    {
+                        grant: 'STARTING',
+                        choiceGroup: null,
+                        choiceCount: null,
+                        proficiencyRef: { srdIndex: 'skill-athletics', name: 'Athletics', type: 'SKILL' },
+                    },
+                    {
+                        grant: 'STARTING',
+                        choiceGroup: 1,
+                        choiceCount: 1,
+                        proficiencyRef: { srdIndex: 'skill-intimidation', name: 'Intimidation', type: 'SKILL' },
+                    },
+                    {
+                        grant: 'STARTING',
+                        choiceGroup: 1,
+                        choiceCount: 1,
+                        proficiencyRef: { srdIndex: 'skill-perception', name: 'Perception', type: 'SKILL' },
+                    },
+                ],
+            },
+        ]);
+        raceFindFirstMock.mockResolvedValueOnce({ id: 'race-human-id', name: 'Human', languages: [], traits: [] });
+        backgroundFindFirstMock.mockResolvedValueOnce({
+            id: 'background-soldier-id',
+            name: 'Soldier',
+            proficiencies: [
+                { srdIndex: 'skill-athletics', name: 'Athletics', type: 'SKILL' },
+                { srdIndex: 'skill-intimidation', name: 'Intimidation', type: 'SKILL' },
+            ],
+            languages: [],
+            languageChoiceCount: null,
+        });
+        featureFindManyMock.mockResolvedValueOnce([]);
+
+        await resolvers.createCharacter({}, {
+            input: {
+                name: 'Brom',
+                race: 'human',
+                classes: [{ classId: 'fighter', level: 1 }],
+                startingClassId: 'fighter',
+                alignment: 'Lawful Good',
+                background: 'soldier',
+                ac: 16,
+                speed: 30,
+                initiative: 1,
+                abilityScores: { strength: 16, dexterity: 12, constitution: 14, intelligence: 10, wisdom: 10, charisma: 8 },
+                // Choice provenance is class-scoped proficiencyChoices. Fixed class
+                // (Athletics) and background (Intimidation) grants are applied server-side.
+                skillProficiencies: {},
+                proficiencyChoices: [
+                    { classId: 'fighter', choiceGroup: 1, values: ['skill-perception'] },
+                ],
+            },
+        } as any, authedCtx);
+
+        const callArgs = characterCreateMock.mock.calls[0]![0] as Record<string, any>;
+        expect(callArgs.data.stats.create.skillProficiencies.athletics).toBe('proficient');
+        expect(callArgs.data.stats.create.skillProficiencies.intimidation).toBe('proficient');
+        expect(callArgs.data.stats.create.skillProficiencies.perception).toBe('proficient');
+        expect(callArgs.data.stats.create.skillProficiencies.stealth).toBe('none');
+    });
+
+    test('rejects a starting skill choice group that is not filled with exactly its pick count', async () => {
+        classFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'class-fighter-id',
+                srdIndex: 'fighter',
+                name: 'Fighter',
+                hitDie: 10,
+                spellcastingAbility: null,
+                proficiencies: [],
+                proficiencyRules: [
+                    {
+                        grant: 'STARTING',
+                        choiceGroup: 1,
+                        choiceCount: 2,
+                        proficiencyRef: { srdIndex: 'skill-intimidation', name: 'Intimidation', type: 'SKILL' },
+                    },
+                    {
+                        grant: 'STARTING',
+                        choiceGroup: 1,
+                        choiceCount: 2,
+                        proficiencyRef: { srdIndex: 'skill-perception', name: 'Perception', type: 'SKILL' },
+                    },
+                ],
+            },
+        ]);
+        raceFindFirstMock.mockResolvedValueOnce({ id: 'race-human-id', name: 'Human', languages: [], traits: [] });
+        backgroundFindFirstMock.mockResolvedValueOnce({
+            id: 'background-soldier-id', name: 'Soldier', proficiencies: [], languages: [], languageChoiceCount: null,
+        });
+
+        expect(resolvers.createCharacter({}, {
+            input: {
+                name: 'Brom',
+                race: 'human',
+                classes: [{ classId: 'fighter', level: 1 }],
+                startingClassId: 'fighter',
+                alignment: 'Lawful Good',
+                background: 'soldier',
+                ac: 16,
+                speed: 30,
+                initiative: 1,
+                abilityScores: { strength: 16, dexterity: 12, constitution: 14, intelligence: 10, wisdom: 10, charisma: 8 },
+                skillProficiencies: {},
+                proficiencyChoices: [
+                    { classId: 'fighter', choiceGroup: 1, values: ['skill-perception'] },
+                ],
+            },
+        } as any, authedCtx)).rejects.toThrow('Choose exactly 2 proficiencies from fighter choice group 1');
+    });
+
+    test('does not let Soldier background skills satisfy Fighter choice quotas', async () => {
+        const fighterClass = {
+            id: 'class-fighter-id',
+            srdIndex: 'fighter',
+            name: 'Fighter',
+            hitDie: 10,
+            spellcastingAbility: null,
+            proficiencies: [],
+            proficiencyRules: [
+                {
+                    grant: 'STARTING',
+                    choiceGroup: 1,
+                    choiceCount: 2,
+                    proficiencyRef: { srdIndex: 'skill-athletics', name: 'Athletics', type: 'SKILL' },
+                },
+                {
+                    grant: 'STARTING',
+                    choiceGroup: 1,
+                    choiceCount: 2,
+                    proficiencyRef: { srdIndex: 'skill-intimidation', name: 'Intimidation', type: 'SKILL' },
+                },
+                {
+                    grant: 'STARTING',
+                    choiceGroup: 1,
+                    choiceCount: 2,
+                    proficiencyRef: { srdIndex: 'skill-perception', name: 'Perception', type: 'SKILL' },
+                },
+                {
+                    grant: 'STARTING',
+                    choiceGroup: 1,
+                    choiceCount: 2,
+                    proficiencyRef: { srdIndex: 'skill-survival', name: 'Survival', type: 'SKILL' },
+                },
+            ],
+        };
+        const soldierBackground = {
+            id: 'background-soldier-id',
+            name: 'Soldier',
+            proficiencies: [
+                { srdIndex: 'skill-athletics', name: 'Athletics', type: 'SKILL' },
+                { srdIndex: 'skill-intimidation', name: 'Intimidation', type: 'SKILL' },
+            ],
+            languages: [],
+            languageChoiceCount: null,
+        };
+
+        classFindManyMock.mockResolvedValueOnce([fighterClass]);
+        raceFindFirstMock.mockResolvedValueOnce({ id: 'race-human-id', name: 'Human', languages: [], traits: [] });
+        backgroundFindFirstMock.mockResolvedValueOnce(soldierBackground);
+
+        // Client skillProficiencies falsely claiming background skills fill the quota
+        // must not bypass class-scoped proficiencyChoices validation.
+        expect(resolvers.createCharacter({}, {
+            input: {
+                name: 'Brom',
+                race: 'human',
+                classes: [{ classId: 'fighter', level: 1 }],
+                startingClassId: 'fighter',
+                alignment: 'Lawful Good',
+                background: 'soldier',
+                ac: 16,
+                speed: 30,
+                initiative: 1,
+                abilityScores: { strength: 16, dexterity: 12, constitution: 14, intelligence: 10, wisdom: 10, charisma: 8 },
+                skillProficiencies: { athletics: 'proficient', intimidation: 'proficient' },
+                proficiencyChoices: [],
+            },
+        } as any, authedCtx)).rejects.toThrow('Choose exactly 2 proficiencies from fighter choice group 1');
+
+        characterCreateMock.mockResolvedValueOnce({ id: 'char-soldier', ownerUserId: 'user-abc' });
+        classFindManyMock.mockResolvedValueOnce([fighterClass]);
+        raceFindFirstMock.mockResolvedValueOnce({ id: 'race-human-id', name: 'Human', languages: [], traits: [] });
+        backgroundFindFirstMock.mockResolvedValueOnce(soldierBackground);
+        featureFindManyMock.mockResolvedValueOnce([]);
+
+        await resolvers.createCharacter({}, {
+            input: {
+                name: 'Brom',
+                race: 'human',
+                classes: [{ classId: 'fighter', level: 1 }],
+                startingClassId: 'fighter',
+                alignment: 'Lawful Good',
+                background: 'soldier',
+                ac: 16,
+                speed: 30,
+                initiative: 1,
+                abilityScores: { strength: 16, dexterity: 12, constitution: 14, intelligence: 10, wisdom: 10, charisma: 8 },
+                skillProficiencies: {},
+                proficiencyChoices: [{
+                    classId: 'fighter',
+                    choiceGroup: 1,
+                    values: ['skill-perception', 'skill-survival'],
+                }],
+            },
+        } as any, authedCtx);
+
+        const callArgs = characterCreateMock.mock.calls[0]![0] as Record<string, any>;
+        expect(callArgs.data.stats.create.skillProficiencies.athletics).toBe('proficient');
+        expect(callArgs.data.stats.create.skillProficiencies.intimidation).toBe('proficient');
+        expect(callArgs.data.stats.create.skillProficiencies.perception).toBe('proficient');
+        expect(callArgs.data.stats.create.skillProficiencies.survival).toBe('proficient');
+    });
+
+    test('rejects an invalid proficiency choice option value', async () => {
+        classFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'class-fighter-id',
+                srdIndex: 'fighter',
+                name: 'Fighter',
+                hitDie: 10,
+                spellcastingAbility: null,
+                proficiencies: [],
+                proficiencyRules: [
+                    {
+                        grant: 'STARTING',
+                        choiceGroup: 1,
+                        choiceCount: 1,
+                        proficiencyRef: { srdIndex: 'skill-intimidation', name: 'Intimidation', type: 'SKILL' },
+                    },
+                    {
+                        grant: 'STARTING',
+                        choiceGroup: 1,
+                        choiceCount: 1,
+                        proficiencyRef: { srdIndex: 'skill-perception', name: 'Perception', type: 'SKILL' },
+                    },
+                ],
+            },
+        ]);
+        raceFindFirstMock.mockResolvedValueOnce({ id: 'race-human-id', name: 'Human', languages: [], traits: [] });
+        backgroundFindFirstMock.mockResolvedValueOnce({
+            id: 'background-soldier-id', name: 'Soldier', proficiencies: [], languages: [], languageChoiceCount: null,
+        });
+
+        expect(resolvers.createCharacter({}, {
+            input: {
+                name: 'Brom',
+                race: 'human',
+                classes: [{ classId: 'fighter', level: 1 }],
+                startingClassId: 'fighter',
+                alignment: 'Lawful Good',
+                background: 'soldier',
+                ac: 16,
+                speed: 30,
+                initiative: 1,
+                abilityScores: { strength: 16, dexterity: 12, constitution: 14, intelligence: 10, wisdom: 10, charisma: 8 },
+                skillProficiencies: {},
+                proficiencyChoices: [
+                    { classId: 'fighter', choiceGroup: 1, values: ['skill-arcana'] },
+                ],
+            },
+        } as any, authedCtx)).rejects.toThrow('is not an option');
+    });
+
+    test('applies secondary-class MULTICLASS skill and named proficiency choices during creation', async () => {
+        characterCreateMock.mockResolvedValueOnce({ id: 'char-multi', ownerUserId: 'user-abc' });
+        classFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'class-fighter-id',
+                srdIndex: 'fighter',
+                name: 'Fighter',
+                hitDie: 10,
+                spellcastingAbility: null,
+                proficiencies: [],
+                proficiencyRules: [
+                    {
+                        grant: 'STARTING',
+                        choiceGroup: 1,
+                        choiceCount: 2,
+                        proficiencyRef: { srdIndex: 'skill-athletics', name: 'Athletics', type: 'SKILL' },
+                    },
+                    {
+                        grant: 'STARTING',
+                        choiceGroup: 1,
+                        choiceCount: 2,
+                        proficiencyRef: { srdIndex: 'skill-perception', name: 'Perception', type: 'SKILL' },
+                    },
+                    {
+                        grant: 'STARTING',
+                        choiceGroup: 1,
+                        choiceCount: 2,
+                        proficiencyRef: { srdIndex: 'skill-survival', name: 'Survival', type: 'SKILL' },
+                    },
+                ],
+            },
+            {
+                id: 'class-bard-id',
+                srdIndex: 'bard',
+                name: 'Bard',
+                hitDie: 8,
+                spellcastingAbility: 'cha',
+                proficiencies: [],
+                proficiencyRules: [
+                    {
+                        grant: 'MULTICLASS',
+                        choiceGroup: null,
+                        choiceCount: null,
+                        proficiencyRef: { srdIndex: 'light-armor', name: 'Light Armor', type: 'ARMOR' },
+                    },
+                    {
+                        grant: 'MULTICLASS',
+                        choiceGroup: 1,
+                        choiceCount: 1,
+                        proficiencyRef: { srdIndex: 'skill-performance', name: 'Performance', type: 'SKILL' },
+                    },
+                    {
+                        grant: 'MULTICLASS',
+                        choiceGroup: 1,
+                        choiceCount: 1,
+                        proficiencyRef: { srdIndex: 'skill-persuasion', name: 'Persuasion', type: 'SKILL' },
+                    },
+                    {
+                        grant: 'MULTICLASS',
+                        choiceGroup: 2,
+                        choiceCount: 1,
+                        proficiencyRef: { srdIndex: 'lute', name: 'Lute', type: 'TOOL' },
+                    },
+                    {
+                        grant: 'MULTICLASS',
+                        choiceGroup: 2,
+                        choiceCount: 1,
+                        proficiencyRef: { srdIndex: 'flute', name: 'Flute', type: 'TOOL' },
+                    },
+                ],
+            },
+        ]);
+        raceFindFirstMock.mockResolvedValueOnce({ id: 'race-human-id', name: 'Human', languages: [], traits: [] });
+        backgroundFindFirstMock.mockResolvedValueOnce({
+            id: 'background-soldier-id', name: 'Soldier', proficiencies: [], languages: [], languageChoiceCount: null,
+        });
+        featureFindManyMock.mockResolvedValueOnce([]);
+
+        await resolvers.createCharacter({}, {
+            input: {
+                name: 'Lyra',
+                race: 'human',
+                classes: [
+                    { classId: 'fighter', level: 1 },
+                    { classId: 'bard', level: 1 },
+                ],
+                startingClassId: 'fighter',
+                alignment: 'Chaotic Good',
+                background: 'soldier',
+                ac: 14,
+                speed: 30,
+                initiative: 2,
+                abilityScores: { strength: 14, dexterity: 14, constitution: 12, intelligence: 10, wisdom: 10, charisma: 14 },
+                skillProficiencies: {},
+                proficiencyChoices: [
+                    { classId: 'fighter', choiceGroup: 1, values: ['skill-athletics', 'skill-perception'] },
+                    { classId: 'bard', choiceGroup: 1, values: ['skill-performance'] },
+                    { classId: 'bard', choiceGroup: 2, values: ['lute'] },
+                ],
+            },
+        } as any, authedCtx);
+
+        const callArgs = characterCreateMock.mock.calls[0]![0] as Record<string, any>;
+        expect(callArgs.data.stats.create.skillProficiencies.athletics).toBe('proficient');
+        expect(callArgs.data.stats.create.skillProficiencies.perception).toBe('proficient');
+        expect(callArgs.data.stats.create.skillProficiencies.performance).toBe('proficient');
+        expect(callArgs.data.stats.create.traits.toolProficiencies).toEqual(expect.arrayContaining(['Lute']));
+        expect(callArgs.data.stats.create.traits.armorProficiencies).toEqual(expect.arrayContaining(['Light Armor']));
+    });
+
+    test('requires independent overlapping skill picks for Fighter + Rogue multiclass creation', async () => {
+        characterCreateMock.mockResolvedValueOnce({ id: 'char-overlap', ownerUserId: 'user-abc' });
+        const classes = [
+            {
+                id: 'class-fighter-id',
+                srdIndex: 'fighter',
+                name: 'Fighter',
+                hitDie: 10,
+                spellcastingAbility: null,
+                proficiencies: [],
+                proficiencyRules: [
+                    {
+                        grant: 'STARTING',
+                        choiceGroup: 1,
+                        choiceCount: 2,
+                        proficiencyRef: { srdIndex: 'skill-athletics', name: 'Athletics', type: 'SKILL' },
+                    },
+                    {
+                        grant: 'STARTING',
+                        choiceGroup: 1,
+                        choiceCount: 2,
+                        proficiencyRef: { srdIndex: 'skill-perception', name: 'Perception', type: 'SKILL' },
+                    },
+                    {
+                        grant: 'STARTING',
+                        choiceGroup: 1,
+                        choiceCount: 2,
+                        proficiencyRef: { srdIndex: 'skill-survival', name: 'Survival', type: 'SKILL' },
+                    },
+                ],
+            },
+            {
+                id: 'class-rogue-id',
+                srdIndex: 'rogue',
+                name: 'Rogue',
+                hitDie: 8,
+                spellcastingAbility: null,
+                proficiencies: [],
+                proficiencyRules: [
+                    {
+                        grant: 'MULTICLASS',
+                        choiceGroup: 1,
+                        choiceCount: 1,
+                        proficiencyRef: { srdIndex: 'skill-athletics', name: 'Athletics', type: 'SKILL' },
+                    },
+                    {
+                        grant: 'MULTICLASS',
+                        choiceGroup: 1,
+                        choiceCount: 1,
+                        proficiencyRef: { srdIndex: 'skill-stealth', name: 'Stealth', type: 'SKILL' },
+                    },
+                ],
+            },
+        ];
+
+        classFindManyMock.mockResolvedValueOnce(classes);
+        raceFindFirstMock.mockResolvedValueOnce({ id: 'race-human-id', name: 'Human', languages: [], traits: [] });
+        backgroundFindFirstMock.mockResolvedValueOnce({
+            id: 'background-acolyte-id', name: 'Acolyte', proficiencies: [], languages: [], languageChoiceCount: null,
+        });
+
+        expect(resolvers.createCharacter({}, {
+            input: {
+                name: 'Shade',
+                race: 'human',
+                classes: [
+                    { classId: 'fighter', level: 1 },
+                    { classId: 'rogue', level: 1 },
+                ],
+                startingClassId: 'fighter',
+                alignment: 'Neutral',
+                background: 'acolyte',
+                ac: 14,
+                speed: 30,
+                initiative: 2,
+                abilityScores: { strength: 14, dexterity: 16, constitution: 12, intelligence: 10, wisdom: 10, charisma: 10 },
+                skillProficiencies: {},
+                // Overlapping athletics on Fighter alone must not satisfy Rogue's group.
+                proficiencyChoices: [
+                    { classId: 'fighter', choiceGroup: 1, values: ['skill-athletics', 'skill-perception'] },
+                ],
+            },
+        } as any, authedCtx)).rejects.toThrow('Choose exactly 1 proficiency from rogue choice group 1');
+
+        classFindManyMock.mockResolvedValueOnce(classes);
+        raceFindFirstMock.mockResolvedValueOnce({ id: 'race-human-id', name: 'Human', languages: [], traits: [] });
+        backgroundFindFirstMock.mockResolvedValueOnce({
+            id: 'background-acolyte-id', name: 'Acolyte', proficiencies: [], languages: [], languageChoiceCount: null,
+        });
+        featureFindManyMock.mockResolvedValueOnce([]);
+
+        await resolvers.createCharacter({}, {
+            input: {
+                name: 'Shade',
+                race: 'human',
+                classes: [
+                    { classId: 'fighter', level: 1 },
+                    { classId: 'rogue', level: 1 },
+                ],
+                startingClassId: 'fighter',
+                alignment: 'Neutral',
+                background: 'acolyte',
+                ac: 14,
+                speed: 30,
+                initiative: 2,
+                abilityScores: { strength: 14, dexterity: 16, constitution: 12, intelligence: 10, wisdom: 10, charisma: 10 },
+                skillProficiencies: {},
+                proficiencyChoices: [
+                    { classId: 'fighter', choiceGroup: 1, values: ['skill-athletics', 'skill-perception'] },
+                    { classId: 'rogue', choiceGroup: 1, values: ['skill-athletics'] },
+                ],
+            },
+        } as any, authedCtx);
+
+        const callArgs = characterCreateMock.mock.calls[0]![0] as Record<string, any>;
+        expect(callArgs.data.stats.create.skillProficiencies.athletics).toBe('proficient');
+        expect(callArgs.data.stats.create.skillProficiencies.perception).toBe('proficient');
+    });
+
     test('rejects subclass rows that have not reached their unlock level', async () => {
         classFindManyMock.mockResolvedValueOnce([
             {
@@ -134,7 +657,6 @@ describe('characterResolvers — createCharacter', () => {
         ]);
         raceFindFirstMock.mockResolvedValueOnce({ id: 'race-elf-id', name: 'Elf', languages: [], traits: [] });
         backgroundFindFirstMock.mockResolvedValueOnce({ id: 'background-acolyte-id', name: 'Acolyte', proficiencies: [], languages: [], languageChoiceCount: null });
-        featureFindManyMock.mockResolvedValueOnce([]);
 
         expect(resolvers.createCharacter({}, {
             input: {

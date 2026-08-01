@@ -49,10 +49,10 @@ const styles = StyleSheet.create({
         flex: 1,
         height: 3,
         borderRadius: 2,
-        backgroundColor: fantasyTokens.colors.sheetDivider,
+        backgroundColor: fantasyTokens.sheet.form.border,
     },
     progressSegmentCompleted: {
-        backgroundColor: fantasyTokens.colors.claret,
+        backgroundColor: fantasyTokens.colors.crimson,
     },
     progressSegmentCurrent: {
         backgroundColor: fantasyTokens.colors.gold,

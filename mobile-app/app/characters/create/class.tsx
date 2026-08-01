@@ -4,9 +4,10 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import type { LayoutChangeEvent } from 'react-native';
 import { Switch, Text } from 'react-native-paper';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useQuery } from '@apollo/client/react';
 import ClassAllocationRow from '@/components/character-creation-wizard/ClassAllocationRow';
 import ClassOptionGrid from '@/components/character-creation-wizard/ClassOptionGrid';
-import NumericStepper from '@/components/character-creation-wizard/NumericStepper';
+import NumericStepper from '@/components/NumericStepper';
 import OptionGrid from '@/components/character-creation-wizard/OptionGrid';
 import useAvailableSubclasses from '@/hooks/useAvailableSubclasses';
 import {
@@ -14,13 +15,18 @@ import {
     createCharacterClassDraft,
     isSubclassUnlocked,
     normaliseStartingClassId,
+    pruneClassPresentation,
     remainingClassLevels,
     sanitiseCharacterClassRow,
     validateCharacterClassDraft,
+    withClassPresentation,
 } from '@/lib/characterCreation/multiclass';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { wizardStepStyles } from '@/components/character-creation-wizard/styles/wizardStepStyles';
+import { GET_AVAILABLE_CLASSES } from '@/graphql/class.operations';
+import { CLASS_OPTIONS, type OptionItem } from '@/lib/characterCreation/options';
+import type { AvailableClassesQuery } from '@/types/generated_graphql_types';
 
 /**
  * Class selection step for the create-character wizard.
@@ -35,6 +41,18 @@ export default function StepClass() {
         () => draft.classes.length > 1,
     );
     const [showMulticlassInfo, setShowMulticlassInfo] = useState(false);
+    const { data: classData } = useQuery<AvailableClassesQuery>(GET_AVAILABLE_CLASSES, { fetchPolicy: 'cache-first' });
+    const availableClassRows = classData?.availableClasses ?? [];
+    const classOptions: OptionItem[] = availableClassRows.map((classRef) => {
+        return {
+            value: classRef.value,
+            label: classRef.name,
+            icon: classRef.emoji,
+            hint: classRef.primaryAbilityIndexes.map((ability) => ability.toUpperCase()).join(' / ') || (classRef.isCustom ? 'Custom class' : undefined),
+            hitDie: classRef.hitDie,
+            multiclassPrerequisites: classRef.multiclassPrerequisites.map((rule) => ({ ...rule })),
+        };
+    });
 
     const selectedClass = draft.classes[0];
     const selectedClassId = selectedClass?.classId ?? '';
@@ -45,7 +63,7 @@ export default function StepClass() {
 
     /* ── multiclass helpers (reused from previous implementation) ── */
 
-    const availableClasses = availableClassOptions(draft.classes);
+    const availableClasses = availableClassOptions(draft.classes, classOptions.length > 0 ? classOptions : CLASS_OPTIONS);
     const validation = validateCharacterClassDraft(
         draft.classes,
         draft.level,
@@ -94,6 +112,10 @@ export default function StepClass() {
         updateDraft({
             classes: [classRow],
             startingClassId: classId,
+            classPresentationById: pruneClassPresentation(
+                withClassPresentation(draft.classPresentationById, classId, availableClassRows),
+                [classId],
+            ),
         });
     }
 
@@ -124,6 +146,10 @@ export default function StepClass() {
             updateDraft({
                 classes: [sanitised],
                 startingClassId: sanitised.classId,
+                classPresentationById: pruneClassPresentation(
+                    draft.classPresentationById,
+                    [sanitised.classId],
+                ),
             });
         }
     }
@@ -142,7 +168,11 @@ export default function StepClass() {
         scrollViewRef.current?.scrollTo({ y: event.nativeEvent.layout.y, animated: true });
     }
 
-    function updateClasses(nextClasses: typeof draft.classes, nextStartingClassId = draft.startingClassId) {
+    function updateClasses(
+        nextClasses: typeof draft.classes,
+        nextStartingClassId = draft.startingClassId,
+        nextPresentation = draft.classPresentationById,
+    ) {
         const sanitisedClasses = nextClasses.map((classRow) => sanitiseCharacterClassRow(
             classRow,
             subclassOptionItemsByClassId,
@@ -150,6 +180,10 @@ export default function StepClass() {
         updateDraft({
             classes: sanitisedClasses,
             startingClassId: normaliseStartingClassId(sanitisedClasses, nextStartingClassId),
+            classPresentationById: pruneClassPresentation(
+                nextPresentation,
+                sanitisedClasses.map((classRow) => classRow.classId),
+            ),
         });
     }
 
@@ -159,6 +193,7 @@ export default function StepClass() {
         updateClasses(
             [...draft.classes, createCharacterClassDraft(classId)],
             draft.startingClassId || classId,
+            withClassPresentation(draft.classPresentationById, classId, availableClassRows),
         );
     }
 
@@ -202,6 +237,10 @@ export default function StepClass() {
                 updateDraft({
                     classes: [sanitiseCharacterClassRow(solo, subclassOptionItemsByClassId)],
                     startingClassId: solo.classId,
+                    classPresentationById: pruneClassPresentation(
+                        draft.classPresentationById,
+                        [solo.classId],
+                    ),
                 });
             }
         }
@@ -284,6 +323,7 @@ export default function StepClass() {
                 /* ── Single-class mode ── */
                 <>
                     <ClassOptionGrid
+                        options={classOptions.length > 0 ? classOptions : CLASS_OPTIONS}
                         selected={selectedClassId}
                         onSelect={handleSelectSingleClass}
                     />
@@ -342,6 +382,7 @@ export default function StepClass() {
                             canIncreaseLevel={remainingLevelsCount > 0}
                             canRemove
                             classRow={classRow}
+                            classOptions={classOptions.length > 0 ? classOptions : CLASS_OPTIONS}
                             index={displayIndex}
                             isStartingClass={classRow.classId === draft.startingClassId}
                             onDecreaseLevel={() => handleChangeClassLevel(classRow.originalIndex, -1)}

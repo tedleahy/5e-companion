@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import type { LayoutChangeEvent } from 'react-native';
 import { RadioButton, Text } from 'react-native-paper';
 import { ParchmentPanel } from '@/components/FantasyPrimitives';
-import NumericStepper from '@/components/character-creation-wizard/NumericStepper';
+import NumericStepper from '@/components/NumericStepper';
 import {
     classLabel,
     formatClassRowLabel,
@@ -27,6 +27,7 @@ type Props = {
     onSelectSubclass: (subclassId: string) => void;
     showStartingClassSelector: boolean;
     subclassOptions: OptionItem[];
+    classOptions?: OptionItem[];
 };
 
 /**
@@ -47,6 +48,7 @@ export default function ClassAllocationRow({
     onSelectSubclass,
     showStartingClassSelector,
     subclassOptions,
+    classOptions,
 }: Props) {
     const [showStartingClassInfo, setShowStartingClassInfo] = useState(false);
 
@@ -56,7 +58,7 @@ export default function ClassAllocationRow({
                 <View style={styles.headerRow}>
                     <View style={styles.titleColumn}>
                         <Text style={styles.rowLabel}>{`Class ${index + 1}`}</Text>
-                        <Text style={styles.className}>{formatClassRowLabel(classRow)}</Text>
+                        <Text style={styles.className}>{classOptions ? classLabel(classRow.classId, classOptions) : formatClassRowLabel(classRow)}</Text>
                     </View>
 
                     {(!canDecreaseLevel && !canIncreaseLevel) ? (
@@ -121,7 +123,7 @@ export default function ClassAllocationRow({
                 {subclassOptions.length > 0 ? (
                     <View style={styles.subclassSection}>
                         <Text style={styles.subclassHeading}>
-                            {classLabel(classRow.classId)} subclass
+                            {classLabel(classRow.classId, classOptions)} subclass
                         </Text>
                         <View style={styles.subclassList}>
                                 {subclassOptions.map((subclassOption) => {
@@ -152,7 +154,7 @@ export default function ClassAllocationRow({
                                                     <Text style={styles.subclassHint}>{subclassOption.hint}</Text>
                                                 ) : null}
                                                 <Text style={styles.subclassHint}>
-                                                    {`Available at ${classLabel(classRow.classId)} level ${selectionLevel}`}
+                                                    {`Available at ${classLabel(classRow.classId, classOptions)} level ${selectionLevel}`}
                                                 </Text>
                                             </View>
                                         </Pressable>

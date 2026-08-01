@@ -17,9 +17,171 @@ type Spell {
 }
 
 type CompendiumCounts {
+    srdClassCount: Int!
+    customClassCount: Int!
     srdSubclassCount: Int!
     customSubclassCount: Int!
     spellCount: Int!
+}
+
+type AvailableClass {
+    id: ID!
+    value: String!
+    srdIndex: String
+    name: String!
+    emoji: String!
+    description: [String!]!
+    hitDie: Int!
+    primaryAbilityIndexes: [String!]!
+    savingThrowIndexes: [String!]!
+    spellcastingMode: String!
+    spellcastingAbility: String
+    multiclassPrerequisites: [ClassMulticlassPrerequisite!]!
+    isCustom: Boolean!
+}
+
+type ClassDetails {
+    id: ID!
+    value: String!
+    srdIndex: String
+    name: String!
+    emoji: String!
+    description: [String!]!
+    hitDie: Int!
+    primaryAbilityIndexes: [String!]!
+    savingThrowIndexes: [String!]!
+    spellcastingMode: String!
+    spellcastingAbility: String
+    addSpellcastingAbility: Boolean!
+    isCustom: Boolean!
+    archived: Boolean!
+    sourceBook: String
+    multiclassPrerequisites: [ClassMulticlassPrerequisite!]!
+    proficiencies: [ClassProficiency!]!
+    equipment: [ClassEquipmentDefinition!]!
+    progression: [ClassLevelProgression!]!
+    features: [ClassFeature!]!
+    spells: [ClassSpell!]!
+    characterUsageCount: Int!
+    mechanicsLocked: Boolean!
+    mechanicsLockedReason: String
+}
+
+type ClassMulticlassPrerequisite {
+    abilityIndex: String!
+    minimum: Int!
+    group: Int!
+}
+
+type ClassProficiency {
+    value: String!
+    name: String!
+    type: String!
+    grant: String!
+    choiceGroup: Int
+    choiceCount: Int
+}
+
+type ProficiencyRef {
+    value: String!
+    name: String!
+    type: String!
+    isCustom: Boolean!
+}
+
+type ClassEquipmentDefinition {
+    name: String!
+    quantity: Int!
+    choiceGroup: Int
+    choiceCount: Int
+}
+
+type ClassLevelProgression {
+    level: Int!
+    abilityScoreImprovement: Boolean!
+    spellSlots: [Int!]!
+    cantripsKnown: Int
+    spellsKnown: Int
+    preparedSpellCount: Int
+    displayValues: [ClassDisplayValue!]!
+}
+
+type ClassDisplayValue {
+    key: String!
+    value: String!
+}
+
+type ClassFeature {
+    id: ID!
+    name: String!
+    description: String!
+    level: Int!
+}
+
+type ClassSpell {
+    id: ID!
+    name: String!
+    level: Int!
+}
+
+input ManagedCustomClassInput {
+    name: String!
+    emoji: String!
+    description: String!
+    hitDie: Int!
+    primaryAbilityIndexes: [String!]!
+    savingThrowIndexes: [String!]!
+    multiclassPrerequisites: [ClassMulticlassPrerequisiteInput!]!
+    proficiencies: [ClassProficiencyInput!]!
+    equipment: [ClassEquipmentDefinitionInput!]!
+    spellcastingMode: String!
+    spellcastingAbility: String
+    addSpellcastingAbility: Boolean!
+    progression: [ClassLevelProgressionInput!]!
+    features: [ManagedCustomClassFeatureInput!]!
+    spellIds: [ID!]!
+}
+
+input ClassMulticlassPrerequisiteInput {
+    abilityIndex: String!
+    minimum: Int!
+    group: Int!
+}
+
+input ClassProficiencyInput {
+    value: String!
+    grant: String!
+    choiceGroup: Int
+    choiceCount: Int
+}
+
+input ClassEquipmentDefinitionInput {
+    name: String!
+    quantity: Int!
+    choiceGroup: Int
+    choiceCount: Int
+}
+
+input ClassLevelProgressionInput {
+    level: Int!
+    abilityScoreImprovement: Boolean!
+    spellSlots: [Int!]!
+    cantripsKnown: Int
+    spellsKnown: Int
+    preparedSpellCount: Int
+    displayValues: [ClassDisplayValueInput!]!
+}
+
+input ClassDisplayValueInput {
+    key: String!
+    value: String!
+}
+
+input ManagedCustomClassFeatureInput {
+    id: ID
+    name: String!
+    description: String!
+    level: Int!
 }
 
 input SpellFilter {
@@ -74,6 +236,8 @@ type CharacterClass {
     id: ID!
     classId: String!
     className: String!
+    srdIndex: String
+    isCustom: Boolean
     subclassId: String
     subclassName: String
     level: Int!
@@ -259,11 +423,31 @@ type CharacterSpell {
 # Character Inputs
 # ---------------------------------------------------------------------------
 
+input ProficiencyChoiceSelectionInput {
+    """
+    Class selection value (SRD `srdIndex` or owned custom class id), matching
+    `CreateCharacterClassInput.classId`. Choice groups are unique per class.
+    """
+    classId: String!
+    choiceGroup: Int!
+    values: [String!]!
+}
+
 input CreateCharacterInput {
     name: String!
     race: String!
     classes: [CreateCharacterClassInput!]!
     featureChoices: [FeatureChoiceInput!]
+    """
+    Generic proficiency picks for every class row: STARTING groups on the
+    starting class and MULTICLASS groups on secondary classes. Includes SKILL
+    and named (armor/weapon/tool/other) groups. Identity is `(classId, choiceGroup)`;
+    values are proficiency identities (`srdIndex ?? id`). The server validates
+    each group independently and derives persisted skill/trait grants from these
+    picks plus fixed class and background grants — `skillProficiencies` is not
+    choice provenance.
+    """
+    proficiencyChoices: [ProficiencyChoiceSelectionInput!]
     startingClassId: String!
     alignment: String!
     background: String!
@@ -271,6 +455,11 @@ input CreateCharacterInput {
     speed: Int!
     initiative: Int!
     abilityScores: AbilityScoresInput!
+    """
+    Compatibility field. Creation derives persisted skill proficiencies from
+    validated `proficiencyChoices` plus fixed class/background grants. Client
+    values are not used as choice-group provenance.
+    """
     skillProficiencies: SkillProficienciesInput!
     traits: TraitsInput
     currency: CurrencyInput
@@ -463,6 +652,11 @@ input SaveCustomSubclassFeatureInput {
     level: Int!
 }
 
+input SaveCharacterSheetSpellInput {
+    spellId: ID!
+    prepared: Boolean!
+}
+
 input SaveCharacterSheetClassInput {
     id: ID
     classId: String!
@@ -486,6 +680,16 @@ input SaveCharacterSheetInput {
     weapons: [SaveCharacterSheetWeaponInput!]!
     inventory: [SaveCharacterSheetInventoryItemInput!]!
     features: [SaveCharacterSheetFeatureInput!]!
+    spellbook: [SaveCharacterSheetSpellInput!]!
+    """
+    MULTICLASS proficiency choice provenance for classes newly added in this
+    save. Includes SKILL and named (armor/weapon/tool/other) groups. Required
+    when the save introduces new class rows that grant MULTICLASS choice groups;
+    must be omitted or empty when no class is newly added so ordinary manual
+    trait/skill edits stay unconstrained. Option values use `srdIndex ?? id`.
+    Identity is `(classId, choiceGroup)`.
+    """
+    proficiencyChoices: [ProficiencyChoiceSelectionInput!]
 }
 
 # ---------------------------------------------------------------------------
@@ -494,6 +698,10 @@ input SaveCharacterSheetInput {
 
 type Query {
     compendiumCounts: CompendiumCounts!
+    availableClasses: [AvailableClass!]!
+    classDetails(value: String!): ClassDetails
+    customClasses: [AvailableClass!]!
+    attachedClassDetails(values: [String!]!): [ClassDetails!]!
     spells(filter: SpellFilter, pagination: SpellPagination): [Spell!]!
     spell(id: ID!): Spell
     character(id: ID!): Character
@@ -502,6 +710,7 @@ type Query {
     availableSubclasses(classIds: [String!]): [AvailableSubclass!]!
     customSubclasses(classIds: [String!]): [CustomSubclass!]!
     availableBackgrounds: [AvailableBackground!]!
+    proficiencies(type: String): [ProficiencyRef!]!
 }
 
 type Mutation {
@@ -515,6 +724,9 @@ type Mutation {
     createCustomSubclass(input: ManagedCustomSubclassInput!): CustomSubclass!
     updateCustomSubclass(id: ID!, input: ManagedCustomSubclassInput!): CustomSubclass!
     archiveCustomSubclass(id: ID!): Boolean!
+    createCustomClass(input: ManagedCustomClassInput!): ClassDetails!
+    updateCustomClass(id: ID!, input: ManagedCustomClassInput!): ClassDetails!
+    archiveCustomClass(id: ID!): Boolean!
     saveCharacterSheet(characterId: ID!, input: SaveCharacterSheetInput!): Character!
 
     # Live stats updates

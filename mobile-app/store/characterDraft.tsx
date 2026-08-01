@@ -1,13 +1,24 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
-import { ABILITY_KEYS, type AbilityKey, type SkillKey } from '@/lib/characterSheetUtils';
+import { ABILITY_KEYS, type AbilityKey } from '@/lib/characterSheetUtils';
 import {
     normaliseStartingClassId,
     type CharacterClassDraft,
+    type CreateClassPresentation,
 } from '@/lib/characterCreation/multiclass';
 import {
     getCreateFeatureChoiceGroups,
     reconcileCreateFeatureChoices,
 } from '@/lib/srdFeatureChoices';
+import {
+    didClassCompositionChange,
+    type DraftProficiencyChoice,
+} from '@/lib/characterCreation/proficiencyChoiceDraft';
+
+export type { CreateClassPresentation };
+export {
+    presentationClassLabel,
+    presentationSavingThrows,
+} from '@/lib/characterCreation/multiclass';
 
 export type CharacterDraft = {
     name: string;
@@ -26,11 +37,20 @@ export type CharacterDraft = {
     ideals: string;
     bonds: string;
     flaws: string;
-    skillProficiencies: SkillKey[];
+    /**
+     * Generic proficiency picks keyed by `(classId, choiceGroup)`, including
+     * SKILL and named groups. Values are proficiency identities (`srdIndex ?? id`).
+     */
+    proficiencyChoices: DraftProficiencyChoice[];
     /** Per-ability ASI points allocated from levelling. */
     asiAllocations: Record<AbilityKey, number>;
     /** Method used to determine ability scores. */
     abilityMode: 'roll' | 'pointBuy';
+    /**
+     * Presentation metadata keyed by class identity (`AvailableClass.value`),
+     * captured when the user selects a class from `availableClasses`.
+     */
+    classPresentationById: Record<string, CreateClassPresentation>;
 };
 
 const DEFAULT_SCORES: Record<AbilityKey, number> = {
@@ -60,9 +80,10 @@ export function createDefaultDraft(): CharacterDraft {
         ideals: '',
         bonds: '',
         flaws: '',
-        skillProficiencies: [],
+        proficiencyChoices: [],
         asiAllocations: { strength: 0, dexterity: 0, constitution: 0, intelligence: 0, wisdom: 0, charisma: 0 },
         abilityMode: 'roll',
+        classPresentationById: {},
     };
 }
 
@@ -71,7 +92,12 @@ type DraftContextValue = {
     updateDraft: (patch: Partial<CharacterDraft>) => void;
     setAbilityScore: (key: AbilityKey, value: number) => void;
     setAllAbilityScores: (scores: Record<AbilityKey, number>) => void;
-    toggleSkillProficiency: (key: SkillKey) => void;
+    toggleProficiencyChoice: (
+        classId: string,
+        choiceGroup: number,
+        value: string,
+        maxChoices: number,
+    ) => void;
     resetDraft: () => void;
     hasDraftData: () => boolean;
 };
@@ -99,6 +125,16 @@ export function CharacterDraftProvider({ children }: { children: ReactNode }) {
                 );
             }
 
+            const compositionChanged = didClassCompositionChange(
+                prev.classes,
+                prev.startingClassId,
+                nextDraft.classes,
+                nextDraft.startingClassId,
+            );
+            if (compositionChanged && patch.proficiencyChoices === undefined) {
+                nextDraft.proficiencyChoices = [];
+            }
+
             return nextDraft;
         });
     }, []);
@@ -114,14 +150,32 @@ export function CharacterDraftProvider({ children }: { children: ReactNode }) {
         setDraft((prev) => ({ ...prev, abilityScores: scores }));
     }, []);
 
-    const toggleSkillProficiency = useCallback((key: SkillKey) => {
+    const toggleProficiencyChoice = useCallback((
+        classId: string,
+        choiceGroup: number,
+        value: string,
+        maxChoices: number,
+    ) => {
         setDraft((prev) => {
-            const has = prev.skillProficiencies.includes(key);
+            const existing = prev.proficiencyChoices.find((entry) => (
+                entry.classId === classId && entry.choiceGroup === choiceGroup
+            ));
+            const currentValues = existing?.values ?? [];
+            const isSelected = currentValues.includes(value);
+            const nextValues = isSelected
+                ? currentValues.filter((entry) => entry !== value)
+                : currentValues.length >= maxChoices
+                    ? currentValues
+                    : [...currentValues, value];
+
+            const otherGroups = prev.proficiencyChoices.filter((entry) => (
+                !(entry.classId === classId && entry.choiceGroup === choiceGroup)
+            ));
             return {
                 ...prev,
-                skillProficiencies: has
-                    ? prev.skillProficiencies.filter((k) => k !== key)
-                    : [...prev.skillProficiencies, key],
+                proficiencyChoices: nextValues.length > 0
+                    ? [...otherGroups, { classId, choiceGroup, values: nextValues }]
+                    : otherGroups,
             };
         });
     }, []);
@@ -137,7 +191,7 @@ export function CharacterDraftProvider({ children }: { children: ReactNode }) {
             d.race !== '' ||
             d.classes.some((classRow) => classRow.classId !== '') ||
             d.background !== '' ||
-            d.skillProficiencies.length > 0 ||
+            d.proficiencyChoices.length > 0 ||
             ABILITY_KEYS.some((k) => d.abilityScores[k] !== 10)
         );
     }, [draft]);
@@ -148,11 +202,11 @@ export function CharacterDraftProvider({ children }: { children: ReactNode }) {
             updateDraft,
             setAbilityScore,
             setAllAbilityScores,
-            toggleSkillProficiency,
+            toggleProficiencyChoice,
             resetDraft,
             hasDraftData,
         }),
-        [draft, updateDraft, setAbilityScore, setAllAbilityScores, toggleSkillProficiency, resetDraft, hasDraftData],
+        [draft, updateDraft, setAbilityScore, setAllAbilityScores, toggleProficiencyChoice, resetDraft, hasDraftData],
     );
 
     return <DraftContext.Provider value={value}>{children}</DraftContext.Provider>;

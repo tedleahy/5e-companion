@@ -16,6 +16,7 @@ import {
     stripNullishFields,
 } from "./helpers";
 import {
+    deriveBackgroundSkillKeys,
     deriveHitDicePools,
     deriveNamedClassProficiencies,
     deriveProficiencyBonus,
@@ -23,11 +24,17 @@ import {
     deriveSpellSlots,
     deriveSpellcastingProfiles,
     deriveStartingHp,
+    deriveCreationProficiencyChoiceRequirements,
+    deriveCreationSkillRequirements,
+    derivePersistedCreationSkillProficiencies,
     findStartingClassIndex,
+    namedProficienciesFromChoices,
     PROFICIENCY_TYPE,
-    type ProficiencyType,
+    skillKeysFromValidatedChoices,
     validateClassAllocations,
+    validateCreationProficiencyChoices,
     type CharacterAbilityScores,
+    type ProficiencyType,
 } from "./multiclassRules";
 import {
     loadVisibleSubclassReferences,
@@ -64,6 +71,7 @@ export async function createCharacter(
     const {
         abilityScores,
         skillProficiencies,
+        proficiencyChoices,
         traits,
         currency,
         featureChoices,
@@ -87,12 +95,16 @@ export async function createCharacter(
     const [classRefs, subclassRefs, raceRef, backgroundRef] = await Promise.all([
         prisma.class.findMany({
             where: {
-                srdIndex: {
-                    in: submittedClasses.map((classRow) => classRow.classId),
-                },
+                archivedAt: null,
+                OR: [
+                    { srdIndex: { in: submittedClasses.map((classRow) => classRow.classId) }, ownerUserId: null },
+                    { id: { in: submittedClasses.map((classRow) => classRow.classId) }, ownerUserId: userId },
+                ],
             },
             include: {
                 proficiencies: true,
+                proficiencyRules: { include: { proficiencyRef: true } },
+                progression: true,
             },
         }),
         subclassSelectionValues.length === 0
@@ -138,6 +150,7 @@ export async function createCharacter(
 
     const classRefsBySrdIndex = new Map<string, (typeof classRefs)[number]>();
     for (const classRef of classRefs) {
+        classRefsBySrdIndex.set(classRef.id, classRef);
         if (classRef.srdIndex) {
             classRefsBySrdIndex.set(classRef.srdIndex, classRef);
         }
@@ -191,6 +204,32 @@ export async function createCharacter(
         );
         const singleSpellcastingProfile = spellcastingProfiles.length === 1 ? spellcastingProfiles[0] : null;
         const namedClassProficiencies = deriveNamedClassProficiencies(resolvedClasses, startingClassIndex);
+        const creationSkillRequirements = deriveCreationSkillRequirements(
+            resolvedClasses,
+            startingClassIndex,
+        );
+        const creationProficiencyChoiceRequirements = deriveCreationProficiencyChoiceRequirements(
+            resolvedClasses,
+            startingClassIndex,
+        );
+        const backgroundSkillKeys = deriveBackgroundSkillKeys(backgroundRef);
+        validateCreationProficiencyChoices(creationProficiencyChoiceRequirements, proficiencyChoices);
+        const chosenNamedProficiencies = namedProficienciesFromChoices(
+            creationProficiencyChoiceRequirements,
+            proficiencyChoices,
+        );
+        const choiceSkillKeys = skillKeysFromValidatedChoices(
+            creationProficiencyChoiceRequirements,
+            proficiencyChoices,
+        );
+        const persistedSkillProficiencies = derivePersistedCreationSkillProficiencies({
+            automaticSkillKeys: creationSkillRequirements.automaticSkillKeys,
+            backgroundSkillKeys,
+            choiceSkillKeys,
+            defaults: DEFAULT_SKILL_PROFICIENCIES,
+        });
+        // skillProficiencies input is not choice provenance; ignore unused binding.
+        void skillProficiencies;
 
         return await tx.character.create({
             data: {
@@ -215,20 +254,23 @@ export async function createCharacter(
                         },
                         deathSaves: { successes: 0, failures: 0 },
                         savingThrowProficiencies,
-                        skillProficiencies: { ...DEFAULT_SKILL_PROFICIENCIES, ...skillProficiencies },
+                        skillProficiencies: persistedSkillProficiencies,
                         traits: {
                             ...DEFAULT_TRAITS,
                             ...(traits ?? {}),
                             armorProficiencies: mergeNamedValues(
                                 namedClassProficiencies.armor,
+                                chosenNamedProficiencies.armor,
                                 namedReferenceProficiencies.armor,
                             ),
                             weaponProficiencies: mergeNamedValues(
                                 namedClassProficiencies.weapons,
+                                chosenNamedProficiencies.weapons,
                                 namedReferenceProficiencies.weapons,
                             ),
                             toolProficiencies: mergeNamedValues(
                                 namedClassProficiencies.tools,
+                                chosenNamedProficiencies.tools,
                                 namedReferenceProficiencies.tools,
                             ),
                             languages: languageNames,

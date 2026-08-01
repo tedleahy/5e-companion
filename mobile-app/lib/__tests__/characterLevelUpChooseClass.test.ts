@@ -155,4 +155,30 @@ describe('characterLevelUp choose-class helpers', () => {
             'New class multiclass requirement not met for Bard: CHA 13. Current scores: CHA 11.',
         ]);
     });
+
+    it('formats configured multiclass prerequisites with OR within a group and AND across groups', () => {
+        const classOptions = [
+            {
+                value: 'custom-warden',
+                label: 'Warden',
+                icon: '🛡️',
+                multiclassPrerequisites: [
+                    { abilityIndex: 'str', minimum: 13, group: 0 },
+                    { abilityIndex: 'cha', minimum: 13, group: 0 },
+                    { abilityIndex: 'wis', minimum: 20, group: 1 },
+                ],
+            },
+        ];
+
+        expect(
+            multiclassPrerequisiteWarnings(
+                TEST_CHARACTER,
+                'wizard',
+                'custom-warden',
+                classOptions,
+            ),
+        ).toEqual([
+            'New class multiclass requirement not met for Warden: STR 13 or CHA 13 and WIS 20.',
+        ]);
+    });
 });

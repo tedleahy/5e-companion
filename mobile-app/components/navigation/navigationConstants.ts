@@ -79,6 +79,23 @@ export const FOOTER_NAV_ITEMS: NavigationItem[] = [
 ];
 
 /**
+ * Top-level Compendium category pathnames that use a Back control
+ * instead of the compact hamburger on phone layouts.
+ */
+export const TOP_LEVEL_COMPENDIUM_CATEGORY_PATHS = [
+    '/compendium/classes',
+    '/compendium/subclasses',
+    '/compendium/spells',
+] as const;
+
+/**
+ * Returns `true` when pathname is a top-level Compendium category route.
+ */
+export function isTopLevelCompendiumCategoryPath(pathname: string): boolean {
+    return (TOP_LEVEL_COMPENDIUM_CATEGORY_PATHS as readonly string[]).includes(pathname);
+}
+
+/**
  * Returns `true` when a pathname should mark a destination as active.
  */
 export function isNavigationDestinationActive(

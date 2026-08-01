@@ -8,6 +8,7 @@ import type {
     SpellcastingProfile,
 } from '@/types/generated_graphql_types';
 import { ProficiencyLevel } from '@/types/generated_graphql_types';
+import type { DraftProficiencyChoice } from '@/lib/characterCreation/proficiencyChoiceDraft';
 
 /** Character detail row consumed by the character-sheet route. */
 type CharacterSheetDetail = NonNullable<CharacterSheetDetailQuery['character']>;
@@ -119,6 +120,12 @@ export type CharacterSheetDraft = {
     weapons: CharacterSheetDraftWeapon[];
     inventory: CharacterSheetDraftInventoryItem[];
     features: CharacterSheetDraftFeature[];
+    /**
+     * Pending MULTICLASS proficiency choice provenance from the level-up wizard.
+     * Cleared on draft reset / successful save. Submitted as
+     * `SaveCharacterSheetInput.proficiencyChoices` when non-empty.
+     */
+    pendingProficiencyChoices: DraftProficiencyChoice[];
 };
 
 /** Allowed draft list keys for proficiency and language tags. */
@@ -290,6 +297,7 @@ export function createCharacterSheetDraft(character: CharacterSheetDetail): Char
             usesRemaining: feature.usesRemaining ?? null,
             customSubclassFeature: null,
         })),
+        pendingProficiencyChoices: [],
     };
 }
 
@@ -398,5 +406,12 @@ export function mapCharacterSheetDraftToSaveInput(
                 }
                 : null,
         })),
+        spellbook: draft.spellbook.map((entry) => ({
+            spellId: entry.spell.id,
+            prepared: entry.prepared,
+        })),
+        ...(draft.pendingProficiencyChoices.length > 0
+            ? { proficiencyChoices: draft.pendingProficiencyChoices }
+            : {}),
     };
 }

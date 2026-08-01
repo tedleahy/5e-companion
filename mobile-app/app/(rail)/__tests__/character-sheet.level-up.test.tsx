@@ -1,6 +1,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react-native';
 import { SEARCH_SPELLS_FOR_SHEET } from '@/components/character-sheet/spells/AddSpellSheet';
-import { LEARN_SPELL, SAVE_CHARACTER_SHEET } from '@/graphql/characterSheet.operations';
+import { SAVE_CHARACTER_SHEET } from '@/graphql/characterSheet.operations';
+import { GET_ATTACHED_CLASS_DETAILS } from '@/graphql/class.operations';
 import type { SaveCharacterSheetMutationVariables } from '@/types/generated_graphql_types';
 import { CHARACTERS_MOCK, MOCK_CHARACTER, SAVE_CORE_CHARACTER_MOCKS } from './mocks/character-sheet.mocks';
 import {
@@ -236,6 +237,17 @@ const LEVEL_UP_SAVE_MOCK = {
                         customSubclassFeature: null,
                     },
                 ],
+                spellbook: [
+                    ...BASE_SAVE_CHARACTER_INPUT.spellbook,
+                    {
+                        spellId: 'spell-counterspell',
+                        prepared: false,
+                    },
+                    {
+                        spellId: 'spell-wall-of-force',
+                        prepared: false,
+                    },
+                ],
             },
         },
     },
@@ -301,7 +313,7 @@ const LEVEL_UP_SPELL_SELECTION_QUERY_MOCK = {
                 levels: [1, 2, 3, 4, 5, 6],
             },
             pagination: {
-                limit: 500,
+                limit: 50,
                 offset: 0,
             },
         },
@@ -364,47 +376,94 @@ const WALL_OF_FORCE = {
     ritual: false,
 } as const;
 
-function buildLearnSpellMock(spell: {
-    id: string;
-    name: string;
-    level: number;
-    schoolIndex: string;
-    classIndexes: readonly string[];
-    castingTime: string;
-    range: string;
-    concentration: boolean;
-    ritual: boolean;
-}) {
-    return {
-        request: {
-            query: LEARN_SPELL,
-            variables: {
-                characterId: 'char-1',
-                spellId: spell.id,
-            },
+/** Full definition for a custom class the owner has since archived. */
+const CUSTOM_WARDEN_CLASS_DETAIL = {
+    __typename: 'ClassDetails',
+    id: 'custom-warden-id',
+    value: 'custom-warden-id',
+    srdIndex: null,
+    name: 'Warden',
+    emoji: '🛡️',
+    description: ['A stalwart guardian of the wild.'],
+    hitDie: 10,
+    primaryAbilityIndexes: ['str'],
+    savingThrowIndexes: ['str', 'con'],
+    spellcastingMode: 'NONE',
+    spellcastingAbility: null,
+    addSpellcastingAbility: false,
+    isCustom: true,
+    archived: true,
+    sourceBook: 'Custom',
+    multiclassPrerequisites: [],
+    proficiencies: [],
+    equipment: [],
+    progression: [
+        {
+            __typename: 'ClassLevelProgression',
+            level: 6,
+            abilityScoreImprovement: false,
+            spellSlots: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            cantripsKnown: null,
+            spellsKnown: null,
+            preparedSpellCount: null,
+            displayValues: [],
         },
-        result: {
-            data: {
-                learnSpell: {
-                    __typename: 'CharacterSpell',
-                    prepared: false,
-                    spell: {
-                        __typename: 'Spell',
-                        id: spell.id,
-                        name: spell.name,
-                        level: spell.level,
-                        schoolIndex: spell.schoolIndex,
-                        classIndexes: spell.classIndexes,
-                        castingTime: spell.castingTime,
-                        range: spell.range,
-                        concentration: spell.concentration,
-                        ritual: spell.ritual,
+    ],
+    features: [
+        {
+            __typename: 'ClassFeature',
+            id: 'feature-woodland-ward',
+            name: 'Woodland Ward',
+            description: 'Gain resistance to being tracked or lost in natural terrain.',
+            level: 6,
+        },
+    ],
+    spells: [],
+    characterUsageCount: 1,
+    mechanicsLocked: true,
+    mechanicsLockedReason: 'Mechanics are locked because 1 character(s) use this class.',
+};
+
+/** A character already levelled into the archived custom Warden class above. */
+const CHARACTER_WITH_ARCHIVED_CUSTOM_CLASS_MOCK = {
+    request: { ...CHARACTERS_MOCK.request },
+    result: {
+        data: {
+            character: {
+                ...MOCK_CHARACTER,
+                level: 5,
+                proficiencyBonus: 3,
+                classes: [
+                    {
+                        __typename: 'CharacterClass',
+                        id: 'character-class-warden',
+                        classId: 'custom-warden-id',
+                        className: 'Warden',
+                        subclassId: 'oath-of-thorns',
+                        subclassName: 'Oath of Thorns',
+                        level: 5,
+                        isStartingClass: true,
                     },
-                },
+                ],
+                spellcastingProfiles: [],
             },
+            hasCurrentUserCharacters: true,
         },
-    };
-}
+    },
+};
+
+/** Serves the archived Warden's full definition via the batched `attachedClassDetails` query. */
+const ATTACHED_CLASS_DETAILS_FOR_WARDEN_MOCK = {
+    request: {
+        query: GET_ATTACHED_CLASS_DETAILS,
+        variables: { values: ['custom-warden-id'] },
+    },
+    result: {
+        data: {
+            attachedClassDetails: [CUSTOM_WARDEN_CLASS_DETAIL],
+        },
+    },
+};
 
 async function chooseWizardLevelUpSpells() {
     await pressAndFlush(screen.getByText('+ Choose 2 New Spells'));
@@ -933,12 +992,6 @@ describe('CharacterByIdScreen level-up wizard', () => {
             ASI_ELIGIBLE_CHARACTER_SHEET_MOCK,
             LEVEL_UP_SPELL_SELECTION_QUERY_MOCK,
             LEVEL_UP_SAVE_MOCK,
-            buildLearnSpellMock({
-                ...COUNTERSPELL,
-            }),
-            buildLearnSpellMock({
-                ...WALL_OF_FORCE,
-            }),
         ]);
 
         await enableCharacterSheetEditMode();
@@ -1102,6 +1155,48 @@ describe('CharacterByIdScreen level-up wizard', () => {
         // Sheet should still be visible
         expect(screen.getByTestId('level-up-wizard-sheet')).toBeTruthy();
         expect(screen.getByText('Step 2 of 5 - Hit Points')).toBeTruthy();
+    });
+
+    it('keeps full level-up mechanics for a character already levelled into an archived custom class', async () => {
+        renderCharacterSheetScreen([
+            CHARACTER_WITH_ARCHIVED_CUSTOM_CLASS_MOCK,
+            ATTACHED_CLASS_DETAILS_FOR_WARDEN_MOCK,
+        ]);
+
+        await enableCharacterSheetEditMode();
+        await pressAndFlush(screen.getByLabelText('Level up character'));
+
+        await waitFor(() => {
+            // Without `attachedClassDetails` merged into `classOptions`, the Warden's
+            // `classDefinition` (and therefore its level 6 feature below) would be
+            // unresolvable and this step would never appear.
+            expect(screen.getByText('Step 1 of 4 - Choose Class')).toBeTruthy();
+        });
+
+        expect(screen.getByText(/Level 5 -> 6/)).toBeTruthy();
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+        await waitFor(() => {
+            expect(screen.getByText('Step 2 of 4 - Hit Points')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-hit-points-average-button'));
+        await waitFor(() => {
+            expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
+        });
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+        await waitFor(() => {
+            expect(screen.getByText('Step 3 of 4 - New Class Features')).toBeTruthy();
+        });
+
+        expect(screen.getByText('Woodland Ward')).toBeTruthy();
+        expect(screen.getByText('Gain resistance to being tracked or lost in natural terrain.')).toBeTruthy();
+
+        await pressAndFlush(screen.getByTestId('level-up-next-button'));
+        await waitFor(() => {
+            expect(screen.getByText('Step 4 of 4 - Summary')).toBeTruthy();
+        });
     });
 
     it('hides the level-up button for a level-20 character', async () => {

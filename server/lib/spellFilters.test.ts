@@ -43,14 +43,30 @@ describe('buildWhere', () => {
         expect(result.level).toBeUndefined();
     });
 
-    test('classes filter produces hasSome clause', () => {
+    test('classes filter matches SRD indexes or ClassSpell membership', () => {
         const result = buildWhere({ classes: ['wizard', 'cleric'] });
-        expect(result.classIndexes).toEqual({ hasSome: ['wizard', 'cleric'] });
+        expect(result).toEqual({
+            OR: [
+                { classIndexes: { hasSome: ['wizard', 'cleric'] } },
+                { classSpellLists: { some: { classId: { in: ['wizard', 'cleric'] } } } },
+            ],
+        });
+    });
+
+    test('custom class id filter still queries ClassSpell membership', () => {
+        const result = buildWhere({ classes: ['custom-class-id'] });
+        expect(result).toEqual({
+            OR: [
+                { classIndexes: { hasSome: ['custom-class-id'] } },
+                { classSpellLists: { some: { classId: { in: ['custom-class-id'] } } } },
+            ],
+        });
     });
 
     test('empty classes array is ignored', () => {
         const result = buildWhere({ classes: [] });
-        expect(result.classIndexes).toBeUndefined();
+        expect(result.OR).toBeUndefined();
+        expect(result.AND).toBeUndefined();
     });
 
     test('schools filter produces in clause on schoolIndex', () => {
@@ -150,6 +166,22 @@ describe('buildWhere', () => {
         expect(result.name).toEqual({ contains: 'fire', mode: 'insensitive' });
         expect(result.level).toEqual({ in: [3] });
         expect(result.OR).toBeDefined();
+    });
+
+    test('class filter ANDs with category filters', () => {
+        const result = buildWhere({
+            classes: ['custom-class-id'],
+            rangeCategories: ['touch'],
+        });
+        expect(result.AND).toEqual([
+            {
+                OR: [
+                    { classIndexes: { hasSome: ['custom-class-id'] } },
+                    { classSpellLists: { some: { classId: { in: ['custom-class-id'] } } } },
+                ],
+            },
+            { OR: [{ range: { in: RANGE_CATEGORY_VALUES.touch } }] },
+        ]);
     });
 });
 

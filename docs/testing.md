@@ -46,6 +46,8 @@ bun test --test-name-pattern "longRest"   # Filter by test name
 ### Gotchas
 
 - **Don't install partial `mock.module('../prisma/prisma')` fakes in individual test files.** Bun test file ordering can differ between local and GitHub Actions, so a partial Prisma fake from one suite can leak into another. Reuse the shared resolver test Prisma mock and extend it when a new delegate is needed.
+- **Don't `mock.module('@prisma/client', …)`.** Seed and pure helpers import runtime enums (`ProficiencyType`, etc.) from that package. Replace only the local Prisma singleton (`../prisma/prisma`); a partial client mock makes the full suite order-dependent.
+- **`mockResolvedValueOnce` queues persist across tests** — `clearAllCharacterResolverMocks()` only calls `mockClear()` (call history), not `mockReset()`. If a test queues a `*Once` value for a delegate the resolver doesn't actually call on that code path (e.g. `subclassFindManyMock` when the input has no `subclassId`), the unconsumed value leaks into whichever *later* test calls that delegate next, corrupting its fixture. Only queue `*Once` values for delegates the resolver will actually invoke given that test's input.
 - **No DB connection** required — tests mock Prisma. Do not introduce tests that require live Postgres unless absolutely necessary.
 - `DATABASE_URL` is still required by `server/prisma.config.ts` at parse time. In CI the unit-tests workflow sets a dummy URL — see `.github/workflows/unit-tests.yml`.
 
@@ -85,6 +87,8 @@ bun e2e:reset        # reset local Supabase DB
 ### Gotchas
 
 - **Don't target plain RN `TextInput` fields with `input[type="text"]` in Playwright.** React Native Web may omit the `type` attribute. Prefer accessible labels, placeholders, or stable `testID` selectors.
+- **The e2e server raises the GraphQL rate limit** (`GRAPHQL_RATE_LIMIT_MAX_REQUESTS=10000` in `e2e/env.ts`). Parallel workers fire hundreds of requests per minute; the production default (120/min) 429s mid-suite and surfaces as unrelated locator timeouts. If you see `Received status code 429` in an error-context snapshot, check which server the app is actually talking to before touching locators.
+- **Use unique page landmarks for readiness checks, not page titles.** Compendium titles (e.g. "Subclasses") also match hidden navigation/category labels and fail Playwright strict mode. Wait on a page-specific `testID` (e.g. `subclass-manager-card`) instead.
 
 ### When to add e2e
 

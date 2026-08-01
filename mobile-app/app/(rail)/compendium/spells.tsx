@@ -158,8 +158,11 @@ export default function SpellSearch() {
 
     return (
         <View style={styles.container}>
-            <CompendiumScreenHeader eyebrow="Compendium" title="Spells" />
-            <CompendiumBackButton />
+            <CompendiumScreenHeader
+                eyebrow="Compendium"
+                title="Spells"
+                leading={<CompendiumBackButton />}
+            />
             <View style={styles.topRow}>
                 <View style={styles.searchBarWrapper}>
                     <SearchBarInput

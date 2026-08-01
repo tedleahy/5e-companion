@@ -280,6 +280,12 @@ describe('characterSheetDraft', () => {
                 customSubclassFeature: null,
             },
         ]);
+        expect(input.spellbook).toEqual(
+            draft.spellbook.map((entry) => ({
+                spellId: entry.spell.id,
+                prepared: entry.prepared,
+            })),
+        );
         expect(input.skillProficiencies).toEqual({
             acrobatics: 'none',
             animalHandling: 'none',
@@ -309,5 +315,20 @@ describe('characterSheetDraft', () => {
 
         expect(input).not.toHaveProperty('spellAttackBonus');
         expect(input).not.toHaveProperty('spellSaveDC');
+    });
+
+    it('maps pending proficiency choices into save input and omits them when empty', () => {
+        const draft = createCharacterSheetDraft(CHARACTER_SHEET_CHARACTER as never);
+        expect(mapCharacterSheetDraftToSaveInput(draft).proficiencyChoices).toBeUndefined();
+
+        draft.pendingProficiencyChoices = [
+            { classId: 'bard', choiceGroup: 1, values: ['skill-stealth'] },
+            { classId: 'bard', choiceGroup: 2, values: ['lute'] },
+        ];
+
+        expect(mapCharacterSheetDraftToSaveInput(draft).proficiencyChoices).toEqual([
+            { classId: 'bard', choiceGroup: 1, values: ['skill-stealth'] },
+            { classId: 'bard', choiceGroup: 2, values: ['lute'] },
+        ]);
     });
 });

@@ -6,6 +6,10 @@ import StepClass from '../class';
 const mockUpdateDraft = jest.fn();
 const mockScrollTo = jest.fn();
 
+jest.mock('@apollo/client/react', () => ({
+    useQuery: jest.fn(() => ({ data: undefined, loading: false, error: undefined })),
+}));
+
 jest.mock('react-native', () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const React = require('react');
@@ -75,7 +79,7 @@ jest.mock('@/components/character-creation-wizard/OptionGrid', () => ({
                         onPress={() => onSelect(option.value)}
                         testID={getOptionTestId?.(option) ?? `option-${option.value}`}
                     >
-                        <Text>{`${option.label}${option.value === selected ? ' (selected)' : ''}`}</Text>
+                        <Text>{`${option.icon} ${option.label}${option.value === selected ? ' (selected)' : ''}`}</Text>
                     </Pressable>
                 ))}
             </View>
@@ -118,6 +122,9 @@ jest.mock('@/components/character-creation-wizard/ClassAllocationRow', () => ({
 const { useCharacterDraft } = jest.requireMock('@/store/characterDraft') as {
     useCharacterDraft: jest.Mock;
 };
+const { useQuery } = jest.requireMock('@apollo/client/react') as {
+    useQuery: jest.Mock;
+};
 
 /**
  * Renders the class step with the Paper provider used by the app.
@@ -133,7 +140,82 @@ function renderScreen() {
 describe('StepClass', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        useQuery.mockReturnValue({ data: undefined, loading: false, error: undefined });
         mockScrollTo.mockClear();
+    });
+
+    it('uses the class emoji returned by the server', () => {
+        useQuery.mockReturnValue({
+            data: {
+                availableClasses: [{
+                    id: 'custom-rune-knight',
+                    value: 'custom-rune-knight',
+                    srdIndex: null,
+                    name: 'Rune Knight',
+                    emoji: '🐉',
+                    description: [],
+                    hitDie: 10,
+                    primaryAbilityIndexes: ['str'],
+                    savingThrowIndexes: ['str', 'con'],
+                    spellcastingMode: 'NONE',
+                    spellcastingAbility: null,
+                    multiclassPrerequisites: [],
+                    isCustom: true,
+                }],
+            },
+            loading: false,
+            error: undefined,
+        });
+        useCharacterDraft.mockReturnValue({
+            draft: { level: 1, classes: [], startingClassId: '', classPresentationById: {} },
+            updateDraft: mockUpdateDraft,
+        });
+
+        renderScreen();
+
+        expect(screen.getByText('🐉 Rune Knight')).toBeTruthy();
+    });
+
+    it('stores server-resolved presentation metadata when selecting a custom class', () => {
+        useQuery.mockReturnValue({
+            data: {
+                availableClasses: [{
+                    id: 'custom-rune-knight',
+                    value: 'custom-rune-knight',
+                    srdIndex: null,
+                    name: 'Rune Knight',
+                    emoji: '🐉',
+                    description: [],
+                    hitDie: 10,
+                    primaryAbilityIndexes: ['str'],
+                    savingThrowIndexes: ['str', 'con'],
+                    spellcastingMode: 'NONE',
+                    spellcastingAbility: null,
+                    multiclassPrerequisites: [],
+                    isCustom: true,
+                }],
+            },
+            loading: false,
+            error: undefined,
+        });
+        useCharacterDraft.mockReturnValue({
+            draft: { level: 1, classes: [], startingClassId: '', classPresentationById: {} },
+            updateDraft: mockUpdateDraft,
+        });
+
+        renderScreen();
+        fireEvent.press(screen.getByTestId('option-custom-rune-knight'));
+
+        expect(mockUpdateDraft).toHaveBeenCalledWith(expect.objectContaining({
+            startingClassId: 'custom-rune-knight',
+            classes: [{ classId: 'custom-rune-knight', subclassId: '', level: 1 }],
+            classPresentationById: {
+                'custom-rune-knight': {
+                    name: 'Rune Knight',
+                    savingThrowIndexes: ['str', 'con'],
+                },
+            },
+        }));
     });
 
     it('keeps classes in selection order even when a later class is the starting class', () => {
@@ -145,6 +227,7 @@ describe('StepClass', () => {
                     { classId: 'rogue', level: 2, subclassId: '' },
                 ],
                 startingClassId: 'rogue',
+                classPresentationById: {},
             },
             updateDraft: mockUpdateDraft,
         });
@@ -165,6 +248,7 @@ describe('StepClass', () => {
                     { classId: 'wizard', level: 1, subclassId: '' },
                 ],
                 startingClassId: 'wizard',
+                classPresentationById: {},
             });
 
             return {
@@ -213,6 +297,7 @@ describe('StepClass', () => {
                 level: 2,
                 classes: [],
                 startingClassId: '',
+                classPresentationById: {},
             });
 
             return {

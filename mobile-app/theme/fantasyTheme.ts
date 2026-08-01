@@ -182,10 +182,13 @@ export const fantasyTokens = {
         claret: '#8c1d38',
         claretLight: '#a62b4a',
         claretSoft: 'rgba(140, 29, 56, 0.02)',
+        /** Press wash for claret controls on parchment; claretSoft is too faint to register. */
+        claretPressed: 'rgba(140, 29, 56, 0.12)',
         claretSubtle: 'rgba(140, 29, 56, 0.35)',
         crimson: '#7b1e1e',
         crimsonSoft: 'rgba(123, 30, 30, 0.2)',
         success: '#2d6a4f',
+        successSoft: 'rgba(45, 106, 79, 0.28)',
         night: '#1f1711',
         divider: 'rgba(139,90,43,0.3)',
         sheetDivider: '#d4c9b4',
@@ -193,8 +196,17 @@ export const fantasyTokens = {
         accordionBorder: 'rgba(139,90,43,0.22)',
         rowOpenBg: 'rgba(139,90,43,0.06)',
         greenDark: '#1a4a1a',
+        blue: '#6b9ac4',
         blueDark: '#1a2a4a',
         inspired: '#8b1a1a',
+        parchmentMuted: 'rgba(246, 233, 207, 0.55)',
+        parchmentFaint: 'rgba(246, 233, 207, 0.25)',
+        successBannerText: '#b7e0cb',
+        nightOverlay: 'rgba(0, 0, 0, 0.18)',
+        nightOverlayStrong: 'rgba(0, 0, 0, 0.22)',
+        nightOverlayMuted: 'rgba(0, 0, 0, 0.15)',
+        nightOverlayDeep: 'rgba(0, 0, 0, 0.25)',
+        successBorder: 'rgba(45, 106, 79, 0.45)',
     },
     spacing: fantasySpacing,
     radii: {
@@ -254,6 +266,55 @@ export const fantasyTokens = {
         borderRadius: 6,
         paddingVertical: 5,
         paddingHorizontal: 12,
+    },
+    sheet: {
+        backdrop: 'rgba(20,14,8,0.6)',
+        shadow: '0 0 12px rgba(0,0,0,0.22)',
+        elevation: 20,
+        handleWidth: 40,
+        handleHeight: 4,
+        defaultHeight: '82%' as const,
+        tallHeight: '88%' as const,
+        /**
+         * Shared chrome for night BottomSheetShell forms (level-up, class/subclass editors).
+         * Prefer these over `rail.*` so form surfaces are not tied to nav press states.
+         */
+        form: {
+            card: 'rgba(201,146,42,0.07)',
+            border: 'rgba(201,146,42,0.22)',
+            positiveSoft: 'rgba(45,106,79,0.12)',
+            positiveSoftSubtle: 'rgba(45,106,79,0.08)',
+            positiveBorder: 'rgba(45,106,79,0.24)',
+            warningSoft: 'rgba(184,92,31,0.14)',
+            warningBorder: 'rgba(184,92,31,0.4)',
+            glow: '0 0 4px rgba(201,146,42,0.12)',
+        },
+    },
+    stepper: {
+        /** Default unified −/value/+ shell (count rows, forms). */
+        buttonSize: fantasySpacing.xl + fantasySpacing.md, // 40
+        valueMinWidth: fantasySpacing.xxl + fantasySpacing.xs, // 44
+        valuePaddingHorizontal: fantasySpacing.sm,
+        compact: {
+            buttonSize: fantasySpacing.xl + fantasySpacing.xs, // 28
+            /** Expands the 28px visual to a ~44pt press target without changing layout. */
+            hitSlop: fantasySpacing.sm, // 8
+            buttonRadius: fantasySpacing.sm - 1, // 7
+            gap: fantasySpacing.xs, // 4
+            valueMinWidth: fantasySpacing.lg - fantasySpacing.xs, // 16
+            fontSize: fantasyFontSizes.caption,
+            buttonFontSize: fantasyFontSizes.caption,
+        },
+        night: {
+            border: 'rgba(201,146,42,0.34)',
+            background: 'rgba(0,0,0,0.25)',
+            buttonPressed: 'rgba(201,146,42,0.12)',
+        },
+        parchment: {
+            border: 'rgba(201,146,42,0.28)',
+            background: 'rgba(240,224,188,0.12)',
+            buttonPressed: 'rgba(201,146,42,0.14)',
+        },
     },
     text: {
         formLabel: {

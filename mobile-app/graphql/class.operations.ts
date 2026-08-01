@@ -1,0 +1,122 @@
+import { gql } from '@apollo/client';
+
+export const CLASS_SUMMARY_FIELDS = gql`
+    fragment ClassSummaryFields on AvailableClass {
+        id
+        value
+        srdIndex
+        name
+        emoji
+        description
+        hitDie
+        primaryAbilityIndexes
+        savingThrowIndexes
+        spellcastingMode
+        spellcastingAbility
+        multiclassPrerequisites { abilityIndex minimum group }
+        isCustom
+    }
+`;
+
+export const CLASS_DETAILS_FIELDS = gql`
+    fragment ClassDetailsFields on ClassDetails {
+        id
+        value
+        srdIndex
+        name
+        emoji
+        description
+        hitDie
+        primaryAbilityIndexes
+        savingThrowIndexes
+        spellcastingMode
+        spellcastingAbility
+        addSpellcastingAbility
+        isCustom
+        archived
+        sourceBook
+        multiclassPrerequisites { abilityIndex minimum group }
+        proficiencies { value name type grant choiceGroup choiceCount }
+        equipment { name quantity choiceGroup choiceCount }
+        progression {
+            level
+            abilityScoreImprovement
+            spellSlots
+            cantripsKnown
+            spellsKnown
+            preparedSpellCount
+            displayValues { key value }
+        }
+        features { id name description level }
+        spells { id name level }
+        characterUsageCount
+        mechanicsLocked
+        mechanicsLockedReason
+    }
+`;
+
+export const GET_AVAILABLE_CLASSES = gql`
+    query AvailableClasses {
+        availableClasses { ...ClassSummaryFields }
+    }
+    ${CLASS_SUMMARY_FIELDS}
+`;
+
+export const GET_CLASS_DETAILS = gql`
+    query ClassDetails($value: String!) {
+        classDetails(value: $value) { ...ClassDetailsFields }
+    }
+    ${CLASS_DETAILS_FIELDS}
+`;
+
+export const GET_CUSTOM_CLASSES = gql`
+    query CustomClasses {
+        customClasses { ...ClassSummaryFields }
+    }
+    ${CLASS_SUMMARY_FIELDS}
+`;
+
+/**
+ * Loads full class definitions for selected or character-attached class ids, including
+ * archived custom classes. Use this to keep level-up mechanics (progression,
+ * features, spellcasting) available for a class the character is already in,
+ * even after its owner archives it — `availableClasses`/`customClasses` both
+ * exclude archived rows and return only lightweight summaries, which is correct
+ * for *new*-class pickers / list browsing but loses the definition for an
+ * existing relation or an in-progress custom-class selection.
+ */
+export const GET_ATTACHED_CLASS_DETAILS = gql`
+    query AttachedClassDetails($values: [String!]!) {
+        attachedClassDetails(values: $values) { ...ClassDetailsFields }
+    }
+    ${CLASS_DETAILS_FIELDS}
+`;
+
+export const CREATE_CUSTOM_CLASS = gql`
+    mutation CreateCustomClass($input: ManagedCustomClassInput!) {
+        createCustomClass(input: $input) { ...ClassDetailsFields }
+    }
+    ${CLASS_DETAILS_FIELDS}
+`;
+
+export const UPDATE_CUSTOM_CLASS = gql`
+    mutation UpdateCustomClass($id: ID!, $input: ManagedCustomClassInput!) {
+        updateCustomClass(id: $id, input: $input) { ...ClassDetailsFields }
+    }
+    ${CLASS_DETAILS_FIELDS}
+`;
+
+export const GET_PROFICIENCIES = gql`
+    query Proficiencies($type: String) {
+        proficiencies(type: $type) {
+            value
+            name
+            type
+            isCustom
+        }
+    }
+`;
+
+export const ARCHIVE_CUSTOM_CLASS = gql`
+    mutation ArchiveCustomClass($id: ID!) { archiveCustomClass(id: $id) }
+`;

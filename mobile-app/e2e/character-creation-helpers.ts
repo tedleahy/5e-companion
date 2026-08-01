@@ -1,4 +1,5 @@
 import { expect, type Page } from '@playwright/test';
+import { SKILL_SRD_INDEX_BY_KEY } from '../lib/characterCreation/classRules';
 import type { SkillKey } from '../lib/characterSheetUtils';
 
 /** Step headings rendered by the create-character wizard screens. */
@@ -120,12 +121,21 @@ export async function completeBackgroundStep(
 
 /**
  * Toggles class-skill proficiencies on the skills step by stable testID.
- * Keyed off SkillKey so background-granted skills (locked toggles with the
- * same label) cannot be hit by accident.
+ * Choices render as `create-proficiency-choice-{classId}-{srdIndex}`; skill
+ * keys are translated through the canonical SKILL_SRD_INDEX_BY_KEY map so e2e
+ * values stay aligned with character creation.
  */
-export async function selectClassSkills(page: Page, skillKeys: SkillKey[]): Promise<void> {
+export async function selectClassSkills(
+    page: Page,
+    classId: string,
+    skillKeys: SkillKey[],
+): Promise<void> {
     for (const skillKey of skillKeys) {
-        await page.getByTestId(`create-skill-class-${skillKey}`).click();
+        const choice = page.getByTestId(
+            `create-proficiency-choice-${classId}-${SKILL_SRD_INDEX_BY_KEY[skillKey]}`,
+        );
+        await expect(choice).toBeVisible();
+        await choice.click();
     }
 }
 
@@ -190,7 +200,13 @@ export async function continueFromStep(page: Page, nextHeading: string): Promise
  */
 export async function completeWizardLevelOneFlow(
     page: Page,
-    options: { name: string; race?: string; classLabel?: string; skills?: SkillKey[] },
+    options: {
+        name: string;
+        race?: string;
+        classLabel?: string;
+        classId?: string;
+        skills?: SkillKey[];
+    },
 ): Promise<void> {
     await completeIdentityStep(page, {
         name: options.name,
@@ -199,7 +215,11 @@ export async function completeWizardLevelOneFlow(
     await completeClassStep(page, options.classLabel ?? 'Wizard');
     await completeAbilitiesStep(page);
     await completeBackgroundStep(page);
-    await selectClassSkills(page, options.skills ?? ['arcana', 'history']);
+    await selectClassSkills(
+        page,
+        options.classId ?? 'wizard',
+        options.skills ?? ['arcana', 'history'],
+    );
     await continueFromSkillsStep(page);
     await expect(page.getByText(CREATE_STEP_HEADINGS.review)).toBeVisible();
 }

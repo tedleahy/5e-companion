@@ -341,7 +341,7 @@ describe('applyLevelUpToDraft', () => {
                 swapReplacementSpell: null,
             },
             multiclassProficiencyState: {
-                selectedSkills: [],
+                selections: [],
             },
             invocationState: createLevelUpInvocationState(),
             metamagicState: createLevelUpMetamagicState(),
@@ -443,7 +443,7 @@ describe('applyLevelUpToDraft', () => {
                 swapReplacementSpell: null,
             },
             multiclassProficiencyState: {
-                selectedSkills: [],
+                selections: [],
             },
             invocationState: createLevelUpInvocationState(),
             metamagicState: createLevelUpMetamagicState(),
@@ -481,13 +481,174 @@ describe('applyLevelUpToDraft', () => {
         expect(addedFeature?.description).toContain('Constitution +1');
     });
 
-    it('applies selected multiclass skill proficiencies into the local draft', () => {
+    it('applies configured custom multiclass proficiencies into the local draft', () => {
         const draft = createCharacterSheetDraft(BASE_CHARACTER as never);
 
         const nextDraft = applyLevelUpToDraft(draft, {
             selectedClass: {
-                classId: 'rogue',
-                className: 'Rogue',
+                classId: 'custom-class-id',
+                className: 'Warden',
+                currentLevel: 0,
+                newLevel: 1,
+                isExistingClass: false,
+                subclassId: null,
+                subclassName: null,
+                subclassDescription: null,
+                subclassIsCustom: false,
+                subclassFeatures: [],
+                customSubclass: null,
+                classDefinition: {
+                    proficiencies: [
+                        { grant: 'MULTICLASS', type: 'ARMOR', name: 'Medium armour', choiceGroup: null },
+                        { grant: 'MULTICLASS', type: 'WEAPON', name: 'Longbows', choiceGroup: null },
+                        { grant: 'MULTICLASS', type: 'TOOL', name: "Smith's tools", choiceGroup: null },
+                        {
+                            grant: 'MULTICLASS',
+                            type: 'SKILL',
+                            name: 'Athletics',
+                            value: 'skill-athletics',
+                            choiceGroup: 1,
+                            choiceCount: 1,
+                        },
+                    ],
+                } as never,
+            },
+            hitPointsState: {
+                method: 'average',
+                hitDieSize: 8,
+                hitDieValue: 5,
+                constitutionModifier: 2,
+                hpGained: 7,
+            },
+            asiOrFeatState: null,
+            spellcastingState: {
+                learnedSpells: [],
+                cantripSpells: [],
+                swapOutSpellId: null,
+                swapReplacementSpell: null,
+            },
+            multiclassProficiencyState: {
+                selections: [{ choiceGroup: 1, values: ['skill-athletics'] }],
+            },
+            invocationState: createLevelUpInvocationState(),
+            metamagicState: createLevelUpMetamagicState(),
+            mysticArcanumState: createLevelUpMysticArcanumState(),
+            features: [],
+        });
+
+        expect(nextDraft.skillProficiencies.athletics).toBe('proficient');
+        expect(nextDraft.traits.armorProficiencies).toEqual(['Medium armour']);
+        expect(nextDraft.traits.weaponProficiencies).toEqual(['Daggers', 'Longbows']);
+        expect(nextDraft.traits.toolProficiencies).toEqual(["Smith's tools"]);
+    });
+
+    it('applies selected non-skill multiclass proficiency choices into traits', () => {
+        const draft = createCharacterSheetDraft(BASE_CHARACTER as never);
+
+        const nextDraft = applyLevelUpToDraft(draft, {
+            selectedClass: {
+                classId: 'custom-class-id',
+                className: 'Skald',
+                currentLevel: 0,
+                newLevel: 1,
+                isExistingClass: false,
+                subclassId: null,
+                subclassName: null,
+                subclassDescription: null,
+                subclassIsCustom: false,
+                subclassFeatures: [],
+                customSubclass: null,
+                classDefinition: {
+                    proficiencies: [
+                        { grant: 'MULTICLASS', type: 'ARMOR', name: 'Light armour', choiceGroup: null },
+                        { grant: 'MULTICLASS', type: 'TOOL', name: 'Lute', value: 'lute', choiceGroup: 2, choiceCount: 1 },
+                        { grant: 'MULTICLASS', type: 'TOOL', name: 'Flute', value: 'flute', choiceGroup: 2, choiceCount: 1 },
+                    ],
+                } as never,
+            },
+            hitPointsState: {
+                method: 'average',
+                hitDieSize: 8,
+                hitDieValue: 5,
+                constitutionModifier: 2,
+                hpGained: 7,
+            },
+            asiOrFeatState: null,
+            spellcastingState: {
+                learnedSpells: [],
+                cantripSpells: [],
+                swapOutSpellId: null,
+                swapReplacementSpell: null,
+            },
+            multiclassProficiencyState: {
+                selections: [{ choiceGroup: 2, values: ['lute'] }],
+            },
+            invocationState: createLevelUpInvocationState(),
+            metamagicState: createLevelUpMetamagicState(),
+            mysticArcanumState: createLevelUpMysticArcanumState(),
+            features: [],
+        });
+
+        expect(nextDraft.traits.armorProficiencies).toEqual(['Light armour']);
+        expect(nextDraft.traits.toolProficiencies).toEqual(['Lute']);
+    });
+
+    it('auto-applies a fixed custom multiclass skill grant even when no choice is selected', () => {
+        const draft = createCharacterSheetDraft(BASE_CHARACTER as never);
+
+        const nextDraft = applyLevelUpToDraft(draft, {
+            selectedClass: {
+                classId: 'custom-class-id',
+                className: 'Warden',
+                currentLevel: 0,
+                newLevel: 1,
+                isExistingClass: false,
+                subclassId: null,
+                subclassName: null,
+                subclassDescription: null,
+                subclassIsCustom: false,
+                subclassFeatures: [],
+                customSubclass: null,
+                classDefinition: {
+                    proficiencies: [
+                        // Fixed grant (choiceGroup == null) — must apply automatically.
+                        { grant: 'MULTICLASS', type: 'SKILL', name: 'Survival', choiceGroup: null },
+                    ],
+                } as never,
+            },
+            hitPointsState: {
+                method: 'average',
+                hitDieSize: 8,
+                hitDieValue: 5,
+                constitutionModifier: 2,
+                hpGained: 7,
+            },
+            asiOrFeatState: null,
+            spellcastingState: {
+                learnedSpells: [],
+                cantripSpells: [],
+                swapOutSpellId: null,
+                swapReplacementSpell: null,
+            },
+            multiclassProficiencyState: {
+                selections: [],
+            },
+            invocationState: createLevelUpInvocationState(),
+            metamagicState: createLevelUpMetamagicState(),
+            mysticArcanumState: createLevelUpMysticArcanumState(),
+            features: [],
+        });
+
+        expect(nextDraft.skillProficiencies.survival).toBe('proficient');
+    });
+
+    it('stores pending proficiency choice provenance for saveCharacterSheet', () => {
+        const draft = createCharacterSheetDraft(BASE_CHARACTER as never);
+
+        const nextDraft = applyLevelUpToDraft(draft, {
+            selectedClass: {
+                classId: 'bard',
+                className: 'Bard',
                 currentLevel: 0,
                 newLevel: 1,
                 isExistingClass: false,
@@ -513,7 +674,10 @@ describe('applyLevelUpToDraft', () => {
                 swapReplacementSpell: null,
             },
             multiclassProficiencyState: {
-                selectedSkills: ['Athletics'],
+                selections: [
+                    { choiceGroup: 1, values: ['skill-stealth'] },
+                    { choiceGroup: 2, values: ['lute'] },
+                ],
             },
             invocationState: createLevelUpInvocationState(),
             metamagicState: createLevelUpMetamagicState(),
@@ -521,7 +685,118 @@ describe('applyLevelUpToDraft', () => {
             features: [],
         });
 
-        expect(nextDraft.skillProficiencies.athletics).toBe('proficient');
-        expect(nextDraft.traits.toolProficiencies).toEqual(["Thieves' tools"]);
+        expect(nextDraft.pendingProficiencyChoices).toEqual([
+            { classId: 'bard', choiceGroup: 1, values: ['skill-stealth'] },
+            { classId: 'bard', choiceGroup: 2, values: ['lute'] },
+        ]);
+        expect(nextDraft.skillProficiencies.stealth).toBe('proficient');
+        expect(nextDraft.traits.toolProficiencies).toContain('Lute');
+    });
+
+    it('preserves custom-class spell slots and profiles from the resolved definition', () => {
+        const draft = createCharacterSheetDraft({
+            ...BASE_CHARACTER,
+            classes: [{
+                id: 'class-custom',
+                classId: 'custom-mage-id',
+                className: 'Star Mage',
+                subclassId: null,
+                subclassName: null,
+                level: 4,
+                isStartingClass: true,
+            }],
+            spellSlots: [{
+                __typename: 'SpellSlot',
+                id: 'slot-1',
+                kind: 'STANDARD',
+                level: 1,
+                total: 4,
+                used: 1,
+            }],
+            spellcastingProfiles: [{
+                __typename: 'SpellcastingProfile',
+                classId: 'custom-mage-id',
+                className: 'Star Mage',
+                subclassId: null,
+                subclassName: null,
+                classLevel: 4,
+                spellcastingAbility: 'intelligence',
+                spellSaveDC: 14,
+                spellAttackBonus: 6,
+                slotKind: 'STANDARD',
+            }],
+        } as never);
+
+        const progression = Array.from({ length: 20 }, (_, index) => ({
+            level: index + 1,
+            abilityScoreImprovement: false,
+            spellSlots: index + 1 >= 5
+                ? [4, 3, 2, 0, 0, 0, 0, 0, 0]
+                : index + 1 >= 3
+                    ? [4, 2, 0, 0, 0, 0, 0, 0, 0]
+                    : [2, 0, 0, 0, 0, 0, 0, 0, 0],
+            cantripsKnown: 3,
+            spellsKnown: null,
+            preparedSpellCount: 4,
+            displayValues: [],
+        }));
+
+        const nextDraft = applyLevelUpToDraft(draft, {
+            selectedClass: {
+                classId: 'custom-mage-id',
+                className: 'Star Mage',
+                currentLevel: 4,
+                newLevel: 5,
+                isExistingClass: true,
+                subclassId: null,
+                subclassName: null,
+                subclassDescription: null,
+                subclassIsCustom: false,
+                subclassFeatures: [],
+                customSubclass: null,
+                classDefinition: {
+                    spellcastingMode: 'STANDARD',
+                    spellcastingAbility: 'int',
+                    addSpellcastingAbility: true,
+                    progression,
+                } as never,
+            },
+            hitPointsState: {
+                method: 'average',
+                hitDieSize: 6,
+                hitDieValue: 4,
+                constitutionModifier: 2,
+                hpGained: 6,
+            },
+            asiOrFeatState: null,
+            spellcastingState: {
+                learnedSpells: [],
+                cantripSpells: [],
+                swapOutSpellId: null,
+                swapReplacementSpell: null,
+            },
+            multiclassProficiencyState: {
+                selections: [],
+            },
+            invocationState: createLevelUpInvocationState(),
+            metamagicState: createLevelUpMetamagicState(),
+            mysticArcanumState: createLevelUpMysticArcanumState(),
+            features: [],
+        });
+
+        expect(nextDraft.spellSlots).toEqual(expect.arrayContaining([
+            expect.objectContaining({ kind: 'STANDARD', level: 1, total: 4, used: 1 }),
+            expect.objectContaining({ kind: 'STANDARD', level: 2, total: 3, used: 0 }),
+            expect.objectContaining({ kind: 'STANDARD', level: 3, total: 2, used: 0 }),
+        ]));
+        expect(nextDraft.spellcastingProfiles).toEqual([
+            expect.objectContaining({
+                classId: 'custom-mage-id',
+                className: 'Star Mage',
+                classLevel: 5,
+                spellcastingAbility: 'intelligence',
+                slotKind: 'STANDARD',
+            }),
+        ]);
     });
 });

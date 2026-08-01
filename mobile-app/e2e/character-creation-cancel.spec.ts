@@ -16,22 +16,27 @@ test.describe('Character creation — Cancel confirmation', () => {
         const nameField = page.getByPlaceholder('e.g. Vaelindra Stormveil');
         await nameField.fill('E2E Test Hero');
 
-        // Click Cancel — should show the confirmation dialog
+        // Click Cancel — should show the confirmation dialog. The dialog's
+        // title is plain text (not an ARIA heading), so scope assertions to
+        // the exposed dialog role instead.
         await page.getByText('Cancel').click();
 
-        await expect(page.getByRole('heading', { name: 'Abandon Character?' })).toBeVisible();
-        await expect(page.getByText('Your progress will be lost.')).toBeVisible();
+        const dialog = page.getByRole('dialog');
+        await expect(dialog).toBeVisible();
+        await expect(dialog.getByText('Abandon Character?', { exact: true })).toBeVisible();
+        await expect(dialog.getByText('Your progress will be lost.', { exact: true })).toBeVisible();
 
         // Click Keep Editing — dialog closes, stays on creation page
-        await page.getByRole('button', { name: 'Keep Editing' }).click();
-        await expect(page.getByRole('heading', { name: 'Abandon Character?' })).toBeHidden();
+        await dialog.getByRole('button', { name: 'Keep Editing' }).click();
+        await expect(dialog).toBeHidden();
         await expect(page).toHaveURL(/\/characters\/create/);
 
         // Click Cancel again and then Abandon — navigates away
         await page.getByText('Cancel').click();
-        await expect(page.getByRole('heading', { name: 'Abandon Character?' })).toBeVisible();
+        await expect(dialog).toBeVisible();
 
-        await page.getByRole('button', { name: 'Abandon' }).click();
+        await dialog.getByRole('button', { name: 'Abandon' }).click();
+        await expect(dialog).toBeHidden();
         await expect(page).toHaveURL(/\/characters$/);
     });
 });

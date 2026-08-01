@@ -1,17 +1,31 @@
 import { describe, expect, test } from 'bun:test';
 import {
+    applyNewlyAddedMulticlassProficiencyGrants,
+    deriveBackgroundSkillKeys,
+    deriveCreationProficiencyChoiceRequirements,
+    deriveCreationSkillRequirements,
+    skillKeysFromValidatedChoices,
     deriveHitDicePools,
     deriveNamedClassProficiencies,
+    deriveNewlyAddedMulticlassProficiencyChoiceRequirements,
     deriveProficiencyBonus,
     deriveSavingThrowProficiencies,
     deriveSpellSlots,
     deriveSpellcastingProfiles,
     deriveStartingHp,
+    deriveStartingProficiencyChoiceRequirements,
+    deriveStartingSkillRequirements,
     deriveTotalLevel,
+    findNewlyAddedClassRows,
+    namedProficienciesFromChoices,
     PROFICIENCY_TYPE,
     recoverHitDicePools,
     validateClassAllocations,
+    validateCreationProficiencyChoices,
+    validateStartingProficiencyChoices,
+    validateStartingSkillProficiencies,
     type CharacterClassReference,
+    type ResolvedCharacterClass,
 } from './multiclassRules';
 
 const wizardClass: CharacterClassReference = {
@@ -313,5 +327,585 @@ describe('multiclassRules', () => {
             { id: 'pool-1', classId: 'class-fighter-id', remaining: 2 },
             { id: 'pool-2', classId: 'class-warlock-id', remaining: 1 },
         ]);
+    });
+});
+
+describe('starting skill proficiency derivation and validation', () => {
+    const fighterWithFixedAndChoiceSkills: CharacterClassReference = {
+        ...fighterClass,
+        proficiencyRules: [
+            {
+                grant: 'STARTING',
+                choiceGroup: null,
+                choiceCount: null,
+                proficiencyRef: { srdIndex: 'skill-athletics', name: 'Athletics', type: PROFICIENCY_TYPE.SKILL },
+            },
+            {
+                grant: 'STARTING',
+                choiceGroup: 1,
+                choiceCount: 1,
+                proficiencyRef: { srdIndex: 'skill-intimidation', name: 'Intimidation', type: PROFICIENCY_TYPE.SKILL },
+            },
+            {
+                grant: 'STARTING',
+                choiceGroup: 1,
+                choiceCount: 1,
+                proficiencyRef: { srdIndex: 'skill-perception', name: 'Perception', type: PROFICIENCY_TYPE.SKILL },
+            },
+            // A MULTICLASS row for the same skill must not leak into the STARTING requirements.
+            {
+                grant: 'MULTICLASS',
+                choiceGroup: null,
+                choiceCount: null,
+                proficiencyRef: { srdIndex: 'skill-survival', name: 'Survival', type: PROFICIENCY_TYPE.SKILL },
+            },
+        ],
+    };
+
+    test('separates fixed starting skill grants from choice groups', () => {
+        expect(deriveStartingSkillRequirements(fighterWithFixedAndChoiceSkills)).toEqual({
+            automaticSkillKeys: ['athletics'],
+            choiceGroups: [
+                { choiceGroup: 1, pick: 1, optionKeys: ['intimidation', 'perception'] },
+            ],
+        });
+    });
+
+    test('extracts background skill grants by srdIndex', () => {
+        expect(deriveBackgroundSkillKeys({
+            proficiencies: [
+                { srdIndex: 'skill-deception', type: PROFICIENCY_TYPE.SKILL },
+                { srdIndex: 'saving-throw-int', type: PROFICIENCY_TYPE.SAVING_THROW },
+                { srdIndex: null, type: PROFICIENCY_TYPE.SKILL },
+            ],
+        })).toEqual(['deception']);
+    });
+
+    test('accepts a submission that fills the choice group and omits fixed grants', () => {
+        const requirements = deriveStartingSkillRequirements(fighterWithFixedAndChoiceSkills);
+
+        expect(() => validateStartingSkillProficiencies(requirements, ['deception'], {
+            perception: 'proficient',
+        })).not.toThrow();
+    });
+
+    test('rejects a choice group filled with the wrong number of picks', () => {
+        const requirements = deriveStartingSkillRequirements(fighterWithFixedAndChoiceSkills);
+
+        expect(() => validateStartingSkillProficiencies(requirements, [], {
+            perception: 'proficient',
+            intimidation: 'proficient',
+        })).toThrow('Choose exactly 1 skill proficiency');
+    });
+
+    test('rejects a submitted skill outside the fixed grants, background, and choice options', () => {
+        const requirements = deriveStartingSkillRequirements(fighterWithFixedAndChoiceSkills);
+
+        expect(() => validateStartingSkillProficiencies(requirements, [], {
+            perception: 'proficient',
+            arcana: 'proficient',
+        })).toThrow('Skill proficiency "arcana" is not granted');
+    });
+
+    test('ignores submitted skills explicitly set to "none"', () => {
+        const requirements = deriveStartingSkillRequirements(fighterWithFixedAndChoiceSkills);
+
+        expect(() => validateStartingSkillProficiencies(requirements, [], {
+            perception: 'proficient',
+            arcana: 'none',
+        })).not.toThrow();
+    });
+
+    test('does not count fixed or background skills toward choice quotas', () => {
+        const requirements = deriveStartingSkillRequirements(fighterWithFixedAndChoiceSkills);
+
+        expect(() => validateStartingSkillProficiencies(requirements, ['intimidation'], {
+            athletics: 'proficient',
+            intimidation: 'proficient',
+        })).toThrow('Choose exactly 1 skill proficiency');
+
+        expect(() => validateStartingSkillProficiencies(requirements, ['intimidation'], {
+            athletics: 'proficient',
+            intimidation: 'proficient',
+            perception: 'proficient',
+        })).not.toThrow();
+    });
+});
+
+describe('starting non-skill proficiency choice derivation and validation', () => {
+    const bardWithInstrumentChoices: CharacterClassReference = {
+        id: 'class-bard-id',
+        srdIndex: 'bard',
+        name: 'Bard',
+        hitDie: 8,
+        spellcastingAbility: 'cha',
+        proficiencyRules: [
+            {
+                grant: 'STARTING',
+                choiceGroup: null,
+                choiceCount: null,
+                proficiencyRef: { srdIndex: 'light-armor', name: 'Light Armor', type: PROFICIENCY_TYPE.ARMOR },
+            },
+            {
+                grant: 'STARTING',
+                choiceGroup: 2,
+                choiceCount: 3,
+                proficiencyRef: { srdIndex: 'lute', name: 'Lute', type: PROFICIENCY_TYPE.TOOL },
+            },
+            {
+                grant: 'STARTING',
+                choiceGroup: 2,
+                choiceCount: 3,
+                proficiencyRef: { srdIndex: 'flute', name: 'Flute', type: PROFICIENCY_TYPE.TOOL },
+            },
+            {
+                grant: 'STARTING',
+                choiceGroup: 2,
+                choiceCount: 3,
+                proficiencyRef: { srdIndex: 'drum', name: 'Drum', type: PROFICIENCY_TYPE.TOOL },
+            },
+            {
+                grant: 'STARTING',
+                choiceGroup: 2,
+                choiceCount: 3,
+                proficiencyRef: { srdIndex: 'lyre', name: 'Lyre', type: PROFICIENCY_TYPE.TOOL },
+            },
+            {
+                grant: 'STARTING',
+                choiceGroup: 1,
+                choiceCount: 3,
+                proficiencyRef: { srdIndex: 'skill-arcana', name: 'Arcana', type: PROFICIENCY_TYPE.SKILL },
+            },
+            {
+                grant: 'MULTICLASS',
+                choiceGroup: 1,
+                choiceCount: 1,
+                proficiencyRef: { srdIndex: 'bagpipes', name: 'Bagpipes', type: PROFICIENCY_TYPE.TOOL },
+            },
+        ],
+    };
+
+    test('derives only non-skill STARTING choice groups', () => {
+        expect(deriveStartingProficiencyChoiceRequirements(bardWithInstrumentChoices)).toEqual([
+            {
+                choiceGroup: 2,
+                pick: 3,
+                options: [
+                    { value: 'lute', name: 'Lute', type: PROFICIENCY_TYPE.TOOL },
+                    { value: 'flute', name: 'Flute', type: PROFICIENCY_TYPE.TOOL },
+                    { value: 'drum', name: 'Drum', type: PROFICIENCY_TYPE.TOOL },
+                    { value: 'lyre', name: 'Lyre', type: PROFICIENCY_TYPE.TOOL },
+                ],
+            },
+        ]);
+    });
+
+    test('includes OTHER fixed grants in tool trait lists', () => {
+        const rogueClass: CharacterClassReference = {
+            id: 'class-rogue-id',
+            srdIndex: 'rogue',
+            name: 'Rogue',
+            hitDie: 8,
+            spellcastingAbility: null,
+            proficiencyRules: [
+                {
+                    grant: 'STARTING',
+                    choiceGroup: null,
+                    choiceCount: null,
+                    proficiencyRef: { srdIndex: 'thieves-tools', name: "Thieves' Tools", type: PROFICIENCY_TYPE.OTHER },
+                },
+            ],
+        };
+
+        expect(deriveNamedClassProficiencies([
+            { classRow: { classId: 'rogue', level: 1 }, classRef: rogueClass, subclassRef: null },
+        ], 0)).toEqual({
+            armor: ['None'],
+            weapons: ['None'],
+            tools: ["Thieves' Tools"],
+        });
+    });
+
+    test('accepts exact picks and maps them to trait labels', () => {
+        const groups = deriveStartingProficiencyChoiceRequirements(bardWithInstrumentChoices);
+        const submitted = [{ choiceGroup: 2, values: ['lute', 'flute', 'drum'] }];
+
+        expect(() => validateStartingProficiencyChoices(groups, submitted, 'bard')).not.toThrow();
+        expect(namedProficienciesFromChoices(groups, submitted, 'bard')).toEqual({
+            armor: ['None'],
+            weapons: ['None'],
+            tools: ['Drum', 'Flute', 'Lute'],
+        });
+    });
+
+    test('rejects under-filled or invalid non-skill choice submissions', () => {
+        const groups = deriveStartingProficiencyChoiceRequirements(bardWithInstrumentChoices);
+
+        expect(() => validateStartingProficiencyChoices(groups, [{ choiceGroup: 2, values: ['lute'] }], 'bard'))
+            .toThrow('Choose exactly 3 proficiencies');
+        expect(() => validateStartingProficiencyChoices(groups, [{ choiceGroup: 2, values: ['lute', 'flute', 'bagpipes'] }], 'bard'))
+            .toThrow('is not an option');
+        expect(() => validateStartingProficiencyChoices(groups, [
+            { choiceGroup: 2, values: ['lute', 'flute', 'drum'] },
+            { choiceGroup: 9, values: ['lyre'] },
+        ], 'bard')).toThrow('Unexpected proficiency choice group');
+    });
+
+    test('uses custom proficiency database ids when srdIndex is null', () => {
+        const customClass: CharacterClassReference = {
+            id: 'class-custom-id',
+            srdIndex: null,
+            name: 'Custom Bard',
+            hitDie: 8,
+            spellcastingAbility: null,
+            proficiencyRules: [
+                {
+                    grant: 'STARTING',
+                    choiceGroup: 1,
+                    choiceCount: 1,
+                    proficiencyRef: {
+                        id: 'prof-custom-lute-id',
+                        srdIndex: null,
+                        name: 'Custom Lute',
+                        type: PROFICIENCY_TYPE.TOOL,
+                    },
+                },
+                {
+                    grant: 'STARTING',
+                    choiceGroup: 1,
+                    choiceCount: 1,
+                    proficiencyRef: {
+                        id: 'prof-custom-flute-id',
+                        srdIndex: null,
+                        name: 'Custom Flute',
+                        type: PROFICIENCY_TYPE.TOOL,
+                    },
+                },
+            ],
+        };
+
+        const groups = deriveStartingProficiencyChoiceRequirements(customClass, 'class-custom-id');
+        expect(groups).toEqual([{
+            choiceGroup: 1,
+            pick: 1,
+            options: [
+                { value: 'prof-custom-lute-id', name: 'Custom Lute', type: PROFICIENCY_TYPE.TOOL },
+                { value: 'prof-custom-flute-id', name: 'Custom Flute', type: PROFICIENCY_TYPE.TOOL },
+            ],
+        }]);
+
+        expect(() => validateStartingProficiencyChoices(
+            groups,
+            [{ classId: 'class-custom-id', choiceGroup: 1, values: ['prof-custom-lute-id'] }],
+            'class-custom-id',
+        )).not.toThrow();
+        expect(() => validateStartingProficiencyChoices(
+            groups,
+            [{ classId: 'class-custom-id', choiceGroup: 1, values: ['Custom Lute'] }],
+            'class-custom-id',
+        )).toThrow('is not an option');
+    });
+});
+
+describe('creation multiclass skill and proficiency choice derivation', () => {
+    const fighterStarting: CharacterClassReference = {
+        id: 'class-fighter-id',
+        srdIndex: 'fighter',
+        name: 'Fighter',
+        hitDie: 10,
+        spellcastingAbility: null,
+        proficiencyRules: [
+            {
+                grant: 'STARTING',
+                choiceGroup: 1,
+                choiceCount: 2,
+                proficiencyRef: { srdIndex: 'skill-athletics', name: 'Athletics', type: PROFICIENCY_TYPE.SKILL },
+            },
+            {
+                grant: 'STARTING',
+                choiceGroup: 1,
+                choiceCount: 2,
+                proficiencyRef: { srdIndex: 'skill-perception', name: 'Perception', type: PROFICIENCY_TYPE.SKILL },
+            },
+            {
+                grant: 'STARTING',
+                choiceGroup: 1,
+                choiceCount: 2,
+                proficiencyRef: { srdIndex: 'skill-survival', name: 'Survival', type: PROFICIENCY_TYPE.SKILL },
+            },
+        ],
+    };
+
+    const bardSecondary: CharacterClassReference = {
+        id: 'class-bard-id',
+        srdIndex: 'bard',
+        name: 'Bard',
+        hitDie: 8,
+        spellcastingAbility: 'cha',
+        proficiencyRules: [
+            {
+                grant: 'MULTICLASS',
+                choiceGroup: null,
+                choiceCount: null,
+                proficiencyRef: { srdIndex: 'light-armor', name: 'Light Armor', type: PROFICIENCY_TYPE.ARMOR },
+            },
+            {
+                grant: 'MULTICLASS',
+                choiceGroup: 1,
+                choiceCount: 1,
+                proficiencyRef: { srdIndex: 'skill-performance', name: 'Performance', type: PROFICIENCY_TYPE.SKILL },
+            },
+            {
+                grant: 'MULTICLASS',
+                choiceGroup: 1,
+                choiceCount: 1,
+                proficiencyRef: { srdIndex: 'skill-persuasion', name: 'Persuasion', type: PROFICIENCY_TYPE.SKILL },
+            },
+            {
+                grant: 'MULTICLASS',
+                choiceGroup: 2,
+                choiceCount: 1,
+                proficiencyRef: { srdIndex: 'lute', name: 'Lute', type: PROFICIENCY_TYPE.TOOL },
+            },
+            {
+                grant: 'MULTICLASS',
+                choiceGroup: 2,
+                choiceCount: 1,
+                proficiencyRef: { srdIndex: 'flute', name: 'Flute', type: PROFICIENCY_TYPE.TOOL },
+            },
+            // STARTING rows must not leak into secondary-class requirements.
+            {
+                grant: 'STARTING',
+                choiceGroup: 2,
+                choiceCount: 3,
+                proficiencyRef: { srdIndex: 'drum', name: 'Drum', type: PROFICIENCY_TYPE.TOOL },
+            },
+        ],
+    };
+
+    const classes: ResolvedCharacterClass[] = [
+        { classRow: { classId: 'fighter', level: 1 }, classRef: fighterStarting, subclassRef: null },
+        { classRow: { classId: 'bard', level: 1 }, classRef: bardSecondary, subclassRef: null },
+    ];
+
+    test('derives starting skill groups plus secondary MULTICLASS skill groups', () => {
+        expect(deriveCreationSkillRequirements(classes, 0)).toEqual({
+            automaticSkillKeys: [],
+            choiceGroups: [
+                {
+                    classId: 'fighter',
+                    choiceGroup: 1,
+                    pick: 2,
+                    optionKeys: ['athletics', 'perception', 'survival'],
+                },
+                {
+                    classId: 'bard',
+                    choiceGroup: 1,
+                    pick: 1,
+                    optionKeys: ['performance', 'persuasion'],
+                },
+            ],
+        });
+    });
+
+    test('derives starting and secondary skill + named choice groups with class identity', () => {
+        const groups = deriveCreationProficiencyChoiceRequirements(classes, 0);
+        expect(groups).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                classId: 'fighter',
+                choiceGroup: 1,
+                pick: 2,
+            }),
+            expect.objectContaining({
+                classId: 'bard',
+                choiceGroup: 1,
+                pick: 1,
+            }),
+            expect.objectContaining({
+                classId: 'bard',
+                choiceGroup: 2,
+                pick: 1,
+                options: [
+                    { value: 'lute', name: 'Lute', type: PROFICIENCY_TYPE.TOOL },
+                    { value: 'flute', name: 'Flute', type: PROFICIENCY_TYPE.TOOL },
+                ],
+            }),
+        ]));
+    });
+
+    test('validates class-scoped skill and named choices independently', () => {
+        const groups = deriveCreationProficiencyChoiceRequirements(classes, 0);
+        const submitted = [
+            { classId: 'fighter', choiceGroup: 1, values: ['skill-athletics', 'skill-perception'] },
+            { classId: 'bard', choiceGroup: 1, values: ['skill-performance'] },
+            { classId: 'bard', choiceGroup: 2, values: ['lute'] },
+        ];
+
+        expect(() => validateCreationProficiencyChoices(groups, submitted)).not.toThrow();
+        expect(skillKeysFromValidatedChoices(groups, submitted).sort()).toEqual([
+            'athletics',
+            'perception',
+            'performance',
+        ]);
+        expect(() => validateCreationProficiencyChoices(groups, [
+            { classId: 'fighter', choiceGroup: 1, values: ['skill-athletics', 'skill-perception'] },
+            { classId: 'bard', choiceGroup: 2, values: ['lute'] },
+        ])).toThrow('Choose exactly 1 proficiency from bard choice group 1');
+        expect(namedProficienciesFromChoices(groups, submitted)).toEqual({
+            armor: ['None'],
+            weapons: ['None'],
+            tools: ['Lute'],
+        });
+    });
+});
+
+describe('newly added multiclass proficiency choice validation', () => {
+    const bardRef: CharacterClassReference = {
+        id: 'class-bard-id',
+        srdIndex: 'bard',
+        name: 'Bard',
+        hitDie: 8,
+        spellcastingAbility: 'cha',
+        proficiencyRules: [
+            {
+                grant: 'MULTICLASS',
+                choiceGroup: null,
+                choiceCount: null,
+                proficiencyRef: { srdIndex: 'light-armor', name: 'Light armour', type: PROFICIENCY_TYPE.ARMOR },
+            },
+            {
+                grant: 'MULTICLASS',
+                choiceGroup: 1,
+                choiceCount: 1,
+                proficiencyRef: { srdIndex: 'skill-stealth', name: 'Stealth', type: PROFICIENCY_TYPE.SKILL },
+            },
+            {
+                grant: 'MULTICLASS',
+                choiceGroup: 1,
+                choiceCount: 1,
+                proficiencyRef: { srdIndex: 'skill-performance', name: 'Performance', type: PROFICIENCY_TYPE.SKILL },
+            },
+            {
+                grant: 'MULTICLASS',
+                choiceGroup: 2,
+                choiceCount: 1,
+                proficiencyRef: { srdIndex: 'lute', name: 'Lute', type: PROFICIENCY_TYPE.TOOL },
+            },
+            {
+                grant: 'MULTICLASS',
+                choiceGroup: 2,
+                choiceCount: 1,
+                proficiencyRef: { srdIndex: 'flute', name: 'Flute', type: PROFICIENCY_TYPE.TOOL },
+            },
+        ],
+    };
+
+    const wizardRef: CharacterClassReference = {
+        id: 'class-wizard-id',
+        srdIndex: 'wizard',
+        name: 'Wizard',
+        hitDie: 6,
+        spellcastingAbility: 'int',
+        proficiencyRules: [],
+    };
+
+    const classRefs = new Map<string, CharacterClassReference>([
+        ['wizard', wizardRef],
+        ['class-wizard-id', wizardRef],
+        ['bard', bardRef],
+        ['class-bard-id', bardRef],
+    ]);
+
+    test('findNewlyAddedClassRows matches persisted classes by db id or srdIndex', () => {
+        expect(findNewlyAddedClassRows(
+            [{ classId: 'wizard' }, { classId: 'bard' }],
+            ['class-wizard-id'],
+            classRefs,
+        )).toEqual([{ classId: 'bard' }]);
+    });
+
+    test('derives SKILL and named MULTICLASS groups for newly added classes', () => {
+        const newlyAdded: ResolvedCharacterClass[] = [
+            { classRow: { classId: 'bard', level: 1 }, classRef: bardRef, subclassRef: null },
+        ];
+
+        expect(deriveNewlyAddedMulticlassProficiencyChoiceRequirements(newlyAdded)).toEqual([
+            {
+                classId: 'bard',
+                choiceGroup: 1,
+                pick: 1,
+                options: [
+                    { value: 'skill-stealth', name: 'Stealth', type: PROFICIENCY_TYPE.SKILL },
+                    { value: 'skill-performance', name: 'Performance', type: PROFICIENCY_TYPE.SKILL },
+                ],
+            },
+            {
+                classId: 'bard',
+                choiceGroup: 2,
+                pick: 1,
+                options: [
+                    { value: 'lute', name: 'Lute', type: PROFICIENCY_TYPE.TOOL },
+                    { value: 'flute', name: 'Flute', type: PROFICIENCY_TYPE.TOOL },
+                ],
+            },
+        ]);
+    });
+
+    test('rejects missing, duplicate, unexpected, and invalid newly added selections', () => {
+        const newlyAdded: ResolvedCharacterClass[] = [
+            { classRow: { classId: 'bard', level: 1 }, classRef: bardRef, subclassRef: null },
+        ];
+        const groups = deriveNewlyAddedMulticlassProficiencyChoiceRequirements(newlyAdded);
+
+        expect(() => validateCreationProficiencyChoices(groups, [
+            { classId: 'bard', choiceGroup: 1, values: ['skill-stealth'] },
+        ])).toThrow('Choose exactly 1 proficiency from bard choice group 2');
+        expect(() => validateCreationProficiencyChoices(groups, [
+            { classId: 'bard', choiceGroup: 1, values: ['skill-stealth'] },
+            { classId: 'bard', choiceGroup: 1, values: ['skill-performance'] },
+            { classId: 'bard', choiceGroup: 2, values: ['lute'] },
+        ])).toThrow('Duplicate proficiency choice submission');
+        expect(() => validateCreationProficiencyChoices(groups, [
+            { classId: 'bard', choiceGroup: 1, values: ['skill-stealth'] },
+            { classId: 'bard', choiceGroup: 2, values: ['lute'] },
+            { classId: 'wizard', choiceGroup: 1, values: ['skill-arcana'] },
+        ])).toThrow('Unexpected proficiency choice group');
+        expect(() => validateCreationProficiencyChoices(groups, [
+            { classId: 'bard', choiceGroup: 1, values: ['skill-athletics'] },
+            { classId: 'bard', choiceGroup: 2, values: ['lute'] },
+        ])).toThrow('is not an option');
+        expect(() => validateCreationProficiencyChoices([], [
+            { classId: 'bard', choiceGroup: 1, values: ['skill-stealth'] },
+        ])).toThrow('Selected classes do not grant proficiency choices');
+    });
+
+    test('merges fixed grants and validated choices without downgrading existing skills', () => {
+        const newlyAdded: ResolvedCharacterClass[] = [
+            { classRow: { classId: 'bard', level: 1 }, classRef: bardRef, subclassRef: null },
+        ];
+        const groups = deriveNewlyAddedMulticlassProficiencyChoiceRequirements(newlyAdded);
+        const result = applyNewlyAddedMulticlassProficiencyGrants({
+            newlyAddedClasses: newlyAdded,
+            choiceGroups: groups,
+            submittedChoices: [
+                { classId: 'bard', choiceGroup: 1, values: ['skill-stealth'] },
+                { classId: 'bard', choiceGroup: 2, values: ['lute'] },
+            ],
+            skillProficiencies: {
+                stealth: 'expert',
+                performance: 'none',
+                athletics: 'proficient',
+            },
+            traits: {
+                armorProficiencies: ['Shields'],
+                weaponProficiencies: ['None'],
+                toolProficiencies: ["Thieves' tools"],
+            },
+        });
+
+        expect(result.skillProficiencies.stealth).toBe('expert');
+        expect(result.skillProficiencies.athletics).toBe('proficient');
+        expect(result.traits.armorProficiencies).toEqual(['Shields', 'Light armour']);
+        expect(result.traits.toolProficiencies).toEqual(["Thieves' tools", 'Lute']);
     });
 });

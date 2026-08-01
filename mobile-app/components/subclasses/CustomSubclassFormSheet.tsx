@@ -4,13 +4,15 @@ import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { HelperText, Text } from 'react-native-paper';
 import BottomSheetShell from '@/components/sheets/BottomSheetShell';
+import { OVERLAY_LAYER } from '@/components/sheets/overlayLayers';
 import useBottomSheetMotion from '@/hooks/useBottomSheetMotion';
 import useConfirm from '@/hooks/useConfirm';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
+import type { OptionItem } from '@/lib/characterCreation/options';
 import { keyboardAwareBottomOffset, keyboardAwareScrollProps } from '@/lib/keyboardUtils';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { FantasyFormTextInput } from '@/components/FantasyFormTextInput';
 import CustomSubclassFeatureCard from './CustomSubclassFeatureCard';
-import { FantasyFormTextInput } from './FantasyFormTextInput';
 import {
     addCustomSubclassFeatureDraft,
     buildBlankCustomSubclassFeatureDraft,
@@ -32,6 +34,7 @@ import {
 } from '@shared/constants/customSubclassLimits';
 
 type CustomSubclassFormSheetProps = {
+    classOptions?: OptionItem[];
     visible: boolean;
     mode: CustomSubclassFormMode;
     draft: CustomSubclassFormDraft;
@@ -49,6 +52,7 @@ type CustomSubclassFormSheetProps = {
  * Modal sheet for creating and editing reusable custom subclasses.
  */
 export default function CustomSubclassFormSheet({
+    classOptions = CLASS_OPTIONS,
     visible,
     mode,
     draft,
@@ -148,7 +152,7 @@ export default function CustomSubclassFormSheet({
                 onRequestClose={requestSheetClose}
                 closeAccessibilityLabel="Close custom subclass form"
                 testID="custom-subclass-form-sheet"
-                overlayZIndex={30}
+                overlayZIndex={OVERLAY_LAYER.sheet}
             >
                 <KeyboardAwareScrollView
                     {...keyboardAwareScrollProps}
@@ -179,7 +183,7 @@ export default function CustomSubclassFormSheet({
                     <View style={styles.classSection}>
                         <Text style={styles.fieldLabel}>Parent Class</Text>
                         <View style={styles.classGrid}>
-                            {CLASS_OPTIONS.map((option) => {
+                            {classOptions.map((option) => {
                                 const selected = draft.classId === option.value;
 
                                 return (
@@ -380,9 +384,9 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.xs,
         borderRadius: fantasyTokens.radii.sm,
         borderWidth: 1,
-        borderColor: fantasyTokens.rail.borderStrong,
+        borderColor: fantasyTokens.sheet.form.border,
         paddingHorizontal: fantasyTokens.spacing.sm,
-        backgroundColor: fantasyTokens.rail.pressed,
+        backgroundColor: fantasyTokens.sheet.form.card,
     },
     classButtonSelected: {
         backgroundColor: fantasyTokens.colors.crimson,
@@ -455,11 +459,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         borderRadius: fantasyTokens.radii.sm,
         borderWidth: 1,
-        borderColor: fantasyTokens.rail.borderStrong,
+        borderColor: fantasyTokens.sheet.form.border,
         paddingHorizontal: fantasyTokens.spacing.md,
     },
     cancelButtonPressed: {
-        backgroundColor: fantasyTokens.rail.pressed,
+        backgroundColor: fantasyTokens.sheet.form.card,
     },
     cancelButtonText: {
         ...fantasyTokens.typography.buttonLabel,

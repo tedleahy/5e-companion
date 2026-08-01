@@ -3,14 +3,24 @@ import { CREATE_CHARACTER_ROUTES, type CreateCharacterRoute } from '@/lib/charac
 import { validateCharacterClassDraft } from '@/lib/characterCreation/multiclass';
 import { SUBCLASS_OPTIONS, type OptionItem } from '@/lib/characterCreation/options';
 import { getCreateFeatureChoiceGroups } from '@/lib/srdFeatureChoices';
+import { type ClassProficiencyChoiceGroup } from '@/lib/characterCreation/classRules';
+import { areProficiencyChoicesComplete } from '@/lib/characterCreation/proficiencyChoiceDraft';
 
 /**
  * Returns whether the current create-character step is complete enough to continue.
+ *
+ * Proficiency choice groups and their loading/error flags describe creation
+ * requirements across all class rows (see `useCreationProficiencyRequirements`)
+ * and are only consulted on the skills route.
  */
 export function isCreateCharacterStepComplete(
     route: CreateCharacterRoute,
     draft: CharacterDraft,
     subclassOptionsByClassId: Record<string, OptionItem[]> = SUBCLASS_OPTIONS,
+    _deprecatedSkillChoiceGroups: unknown = [],
+    skillRequirementsLoading = false,
+    proficiencyChoiceGroups: ClassProficiencyChoiceGroup[] = [],
+    skillRequirementsError = false,
 ): boolean {
     switch (route) {
         case CREATE_CHARACTER_ROUTES.identity:
@@ -26,8 +36,11 @@ export function isCreateCharacterStepComplete(
             return hasCompletedFeatureChoices(draft);
         case CREATE_CHARACTER_ROUTES.background:
             return draft.background !== '';
-        case CREATE_CHARACTER_ROUTES.abilities:
         case CREATE_CHARACTER_ROUTES.skills:
+            return !skillRequirementsLoading
+                && !skillRequirementsError
+                && areProficiencyChoicesComplete(draft.proficiencyChoices, proficiencyChoiceGroups);
+        case CREATE_CHARACTER_ROUTES.abilities:
         case CREATE_CHARACTER_ROUTES.review:
             return true;
         default:

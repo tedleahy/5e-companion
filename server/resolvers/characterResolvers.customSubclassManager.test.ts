@@ -248,7 +248,15 @@ describe('customSubclassManager — createCustomSubclass', () => {
         );
 
         expect(classFindFirstMock).toHaveBeenCalledWith(
-            expect.objectContaining({ where: { srdIndex: 'wizard' } }),
+            {
+                where: {
+                    archivedAt: null,
+                    OR: [
+                        { srdIndex: 'wizard', ownerUserId: null },
+                        { id: 'wizard', ownerUserId: 'user-abc' },
+                    ],
+                },
+            },
         );
         expect(subclassFindFirstMock).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -464,7 +472,9 @@ describe('customSubclassManager — updateCustomSubclass', () => {
         subclassFindFirstMock.mockResolvedValueOnce({
             id: 'sub-1',
             ownerUserId: 'user-abc',
+            classId: 'class-warlock-id',
             classRef: {
+                id: 'class-warlock-id',
                 srdIndex: 'warlock',
                 name: 'Warlock',
             },
@@ -481,11 +491,48 @@ describe('customSubclassManager — updateCustomSubclass', () => {
         ).rejects.toThrow('Cannot change the parent class of a subclass used by 3 character(s).');
     });
 
+    test('rejects moving a used subclass between two custom classes', () => {
+        subclassFindFirstMock.mockResolvedValueOnce({
+            id: 'sub-1',
+            ownerUserId: 'user-abc',
+            classId: 'custom-class-a',
+            classRef: {
+                id: 'custom-class-a',
+                srdIndex: null,
+                name: 'Custom A',
+            },
+            _count: { characterClasses: 2, features: 0 },
+        });
+        classFindFirstMock.mockResolvedValueOnce({
+            id: 'custom-class-b',
+            srdIndex: null,
+            name: 'Custom B',
+        });
+
+        expect(
+            resolvers.updateCustomSubclass(
+                {},
+                {
+                    id: 'sub-1',
+                    input: {
+                        classId: 'custom-class-b',
+                        name: 'Foo',
+                        description: 'Bar',
+                        selectionLevel: 3,
+                    },
+                },
+                authedCtx,
+            ),
+        ).rejects.toThrow('Cannot change the parent class of a subclass used by 2 character(s).');
+    });
+
     test('rejects changing parent class when subclass has feature definitions', () => {
         subclassFindFirstMock.mockResolvedValueOnce({
             id: 'sub-1',
             ownerUserId: 'user-abc',
+            classId: 'class-warlock-id',
             classRef: {
+                id: 'class-warlock-id',
                 srdIndex: 'warlock',
                 name: 'Warlock',
             },
@@ -516,7 +563,9 @@ describe('customSubclassManager — updateCustomSubclass', () => {
             .mockResolvedValueOnce({
                 id: 'sub-1',
                 ownerUserId: 'user-abc',
+                classId: 'class-wizard-id',
                 classRef: {
+                    id: 'class-wizard-id',
                     srdIndex: 'wizard',
                     name: 'Wizard',
                 },
@@ -540,7 +589,9 @@ describe('customSubclassManager — updateCustomSubclass', () => {
             .mockResolvedValueOnce({
                 id: 'sub-1',
                 ownerUserId: 'user-abc',
+                classId: 'class-wizard-id',
                 classRef: {
+                    id: 'class-wizard-id',
                     srdIndex: 'wizard',
                     name: 'Wizard',
                 },
@@ -641,7 +692,9 @@ describe('customSubclassManager — updateCustomSubclass', () => {
             .mockResolvedValueOnce({
                 id: 'sub-1',
                 ownerUserId: 'user-abc',
+                classId: 'class-wizard-id',
                 classRef: {
+                    id: 'class-wizard-id',
                     srdIndex: 'wizard',
                     name: 'Wizard',
                 },
@@ -747,7 +800,9 @@ describe('customSubclassManager — updateCustomSubclass', () => {
             .mockResolvedValueOnce({
                 id: 'sub-1',
                 ownerUserId: 'user-abc',
+                classId: 'class-wizard-id',
                 classRef: {
+                    id: 'class-wizard-id',
                     srdIndex: 'wizard',
                     name: 'Wizard',
                 },
@@ -784,12 +839,74 @@ describe('customSubclassManager — updateCustomSubclass', () => {
         ).rejects.toThrow('Custom subclass feature not found.');
     });
 
+    test('allows moving an unused subclass between two custom classes', async () => {
+        subclassFindFirstMock
+            .mockResolvedValueOnce({
+                id: 'sub-1',
+                ownerUserId: 'user-abc',
+                classId: 'custom-class-a',
+                classRef: {
+                    id: 'custom-class-a',
+                    srdIndex: null,
+                    name: 'Custom A',
+                },
+                _count: { characterClasses: 0, features: 0 },
+            })
+            .mockResolvedValueOnce(null)
+            .mockResolvedValueOnce({
+                id: 'sub-1',
+                srdIndex: null,
+                ownerUserId: 'user-abc',
+                name: 'Moved Subclass',
+                selectionLevel: 3,
+                description: ['Moved description.'],
+                classId: 'custom-class-b',
+                classRef: {
+                    id: 'custom-class-b',
+                    srdIndex: null,
+                    name: 'Custom B',
+                },
+                features: [],
+                _count: { characterClasses: 0 },
+            });
+        classFindFirstMock.mockResolvedValueOnce({
+            id: 'custom-class-b',
+            srdIndex: null,
+            name: 'Custom B',
+        });
+
+        const result = await resolvers.updateCustomSubclass(
+            {},
+            {
+                id: 'sub-1',
+                input: {
+                    classId: 'custom-class-b',
+                    name: 'Moved Subclass',
+                    description: 'Moved description.',
+                    selectionLevel: 3,
+                },
+            },
+            authedCtx,
+        );
+
+        expect(subclassUpdateMock).toHaveBeenCalledWith(
+            expect.objectContaining({
+                data: expect.objectContaining({ classId: 'custom-class-b' }),
+            }),
+        );
+        expect(result.classId).toBe('custom-class-b');
+        expect(result.className).toBe('Custom B');
+        expect(result.canChangeClass).toBe(true);
+    });
+
     test('allows changing parent class when saved feature definitions are emptied', async () => {
         subclassFindFirstMock
             .mockResolvedValueOnce({
                 id: 'sub-1',
                 ownerUserId: 'user-abc',
+                classId: 'class-wizard-id',
                 classRef: {
+                    id: 'class-wizard-id',
                     srdIndex: 'wizard',
                     name: 'Wizard',
                 },
@@ -890,5 +1007,37 @@ describe('customSubclassManager — archiveCustomSubclass', () => {
             }),
         );
         expect(result).toBe(true);
+    });
+});
+
+describe('active custom subclass name conflict translation', () => {
+    test('translates a partial-index P2002 without modelName into a domain error', async () => {
+        const { ACTIVE_CUSTOM_SUBCLASS_NAME_INDEX, translateActiveCustomSubclassNameConflict } = await import(
+            './character/customSubclassManager'
+        );
+        const { Prisma } = await import('@prisma/client');
+        const error = new Prisma.PrismaClientKnownRequestError(
+            `Unique constraint failed on the constraint: \`${ACTIVE_CUSTOM_SUBCLASS_NAME_INDEX}\``,
+            {
+                code: 'P2002',
+                clientVersion: 'test',
+                meta: { target: ACTIVE_CUSTOM_SUBCLASS_NAME_INDEX },
+            },
+        );
+        expect(error.meta?.modelName).toBeUndefined();
+        expect(() => translateActiveCustomSubclassNameConflict(error, 'Oath of Ash', 'Paladin')).toThrow(
+            'You already have a custom subclass named "Oath of Ash" for Paladin.',
+        );
+    });
+
+    test('rethrows unrelated unique violations unchanged', async () => {
+        const { translateActiveCustomSubclassNameConflict } = await import('./character/customSubclassManager');
+        const { Prisma } = await import('@prisma/client');
+        const error = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+            code: 'P2002',
+            clientVersion: 'test',
+            meta: { target: ['id'] },
+        });
+        expect(() => translateActiveCustomSubclassNameConflict(error, 'Oath of Ash', 'Paladin')).toThrow(error);
     });
 });

@@ -16,6 +16,8 @@ jest.mock('@/hooks/useProtectedNavigation', () => ({
 const COUNTS_DATA = {
     compendiumCounts: {
         __typename: 'CompendiumCounts' as const,
+        srdClassCount: 12,
+        customClassCount: 3,
         srdSubclassCount: 1,
         customSubclassCount: 1,
         spellCount: 2,
@@ -60,6 +62,7 @@ describe('Compendium screen', () => {
 
         await waitFor(() => {
             expect(screen.getByText('1 SRD · 1 custom')).toBeTruthy();
+            expect(screen.getByText('12 SRD · 3 custom')).toBeTruthy();
             expect(screen.getByText('2 available')).toBeTruthy();
         });
     });
@@ -76,6 +79,8 @@ describe('Compendium screen', () => {
                 data: {
                     compendiumCounts: {
                         __typename: 'CompendiumCounts',
+                        srdClassCount: 12,
+                        customClassCount: 3,
                         srdSubclassCount: 1,
                         customSubclassCount: 2,
                         spellCount: 2,
@@ -96,7 +101,7 @@ describe('Compendium screen', () => {
         await waitFor(() => expect(screen.getByText('1 SRD · 2 custom')).toBeTruthy());
     });
 
-    it('opens both implemented categories and leaves future categories disabled', async () => {
+    it('opens implemented categories and leaves future categories disabled', async () => {
         renderScreen();
 
         await waitFor(() => expect(screen.getByText('2 available')).toBeTruthy());
@@ -107,8 +112,9 @@ describe('Compendium screen', () => {
 
         await waitFor(() => {
             expect(mockPush.mock.calls).toEqual([
-                ['/compendium/subclasses'],
-                ['/compendium/spells'],
+                ['/(rail)/compendium/subclasses'],
+                ['/(rail)/compendium/spells'],
+                ['/(rail)/compendium/classes'],
             ]);
         });
     });

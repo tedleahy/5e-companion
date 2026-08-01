@@ -1,5 +1,5 @@
 import type { Context } from "../..";
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import type {
     CustomSubclass,
     ManagedCustomSubclassFeatureInput,
@@ -181,6 +181,45 @@ function duplicateSubclassNameWhere(
     };
 }
 
+/** Partial unique index from migrations/20260725140000_active_custom_class_subclass_name_uniqueness. */
+export const ACTIVE_CUSTOM_SUBCLASS_NAME_INDEX = "Subclass_ownerUserId_classId_lower_name_active_key";
+
+/**
+ * Collects Prisma unique-constraint target identifiers from a P2002 error.
+ * Expression/partial indexes often omit `meta.modelName` and put the index name in `target`.
+ */
+export function uniqueConstraintTargets(error: Prisma.PrismaClientKnownRequestError): string[] {
+    const target = error.meta?.target;
+    if (typeof target === "string") return [target];
+    if (Array.isArray(target)) return target.map(String);
+    return [];
+}
+
+/**
+ * True when a P2002 is the active custom-subclass name unique index.
+ */
+export function isActiveCustomSubclassNameConflict(error: Prisma.PrismaClientKnownRequestError): boolean {
+    if (error.code !== "P2002") return false;
+    const targets = uniqueConstraintTargets(error);
+    if (targets.some((value) => value === ACTIVE_CUSTOM_SUBCLASS_NAME_INDEX)) return true;
+    return error.message.includes(ACTIVE_CUSTOM_SUBCLASS_NAME_INDEX);
+}
+
+/**
+ * Translates a race on the active custom-subclass name unique index into a domain error.
+ * Other unique violations are rethrown unchanged.
+ */
+export function translateActiveCustomSubclassNameConflict(
+    error: unknown,
+    name: string,
+    className: string,
+): never {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && isActiveCustomSubclassNameConflict(error)) {
+        throw new Error(`You already have a custom subclass named "${name}" for ${className}.`);
+    }
+    throw error;
+}
+
 function toCustomSubclass(subclassRef: CustomSubclassResponseRow): CustomSubclass {
     const characterUsageCount = subclassRef._count?.characterClasses ?? 0;
     const featureCount = subclassRef._count?.features ?? 0;
@@ -294,9 +333,10 @@ export async function customSubclassesForUser(
             ...(classIds && classIds.length > 0
                 ? {
                       classRef: {
-                          srdIndex: {
-                              in: classIds,
-                          },
+                          OR: [
+                              { srdIndex: { in: classIds }, ownerUserId: null },
+                              { id: { in: classIds }, ownerUserId: userId, archivedAt: null },
+                          ],
                       },
                   }
                 : {}),
@@ -334,7 +374,13 @@ export async function createCustomSubclass(
     const { name, description, selectionLevel, classId, features } = normaliseManagedCustomSubclassInput(input);
 
     const classRef = await prisma.class.findFirst({
-        where: { srdIndex: classId },
+        where: {
+            archivedAt: null,
+            OR: [
+                { srdIndex: classId, ownerUserId: null },
+                { id: classId, ownerUserId: userId },
+            ],
+        },
     });
 
     if (!classRef) {
@@ -374,7 +420,7 @@ export async function createCustomSubclass(
             where: { id: createdSubclass.id },
             include: CUSTOM_SUBCLASS_RESPONSE_INCLUDE,
         });
-    });
+    }).catch((error) => translateActiveCustomSubclassNameConflict(error, name, classRef.name));
 
     if (!subclassRef) {
         throw new Error("Custom subclass not found.");
@@ -423,14 +469,20 @@ export async function updateCustomSubclass(
     }
 
     const classRef = await prisma.class.findFirst({
-        where: { srdIndex: classId },
+        where: {
+            archivedAt: null,
+            OR: [
+                { srdIndex: classId, ownerUserId: null },
+                { id: classId, ownerUserId: userId },
+            ],
+        },
     });
 
     if (!classRef) {
         throw new Error(`Unknown class: ${classId}`);
     }
 
-    const classChanged = existingSubclass.classRef.srdIndex !== classRef.srdIndex;
+    const classChanged = existingSubclass.classId !== classRef.id;
 
     if (classChanged) {
         if (existingSubclass._count.characterClasses > 0) {
@@ -481,7 +533,7 @@ export async function updateCustomSubclass(
             where: { id },
             include: CUSTOM_SUBCLASS_RESPONSE_WITH_COUNT_INCLUDE,
         });
-    });
+    }).catch((error) => translateActiveCustomSubclassNameConflict(error, name, classRef.name));
 
     if (!subclassRef) {
         throw new Error("Custom subclass not found.");

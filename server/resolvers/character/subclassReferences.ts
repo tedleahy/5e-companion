@@ -206,13 +206,15 @@ export async function availableSubclassesForUser(
                         { ownerUserId: userId, archivedAt: null },
                     ],
                 },
+                { classRef: { archivedAt: null } },
                 ...(classIds && classIds.length > 0
                     ? [
                           {
                               classRef: {
-                                  srdIndex: {
-                                      in: classIds,
-                                  },
+                                  OR: [
+                                      { srdIndex: { in: classIds }, ownerUserId: null },
+                                      { id: { in: classIds }, ownerUserId: userId, archivedAt: null },
+                                  ],
                               },
                           },
                       ]

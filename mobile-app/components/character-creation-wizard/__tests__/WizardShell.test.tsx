@@ -53,8 +53,9 @@ jest.mock('@/store/characterDraft', () => ({
                 wisdom: 11,
                 charisma: 11,
             },
-            selectedSkills: ['acrobatics', 'athletics'],
+            proficiencyChoices: [],
         },
+        updateDraft: jest.fn(),
         resetDraft: mockResetDraft,
         hasDraftData: mockHasDraftData,
     })),
@@ -67,6 +68,18 @@ jest.mock('@/hooks/useAvailableSubclasses', () => ({
         availableSubclassesByClassId: {},
         subclassOptionItemsByClassId: {},
         loading: false,
+    })),
+}));
+
+jest.mock('@/hooks/useCreationProficiencyRequirements', () => ({
+    __esModule: true,
+    default: jest.fn(() => ({
+        proficiencyChoiceGroups: [],
+        fixedSkillKeys: [],
+        loading: false,
+        error: undefined,
+        refetch: jest.fn(),
+        classDefinitionsByValue: new Map(),
     })),
 }));
 

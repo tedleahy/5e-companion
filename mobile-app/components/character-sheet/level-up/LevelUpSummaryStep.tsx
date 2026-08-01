@@ -5,7 +5,11 @@ import type { AbilityKey } from '@/lib/characterSheetUtils';
 import { formatSignedNumber } from '@/lib/characterSheetUtils';
 import { LEVEL_UP_ABILITY_LABELS } from '@/lib/characterLevelUp/asiOrFeat';
 import { getClassResourceChanges } from '@/lib/characterLevelUp/classResources';
-import { getMulticlassProficiencyGains, getAutomaticProficiencyLabels } from '@/lib/characterLevelUp/multiclassProficiencies';
+import {
+    getMulticlassProficiencyGains,
+    getAutomaticProficiencyLabels,
+    labelsForMulticlassProficiencySelections,
+} from '@/lib/characterLevelUp/multiclassProficiencies';
 import { spellLevelLabel } from '@/lib/spellPresentation';
 import type {
     LevelUpAsiOrFeatState,
@@ -21,6 +25,7 @@ import type {
 } from '@/lib/characterLevelUp/types';
 import { findSrdInvocation, findSrdMetamagic, formatMysticArcanumSpellLabel } from '@/lib/characterLevelUp/advancedClassChoices';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 
 type LevelUpSummaryStepProps = {
     currentCharacterLevel: number;
@@ -62,9 +67,17 @@ export default function LevelUpSummaryStep({
 }: LevelUpSummaryStepProps) {
     const nextMaxHitPoints = currentHitPoints.max + hitPointsState.hpGained;
     const abilityScoreChanges = abilityScoreSummaryRows(abilityScores, asiOrFeatState);
-    const proficiencyGains = !selectedClass.isExistingClass ? getMulticlassProficiencyGains(selectedClass.classId) : null;
+    const proficiencyGains = !selectedClass.isExistingClass
+        ? getMulticlassProficiencyGains(selectedClass.classId, selectedClass)
+        : null;
     const automaticProfLabels = proficiencyGains ? getAutomaticProficiencyLabels(proficiencyGains) : [];
-    const allProficiencyLabels = [...automaticProfLabels, ...multiclassProficiencyState.selectedSkills];
+    const chosenProficiencyLabels = proficiencyGains
+        ? labelsForMulticlassProficiencySelections(proficiencyGains, multiclassProficiencyState)
+        : [];
+    const allProficiencyLabels = [
+        ...automaticProfLabels,
+        ...chosenProficiencyLabels,
+    ];
     const resourceChanges = getClassResourceChanges(selectedClass.classId, selectedClass.currentLevel, selectedClass.newLevel)
         .filter((change) => change.changed);
 
@@ -373,73 +386,67 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.md,
     },
     banner: {
+        ...nightFormStyles.card,
         alignItems: 'center',
-        backgroundColor: fantasyTokens.colors.parchmentLight,
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
         paddingHorizontal: fantasyTokens.spacing.lg,
         paddingVertical: fantasyTokens.spacing.lg,
     },
     bannerEyebrow: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.gold,
         marginBottom: fantasyTokens.spacing.xs,
     },
     bannerTitle: {
         ...fantasyTokens.typography.pageTitle,
         fontSize: 30,
         lineHeight: 36,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
         textAlign: 'center',
     },
     bannerSubtitle: {
         ...fantasyTokens.typography.bodyLarge,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
         textAlign: 'center',
     },
     summaryCard: {
-        backgroundColor: fantasyTokens.colors.parchmentLight,
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
+        ...nightFormStyles.card,
         paddingHorizontal: fantasyTokens.spacing.lg,
         paddingVertical: fantasyTokens.spacing.md,
         gap: fantasyTokens.spacing.xs,
     },
     summaryLabel: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
     },
     summaryValue: {
         ...fantasyTokens.typography.bodyLarge,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     summaryValueLabel: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     summaryBodyText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     summaryFeatureName: {
         ...fantasyTokens.typography.cardTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     summaryListItem: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     featureList: {
-        gap: 4,
+        gap: fantasyTokens.spacing.xs,
     },
     summaryOldValue: {
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
         textDecorationLine: 'line-through',
     },
     summaryArrow: {
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     summaryHighlight: {
         color: fantasyTokens.colors.success,
@@ -451,17 +458,11 @@ const styles = StyleSheet.create({
     },
     summaryMutedText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
-        opacity: 0.7,
+        color: fantasyTokens.colors.gold,
+        opacity: 0.72,
     },
     noteCard: {
-        borderRadius: fantasyTokens.radii.md,
-        paddingHorizontal: fantasyTokens.spacing.lg,
-        paddingVertical: fantasyTokens.spacing.md,
-        backgroundColor: 'rgba(45,106,79,0.08)',
-        borderWidth: 1,
-        borderColor: 'rgba(45,106,79,0.24)',
-        gap: fantasyTokens.spacing.xs,
+        ...nightFormStyles.positiveNoteCard,
     },
     noteTitle: {
         ...fantasyTokens.typography.buttonLabel,
@@ -469,6 +470,6 @@ const styles = StyleSheet.create({
     },
     noteText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
 });

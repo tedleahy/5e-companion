@@ -100,7 +100,10 @@ See [`@/home/ted/projects/5e-companion/server/resolvers/character/fieldResolvers
 The reference tables are normalised rather than JSON — `AGENTS.md` is explicit that Prisma is the source of truth for SRD data. Notable relations:
 
 - `Race` → many-to-many to `Trait` and `Language`, plus `AbilityBonus` (join row with bonus) and `Subrace`.
-- `Class` → many-to-many to `Proficiency`, has many `Subclass` and `Feature`.
+- `Class` contains the shared SRD/custom definition: description, core abilities/saves, hit die, archive state, multiclass prerequisites, equipment JSON, spellcasting mode/ability, and whether prepared-spell counts include the spellcasting ability modifier. SRD rows have no owner; custom rows are scoped by `ownerUserId`.
+- `ClassLevelProgression` normalizes levels 1–20, including ASI grants, nine spell-slot counts, cantrips/spells known, prepared-spell base counts, and display-only class-specific values.
+- `ClassProficiency` distinguishes starting from multiclass grants and represents fixed or grouped choice entries. `ClassSpell` is the explicit custom/SRD class spell-list join.
+- `Class` still has many `Subclass` and `Feature` rows. Custom class features use `CLASS_FEATURE`.
 - `Subclass` → belongs to a `Class`, carries `description: String[]` and the canonical `selectionLevel` (an integer from 1–20). SRD rows have `ownerUserId: null`; reusable custom subclass rows are user-owned and have `srdIndex: null`. The SRD seeder assigns the 2014 levels (Cleric/Sorcerer/Warlock 1, Druid/Wizard 2, all others 3).
 - `Background` → many-to-many to `Proficiency` and `Language`, plus the background `Feature`.
 - `Feature` is polymorphic — optional FKs to any of `classId`, `subclassId`, `raceId`, `subraceId`, `backgroundId`, `traitId`, `featId`. `FeatureKind` enum tags the owner. When adding feature data, set exactly one of these plus `kind`. User-owned custom subclass feature definitions use `kind: SUBCLASS_FEATURE`, `ownerUserId`, `classId`, and `subclassId`.
@@ -108,7 +111,7 @@ The reference tables are normalised rather than JSON — `AGENTS.md` is explicit
 - `CharacterFeature` stores the resolved result of those choices on the character sheet: the parent feature row plus only the chosen child feature rows, not every child option.
 - `Proficiency.type: ProficiencyType` (ARMOR / WEAPON / TOOL / SKILL / SAVING_THROW / OTHER) — filter on this when rendering starting proficiencies.
 
-Most reference tables support user-owned rows via `ownerUserId` (null for SRD). Custom subclasses created in the manager or during level-up end up here. The subclass manager can also create, update, and delete reusable user-owned `Feature` rows for custom subclasses; existing `CharacterFeature.featureId` values are nullable and use `onDelete: SetNull`, so removing a reusable feature definition does not erase copied character-sheet text. `Subclass.archivedAt` soft-deletes user-owned custom subclasses from future pickers while preserving existing character relations for display. Changing a custom subclass's `selectionLevel` affects future assignments; unchanged existing character assignments are grandfathered. `Spell` is the exception today: custom spells are distinguished by `source=CUSTOM`, but they are not user-owned because the model has no `ownerUserId`.
+Most reference tables support user-owned rows via `ownerUserId` (null for SRD). Custom classes and subclasses are soft-deleted with `archivedAt`; existing character relations remain displayable and saveable, while new assignments filter archived rows. Once a class has character usage, mechanical fields and feature membership/levels are locked; description and existing feature name/text remain editable. Existing `CharacterFeature.featureId` values are nullable and use `onDelete: SetNull`, so removing an unused reusable feature definition does not erase copied character-sheet text. `Spell` is the exception today: custom spells are distinguished by `source=CUSTOM`, but they are not user-owned because the model has no `ownerUserId`.
 
 ## Seeding
 
@@ -120,7 +123,7 @@ Order in [`@/home/ted/projects/5e-companion/server/prisma/seed.ts:1-13`](../serv
 2. `seedCustomSpells` — a curated set of custom spells used for dev
 3. `seedAbilityScores`
 4. `seedRaces`
-5. `seedCharacterReferenceData` — classes, subclasses, backgrounds, feats, features, traits, languages, proficiencies
+5. `seedCharacterReferenceData` — classes and 1–20 progression, class proficiencies/spell lists, subclasses, backgrounds, feats, features, traits, languages, proficiencies
 6. `seedCharacter` — a dev character so the app has something to load locally
 
 SRD seeders are idempotent — keyed on `srdIndex`. `seedCustomSpells` filters out spells whose names duplicate SRD spells, but custom rows have `srdIndex: null`, so do not assume the custom-spell seed has the same idempotency guarantee unless a unique key is added. If SRD data is missing for a feature you're building, **extend the seed** rather than hard-coding in app code (see `AGENTS.md`).

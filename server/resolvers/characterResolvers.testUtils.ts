@@ -18,6 +18,7 @@ export const hitDicePoolUpdateMock: any = mock((_args: unknown) => Promise.resol
 // reference model mocks
 export const classFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const classFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
+export const classCountMock: any = mock((_args: unknown) => Promise.resolve(0));
 export const subclassFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const subclassFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const subclassCountMock: any = mock((_args: unknown) => Promise.resolve(0));
@@ -33,6 +34,7 @@ export const featureDeleteManyMock: any = mock((_args: unknown) => Promise.resol
 export const raceFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const backgroundFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const backgroundFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
+export const proficiencyFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 
 // field resolver model mocks
 export const weaponFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
@@ -47,6 +49,7 @@ export const spellFindUniqueMock: any = mock((_args: unknown) => Promise.resolve
 
 // spellbook + mutation mocks
 export const characterSpellUpsertMock: any = mock((_args: unknown) => Promise.resolve({}));
+export const characterSpellCreateMock: any = mock((_args: unknown) => Promise.resolve({}));
 export const characterSpellDeleteManyMock: any = mock((_args: unknown) => Promise.resolve({ count: 1 }));
 export const characterSpellUpdateMock: any = mock((_args: unknown) => Promise.resolve({}));
 export const spellSlotFindUniqueMock: any = mock((_args: unknown) => Promise.resolve(null));
@@ -131,6 +134,18 @@ export const transactionMock: any = mock((callback: (tx: any) => Promise<unknown
         updateMany: characterFeatureUpdateManyMock,
         deleteMany: characterFeatureDeleteManyMock,
     },
+    characterSpell: {
+        findMany: characterSpellFindManyMock,
+        upsert: characterSpellUpsertMock,
+        create: characterSpellCreateMock,
+        deleteMany: characterSpellDeleteManyMock,
+        update: characterSpellUpdateMock,
+    },
+    spell: {
+        findMany: spellFindManyMock,
+        findUnique: spellFindUniqueMock,
+        count: spellCountMock,
+    },
     $executeRaw: executeRawMock,
 }));
 
@@ -158,6 +173,7 @@ function createMockTransactionClient() {
         class: {
             findMany: classFindManyMock,
             findFirst: classFindFirstMock,
+            count: classCountMock,
         },
         subclass: {
             findMany: subclassFindManyMock,
@@ -182,9 +198,13 @@ function createMockTransactionClient() {
             findFirst: backgroundFindFirstMock,
             findMany: backgroundFindManyMock,
         },
+        proficiency: {
+            findMany: proficiencyFindManyMock,
+        },
         characterSpell: {
             findMany: characterSpellFindManyMock,
             upsert: characterSpellUpsertMock,
+            create: characterSpellCreateMock,
             deleteMany: characterSpellDeleteManyMock,
             update: characterSpellUpdateMock,
         },
@@ -235,20 +255,9 @@ function createMockPrismaClient() {
     };
 }
 
-mock.module('@prisma/adapter-pg', () => ({
-    PrismaPg: class {
-        constructor(_args: unknown) {}
-    },
-}));
-
-mock.module('@prisma/client', () => ({
-    PrismaClient: class {
-        constructor() {
-            return createMockPrismaClient();
-        }
-    },
-}));
-
+// Mock only the local Prisma singleton. Do not replace `@prisma/client` —
+// seed/unit modules import runtime enums like `ProficiencyType` from that
+// package, and a partial global mock makes the suite order-dependent.
 mock.module('../prisma/prisma', () => ({
     default: createMockPrismaClient(),
 }));
@@ -439,6 +448,7 @@ export function clearAllCharacterResolverMocks() {
     hitDicePoolUpdateMock.mockClear();
     classFindManyMock.mockClear();
     classFindFirstMock.mockClear();
+    classCountMock.mockClear();
     subclassFindManyMock.mockClear();
     subclassFindFirstMock.mockClear();
     subclassCountMock.mockClear();
@@ -454,6 +464,7 @@ export function clearAllCharacterResolverMocks() {
     raceFindFirstMock.mockClear();
     backgroundFindFirstMock.mockClear();
     backgroundFindManyMock.mockClear();
+    proficiencyFindManyMock.mockClear();
     weaponFindManyMock.mockClear();
     inventoryItemFindManyMock.mockClear();
     characterFeatureFindManyMock.mockClear();
@@ -463,6 +474,7 @@ export function clearAllCharacterResolverMocks() {
     spellFindUniqueMock.mockClear();
     spellCountMock.mockClear();
     characterSpellUpsertMock.mockClear();
+    characterSpellCreateMock.mockClear();
     characterSpellDeleteManyMock.mockClear();
     characterSpellUpdateMock.mockClear();
     spellSlotFindUniqueMock.mockClear();

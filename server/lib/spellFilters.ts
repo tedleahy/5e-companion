@@ -124,9 +124,6 @@ export function buildWhere(filter: QuerySpellsArgs['filter']): WhereClause {
     if (filter.levels && filter.levels.length > 0) {
         where.level = { in: filter.levels };
     }
-    if (filter.classes && filter.classes.length > 0) {
-        where.classIndexes = { hasSome: filter.classes };
-    }
     if (filter.schools && filter.schools.length > 0) {
         where.schoolIndex = { in: filter.schools };
     }
@@ -150,28 +147,40 @@ export function buildWhere(filter: QuerySpellsArgs['filter']): WhereClause {
         where.concentration = filter.concentration;
     }
 
+    // Compound filters that must AND with the simple fields above.
+    const andParts: WhereClause[] = [];
+
+    if (filter.classes && filter.classes.length > 0) {
+        // SRD lists live on Spell.classIndexes; custom class membership is
+        // ClassSpell rows keyed by database class id (value === class.id).
+        andParts.push({
+            OR: [
+                { classIndexes: { hasSome: filter.classes } },
+                { classSpellLists: { some: { classId: { in: filter.classes } } } },
+            ],
+        });
+    }
+
     // Category-based filters — each returns an OR group.
     // If multiple groups are active, they're ANDed together so a spell must
     // match at least one option from each active category.
-    const orGroups: WhereClause[][] = [];
-
     if (filter.rangeCategories && filter.rangeCategories.length > 0) {
         const or = buildRangeOr(filter.rangeCategories as string[]);
-        if (or.length > 0) orGroups.push(or);
+        if (or.length > 0) andParts.push({ OR: or });
     }
     if (filter.durationCategories && filter.durationCategories.length > 0) {
         const or = buildDurationOr(filter.durationCategories as string[]);
-        if (or.length > 0) orGroups.push(or);
+        if (or.length > 0) andParts.push({ OR: or });
     }
     if (filter.castingTimeCategories && filter.castingTimeCategories.length > 0) {
         const or = buildCastingTimeOr(filter.castingTimeCategories as string[]);
-        if (or.length > 0) orGroups.push(or);
+        if (or.length > 0) andParts.push({ OR: or });
     }
 
-    if (orGroups.length === 1) {
-        where.OR = orGroups[0];
-    } else if (orGroups.length > 1) {
-        where.AND = orGroups.map((group) => ({ OR: group }));
+    if (andParts.length === 1) {
+        Object.assign(where, andParts[0]);
+    } else if (andParts.length > 1) {
+        where.AND = andParts;
     }
 
     return where;

@@ -1,5 +1,13 @@
-import { FeatureKind, Prisma, ProficiencyType } from '@prisma/client';
+import { ClassSpellcastingMode, FeatureKind, Prisma, ProficiencyType } from '@prisma/client';
 import prisma from '../prisma';
+import { baseClassProgressionLevels } from './classProgressionSeed';
+import {
+    classMulticlassPrerequisites,
+    classMulticlassProficiencyRules,
+    classProficiencyChoiceRules,
+    type SrdMulticlassing,
+    type SrdProficiencyChoiceOption,
+} from './classPrerequisiteSeed';
 
 type SrdReference = {
     index: string;
@@ -30,6 +38,28 @@ type SrdClass = {
         };
     };
     proficiencies?: SrdReference[];
+    proficiency_choices?: Array<{
+        choose?: number;
+        from?: { options?: SrdProficiencyChoiceOption[] };
+    }>;
+    saving_throws?: SrdReference[];
+    starting_equipment?: Array<{ equipment: SrdReference; quantity: number }>;
+    starting_equipment_options?: Array<{ desc?: string; choose?: number }>;
+    multi_classing?: SrdMulticlassing;
+};
+
+type SrdLevel = {
+    level: number;
+    ability_score_bonuses?: number;
+    class: SrdReference;
+    subclass?: SrdReference;
+    spellcasting?: Record<string, number>;
+    class_specific?: Record<string, unknown>;
+};
+
+type SrdSpellReference = {
+    index: string;
+    classes?: SrdReference[];
 };
 
 type SrdSubclass = {
@@ -107,15 +137,29 @@ type SrdRace = {
     traits?: SrdReference[];
 };
 
-function proficiencyTypeFromSrd(type: string | undefined): ProficiencyType {
+export function proficiencyTypeFromSrd(type: string | undefined): ProficiencyType {
     const normalized = (type ?? '').trim().toLowerCase();
 
     if (normalized === 'armor') return ProficiencyType.ARMOR;
     if (normalized === 'weapon' || normalized === 'weapons') return ProficiencyType.WEAPON;
-    if (normalized === 'tool' || normalized === 'tools') return ProficiencyType.TOOL;
-    if (normalized === 'skill') return ProficiencyType.SKILL;
+    if (
+        normalized === 'tool'
+        || normalized === 'tools'
+        || normalized.includes('tool')
+        || normalized.includes('gaming')
+        || normalized.includes('musical')
+        || normalized.includes('vehicle')
+    ) {
+        return ProficiencyType.TOOL;
+    }
+    if (normalized === 'skill' || normalized === 'skills') return ProficiencyType.SKILL;
     if (normalized.includes('saving')) return ProficiencyType.SAVING_THROW;
     return ProficiencyType.OTHER;
+}
+
+/** SRD skill proficiencies are named "Skill: Acrobatics"; store the bare skill name. */
+export function proficiencyNameFromSrd(name: string): string {
+    return name.replace(/^Skill:\s*/i, '');
 }
 
 async function loadJson<T>(relativePath: string): Promise<T> {
@@ -150,17 +194,18 @@ async function seedLanguages(languages: SrdLanguage[]) {
 
 async function seedProficiencies(proficiencies: SrdProficiency[]) {
     for (const proficiency of proficiencies) {
+        const name = proficiencyNameFromSrd(proficiency.name);
         await prisma.proficiency.upsert({
             where: { srdIndex: proficiency.index },
             update: {
-                name: proficiency.name,
+                name,
                 type: proficiencyTypeFromSrd(proficiency.type),
                 sourceBook: 'SRD',
                 raw: proficiency as Prisma.InputJsonValue,
             },
             create: {
                 srdIndex: proficiency.index,
-                name: proficiency.name,
+                name,
                 type: proficiencyTypeFromSrd(proficiency.type),
                 sourceBook: 'SRD',
                 raw: proficiency as Prisma.InputJsonValue,
@@ -169,18 +214,67 @@ async function seedProficiencies(proficiencies: SrdProficiency[]) {
     }
 }
 
-async function seedClasses(classes: SrdClass[]) {
+const SPELLCASTING_ABILITY_BY_CLASS: Record<string, string> = {
+    bard: 'cha', cleric: 'wis', druid: 'wis', paladin: 'cha', ranger: 'wis',
+    sorcerer: 'cha', warlock: 'cha', wizard: 'int',
+};
+
+/** Tile emoji for each SRD class. */
+const CLASS_EMOJI_BY_INDEX: Record<string, string> = {
+    barbarian: '💪',
+    bard: '🎭',
+    cleric: '🙏',
+    druid: '🌿',
+    fighter: '🗡',
+    monk: '🌊',
+    paladin: '🛡',
+    ranger: '🏇',
+    rogue: '🥷',
+    sorcerer: '💫',
+    warlock: '💥',
+    wizard: '📖',
+};
+
+async function seedClasses(classes: SrdClass[], levels: SrdLevel[], spells: SrdSpellReference[]) {
     for (const srdClass of classes) {
         const proficiencyConnect = (srdClass.proficiencies ?? []).map((proficiency) => ({
             srdIndex: proficiency.index,
         }));
 
-        await prisma.class.upsert({
+        const prerequisites = classMulticlassPrerequisites(srdClass.multi_classing);
+        const spellcastingAbility = SPELLCASTING_ABILITY_BY_CLASS[srdClass.index] ?? null;
+        const spellcastingMode: ClassSpellcastingMode = srdClass.index === 'warlock'
+            ? ClassSpellcastingMode.PACT_MAGIC
+            : spellcastingAbility
+                ? ClassSpellcastingMode.STANDARD
+                : ClassSpellcastingMode.NONE;
+        const equipment = [
+            ...(srdClass.starting_equipment ?? []).map((item) => ({
+                name: item.equipment.name,
+                quantity: item.quantity,
+                choiceGroup: null,
+                choiceCount: null,
+            })),
+            ...(srdClass.starting_equipment_options ?? []).map((option, index) => ({
+                name: option.desc ?? `Equipment choice ${index + 1}`,
+                quantity: 1,
+                choiceGroup: index + 1,
+                choiceCount: option.choose ?? 1,
+            })),
+        ];
+
+        const classRef = await prisma.class.upsert({
             where: { srdIndex: srdClass.index },
             update: {
                 name: srdClass.name,
+                emoji: CLASS_EMOJI_BY_INDEX[srdClass.index] ?? '⚔️',
                 hitDie: srdClass.hit_die ?? null,
-                spellcastingAbility: srdClass.spellcasting?.spellcasting_ability?.index ?? null,
+                primaryAbilityIndexes: [...new Set(prerequisites.map((rule) => rule.abilityIndex))],
+                savingThrowIndexes: (srdClass.saving_throws ?? []).map((ability) => ability.index),
+                multiclassPrerequisites: prerequisites,
+                startingEquipment: equipment,
+                spellcastingMode,
+                spellcastingAbility,
                 sourceBook: 'SRD',
                 raw: srdClass as Prisma.InputJsonValue,
                 proficiencies: {
@@ -190,8 +284,14 @@ async function seedClasses(classes: SrdClass[]) {
             create: {
                 srdIndex: srdClass.index,
                 name: srdClass.name,
+                emoji: CLASS_EMOJI_BY_INDEX[srdClass.index] ?? '⚔️',
                 hitDie: srdClass.hit_die ?? null,
-                spellcastingAbility: srdClass.spellcasting?.spellcasting_ability?.index ?? null,
+                primaryAbilityIndexes: [...new Set(prerequisites.map((rule) => rule.abilityIndex))],
+                savingThrowIndexes: (srdClass.saving_throws ?? []).map((ability) => ability.index),
+                multiclassPrerequisites: prerequisites,
+                startingEquipment: equipment,
+                spellcastingMode,
+                spellcastingAbility,
                 sourceBook: 'SRD',
                 raw: srdClass as Prisma.InputJsonValue,
                 proficiencies: {
@@ -199,6 +299,48 @@ async function seedClasses(classes: SrdClass[]) {
                 },
             },
         });
+
+        const choiceRules = classProficiencyChoiceRules(srdClass.proficiency_choices, 'STARTING');
+        const fixedRules = (srdClass.proficiencies ?? []).map((proficiency) => ({
+            value: proficiency.index,
+            grant: 'STARTING' as const,
+            choiceGroup: null,
+            choiceCount: null,
+        }));
+        const multiclassRules = classMulticlassProficiencyRules(srdClass.multi_classing);
+        const rules = [...fixedRules, ...choiceRules, ...multiclassRules];
+        const proficiencyRows = await prisma.proficiency.findMany({
+            where: { srdIndex: { in: rules.map((rule) => rule.value) } },
+            select: { id: true, srdIndex: true },
+        });
+        const proficiencyIdByIndex = new Map(proficiencyRows.map((row) => [row.srdIndex, row.id]));
+        await prisma.classProficiency.deleteMany({ where: { classId: classRef.id } });
+        await prisma.classProficiency.createMany({
+            data: rules.flatMap((rule) => {
+                const proficiencyId = proficiencyIdByIndex.get(rule.value);
+                return proficiencyId ? [{ classId: classRef.id, proficiencyId, ...rule, value: undefined }] : [];
+            }).map(({ value: _value, ...rule }) => rule),
+            skipDuplicates: true,
+        });
+
+        const classLevels = baseClassProgressionLevels(levels, srdClass.index);
+        await prisma.classLevelProgression.deleteMany({ where: { classId: classRef.id } });
+        await prisma.classLevelProgression.createMany({
+            data: classLevels.map((level) => ({
+                classId: classRef.id,
+                level: level.level,
+                abilityScoreImprovement: (level.ability_score_bonuses ?? 0) > 0,
+                spellSlots: Array.from({ length: 9 }, (_, index) => level.spellcasting?.[`spell_slots_level_${index + 1}`] ?? 0),
+                cantripsKnown: level.spellcasting?.cantrips_known ?? null,
+                spellsKnown: level.spellcasting?.spells_known ?? null,
+                classSpecific: (level.class_specific ?? {}) as Prisma.InputJsonValue,
+            })),
+        });
+
+        const classSpellIndexes = spells.filter((spell) => spell.classes?.some((entry) => entry.index === srdClass.index)).map((spell) => spell.index);
+        const classSpellRows = await prisma.spell.findMany({ where: { srdIndex: { in: classSpellIndexes } }, select: { id: true } });
+        await prisma.classSpell.deleteMany({ where: { classId: classRef.id } });
+        await prisma.classSpell.createMany({ data: classSpellRows.map((spell) => ({ classId: classRef.id, spellId: spell.id })) });
     }
 }
 
@@ -592,6 +734,8 @@ export default async function seedCharacterReferenceData() {
             races,
             languages,
             proficiencies,
+            levels,
+            spells,
         ] = await Promise.all([
             loadJson<SrdClass[]>('../../srd-json-files/5e-SRD-Classes.json'),
             loadJson<SrdSubclass[]>('../../srd-json-files/5e-SRD-Subclasses.json'),
@@ -603,11 +747,13 @@ export default async function seedCharacterReferenceData() {
             loadJson<SrdRace[]>('../../srd-json-files/5e-SRD-Races.json'),
             loadJson<SrdLanguage[]>('../../srd-json-files/5e-SRD-Languages.json'),
             loadJson<SrdProficiency[]>('../../srd-json-files/5e-SRD-Proficiencies.json'),
+            loadJson<SrdLevel[]>('../../srd-json-files/5e-SRD-Levels.json'),
+            loadJson<SrdSpellReference[]>('../../srd-json-files/5e-SRD-Spells.json'),
         ]);
 
         await seedLanguages(languages);
         await seedProficiencies(proficiencies);
-        await seedClasses(classes);
+        await seedClasses(classes, levels, spells);
         await seedSubclasses(subclasses);
         await seedBackgrounds(backgrounds);
         await seedSubraces(subraces);

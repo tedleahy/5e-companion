@@ -1,6 +1,7 @@
 import type { CharacterSheetFieldsFragment } from '@/types/generated_graphql_types';
 import type { AbilityKey } from '@/lib/characterSheetUtils';
 import type { AvailableSubclassFeature } from '@/lib/subclasses';
+import type { ClassDetailsFieldsFragment } from '@/types/generated_graphql_types';
 
 /**
  * Ordered step ids supported by the level-up wizard.
@@ -61,6 +62,7 @@ export type LevelUpWizardSelectedClass = {
         description: string;
         selectionLevel: number;
     } | null;
+    classDefinition?: ClassDetailsFieldsFragment;
 };
 
 /**

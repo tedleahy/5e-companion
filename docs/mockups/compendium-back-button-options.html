@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Back to Compendium — Button Options</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --night: #1f1711;
+      --night-deep: #110b07;
+      --parchment: #f6e9cf;
+      --parchment-deep: #f0e0c0;
+      --parchment-light: #f5eedc;
+      --ink: #2b1c11;
+      --ink-soft: #6e5130;
+      --gold: #c4a470;
+      --gold-light: #e8b84b;
+      --gold-muted: rgba(201, 146, 42, 0.45);
+      --gold-border: rgba(201, 146, 42, 0.28);
+      --gold-soft: rgba(201, 146, 42, 0.1);
+      --claret: #8c1d38;
+      --crimson: #7b1e1e;
+      --accordion-border: rgba(139, 90, 43, 0.22);
+      --studio-bg: #eeebe4;
+      --studio-ink: #241f19;
+      --studio-soft: #5c5346;
+      --studio-line: #d3ccbc;
+      --studio-card: #ffffff;
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+      --serif: "Spectral", Georgia, "Iowan Old Style", serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(140, 29, 56, 0.08), transparent 50%),
+        var(--studio-bg);
+      color: var(--studio-ink);
+      font-family: var(--serif);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+
+    .masthead {
+      margin-bottom: 2rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--studio-line);
+    }
+    .masthead .eyebrow {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--claret);
+      margin: 0 0 0.4rem;
+    }
+    .masthead h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      line-height: 1.15;
+    }
+    .masthead p {
+      margin: 0.65rem 0 0;
+      max-width: 52ch;
+      color: var(--studio-soft);
+      font-size: 1.05rem;
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .option {
+      background: var(--studio-card);
+      border: 1px solid var(--studio-line);
+      border-radius: 18px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 0 rgba(36, 31, 25, 0.04);
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+    .option:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(36, 31, 25, 0.08);
+    }
+
+    .option-meta {
+      padding: 1.1rem 1.25rem 1rem;
+      border-bottom: 1px solid var(--studio-line);
+      display: grid;
+      gap: 0.35rem;
+    }
+    .option-meta .tag {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--claret);
+    }
+    .option-meta h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    .option-meta p {
+      margin: 0;
+      color: var(--studio-soft);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    /* Phone frame showing night + parchment context */
+    .preview {
+      background: var(--night);
+      padding: 1.15rem 1rem 1.35rem;
+      position: relative;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      background-image:
+        radial-gradient(ellipse 120% 80% at 50% 0%, rgba(201, 146, 42, 0.07), transparent 55%),
+        linear-gradient(180deg, #241910 0%, var(--night) 40%, #1a120d 100%);
+    }
+    .preview::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.04;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    .screen-header {
+      text-align: center;
+      padding: 0.15rem 0 0.55rem;
+      border-bottom: 1px solid rgba(201, 146, 42, 0.15);
+      position: relative;
+      z-index: 1;
+    }
+    .screen-header .eyebrow {
+      margin: 0;
+      color: var(--gold);
+      opacity: 0.7;
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .screen-header h3 {
+      margin: 0.2rem 0 0;
+      color: var(--parchment);
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-slot {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      min-height: 2.5rem;
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      background: var(--parchment);
+      border-radius: 16px;
+      border: 1px solid rgba(43, 28, 17, 0.12);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+      overflow: hidden;
+      min-height: 140px;
+    }
+    .card-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--accordion-border);
+    }
+    .card-toggle span {
+      font-weight: 600;
+      color: var(--ink);
+      font-size: 0.95rem;
+    }
+    .switch {
+      width: 42px;
+      height: 24px;
+      border-radius: 999px;
+      background: var(--claret);
+      position: relative;
+    }
+    .switch::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--parchment);
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--accordion-border);
+    }
+    .badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--parchment-deep);
+      display: grid;
+      place-items: center;
+      font-size: 1.15rem;
+    }
+    .row-text strong {
+      display: block;
+      color: var(--ink);
+      font-size: 0.98rem;
+    }
+    .row-text small {
+      color: var(--ink-soft);
+      font-size: 0.78rem;
+    }
+
+    /* ========== OPTION A: Gilded Night ========== */
+    .opt-a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin: 0.15rem 0 0.1rem;
+      padding: 0.45rem 0.85rem 0.45rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid var(--gold-border);
+      background: linear-gradient(180deg, rgba(201, 146, 42, 0.12), rgba(201, 146, 42, 0.04));
+      color: var(--gold);
+      text-decoration: none;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      box-shadow:
+        inset 0 1px 0 rgba(232, 184, 75, 0.18),
+        0 0 0 1px rgba(0, 0, 0, 0.2);
+      transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+    }
+    .opt-a:hover {
+      border-color: rgba(201, 146, 42, 0.55);
+      color: var(--gold-light);
+      background: linear-gradient(180deg, rgba(201, 146, 42, 0.2), rgba(201, 146, 42, 0.08));
+    }
+    .opt-a .chev {
+      font-size: 0.95rem;
+      line-height: 1;
+      opacity: 0.9;
+    }
+
+    /* ========== OPTION B: Wax Seal ========== */
+    .opt-b {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin: 0.15rem 0 0.1rem;
+      padding: 0.5rem 1rem 0.5rem 0.75rem;
+      border-radius: 10px;
+      border: 1px solid #5e1528;
+      background:
+        linear-gradient(180deg, #a62b4a 0%, var(--claret) 45%, #6e1730 100%);
+      color: var(--parchment);
+      text-decoration: none;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      box-shadow:
+        0 1px 0 rgba(232, 184, 75, 0.35) inset,
+        0 6px 14px rgba(0, 0, 0, 0.35),
+        0 0 0 1px rgba(0, 0, 0, 0.25);
+      transition: transform 140ms ease, filter 140ms ease;
+    }
+    .opt-b:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+    .opt-b .chev {
+      font-size: 1rem;
+      line-height: 1;
+      color: var(--gold-light);
+    }
+
+    /* ========== OPTION C: Illuminated Ribbon ========== */
+    .opt-c {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      margin: 0.25rem 0 0.15rem 0.1rem;
+      padding: 0.2rem 0.15rem;
+      color: var(--parchment);
+      text-decoration: none;
+      background: none;
+      border: none;
+      position: relative;
+    }
+    .opt-c .mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--gold-muted);
+      background:
+        radial-gradient(circle at 35% 30%, rgba(232, 184, 75, 0.35), transparent 55%),
+        rgba(0, 0, 0, 0.28);
+      color: var(--gold-light);
+      font-size: 0.95rem;
+      box-shadow: 0 0 10px rgba(201, 146, 42, 0.15);
+    }
+    .opt-c .copy {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+      line-height: 1.1;
+    }
+    .opt-c .copy em {
+      font-style: italic;
+      font-weight: 400;
+      font-size: 0.68rem;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      opacity: 0.85;
+    }
+    .opt-c .copy strong {
+      font-weight: 600;
+      font-size: 0.98rem;
+      letter-spacing: 0.01em;
+      color: var(--parchment);
+    }
+    .opt-c::after {
+      content: "";
+      position: absolute;
+      left: 36px;
+      right: 0;
+      bottom: -2px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--gold-muted), transparent 85%);
+      opacity: 0.7;
+      transition: opacity 160ms ease, transform 160ms ease;
+      transform-origin: left;
+    }
+    .opt-c:hover::after {
+      opacity: 1;
+      transform: scaleX(1.04);
+    }
+    .opt-c:hover .mark {
+      border-color: var(--gold);
+      box-shadow: 0 0 14px rgba(232, 184, 75, 0.28);
+    }
+
+    /* ========== OPTION D: Inset Tab ========== */
+    .preview-d {
+      padding-bottom: 0;
+      gap: 0;
+    }
+    .preview-d .screen-header {
+      margin-bottom: 0.75rem;
+    }
+    .preview-d .btn-slot {
+      margin: 0;
+      padding: 0 1rem;
+      min-height: 0;
+      position: relative;
+      z-index: 2;
+    }
+    .preview-d .card {
+      border-top-left-radius: 0;
+      margin-top: -1px;
+      flex: 1;
+      min-height: 148px;
+    }
+    .opt-d {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.55rem 1rem 0.65rem 0.75rem;
+      background: var(--parchment);
+      color: var(--claret);
+      text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      border: 1px solid rgba(43, 28, 17, 0.12);
+      border-bottom: none;
+      border-radius: 14px 14px 0 0;
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+    .opt-d .chev {
+      font-size: 0.95rem;
+      line-height: 1;
+      color: var(--claret);
+    }
+    .opt-d::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 2px;
+      background: var(--parchment);
+    }
+
+    .footer-hint {
+      margin-top: 2rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--studio-line);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      color: var(--studio-soft);
+      line-height: 1.6;
+    }
+    .footer-hint code {
+      color: var(--claret);
+      background: rgba(140, 29, 56, 0.06);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="masthead">
+      <p class="eyebrow">Compendium · UI review</p>
+      <h1>Back button — four directions</h1>
+      <p>
+        Same night canvas and parchment card as the Classes screen.
+        Pick the treatment that feels native to the fantasy chrome — reply with A, B, C, or D.
+      </p>
+    </header>
+
+    <div class="grid">
+      <!-- A -->
+      <article class="option">
+        <div class="option-meta">
+          <span class="tag">Option A</span>
+          <h2>Gilded Night</h2>
+          <p>Soft gold glass on the dark canvas. Stays in the rail/night language instead of floating a parchment chip.</p>
+        </div>
+        <div class="preview">
+          <div class="screen-header">
+            <p class="eyebrow">Compendium</p>
+            <h3>Classes</h3>
+          </div>
+          <div class="btn-slot">
+            <a class="opt-a" href="#" onclick="return false">
+              <span class="chev">‹</span>
+              Back to Compendium
+            </a>
+          </div>
+          <div class="card">
+            <div class="card-toggle"><span>Include SRD classes</span><div class="switch"></div></div>
+            <div class="row">
+              <div class="badge">⚔️</div>
+              <div class="row-text"><strong>Barbarian</strong><small>SRD · Strength</small></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- B -->
+      <article class="option">
+        <div class="option-meta">
+          <span class="tag">Option B</span>
+          <h2>Wax Seal</h2>
+          <p>Deep claret fill with a gold chevron — reads as a deliberate control, matching active filter chips / toggles.</p>
+        </div>
+        <div class="preview">
+          <div class="screen-header">
+            <p class="eyebrow">Compendium</p>
+            <h3>Classes</h3>
+          </div>
+          <div class="btn-slot">
+            <a class="opt-b" href="#" onclick="return false">
+              <span class="chev">‹</span>
+              Back to Compendium
+            </a>
+          </div>
+          <div class="card">
+            <div class="card-toggle"><span>Include SRD classes</span><div class="switch"></div></div>
+            <div class="row">
+              <div class="badge">⚔️</div>
+              <div class="row-text"><strong>Barbarian</strong><small>SRD · Strength</small></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- C -->
+      <article class="option">
+        <div class="option-meta">
+          <span class="tag">Option C</span>
+          <h2>Illuminated Ribbon</h2>
+          <p>Manuscript navigation: circular gold mark + Spectral title case. Quiet, editorial, no pill chrome.</p>
+        </div>
+        <div class="preview">
+          <div class="screen-header">
+            <p class="eyebrow">Compendium</p>
+            <h3>Classes</h3>
+          </div>
+          <div class="btn-slot">
+            <a class="opt-c" href="#" onclick="return false">
+              <span class="mark">‹</span>
+              <span class="copy">
+                <em>Return</em>
+                <strong>Compendium</strong>
+              </span>
+            </a>
+          </div>
+          <div class="card">
+            <div class="card-toggle"><span>Include SRD classes</span><div class="switch"></div></div>
+            <div class="row">
+              <div class="badge">⚔️</div>
+              <div class="row-text"><strong>Barbarian</strong><small>SRD · Strength</small></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- D -->
+      <article class="option">
+        <div class="option-meta">
+          <span class="tag">Option D</span>
+          <h2>Inset Tab</h2>
+          <p>Button becomes the top-left tab of the parchment card — no orphan chip on the night background.</p>
+        </div>
+        <div class="preview preview-d">
+          <div class="screen-header">
+            <p class="eyebrow">Compendium</p>
+            <h3>Classes</h3>
+          </div>
+          <div class="btn-slot">
+            <a class="opt-d" href="#" onclick="return false">
+              <span class="chev">‹</span>
+              Back to Compendium
+            </a>
+          </div>
+          <div class="card">
+            <div class="card-toggle"><span>Include SRD classes</span><div class="switch"></div></div>
+            <div class="row">
+              <div class="badge">⚔️</div>
+              <div class="row-text"><strong>Barbarian</strong><small>SRD · Strength</small></div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <p class="footer-hint">
+      File: <code>docs/mockups/compendium-back-button-options.html</code><br />
+      Open locally in a browser. Reply with A / B / C / D (or a hybrid) and I’ll wire it into <code>CompendiumBackButton</code>.
+    </p>
+  </div>
+</body>
+</html>

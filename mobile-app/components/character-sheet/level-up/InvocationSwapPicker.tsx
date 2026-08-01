@@ -145,13 +145,17 @@ export default function InvocationSwapPicker({
 const styles = StyleSheet.create({
     overlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: fantasyTokens.sheet.backdrop,
         justifyContent: 'flex-end',
     },
     container: {
-        backgroundColor: fantasyTokens.colors.parchment,
+        backgroundColor: fantasyTokens.colors.night,
         borderTopLeftRadius: fantasyTokens.radii.lg,
         borderTopRightRadius: fantasyTokens.radii.lg,
+        borderTopWidth: 1,
+        borderLeftWidth: 1,
+        borderRightWidth: 1,
+        borderColor: fantasyTokens.sheet.form.border,
         maxHeight: '80%',
         paddingBottom: fantasyTokens.spacing.xl,
     },
@@ -162,11 +166,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: fantasyTokens.spacing.lg,
         paddingVertical: fantasyTokens.spacing.md,
         borderBottomWidth: 1,
-        borderBottomColor: fantasyTokens.colors.sheetDivider,
+        borderBottomColor: fantasyTokens.sheet.form.border,
     },
     title: {
         ...fantasyTokens.typography.sectionLabel,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
         flex: 1,
     },
     closeButton: {
@@ -174,7 +178,7 @@ const styles = StyleSheet.create({
     },
     closeButtonText: {
         ...fantasyTokens.typography.bodyLarge,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     scrollView: {
         maxHeight: '100%',
@@ -185,7 +189,7 @@ const styles = StyleSheet.create({
     },
     customButton: {
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.claret,
+        borderColor: fantasyTokens.colors.crimson,
         borderRadius: fantasyTokens.radii.md,
         borderStyle: 'dashed',
         paddingVertical: fantasyTokens.spacing.md,
@@ -193,13 +197,15 @@ const styles = StyleSheet.create({
         marginTop: fantasyTokens.spacing.sm,
     },
     customButtonSelected: {
-        backgroundColor: 'rgba(106,17,48,0.06)',
+        backgroundColor: fantasyTokens.colors.crimson,
+        borderStyle: 'solid',
     },
     customButtonText: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.goldLight,
     },
     customButtonTextSelected: {
+        color: fantasyTokens.colors.parchment,
         fontFamily: fantasyFonts.semiBold,
     },
 });

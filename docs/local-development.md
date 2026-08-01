@@ -116,6 +116,7 @@ Details: [`testing.md`](./testing.md).
 - **`DATABASE_URL` not set** — `server/prisma.config.ts` reads it at parse time, so even `prisma generate` needs it in the env. Export it inline or make sure `server/.env` exists.
 - **Expo web shows old API URL** — kill Metro and restart with `--clear`, e.g. `yarn web --clear`, so the new `EXPO_PUBLIC_*` env vars are baked into a fresh bundle.
 - **Expo web calls `127.0.0.1:4010` during normal development** — remove `mobile-app/.env.development.local` if it was left behind by an interrupted e2e run, then restart Metro with `--clear`. Expo loads that file ahead of `mobile-app/.env`.
+- **Expo web loads on a phone but has no API data** — use the laptop's LAN IP in `mobile-app/.env`, for example `EXPO_PUBLIC_API_URL=http://192.168.0.30:4000`, and add the phone's web origin to `server/.env`, for example `CORS_ALLOWED_ORIGINS=http://192.168.0.30:8081`. The origin must match the URL in the phone's address bar exactly, without a path. Restart the API and Expo with `--clear`; ensure the phone and laptop are on the same network and that the laptop firewall allows ports `4000` and `8081`.
 - **Supabase session not persisting on web** — check the browser's `localStorage`. The mobile app deliberately no-ops storage during SSR; client-side storage only activates once `window.localStorage` is available.
 - **Sandboxed Prisma commands failing** — if you're in a restricted env and Prisma needs Docker/host access, stop and ask the user to run the command manually (per `AGENTS.md`).
 

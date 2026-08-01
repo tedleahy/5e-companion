@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
-import { Text, TextInput } from 'react-native-paper';
+import { Text } from 'react-native-paper';
+import { FantasyFormTextInput } from '@/components/FantasyFormTextInput';
+import { NightFormCard } from '@/components/sheets/NightFormCard';
 import type {
     LevelUpCustomFeatureDraft,
     LevelUpFeatureChoiceGroup,
@@ -8,6 +10,7 @@ import type {
 } from '@/lib/characterLevelUp/types';
 import { hasNoSubclassFeatureAtLevel } from '@/lib/characterLevelUp/subclassFeatures';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 
 type LevelUpNewFeaturesStepProps = {
     selectedClass: LevelUpWizardSelectedClass;
@@ -44,7 +47,11 @@ export default function LevelUpNewFeaturesStep({
             </Text>
 
             {features.map((feature) => (
-                <View key={feature.key} style={styles.featureCard} testID={`level-up-feature-card-${feature.key}`}>
+                <NightFormCard
+                    key={feature.key}
+                    style={styles.featureCard}
+                    testID={`level-up-feature-card-${feature.key}`}
+                >
                     <View style={styles.featureHeader}>
                         <Text style={styles.featureName}>{feature.name}</Text>
                         <View style={styles.newBadge}>
@@ -61,7 +68,7 @@ export default function LevelUpNewFeaturesStep({
                             onSelectFeatureChoice,
                         )
                     ) : null}
-                </View>
+                </NightFormCard>
             ))}
 
             {showSubclassInfoNote ? (
@@ -73,7 +80,7 @@ export default function LevelUpNewFeaturesStep({
             ) : null}
 
             {selectedClass.subclassIsCustom ? (
-                <View style={styles.customSection} testID="level-up-custom-feature-section">
+                <NightFormCard style={styles.customSection} testID="level-up-custom-feature-section">
                     <View style={styles.customSectionHeader}>
                         <View style={styles.customSectionCopy}>
                             <Text style={styles.customSectionTitle}>Custom Subclass Features</Text>
@@ -112,26 +119,17 @@ export default function LevelUpNewFeaturesStep({
                                     </Pressable>
                                 </View>
 
-                                <TextInput
-                                    mode="outlined"
+                                <FantasyFormTextInput
                                     label="Feature Name"
                                     value={feature.name}
                                     onChangeText={(value) => onChangeCustomFeature(feature.id, { name: value })}
-                                    outlineColor={fantasyTokens.colors.gold}
-                                    activeOutlineColor={fantasyTokens.colors.claret}
-                                    textColor={fantasyTokens.colors.inkDark}
-                                    style={styles.input}
                                     testID={`level-up-custom-feature-name-${index}`}
                                 />
 
-                                <TextInput
-                                    mode="outlined"
+                                <FantasyFormTextInput
                                     label="Description"
                                     value={feature.description}
                                     onChangeText={(value) => onChangeCustomFeature(feature.id, { description: value })}
-                                    outlineColor={fantasyTokens.colors.gold}
-                                    activeOutlineColor={fantasyTokens.colors.claret}
-                                    textColor={fantasyTokens.colors.inkDark}
                                     multiline
                                     numberOfLines={4}
                                     style={styles.textArea}
@@ -140,7 +138,7 @@ export default function LevelUpNewFeaturesStep({
                             </View>
                         ))
                     )}
-                </View>
+                </NightFormCard>
             ) : null}
         </View>
     );
@@ -172,15 +170,13 @@ function renderFeatureChoiceGroup(
                     const selected = option.childSrdIndex === selectedChildSrdIndex;
 
                     return (
-                        <Pressable
+                        <NightFormCard
                             key={option.childSrdIndex}
+                            selected={selected}
                             onPress={() => onSelectFeatureChoice(group.parentSrdIndex, option.childSrdIndex)}
                             accessibilityRole="radio"
                             accessibilityState={{ checked: selected }}
-                            style={[
-                                styles.choiceOptionCard,
-                                selected && styles.choiceOptionCardSelected,
-                            ]}
+                            style={styles.choiceOptionCard}
                             testID={`level-up-feature-choice-${group.parentSrdIndex}-${option.childSrdIndex}`}
                         >
                             <View style={styles.choiceOptionHeader}>
@@ -188,7 +184,7 @@ function renderFeatureChoiceGroup(
                                 <Text style={styles.choiceOptionName}>{option.name}</Text>
                             </View>
                             <Text style={styles.choiceOptionDescription}>{option.description}</Text>
-                        </Pressable>
+                        </NightFormCard>
                     );
                 })}
             </View>
@@ -213,15 +209,11 @@ const styles = StyleSheet.create({
     },
     bodyText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     featureCard: {
         borderLeftWidth: 4,
-        borderLeftColor: fantasyTokens.colors.claret,
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        borderLeftColor: fantasyTokens.colors.crimson,
         paddingHorizontal: fantasyTokens.spacing.lg,
         paddingVertical: fantasyTokens.spacing.md,
         gap: fantasyTokens.spacing.xs,
@@ -233,49 +225,36 @@ const styles = StyleSheet.create({
     },
     featureName: {
         ...fantasyTokens.typography.cardTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
         flex: 1,
     },
     newBadge: {
-        borderRadius: 999,
-        backgroundColor: 'rgba(45,106,79,0.12)',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        ...nightFormStyles.positiveBadge,
     },
     newBadgeText: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.success,
+        ...nightFormStyles.positiveBadgeText,
     },
     featureSource: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
     },
     featureDescription: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     choiceSection: {
         marginTop: fantasyTokens.spacing.md,
         gap: fantasyTokens.spacing.sm,
     },
     choicePrompt: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkSoft,
+        ...nightFormStyles.label,
     },
     choiceOptionList: {
         gap: fantasyTokens.spacing.sm,
     },
     choiceOptionCard: {
         gap: fantasyTokens.spacing.xs,
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        backgroundColor: 'rgba(212,201,180,0.22)',
         padding: fantasyTokens.spacing.md,
-    },
-    choiceOptionCardSelected: {
-        borderColor: fantasyTokens.colors.claret,
-        backgroundColor: 'rgba(140,29,56,0.08)',
     },
     choiceOptionHeader: {
         flexDirection: 'row',
@@ -287,55 +266,48 @@ const styles = StyleSheet.create({
         height: 14,
         borderRadius: 999,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.inkSoft,
+        borderColor: fantasyTokens.colors.gold,
     },
     choiceRadioDotSelected: {
-        backgroundColor: fantasyTokens.colors.claret,
-        borderColor: fantasyTokens.colors.claret,
+        backgroundColor: fantasyTokens.colors.gold,
+        borderColor: fantasyTokens.colors.gold,
     },
     choiceOptionName: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkDark,
+        ...nightFormStyles.cardTitle,
         flex: 1,
     },
     choiceOptionDescription: {
-        ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.inkLight,
+        ...nightFormStyles.cardBody,
     },
     choicePreview: {
         gap: fantasyTokens.spacing.xs,
         borderRadius: fantasyTokens.radii.md,
-        backgroundColor: 'rgba(212,201,180,0.28)',
+        backgroundColor: fantasyTokens.sheet.form.card,
         padding: fantasyTokens.spacing.md,
     },
     choicePreviewTitle: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkSoft,
+        ...nightFormStyles.label,
     },
     choicePreviewName: {
         ...fantasyTokens.typography.cardTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     choicePreviewDescription: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     infoNote: {
         borderRadius: fantasyTokens.radii.md,
-        backgroundColor: 'rgba(212,201,180,0.45)',
+        backgroundColor: fantasyTokens.sheet.form.card,
         paddingHorizontal: fantasyTokens.spacing.lg,
         paddingVertical: fantasyTokens.spacing.md,
     },
     infoNoteText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     customSection: {
         gap: fantasyTokens.spacing.md,
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
         padding: fantasyTokens.spacing.lg,
     },
     customSectionHeader: {
@@ -346,33 +318,32 @@ const styles = StyleSheet.create({
     },
     customSectionTitle: {
         ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     customSectionBody: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     addButton: {
         alignSelf: 'flex-start',
-        borderRadius: 8,
+        borderRadius: fantasyTokens.radii.sm - fantasyTokens.spacing.xs,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.claret,
-        backgroundColor: 'rgba(140,29,56,0.08)',
+        borderColor: fantasyTokens.colors.crimson,
+        backgroundColor: 'transparent',
         paddingHorizontal: fantasyTokens.spacing.md,
-        paddingVertical: 10,
+        paddingVertical: fantasyTokens.spacing.sm + fantasyTokens.spacing.xs / 2,
     },
     addButtonText: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.claret,
+        ...nightFormStyles.dashedAddButtonText,
     },
     emptyState: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
     },
     customFeatureCard: {
         gap: fantasyTokens.spacing.sm,
         borderRadius: fantasyTokens.radii.md,
-        backgroundColor: '#faf0e8',
+        backgroundColor: fantasyTokens.sheet.form.card,
         padding: fantasyTokens.spacing.md,
     },
     customFeatureHeader: {
@@ -382,18 +353,12 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.sm,
     },
     customFeatureTitle: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkDark,
+        ...nightFormStyles.cardTitle,
     },
     removeButtonText: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.claret,
-    },
-    input: {
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        ...nightFormStyles.dashedAddButtonText,
     },
     textArea: {
         minHeight: 108,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
     },
 });

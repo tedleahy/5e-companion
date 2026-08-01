@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { PaperProvider } from 'react-native-paper';
-import NumericStepper from '@/components/character-creation-wizard/NumericStepper';
+import NumericStepper from '@/components/NumericStepper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 /**
@@ -72,13 +72,42 @@ describe('NumericStepper', () => {
         );
 
         expect(screen.getByTestId('stepper-decrement')).toHaveStyle({
-            backgroundColor: 'rgba(201,146,42,0.18)',
+            backgroundColor: 'transparent',
         });
         expect(screen.getByTestId('stepper-value')).toHaveStyle({
             color: fantasyTokens.colors.parchment,
         });
         expect(screen.getByText('+')).toHaveStyle({
-            color: fantasyTokens.colors.gold,
+            color: fantasyTokens.colors.goldLight,
         });
+    });
+
+    it('renders compact mini buttons for dense grids', () => {
+        renderWithPaper(
+            <NumericStepper
+                value={2}
+                tone="night"
+                size="compact"
+                decrementTestID="stepper-decrement"
+                incrementTestID="stepper-increment"
+                valueTestID="stepper-value"
+                onDecrease={jest.fn()}
+                onIncrease={jest.fn()}
+            />,
+        );
+
+        expect(screen.getByTestId('stepper-decrement')).toHaveStyle({
+            width: fantasyTokens.stepper.compact.buttonSize,
+            height: fantasyTokens.stepper.compact.buttonSize,
+            borderColor: fantasyTokens.stepper.night.border,
+            backgroundColor: 'transparent',
+        });
+        expect(screen.getByTestId('stepper-decrement').props.hitSlop).toBe(
+            fantasyTokens.stepper.compact.hitSlop,
+        );
+        expect(screen.getByTestId('stepper-increment').props.hitSlop).toBe(
+            fantasyTokens.stepper.compact.hitSlop,
+        );
+        expect(screen.getByTestId('stepper-value')).toHaveTextContent('2');
     });
 });

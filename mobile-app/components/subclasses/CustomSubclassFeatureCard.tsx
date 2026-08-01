@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
+import { FantasyFormTextInput } from '@/components/FantasyFormTextInput';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import {
     CUSTOM_SUBCLASS_FEATURE_NAME_MAX_LENGTH,
@@ -8,7 +9,6 @@ import {
 } from '@shared/constants/customSubclassLimits';
 import { normaliseLevelInput } from './customSubclassFormDraft';
 import type { CustomSubclassFeatureDraft } from './subclassManager.types';
-import { FantasyFormTextInput } from './FantasyFormTextInput';
 
 type CustomSubclassFeatureCardProps = {
     feature: CustomSubclassFeatureDraft;
@@ -117,8 +117,8 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.sm,
         borderRadius: fantasyTokens.radii.sm,
         borderWidth: 1,
-        borderColor: fantasyTokens.rail.borderStrong,
-        backgroundColor: fantasyTokens.rail.pressed,
+        borderColor: fantasyTokens.sheet.form.border,
+        backgroundColor: fantasyTokens.sheet.form.card,
         padding: fantasyTokens.spacing.md,
     },
     featureCardHeader: {
@@ -138,9 +138,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: fantasyTokens.radii.sm,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        backgroundColor: fantasyTokens.sheet.form.card,
         borderWidth: 1,
-        borderColor: fantasyTokens.rail.borderStrong,
+        borderColor: fantasyTokens.sheet.form.border,
     },
     removeFeatureButtonPressed: {
         backgroundColor: fantasyTokens.colors.crimsonSoft,

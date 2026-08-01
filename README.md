@@ -1,29 +1,57 @@
-# 5e Companion - An app to use while playing D&D 5th edition.
+# 5e Companion
 
-⚠️ heads up ⚠️ this project is pretty much entirely vibe-coded
+A full-stack, cross-platform companion app for Dungeons & Dragons 5th Edition. Players can:
 
-I'm using it as a playground to learn about AI stuff, testing out different models, harnesses, prompting techniques, etc.
+- Browse, create and manage characters and classes
+- Track and manage everything you'd have on a physical character sheet - HP, spells, equipment, death saves, insipiration, etc.
+- Easily level up characters with the interactive wizard
 
-Consequently there's a lot of extremely questionable code in here. ye be warned
+This is a personal project under active development, primarily being used as a playground to learn about the different parts of the tech stack and explore different AI models and AI-assisted engineering workflows. Current limitations and planned work are documented in [the project overview](docs/overview.md).
 
----
+## Tech stack
 
-- **Frontend:** React Native with [Expo](https://docs.expo.dev/) for web, iOS, and Android
-- **Backend:** [Apollo](https://www.apollographql.com/docs/) GraphQL API (Bun + Prisma + PostgreSQL)
+| Area | Technologies |
+| --- | --- |
+| Client | React Native, Expo, Expo Router, TypeScript, Apollo Client, React Native Paper |
+| API | Bun, Apollo Server, GraphQL |
+| Data | PostgreSQL, Prisma, D&D 5e SRD seed data |
+| Authentication | Supabase Auth, JWT, JWKS |
+| Testing | Jest, Bun test, Playwright |
+| Deployment | GitHub Actions, Docker, Cloudflare Pages, Automated Deployments
 
-## Setup
+## Architecture
 
-Install **Bun** and **Yarn** (Expo still uses Yarn in this repo). Then follow **[`docs/local-development.md`](docs/local-development.md)** for env files, Postgres, seeding, and running the server + Expo dev server.
+```mermaid
+flowchart LR
+    App["Expo app\n(iOS / Android / Web)"] -->|"GraphQL + JWT"| API["Apollo Server\non Bun"]
+    App <-->|"Sign-in / refresh"| Auth["Supabase Auth"]
+    API -->|"Verify JWT via JWKS"| Auth
+    API --> Prisma[Prisma]
+    Prisma --> DB[(PostgreSQL)]
+    Seed["D&D SRD JSON"] --> Seeders["Prisma seed scripts"] --> DB
+```
 
-Quick start after prerequisites:
+The web client is deployed to Cloudflare Pages. The API runs as a Dockerised Bun service behind Caddy on a VPS. See the [deployment guide](docs/deployment.md) for details.
+
+## Run locally
+
+Install [Bun](https://bun.sh) and Yarn, then create the environment files described in the [local development guide](docs/local-development.md).
 
 ```bash
-bun setup                                    # install + codegen (optional one-off)
-# edit server/.env and mobile-app/.env — see docs/local-development.md
+bun setup
 docker compose -f server/docker-compose.yml up -d
 bun db:seed
 bun server:start
 bun app:start
 ```
 
-Agent rules: [`AGENTS.md`](AGENTS.md). Full docs index: [`docs/README.md`](docs/README.md).
+The API runs on port 4000; Expo starts the app for web, iOS, or Android. The full guide covers environment variables, database migrations, tests, and troubleshooting.
+
+## Full Documentation Links
+
+- [Architecture](docs/architecture.md)
+- [Data model](docs/data-model.md)
+- [Mobile app](docs/mobile-app.md)
+- [Server](docs/server.md)
+- [Testing](docs/testing.md)
+- [Deployment](docs/deployment.md)

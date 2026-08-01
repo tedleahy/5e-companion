@@ -1,11 +1,9 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { NativeScrollEvent, NativeSyntheticEvent, StyleProp, ViewStyle } from 'react-native';
 import {
     Animated,
     Easing,
     Platform,
-    Pressable,
     ScrollView,
     StyleSheet,
     View,
@@ -13,7 +11,11 @@ import {
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Switch, Text } from 'react-native-paper';
+import CompendiumBackControl, {
+    COMPENDIUM_BACK_CONTROL_HEIGHT,
+} from '@/components/compendium/compendium-back-control';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
+import type { OptionItem } from '@/lib/characterCreation/options';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import SubclassClassFilterChips, {
     ALL_CLASSES_FILTER,
@@ -34,6 +36,7 @@ type SubclassManagerCardProps = {
     onToggleShowSrdSubclasses: () => void;
     onEdit: (subclass: SubclassManagerRow) => void;
     onDelete: (subclass: SubclassManagerRow) => void;
+    classOptions?: OptionItem[];
 };
 
 const DETAIL_TRANSITION_DURATION_MS = 220;
@@ -42,8 +45,6 @@ const SWIPE_BACK_VELOCITY = 700;
 const SWIPE_BACK_ACTIVE_OFFSET_X = 12;
 const SWIPE_BACK_FAIL_OFFSET_Y = 18;
 const DETAIL_BACK_BUTTON_FADE_DISTANCE = 24;
-const DETAIL_BACK_BUTTON_HEIGHT = fantasyTokens.fontSizes.body
-    + (fantasyTokens.spacing.xs * 2);
 const SOURCE_SWITCH_ROW_HEIGHT = FILTER_CHIP_HEIGHT;
 const LIST_CHROME_HEIGHT = FILTER_CHIP_HEIGHT + fantasyTokens.spacing.sm + SOURCE_SWITCH_ROW_HEIGHT;
 
@@ -62,6 +63,7 @@ export default function SubclassManagerCard({
     onToggleShowSrdSubclasses,
     onEdit,
     onDelete,
+    classOptions = CLASS_OPTIONS,
 }: SubclassManagerCardProps) {
     const { width: windowWidth } = useWindowDimensions();
     const hiddenDetailTranslateX = Math.max(1, windowWidth);
@@ -81,7 +83,7 @@ export default function SubclassManagerCard({
         onDetailVisibilityChange?.(isCardExpanded);
     }, [isCardExpanded, onDetailVisibilityChange]);
 
-    const selectedClass = CLASS_OPTIONS.find((option) => option.value === selectedClassId);
+    const selectedClass = classOptions.find((option) => option.value === selectedClassId);
     const emptyTitle = selectedClassId === ALL_CLASSES_FILTER
         ? (showSrdSubclasses ? 'No subclasses available.' : 'No custom subclasses available.')
         : `No ${selectedClass?.label ?? 'class'} subclasses yet.`;
@@ -299,7 +301,7 @@ export default function SubclassManagerCard({
     });
     const tableHeaderHeight = listChromeVisibility.interpolate({
         inputRange: [0, 1],
-        outputRange: [DETAIL_BACK_BUTTON_HEIGHT, LIST_CHROME_HEIGHT],
+        outputRange: [COMPENDIUM_BACK_CONTROL_HEIGHT, LIST_CHROME_HEIGHT],
         extrapolate: 'clamp',
     });
     const detailBackButtonOpacity = detailTranslateX.interpolate({
@@ -339,6 +341,7 @@ export default function SubclassManagerCard({
                         />
                     </View>
                     <SubclassClassFilterChips
+                        classOptions={classOptions}
                         selectedClassId={selectedClassId}
                         onSelectClassId={handleSelectClassId}
                     />
@@ -350,23 +353,12 @@ export default function SubclassManagerCard({
                             { opacity: detailBackButtonOpacity },
                         ]}
                     >
-                        <Pressable
-                            accessibilityRole="button"
+                        <CompendiumBackControl
                             accessibilityLabel="Back to all subclasses"
+                            tone="ink"
                             onPress={() => closeExpandedRow()}
-                            style={({ pressed }) => [
-                                styles.backButton,
-                                pressed && styles.backButtonPressed,
-                            ]}
                             testID="subclass-expand-back"
-                        >
-                            <Ionicons
-                                name="chevron-back"
-                                size={12}
-                                color={fantasyTokens.colors.crimson}
-                            />
-                            <Text style={styles.backButtonText}>All Subclasses</Text>
-                        </Pressable>
+                        />
                     </Animated.View>
                 )}
             </Animated.View>
@@ -389,6 +381,7 @@ export default function SubclassManagerCard({
                         {subclasses.length > 0 ? (
                             subclasses.map((subclass) => (
                                 <SubclassListRow
+                                    classOptions={classOptions}
                                     key={subclass.id}
                                     subclass={subclass}
                                     isOpen={false}
@@ -428,6 +421,7 @@ export default function SubclassManagerCard({
                                 testID="subclass-detail-scroll"
                             >
                                 <SubclassListRow
+                                    classOptions={classOptions}
                                     subclass={expandedSubclass}
                                     isOpen
                                     onPress={() => handleRowPress(expandedSubclass.id)}
@@ -472,28 +466,12 @@ const styles = StyleSheet.create({
         ...fantasyTokens.typography.body,
         color: fantasyTokens.colors.inkLight,
     },
-    backButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: fantasyTokens.spacing.xs,
-        paddingVertical: fantasyTokens.spacing.xs,
-    },
     backButtonOverlay: {
         position: 'absolute',
         top: 0,
         left: 0,
         zIndex: 3,
         backgroundColor: fantasyTokens.colors.cardBg,
-    },
-    backButtonPressed: {
-        opacity: 0.8,
-    },
-    backButtonText: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.crimson,
-        letterSpacing: 1,
-        textTransform: 'uppercase',
-        fontSize: fantasyTokens.fontSizes.body,
     },
     listFrame: {
         flex: 1,

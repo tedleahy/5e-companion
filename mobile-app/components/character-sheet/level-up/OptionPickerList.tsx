@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens, fantasyFonts } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 import CustomEntryCard from './CustomEntryCard';
 
 /**
@@ -215,16 +216,16 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.sm,
         marginTop: fantasyTokens.spacing.md,
         borderTopWidth: 1,
-        borderTopColor: fantasyTokens.colors.sheetDivider,
+        borderTopColor: fantasyTokens.sheet.form.border,
         paddingTop: fantasyTokens.spacing.md,
     },
     pickerTitle: {
         ...fantasyTokens.typography.sectionLabel,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.gold,
     },
     pickerCounter: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.gold,
         marginBottom: fantasyTokens.spacing.xs,
     },
     optionsList: {
@@ -236,10 +237,7 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.sm,
     },
     optionCard: {
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        ...nightFormStyles.card,
         paddingHorizontal: fantasyTokens.spacing.lg,
         paddingVertical: fantasyTokens.spacing.md,
         gap: fantasyTokens.spacing.xs,
@@ -251,12 +249,10 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.xs,
     },
     optionCardSelected: {
-        borderColor: fantasyTokens.colors.claret,
-        backgroundColor: 'rgba(106,17,48,0.06)',
+        ...nightFormStyles.cardSelected,
     },
     optionCardDisabled: {
         opacity: 0.5,
-        backgroundColor: 'rgba(212,201,180,0.3)',
     },
     optionHeader: {
         flexDirection: 'row',
@@ -265,52 +261,45 @@ const styles = StyleSheet.create({
     },
     optionName: {
         ...fantasyTokens.typography.cardTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
         flex: 1,
     },
     optionNameSelected: {
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.goldLight,
     },
     optionNameDisabled: {
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
     },
     optionDescription: {
-        ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.inkLight,
+        ...nightFormStyles.cardBody,
     },
     optionDescriptionDisabled: {
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
     },
     selectedBadge: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.goldLight,
         fontFamily: fantasyFonts.semiBold,
     },
     readMoreText: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.gold,
         fontFamily: fantasyFonts.semiBold,
     },
     prerequisiteText: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.ember,
+        color: fantasyTokens.colors.gold,
         fontStyle: 'italic',
     },
     prerequisiteTextUnmet: {
-        color: fantasyTokens.colors.ember,
+        color: fantasyTokens.colors.crimson,
         fontFamily: fantasyFonts.semiBold,
     },
     addCustomButton: {
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.claret,
-        borderRadius: fantasyTokens.radii.md,
-        borderStyle: 'dashed',
-        paddingVertical: fantasyTokens.spacing.md,
-        alignItems: 'center',
+        ...nightFormStyles.dashedAddButton,
         marginTop: fantasyTokens.spacing.sm,
     },
     addCustomButtonText: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.claret,
+        ...nightFormStyles.dashedAddButtonText,
     },
 });

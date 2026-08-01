@@ -7,6 +7,7 @@ import { PaperProvider } from 'react-native-paper';
 import CharacterByIdScreen from '../character/[id]';
 import { SEARCH_SPELLS_FOR_SHEET } from '@/components/character-sheet/spells/AddSpellSheet';
 import { GET_AVAILABLE_SUBCLASSES } from '@/graphql/characterSheet.operations';
+import { GET_AVAILABLE_CLASSES, GET_CUSTOM_CLASSES } from '@/graphql/class.operations';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
 import { CHARACTERS_MOCK } from './mocks/character-sheet.mocks';
 
@@ -21,7 +22,7 @@ export const ADD_SPELL_LIST_MOCK: MockLink.MockedResponse = {
                 classes: ['wizard', 'warlock'],
             },
             pagination: {
-                limit: 500,
+                limit: 50,
                 offset: 0,
             },
         },
@@ -75,6 +76,35 @@ export const AVAILABLE_SUBCLASSES_MOCK: MockLink.MockedResponse = {
             ],
         },
     },
+};
+
+export const AVAILABLE_CLASSES_MOCK: MockLink.MockedResponse = {
+    request: { query: GET_AVAILABLE_CLASSES },
+    result: {
+        data: {
+            availableClasses: CLASS_OPTIONS.map((option) => ({
+                __typename: 'AvailableClass',
+                id: `class-${option.value}`,
+                value: option.value,
+                srdIndex: option.value,
+                name: option.label,
+                emoji: option.icon,
+                description: [],
+                hitDie: option.value === 'wizard' || option.value === 'sorcerer' ? 6 : 8,
+                primaryAbilityIndexes: [],
+                savingThrowIndexes: [],
+                spellcastingMode: 'NONE',
+                spellcastingAbility: null,
+                multiclassPrerequisites: [],
+                isCustom: false,
+            })),
+        },
+    },
+};
+
+export const CUSTOM_CLASSES_MOCK: MockLink.MockedResponse = {
+    request: { query: GET_CUSTOM_CLASSES },
+    result: { data: { customClasses: [] } },
 };
 
 /**
@@ -189,7 +219,7 @@ export function renderCharacterSheetScreen(
     mocks: MockLink.MockedResponse[] = [CHARACTERS_MOCK],
 ) {
     return render(
-        <MockedProvider mocks={[...mocks, ADD_SPELL_LIST_MOCK, AVAILABLE_SUBCLASSES_MOCK]}>
+        <MockedProvider mocks={[...mocks, ADD_SPELL_LIST_MOCK, AVAILABLE_SUBCLASSES_MOCK, AVAILABLE_CLASSES_MOCK, CUSTOM_CLASSES_MOCK]}>
             <PaperProvider>
                 <CharacterByIdScreen />
             </PaperProvider>

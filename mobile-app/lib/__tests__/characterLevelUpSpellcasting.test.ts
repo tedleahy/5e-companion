@@ -1,8 +1,11 @@
 import {
+    addLevelUpSpellSelection,
     buildLevelUpSpellcastingSummary,
     canContinueFromSpellcastingUpdates,
     createLevelUpSpellcastingState,
+    setLevelUpSwapReplacementSpell,
 } from '../characterLevelUp/spellcasting';
+import type { LevelUpSpellSelection } from '../characterLevelUp/types';
 
 const WIZARD_SPELL = {
     __typename: 'CharacterSpell',
@@ -229,6 +232,35 @@ describe('characterLevelUp spellcasting helpers', () => {
         expect(canContinueFromSpellcastingUpdates(summary, createLevelUpSpellcastingState())).toBe(true);
     });
 
+    it('applies a custom class prepared-spell modifier at every progression level', () => {
+        const summary = buildLevelUpSpellcastingSummary(BASE_CHARACTER as never, {
+            classId: 'custom-cleric',
+            className: 'Custom Cleric',
+            currentLevel: 4,
+            newLevel: 5,
+            isExistingClass: true,
+            subclassId: null,
+            subclassName: null,
+            subclassDescription: null,
+            subclassIsCustom: false,
+            subclassFeatures: [],
+            customSubclass: null,
+            classDefinition: {
+                spellcastingMode: 'STANDARD',
+                spellcastingAbility: 'int',
+                addSpellcastingAbility: true,
+                progression: [
+                    { level: 4, preparedSpellCount: 4, spellSlots: [] },
+                    { level: 5, preparedSpellCount: 5, spellSlots: [] },
+                ],
+                spells: [],
+            } as never,
+        });
+
+        expect(summary.previousPreparedSpellLimit).toBe(8);
+        expect(summary.nextPreparedSpellLimit).toBe(9);
+    });
+
     it('captures warlock pact-magic and known-spell progression separately from standard slots', () => {
         const character = {
             ...BASE_CHARACTER,
@@ -316,5 +348,110 @@ describe('characterLevelUp spellcasting helpers', () => {
                 changed: true,
             }),
         ]));
+    });
+
+    describe('cross-bucket spell selection uniqueness', () => {
+        const SCORCHING_RAY: LevelUpSpellSelection = {
+            id: 'spell-scorching-ray',
+            name: 'Scorching Ray',
+            level: 2,
+            schoolIndex: 'evocation',
+            classIndexes: ['sorcerer', 'wizard'],
+            range: '120 feet',
+            ritual: false,
+            concentration: false,
+            castingTime: '1 action',
+        };
+        const LIGHT: LevelUpSpellSelection = {
+            id: 'spell-light',
+            name: 'Light',
+            level: 0,
+            schoolIndex: 'evocation',
+            classIndexes: ['sorcerer', 'wizard'],
+            range: 'Touch',
+            ritual: false,
+            concentration: false,
+            castingTime: '1 action',
+        };
+
+        it('rejects adding a spell to the cantrip bucket when already selected as a learned spell', () => {
+            const withLearnedSpell = addLevelUpSpellSelection(
+                createLevelUpSpellcastingState(),
+                'learnedSpells',
+                SCORCHING_RAY,
+                1,
+            );
+
+            const withCantripAttempt = addLevelUpSpellSelection(
+                withLearnedSpell,
+                'cantripSpells',
+                SCORCHING_RAY,
+                1,
+            );
+
+            expect(withCantripAttempt.cantripSpells).toEqual([]);
+            expect(withCantripAttempt.learnedSpells).toEqual([SCORCHING_RAY]);
+        });
+
+        it('rejects adding a spell to the learned bucket when already selected as a cantrip', () => {
+            const withCantrip = addLevelUpSpellSelection(
+                createLevelUpSpellcastingState(),
+                'cantripSpells',
+                LIGHT,
+                1,
+            );
+
+            const withLearnedAttempt = addLevelUpSpellSelection(
+                withCantrip,
+                'learnedSpells',
+                LIGHT,
+                1,
+            );
+
+            expect(withLearnedAttempt.learnedSpells).toEqual([]);
+            expect(withCantrip.cantripSpells).toEqual([LIGHT]);
+        });
+
+        it('rejects a swap replacement spell already selected as a learned spell or cantrip', () => {
+            const withLearnedSpell = addLevelUpSpellSelection(
+                createLevelUpSpellcastingState(),
+                'learnedSpells',
+                SCORCHING_RAY,
+                1,
+            );
+            const withCantrip = addLevelUpSpellSelection(withLearnedSpell, 'cantripSpells', LIGHT, 1);
+
+            expect(setLevelUpSwapReplacementSpell(withCantrip, SCORCHING_RAY).swapReplacementSpell).toBeNull();
+            expect(setLevelUpSwapReplacementSpell(withCantrip, LIGHT).swapReplacementSpell).toBeNull();
+        });
+
+        it('rejects adding a learned spell or cantrip already selected as the swap replacement', () => {
+            const withSwapReplacement = setLevelUpSwapReplacementSpell(
+                createLevelUpSpellcastingState(),
+                SCORCHING_RAY,
+            );
+
+            const withLearnedAttempt = addLevelUpSpellSelection(withSwapReplacement, 'learnedSpells', SCORCHING_RAY, 1);
+            const withCantripAttempt = addLevelUpSpellSelection(withSwapReplacement, 'cantripSpells', SCORCHING_RAY, 1);
+
+            expect(withLearnedAttempt.learnedSpells).toEqual([]);
+            expect(withCantripAttempt.cantripSpells).toEqual([]);
+        });
+
+        it('fails canContinueFromSpellcastingUpdates when a duplicate slips into two buckets', () => {
+            const summary = {
+                hasChanges: true,
+                learnedSpellCount: 1,
+                cantripCountGain: 1,
+            } as never;
+
+            const duplicatedState = {
+                ...createLevelUpSpellcastingState(),
+                learnedSpells: [SCORCHING_RAY],
+                cantripSpells: [SCORCHING_RAY],
+            };
+
+            expect(canContinueFromSpellcastingUpdates(summary, duplicatedState)).toBe(false);
+        });
     });
 });

@@ -50,6 +50,7 @@ type UseAddSpellSheetControllerResult = {
     activeFilterChips: ActiveFilterChip[];
     sections: ReturnType<typeof buildAddSpellSections>;
     loading: boolean;
+    loadingMore: boolean;
     errorMessage?: string;
     pendingSpellIds: Set<string>;
     sessionChangesCount: number;
@@ -68,6 +69,7 @@ type UseAddSpellSheetControllerResult = {
     applyFilters: () => void;
     clearDraftFilters: () => void;
     removeAppliedFilterChip: (chip: ActiveFilterChip) => void;
+    loadMoreSpells: () => void;
     prefetchSpellDetail: (spellId: string) => void;
     openSpellDetail: (spell: AddSpellListItem) => void;
     clearSelectedSpell: () => void;
@@ -77,8 +79,8 @@ type UseAddSpellSheetControllerResult = {
 /** Search debounce delay for spell list queries. */
 const SEARCH_DEBOUNCE_MS = 300;
 
-/** Maximum number of spells fetched into the add-sheet list. */
-const MAX_SHEET_RESULTS = 500;
+/** Number of spells requested per page for infinite scroll. */
+export const ADD_SPELL_SHEET_PAGE_SIZE = 50;
 
 /**
  * Applies forced class/level filters without allowing the caller to override them.
@@ -131,6 +133,13 @@ export default function useAddSpellSheetController({
     const [draftFilters, setDraftFilters] = useState<AddSpellFilterState>(() => defaultFilterForClasses(characterClassIds));
     const [filterPanelOpen, setFilterPanelOpen] = useState(false);
     const [selectedSpell, setSelectedSpell] = useState<AddSpellListItem | null>(null);
+    const [hasMore, setHasMore] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const queryGenerationRef = useRef(0);
+    const loadMoreInFlightRef = useRef(false);
+    const filterInputRef = useRef<ReturnType<typeof buildAddSpellFilterInput>>(undefined);
+    const spellCountRef = useRef(0);
+    const hasMoreRef = useRef(true);
     const prefetchedSpellDetailIdsRef = useRef<Set<string>>(new Set());
     const {
         pendingSpellIds,
@@ -172,16 +181,17 @@ export default function useAddSpellSheetController({
     const filterInput = useMemo(() => {
         return buildAddSpellFilterInput(effectiveFilters, debouncedSearchQuery);
     }, [debouncedSearchQuery, effectiveFilters]);
+    filterInputRef.current = filterInput;
 
     const queryVariables = useMemo<AddSpellSheetSpellsQueryVariables>(() => ({
         pagination: {
-            limit: MAX_SHEET_RESULTS,
+            limit: ADD_SPELL_SHEET_PAGE_SIZE,
             offset: 0,
         },
         ...(filterInput ? { filter: filterInput } : {}),
     }), [filterInput]);
 
-    const { data, loading, error } = useQuery<AddSpellSheetSpellsQuery, AddSpellSheetSpellsQueryVariables>(
+    const { data, loading, error, fetchMore } = useQuery<AddSpellSheetSpellsQuery, AddSpellSheetSpellsQueryVariables>(
         SEARCH_SPELLS_FOR_SHEET,
         {
             variables: queryVariables,
@@ -189,6 +199,24 @@ export default function useAddSpellSheetController({
             notifyOnNetworkStatusChange: true,
         },
     );
+    spellCountRef.current = data?.spells?.length ?? 0;
+
+    useEffect(() => {
+        queryGenerationRef.current += 1;
+        loadMoreInFlightRef.current = false;
+        hasMoreRef.current = true;
+        setHasMore(true);
+        setLoadingMore(false);
+    }, [queryVariables]);
+
+    useEffect(() => {
+        if (!data?.spells || loadingMore) return;
+        if (data.spells.length <= ADD_SPELL_SHEET_PAGE_SIZE) {
+            const nextHasMore = data.spells.length === ADD_SPELL_SHEET_PAGE_SIZE;
+            hasMoreRef.current = nextHasMore;
+            setHasMore(nextHasMore);
+        }
+    }, [data, loadingMore]);
 
     const {
         data: selectedSpellDetailData,
@@ -254,6 +282,67 @@ export default function useAddSpellSheetController({
     }, []);
 
     /**
+     * Fetches the next page of spells and appends them to the current list.
+     * Ignores completions whose query generation no longer matches (stale after filter/search change).
+     */
+    const loadMoreSpells = useCallback(() => {
+        const currentCount = spellCountRef.current;
+        const activeFilter = filterInputRef.current;
+        // Do not gate on Apollo `loading`: an in-flight fetchMore for a prior generation can keep
+        // network status busy after filters change and would otherwise block legitimate pagination.
+        if (!visible || loadMoreInFlightRef.current || !hasMoreRef.current || currentCount === 0) return;
+
+        const requestGeneration = queryGenerationRef.current;
+        let fetchedCount = 0;
+        let applied = false;
+
+        loadMoreInFlightRef.current = true;
+        setLoadingMore(true);
+
+        void fetchMore({
+            variables: {
+                pagination: {
+                    limit: ADD_SPELL_SHEET_PAGE_SIZE,
+                    offset: currentCount,
+                },
+                ...(activeFilter ? { filter: activeFilter } : {}),
+            },
+            updateQuery(previousResult, { fetchMoreResult }) {
+                if (queryGenerationRef.current !== requestGeneration) {
+                    return previousResult;
+                }
+
+                const nextSpells = fetchMoreResult?.spells ?? [];
+                fetchedCount = nextSpells.length;
+                applied = true;
+
+                if (nextSpells.length === 0) return previousResult;
+
+                const existingSpellIds = new Set(previousResult.spells.map((spell) => spell.id));
+                const deduplicatedNextSpells = nextSpells.filter(
+                    (spell) => !existingSpellIds.has(spell.id),
+                );
+
+                return {
+                    spells: [...previousResult.spells, ...deduplicatedNextSpells],
+                };
+            },
+        }).then(() => {
+            if (queryGenerationRef.current !== requestGeneration || !applied) return;
+            const nextHasMore = fetchedCount === ADD_SPELL_SHEET_PAGE_SIZE;
+            hasMoreRef.current = nextHasMore;
+            setHasMore(nextHasMore);
+        }).catch((fetchError) => {
+            if (queryGenerationRef.current !== requestGeneration) return;
+            console.error(fetchError);
+        }).finally(() => {
+            if (queryGenerationRef.current !== requestGeneration) return;
+            loadMoreInFlightRef.current = false;
+            setLoadingMore(false);
+        });
+    }, [fetchMore, visible]);
+
+    /**
      * Warms Apollo cache for spell details before the full press completes.
      */
     const prefetchSpellDetail = useCallback((spellId: string) => {
@@ -302,6 +391,7 @@ export default function useAddSpellSheetController({
         activeFilterChips,
         sections,
         loading,
+        loadingMore,
         errorMessage: error?.message,
         pendingSpellIds,
         sessionChangesCount,
@@ -320,6 +410,7 @@ export default function useAddSpellSheetController({
         applyFilters,
         clearDraftFilters,
         removeAppliedFilterChip,
+        loadMoreSpells,
         prefetchSpellDetail,
         openSpellDetail,
         clearSelectedSpell,

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     Animated,
+    BackHandler,
     type NativeScrollEvent,
     type NativeSyntheticEvent,
 } from 'react-native';
@@ -117,6 +118,24 @@ export default function useBottomSheetMotion({
     const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
         scrollOffsetYRef.current = normaliseTopOffset(event.nativeEvent.contentOffset.y);
     }, []);
+
+    // Hardware back closes the topmost rendered sheet first. React Native's
+    // BackHandler invokes listeners in reverse registration order and stops at
+    // the first one that returns true, so a nested sheet's listener (added
+    // after its parent's, since it can only render once the parent is open)
+    // naturally takes priority — no separate overlay stack is needed. Each
+    // sheet only needs to register itself here; this hook is shared by every
+    // BottomSheetShell consumer, including nested pickers.
+    useEffect(() => {
+        if (!isRendered) return undefined;
+
+        const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+            requestSheetClose();
+            return true;
+        });
+
+        return () => subscription.remove();
+    }, [isRendered, requestSheetClose]);
 
     const sheetDismissGesture = useMemo(() => createSheetDismissGesture({
         scrollOffsetYRef,

@@ -17,6 +17,7 @@ import type { AddSpellBlockedReason, AddSpellListItem, AddSpellSection } from '.
 type AddSpellSectionListProps = {
     sections: AddSpellSection[];
     loading: boolean;
+    loadingMore: boolean;
     errorMessage?: string;
     isKnownSpell: (spellId: string) => boolean;
     blockedReasonForSpell: (spellId: string) => AddSpellBlockedReason | null;
@@ -24,6 +25,7 @@ type AddSpellSectionListProps = {
     onToggleSpellSelection: (spell: AddSpellListItem) => void;
     onOpenSpellDetail: (spell: AddSpellListItem) => void;
     onPrefetchSpellDetail?: (spellId: string) => void;
+    onEndReached?: () => void;
     onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
 };
 
@@ -60,6 +62,7 @@ function blockedHintText(reason: AddSpellBlockedReason | null): string | null {
 export default function AddSpellSectionList({
     sections,
     loading,
+    loadingMore,
     errorMessage,
     isKnownSpell,
     blockedReasonForSpell,
@@ -67,6 +70,7 @@ export default function AddSpellSectionList({
     onToggleSpellSelection,
     onOpenSpellDetail,
     onPrefetchSpellDetail,
+    onEndReached,
     onScroll,
 }: AddSpellSectionListProps) {
     const dismissKeyboardAndRun = useDismissKeyboardAction();
@@ -99,8 +103,18 @@ export default function AddSpellSectionList({
                 keyExtractor={(spell) => spell.id}
                 stickySectionHeadersEnabled
                 keyboardShouldPersistTaps="handled"
+                testID="add-spell-section-list"
                 onScroll={onScroll}
+                onEndReached={onEndReached}
+                onEndReachedThreshold={0.6}
                 scrollEventThrottle={16}
+                ListFooterComponent={
+                    loadingMore ? (
+                        <View style={styles.loadingMoreState} testID="add-spell-loading-more">
+                            <ActivityIndicator color={fantasyTokens.colors.gold} />
+                        </View>
+                    ) : null
+                }
                 renderSectionHeader={({ section }) => (
                     <View style={styles.levelHeader}>
                         <Text style={styles.levelHeaderText}>{section.title}</Text>
@@ -182,6 +196,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 10,
         padding: fantasyTokens.spacing.md,
+    },
+    loadingMoreState: {
+        paddingVertical: fantasyTokens.spacing.md,
+        alignItems: 'center',
     },
     loadingText: {
         color: fantasyTokens.colors.parchment,

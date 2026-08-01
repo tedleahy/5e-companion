@@ -5,24 +5,34 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
 import { useCharacterDraft } from '@/store/characterDraft';
 import { ParchmentPanel, DetailRow } from '@/components/FantasyPrimitives';
 import { ABILITY_ABBREVIATIONS, ABILITY_KEYS, abilityModifier, SKILL_DEFINITIONS, type AbilityKey } from '@/lib/characterSheetUtils';
-import { BACKGROUND_SKILL_PROFICIENCIES, CLASS_SAVING_THROWS } from '@/lib/characterCreation/classRules';
+import {
+    BACKGROUND_SKILL_PROFICIENCIES,
+    labelsForProficiencyChoices,
+    skillKeysFromProficiencyChoices,
+} from '@/lib/characterCreation/classRules';
 import { applyRacialBonuses } from '@/lib/characterCreation/raceRules';
 import { CREATE_CHARACTER_ROUTES } from '@/lib/characterCreation/routes';
 import {
-    classLabel,
-    formatDraftClassSummary,
-    formatClassRowLabel,
+    formatPresentedClassRowLabel,
+    formatPresentedClassSummary,
+    presentationClassLabel,
+    presentationSavingThrows,
     sortClassRowsForDisplay,
     startingClassRow,
 } from '@/lib/characterCreation/multiclass';
 import { getCreateFeatureChoiceGroups } from '@/lib/srdFeatureChoices';
 import useAvailableBackgrounds from '@/hooks/useAvailableBackgrounds';
+import useCreationProficiencyRequirements from '@/hooks/useCreationProficiencyRequirements';
 import { wizardStepStyles } from '@/components/character-creation-wizard/styles/wizardStepStyles';
 
 export default function StepReview() {
     const { draft } = useCharacterDraft();
     const router = useRouter();
     const { backgroundOptions } = useAvailableBackgrounds();
+    const {
+        proficiencyChoiceGroups,
+        fixedSkillKeys,
+    } = useCreationProficiencyRequirements(draft.classes, draft.startingClassId);
     const backgroundLabel = backgroundOptions.find((background) => background.value === draft.background)?.label
         ?? draft.background;
 
@@ -33,10 +43,22 @@ export default function StepReview() {
     const finalScores = applyRacialBonuses(scoresWithAsi, draft.race);
 
     const bgSkills = BACKGROUND_SKILL_PROFICIENCIES[draft.background] ?? [];
-    const allProfSkills = new Set([...draft.skillProficiencies, ...bgSkills]);
+    const chosenSkillKeys = skillKeysFromProficiencyChoices(
+        draft.proficiencyChoices,
+        proficiencyChoiceGroups,
+    );
+    const allProfSkills = new Set([...chosenSkillKeys, ...bgSkills, ...fixedSkillKeys]);
     const proficientSkillDefs = SKILL_DEFINITIONS.filter((s) => allProfSkills.has(s.key));
+    const namedChoiceGroups = proficiencyChoiceGroups.filter((group) => group.type !== 'SKILL');
+    const selectedProficiencyLabels = labelsForProficiencyChoices(
+        draft.proficiencyChoices,
+        namedChoiceGroups,
+    );
     const startingClass = startingClassRow(draft.classes, draft.startingClassId);
-    const savingThrows = CLASS_SAVING_THROWS[startingClass?.classId ?? ''] ?? [];
+    const savingThrows = presentationSavingThrows(
+        startingClass?.classId ?? '',
+        draft.classPresentationById,
+    );
     const displayClassRows = sortClassRowsForDisplay(draft.classes, draft.startingClassId);
     const featureChoiceGroups = getCreateFeatureChoiceGroups(draft.classes);
 
@@ -69,17 +91,31 @@ export default function StepReview() {
                 {draft.classes.length === 1 ? (
                     <DetailRow
                         label="Class"
-                        value={`${formatClassRowLabel(draft.classes[0])} — Level ${draft.classes[0].level}`}
+                        value={`${formatPresentedClassRowLabel(draft.classes[0]!, draft.classPresentationById)} — Level ${draft.classes[0]!.level}`}
                     />
                 ) : (
                     <>
-                        <DetailRow label="Summary" value={formatDraftClassSummary(draft.classes, draft.startingClassId)} />
-                        <DetailRow label="Starting Class" value={startingClass ? classLabel(startingClass.classId) : 'Not set'} />
+                        <DetailRow
+                            label="Summary"
+                            value={formatPresentedClassSummary(
+                                draft.classes,
+                                draft.startingClassId,
+                                draft.classPresentationById,
+                            )}
+                        />
+                        <DetailRow
+                            label="Starting Class"
+                            value={startingClass
+                                ? presentationClassLabel(startingClass.classId, draft.classPresentationById)
+                                : 'Not set'}
+                        />
                         <View style={styles.classList}>
                             {displayClassRows.map((classRow, index) => (
                                 <View key={`${classRow.classId || 'class'}-${index}`} style={styles.classListRow}>
                                     <View>
-                                        <Text style={styles.classListValue}>{formatClassRowLabel(classRow)}</Text>
+                                        <Text style={styles.classListValue}>
+                                            {formatPresentedClassRowLabel(classRow, draft.classPresentationById)}
+                                        </Text>
                                         <Text style={styles.classListMeta}>
                                             Level {classRow.level}
                                             {classRow.classId === draft.startingClassId ? ' - starting class' : ''}
@@ -153,6 +189,21 @@ export default function StepReview() {
                     </View>
                 )}
             </View>
+
+            {selectedProficiencyLabels.length > 0 ? (
+                <View style={styles.profSubSection} testID="create-review-proficiency-choices">
+                    <Text style={styles.profSubLabel}>
+                        Other Proficiencies ({selectedProficiencyLabels.length})
+                    </Text>
+                    <View style={styles.profChipRow}>
+                        {selectedProficiencyLabels.map((label, index) => (
+                            <View key={`${label}-${index}`} style={styles.profChip}>
+                                <Text style={styles.profChipText}>{label}</Text>
+                            </View>
+                        ))}
+                    </View>
+                </View>
+            ) : null}
             {featureChoiceGroups.length > 0 ? (
                 <>
                     <Pressable onPress={() => router.push(CREATE_CHARACTER_ROUTES.features)}>

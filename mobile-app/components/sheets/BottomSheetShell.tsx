@@ -7,6 +7,7 @@ import {
     getMainContentFrameStyle,
 } from '@/components/layout/mainContentFrameStyle';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { OVERLAY_LAYER } from '@/components/sheets/overlayLayers';
 
 type BottomSheetShellProps = {
     isRendered: boolean;
@@ -34,7 +35,7 @@ export default function BottomSheetShell({
     children,
     onRequestClose,
     testID,
-    overlayZIndex = 20,
+    overlayZIndex = OVERLAY_LAYER.base,
     sheetStyle,
     backdropStyle,
 }: BottomSheetShellProps) {
@@ -92,7 +93,7 @@ const styles = StyleSheet.create({
     },
     backdrop: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: fantasyTokens.rail.backdrop,
+        backgroundColor: fantasyTokens.sheet.backdrop,
     },
     backdropPressable: {
         flex: 1,
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderLeftWidth: 1,
         borderRightWidth: 1,
-        borderColor: fantasyTokens.rail.borderStrong,
+        borderColor: fantasyTokens.sheet.form.border,
         overflow: 'hidden',
         elevation: 20,
     },
@@ -116,10 +117,10 @@ const styles = StyleSheet.create({
         top: 0,
         right: 0,
         left: 0,
+        height: fantasyTokens.spacing.xl + fantasyTokens.spacing.sm,
         zIndex: 1,
         alignItems: 'center',
         paddingTop: fantasyTokens.spacing.sm,
-        paddingBottom: 60,
     },
     handleSpacer: {
         height: fantasyTokens.spacing.md,
@@ -128,6 +129,6 @@ const styles = StyleSheet.create({
         width: 42,
         height: 4,
         borderRadius: 2,
-        backgroundColor: fantasyTokens.rail.borderStrong,
+        backgroundColor: fantasyTokens.sheet.form.border,
     },
 });

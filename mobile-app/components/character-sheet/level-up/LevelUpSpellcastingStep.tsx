@@ -7,6 +7,7 @@ import { classDisplayName } from '@/lib/characterLevelUp/spellcasting';
 import type { LevelUpSpellSelection } from '@/lib/characterLevelUp/types';
 import type { UseLevelUpWizardResult } from '@/hooks/useLevelUpWizard';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 
 type SpellPickerMode = 'learned' | 'cantrip' | 'swap' | null;
 
@@ -33,22 +34,38 @@ export default function LevelUpSpellcastingStep({
     } = wizard;
     const [pickerMode, setPickerMode] = useState<SpellPickerMode>(null);
     const blockedSpellIds = useMemo(() => {
+        // Block every already-known spell plus anything selected in another bucket,
+        // so one spell cannot fill the learned, cantrip, and swap grants at once.
         const blockedIds = new Set(spellcastingSummary.currentKnownSpellIds);
 
         for (const spell of spellcastingState.learnedSpells) {
-            blockedIds.delete(spell.id);
+            blockedIds.add(spell.id);
         }
 
         for (const spell of spellcastingState.cantripSpells) {
-            blockedIds.delete(spell.id);
+            blockedIds.add(spell.id);
         }
 
         if (spellcastingState.swapReplacementSpell) {
+            blockedIds.add(spellcastingState.swapReplacementSpell.id);
+        }
+
+        // Unblock the current picker's own selections so they stay toggleable.
+        if (pickerMode === 'learned') {
+            for (const spell of spellcastingState.learnedSpells) {
+                blockedIds.delete(spell.id);
+            }
+        } else if (pickerMode === 'cantrip') {
+            for (const spell of spellcastingState.cantripSpells) {
+                blockedIds.delete(spell.id);
+            }
+        } else if (pickerMode === 'swap' && spellcastingState.swapReplacementSpell) {
             blockedIds.delete(spellcastingState.swapReplacementSpell.id);
         }
 
         return [...blockedIds];
     }, [
+        pickerMode,
         spellcastingState.cantripSpells,
         spellcastingState.learnedSpells,
         spellcastingState.swapReplacementSpell,
@@ -332,21 +349,18 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.md,
     },
     card: {
-        backgroundColor: fantasyTokens.colors.parchmentLight,
-        borderRadius: fantasyTokens.radii.md,
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
+        ...nightFormStyles.card,
         paddingHorizontal: fantasyTokens.spacing.lg,
         paddingVertical: fantasyTokens.spacing.md,
         gap: fantasyTokens.spacing.sm,
     },
     cardLabel: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkSoft,
+        color: fantasyTokens.colors.gold,
     },
     bodyText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     slotGrid: {
         flexDirection: 'row',
@@ -357,23 +371,23 @@ const styles = StyleSheet.create({
         minWidth: 104,
         borderRadius: fantasyTokens.radii.sm,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        backgroundColor: fantasyTokens.colors.parchment,
+        borderColor: fantasyTokens.sheet.form.border,
+        backgroundColor: fantasyTokens.sheet.form.card,
         paddingHorizontal: fantasyTokens.spacing.md,
         paddingVertical: fantasyTokens.spacing.sm,
-        gap: 4,
+        gap: fantasyTokens.spacing.xs,
     },
     slotCardChanged: {
         borderColor: fantasyTokens.colors.gold,
-        boxShadow: '0 0 4px rgba(201,146,42,0.12)',
+        boxShadow: fantasyTokens.sheet.form.glow,
     },
     slotLevelText: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.gold,
     },
     slotValueText: {
         ...fantasyTokens.typography.bodyLarge,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     actionButton: {
         alignSelf: 'flex-start',
@@ -388,7 +402,7 @@ const styles = StyleSheet.create({
     },
     counterText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.gold,
     },
     selectionRow: {
         flexDirection: 'row',
@@ -401,18 +415,18 @@ const styles = StyleSheet.create({
         gap: fantasyTokens.spacing.xs,
         borderRadius: 999,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        backgroundColor: fantasyTokens.colors.parchment,
+        borderColor: fantasyTokens.sheet.form.border,
+        backgroundColor: fantasyTokens.sheet.form.card,
         paddingHorizontal: fantasyTokens.spacing.sm,
-        paddingVertical: 6,
+        paddingVertical: fantasyTokens.spacing.sm - fantasyTokens.spacing.xs / 2,
     },
     selectionPillText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     selectionPillRemove: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.crimson,
+        color: fantasyTokens.colors.goldLight,
     },
     swapSection: {
         gap: fantasyTokens.spacing.sm,
@@ -420,7 +434,7 @@ const styles = StyleSheet.create({
     },
     swapTitle: {
         ...fantasyTokens.typography.bodyLarge,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     swapList: {
         gap: fantasyTokens.spacing.xs,
@@ -431,23 +445,23 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: fantasyTokens.radii.sm,
         borderWidth: 1,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        backgroundColor: fantasyTokens.colors.parchment,
+        borderColor: fantasyTokens.sheet.form.border,
+        backgroundColor: fantasyTokens.sheet.form.card,
         paddingHorizontal: fantasyTokens.spacing.md,
         paddingVertical: fantasyTokens.spacing.sm,
     },
     swapRowSelected: {
         borderColor: fantasyTokens.colors.gold,
-        backgroundColor: fantasyTokens.colors.parchmentDeep,
+        backgroundColor: fantasyTokens.colors.crimson,
     },
     swapSpellName: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
         flexShrink: 1,
         paddingRight: fantasyTokens.spacing.sm,
     },
     swapSpellLevel: {
         ...fantasyTokens.typography.bodySmall,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
 });

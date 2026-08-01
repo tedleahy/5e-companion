@@ -1,5 +1,7 @@
+import { SpellSlotKind } from '@/types/generated_graphql_types';
 import type {
     CharacterSpellbookEntryFieldsFragment,
+    ClassDetailsFieldsFragment,
     SpellSlot,
     SpellcastingProfile,
 } from '@/types/generated_graphql_types';
@@ -139,7 +141,25 @@ const SPELLCASTING_ABILITY_BY_CLASS_ID: Record<string, AbilityKey> = {
     wizard: 'intelligence',
 };
 
+const SPELLCASTING_ABILITY_FROM_INDEX: Record<string, AbilityKey> = {
+    str: 'strength',
+    dex: 'dexterity',
+    con: 'constitution',
+    int: 'intelligence',
+    wis: 'wisdom',
+    cha: 'charisma',
+};
+
+/**
+ * Minimal class definition fields needed to preview custom spellcasting locally.
+ */
+export type LevelUpResolvedSpellcastingDefinition = Pick<
+    ClassDetailsFieldsFragment,
+    'spellcastingMode' | 'spellcastingAbility' | 'progression'
+>;
+
 type ClassRow = LevelUpWizardCharacter['classes'][number];
+type ResolvedSpellcastingDefinitions = ReadonlyMap<string, LevelUpResolvedSpellcastingDefinition>;
 
 /**
  * Returns a blank route-local spellcasting state.
@@ -179,6 +199,60 @@ export function buildLevelUpSpellcastingSummary(
             eligibleSpellLevels: [],
             currentKnownSpells: [],
             currentKnownSpellIds: [],
+        };
+    }
+
+    if (selectedClass.classDefinition) {
+        const definition = selectedClass.classDefinition;
+        const previous = definition.progression.find((level) => level.level === selectedClass.currentLevel);
+        const next = definition.progression.find((level) => level.level === selectedClass.newLevel);
+        const kind: SpellSlot['kind'] = definition.spellcastingMode === 'PACT_MAGIC' ? SpellSlotKind.PactMagic : SpellSlotKind.Standard;
+        const slotRows = (slots: readonly number[] | undefined) => (slots ?? []).flatMap((total, index) => total > 0 ? [{ kind, level: index + 1, total }] : []);
+        const slotComparisons = buildSpellSlotComparisons(slotRows(previous?.spellSlots), slotRows(next?.spellSlots));
+        const previousMaxSpellLevel = highestSpellLevel(previous?.spellSlots ?? []);
+        const nextMaxSpellLevel = highestSpellLevel(next?.spellSlots ?? []);
+        const previousKnownSpells = previous?.spellsKnown ?? null;
+        const nextKnownSpells = next?.spellsKnown ?? null;
+        const previousCantripsKnown = previous?.cantripsKnown ?? null;
+        const nextCantripsKnown = next?.cantripsKnown ?? null;
+        const learnedSpellCount = Math.max(0, (nextKnownSpells ?? 0) - (previousKnownSpells ?? 0));
+        const cantripCountGain = Math.max(0, (nextCantripsKnown ?? 0) - (previousCantripsKnown ?? 0));
+        const classSpellIds = new Set(definition.spells.map((spell) => spell.id));
+        const currentKnownSpells = character.spellbook.filter((entry) => classSpellIds.has(entry.spell.id));
+        const preparedLimit = (level: typeof next | undefined) => {
+            if (level?.preparedSpellCount == null) return null;
+            const ability = ({ str: 'strength', dex: 'dexterity', con: 'constitution', int: 'intelligence', wis: 'wisdom', cha: 'charisma' } as Record<string, AbilityKey>)[definition.spellcastingAbility ?? ''] ?? null;
+            const score = ability ? character.stats?.abilityScores[ability] ?? 10 : 10;
+            return Math.max(0, level.preparedSpellCount + (definition.addSpellcastingAbility ? modifier(score) : 0));
+        };
+        const previousPreparedSpellLimit = preparedLimit(previous);
+        const nextPreparedSpellLimit = preparedLimit(next);
+        const mode = definition.spellcastingMode === 'NONE'
+            ? 'none'
+            : nextKnownSpells != null
+                ? 'known'
+                : 'prepared';
+        return {
+            mode,
+            hasChanges: slotComparisons.some((comparison) => comparison.changed)
+                || learnedSpellCount > 0 || cantripCountGain > 0
+                || nextMaxSpellLevel > previousMaxSpellLevel
+                || previousPreparedSpellLimit !== nextPreparedSpellLimit,
+            slotComparisons,
+            previousMaxSpellLevel,
+            nextMaxSpellLevel,
+            newSpellLevelUnlocked: nextMaxSpellLevel > previousMaxSpellLevel,
+            previousKnownSpells,
+            nextKnownSpells,
+            learnedSpellCount,
+            previousPreparedSpellLimit,
+            nextPreparedSpellLimit,
+            previousCantripsKnown,
+            nextCantripsKnown,
+            cantripCountGain,
+            eligibleSpellLevels: buildEligibleSpellLevels(nextMaxSpellLevel),
+            currentKnownSpells,
+            currentKnownSpellIds: currentKnownSpells.map((entry) => entry.spell.id),
         };
     }
 
@@ -256,11 +330,57 @@ export function canContinueFromSpellcastingUpdates(
         return false;
     }
 
+    if (hasCrossBucketSpellDuplicate(state)) {
+        return false;
+    }
+
     return true;
 }
 
 /**
- * Adds one spell to the requested local spell selection bucket.
+ * One local spellcasting selection bucket that must stay unique across the others.
+ */
+type LevelUpSpellcastingBucket = 'learnedSpells' | 'cantripSpells' | 'swapReplacementSpell';
+
+/**
+ * Returns whether a spell id is already selected in a bucket other than the given one.
+ */
+function isSpellSelectedInAnotherBucket(
+    state: LevelUpSpellcastingState,
+    bucket: LevelUpSpellcastingBucket,
+    spellId: string,
+): boolean {
+    if (bucket !== 'learnedSpells' && state.learnedSpells.some((spell) => spell.id === spellId)) {
+        return true;
+    }
+
+    if (bucket !== 'cantripSpells' && state.cantripSpells.some((spell) => spell.id === spellId)) {
+        return true;
+    }
+
+    if (bucket !== 'swapReplacementSpell' && state.swapReplacementSpell?.id === spellId) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Returns whether any spell id appears in more than one selection bucket.
+ */
+function hasCrossBucketSpellDuplicate(state: LevelUpSpellcastingState): boolean {
+    const selectedIds = [
+        ...state.learnedSpells.map((spell) => spell.id),
+        ...state.cantripSpells.map((spell) => spell.id),
+        ...(state.swapReplacementSpell ? [state.swapReplacementSpell.id] : []),
+    ];
+
+    return new Set(selectedIds).size !== selectedIds.length;
+}
+
+/**
+ * Adds one spell to the requested local spell selection bucket. Ignored when the
+ * spell is already selected in another bucket, so one spell cannot fill two grants.
  */
 export function addLevelUpSpellSelection(
     state: LevelUpSpellcastingState,
@@ -268,6 +388,10 @@ export function addLevelUpSpellSelection(
     spell: LevelUpSpellSelection,
     maximum: number,
 ): LevelUpSpellcastingState {
+    if (isSpellSelectedInAnotherBucket(state, bucket, spell.id)) {
+        return state;
+    }
+
     const currentBucket = state[bucket].filter((currentSpell) => currentSpell.id !== spell.id);
     const nextBucket = [...currentBucket, spell].slice(0, maximum);
 
@@ -314,12 +438,17 @@ export function setLevelUpSwapOutSpell(
 }
 
 /**
- * Sets the replacement spell chosen for an optional swap.
+ * Sets the replacement spell chosen for an optional swap. Ignored when the spell is
+ * already selected as a learned spell or cantrip, so one spell cannot fill two grants.
  */
 export function setLevelUpSwapReplacementSpell(
     state: LevelUpSpellcastingState,
     spell: LevelUpSpellSelection | null,
 ): LevelUpSpellcastingState {
+    if (spell && isSpellSelectedInAnotherBucket(state, 'swapReplacementSpell', spell.id)) {
+        return state;
+    }
+
     return {
         ...state,
         swapReplacementSpell: spell,
@@ -375,8 +504,9 @@ export function applyLevelUpSpellbookChanges(
 export function derivePreviewSpellSlots(
     classes: LevelUpWizardCharacter['classes'],
     currentSpellSlots: SpellSlot[] = [],
+    resolvedDefinitions?: ResolvedSpellcastingDefinitions,
 ): SpellSlot[] {
-    return deriveSpellSlotsForClasses(classes).map((slot) => {
+    return deriveSpellSlotsForClasses(classes, resolvedDefinitions ?? new Map()).map((slot) => {
         const previousSlot = currentSpellSlots.find((currentSlot) => (
             currentSlot.kind === slot.kind && currentSlot.level === slot.level
         ));
@@ -398,17 +528,35 @@ export function derivePreviewSpellSlots(
 export function derivePreviewSpellcastingProfiles(
     classes: LevelUpWizardCharacter['classes'],
     abilityScores: NonNullable<LevelUpWizardCharacter['stats']>['abilityScores'],
+    resolvedDefinitions?: ResolvedSpellcastingDefinitions,
 ): SpellcastingProfile[] {
     const totalLevel = classes.reduce((sum, classRow) => sum + classRow.level, 0);
     const proficiencyBonus = 2 + Math.floor(Math.max(0, totalLevel - 1) / 4);
 
     return classes
         .map((classRow) => {
-            const spellcastingAbility = SPELLCASTING_ABILITY_BY_CLASS_ID[classRow.classId];
-            const classSlots = deriveClassSpellSlots(classRow.classId, classRow.level, classRow.subclassId ?? null);
-            const pactMagic = classRow.classId === 'warlock' && (PACT_MAGIC_SLOT_TABLE[classRow.level]?.total ?? 0) > 0;
+            const definition = resolvedDefinitions?.get(classRow.classId);
+            const hasResolvedSpellcasting = definition != null
+                && definition.spellcastingMode != null
+                && Array.isArray(definition.progression);
+            const spellcastingAbility = hasResolvedSpellcasting
+                ? SPELLCASTING_ABILITY_FROM_INDEX[definition.spellcastingAbility ?? ''] ?? null
+                : SPELLCASTING_ABILITY_BY_CLASS_ID[classRow.classId] ?? null;
+            const classSlots = deriveClassSpellSlots(
+                classRow.classId,
+                classRow.level,
+                classRow.subclassId ?? null,
+                hasResolvedSpellcasting ? definition : null,
+            );
+            const pactMagic = hasResolvedSpellcasting
+                ? definition.spellcastingMode === 'PACT_MAGIC' && classSlots.some((slot) => slot > 0)
+                : classRow.classId === 'warlock' && (PACT_MAGIC_SLOT_TABLE[classRow.level]?.total ?? 0) > 0;
 
             if (!spellcastingAbility) {
+                return null;
+            }
+
+            if (hasResolvedSpellcasting && definition.spellcastingMode === 'NONE') {
                 return null;
             }
 
@@ -429,7 +577,11 @@ export function derivePreviewSpellcastingProfiles(
                 spellcastingAbility,
                 spellSaveDC: 8 + spellAttackBonus,
                 spellAttackBonus,
-                slotKind: classRow.classId === 'warlock' ? 'PACT_MAGIC' as never : 'STANDARD' as never,
+                slotKind: (hasResolvedSpellcasting
+                    ? definition.spellcastingMode === 'PACT_MAGIC'
+                    : classRow.classId === 'warlock')
+                    ? 'PACT_MAGIC' as never
+                    : 'STANDARD' as never,
             };
 
             return profile;
@@ -510,7 +662,16 @@ function deriveClassSpellSlots(
     classId: string,
     classLevel: number,
     subclassId: string | null,
+    definition?: LevelUpResolvedSpellcastingDefinition | null,
 ): readonly number[] {
+    if (definition?.progression) {
+        if (definition.spellcastingMode === 'NONE') {
+            return [];
+        }
+
+        return definition.progression.find((row) => row.level === classLevel)?.spellSlots ?? [];
+    }
+
     if (FULL_CASTER_CLASS_IDS.has(classId)) {
         return STANDARD_SPELL_SLOT_TABLE[classLevel] ?? [];
     }
@@ -581,34 +742,75 @@ function applySelectedClassLevel(
 }
 
 /**
- * Derives overall standard and pact spell slots for one class allocation.
+ * Converts a definition progression row into typed preview slot rows.
  */
-function deriveSpellSlotsForClasses(classes: readonly ClassRow[]): Array<Pick<SpellSlot, 'kind' | 'level' | 'total'>> {
-    const spellSlots: Array<Pick<SpellSlot, 'kind' | 'level' | 'total'>> = [];
-    const standardSlots = classes.length === 1
-        ? deriveClassSpellSlots(classes[0]!.classId, classes[0]!.level, classes[0]!.subclassId ?? null)
-        : (STANDARD_SPELL_SLOT_TABLE[deriveStandardCasterLevel(classes)] ?? []);
+function spellSlotRowsFromDefinition(
+    definition: LevelUpResolvedSpellcastingDefinition,
+    classLevel: number,
+): Array<Pick<SpellSlot, 'kind' | 'level' | 'total'>> {
+    if (definition.spellcastingMode === 'NONE' || !definition.progression) {
+        return [];
+    }
 
-    for (const [index, total] of standardSlots.entries()) {
-        if (total <= 0) {
+    const kind: SpellSlot['kind'] = definition.spellcastingMode === 'PACT_MAGIC'
+        ? SpellSlotKind.PactMagic
+        : SpellSlotKind.Standard;
+    const slots = definition.progression.find((row) => row.level === classLevel)?.spellSlots ?? [];
+
+    return slots.flatMap((total, index) => (
+        total > 0 ? [{ kind, level: index + 1, total }] : []
+    ));
+}
+
+/**
+ * Derives overall standard and pact spell slots for one class allocation.
+ * Custom classes with resolved definitions contribute their authored progression
+ * instead of falling through the SRD-only tables.
+ */
+function deriveSpellSlotsForClasses(
+    classes: readonly ClassRow[],
+    resolvedDefinitions: ResolvedSpellcastingDefinitions = new Map(),
+): Array<Pick<SpellSlot, 'kind' | 'level' | 'total'>> {
+    const spellSlots: Array<Pick<SpellSlot, 'kind' | 'level' | 'total'>> = [];
+
+    if (classes.length === 1) {
+        const only = classes[0]!;
+        const definition = resolvedDefinitions.get(only.classId);
+        if (definition?.progression) {
+            return spellSlotRowsFromDefinition(definition, only.level);
+        }
+
+        const standardSlots = deriveClassSpellSlots(only.classId, only.level, only.subclassId ?? null);
+        for (const [index, total] of standardSlots.entries()) {
+            if (total <= 0) continue;
+            spellSlots.push({ kind: 'STANDARD' as never, level: index + 1, total });
+        }
+    } else {
+        const standardSlots = STANDARD_SPELL_SLOT_TABLE[deriveStandardCasterLevel(classes, resolvedDefinitions)] ?? [];
+        for (const [index, total] of standardSlots.entries()) {
+            if (total <= 0) continue;
+            spellSlots.push({ kind: 'STANDARD' as never, level: index + 1, total });
+        }
+    }
+
+    for (const classRow of classes) {
+        const definition = resolvedDefinitions.get(classRow.classId);
+        if (definition?.spellcastingMode === 'PACT_MAGIC') {
+            for (const slot of spellSlotRowsFromDefinition(definition, classRow.level)) {
+                spellSlots.push(slot);
+            }
             continue;
         }
 
-        spellSlots.push({
-            kind: 'STANDARD' as never,
-            level: index + 1,
-            total,
-        });
-    }
-
-    const warlockLevel = classes.find((classRow) => classRow.classId === 'warlock')?.level ?? 0;
-    const pactMagic = PACT_MAGIC_SLOT_TABLE[warlockLevel] ?? { level: 0, total: 0 };
-    if (pactMagic.level > 0 && pactMagic.total > 0) {
-        spellSlots.push({
-            kind: 'PACT_MAGIC' as never,
-            level: pactMagic.level,
-            total: pactMagic.total,
-        });
+        if (classRow.classId !== 'warlock') continue;
+        const pactMagic = PACT_MAGIC_SLOT_TABLE[classRow.level] ?? { level: 0, total: 0 };
+        if (pactMagic.level > 0 && pactMagic.total > 0) {
+            spellSlots.push({
+                kind: 'PACT_MAGIC' as never,
+                level: pactMagic.level,
+                total: pactMagic.total,
+            });
+        }
     }
 
     return spellSlots.sort((left, right) => {
@@ -622,11 +824,24 @@ function deriveSpellSlotsForClasses(classes: readonly ClassRow[]): Array<Pick<Sp
 
 /**
  * Returns the effective multiclass caster level for standard slots.
+ * Custom STANDARD casters with resolved definitions count as full casters;
+ * custom PACT_MAGIC classes do not contribute to the shared standard pool.
  */
-function deriveStandardCasterLevel(classes: readonly ClassRow[]): number {
+function deriveStandardCasterLevel(
+    classes: readonly ClassRow[],
+    resolvedDefinitions: ResolvedSpellcastingDefinitions = new Map(),
+): number {
     let casterLevel = 0;
 
     for (const classRow of classes) {
+        const definition = resolvedDefinitions.get(classRow.classId);
+        if (definition) {
+            if (definition.spellcastingMode === 'STANDARD') {
+                casterLevel += classRow.level;
+            }
+            continue;
+        }
+
         if (FULL_CASTER_CLASS_IDS.has(classRow.classId)) {
             casterLevel += classRow.level;
             continue;

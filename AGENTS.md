@@ -32,7 +32,7 @@ Full style guide: [`docs/conventions.md`](./docs/conventions.md). Non-negotiable
 - **`Character.spellbook` has `merge: false`** in `mobile-app/app/apolloClient.ts` — partial mutation responses need an updated field policy or a full spellbook snapshot.
 - **Never add production conditionals for tests**; never bloat app code for tests. Fix harness, mocks, or timers instead.
 - **Fantasy theme via `fantasyTokens`** (`mobile-app/theme/fantasyTheme.ts`) — no inline hex or magic spacing numbers.
-- **Don't commit unless explicitly told.** Don't commit root-level markdown/txt except `AGENTS.md`.
+- Don't commit root-level markdown/txt except `AGENTS.md`.
 - Write simple, clean, DRY, maintainable code. Less code is usually better than more code.
 - Ensure that all code has meaningful test coverage.
 
@@ -47,11 +47,14 @@ Full style guide: [`docs/conventions.md`](./docs/conventions.md). Non-negotiable
 
 ## Agent workflow
 
+- When you've finished a task, review review your changes, being pedantic, fix any issues, and then commit them.
 - **Run `tsc --noEmit` in both `server/` and `mobile-app/`** when files have been changed in those directories before considering a task done. Fix type errors in files you touched; ignore pre-existing errors elsewhere.
 
 ## Git commits
 
 Examples: `feat(mobile): …`, `feat(api): …`, `refactor(mobile): …`, `bug(api): …`. Add bullet details on separate lines. See [`docs/conventions.md`](./docs/conventions.md) for full commit conventions.
+
+**Always use a HEREDOC for multi-line commit messages** (`git commit -m "$(cat <<'EOF' … EOF)"`). Never put `\n` inside a `-m` string — that stores a literal backslash-n, not a newline.
 
 ---
 
@@ -99,6 +102,7 @@ Area-specific detail lives in `docs/`; add cross-cutting items here.
 ## Prisma / DB
 
 - **`bun db:migrate` needs Postgres running** — Prisma requires a live shadow DB. If unreachable, write migration SQL by hand under `server/prisma/migrations/` and validate once the DB is back.
+- **The app is pre-release** — prefer clean breaking schema migrations plus canonical reseeding over transitional data-backfill migrations. Do not add migration backfills unless explicitly requested.
 - **Sandbox permissions**: if Prisma needs Docker/host/network access a sandbox can't provide, stop and ask the user to run the command manually.
 
 ## GraphQL codegen
@@ -109,7 +113,11 @@ Area-specific detail lives in `docs/`; add cross-cutting items here.
 
 - `Component.native.tsx` + `Component.web.tsx` — keep `mobile-app/tsconfig.json` `compilerOptions.moduleSuffixes` aligned with Metro.
 - Keep bottom-sheet dismiss pan gestures on the drag handle, not around nested scroll views; on Android a parent pan recognizer can block the scroll view's initial upward gesture.
+- **Paper `Portal` + controlled `TextInput`** can duplicate characters on Android when parent state outside the portal re-renders each keystroke (custom class/subclass sheets). Use `FantasyFormTextInput` (local value buffer + `autoCorrect={false}` by default); do not drop a raw Paper/RN controlled input into `BottomSheetShell`.
 
 ## Character creation reference-data
 
 - `createCharacter` resolves class/subclass/race/background by `srdIndex`. Do not offer options the current seed can't resolve. See [`docs/features/character-creation.md`](./docs/features/character-creation.md) and `mobile-app/app/characters/create/CHARACTER_CREATION_FLOW.md`.
+- Fixed `STARTING`/`MULTICLASS` skill grants (`choiceGroup == null`) are separate from choice groups — always split them (see `splitSkillProficiencyRules` / `deriveCreationSkillRequirements` / `classMulticlassProficiencyRules`) rather than treating every rule as a selectable option. The server auto-merges fixed grants into persisted `skillProficiencies` regardless of client input; never rely on the client to submit them.
+- Character-creation (and newly-added multiclass save) proficiency choices are keyed by `(classId, choiceGroup)` for both SKILL and named groups. Option values use `srdIndex ?? id` (never display names). Creation derives persisted skills from validated picks plus fixed/background grants — do not treat `skillProficiencies` input as choice provenance.
+- The seed now writes `MULTICLASS` choice-group rows from `multi_classing.proficiency_choices` (bard/ranger/rogue skill + bard instrument choices), but `mobile-app/lib/characterLevelUp/multiclassProficiencies.ts` still falls back to a hardcoded `MULTICLASS_PROFICIENCY_TABLE` for **SRD** classes during level-up, because the level-up wizard only loads a full `classDefinition` (via `GET_CUSTOM_CLASSES`) for custom classes, not SRD ones. Wire an SRD `classDefinition` query into the level-up class-selection flow before removing that fallback.

@@ -3,20 +3,56 @@ import { abilityModifier } from '@/lib/characterSheetUtils';
 import type { LevelUpHitPointsMethod, LevelUpHitPointsState } from './types';
 
 /**
- * Returns the hit-die size used by one class during level-up.
+ * Resolves the hit-die size from a configured class definition, falling back to SRD maps.
  */
-export function levelUpHitDieSize(classId: string): number {
+export function resolveLevelUpHitDieSize(
+    classId: string,
+    configuredHitDieSize?: number | null,
+): number {
+    if (configuredHitDieSize != null && configuredHitDieSize > 0) {
+        return configuredHitDieSize;
+    }
+
     return HIT_DIE_MAP[classId] ?? 0;
 }
 
 /**
- * Returns the fixed-average HP value for one class hit die.
+ * Returns the hit-die size used by one class during level-up.
+ */
+export function levelUpHitDieSize(
+    classId: string,
+    configuredHitDieSize?: number | null,
+): number {
+    return resolveLevelUpHitDieSize(classId, configuredHitDieSize);
+}
+
+/**
+ * Returns the display label for one hit-die size (e.g. `d10`), or `d?` when unknown.
+ */
+export function levelUpHitDieLabelFromSize(hitDieSize: number): string {
+    if (hitDieSize <= 0) {
+        return 'd?';
+    }
+
+    return `d${hitDieSize}`;
+}
+
+/**
+ * Formats the hit-die label from a class id and optional configured custom hit die.
+ */
+export function formatLevelUpHitDieLabel(
+    classId: string,
+    configuredHitDieSize?: number | null,
+): string {
+    return levelUpHitDieLabelFromSize(resolveLevelUpHitDieSize(classId, configuredHitDieSize));
+}
+
+/**
+ * Returns the fixed-average HP value for one hit-die size.
  *
  * In 5e this is `floor(dieSize / 2) + 1`.
  */
-export function averageLevelUpHitDieValue(classId: string): number {
-    const hitDieSize = levelUpHitDieSize(classId);
-
+export function averageLevelUpHitDieValueFromSize(hitDieSize: number): number {
     if (hitDieSize <= 0) {
         return 1;
     }
@@ -25,13 +61,26 @@ export function averageLevelUpHitDieValue(classId: string): number {
 }
 
 /**
+ * Returns the fixed-average HP value for one class hit die.
+ *
+ * In 5e this is `floor(dieSize / 2) + 1`.
+ */
+export function averageLevelUpHitDieValue(
+    classId: string,
+    configuredHitDieSize?: number | null,
+): number {
+    return averageLevelUpHitDieValueFromSize(resolveLevelUpHitDieSize(classId, configuredHitDieSize));
+}
+
+/**
  * Rolls one class hit die using the provided random source.
  */
 export function rollLevelUpHitDieValue(
     classId: string,
     randomSource: () => number = Math.random,
+    configuredHitDieSize?: number | null,
 ): number {
-    const hitDieSize = levelUpHitDieSize(classId);
+    const hitDieSize = resolveLevelUpHitDieSize(classId, configuredHitDieSize);
 
     if (hitDieSize <= 0) {
         return 1;
@@ -58,12 +107,13 @@ export function createLevelUpHitPointsState(
     constitutionScore: number,
     method: LevelUpHitPointsMethod,
     randomSource?: () => number,
+    configuredHitDieSize?: number,
 ): LevelUpHitPointsState {
-    const hitDieSize = levelUpHitDieSize(classId);
+    const hitDieSize = resolveLevelUpHitDieSize(classId, configuredHitDieSize);
     const constitutionModifier = abilityModifier(constitutionScore);
     const hitDieValue = method === 'average'
-        ? averageLevelUpHitDieValue(classId)
-        : rollLevelUpHitDieValue(classId, randomSource);
+        ? averageLevelUpHitDieValueFromSize(hitDieSize)
+        : rollLevelUpHitDieValue(classId, randomSource ?? Math.random, configuredHitDieSize);
 
     return {
         method,

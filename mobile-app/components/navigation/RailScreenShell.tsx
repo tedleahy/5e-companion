@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
+import { usePathname } from 'expo-router';
 import {
     Pressable,
     StyleSheet,
@@ -10,6 +11,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MainContentFrame from '@/components/layout/MainContentFrame';
 import CollapsedRail from '@/components/navigation/CollapsedRail';
+import { isTopLevelCompendiumCategoryPath } from '@/components/navigation/navigationConstants';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 const COMPACT_OVERLAY_Z_INDEX = 3;
@@ -25,13 +27,16 @@ type RailScreenShellProps = {
  * Layout wrapper that adapts navigation chrome by screen size.
  *
  * On wider layouts it shows the permanent collapsed rail.
- * On phones it shows a compact hamburger trigger for the drawer.
+ * On phones it shows a compact hamburger trigger for the drawer,
+ * except on top-level Compendium category routes that already have a Back control.
  */
 export default function RailScreenShell({ children }: RailScreenShellProps) {
     const navigation = useNavigation();
+    const pathname = usePathname();
     const { width } = useWindowDimensions();
     const insets = useSafeAreaInsets();
     const showPersistentRail = width >= fantasyTokens.breakpoints.tablet;
+    const showCompactHamburger = !isTopLevelCompendiumCategoryPath(pathname);
 
     /**
      * Opens the app drawer from the compact hamburger trigger.
@@ -56,21 +61,23 @@ export default function RailScreenShell({ children }: RailScreenShellProps) {
             <View style={styles.content}>
                 <MainContentFrame style={styles.contentInner}>{children}</MainContentFrame>
             </View>
-            <View style={[styles.compactOverlay]}>
-                <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Open navigation drawer"
-                    onPress={openDrawer}
-                    style={({ pressed }) => [
-                        styles.compactMenuButton,
-                        { left: insets.left + fantasyTokens.spacing.sm },
-                        pressed && styles.compactMenuButtonPressed,
-                    ]}
-                    testID="rail-shell-menu"
-                >
-                    <Text style={styles.compactMenuIcon}>☰</Text>
-                </Pressable>
-            </View>
+            {showCompactHamburger ? (
+                <View style={[styles.compactOverlay]}>
+                    <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel="Open navigation drawer"
+                        onPress={openDrawer}
+                        style={({ pressed }) => [
+                            styles.compactMenuButton,
+                            { left: insets.left + fantasyTokens.spacing.sm },
+                            pressed && styles.compactMenuButtonPressed,
+                        ]}
+                        testID="rail-shell-menu"
+                    >
+                        <Text style={styles.compactMenuIcon}>☰</Text>
+                    </Pressable>
+                </View>
+            ) : null}
         </View>
     );
 }

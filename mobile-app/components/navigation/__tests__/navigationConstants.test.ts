@@ -2,8 +2,10 @@ import {
     DRAWER_SCREEN_NAMES,
     DRAWER_SCREENS,
     isNavigationDestinationActive,
+    isTopLevelCompendiumCategoryPath,
     LIBRARY_NAV_ITEMS,
     NAV_DESTINATIONS,
+    TOP_LEVEL_COMPENDIUM_CATEGORY_PATHS,
 } from '@/components/navigation/navigationConstants';
 
 describe('navigation constants', () => {
@@ -29,5 +31,19 @@ describe('navigation constants', () => {
 
     it('matches nested routes for ordinary destinations', () => {
         expect(isNavigationDestinationActive('/settings/profile', NAV_DESTINATIONS.settings)).toBe(true);
+    });
+
+    it('identifies only top-level Compendium category paths', () => {
+        expect(TOP_LEVEL_COMPENDIUM_CATEGORY_PATHS).toEqual([
+            '/compendium/classes',
+            '/compendium/subclasses',
+            '/compendium/spells',
+        ]);
+        expect(isTopLevelCompendiumCategoryPath('/compendium/classes')).toBe(true);
+        expect(isTopLevelCompendiumCategoryPath('/compendium/subclasses')).toBe(true);
+        expect(isTopLevelCompendiumCategoryPath('/compendium/spells')).toBe(true);
+        expect(isTopLevelCompendiumCategoryPath('/compendium')).toBe(false);
+        expect(isTopLevelCompendiumCategoryPath('/characters')).toBe(false);
+        expect(isTopLevelCompendiumCategoryPath('/compendium/classes/extra')).toBe(false);
     });
 });

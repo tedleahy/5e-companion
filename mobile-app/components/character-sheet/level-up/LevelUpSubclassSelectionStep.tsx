@@ -1,11 +1,13 @@
 import { Pressable, StyleSheet, View } from 'react-native';
-import { Text, TextInput } from 'react-native-paper';
+import { Text } from 'react-native-paper';
+import { FantasyFormTextInput } from '@/components/FantasyFormTextInput';
 import type { LevelUpWizardSelectedClass } from '@/lib/characterLevelUp/types';
 import type { AvailableSubclassOption } from '@/lib/subclasses';
 import {
     subclassCategoryName,
 } from '@/lib/characterLevelUp/subclassFeatures';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import { nightFormStyles } from '@/theme/nightFormStyles';
 import ExpandableLoreText from './ExpandableLoreText';
 
 type LevelUpSubclassSelectionStepProps = {
@@ -122,8 +124,7 @@ export default function LevelUpSubclassSelectionStep({
 
                 {customSelected ? (
                     <View style={styles.customInputGroup}>
-                        <TextInput
-                            mode="outlined"
+                        <FantasyFormTextInput
                             label={`Selection Level (1-${selectedClass.newLevel})`}
                             placeholder={`1-${selectedClass.newLevel}`}
                             value={customSubclassSelectionLevel}
@@ -131,33 +132,22 @@ export default function LevelUpSubclassSelectionStep({
                                 value.replace(/[^0-9]/g, '').slice(0, 2),
                             )}
                             keyboardType="number-pad"
-                            outlineColor={fantasyTokens.colors.gold}
-                            activeOutlineColor={fantasyTokens.colors.claret}
-                            textColor={fantasyTokens.colors.inkDark}
                             style={styles.input}
                             testID="level-up-custom-subclass-selection-level-input"
                         />
-                        <TextInput
-                            mode="outlined"
+                        <FantasyFormTextInput
                             label="Custom Subclass Name"
                             placeholder={`Enter your ${categoryName.toLowerCase()} name`}
                             value={customSubclassName}
                             onChangeText={onChangeCustomSubclassName}
-                            outlineColor={fantasyTokens.colors.gold}
-                            activeOutlineColor={fantasyTokens.colors.claret}
-                            textColor={fantasyTokens.colors.inkDark}
                             style={styles.input}
                             testID="level-up-custom-subclass-name-input"
                         />
-                        <TextInput
-                            mode="outlined"
+                        <FantasyFormTextInput
                             label="Subclass Description"
                             placeholder="Describe this subclass for future selection screens"
                             value={customSubclassDescription}
                             onChangeText={onChangeCustomSubclassDescription}
-                            outlineColor={fantasyTokens.colors.gold}
-                            activeOutlineColor={fantasyTokens.colors.claret}
-                            textColor={fantasyTokens.colors.inkDark}
                             multiline
                             style={styles.input}
                             contentStyle={styles.descriptionInputContent}
@@ -179,19 +169,18 @@ const styles = StyleSheet.create({
     },
     bodyText: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
     },
     optionCard: {
         gap: fantasyTokens.spacing.sm,
         borderRadius: fantasyTokens.radii.md,
         borderWidth: 1.5,
-        borderColor: fantasyTokens.colors.sheetDivider,
-        backgroundColor: fantasyTokens.colors.parchmentLight,
+        borderColor: fantasyTokens.sheet.form.border,
+        backgroundColor: fantasyTokens.sheet.form.card,
         padding: fantasyTokens.spacing.lg,
     },
     optionCardSelected: {
-        borderColor: fantasyTokens.colors.claret,
-        backgroundColor: '#faf0e8',
+        ...nightFormStyles.cardSelected,
     },
     optionCardLocked: {
         opacity: 0.45,
@@ -206,42 +195,42 @@ const styles = StyleSheet.create({
     },
     optionTitleWrap: {
         flex: 1,
-        gap: 2,
+        gap: fantasyTokens.spacing.xs / 2,
     },
     optionTitle: {
         ...fantasyTokens.typography.cardTitle,
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     optionSubtitle: {
-        ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.inkSoft,
+        ...nightFormStyles.label,
     },
     optionDescription: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
         lineHeight: 24,
     },
     sourceBadge: {
         borderRadius: 999,
-        backgroundColor: 'rgba(45,106,79,0.12)',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        backgroundColor: fantasyTokens.sheet.form.card,
+        borderWidth: 1,
+        borderColor: fantasyTokens.sheet.form.border,
+        paddingHorizontal: fantasyTokens.spacing.sm + fantasyTokens.spacing.xs / 2,
+        paddingVertical: fantasyTokens.spacing.xs,
     },
     customBadge: {
-        backgroundColor: 'rgba(122,77,24,0.12)',
+        backgroundColor: fantasyTokens.colors.crimsonSoft,
     },
     sourceBadgeText: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.success,
+        color: fantasyTokens.colors.goldLight,
     },
     customBadgeText: {
-        color: fantasyTokens.colors.inkDark,
+        color: fantasyTokens.colors.parchment,
     },
     customInputGroup: {
         gap: fantasyTokens.spacing.sm,
     },
     input: {
-        backgroundColor: fantasyTokens.colors.parchmentLight,
         marginTop: fantasyTokens.spacing.xs,
     },
     descriptionInputContent: {

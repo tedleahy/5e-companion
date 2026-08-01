@@ -13,7 +13,7 @@ const DEFAULT_COLLAPSED_LINES = 4;
 const MIN_EXPANDABLE_TEXT_LENGTH = 220;
 
 /**
- * Renders long fantasy copy with a parchment-style expand / collapse affordance.
+ * Renders long fantasy copy with an expand / collapse affordance.
  */
 export default function ExpandableLoreText({
     text,
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     },
     body: {
         ...fantasyTokens.typography.body,
-        color: fantasyTokens.colors.inkLight,
+        color: fantasyTokens.colors.parchmentDeep,
         lineHeight: 24,
     },
     footer: {
@@ -70,13 +70,13 @@ const styles = StyleSheet.create({
     button: {
         borderRadius: 999,
         borderWidth: 1,
-        borderColor: 'rgba(140,29,56,0.26)',
-        backgroundColor: 'rgba(140,29,56,0.08)',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        borderColor: fantasyTokens.sheet.form.border,
+        backgroundColor: fantasyTokens.sheet.form.card,
+        paddingHorizontal: fantasyTokens.spacing.sm + fantasyTokens.spacing.xs,
+        paddingVertical: fantasyTokens.spacing.sm - fantasyTokens.spacing.xs / 2,
     },
     buttonText: {
         ...fantasyTokens.typography.buttonLabel,
-        color: fantasyTokens.colors.claret,
+        color: fantasyTokens.colors.goldLight,
     },
 });

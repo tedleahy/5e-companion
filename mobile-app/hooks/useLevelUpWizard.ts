@@ -3,6 +3,7 @@ import type { AbilityKey } from '@/lib/characterSheetUtils';
 import type { SkillProficiencies } from '@/types/generated_graphql_types';
 import { createDraftEntityId } from '@/lib/character-sheet/characterSheetDraft';
 import type { AvailableSubclassOption } from '@/lib/subclasses';
+import { CLASS_OPTIONS, type OptionItem } from '@/lib/characterCreation/options';
 import {
     buildInvocationPrerequisiteContext,
     canContinueFromAdvancedResources,
@@ -44,7 +45,7 @@ import { createLevelUpHitPointsState } from '@/lib/characterLevelUp/hitPoints';
 import {
     canContinueFromMulticlassProficiencies,
     createLevelUpMulticlassProficiencyState,
-    toggleMulticlassProficiencySkill,
+    toggleMulticlassProficiencyChoice,
     getMulticlassProficiencyGains,
 } from '@/lib/characterLevelUp/multiclassProficiencies';
 import type { LevelUpMulticlassProficiencyState } from '@/lib/characterLevelUp/multiclassProficiencies';
@@ -100,6 +101,7 @@ import type {
  * Route-local controller returned by the level-up wizard hook.
  */
 export type UseLevelUpWizardResult = {
+    classOptions: readonly OptionItem[];
     currentCharacterLevel: number;
     selectedClassId: string;
     currentClass: LevelUpWizardSelectedClass;
@@ -159,7 +161,7 @@ export type UseLevelUpWizardResult = {
     removeCantripSpell: (spellId: string) => void;
     setSwapOutSpellId: (spellId: string | null) => void;
     setSwapReplacementSpell: (spell: LevelUpSpellSelection | null) => void;
-    toggleMulticlassSkill: (skill: string) => void;
+    toggleMulticlassProficiency: (choiceGroup: number, value: string) => void;
     toggleInvocation: (invocationId: string) => void;
     changeCustomInvocation: (custom: { name: string; description: string } | null) => void;
     changeInvocationSwapOut: (invocationId: string | null) => void;
@@ -180,6 +182,7 @@ export default function useLevelUpWizard(
     character: LevelUpWizardCharacter | null | undefined,
     visible: boolean,
     availableSubclasses: readonly AvailableSubclassOption[] = [],
+    classOptions: readonly OptionItem[] = CLASS_OPTIONS,
 ): UseLevelUpWizardResult {
     const defaultClassId = useMemo(() => defaultLevelUpClassId(character), [character]);
     const [classSelection, setClassSelection] = useState(() => createLevelUpClassSelectionState(defaultClassId));
@@ -222,12 +225,12 @@ export default function useLevelUpWizard(
         [character, defaultClassId],
     );
     const baseSelectedClass = useMemo(
-        () => selectedLevelUpClass(character, selectedClassId, createLevelUpSubclassSelectionState(), availableSubclasses),
-        [availableSubclasses, character, selectedClassId],
+        () => selectedLevelUpClass(character, selectedClassId, createLevelUpSubclassSelectionState(), availableSubclasses, classOptions),
+        [availableSubclasses, character, classOptions, selectedClassId],
     );
     const selectedClass = useMemo(
-        () => selectedLevelUpClass(character, selectedClassId, subclassSelectionState, availableSubclasses),
-        [availableSubclasses, character, selectedClassId, subclassSelectionState],
+        () => selectedLevelUpClass(character, selectedClassId, subclassSelectionState, availableSubclasses, classOptions),
+        [availableSubclasses, character, classOptions, selectedClassId, subclassSelectionState],
     );
     const shouldIncludeSubclassSelection = useMemo(
         () => needsSubclassSelectionStep(baseSelectedClass),
@@ -250,8 +253,8 @@ export default function useLevelUpWizard(
         [selectedClass],
     );
     const prerequisiteWarnings = useMemo(
-        () => multiclassPrerequisiteWarnings(character, defaultClassId, classSelection.selectedClassId),
-        [character, classSelection.selectedClassId, defaultClassId],
+        () => multiclassPrerequisiteWarnings(character, defaultClassId, classSelection.selectedClassId, classOptions),
+        [character, classOptions, classSelection.selectedClassId, defaultClassId],
     );
     const invocationPrerequisiteContext = useMemo(() => {
         if (!character || selectedClass.classId !== 'warlock') return null;
@@ -360,12 +363,12 @@ export default function useLevelUpWizard(
     }, []);
 
     const rollHitPoints = useCallback(() => {
-        setHitPointsState(createLevelUpHitPointsState(selectedClassId, constitutionScore, 'roll'));
-    }, [constitutionScore, selectedClassId]);
+        setHitPointsState(createLevelUpHitPointsState(selectedClassId, constitutionScore, 'roll', undefined, classOptions.find((option) => option.value === selectedClassId)?.hitDie));
+    }, [classOptions, constitutionScore, selectedClassId]);
 
     const takeAverageHitPoints = useCallback(() => {
-        setHitPointsState(createLevelUpHitPointsState(selectedClassId, constitutionScore, 'average'));
-    }, [constitutionScore, selectedClassId]);
+        setHitPointsState(createLevelUpHitPointsState(selectedClassId, constitutionScore, 'average', undefined, classOptions.find((option) => option.value === selectedClassId)?.hitDie));
+    }, [classOptions, constitutionScore, selectedClassId]);
 
     const selectAsiOrFeatMode = useCallback((mode: 'asi' | 'feat') => {
         setAsiOrFeatState((previousState) => setLevelUpAsiOrFeatMode(previousState, mode));
@@ -481,12 +484,15 @@ export default function useLevelUpWizard(
         setSpellcastingState((previousState) => setLevelUpSwapReplacementSpell(previousState, spell));
     }, []);
 
-    const toggleMulticlassSkill = useCallback((skill: string) => {
-        const gains = getMulticlassProficiencyGains(selectedClassId);
-        const maxChoices = gains?.skillChoices ?? 0;
+    const toggleMulticlassProficiency = useCallback((choiceGroup: number, value: string) => {
+        const gains = getMulticlassProficiencyGains(selectedClassId, selectedClass);
+        const group = gains?.choiceGroups.find((entry) => entry.choiceGroup === choiceGroup);
+        const maxChoices = group?.pick ?? 0;
 
-        setMulticlassProficiencyState((previousState) => toggleMulticlassProficiencySkill(previousState, skill, maxChoices));
-    }, [selectedClassId]);
+        setMulticlassProficiencyState((previousState) => (
+            toggleMulticlassProficiencyChoice(previousState, choiceGroup, value, maxChoices)
+        ));
+    }, [selectedClass, selectedClassId]);
 
     const toggleInvocation = useCallback((invocationId: string) => {
         const gain = invocationGainCount(selectedClass.currentLevel, selectedClass.newLevel);
@@ -551,7 +557,7 @@ export default function useLevelUpWizard(
         || spellcastingState.learnedSpells.length > 0
         || spellcastingState.cantripSpells.length > 0
         || spellcastingState.swapOutSpellId != null
-        || multiclassProficiencyState.selectedSkills.length > 0
+        || multiclassProficiencyState.selections.length > 0
         || invocationState.selectedInvocations.length > 0
         || invocationState.customInvocation != null
         || metamagicState.selectedMetamagicIds.length > 0
@@ -575,6 +581,7 @@ export default function useLevelUpWizard(
     }, [defaultClassId]);
 
     return {
+        classOptions,
         currentCharacterLevel,
         selectedClassId,
         currentClass,
@@ -635,7 +642,7 @@ export default function useLevelUpWizard(
         removeCantripSpell,
         setSwapOutSpellId,
         setSwapReplacementSpell,
-        toggleMulticlassSkill,
+        toggleMulticlassProficiency,
         toggleInvocation,
         changeCustomInvocation,
         changeInvocationSwapOut,

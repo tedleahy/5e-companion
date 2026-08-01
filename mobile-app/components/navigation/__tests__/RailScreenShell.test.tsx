@@ -3,9 +3,11 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import { DrawerActions } from '@react-navigation/native';
 import { Text } from 'react-native';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
+import { TOP_LEVEL_COMPENDIUM_CATEGORY_PATHS } from '@/components/navigation/navigationConstants';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 const mockDispatch = jest.fn();
+const mockUsePathname = jest.fn(() => '/characters');
 const originalTabletBreakpoint = fantasyTokens.breakpoints.tablet;
 const MockMockText = Text;
 
@@ -18,6 +20,10 @@ jest.mock('@react-navigation/native', () => {
     };
 });
 
+jest.mock('expo-router', () => ({
+    usePathname: () => mockUsePathname(),
+}));
+
 jest.mock('@/components/navigation/CollapsedRail', () => ({
     __esModule: true,
     default: () => <MockMockText>Collapsed rail</MockMockText>,
@@ -28,6 +34,10 @@ jest.mock('react-native-safe-area-context', () => ({
 }));
 
 describe('RailScreenShell', () => {
+    beforeEach(() => {
+        mockUsePathname.mockReturnValue('/characters');
+    });
+
     afterEach(() => {
         fantasyTokens.breakpoints.tablet = originalTabletBreakpoint;
         jest.clearAllMocks();
@@ -71,5 +81,65 @@ describe('RailScreenShell', () => {
         fireEvent.press(screen.getByTestId('rail-shell-menu'));
 
         expect(mockDispatch).toHaveBeenCalledWith(DrawerActions.openDrawer());
+    });
+
+    it.each([...TOP_LEVEL_COMPENDIUM_CATEGORY_PATHS])(
+        'hides the compact hamburger on top-level Compendium category path %s',
+        (pathname) => {
+            fantasyTokens.breakpoints.tablet = Number.MAX_SAFE_INTEGER;
+            mockUsePathname.mockReturnValue(pathname);
+
+            render(
+                <RailScreenShell>
+                    <Text>Screen content</Text>
+                </RailScreenShell>
+            );
+
+            expect(screen.queryByTestId('rail-shell-menu')).toBeNull();
+        },
+    );
+
+    it('still renders and opens the hamburger on the Compendium hub', () => {
+        fantasyTokens.breakpoints.tablet = Number.MAX_SAFE_INTEGER;
+        mockUsePathname.mockReturnValue('/compendium');
+
+        render(
+            <RailScreenShell>
+                <Text>Screen content</Text>
+            </RailScreenShell>
+        );
+
+        fireEvent.press(screen.getByTestId('rail-shell-menu'));
+
+        expect(mockDispatch).toHaveBeenCalledWith(DrawerActions.openDrawer());
+    });
+
+    it('still renders and opens the hamburger on non-Compendium routes', () => {
+        fantasyTokens.breakpoints.tablet = Number.MAX_SAFE_INTEGER;
+        mockUsePathname.mockReturnValue('/settings');
+
+        render(
+            <RailScreenShell>
+                <Text>Screen content</Text>
+            </RailScreenShell>
+        );
+
+        fireEvent.press(screen.getByTestId('rail-shell-menu'));
+
+        expect(mockDispatch).toHaveBeenCalledWith(DrawerActions.openDrawer());
+    });
+
+    it('keeps the persistent rail on tablet even on a Compendium category path', () => {
+        fantasyTokens.breakpoints.tablet = 0;
+        mockUsePathname.mockReturnValue('/compendium/classes');
+
+        render(
+            <RailScreenShell>
+                <Text>Screen content</Text>
+            </RailScreenShell>
+        );
+
+        expect(screen.getByText('Collapsed rail')).toBeTruthy();
+        expect(screen.queryByTestId('rail-shell-menu')).toBeNull();
     });
 });

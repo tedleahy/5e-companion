@@ -293,6 +293,22 @@ export function resolveSelectedClassSubclass(
  * Returns all display-ready features gained at the selected class level.
  */
 export function getLevelUpFeatures(selectedClass: LevelUpWizardSelectedClass): LevelUpFeature[] {
+    const customClassFeatures = selectedClass.classDefinition?.features
+        .filter((feature) => feature.level === selectedClass.newLevel)
+        .map((feature) => ({
+            key: feature.id,
+            srdIndex: null,
+            parentSrdIndex: null,
+            name: feature.name,
+            description: feature.description,
+            source: featureSourceLabel(selectedClass.className, feature.level, null),
+            classId: selectedClass.classId,
+            level: feature.level,
+            subclassId: null,
+            subclassName: null,
+            kind: 'custom' as const,
+            customSubclassFeature: null,
+        })) ?? [];
     const selectedSubclassId = normaliseLevelUpSubclassId(selectedClass.subclassId);
     const featureChoiceGroups = getLevelUpFeatureChoiceGroups(selectedClass);
     const choiceChildNames = new Set(
@@ -336,6 +352,7 @@ export function getLevelUpFeatures(selectedClass: LevelUpWizardSelectedClass): L
         : [];
 
     return [
+        ...customClassFeatures,
         ...classFeatures,
         ...customSubclassFeatures,
         ...spellSlotUnlockFeatures(selectedClass),

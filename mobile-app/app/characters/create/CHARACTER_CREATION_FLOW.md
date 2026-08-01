@@ -34,15 +34,15 @@ _layout.tsx
 | `class.tsx` | 2 - Class | Level stepper (1-20), single-class selection via `OptionGrid` by default. Shows all visible subclass options with database-backed availability levels and disables those above the allocation. A "Multiclass" switch (with an info button that reveals an explanation) appears when a class is selected and level is 2+; toggling it on enters multiclass mode with full allocation UI |
 | `abilities.tsx` | 3 - Abilities | Toggle between Roll (4d6 drop lowest) and Point Buy modes. Also handles ASI (Ability Score Increase) allocation for higher levels |
 | `background.tsx` | 4 - Background | Background selection via `OptionGrid` from `useAvailableBackgrounds()` (includes info button with feature description), alignment (3x3 grid), and personality trait text fields (traits, ideals, bonds, flaws) |
-| `skills.tsx` | 5 - Skills | Saving throws (display-only, from starting class), background skills (locked), class skill picks (capped by `pick` count) |
+| `skills.tsx` | 5 - Skills | Saving throws (display-only, from starting class presentation metadata stored in the draft), background skills (locked), class skill picks (each configured choice group is capped independently) |
 | `features.tsx` | 6 - Additional Class Benefits (conditional) | Inserted after skills when the selected SRD classes/subclasses unlock parent/child feature choices (for example Eldritch Invocations, Metamagic, Pact Boon, Circle of the Land, Fighting Style, Hunter's Prey). Renders one card per parent feature and requires the configured number of child selections before continuing |
-| `review.tsx` | Final step - Review | Read-only summary of all choices. Each section is tappable to jump back to its step for editing. "Create Character" triggers the GraphQL mutation |
+| `review.tsx` | Final step - Review | Read-only summary of all choices, including class labels and starting saving throws from draft presentation metadata. Each section is tappable to jump back to its step for editing. "Create Character" triggers the GraphQL mutation |
 
 ### State management
 
 | File | Purpose |
 |---|---|
-| `store/characterDraft.tsx` | `CharacterDraftProvider` context + `useCharacterDraft()` hook. Holds the full `CharacterDraft` type, including `featureChoices` (one row per selected child benefit, so multi-pick parents have multiple rows). Provides `updateDraft()` (partial merge), `setAbilityScore()`, `setAllAbilityScores()`, `toggleSkillProficiency()`, `resetDraft()`, `hasDraftData()` |
+| `store/characterDraft.tsx` | `CharacterDraftProvider` context + `useCharacterDraft()` hook. Holds the full `CharacterDraft` type, including `featureChoices` (one row per selected child benefit, so multi-pick parents have multiple rows), `proficiencyChoices` (SKILL + named pick-N groups keyed by `classId` + `choiceGroup`, values = `srdIndex ?? id`), and `classPresentationById` (server-resolved name + saving-throw indexes captured on class selection for Skills/Review labels). Clears proficiency picks when the class set or starting class changes. Provides `updateDraft()` (partial merge), `setAbilityScore()`, `setAllAbilityScores()`, `toggleProficiencyChoice()`, `resetDraft()`, `hasDraftData()` |
 
 ### Wizard infrastructure
 
@@ -50,14 +50,14 @@ _layout.tsx
 |---|---|
 | `components/wizard/WizardShell.tsx` | Wraps all steps. Manages navigation (back/next/cancel), progress bar, step dots. Calls `isCreateCharacterStepComplete()` to gate the Continue button. On the last step, calls `buildCreateCharacterInput()` then fires `CREATE_CHARACTER` GraphQL mutation. On success, navigates to `/character/{id}` |
 | `lib/characterCreation/routes.ts` | Defines `CREATE_CHARACTER_ROUTES` constant (typed `Href` values), `getCreateCharacterStepRoutes()` (returns the ordered route array, inserting `features` after skills only when needed), and `deriveCreateCharacterStepIndex()` (maps pathname to step index) |
-| `lib/characterCreation/stepCompletion.ts` | `isCreateCharacterStepComplete(route, draft)` — per-step validation that gates the Continue button. Identity requires a name and race, class requires full validation, `features` requires the configured number of selections for every unlocked parent/child choice, background requires a selection. Abilities, skills, and review always pass |
+| `lib/characterCreation/stepCompletion.ts` | `isCreateCharacterStepComplete(route, draft)` — per-step validation that gates the Continue button. Identity requires a name and race, class requires full validation, `features` requires the configured number of selections for every unlocked parent/child choice, background requires a selection, skills requires exact unique membership for every class-scoped skill/named proficiency group. Abilities and review always pass |
 
 ### Business logic (`lib/characterCreation/`)
 
 | File | Purpose |
 |---|---|
 | `multiclass.ts` | Core multiclass logic. Types: `CharacterClassDraft`, `CharacterClassDraftValidation`. Functions for creating/sanitising class rows, computing remaining levels, checking subclass unlock, sorting for display, normalising starting class ID, formatting labels, and full validation (`validateCharacterClassDraft`) |
-| `options.ts` | Static data: `RACE_OPTIONS`, `CLASS_OPTIONS`, `SUBCLASS_OPTIONS`, `ALIGNMENT_OPTIONS`. All use the `OptionItem` shape (`value`, `label`, `icon`, `hint?`, `description?`) |
+| `options.ts` | Static visual metadata for races, loading fallbacks for SRD classes, subclass fallbacks, and alignments. Selectable classes and their tile emoji come from `availableClasses` and can include owned custom classes. |
 | `classRules.ts` | Static D&D rule data: `HIT_DIE_MAP`, armour/weapon proficiencies, `BACKGROUND_SKILL_PROFICIENCIES`, `CLASS_SKILL_OPTIONS` (with `pick` count), `CLASS_SAVING_THROWS`, `CLASS_SPELLCASTING_ABILITY_MAP`, `CLASS_ABILITY_PRIORITY`, `SUBCLASS_UNLOCK_LEVEL_BY_CLASS` |
 | `abilityRules.ts` | Point buy cost table, ASI level thresholds, `roll4d6DropLowest()`, `rollAllAbilityScores()`, `suggestAbilityScores()` (reorders rolled scores by class priority), `asiPointsForLevel()`, `proficiencyBonusForLevel()` |
 | `raceRules.ts` | `RACE_ABILITY_BONUSES`, `RACE_SPEED_MAP`, `applyRacialBonuses()` |
@@ -93,9 +93,14 @@ type CharacterDraft = {
     ideals: string;
     bonds: string;
     flaws: string;
-    skillProficiencies: SkillKey[];
+    // SKILL + named picks for STARTING + MULTICLASS groups.
+    // Identity is (classId, choiceGroup); values are srdIndex ?? custom proficiency id.
+    proficiencyChoices: Array<{ classId: string; choiceGroup: number; values: string[] }>;
     asiAllocations: Record<AbilityKey, number>;  // ASI points distributed
     abilityMode: 'roll' | 'pointBuy';
+    // Captured from availableClasses when a class is selected; drives Skills/Review
+    // labels and starting saving throws (including custom classes).
+    classPresentationById: Record<string, { name: string; savingThrowIndexes: string[] }>;
 };
 ```
 
@@ -103,7 +108,7 @@ Default draft starts with level 1, all scores 10, roll mode, empty everything el
 
 ## Single-Class / Multiclass System
 
-The class step defaults to **single-class mode**: the user picks one class from a tile grid, and it automatically receives all of the character's levels. Its visible SRD and user-owned subclasses are shown together; each option displays its own availability level.
+The class step defaults to **single-class mode**: the user picks an active SRD or owned custom class from a server-backed tile grid, and it automatically receives all of the character's levels. Each class tile uses the emoji stored on its class definition. Its visible SRD and user-owned subclasses are shown together; each option displays its own availability level.
 
 When a class is selected and the character is level 2+, a **"Multiclass"** switch is shown above the class grid, along with an info button that toggles a short explanation of multiclassing. Turning the switch on enters **multiclass mode**, which shows:
 
@@ -117,6 +122,7 @@ Multiclass rules:
 - Total allocated levels across all class rows must equal the character's total level
 - Each class can only appear once (no duplicates)
 - `startingClassId` determines which class grants saving throws and starting proficiencies
+- Selecting a class stores its `availableClasses` presentation (`name`, `savingThrowIndexes`) in `draft.classPresentationById` so Skills and Review show custom labels/saves without SRD-only maps
 - When there's only one class row, it's automatically the starting class
 - When multiclassing, a radio selector appears to pick the starting class
 - Subclass eligibility comes from each option's GraphQL `selectionLevel`; there is no mobile class-level unlock map
@@ -138,7 +144,7 @@ The WizardShell's Continue button is disabled until `isCreateCharacterStepComple
 | Additional Class Benefits | Every applicable parent feature has its configured number of chosen child options |
 | Abilities | Always passes |
 | Background | `background !== ''` |
-| Skills | Always passes |
+| Skills | Every class-scoped proficiency choice group (SKILL + named) is filled with exact unique option membership; blocked while class definitions are loading, failed, or the settled `attachedClassDetails` batch is missing any selected class |
 | Review | Always passes |
 
 ## Submission Flow
@@ -162,10 +168,10 @@ The WizardShell's Continue button is disabled until `isCreateCharacterStepComple
 - "Abandon" resets the draft and navigates to `/characters`
 - If no data has been entered, navigates immediately without confirmation
 
-## Supported Content (SRD-only)
+## Supported Content
 
 - **Races**: Elf, Human, Dwarf, Halfling, Dragonborn, Tiefling, Gnome, Half-Orc, Half-Elf
-- **Classes**: Wizard, Fighter, Rogue, Cleric, Druid, Bard, Sorcerer, Warlock, Ranger, Paladin, Monk, Barbarian
+- **Classes**: the 12 SRD classes plus active custom classes authored in `/compendium/classes`
 - **Subclasses**: One per class (e.g. Champion Fighter, Thief Rogue, Life Domain Cleric)
 - **Backgrounds**: Acolyte only (but `BACKGROUND_SKILL_PROFICIENCIES` has data for Sage, Soldier, Noble, Outlander, Entertainer too)
 - **Alignments**: Standard 3x3 grid (Lawful/Neutral/Chaotic x Good/Neutral/Evil)
