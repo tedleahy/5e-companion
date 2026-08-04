@@ -58,7 +58,7 @@ function toSrdSpellRecord(spell: SrdSpell) {
     };
 }
 
-export default async function seedSpells(): Promise<Set<string>> {
+export default async function seedSpells(): Promise<void> {
     try {
         // --- Seed SRD spells ---
         const srdFilePath = new URL('../../srd-json-files/5e-SRD-Spells.json', import.meta.url).pathname;
@@ -75,13 +75,10 @@ export default async function seedSpells(): Promise<Set<string>> {
 
         console.log(`Seeded ${srdResult.count} SRD spells (skipDuplicates=true).`);
 
-        return new Set(srdSpells.map((s) => s.name.toLowerCase()));
     } catch (error) {
         console.error(error);
         process.exit(1);
     } finally {
         await prisma.$disconnect();
     }
-
-    return new Set();
 }

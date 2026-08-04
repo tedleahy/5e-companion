@@ -34,6 +34,25 @@ function parseClassIndexes(classIndexes: string[]): string[] {
     return classIndexes.map(cls => cls.replace(' (optional)', ''));
 }
 
+function normalizeSpellName(name: string): string {
+    return name.trim().toLowerCase();
+}
+
+export function filterNewSpellsByName<T extends { name: string }>(
+    spells: T[],
+    existingNames: Iterable<string>,
+): T[] {
+    const seenNames = new Set(Array.from(existingNames, normalizeSpellName));
+
+    return spells.filter((spell) => {
+        const normalizedName = normalizeSpellName(spell.name);
+        if (seenNames.has(normalizedName)) return false;
+
+        seenNames.add(normalizedName);
+        return true;
+    });
+}
+
 function toCustomSpellRecord(spell: CustomSpell) {
     return {
         source: SpellSource.CUSTOM,
@@ -60,25 +79,29 @@ function toCustomSpellRecord(spell: CustomSpell) {
     };
 }
 
-export default async function seedCustomSpells(srdSpellNames: Set<string>) {
+export default async function seedCustomSpells() {
     try {
         const customFilePath = new URL('../../srd-json-files/5e-Spells-Custom.json', import.meta.url).pathname;
         const customSpells = (await Bun.file(customFilePath).json()) as CustomSpell[];
+        const existingSpells = await prisma.spell.findMany({ select: { name: true } });
 
-        const uniqueCustom = customSpells.filter((s) => !srdSpellNames.has(s.name.toLowerCase()));
+        const newCustomSpells = filterNewSpellsByName(
+            customSpells,
+            existingSpells.map((spell) => spell.name),
+        );
+        const skippedCount = customSpells.length - newCustomSpells.length;
 
         console.log(
-            `Loaded ${customSpells.length} custom spells, ${customSpells.length - uniqueCustom.length} duplicates skipped.`,
+            `Loaded ${customSpells.length} custom spells, ${skippedCount} existing or duplicate names skipped.`,
         );
 
-        const customRecords = uniqueCustom.map(toCustomSpellRecord);
+        const customRecords = newCustomSpells.map(toCustomSpellRecord);
 
         const result = await prisma.spell.createMany({
             data: customRecords,
-            skipDuplicates: true,
         });
 
-        console.log(`Seeded ${result.count} custom spells (skipDuplicates=true).`);
+        console.log(`Seeded ${result.count} new custom spells.`);
     } catch (error) {
         console.error(error);
         process.exit(1);

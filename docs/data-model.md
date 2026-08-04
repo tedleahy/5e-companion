@@ -126,7 +126,7 @@ Order in [`@/home/ted/projects/5e-companion/server/prisma/seed.ts:1-13`](../serv
 5. `seedCharacterReferenceData` — classes and 1–20 progression, class proficiencies/spell lists, subclasses, backgrounds, feats, features, traits, languages, proficiencies
 6. `seedCharacter` — a dev character so the app has something to load locally
 
-SRD seeders are idempotent — keyed on `srdIndex`. `seedCustomSpells` filters out spells whose names duplicate SRD spells, but custom rows have `srdIndex: null`, so do not assume the custom-spell seed has the same idempotency guarantee unless a unique key is added. If SRD data is missing for a feature you're building, **extend the seed** rather than hard-coding in app code (see `AGENTS.md`).
+SRD seeders are idempotent — keyed on `srdIndex`. `seedCustomSpells` makes custom seeding idempotent by comparing normalized names against all existing spell rows before insertion; it also keeps only the first occurrence if the custom JSON contains duplicate names. If SRD data is missing for a feature you're building, **extend the seed** rather than hard-coding in app code (see `AGENTS.md`).
 
 ## Migrations
 

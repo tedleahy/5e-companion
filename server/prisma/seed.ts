@@ -5,8 +5,8 @@ import seedSpells from './seeds/seedSpells';
 import seedCharacter from './seeds/seedCharacter';
 import seedCharacterReferenceData from './seeds/seedCharacterReferenceData';
 
-const srdSpellNames = await seedSpells();
-await seedCustomSpells(srdSpellNames);
+await seedSpells();
+await seedCustomSpells();
 await seedAbilityScores();
 await seedRaces();
 await seedCharacterReferenceData();
