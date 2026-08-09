@@ -56,7 +56,7 @@ async function ensureSrdSeedData(): Promise<void> {
     }
 
     console.log('[e2e-setup] SRD tables empty — running full SRD seed (this may take ~30s)…');
-    const srdSpellNames = await seedSpells();
+    await seedSpells();
     await seedAbilityScores();
     await seedRaces();
     await seedCharacterReferenceData();

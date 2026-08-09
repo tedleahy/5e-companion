@@ -34,6 +34,57 @@ function parseClassIndexes(classIndexes: string[]): string[] {
     return classIndexes.map(cls => cls.replace(' (optional)', ''));
 }
 
+function normalizeSpellName(name: string): string {
+    return name.toLowerCase();
+}
+
+type ExistingSpell = { name: string; source: SpellSource };
+
+type CustomSpellPartition<T> = {
+    /** Names not present in the database yet. */
+    toCreate: T[];
+    /** Names already held by a `CUSTOM` row, whose fields are refreshed from the JSON. */
+    toUpdate: T[];
+};
+
+/**
+ * Splits the custom JSON into rows to insert and rows to refresh, keyed on a
+ * case-insensitive name match against what is already in the database.
+ *
+ * Entries are dropped when the name is already held by a non-custom (SRD) spell,
+ * so custom spells can never shadow SRD ones, or when the same name appears
+ * earlier in the JSON — only the first occurrence wins.
+ */
+export function partitionCustomSpells<T extends { name: string }>(
+    spells: T[],
+    existingSpells: ExistingSpell[],
+): CustomSpellPartition<T> {
+    const existingCustomNames = new Set<string>();
+    const nonCustomNames = new Set<string>();
+
+    for (const spell of existingSpells) {
+        const normalizedName = normalizeSpellName(spell.name);
+        if (spell.source === SpellSource.CUSTOM) existingCustomNames.add(normalizedName);
+        else nonCustomNames.add(normalizedName);
+    }
+
+    const toCreate: T[] = [];
+    const toUpdate: T[] = [];
+    const seenNames = new Set<string>();
+
+    for (const spell of spells) {
+        const normalizedName = normalizeSpellName(spell.name);
+        if (seenNames.has(normalizedName)) continue;
+        seenNames.add(normalizedName);
+
+        if (nonCustomNames.has(normalizedName)) continue;
+        if (existingCustomNames.has(normalizedName)) toUpdate.push(spell);
+        else toCreate.push(spell);
+    }
+
+    return { toCreate, toUpdate };
+}
+
 function toCustomSpellRecord(spell: CustomSpell) {
     return {
         source: SpellSource.CUSTOM,
@@ -60,25 +111,36 @@ function toCustomSpellRecord(spell: CustomSpell) {
     };
 }
 
-export default async function seedCustomSpells(srdSpellNames: Set<string>) {
+export default async function seedCustomSpells() {
     try {
         const customFilePath = new URL('../../srd-json-files/5e-Spells-Custom.json', import.meta.url).pathname;
         const customSpells = (await Bun.file(customFilePath).json()) as CustomSpell[];
+        const existingSpells = await prisma.spell.findMany({ select: { name: true, source: true } });
 
-        const uniqueCustom = customSpells.filter((s) => !srdSpellNames.has(s.name.toLowerCase()));
+        const { toCreate, toUpdate } = partitionCustomSpells(customSpells, existingSpells);
+        const skippedCount = customSpells.length - toCreate.length - toUpdate.length;
 
-        console.log(
-            `Loaded ${customSpells.length} custom spells, ${customSpells.length - uniqueCustom.length} duplicates skipped.`,
-        );
+        console.log(`Loaded ${customSpells.length} custom spells.`);
 
-        const customRecords = uniqueCustom.map(toCustomSpellRecord);
-
-        const result = await prisma.spell.createMany({
-            data: customRecords,
-            skipDuplicates: true,
+        const created = await prisma.spell.createMany({
+            data: toCreate.map(toCustomSpellRecord),
         });
 
-        console.log(`Seeded ${result.count} custom spells (skipDuplicates=true).`);
+        await prisma.$transaction(
+            toUpdate.map((spell) =>
+                prisma.spell.updateMany({
+                    where: {
+                        source: SpellSource.CUSTOM,
+                        name: { equals: spell.name, mode: 'insensitive' },
+                    },
+                    data: toCustomSpellRecord(spell),
+                }),
+            ),
+        );
+
+        console.log(
+            `Custom spells: ${created.count} created, ${toUpdate.length} updated, ${skippedCount} skipped (name taken by an SRD spell, or duplicated in the JSON).`,
+        );
     } catch (error) {
         console.error(error);
         process.exit(1);
