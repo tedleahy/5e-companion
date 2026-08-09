@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -30,6 +31,13 @@ export default function AddSpellSheetHeader({
     subtitle = 'Choose spells to add to your spellbook',
     showFilterButton = true,
 }: AddSpellSheetHeaderProps) {
+    // Paper Portal parents can feed stale controlled values back to Android inputs while typing.
+    const [bufferedSearchQuery, setBufferedSearchQuery] = useState(searchQuery);
+
+    useEffect(() => {
+        setBufferedSearchQuery(searchQuery);
+    }, [searchQuery]);
+
     return (
         <View style={styles.headerDragZone}>
             <View style={styles.titleRow}>
@@ -43,15 +51,22 @@ export default function AddSpellSheetHeader({
                 <View style={styles.searchWrapper}>
                     <Ionicons name="search" size={14} color="rgba(245,230,200,0.35)" />
                     <TextInput
-                        value={searchQuery}
-                        onChangeText={onChangeSearchQuery}
+                        autoCorrect={false}
+                        value={bufferedSearchQuery}
+                        onChangeText={(value) => {
+                            setBufferedSearchQuery(value);
+                            onChangeSearchQuery(value);
+                        }}
                         placeholder="Search spells..."
                         placeholderTextColor="rgba(245,230,200,0.28)"
                         style={styles.searchInput}
                         accessibilityLabel="Search spells"
                     />
                     <Pressable
-                        onPress={onClearSearchQuery}
+                        onPress={() => {
+                            setBufferedSearchQuery('');
+                            onClearSearchQuery();
+                        }}
                         accessibilityRole="button"
                         accessibilityLabel="Clear spell search"
                         style={styles.clearSearchButton}
@@ -59,7 +74,7 @@ export default function AddSpellSheetHeader({
                         <Ionicons
                             name="close-circle"
                             size={16}
-                            color={searchQuery.length > 0 ? 'rgba(245,230,200,0.58)' : 'rgba(245,230,200,0.2)'}
+                            color={bufferedSearchQuery.length > 0 ? 'rgba(245,230,200,0.58)' : 'rgba(245,230,200,0.2)'}
                         />
                     </Pressable>
                 </View>
