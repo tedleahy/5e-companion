@@ -74,7 +74,6 @@ export default async function seedSpells(): Promise<void> {
         });
 
         console.log(`Seeded ${srdResult.count} SRD spells (skipDuplicates=true).`);
-
     } catch (error) {
         console.error(error);
         process.exit(1);

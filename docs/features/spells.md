@@ -87,7 +87,7 @@ The Apollo cache has `Character.spellbook: { merge: false }` (see [`@/home/ted/p
 
 Stored in the same `Spell` table with `source=CUSTOM`, but **not currently owner-scoped**: the Prisma model has no `ownerUserId` column on `Spell`, and `Query.spells` applies only the requested filters from `buildWhere(filter)`.
 
-To add a new custom spell during dev, add it to `server/srd-json-files/5e-Spells-Custom.json`. The custom spell seeder skips case-insensitive name matches against existing spell rows, so repeated seed runs are idempotent and custom entries cannot shadow SRD spells. A dedicated "create custom spell" mutation is not implemented. If user-created custom spells become a product feature, add ownership to the schema and update the query filters before exposing them.
+To add or edit a custom spell during dev, change `server/srd-json-files/5e-Spells-Custom.json` and re-seed. The seeder matches on name case-insensitively: new names are inserted, names already seeded as `CUSTOM` are updated in place (so edits to a spell's fields do propagate), and names belonging to an SRD spell are skipped, which means custom entries cannot shadow SRD spells. Re-running the seed is therefore idempotent. A dedicated "create custom spell" mutation is not implemented. If user-created custom spells become a product feature, add ownership to the schema and update the query filters before exposing them.
 
 ## Tests
 

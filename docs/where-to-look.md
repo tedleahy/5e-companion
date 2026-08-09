@@ -32,7 +32,7 @@ Deep dive: [`features/auth.md`](./features/auth.md).
 | Add a spell filter (client) | [`@/home/ted/projects/5e-companion/mobile-app/lib/spellFilters.ts`](../mobile-app/lib/spellFilters.ts), `components/SpellFilterDrawer.tsx` |
 | Add a spell filter (server) | [`@/home/ted/projects/5e-companion/server/lib/spellFilters.ts`](../server/lib/spellFilters.ts), update `SpellFilter` input in `server/schema.graphql`, extend [`@/home/ted/projects/5e-companion/server/resolvers/spellsResolver.ts`](../server/resolvers/spellsResolver.ts) if needed |
 | Change the fields exposed on a spell | `server/schema.graphql` (`Spell` type), [`@/home/ted/projects/5e-companion/server/lib/spellSelect.ts`](../server/lib/spellSelect.ts), and the Prisma model at [`@/home/ted/projects/5e-companion/server/prisma/schema.prisma:37-70`](../server/prisma/schema.prisma) |
-| Seed a new custom spell | `server/prisma/seeds/seedCustomSpells.ts` |
+| Seed a new custom spell | `server/srd-json-files/5e-Spells-Custom.json` (seeder: `server/prisma/seeds/seedCustomSpells.ts`) |
 | Change the spell detail page | `mobile-app/app/spells/[id].tsx` + `components/character-sheet/spells/SpellDetailModal.tsx` |
 
 Deep dive: [`features/spells.md`](./features/spells.md).
