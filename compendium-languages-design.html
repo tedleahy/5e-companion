@@ -1,0 +1,2143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Compendium Languages — interactive design prototype</title>
+  <style>
+    :root {
+      --night: #1f1711;
+      --night-deep: #110b07;
+      --parchment: #f6e9cf;
+      --parchment-light: #f5eedc;
+      --parchment-deep: #f0e0c0;
+      --card: #f0e0bc;
+      --ink: #2b1c11;
+      --ink-light: #3d2b1f;
+      --ink-soft: rgba(110, 81, 48, 0.68);
+      --ember: #5f4325;
+      --gold: #c4a470;
+      --gold-light: #e8b84b;
+      --gold-dark: #9e845b;
+      --claret: #8c1d38;
+      --claret-light: #a62b4a;
+      --crimson: #7b1e1e;
+      --scribe: #416a65;
+      --scribe-deep: #2f514e;
+      --scribe-wash: rgba(65, 106, 101, 0.1);
+      --divider: rgba(139, 90, 43, 0.28);
+      --rail-border: rgba(201, 146, 42, 0.18);
+      --paper-shadow: 0 18px 48px rgba(8, 4, 2, 0.28);
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 20px;
+      --display: Georgia, "Times New Roman", serif;
+      --body: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+      --utility: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --quick: 160ms;
+      --standard: 240ms;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html, body { min-height: 100%; }
+
+    body {
+      min-width: 320px;
+      margin: 0;
+      background: var(--night);
+      color: var(--parchment);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, textarea, select { font: inherit; }
+    button { color: inherit; }
+    button, [role="button"], input, textarea, select { -webkit-tap-highlight-color: transparent; }
+
+    :focus-visible {
+      outline: 3px solid var(--gold-light);
+      outline-offset: 3px;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: 8px;
+      left: 60px;
+      z-index: 100;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: var(--parchment);
+      color: var(--ink);
+      transform: translateY(-160%);
+      transition: transform var(--quick) ease;
+    }
+
+    .skip-link:focus { transform: translateY(0); }
+
+    .app-shell {
+      min-height: 100dvh;
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr);
+      background:
+        radial-gradient(circle at 83% 10%, rgba(196, 164, 112, 0.045), transparent 29rem),
+        var(--night);
+    }
+
+    .rail {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 12px 2px 10px;
+      background: var(--night-deep);
+      border-right: 1px solid var(--rail-border);
+    }
+
+    .rail-mark {
+      width: 33px;
+      height: 33px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 10px;
+      border: 1px solid rgba(196, 164, 112, 0.38);
+      border-radius: 50%;
+      color: var(--gold);
+      font: 700 18px/1 var(--display);
+    }
+
+    .rail-button {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 11px;
+      background: transparent;
+      color: rgba(196, 164, 112, 0.48);
+      cursor: pointer;
+      font-size: 17px;
+    }
+
+    .rail-button:hover { background: rgba(201, 146, 42, 0.07); color: var(--gold); }
+    .rail-button[aria-current="page"] { background: rgba(201, 146, 42, 0.09); color: var(--gold); }
+    .rail-spacer { flex: 1; }
+
+    .screen {
+      min-width: 0;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .codex-header {
+      position: relative;
+      min-height: 90px;
+      display: grid;
+      grid-template-columns: 64px 1fr 64px;
+      align-items: center;
+      padding: 8px 10px 13px;
+      border-bottom: 1px solid var(--rail-border);
+    }
+
+    .page-heading { min-width: 0; text-align: center; }
+
+    .eyebrow,
+    .utility-label {
+      margin: 0;
+      color: var(--gold);
+      font-family: var(--utility);
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow { opacity: 0.72; }
+
+    h1 {
+      margin: 5px 0 0;
+      font: 700 clamp(28px, 3vw, 34px)/1.05 var(--display);
+      letter-spacing: 0.01em;
+    }
+
+    .back-sword {
+      width: 54px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 3px;
+      padding: 3px;
+      border: 0;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--gold);
+      cursor: pointer;
+    }
+
+    .back-sword:hover { background: rgba(201, 146, 42, 0.07); color: var(--gold-light); }
+    .back-sword:active svg { transform: translateX(-4px); }
+    .back-sword svg {
+      width: 34px;
+      height: 16px;
+      overflow: visible;
+      transition: transform var(--quick) ease;
+    }
+    .back-sword span {
+      font: 700 9px/1 var(--utility);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .back-sword.ink { color: var(--claret); }
+    .back-sword.ink:hover { background: rgba(140, 29, 56, 0.1); color: var(--claret-light); }
+
+    .content-area {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      padding: 8px 16px 16px;
+    }
+
+    .manager-card {
+      position: relative;
+      height: 100%;
+      max-width: 1100px;
+      min-height: 0;
+      margin: 0 auto;
+      overflow: hidden;
+      border: 1px solid rgba(196, 164, 112, 0.42);
+      border-radius: var(--radius-md);
+      background:
+        radial-gradient(circle at 15% 8%, rgba(255, 255, 255, 0.21), transparent 24rem),
+        radial-gradient(circle at 92% 90%, rgba(65, 106, 101, 0.045), transparent 20rem),
+        var(--card);
+      box-shadow: var(--paper-shadow);
+      color: var(--ink-light);
+    }
+
+    .manager-card::after {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      z-index: 6;
+      border: 1px solid rgba(139, 90, 43, 0.1);
+      border-radius: 11px;
+      pointer-events: none;
+    }
+
+    .view { height: 100%; min-height: 0; }
+    .collection-view { display: flex; flex-direction: column; animation: fade-in var(--quick) ease both; }
+
+    .collection-chrome {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      gap: 11px;
+      padding: 15px 16px 13px;
+      background:
+        linear-gradient(100deg, rgba(255,255,255,0.12), transparent 44%),
+        rgba(240, 224, 188, 0.97);
+      border-bottom: 1px solid var(--divider);
+      box-shadow: 0 8px 22px rgba(71, 42, 19, 0.045);
+    }
+
+    .filter-topline {
+      display: grid;
+      grid-template-columns: minmax(210px, 1fr) auto;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .search-wrap { position: relative; max-width: 475px; }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      width: 18px;
+      height: 18px;
+      color: var(--ember);
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 42px;
+      padding: 8px 40px;
+      border: 1px solid rgba(139, 90, 43, 0.38);
+      border-radius: 10px;
+      background: rgba(246, 233, 207, 0.62);
+      color: var(--ink);
+      font-family: var(--body);
+    }
+
+    .search-input::placeholder { color: var(--ink-soft); }
+
+    .clear-search {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      width: 32px;
+      height: 32px;
+      display: none;
+      place-items: center;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--ember);
+      cursor: pointer;
+    }
+
+    .clear-search.visible { display: grid; }
+    .clear-search:hover { background: rgba(140, 29, 56, 0.1); }
+
+    .source-control {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      white-space: nowrap;
+    }
+
+    .source-copy { text-align: right; }
+    .source-title { display: block; color: var(--ink); font-weight: 700; }
+    .source-detail { display: block; margin-top: 1px; color: var(--ink-soft); font-size: 13px; }
+
+    .switch { position: relative; width: 48px; height: 27px; flex: 0 0 auto; }
+    .switch input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+
+    .switch-track {
+      position: absolute;
+      inset: 0;
+      border: 1px solid rgba(95, 67, 37, 0.34);
+      border-radius: 999px;
+      background: rgba(95, 67, 37, 0.22);
+      cursor: pointer;
+      transition: background var(--quick) ease, border-color var(--quick) ease;
+    }
+
+    .switch-track::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      background: var(--parchment-light);
+      box-shadow: 0 1px 4px rgba(43, 28, 17, 0.34);
+      transition: transform var(--quick) ease;
+    }
+
+    .switch input:checked + .switch-track { border-color: var(--claret); background: var(--claret); }
+    .switch input:checked + .switch-track::after { transform: translateX(21px); }
+    .switch input:focus-visible + .switch-track { outline: 3px solid var(--gold-light); outline-offset: 3px; }
+
+    .filter-bottomline {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(180px, 245px);
+      align-items: end;
+      gap: 18px;
+    }
+
+    .filter-cluster { min-width: 0; }
+    .filter-label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink-soft);
+      font: 700 10px/1.2 var(--utility);
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      min-width: 0;
+      overflow-x: auto;
+      padding: 2px 3px 3px;
+      scrollbar-width: thin;
+    }
+
+    .filter-chip {
+      min-height: 44px;
+      padding: 4px 13px;
+      border: 1px solid var(--gold-dark);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--ink-light);
+      white-space: nowrap;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .filter-chip:hover { background: rgba(140, 29, 56, 0.07); }
+    .filter-chip[aria-pressed="true"] {
+      border-color: var(--crimson);
+      background: var(--crimson);
+      color: var(--parchment);
+    }
+
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: "⌄";
+      position: absolute;
+      right: 12px;
+      bottom: 8px;
+      color: var(--scribe-deep);
+      pointer-events: none;
+      font: 700 16px/1 var(--utility);
+    }
+
+    .script-select {
+      width: 100%;
+      height: 44px;
+      appearance: none;
+      padding: 5px 35px 5px 11px;
+      border: 1px solid rgba(65, 106, 101, 0.48);
+      border-radius: 9px;
+      background: rgba(65, 106, 101, 0.065);
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .results-bar {
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 7px 19px;
+      border-bottom: 1px solid rgba(139, 90, 43, 0.2);
+      background: rgba(245, 238, 220, 0.34);
+    }
+
+    .result-count {
+      color: var(--ink-soft);
+      font: 700 11px/1.2 var(--utility);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .clear-filters {
+      min-height: 30px;
+      padding: 4px 8px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--claret);
+      cursor: pointer;
+      font: 700 11px/1.2 var(--utility);
+    }
+
+    .clear-filters:hover { background: rgba(140, 29, 56, 0.07); }
+
+    .language-list {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 0 16px 92px;
+      scrollbar-color: rgba(95, 67, 37, 0.42) transparent;
+    }
+
+    .list-group-label {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0;
+      padding: 11px 3px 7px;
+      background: linear-gradient(var(--card) 72%, rgba(240, 224, 188, 0));
+      color: var(--ink-soft);
+      font: 700 10px/1.2 var(--utility);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .list-group-label::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: var(--divider);
+    }
+
+    .group-count {
+      display: inline-grid;
+      min-width: 19px;
+      height: 19px;
+      place-items: center;
+      padding: 0 5px;
+      border: 1px solid rgba(139, 90, 43, 0.23);
+      border-radius: 999px;
+      color: var(--ink-soft);
+      font-size: 9px;
+      letter-spacing: 0;
+    }
+
+    .language-row {
+      width: 100%;
+      min-height: 78px;
+      display: grid;
+      grid-template-columns: 50px minmax(0, 1fr) minmax(116px, auto) 22px;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 3px;
+      border: 0;
+      border-bottom: 1px solid var(--divider);
+      background: transparent;
+      color: var(--ink-light);
+      text-align: left;
+      cursor: pointer;
+      box-shadow: inset 3px 0 0 transparent;
+      transition: background var(--quick) ease, box-shadow var(--quick) ease;
+    }
+
+    .language-row:hover {
+      background: rgba(65, 106, 101, 0.055);
+      box-shadow: inset 3px 0 0 rgba(65, 106, 101, 0.5);
+    }
+    .language-row:active { background: rgba(65, 106, 101, 0.09); }
+    .row-copy { min-width: 0; }
+    .row-title { display: block; color: var(--ink); font-size: 19px; font-weight: 700; line-height: 1.2; }
+    .custom-mark { margin-left: 7px; color: var(--claret); font: 700 9px/1 var(--utility); letter-spacing: 0.1em; text-transform: uppercase; }
+    .row-meta {
+      display: block;
+      margin-top: 5px;
+      overflow: hidden;
+      color: var(--ink-soft);
+      font-size: 14px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .mobile-taxonomy { display: none; }
+
+    .row-taxonomy { min-width: 0; text-align: right; }
+    .type-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 2px 8px;
+      border: 1px solid rgba(140, 29, 56, 0.22);
+      border-radius: 999px;
+      background: rgba(140, 29, 56, 0.045);
+      color: var(--claret);
+      font: 700 10px/1.2 var(--utility);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .script-name { display: block; margin-top: 4px; color: var(--scribe-deep); font-size: 13px; }
+    .chevron { color: var(--ink-soft); font-family: var(--utility); font-size: 22px; }
+
+    /* A compact script-family specimen, the page's single signature device. */
+    .script-cartouche {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid rgba(65, 106, 101, 0.42);
+      border-radius: 10px 10px 14px 10px;
+      background:
+        linear-gradient(90deg, transparent 47%, rgba(65, 106, 101, 0.08) 48% 52%, transparent 53%),
+        var(--parchment-light);
+      color: var(--scribe-deep);
+      box-shadow: inset 0 0 0 3px rgba(65, 106, 101, 0.045);
+    }
+
+    .script-cartouche::before,
+    .script-cartouche::after {
+      content: "";
+      position: absolute;
+      left: 7px;
+      right: 7px;
+      height: 1px;
+      background: rgba(65, 106, 101, 0.25);
+    }
+    .script-cartouche::before { top: 9px; transform: rotate(-3deg); }
+    .script-cartouche::after { bottom: 9px; transform: rotate(3deg); }
+    .script-sigil { position: relative; z-index: 1; font: italic 700 17px/1 var(--display); letter-spacing: -0.07em; }
+
+    .empty-state {
+      min-height: 280px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 8px;
+      padding: 42px 20px;
+      text-align: center;
+    }
+    .empty-glyph { color: var(--scribe); font-size: 34px; }
+    .empty-state h2 { margin: 0; color: var(--ink); font: 700 20px/1.2 var(--display); }
+    .empty-state p { max-width: 390px; margin: 0; color: var(--ink-soft); }
+    .reset-link { margin-top: 8px; border: 0; background: transparent; color: var(--claret); cursor: pointer; text-decoration: underline; }
+
+    .fab {
+      position: absolute;
+      z-index: 4;
+      right: 32px;
+      bottom: 28px;
+      width: auto;
+      min-width: 56px;
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 0 18px 0 15px;
+      border: 0;
+      border-radius: var(--radius-md);
+      background: var(--crimson);
+      box-shadow: 0 10px 24px rgba(55, 9, 15, 0.3);
+      color: var(--parchment);
+      cursor: pointer;
+      font: 800 11px/1 var(--utility);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: transform var(--quick) ease, background var(--quick) ease;
+    }
+
+    .fab:hover { background: var(--claret-light); transform: translateY(-2px); }
+    .fab-icon { margin-top: -2px; font: 400 27px/1 var(--body); }
+
+    .detail-view {
+      position: relative;
+      overflow-y: auto;
+      padding: 0 20px 46px;
+      animation: detail-in var(--standard) cubic-bezier(.22,.72,.18,1) both;
+      scrollbar-color: rgba(95, 67, 37, 0.42) transparent;
+    }
+
+    .detail-backbar {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      min-height: 58px;
+      display: grid;
+      grid-template-columns: 54px minmax(0, 1fr) 54px;
+      align-items: center;
+      margin: 0 -20px;
+      padding: 3px 7px;
+      border-bottom: 1px solid var(--divider);
+      background: rgba(240, 224, 188, 0.96);
+      backdrop-filter: blur(8px);
+    }
+
+    .detail-backbar-title {
+      overflow: hidden;
+      color: var(--ink);
+      font: 700 19px/1.2 var(--display);
+      text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .language-hero {
+      display: grid;
+      grid-template-columns: 104px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 20px;
+      margin: 0 -20px;
+      padding: 24px 20px 22px;
+      background:
+        radial-gradient(circle at 8% 40%, rgba(65, 106, 101, 0.08), transparent 16rem),
+        linear-gradient(90deg, rgba(255,255,255,0.1), transparent 60%);
+    }
+
+    .script-folio {
+      position: relative;
+      width: 98px;
+      height: 98px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid var(--scribe);
+      border-radius: 17px 17px 28px 17px;
+      background:
+        repeating-linear-gradient(0deg, transparent 0 22px, rgba(65, 106, 101, 0.105) 23px 24px),
+        var(--parchment-light);
+      box-shadow: inset 0 0 0 5px rgba(65, 106, 101, 0.055);
+      color: var(--scribe-deep);
+    }
+
+    .script-folio::after {
+      content: "";
+      position: absolute;
+      width: 54px;
+      height: 1px;
+      bottom: 18px;
+      background: var(--scribe);
+      transform: rotate(-5deg);
+      opacity: 0.55;
+    }
+    .folio-sigil { margin-top: -7px; font: italic 700 41px/1 var(--display); letter-spacing: -0.09em; }
+    .folio-caption {
+      position: absolute;
+      bottom: 7px;
+      font: 800 8px/1 var(--utility);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .hero-copy h2 { margin: 4px 0 5px; color: var(--ink); font: 700 clamp(28px, 4vw, 37px)/1.05 var(--display); }
+    .hero-copy p { margin: 0; color: var(--ink-soft); }
+    .hero-pills { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 7px; max-width: 200px; }
+    .hero-pill {
+      padding: 6px 10px;
+      border: 1px solid var(--divider);
+      border-radius: 999px;
+      background: rgba(245, 238, 220, 0.58);
+      color: var(--ink-light);
+      font-size: 13px;
+    }
+    .hero-pill.script { border-color: rgba(65, 106, 101, 0.38); color: var(--scribe-deep); }
+
+    .lexicon-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 25px;
+      padding-top: 20px;
+      border-top: 1px solid var(--divider);
+    }
+    .lexicon-main { min-width: 0; }
+    .lexicon-aside { min-width: 0; }
+
+    .detail-section {
+      position: relative;
+      padding: 0 0 22px;
+      margin-bottom: 22px;
+      border-bottom: 1px solid var(--divider);
+    }
+    .detail-section:last-child { margin-bottom: 0; }
+    .detail-section h3 { margin: 0 0 10px; color: var(--claret); font: 700 21px/1.2 var(--display); }
+    .detail-section p { margin: 0 0 10px; color: var(--ink-light); }
+    .detail-section p:last-child { margin-bottom: 0; }
+
+    .usage-callout {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      padding: 8px 11px;
+      border: 1px solid rgba(65, 106, 101, 0.25);
+      border-radius: 9px;
+      background: var(--scribe-wash);
+      color: var(--scribe-deep);
+      font-size: 14px;
+    }
+
+    .usage-callout::before { content: "◇"; font-family: var(--utility); }
+
+    .speaker-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .speaker-token {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 34px;
+      padding: 5px 11px;
+      border: 1px solid rgba(65, 106, 101, 0.31);
+      border-radius: 999px;
+      background: var(--scribe-wash);
+      color: var(--scribe-deep);
+    }
+    .speaker-token::before { content: "◌"; font-family: var(--utility); font-size: 12px; }
+
+    .aside-card {
+      padding: 15px;
+      margin-bottom: 13px;
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-sm);
+      background: rgba(245, 238, 220, 0.52);
+    }
+    .aside-card h3 { margin: 0 0 12px; color: var(--ink); font: 700 17px/1.2 var(--display); }
+    .fact-row { display: grid; grid-template-columns: 76px 1fr; gap: 10px; padding: 7px 0; border-top: 1px solid rgba(139, 90, 43, 0.17); }
+    .fact-row:first-of-type { border-top: 0; padding-top: 0; }
+    .fact-key { color: var(--ink-soft); font: 700 10px/1.5 var(--utility); letter-spacing: 0.1em; text-transform: uppercase; }
+    .fact-value { color: var(--ink); text-align: right; }
+
+    .script-lineage {
+      position: relative;
+      display: grid;
+      gap: 7px;
+      padding-left: 14px;
+    }
+    .script-lineage::before {
+      content: "";
+      position: absolute;
+      top: 7px;
+      bottom: 7px;
+      left: 3px;
+      width: 1px;
+      background: var(--scribe);
+      opacity: 0.38;
+    }
+    .script-peer {
+      position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 5px 8px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--scribe-deep);
+      text-align: left;
+      cursor: pointer;
+    }
+    .script-peer::before {
+      content: "";
+      position: absolute;
+      left: -14px;
+      width: 7px;
+      height: 7px;
+      border: 1px solid var(--scribe);
+      border-radius: 50%;
+      background: var(--parchment-light);
+    }
+    .script-peer:hover { background: var(--scribe-wash); }
+    .script-peer small { color: var(--ink-soft); }
+
+    .relation-list { display: grid; gap: 8px; }
+    .relation-row {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      align-items: center;
+      gap: 9px;
+      padding: 7px 0;
+      border-top: 1px solid rgba(139, 90, 43, 0.17);
+    }
+    .relation-row:first-child { border-top: 0; padding-top: 0; }
+    .relation-icon {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(65, 106, 101, 0.22);
+      border-radius: 9px;
+      background: var(--scribe-wash);
+      color: var(--scribe-deep);
+      font: italic 700 15px/1 var(--display);
+    }
+    .relation-copy strong { display: block; color: var(--ink); font-size: 14px; }
+    .relation-copy span { display: block; margin-top: 1px; color: var(--ink-soft); font-size: 12px; }
+    .relation-empty { margin: 0; color: var(--ink-soft); font-size: 14px; }
+    .relation-help { margin: -3px 0 11px; color: var(--ink-soft); font-size: 12px; line-height: 1.35; }
+
+    .detail-actions { display: flex; gap: 9px; padding: 20px 0 2px; border-top: 1px solid var(--divider); }
+
+    .button {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 8px 17px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font: 700 11px/1.2 var(--utility);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .button-primary { border: 1px solid var(--crimson); background: var(--crimson); color: var(--parchment); }
+    .button-primary:hover { background: var(--claret-light); }
+    .button-secondary { border: 1px solid var(--claret); background: transparent; color: var(--claret); }
+    .button-secondary:hover { background: rgba(140, 29, 56, 0.07); }
+    .button-danger { border: 1px solid rgba(123, 30, 30, 0.35); background: transparent; color: var(--crimson); }
+    .button-danger:hover { background: rgba(123, 30, 30, 0.08); }
+    .button-quiet { border: 1px solid rgba(196,164,112,0.45); background: transparent; color: var(--parchment); }
+    .button-quiet:hover { background: rgba(196,164,112,0.08); }
+    .button:disabled { cursor: not-allowed; opacity: 0.45; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: grid;
+      place-items: end center;
+      padding: 18px 18px 0;
+      background: rgba(20, 14, 8, 0.7);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--standard) ease, visibility 0s linear var(--standard);
+    }
+    .modal-backdrop.open { opacity: 1; visibility: visible; transition-delay: 0s; }
+
+    .editor-sheet {
+      width: min(790px, 100%);
+      max-height: min(88dvh, 800px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid rgba(196, 164, 112, 0.42);
+      border-bottom: 0;
+      border-radius: 20px 20px 0 0;
+      background: #17100c;
+      color: var(--parchment);
+      box-shadow: 0 -12px 50px rgba(0,0,0,0.38);
+      transform: translateY(102%);
+      transition: transform 300ms cubic-bezier(.22,.72,.18,1);
+    }
+    .modal-backdrop.open .editor-sheet { transform: translateY(0); }
+    .sheet-handle { width: 40px; height: 4px; margin: 8px auto 2px; border-radius: 999px; background: rgba(196,164,112,0.38); }
+
+    .editor-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 44px;
+      align-items: start;
+      gap: 16px;
+      padding: 13px 20px 14px;
+      border-bottom: 1px solid rgba(196,164,112,0.18);
+    }
+    .editor-header h2 { margin: 5px 0 0; font: 700 25px/1.1 var(--display); }
+    .icon-button {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(196,164,112,0.34);
+      border-radius: 11px;
+      background: transparent;
+      color: var(--gold);
+      cursor: pointer;
+      font: 300 25px/1 var(--utility);
+    }
+    .icon-button:hover { background: rgba(196,164,112,0.08); }
+
+    .editor-body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 21px 20px 24px;
+      scrollbar-color: rgba(196,164,112,0.35) transparent;
+    }
+    .editor-intro { max-width: 680px; margin: 0 auto 20px; }
+    .editor-intro h3 { margin: 0 0 6px; font: 700 22px/1.2 var(--display); }
+    .editor-intro p { margin: 0; color: rgba(246,233,207,0.65); }
+
+    .editor-form { max-width: 680px; margin: 0 auto; }
+    .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .span-2 { grid-column: 1 / -1; }
+    .field { min-width: 0; }
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--gold);
+      font: 700 11px/1.2 var(--utility);
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+    .field-label-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .field-label-row label { margin-bottom: 7px; }
+    .field-counter {
+      color: rgba(196,164,112,0.62);
+      font: 700 10px/1.2 var(--utility);
+      letter-spacing: 0.06em;
+    }
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid rgba(201, 146, 42, 0.5);
+      border-radius: 7px;
+      background: rgba(201, 146, 42, 0.07);
+      color: var(--parchment);
+      box-shadow: 0 0 4px rgba(201,146,42,0.12);
+      font-family: var(--body);
+    }
+    .field textarea { min-height: 116px; resize: vertical; }
+    .field select { color-scheme: dark; }
+    .field input[aria-invalid="true"] { border-color: #d87070; box-shadow: 0 0 0 2px rgba(216,112,112,0.12); }
+    .field-help { margin: 6px 0 0; color: rgba(196,164,112,0.7); font-size: 13px; }
+
+    .form-rule { margin: 22px 0; border: 0; border-top: 1px solid rgba(196,164,112,0.18); }
+    .form-section h3 { margin: 0 0 5px; font: 700 19px/1.2 var(--display); }
+    .form-section > p { margin: 0 0 13px; color: rgba(246,233,207,0.62); }
+
+    .speaker-editor {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+    }
+    .speaker-editor input {
+      min-width: 0;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid rgba(201, 146, 42, 0.5);
+      border-radius: 7px;
+      background: rgba(201, 146, 42, 0.07);
+      color: var(--parchment);
+      font-family: var(--body);
+    }
+    .add-speaker {
+      min-width: 76px;
+      min-height: 44px;
+      border: 1px solid rgba(65, 106, 101, 0.8);
+      border-radius: 8px;
+      background: rgba(65, 106, 101, 0.24);
+      color: #b9d4cf;
+      cursor: pointer;
+      font: 700 11px/1.2 var(--utility);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .add-speaker:hover { background: rgba(65, 106, 101, 0.36); }
+
+    .speaker-editor-tokens { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+    .editable-token {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 44px;
+      padding: 0 2px 0 12px;
+      border: 1px solid rgba(65, 106, 101, 0.6);
+      border-radius: 999px;
+      background: rgba(65, 106, 101, 0.16);
+      color: #c8dcd8;
+    }
+    .editable-token button {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      font-family: var(--utility);
+    }
+    .editable-token button:hover { background: rgba(255,255,255,0.08); }
+
+    .connection-preview {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .connection-cell {
+      min-height: 72px;
+      padding: 10px;
+      border: 1px solid rgba(196,164,112,0.2);
+      border-radius: 9px;
+      background: rgba(196,164,112,0.04);
+    }
+    .connection-cell span { display: block; color: rgba(246,233,207,0.52); font: 700 9px/1.2 var(--utility); letter-spacing: 0.11em; text-transform: uppercase; }
+    .connection-cell strong { display: block; margin-top: 6px; color: var(--parchment); font-size: 14px; }
+
+    .scope-note {
+      position: relative;
+      margin-top: 18px;
+      padding: 12px 13px 12px 37px;
+      border: 1px solid rgba(232, 184, 75, 0.26);
+      border-radius: 10px;
+      background: rgba(232, 184, 75, 0.055);
+      color: rgba(246,233,207,0.7);
+      font-size: 13px;
+    }
+    .scope-note::before {
+      content: "i";
+      position: absolute;
+      top: 12px;
+      left: 13px;
+      width: 17px;
+      height: 17px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(232,184,75,0.6);
+      border-radius: 50%;
+      color: var(--gold-light);
+      font: italic 700 11px/1 var(--display);
+    }
+    .scope-note strong { color: var(--gold-light); }
+
+    .error-text {
+      min-height: 20px;
+      max-width: 680px;
+      margin: 12px auto 0;
+      color: #f0a5a5;
+      font-size: 14px;
+    }
+
+    .editor-footer {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 9px;
+      padding: 12px 20px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(196,164,112,0.18);
+      background: rgba(17, 11, 7, 0.78);
+    }
+    .footer-hint { color: rgba(246,233,207,0.48); font-size: 13px; }
+
+    .confirm-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(12, 7, 4, 0.74);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--quick) ease, visibility 0s linear var(--quick);
+    }
+    .confirm-layer.open { opacity: 1; visibility: visible; transition-delay: 0s; }
+    .confirm-dialog {
+      width: min(430px, 100%);
+      padding: 23px;
+      border: 1px solid rgba(196,164,112,0.45);
+      border-radius: var(--radius-md);
+      background: #1b120d;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.48);
+      transform: translateY(8px) scale(0.98);
+      transition: transform var(--quick) ease;
+    }
+    .confirm-layer.open .confirm-dialog { transform: none; }
+    .confirm-dialog h2 { margin: 0 0 8px; font: 700 23px/1.15 var(--display); }
+    .confirm-dialog p { margin: 0; color: rgba(246,233,207,0.67); }
+    .confirm-note { padding-top: 10px; color: rgba(232,184,75,0.68) !important; font-size: 12px; }
+    .confirm-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 22px; }
+
+    .toast {
+      position: fixed;
+      z-index: 80;
+      left: 50%;
+      bottom: 22px;
+      max-width: calc(100vw - 32px);
+      padding: 10px 15px;
+      border: 1px solid rgba(196,164,112,0.42);
+      border-radius: 10px;
+      background: #17100c;
+      box-shadow: 0 10px 32px rgba(0,0,0,0.4);
+      color: var(--parchment);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 10px);
+      transition: opacity var(--quick) ease, transform var(--quick) ease;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes detail-in { from { opacity: 0; transform: translateX(15px); } to { opacity: 1; transform: none; } }
+
+    @media (max-width: 740px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .rail { display: none; }
+      .codex-header { min-height: 84px; }
+      .content-area { padding: 8px 10px 10px; }
+      .manager-card { border-radius: 14px; }
+      .filter-topline { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+      .source-title { font-size: 14px; }
+      .source-detail { font-size: 12px; }
+      .filter-bottomline { grid-template-columns: minmax(0, 1fr) minmax(148px, 190px); gap: 10px; }
+      .language-list { padding-inline: 12px; }
+      .language-row { grid-template-columns: 46px minmax(0, 1fr) 100px 17px; gap: 10px; }
+      .script-cartouche { width: 44px; height: 44px; }
+      .row-title { font-size: 18px; }
+      .row-meta { font-size: 13px; }
+      .fab { right: 22px; bottom: 21px; }
+      .language-hero { grid-template-columns: 82px minmax(0, 1fr); gap: 14px; }
+      .script-folio { width: 78px; height: 78px; }
+      .folio-sigil { font-size: 34px; }
+      .hero-pills { grid-column: 1 / -1; justify-content: flex-start; max-width: none; }
+      .lexicon-grid { grid-template-columns: 1fr; gap: 0; }
+      .lexicon-aside { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .aside-card { margin: 0; }
+      .modal-backdrop { padding: 9px 0 0; }
+      .editor-sheet { width: 100%; max-height: 94dvh; border-left: 0; border-right: 0; }
+      .editor-header, .editor-body, .editor-footer { padding-inline: 16px; }
+    }
+
+    @media (max-width: 520px) {
+      .codex-header { grid-template-columns: 54px 1fr 54px; padding-inline: 4px; }
+      h1 { font-size: 27px; }
+      .content-area { padding-inline: 6px; }
+      .collection-chrome { gap: 10px; padding: 12px 11px 11px; }
+      .filter-topline { grid-template-columns: 1fr; }
+      .search-wrap { max-width: none; }
+      .source-control { justify-content: space-between; }
+      .source-copy { text-align: left; }
+      .filter-bottomline { grid-template-columns: 1fr; gap: 8px; }
+      .filter-label { margin-bottom: 4px; }
+      .language-list { padding-inline: 9px; }
+      .language-row { grid-template-columns: 43px minmax(0, 1fr) 17px; min-height: 72px; gap: 9px; }
+      .script-cartouche { width: 41px; height: 41px; }
+      .row-taxonomy { display: none; }
+      .row-meta { margin-top: 3px; }
+      .mobile-taxonomy {
+        display: block;
+        margin-top: 3px;
+        color: var(--scribe-deep);
+        font: 700 9px/1.25 var(--utility);
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+      }
+      .list-group-label { padding-top: 9px; }
+      .detail-view { padding-inline: 14px; }
+      .detail-backbar { margin-inline: -14px; }
+      .language-hero { padding-top: 18px; }
+      .lexicon-aside { grid-template-columns: 1fr; }
+      .field-grid { grid-template-columns: 1fr; }
+      .span-2 { grid-column: auto; }
+      .connection-preview { grid-template-columns: 1fr; }
+      .connection-cell { min-height: 56px; }
+      .footer-hint { display: none; }
+      .editor-footer { grid-template-columns: 1fr 1fr; }
+      .editor-footer .button { width: 100%; padding-inline: 8px; }
+      .detail-actions .button { flex: 1; padding-inline: 7px; }
+      .fab { height: 52px; padding-inline: 14px 16px; }
+      .fab-label { font-size: 10px; }
+    }
+
+    @media (max-width: 350px) {
+      .source-title { font-size: 13px; }
+      .switch { width: 44px; }
+      .switch input:checked + .switch-track::after { transform: translateX(17px); }
+      .language-list { padding-inline: 7px; }
+      .row-title { font-size: 17px; }
+      .custom-mark { display: none; }
+      .language-hero { grid-template-columns: 70px minmax(0, 1fr); gap: 11px; }
+      .script-folio { width: 68px; height: 68px; border-radius: 14px 14px 21px 14px; }
+      .folio-sigil { font-size: 29px; }
+      .hero-copy h2 { font-size: 27px; }
+      .speaker-editor { grid-template-columns: 1fr; }
+      .add-speaker { min-height: 44px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 1ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#managerCard">Skip to languages</a>
+
+  <div class="app-shell" id="appShell">
+    <aside class="rail" aria-label="Primary navigation">
+      <div class="rail-mark" aria-hidden="true">V</div>
+      <button class="rail-button" type="button" aria-label="Characters" title="Characters">♙</button>
+      <button class="rail-button" type="button" aria-label="Compendium" aria-current="page" title="Compendium">▤</button>
+      <button class="rail-button" type="button" aria-label="Dice" title="Dice">◇</button>
+      <div class="rail-spacer"></div>
+      <button class="rail-button" type="button" aria-label="Settings" title="Settings">⚙</button>
+    </aside>
+
+    <section class="screen">
+      <header class="codex-header">
+        <button class="back-sword" id="compendiumBack" type="button" aria-label="Back to Compendium">
+          <svg viewBox="0 0 66 24" aria-hidden="true">
+            <path fill="currentColor" d="M1 12 17 2l-4 8h33V6l18 6-18 6v-4H13l4 8L1 12Zm47-3v6l9-3-9-3Z"/>
+          </svg>
+          <span>Back</span>
+        </button>
+        <div class="page-heading">
+          <p class="eyebrow">Compendium</p>
+          <h1>Languages</h1>
+        </div>
+        <div aria-hidden="true"></div>
+      </header>
+
+      <main class="content-area">
+        <section class="manager-card" id="managerCard" aria-label="Language compendium"></section>
+        <button class="fab" id="addLanguage" type="button" aria-label="Create custom language">
+          <span class="fab-icon" aria-hidden="true">+</span>
+          <span class="fab-label">New language</span>
+        </button>
+      </main>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="editorBackdrop" aria-hidden="true">
+    <section class="editor-sheet" id="editorSheet" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <header class="editor-header">
+        <div>
+          <p class="eyebrow" id="editorEyebrow">Custom language</p>
+          <h2 id="editorTitle">New custom language</h2>
+        </div>
+        <button class="icon-button" id="closeEditor" type="button" aria-label="Close language editor">×</button>
+      </header>
+
+      <div class="editor-body">
+        <div class="editor-intro">
+          <h3>Dictionary entry</h3>
+          <p>Describe how this language is classified, written, and heard in your world.</p>
+        </div>
+
+        <form class="editor-form" id="languageForm" novalidate>
+          <div class="field-grid">
+            <div class="field span-2">
+              <label for="languageName">Language name</label>
+              <input id="languageName" name="languageName" maxlength="80" autocomplete="off" placeholder="e.g. Waymark Cant" required>
+            </div>
+
+            <div class="field">
+              <label for="languageType">Type</label>
+              <select id="languageType" name="languageType" aria-describedby="languageTypeHelp">
+                <option value="Standard">Standard</option>
+                <option value="Exotic">Exotic</option>
+              </select>
+              <p class="field-help" id="languageTypeHelp">Groups this entry with familiar or rare languages.</p>
+            </div>
+
+            <div class="field">
+              <label for="languageScript">Script</label>
+              <input id="languageScript" name="languageScript" list="knownScripts" maxlength="80" autocomplete="off" placeholder="e.g. Common" aria-describedby="languageScriptHelp">
+              <datalist id="knownScripts">
+                <option value="Common"></option>
+                <option value="Dwarvish"></option>
+                <option value="Elvish"></option>
+                <option value="Draconic"></option>
+                <option value="Celestial"></option>
+                <option value="Infernal"></option>
+              </datalist>
+              <p class="field-help" id="languageScriptHelp">Leave blank if it is unwritten or its script is unknown.</p>
+            </div>
+
+            <div class="field span-2">
+              <div class="field-label-row">
+                <label for="languageDescription">Description</label>
+                <span class="field-counter" id="descriptionCount" aria-live="polite">0 / 1200</span>
+              </div>
+              <textarea id="languageDescription" name="languageDescription" maxlength="1200" placeholder="Describe its sound, history, written tradition, or use."></textarea>
+            </div>
+          </div>
+
+          <hr class="form-rule">
+
+          <section class="form-section" aria-labelledby="speakersHeading">
+            <h3 id="speakersHeading">Typical speakers</h3>
+            <p>Add peoples, professions, or creatures commonly associated with this language.</p>
+            <div class="speaker-editor">
+              <input id="speakerInput" maxlength="80" autocomplete="off" placeholder="e.g. Border couriers" aria-label="Typical speaker">
+              <button class="add-speaker" id="addSpeaker" type="button" aria-label="Add typical speaker">Add</button>
+            </div>
+            <div class="speaker-editor-tokens" id="speakerTokens" aria-live="polite"></div>
+          </section>
+
+          <hr class="form-rule">
+
+          <section class="form-section" aria-labelledby="connectionsHeading">
+            <h3 id="connectionsHeading">Compendium connections</h3>
+            <p>Connections are managed from race, background, and trait entries, so they are shown here as read-only.</p>
+            <div class="connection-preview" id="connectionPreview"></div>
+          </section>
+
+          <div class="scope-note">
+            <strong>Easy to find later.</strong> Names, scripts, descriptions, and typical speakers are all included in compendium search.
+          </div>
+          <p class="error-text" id="editorError" role="alert" tabindex="-1"></p>
+        </form>
+      </div>
+
+      <footer class="editor-footer">
+        <span class="footer-hint">Custom entries stay private to your account.</span>
+        <button class="button button-quiet" id="cancelEditor" type="button">Cancel</button>
+        <button class="button button-primary" id="saveLanguage" type="button">Create language</button>
+      </footer>
+    </section>
+  </div>
+
+  <div class="confirm-layer" id="confirmLayer" aria-hidden="true">
+    <section class="confirm-dialog" id="confirmDialog" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+      <h2 id="confirmTitle"></h2>
+      <p id="confirmMessage"></p>
+      <p class="confirm-note" id="confirmNote" hidden></p>
+      <div class="confirm-actions">
+        <button class="button button-quiet" id="confirmCancel" type="button">Cancel</button>
+        <button class="button button-primary" id="confirmAction" type="button"></button>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var languages = [
+        { id: "common", name: "Common", source: "SRD", isCustom: false, type: "Standard", script: "Common", speakers: ["Humans"], description: "", races: ["Dwarf", "Elf", "Halfling", "Human", "Dragonborn", "Gnome", "Half-Elf", "Half-Orc", "Tiefling"], backgrounds: [], traits: [], usageCount: 14 },
+        { id: "dwarvish", name: "Dwarvish", source: "SRD", isCustom: false, type: "Standard", script: "Dwarvish", speakers: ["Dwarves"], description: "Dwarvish is full of hard consonants and guttural sounds.", races: ["Dwarf"], backgrounds: [], traits: ["Extra Language"], usageCount: 3 },
+        { id: "elvish", name: "Elvish", source: "SRD", isCustom: false, type: "Standard", script: "Elvish", speakers: ["Elves"], description: "Elvish is fluid, with subtle intonations and intricate grammar. Elven literature is rich and varied, and its songs and poems are famous among other peoples. Many bards learn Elvish to add its ballads to their repertoires.", races: ["Elf", "Half-Elf"], backgrounds: [], traits: [], usageCount: 5 },
+        { id: "giant", name: "Giant", source: "SRD", isCustom: false, type: "Standard", script: "Dwarvish", speakers: ["Ogres", "Giants"], description: "", races: [], backgrounds: [], traits: ["Extra Language"], usageCount: 0 },
+        { id: "gnomish", name: "Gnomish", source: "SRD", isCustom: false, type: "Standard", script: "Dwarvish", speakers: ["Gnomes"], description: "Gnomish uses the Dwarvish script and is renowned for technical treatises and catalogs of knowledge about the natural world.", races: ["Gnome"], backgrounds: [], traits: ["Extra Language"], usageCount: 1 },
+        { id: "goblin", name: "Goblin", source: "SRD", isCustom: false, type: "Standard", script: "Dwarvish", speakers: ["Goblinoids"], description: "", races: [], backgrounds: [], traits: ["Extra Language"], usageCount: 0 },
+        { id: "halfling", name: "Halfling", source: "SRD", isCustom: false, type: "Standard", script: "Common", speakers: ["Halflings"], description: "Halfling is not secret, but halflings are loath to share it. They write very little and instead maintain a strong oral tradition.", races: ["Halfling"], backgrounds: [], traits: ["Extra Language"], usageCount: 2 },
+        { id: "orc", name: "Orc", source: "SRD", isCustom: false, type: "Standard", script: "Dwarvish", speakers: ["Orcs"], description: "Orc is a harsh, grating language with hard consonants. It has no script of its own and is written in the Dwarvish script.", races: ["Half-Orc"], backgrounds: [], traits: ["Extra Language"], usageCount: 1 },
+        { id: "abyssal", name: "Abyssal", source: "SRD", isCustom: false, type: "Exotic", script: "Infernal", speakers: ["Demons"], description: "", races: [], backgrounds: [], traits: ["Extra Language"], usageCount: 0 },
+        { id: "celestial", name: "Celestial", source: "SRD", isCustom: false, type: "Exotic", script: "Celestial", speakers: ["Celestials"], description: "", races: [], backgrounds: [], traits: ["Extra Language"], usageCount: 0 },
+        { id: "draconic", name: "Draconic", source: "SRD", isCustom: false, type: "Exotic", script: "Draconic", speakers: ["Dragons", "Dragonborn"], description: "Draconic is thought to be one of the oldest languages and is often used in the study of magic. It sounds harsh to most other creatures and includes numerous hard consonants and sibilants.", races: ["Dragonborn"], backgrounds: [], traits: ["Extra Language"], usageCount: 2 },
+        { id: "deep-speech", name: "Deep Speech", source: "SRD", isCustom: false, type: "Exotic", script: "", speakers: ["Aboleths", "Cloakers"], description: "", races: [], backgrounds: [], traits: ["Extra Language"], usageCount: 0 },
+        { id: "infernal", name: "Infernal", source: "SRD", isCustom: false, type: "Exotic", script: "Infernal", speakers: ["Devils"], description: "", races: ["Tiefling"], backgrounds: [], traits: ["Extra Language"], usageCount: 1 },
+        { id: "primordial", name: "Primordial", source: "SRD", isCustom: false, type: "Exotic", script: "Dwarvish", speakers: ["Elementals"], description: "", races: [], backgrounds: [], traits: ["Extra Language"], usageCount: 1 },
+        { id: "sylvan", name: "Sylvan", source: "SRD", isCustom: false, type: "Exotic", script: "Elvish", speakers: ["Fey creatures"], description: "", races: [], backgrounds: [], traits: ["Extra Language"], usageCount: 0 },
+        { id: "undercommon", name: "Undercommon", source: "SRD", isCustom: false, type: "Exotic", script: "Elvish", speakers: ["Underdark traders"], description: "", races: [], backgrounds: [], traits: ["Extra Language"], usageCount: 0 },
+        { id: "waymark-cant", name: "Waymark Cant", source: "Custom", isCustom: true, type: "Standard", script: "Common", speakers: ["Border couriers", "Caravan scouts"], description: "A clipped road-language of borrowed words, finger signs, and chalk marks. Couriers use it to warn of washed-out roads, patrols, safe wells, and debts owed at the next crossing.", races: [], backgrounds: ["Border Courier"], traits: ["Read the Road"], usageCount: 3 }
+      ];
+
+      var state = {
+        query: "",
+        type: "All",
+        script: "All",
+        includeSrd: true,
+        selectedId: null,
+        editingId: null,
+        draft: null,
+        initialDraft: "",
+        speakers: []
+      };
+
+      var managerCard = document.getElementById("managerCard");
+      var addLanguageButton = document.getElementById("addLanguage");
+      var appShell = document.getElementById("appShell");
+      var editorBackdrop = document.getElementById("editorBackdrop");
+      var editorSheet = document.getElementById("editorSheet");
+      var confirmLayer = document.getElementById("confirmLayer");
+      var lastFocusedElement = null;
+      var confirmReturnFocus = null;
+      var confirmCallback = null;
+      var confirmCancelCallback = null;
+      var toastTimer = null;
+
+      function concealAppShell() {
+        appShell.setAttribute("inert", "");
+        appShell.setAttribute("aria-hidden", "true");
+      }
+
+      function revealAppShell() {
+        appShell.removeAttribute("inert");
+        appShell.removeAttribute("aria-hidden");
+      }
+
+      function escapeHtml(value) {
+        return String(value == null ? "" : value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function slugify(value) {
+        return String(value).toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      }
+
+      function plural(count, singular, pluralWord) {
+        return count + " " + (count === 1 ? singular : (pluralWord || singular + "s"));
+      }
+
+      function scriptLabel(language) {
+        return language.script || "Unwritten / unknown";
+      }
+
+      function scriptSigil(script) {
+        var labels = {
+          "Common": "Co",
+          "Dwarvish": "Dw",
+          "Elvish": "El",
+          "Draconic": "Dr",
+          "Celestial": "Ce",
+          "Infernal": "In"
+        };
+        return labels[script] || "∅";
+      }
+
+      function showToast(message) {
+        var toast = document.getElementById("toast");
+        window.clearTimeout(toastTimer);
+        toast.textContent = message;
+        toast.classList.add("show");
+        toastTimer = window.setTimeout(function () { toast.classList.remove("show"); }, 2400);
+      }
+
+      function allScripts() {
+        return Array.from(new Set(languages.map(function (language) {
+          return scriptLabel(language);
+        }))).sort(function (a, b) {
+          if (a === "Unwritten / unknown") return 1;
+          if (b === "Unwritten / unknown") return -1;
+          return a.localeCompare(b);
+        });
+      }
+
+      function visibleLanguages() {
+        var query = state.query.trim().toLowerCase();
+        return languages
+          .filter(function (language) { return state.includeSrd || language.isCustom; })
+          .filter(function (language) { return state.type === "All" || language.type === state.type; })
+          .filter(function (language) { return state.script === "All" || scriptLabel(language) === state.script; })
+          .filter(function (language) {
+            if (!query) return true;
+            return [
+              language.name,
+              language.type,
+              scriptLabel(language),
+              language.description,
+              language.speakers.join(" ")
+            ].join(" ").toLowerCase().includes(query);
+          })
+          .sort(function (a, b) {
+            return a.name.localeCompare(b.name);
+          });
+      }
+
+      function swordMarkup() {
+        return '<svg viewBox="0 0 66 24" aria-hidden="true"><path fill="currentColor" d="M1 12 17 2l-4 8h33V6l18 6-18 6v-4H13l4 8L1 12Zm47-3v6l9-3-9-3Z"/></svg><span>Back</span>';
+      }
+
+      function renderList() {
+        state.selectedId = null;
+        managerCard.innerHTML =
+          '<section class="view collection-view">' +
+            '<div class="collection-chrome">' +
+              '<div class="filter-topline">' +
+                '<div class="search-wrap">' +
+                  '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="m21 21-4.4-4.4m2.4-5.1a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"/></svg>' +
+                  '<input class="search-input" id="languageSearch" type="search" value="' + escapeHtml(state.query) + '" placeholder="Search names, speakers, or scripts" aria-label="Search languages">' +
+                  '<button class="clear-search' + (state.query ? " visible" : "") + '" id="clearSearch" type="button" aria-label="Clear search">×</button>' +
+                '</div>' +
+                '<div class="source-control">' +
+                  '<span class="source-copy"><span class="source-title">Include SRD languages</span><span class="source-detail">Official rules entries</span></span>' +
+                  '<label class="switch"><input id="includeSrd" type="checkbox" ' + (state.includeSrd ? "checked" : "") + ' aria-label="Include SRD languages"><span class="switch-track" aria-hidden="true"></span></label>' +
+                '</div>' +
+              '</div>' +
+              '<div class="filter-bottomline">' +
+                '<div class="filter-cluster">' +
+                  '<span class="filter-label">Language type</span>' +
+                  '<div class="chip-row" role="group" aria-label="Filter by language type">' +
+                    ["All", "Standard", "Exotic"].map(function (type) {
+                      return '<button class="filter-chip" type="button" data-type="' + type + '" aria-pressed="' + (state.type === type) + '">' + type + '</button>';
+                    }).join("") +
+                  '</div>' +
+                '</div>' +
+                '<label class="filter-cluster select-wrap" for="scriptFilter">' +
+                  '<span class="filter-label">Browse by script</span>' +
+                  '<select class="script-select" id="scriptFilter">' +
+                    '<option value="All">All scripts</option>' +
+                    allScripts().map(function (script) {
+                      return '<option value="' + escapeHtml(script) + '" ' + (state.script === script ? "selected" : "") + '>' + escapeHtml(script) + '</option>';
+                    }).join("") +
+                  '</select>' +
+                '</label>' +
+              '</div>' +
+            '</div>' +
+            '<div class="results-bar">' +
+              '<span class="result-count" id="resultCount" role="status" aria-live="polite"></span>' +
+              '<button class="clear-filters" id="clearFilters" type="button" hidden>Clear filters</button>' +
+            '</div>' +
+            '<div class="language-list" id="languageList"></div>' +
+          '</section>';
+
+        addLanguageButton.hidden = false;
+        wireListChrome();
+        renderResults();
+      }
+
+      function rowMarkup(language) {
+        return '<button class="language-row" type="button" data-language-id="' + escapeHtml(language.id) + '" aria-label="View ' + escapeHtml(language.name) + ' language details">' +
+          '<span class="script-cartouche" aria-hidden="true"><span class="script-sigil">' + escapeHtml(scriptSigil(language.script)) + '</span></span>' +
+          '<span class="row-copy">' +
+            '<span class="row-title">' + escapeHtml(language.name) + (language.isCustom ? '<span class="custom-mark">Custom</span>' : '') + '</span>' +
+            '<span class="row-meta">' + escapeHtml(language.speakers.join(", ") || "No typical speakers listed") + '</span>' +
+            '<span class="mobile-taxonomy">' + escapeHtml(language.type) + ' · ' + escapeHtml(scriptLabel(language)) + ' script</span>' +
+          '</span>' +
+          '<span class="row-taxonomy"><span class="type-badge">' + escapeHtml(language.type) + '</span><span class="script-name">' + escapeHtml(scriptLabel(language)) + ' script</span></span>' +
+          '<span class="chevron" aria-hidden="true">›</span>' +
+        '</button>';
+      }
+
+      function groupMarkup(label, items) {
+        if (!items.length) return "";
+        return '<h2 class="list-group-label"><span>' + escapeHtml(label) + '</span><span class="group-count" aria-label="' + plural(items.length, "entry") + '">' + items.length + '</span></h2>' + items.map(rowMarkup).join("");
+      }
+
+      function hasActiveFilters() {
+        return Boolean(state.query || state.type !== "All" || state.script !== "All" || !state.includeSrd);
+      }
+
+      function resetListFilters() {
+        state.query = "";
+        state.type = "All";
+        state.script = "All";
+        state.includeSrd = true;
+        renderList();
+        setTimeout(function () { document.getElementById("languageSearch").focus(); }, 0);
+      }
+
+      function renderResults() {
+        var visible = visibleLanguages();
+        var list = document.getElementById("languageList");
+        var resultCount = document.getElementById("resultCount");
+        var clear = document.getElementById("clearSearch");
+        var clearFilters = document.getElementById("clearFilters");
+        if (!list || !resultCount) return;
+
+        resultCount.textContent = hasActiveFilters()
+          ? "Showing " + visible.length + " of " + languages.length + " languages"
+          : plural(visible.length, "language");
+        if (clear) clear.classList.toggle("visible", Boolean(state.query));
+        if (clearFilters) clearFilters.hidden = !hasActiveFilters();
+
+        if (!visible.length) {
+          list.innerHTML =
+            '<div class="empty-state">' +
+              '<span class="empty-glyph" aria-hidden="true">⌁</span>' +
+              '<h2>No matching languages</h2>' +
+              '<p>Try another name, speaker, type, or writing system.</p>' +
+              '<button class="reset-link" id="resetFilters" type="button">Reset filters</button>' +
+            '</div>';
+          document.getElementById("resetFilters").addEventListener("click", function () {
+            resetListFilters();
+          });
+          return;
+        }
+
+        var custom = visible.filter(function (language) { return language.isCustom; });
+        var srd = visible.filter(function (language) { return !language.isCustom; });
+        list.innerHTML = groupMarkup("Your languages", custom) + groupMarkup("SRD languages", srd);
+        list.querySelectorAll("[data-language-id]").forEach(function (button) {
+          button.addEventListener("click", function () { renderDetail(button.dataset.languageId); });
+        });
+      }
+
+      function wireListChrome() {
+        var search = document.getElementById("languageSearch");
+        search.addEventListener("input", function () {
+          state.query = search.value;
+          renderResults();
+        });
+        document.getElementById("clearSearch").addEventListener("click", function () {
+          state.query = "";
+          search.value = "";
+          renderResults();
+          search.focus();
+        });
+        document.getElementById("clearFilters").addEventListener("click", resetListFilters);
+        document.getElementById("includeSrd").addEventListener("change", function (event) {
+          state.includeSrd = event.target.checked;
+          renderResults();
+        });
+        document.querySelectorAll("[data-type]").forEach(function (button) {
+          button.addEventListener("click", function () {
+            state.type = button.dataset.type;
+            document.querySelectorAll("[data-type]").forEach(function (item) {
+              item.setAttribute("aria-pressed", String(item.dataset.type === state.type));
+            });
+            renderResults();
+          });
+        });
+        document.getElementById("scriptFilter").addEventListener("change", function (event) {
+          state.script = event.target.value;
+          renderResults();
+        });
+      }
+
+      function peersFor(language) {
+        return languages.filter(function (candidate) {
+          return candidate.id !== language.id && scriptLabel(candidate) === scriptLabel(language);
+        });
+      }
+
+      function connectionRows(language) {
+        var rows = [];
+        if (language.races.length) {
+          rows.push({ icon: "R", title: "Races", value: language.races.slice(0, 3).join(", ") + (language.races.length > 3 ? " +" + (language.races.length - 3) : "") });
+        }
+        if (language.backgrounds.length) {
+          rows.push({ icon: "B", title: "Backgrounds", value: language.backgrounds.join(", ") });
+        }
+        if (language.traits.length) {
+          rows.push({
+            icon: "T",
+            title: "Traits",
+            value: language.traits.map(function (trait) {
+              return trait === "Extra Language"
+                ? "Extra Language choice"
+                : trait;
+            }).join(", ")
+          });
+        }
+        return rows;
+      }
+
+      function renderDetail(id) {
+        var language = languages.find(function (item) { return item.id === id; });
+        if (!language) {
+          renderList();
+          return;
+        }
+        state.selectedId = id;
+        var peers = peersFor(language);
+        var connections = connectionRows(language);
+        managerCard.innerHTML =
+          '<article class="view detail-view">' +
+            '<div class="detail-backbar">' +
+              '<button class="back-sword ink" id="detailBack" type="button" aria-label="Back to all languages">' + swordMarkup() + '</button>' +
+              '<span class="detail-backbar-title">' + escapeHtml(language.name) + '</span>' +
+              '<span aria-hidden="true"></span>' +
+            '</div>' +
+            '<header class="language-hero">' +
+              '<div class="script-folio" aria-label="' + escapeHtml(scriptLabel(language)) + ' script specimen">' +
+                '<span class="folio-sigil">' + escapeHtml(scriptSigil(language.script)) + '</span>' +
+                '<span class="folio-caption">Script</span>' +
+              '</div>' +
+              '<div class="hero-copy">' +
+                '<p class="utility-label">' + escapeHtml(language.isCustom ? "Custom language" : "SRD language") + '</p>' +
+                '<h2>' + escapeHtml(language.name) + '</h2>' +
+                '<p>' + escapeHtml(language.speakers.length ? "Typically spoken by " + language.speakers.join(" and ") + "." : "No typical speakers are listed.") + '</p>' +
+              '</div>' +
+              '<div class="hero-pills">' +
+                '<span class="hero-pill">' + escapeHtml(language.type) + '</span>' +
+                '<span class="hero-pill script">' + escapeHtml(scriptLabel(language)) + ' script</span>' +
+              '</div>' +
+            '</header>' +
+            '<div class="lexicon-grid">' +
+              '<div class="lexicon-main">' +
+                '<section class="detail-section">' +
+                  '<h3>About the language</h3>' +
+                  (language.description
+                    ? '<p>' + escapeHtml(language.description) + '</p>'
+                    : language.isCustom
+                      ? '<p>No description provided.</p>'
+                      : '<p>No descriptive text is supplied for this SRD entry. Its classification, script, and typical speakers are still available.</p>') +
+                '</section>' +
+                '<section class="detail-section">' +
+                  '<h3>Typical speakers</h3>' +
+                  (language.speakers.length
+                    ? '<div class="speaker-list">' + language.speakers.map(function (speaker) { return '<span class="speaker-token">' + escapeHtml(speaker) + '</span>'; }).join("") + '</div>'
+                    : '<p>No typical speakers are listed.</p>') +
+                '</section>' +
+                '<section class="detail-section">' +
+                  '<h3>Learning this language</h3>' +
+                  '<p>Characters may learn it from their race, background, or a feature that grants a language choice. The connected compendium entries are listed here when available.</p>' +
+                  '<span class="usage-callout">Known by ' + plural(language.usageCount, "character") + ' in this campaign</span>' +
+                '</section>' +
+                (language.isCustom
+                  ? '<div class="detail-actions"><button class="button button-secondary" id="editLanguage" type="button">Edit language</button><button class="button button-danger" id="archiveLanguage" type="button">Archive</button></div>'
+                  : '') +
+              '</div>' +
+              '<aside class="lexicon-aside">' +
+                '<section class="aside-card">' +
+                  '<h3>Entry at a glance</h3>' +
+                  '<div class="fact-row"><span class="fact-key">Type</span><span class="fact-value">' + escapeHtml(language.type) + '</span></div>' +
+                  '<div class="fact-row"><span class="fact-key">Script</span><span class="fact-value">' + escapeHtml(scriptLabel(language)) + '</span></div>' +
+                  '<div class="fact-row"><span class="fact-key">Source</span><span class="fact-value">' + escapeHtml(language.source) + '</span></div>' +
+                '</section>' +
+                '<section class="aside-card">' +
+                  '<h3>Shares this script</h3>' +
+                  (peers.length
+                    ? '<div class="script-lineage">' + peers.map(function (peer) {
+                        return '<button class="script-peer" type="button" data-peer="' + escapeHtml(peer.id) + '"><span>' + escapeHtml(peer.name) + '</span><small>' + escapeHtml(peer.type) + '</small></button>';
+                      }).join("") + '</div>' +
+                      '<button class="reset-link" id="browseScript" type="button">Browse all ' + escapeHtml(scriptLabel(language)) + ' entries</button>'
+                    : '<p class="relation-empty">No other entries share this script.</p>') +
+                '</section>' +
+                '<section class="aside-card">' +
+                  '<h3>Ways to learn it</h3>' +
+                  '<p class="relation-help">Compendium entries that grant this language or offer it as a choice.</p>' +
+                  (connections.length
+                    ? '<div class="relation-list">' + connections.map(function (connection) {
+                        return '<div class="relation-row"><span class="relation-icon" aria-hidden="true">' + connection.icon + '</span><span class="relation-copy"><strong>' + escapeHtml(connection.title) + '</strong><span>' + escapeHtml(connection.value) + '</span></span></div>';
+                      }).join("") + '</div>'
+                    : '<p class="relation-empty">No race, background, or trait links are attached.</p>') +
+                '</section>' +
+              '</aside>' +
+            '</div>' +
+          '</article>';
+
+        addLanguageButton.hidden = true;
+        document.getElementById("detailBack").addEventListener("click", function () {
+          renderList();
+          setTimeout(function () {
+            var row = managerCard.querySelector('[data-language-id="' + CSS.escape(id) + '"]');
+            if (row) row.focus();
+          }, 0);
+        });
+        managerCard.querySelectorAll("[data-peer]").forEach(function (button) {
+          button.addEventListener("click", function () { renderDetail(button.dataset.peer); });
+        });
+        document.getElementById("browseScript")?.addEventListener("click", function () {
+          state.script = scriptLabel(language);
+          state.type = "All";
+          state.query = "";
+          renderList();
+          setTimeout(function () { document.getElementById("scriptFilter").focus(); }, 0);
+        });
+        document.getElementById("editLanguage")?.addEventListener("click", function () { openEditor(language); });
+        document.getElementById("archiveLanguage")?.addEventListener("click", function (event) { confirmArchive(language, event.currentTarget); });
+        setTimeout(function () { document.getElementById("detailBack").focus(); }, 0);
+      }
+
+      function blankDraft() {
+        return {
+          name: "",
+          type: "Standard",
+          script: "Common",
+          description: "",
+          speakers: [],
+          races: [],
+          backgrounds: [],
+          traits: [],
+          usageCount: 0
+        };
+      }
+
+      function languageToDraft(language) {
+        return {
+          name: language.name,
+          type: language.type,
+          script: language.script,
+          description: language.description,
+          speakers: language.speakers.slice(),
+          races: language.races.slice(),
+          backgrounds: language.backgrounds.slice(),
+          traits: language.traits.slice(),
+          usageCount: language.usageCount
+        };
+      }
+
+      function snapshotDraft() {
+        return JSON.stringify({
+          name: document.getElementById("languageName").value.trim(),
+          type: document.getElementById("languageType").value,
+          script: document.getElementById("languageScript").value.trim(),
+          description: document.getElementById("languageDescription").value.trim(),
+          speakers: state.speakers
+        });
+      }
+
+      function nameValidationMessage(value) {
+        var name = value.trim();
+        if (!name) return "Enter a language name.";
+        var duplicate = languages.some(function (language) {
+          return language.id !== state.editingId && language.name.toLowerCase() === name.toLowerCase();
+        });
+        return duplicate ? "A language with this name already exists." : "";
+      }
+
+      function setNameValidationError(message) {
+        var input = document.getElementById("languageName");
+        input.setAttribute("aria-invalid", "true");
+        input.setAttribute("aria-describedby", "editorError");
+        document.getElementById("editorError").textContent = message;
+      }
+
+      function clearNameValidationError() {
+        var input = document.getElementById("languageName");
+        input.removeAttribute("aria-invalid");
+        input.removeAttribute("aria-describedby");
+        document.getElementById("editorError").textContent = "";
+      }
+
+      function openEditor(language) {
+        var editing = language || null;
+        lastFocusedElement = document.activeElement;
+        state.editingId = editing ? editing.id : null;
+        state.draft = editing ? languageToDraft(editing) : blankDraft();
+        state.speakers = state.draft.speakers.slice();
+
+        document.getElementById("editorTitle").textContent = editing ? "Edit custom language" : "New custom language";
+        document.getElementById("editorEyebrow").textContent = editing ? "Custom language · Editing" : "Custom language";
+        document.getElementById("saveLanguage").textContent = editing ? "Save changes" : "Create language";
+        document.getElementById("languageName").value = state.draft.name;
+        document.getElementById("languageType").value = state.draft.type;
+        document.getElementById("languageScript").value = state.draft.script;
+        document.getElementById("languageDescription").value = state.draft.description;
+        updateDescriptionCount();
+        document.getElementById("speakerInput").value = "";
+        clearNameValidationError();
+        renderSpeakerTokens();
+        renderConnectionPreview();
+        state.initialDraft = snapshotDraft();
+
+        editorBackdrop.classList.add("open");
+        editorBackdrop.setAttribute("aria-hidden", "false");
+        document.getElementById("closeEditor").focus({ preventScroll: true });
+        concealAppShell();
+        setTimeout(function () { document.getElementById("languageName").focus(); }, 320);
+      }
+
+      function renderSpeakerTokens() {
+        var holder = document.getElementById("speakerTokens");
+        holder.innerHTML = state.speakers.length
+          ? state.speakers.map(function (speaker, index) {
+              return '<span class="editable-token">' + escapeHtml(speaker) + '<button type="button" data-remove-speaker="' + index + '" aria-label="Remove ' + escapeHtml(speaker) + '">×</button></span>';
+            }).join("")
+          : '<span class="field-help">No typical speakers added yet.</span>';
+
+        holder.querySelectorAll("[data-remove-speaker]").forEach(function (button) {
+          button.addEventListener("click", function () {
+            var index = Number(button.dataset.removeSpeaker);
+            state.speakers.splice(index, 1);
+            renderSpeakerTokens();
+            document.getElementById("speakerInput").focus();
+          });
+        });
+      }
+
+      function updateDescriptionCount() {
+        var description = document.getElementById("languageDescription");
+        document.getElementById("descriptionCount").textContent = description.value.length + " / 1200";
+      }
+
+      function addSpeaker() {
+        var input = document.getElementById("speakerInput");
+        var value = input.value.trim();
+        if (!value) {
+          input.focus();
+          return;
+        }
+        var exists = state.speakers.some(function (speaker) { return speaker.toLowerCase() === value.toLowerCase(); });
+        if (!exists) state.speakers.push(value);
+        input.value = "";
+        renderSpeakerTokens();
+        input.focus();
+      }
+
+      function renderConnectionPreview() {
+        var draft = state.draft || blankDraft();
+        var entries = [
+          { label: "Races", values: draft.races },
+          { label: "Backgrounds", values: draft.backgrounds },
+          { label: "Traits", values: draft.traits }
+        ];
+        document.getElementById("connectionPreview").innerHTML = entries.map(function (entry) {
+          return '<div class="connection-cell"><span>' + entry.label + '</span><strong>' + escapeHtml(entry.values.length ? entry.values.join(", ") : "None linked") + '</strong></div>';
+        }).join("");
+      }
+
+      function editorDirty() {
+        return state.draft && snapshotDraft() !== state.initialDraft;
+      }
+
+      function requestCloseEditor(returnFocus) {
+        var editorReturnFocus = returnFocus instanceof HTMLElement ? returnFocus : document.activeElement;
+        if (editorDirty()) {
+          showConfirm({
+            title: "Discard custom language draft?",
+            message: "Your unsaved changes will be lost.",
+            actionLabel: "Discard",
+            danger: true,
+            returnFocus: editorReturnFocus,
+            onAction: function () {
+              closeConfirm(false, false);
+              closeEditor();
+            }
+          });
+        } else {
+          closeEditor();
+        }
+      }
+
+      function closeEditor() {
+        editorBackdrop.classList.remove("open");
+        editorBackdrop.setAttribute("aria-hidden", "true");
+        revealAppShell();
+        state.draft = null;
+        state.editingId = null;
+        state.speakers = [];
+        setTimeout(function () {
+          if (lastFocusedElement && lastFocusedElement.isConnected) lastFocusedElement.focus();
+        }, 20);
+      }
+
+      function saveLanguage() {
+        var name = document.getElementById("languageName").value.trim();
+        var type = document.getElementById("languageType").value;
+        var script = document.getElementById("languageScript").value.trim();
+        var description = document.getElementById("languageDescription").value.trim();
+        var validationMessage = nameValidationMessage(name);
+        if (validationMessage) {
+          setNameValidationError(validationMessage);
+          document.getElementById("languageName").focus();
+          return;
+        }
+        clearNameValidationError();
+
+        var existing = languages.find(function (language) { return language.id === state.editingId; });
+        var next = {
+          id: existing ? existing.id : (slugify(name) || "custom-language-" + Date.now()),
+          name: name,
+          source: "Custom",
+          isCustom: true,
+          type: type,
+          script: script,
+          description: description,
+          speakers: state.speakers.slice(),
+          races: existing ? existing.races.slice() : [],
+          backgrounds: existing ? existing.backgrounds.slice() : [],
+          traits: existing ? existing.traits.slice() : [],
+          usageCount: existing ? existing.usageCount : 0
+        };
+        if (existing) {
+          languages = languages.map(function (language) { return language.id === existing.id ? next : language; });
+        } else {
+          languages.push(next);
+        }
+        var wasEditing = Boolean(existing);
+        state.initialDraft = snapshotDraft();
+        closeEditor();
+        renderDetail(next.id);
+        showToast(wasEditing ? next.name + " updated." : next.name + " created.");
+      }
+
+      function showConfirm(options) {
+        confirmReturnFocus = options.returnFocus instanceof HTMLElement ? options.returnFocus : null;
+        confirmCallback = options.onAction;
+        confirmCancelCallback = options.onCancel || null;
+        document.getElementById("confirmTitle").textContent = options.title;
+        document.getElementById("confirmMessage").textContent = options.message;
+        var note = document.getElementById("confirmNote");
+        note.textContent = options.note || "";
+        note.hidden = !options.note;
+        var action = document.getElementById("confirmAction");
+        action.textContent = options.actionLabel;
+        action.className = "button " + (options.danger ? "button-primary" : "button-secondary");
+        confirmLayer.classList.add("open");
+        confirmLayer.setAttribute("aria-hidden", "false");
+        document.getElementById("confirmCancel").focus({ preventScroll: true });
+        if (editorBackdrop.classList.contains("open")) {
+          editorSheet.setAttribute("inert", "");
+          editorSheet.setAttribute("aria-hidden", "true");
+        } else {
+          concealAppShell();
+        }
+      }
+
+      function closeConfirm(runCancel, restoreFocus) {
+        var shouldRestore = restoreFocus !== false;
+        var returnFocus = confirmReturnFocus;
+        confirmLayer.classList.remove("open");
+        confirmLayer.setAttribute("aria-hidden", "true");
+        editorSheet.removeAttribute("inert");
+        editorSheet.removeAttribute("aria-hidden");
+        if (!editorBackdrop.classList.contains("open")) revealAppShell();
+        if (runCancel && confirmCancelCallback) confirmCancelCallback();
+        confirmCallback = null;
+        confirmCancelCallback = null;
+        confirmReturnFocus = null;
+        if (shouldRestore && returnFocus && returnFocus.isConnected) {
+          setTimeout(function () { returnFocus.focus(); }, 20);
+        }
+      }
+
+      function confirmArchive(language, returnFocus) {
+        showConfirm({
+          title: "Archive custom language?",
+          message: language.name + " will disappear from future language choices. " + (language.usageCount ? plural(language.usageCount, "existing character") + " will keep it." : "Existing character sheets keep any saved reference."),
+          actionLabel: "Archive",
+          danger: true,
+          returnFocus: returnFocus,
+          onAction: function () {
+            languages = languages.filter(function (item) { return item.id !== language.id; });
+            closeConfirm(false, false);
+            renderList();
+            showToast(language.name + " archived.");
+          }
+        });
+      }
+
+      function trapFocus(event, container) {
+        if (event.key !== "Tab") return;
+        var focusable = Array.from(container.querySelectorAll('button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])'))
+          .filter(function (element) { return !element.hidden && element.offsetParent !== null; });
+        if (!focusable.length) return;
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+
+      addLanguageButton.addEventListener("click", function () { openEditor(); });
+      document.getElementById("closeEditor").addEventListener("click", function (event) { requestCloseEditor(event.currentTarget); });
+      document.getElementById("cancelEditor").addEventListener("click", function (event) { requestCloseEditor(event.currentTarget); });
+      document.getElementById("saveLanguage").addEventListener("click", saveLanguage);
+      document.getElementById("addSpeaker").addEventListener("click", addSpeaker);
+      document.getElementById("languageName").addEventListener("input", function (event) {
+        if (!event.currentTarget.hasAttribute("aria-invalid")) return;
+        var message = nameValidationMessage(event.currentTarget.value);
+        if (message) setNameValidationError(message);
+        else clearNameValidationError();
+      });
+      document.getElementById("languageDescription").addEventListener("input", updateDescriptionCount);
+      document.getElementById("speakerInput").addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          addSpeaker();
+        }
+      });
+      document.getElementById("confirmCancel").addEventListener("click", function () { closeConfirm(true); });
+      document.getElementById("confirmAction").addEventListener("click", function () {
+        if (confirmCallback) confirmCallback();
+      });
+      document.getElementById("compendiumBack").addEventListener("click", function () { showToast("Back to the Compendium hub."); });
+      document.querySelectorAll(".rail-button").forEach(function (button) {
+        button.addEventListener("click", function () { showToast(button.getAttribute("aria-label") + " navigation."); });
+      });
+
+      editorBackdrop.addEventListener("mousedown", function (event) {
+        if (event.target === editorBackdrop) requestCloseEditor();
+      });
+      confirmLayer.addEventListener("mousedown", function (event) {
+        if (event.target === confirmLayer) closeConfirm(true);
+      });
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          if (confirmLayer.classList.contains("open")) closeConfirm(true);
+          else if (editorBackdrop.classList.contains("open")) requestCloseEditor();
+        }
+        if (confirmLayer.classList.contains("open")) trapFocus(event, document.getElementById("confirmDialog"));
+        else if (editorBackdrop.classList.contains("open")) trapFocus(event, editorSheet);
+      });
+
+      var requestedView = new URLSearchParams(window.location.search).get("view");
+      if (requestedView === "new") {
+        renderList();
+        setTimeout(function () { openEditor(); }, 0);
+      } else if (requestedView === "edit") {
+        renderDetail("waymark-cant");
+        setTimeout(function () {
+          openEditor(languages.find(function (language) { return language.id === "waymark-cant"; }));
+        }, 0);
+      } else if (requestedView && languages.some(function (language) { return language.id === requestedView; })) {
+        renderDetail(requestedView);
+      } else {
+        renderList();
+      }
+    }());
+  </script>
+</body>
+</html>

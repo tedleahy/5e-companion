@@ -1,0 +1,1913 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Compendium Races — interactive design prototype</title>
+  <style>
+    :root {
+      --night: #1f1711;
+      --night-deep: #110b07;
+      --parchment: #f6e9cf;
+      --parchment-light: #f5eedc;
+      --parchment-deep: #f0e0c0;
+      --card: #f3e3bf;
+      --ink: #2b1c11;
+      --ink-light: #3d2b1f;
+      --ink-soft: rgba(92, 63, 36, 0.82);
+      --ember: #5f4325;
+      --gold: #c4a470;
+      --gold-light: #e8b84b;
+      --gold-dark: #9e845b;
+      --claret: #8c1d38;
+      --claret-light: #a62b4a;
+      --crimson: #7b1e1e;
+      --success: #2d6a4f;
+      --divider: rgba(139, 90, 43, 0.3);
+      --rail-border: rgba(201, 146, 42, 0.18);
+      --paper-shadow: 0 18px 48px rgba(8, 4, 2, 0.28);
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 18px;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 16px;
+      --space-4: 20px;
+      --space-5: 24px;
+      --space-6: 40px;
+      --display: Georgia, "Times New Roman", serif;
+      --body: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+      --utility: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --quick: 160ms;
+      --standard: 240ms;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+    }
+
+    html, body { min-height: 100%; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--night);
+      color: var(--parchment);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    button, input, textarea, select { font: inherit; }
+    button { color: inherit; }
+
+    button, [role="button"], input, textarea, select { -webkit-tap-highlight-color: transparent; }
+
+    :focus-visible {
+      outline: 3px solid var(--gold-light);
+      outline-offset: 3px;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: 8px;
+      left: 60px;
+      z-index: 100;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: var(--parchment);
+      color: var(--ink);
+      transform: translateY(-160%);
+      transition: transform var(--quick) ease;
+    }
+
+    .skip-link:focus { transform: translateY(0); }
+
+    .app-shell {
+      min-height: 100dvh;
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr);
+      background:
+        radial-gradient(circle at 82% 12%, rgba(196, 164, 112, 0.045), transparent 28rem),
+        var(--night);
+    }
+
+    .rail {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      padding: 12px 5px 10px;
+      background: var(--night-deep);
+      border-right: 1px solid var(--rail-border);
+    }
+
+    .rail-mark {
+      width: 33px;
+      height: 33px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 10px;
+      border: 1px solid rgba(196, 164, 112, 0.38);
+      border-radius: 50%;
+      color: var(--gold);
+      font: 700 18px/1 var(--display);
+    }
+
+    .rail-button {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 11px;
+      background: transparent;
+      color: rgba(196, 164, 112, 0.48);
+      cursor: pointer;
+      font-size: 17px;
+    }
+
+    .rail-button:hover { background: rgba(201, 146, 42, 0.07); color: var(--gold); }
+    .rail-button[aria-current="page"] { background: rgba(201, 146, 42, 0.09); color: var(--gold); }
+    .rail-spacer { flex: 1; }
+
+    .screen {
+      min-width: 0;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .codex-header {
+      position: relative;
+      min-height: 90px;
+      display: grid;
+      grid-template-columns: 64px 1fr 64px;
+      align-items: center;
+      padding: 8px 10px 13px;
+      border-bottom: 1px solid var(--rail-border);
+    }
+
+    .page-heading { text-align: center; min-width: 0; }
+
+    .eyebrow,
+    .utility-label {
+      margin: 0;
+      color: var(--gold);
+      font-family: var(--utility);
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: 0.19em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow { opacity: 0.72; }
+
+    h1 {
+      margin: 5px 0 0;
+      font: 700 clamp(28px, 3vw, 34px)/1.05 var(--display);
+      letter-spacing: 0.01em;
+    }
+
+    .back-sword {
+      width: 54px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 3px;
+      padding: 3px;
+      border: 0;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--gold);
+      cursor: pointer;
+    }
+
+    .back-sword:hover { background: rgba(201, 146, 42, 0.07); color: var(--gold-light); }
+    .back-sword:active svg { transform: translateX(-4px); }
+    .back-sword svg { width: 34px; height: 16px; overflow: visible; transition: transform var(--quick) ease; }
+    .back-sword span { font: 700 9px/1 var(--utility); letter-spacing: 0.16em; text-transform: uppercase; }
+    .back-sword.ink { color: var(--claret); }
+    .back-sword.ink:hover { background: rgba(140, 29, 56, 0.1); color: var(--claret-light); }
+
+    .content-area {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      padding: 8px 16px 16px;
+    }
+
+    .manager-card {
+      position: relative;
+      height: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      overflow: hidden;
+      border: 1px solid var(--gold);
+      border-radius: var(--radius-md);
+      background:
+        linear-gradient(90deg, transparent 0 31px, rgba(140, 29, 56, 0.08) 31px 32px, transparent 32px),
+        radial-gradient(circle at 18% 9%, rgba(255, 255, 255, 0.24), transparent 22rem),
+        radial-gradient(circle at 88% 86%, rgba(118, 70, 25, 0.05), transparent 19rem),
+        var(--card);
+      box-shadow: var(--paper-shadow);
+      color: var(--ink-light);
+    }
+
+    .view { height: 100%; min-height: 0; }
+
+    .collection-view {
+      display: flex;
+      flex-direction: column;
+      animation: fade-in var(--quick) ease both;
+    }
+
+    .collection-chrome {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 12px;
+      padding: 16px 18px 13px;
+      background: rgba(243, 227, 191, 0.97);
+      border-bottom: 1px solid var(--divider);
+      box-shadow: 0 8px 18px rgba(75, 45, 20, 0.05);
+    }
+
+    .filter-topline {
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) auto;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .search-wrap { position: relative; max-width: 560px; }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      width: 18px;
+      height: 18px;
+      color: var(--ember);
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 42px;
+      padding: 8px 40px;
+      border: 1px solid rgba(139, 90, 43, 0.38);
+      border-radius: 10px;
+      background: rgba(255, 250, 237, 0.58);
+      color: var(--ink);
+      font-family: var(--body);
+      font-size: 16px;
+      transition: border-color var(--quick) ease, background var(--quick) ease, box-shadow var(--quick) ease;
+    }
+
+    .search-input:hover { border-color: rgba(139, 90, 43, 0.58); }
+    .search-input:focus { border-color: var(--claret); background: rgba(255, 250, 237, 0.86); box-shadow: 0 0 0 3px rgba(140, 29, 56, 0.09); outline: 0; }
+    .search-input:focus-visible { outline: 3px solid var(--gold-light); outline-offset: 2px; }
+
+    .search-input::placeholder { color: var(--ink-soft); }
+
+    .clear-search {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      width: 32px;
+      height: 32px;
+      display: none;
+      place-items: center;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--ember);
+      cursor: pointer;
+    }
+
+    .clear-search.visible { display: grid; }
+    .clear-search:hover { background: rgba(140, 29, 56, 0.1); }
+
+    .source-control {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      white-space: nowrap;
+    }
+
+    .source-title { color: var(--ink-soft); font: 700 10px/1 var(--utility); letter-spacing: 0.12em; text-transform: uppercase; }
+
+    .source-segment {
+      display: flex;
+      padding: 3px;
+      border: 1px solid rgba(139, 90, 43, 0.3);
+      border-radius: 10px;
+      background: rgba(95, 67, 37, 0.08);
+    }
+
+    .source-option {
+      min-height: 32px;
+      padding: 5px 12px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--ink-soft);
+      cursor: pointer;
+      font: 700 12px/1 var(--utility);
+    }
+
+    .source-option:hover { color: var(--claret); }
+    .source-option[aria-pressed="true"] { background: var(--parchment-light); color: var(--claret); box-shadow: 0 1px 4px rgba(43, 28, 17, 0.14); }
+
+    .filter-bottomline { display: flex; align-items: center; gap: 10px; min-width: 0; }
+
+    .chip-label {
+      flex: 0 0 auto;
+      color: var(--ink-soft);
+      font-family: var(--utility);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      min-width: 0;
+      overflow-x: auto;
+      padding: 2px 3px 4px;
+      scrollbar-width: thin;
+    }
+
+    .filter-chip {
+      min-height: 32px;
+      padding: 4px 13px;
+      border: 1px solid var(--gold-dark);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--ink-light);
+      white-space: nowrap;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .filter-chip:hover { background: rgba(140, 29, 56, 0.07); }
+    .filter-chip[aria-pressed="true"] { border-color: var(--crimson); background: var(--crimson); color: var(--parchment); }
+
+    .filter-summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+      color: var(--ink-soft);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .result-count strong { color: var(--ink); }
+
+    .clear-filters {
+      min-height: 30px;
+      padding: 3px 8px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--claret);
+      cursor: pointer;
+      font: 700 12px/1 var(--utility);
+    }
+
+    .clear-filters:hover { background: rgba(140, 29, 56, 0.08); }
+
+    .race-list {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 5px 16px 92px;
+      scrollbar-color: rgba(95, 67, 37, 0.42) transparent;
+    }
+
+    .race-row {
+      width: 100%;
+      min-height: 79px;
+      display: grid;
+      grid-template-columns: 50px minmax(0, 1fr) auto 24px;
+      align-items: center;
+      gap: 15px;
+      padding: 10px 5px;
+      border: 0;
+      border-bottom: 1px solid var(--divider);
+      background: transparent;
+      color: var(--ink-light);
+      text-align: left;
+      cursor: pointer;
+      transition: background var(--quick) ease, padding var(--quick) ease;
+    }
+
+    .race-row:hover { padding-inline: 9px 5px; background: linear-gradient(90deg, rgba(140, 29, 56, 0.065), transparent 82%); }
+    .race-row:active { background: rgba(140, 29, 56, 0.09); }
+
+    .race-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(139, 90, 43, 0.18);
+      border-radius: 50% 50% 46% 46%;
+      background: linear-gradient(145deg, rgba(255,255,255,0.5), rgba(196,164,112,0.1)), var(--parchment-light);
+      color: var(--claret);
+      box-shadow: inset 0 0 0 3px rgba(196,164,112,0.12), 0 2px 8px rgba(75,45,20,0.08);
+      font: 700 14px/1 var(--display);
+      letter-spacing: 0.04em;
+      transition: border-color var(--quick) ease, transform var(--quick) ease;
+    }
+
+    .race-row:hover .race-icon { border-color: var(--claret); transform: rotate(-2deg) scale(1.04); }
+
+    .row-copy { min-width: 0; }
+    .row-title-line { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .row-title { display: block; overflow: hidden; color: var(--ink); font-size: 19px; font-weight: 700; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+    .row-meta { display: block; margin-top: 5px; color: var(--ink-soft); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .source-badge {
+      flex: 0 0 auto;
+      padding: 2px 6px;
+      border: 1px solid rgba(95, 67, 37, 0.25);
+      border-radius: 999px;
+      color: var(--ink-soft);
+      font: 700 9px/1.2 var(--utility);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .source-badge.custom { border-color: rgba(140,29,56,0.3); background: rgba(140,29,56,0.07); color: var(--claret); }
+
+    .ability-summary { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 5px; max-width: 230px; }
+
+    .mini-bonus {
+      padding: 3px 7px;
+      border: 1px solid rgba(140, 29, 56, 0.22);
+      border-radius: 6px;
+      background: rgba(140, 29, 56, 0.045);
+      color: var(--claret);
+      font: 700 11px/1.25 var(--utility);
+      letter-spacing: 0.04em;
+    }
+
+    .chevron { color: var(--ink-soft); font-family: var(--utility); font-size: 22px; transition: color var(--quick) ease, transform var(--quick) ease; }
+    .race-row:hover .chevron { color: var(--claret); transform: translateX(2px); }
+
+    .empty-state {
+      min-height: 260px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 8px;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .empty-glyph { color: var(--gold-dark); font-size: 32px; }
+    .empty-state h2 { margin: 0; color: var(--ink); font: 700 20px/1.2 var(--display); }
+    .empty-state p { max-width: 380px; margin: 0; color: var(--ink-soft); }
+    .empty-state .button { margin-top: 8px; }
+
+    .fab {
+      position: absolute;
+      z-index: 4;
+      right: 32px;
+      bottom: 28px;
+      width: auto;
+      min-width: 56px;
+      height: 56px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: var(--radius-md);
+      background: var(--crimson);
+      box-shadow: 0 10px 24px rgba(55, 9, 15, 0.3);
+      color: var(--parchment);
+      cursor: pointer;
+      font: 700 12px/1 var(--utility);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: transform var(--quick) ease, background var(--quick) ease;
+    }
+
+    .fab:hover { background: var(--claret-light); transform: translateY(-2px); }
+    .fab-plus { font: 400 27px/1 var(--body); transform: translateY(-1px); }
+
+    .detail-view {
+      position: relative;
+      overflow-y: auto;
+      padding: 0 20px 48px;
+      background:
+        radial-gradient(circle at 18% 9%, rgba(255, 255, 255, 0.2), transparent 22rem),
+        radial-gradient(circle at 88% 86%, rgba(118, 70, 25, 0.045), transparent 19rem),
+        var(--card);
+      animation: detail-in var(--standard) cubic-bezier(.22,.72,.18,1) both;
+      scroll-behavior: smooth;
+      scrollbar-color: rgba(95, 67, 37, 0.42) transparent;
+    }
+
+    .detail-backbar {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      min-height: 58px;
+      display: grid;
+      grid-template-columns: 54px minmax(0, 1fr) 54px;
+      align-items: center;
+      margin: 0 -20px;
+      padding: 3px 7px;
+      border-bottom: 1px solid var(--divider);
+      background: rgba(243, 227, 191, 0.96);
+      backdrop-filter: blur(8px);
+    }
+
+    .detail-backbar-title {
+      overflow: hidden;
+      color: var(--ink);
+      font: 700 19px/1.2 var(--display);
+      text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .race-hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: 82px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 18px;
+      padding: 24px 0 20px;
+    }
+
+    .hero-medallion {
+      width: 78px;
+      height: 78px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--gold-dark);
+      border-radius: 50% 50% 46% 46%;
+      background: linear-gradient(145deg, rgba(255,255,255,0.55), rgba(196,164,112,0.12)), var(--parchment-light);
+      box-shadow: inset 0 0 0 5px rgba(196, 164, 112, 0.12), 0 7px 16px rgba(75,45,20,0.1);
+      color: var(--claret);
+      font: 700 22px/1 var(--display);
+      letter-spacing: 0.06em;
+    }
+
+    .hero-copy h2 { margin: 3px 0 4px; color: var(--ink); font: 700 clamp(26px, 4vw, 34px)/1.05 var(--display); }
+    .hero-copy p { margin: 0; color: var(--ink-soft); }
+
+    .hero-stats { display: flex; gap: 8px; }
+
+    .stat-seal {
+      min-width: 73px;
+      padding: 8px 9px;
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-sm);
+      background: var(--parchment-light);
+      text-align: center;
+    }
+
+    .stat-value { display: block; color: var(--claret); font: 700 23px/1.05 var(--display); }
+    .stat-value.word { font-size: 19px; }
+    .stat-label { display: block; margin-top: 5px; color: var(--ink-soft); font: 700 9px/1.1 var(--utility); letter-spacing: 0.12em; text-transform: uppercase; }
+
+    .detail-jump-links {
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      margin: 0 0 2px;
+      padding: 0 0 16px;
+      scrollbar-width: none;
+    }
+
+    .detail-jump-links::-webkit-scrollbar { display: none; }
+
+    .detail-jump-links a {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border: 1px solid rgba(139,90,43,0.28);
+      border-radius: 999px;
+      color: var(--ink-light);
+      text-decoration: none;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .detail-jump-links a:hover { border-color: var(--claret); background: rgba(140,29,56,0.06); color: var(--claret); }
+    .jump-count { color: var(--claret); font: 700 10px/1 var(--utility); }
+
+    .lineage-ledger {
+      position: relative;
+      display: grid;
+      grid-template-columns: 202px minmax(0, 1fr);
+      gap: 22px;
+      padding: 20px 0 0;
+      border-top: 1px solid var(--divider);
+    }
+
+    .lineage-aside { position: relative; padding: 3px 24px 20px 0; }
+
+    .lineage-aside::after {
+      content: "";
+      position: absolute;
+      top: 5px;
+      right: 2px;
+      bottom: -12px;
+      width: 1px;
+      background: linear-gradient(var(--gold-dark), rgba(158,132,91,0.18));
+    }
+
+    .lineage-knot {
+      position: absolute;
+      top: 1px;
+      right: -5px;
+      width: 15px;
+      height: 15px;
+      border: 3px solid var(--card);
+      border-radius: 50%;
+      background: var(--claret);
+      box-shadow: 0 0 0 1px var(--gold-dark);
+    }
+
+    .lineage-aside h3 { margin: 7px 0 7px; color: var(--claret); font: 700 21px/1.15 var(--display); }
+    .lineage-aside p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+
+    .ledger-content { min-width: 0; }
+
+    .inheritance-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px;
+      margin-bottom: 20px;
+    }
+
+    .inheritance-card {
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-sm);
+      background: rgba(245, 238, 220, 0.68);
+    }
+
+    .inheritance-card strong { display: block; margin-top: 5px; color: var(--ink); font-size: 16px; }
+    .inheritance-card span:not(.utility-label) { display: block; margin-top: 2px; color: var(--ink-soft); font-size: 13px; }
+
+    .ability-seals { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+
+    .ability-seal {
+      min-width: 54px;
+      padding: 5px 8px;
+      border-radius: 7px;
+      background: rgba(140, 29, 56, 0.08);
+      color: var(--claret);
+      font: 700 12px/1.25 var(--utility);
+      text-align: center;
+    }
+
+    .detail-section {
+      position: relative;
+      padding: 20px 0;
+      border-top: 1px solid var(--divider);
+      scroll-margin-top: 66px;
+    }
+
+    .detail-section::before {
+      content: "";
+      position: absolute;
+      top: -1px;
+      left: -23px;
+      width: 23px;
+      height: 1px;
+      background: var(--gold-dark);
+    }
+
+    .detail-section h3 { margin: 0 0 11px; color: var(--claret); font: 700 21px/1.2 var(--display); }
+    .detail-section p { margin: 0 0 10px; color: var(--ink-light); }
+    .detail-section p:last-child { margin-bottom: 0; }
+
+    .trait-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+
+    .trait-card {
+      padding: 14px;
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-sm);
+      background: rgba(245, 238, 220, 0.52);
+    }
+
+    .trait-card h4 { margin: 0 0 5px; color: var(--ink); font-size: 17px; }
+    .trait-card p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+
+    .subrace-list { display: grid; gap: 8px; }
+
+    .subrace-link {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 11px;
+      padding: 10px;
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .subrace-link:hover { background: rgba(140, 29, 56, 0.05); }
+    .subrace-icon { width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid rgba(139,90,43,0.18); border-radius: 50%; background: var(--parchment-light); color: var(--claret); font: 700 11px/1 var(--display); letter-spacing: 0.04em; }
+    .subrace-link strong { display: block; }
+    .subrace-link small { display: block; margin-top: 2px; color: var(--ink-soft); }
+
+    .detail-actions { display: flex; gap: 9px; padding: 20px 0 2px; border-top: 1px solid var(--divider); }
+
+    .button {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 8px 17px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font: 700 11px/1.2 var(--utility);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .button-primary { border: 1px solid var(--crimson); background: var(--crimson); color: var(--parchment); }
+    .button-primary:hover { background: var(--claret-light); }
+    .button-secondary { border: 1px solid var(--claret); background: transparent; color: var(--claret); }
+    .button-secondary:hover { background: rgba(140, 29, 56, 0.07); }
+    .button-danger { border: 1px solid rgba(123, 30, 30, 0.35); background: transparent; color: var(--crimson); }
+    .button-danger:hover { background: rgba(123, 30, 30, 0.08); }
+    .button-quiet { border: 1px solid rgba(196,164,112,0.45); background: transparent; color: var(--parchment); }
+    .button-quiet:hover { background: rgba(196,164,112,0.08); }
+    .button:disabled { cursor: not-allowed; opacity: 0.42; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: grid;
+      place-items: end center;
+      padding: 18px 18px 0;
+      background: rgba(20, 14, 8, 0.68);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--standard) ease, visibility 0s linear var(--standard);
+    }
+
+    .modal-backdrop.open { opacity: 1; visibility: visible; transition-delay: 0s; }
+
+    .editor-sheet {
+      width: min(900px, 100%);
+      height: min(88dvh, 860px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid rgba(196, 164, 112, 0.42);
+      border-bottom: 0;
+      border-radius: 20px 20px 0 0;
+      background: #17100c;
+      color: var(--parchment);
+      box-shadow: 0 -12px 50px rgba(0,0,0,0.38);
+      transform: translateY(102%);
+      transition: transform 300ms cubic-bezier(.22,.72,.18,1);
+    }
+
+    .modal-backdrop.open .editor-sheet { transform: translateY(0); }
+
+    .sheet-handle { width: 40px; height: 4px; margin: 8px auto 2px; border-radius: 999px; background: rgba(196,164,112,0.38); }
+
+    .editor-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 44px;
+      align-items: start;
+      gap: 16px;
+      padding: 13px 20px 14px;
+      border-bottom: 1px solid rgba(196,164,112,0.18);
+    }
+
+    .editor-header h2 { margin: 5px 0 0; font: 700 25px/1.1 var(--display); }
+    .icon-button { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid rgba(196,164,112,0.34); border-radius: 11px; background: transparent; color: var(--gold); cursor: pointer; font: 300 25px/1 var(--utility); }
+    .icon-button:hover { background: rgba(196,164,112,0.08); }
+
+    .editor-stepper {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      padding: 0 20px;
+      border-bottom: 1px solid rgba(196,164,112,0.18);
+    }
+
+    .step-tab {
+      position: relative;
+      min-height: 54px;
+      padding: 8px 6px;
+      border: 0;
+      background: transparent;
+      color: rgba(246, 233, 207, 0.55);
+      cursor: pointer;
+      font-family: var(--utility);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .step-tab::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: -1px; height: 3px; background: transparent; }
+    .step-tab[aria-selected="true"] { color: var(--gold-light); }
+    .step-tab[aria-selected="true"]::after { background: var(--claret-light); }
+    .step-tab[data-complete="true"] { color: rgba(246, 233, 207, 0.82); }
+    .step-tab[data-complete="true"] .step-number { border-color: var(--gold); background: rgba(196,164,112,0.16); color: var(--gold-light); }
+    .step-number { display: inline-grid; width: 20px; height: 20px; place-items: center; margin-right: 4px; border: 1px solid currentColor; border-radius: 50%; font-size: 9px; }
+
+    .editor-body { flex: 1; min-height: 0; overflow-y: auto; padding: 20px; scrollbar-color: rgba(196,164,112,0.35) transparent; }
+    .editor-panel { display: none; max-width: 760px; margin: 0 auto; animation: fade-in var(--quick) ease both; }
+    .editor-panel.active { display: block; }
+    .panel-intro { margin-bottom: 20px; }
+    .panel-intro h3 { margin: 0 0 6px; font: 700 22px/1.2 var(--display); }
+    .panel-intro p { margin: 0; color: rgba(246,233,207,0.65); }
+
+    .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .field-grid .span-2 { grid-column: 1 / -1; }
+    .field { min-width: 0; }
+    .field label, .field legend { display: block; margin-bottom: 7px; color: var(--gold); font: 700 11px/1.2 var(--utility); letter-spacing: 0.13em; text-transform: uppercase; }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid rgba(201, 146, 42, 0.5);
+      border-radius: 7px;
+      background: rgba(201, 146, 42, 0.07);
+      color: var(--parchment);
+      box-shadow: 0 0 4px rgba(201,146,42,0.12);
+      font-family: var(--body);
+    }
+    .field textarea { min-height: 92px; resize: vertical; }
+    .field select { color-scheme: dark; }
+    .field-help { margin: 6px 0 0; color: rgba(196,164,112,0.7); font-size: 13px; }
+
+    .size-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .size-choice { position: relative; }
+    .size-choice input { position: absolute; opacity: 0; }
+    .size-choice label { min-height: 44px; display: grid; place-items: center; margin: 0; border: 1px solid rgba(201,146,42,0.42); border-radius: 8px; color: var(--parchment); cursor: pointer; }
+    .size-choice input:checked + label { border-color: var(--gold-light); background: var(--crimson); }
+    .size-choice input:focus-visible + label { outline: 3px solid var(--gold-light); outline-offset: 3px; }
+
+    .ability-editor { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .ability-control { padding: 12px; border: 1px solid rgba(196,164,112,0.24); border-radius: var(--radius-sm); background: rgba(196,164,112,0.045); }
+    .ability-name { display: block; margin-bottom: 9px; color: var(--parchment); font-weight: 700; }
+    .bonus-stepper { display: grid; grid-template-columns: 34px 1fr 34px; align-items: center; gap: 7px; }
+    .bonus-stepper button { width: 34px; height: 34px; border: 1px solid rgba(196,164,112,0.38); border-radius: 8px; background: transparent; color: var(--gold-light); cursor: pointer; font: 400 19px/1 var(--utility); }
+    .bonus-stepper button:hover { background: rgba(196,164,112,0.08); }
+    .bonus-value { color: var(--parchment); font: 700 20px/1 var(--display); text-align: center; }
+
+    .section-rule { margin: 22px 0; border: 0; border-top: 1px solid rgba(196,164,112,0.18); }
+
+    .language-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .check-card { position: relative; }
+    .check-card input { position: absolute; opacity: 0; }
+    .check-card label { min-height: 43px; display: flex; align-items: center; gap: 8px; margin: 0; padding: 8px 10px; border: 1px solid rgba(196,164,112,0.28); border-radius: 8px; color: rgba(246,233,207,0.72); cursor: pointer; text-transform: none; letter-spacing: 0; font-family: var(--body); font-size: 15px; }
+    .check-card label::before { content: ""; width: 16px; height: 16px; border: 1px solid var(--gold); border-radius: 4px; }
+    .check-card input:checked + label { border-color: rgba(196,164,112,0.62); background: rgba(140,29,56,0.15); color: var(--parchment); }
+    .check-card input:checked + label::before { content: "✓"; display: grid; place-items: center; background: var(--claret); color: white; font: 700 11px/1 var(--utility); }
+    .check-card input:focus-visible + label { outline: 3px solid var(--gold-light); outline-offset: 3px; }
+
+    .language-choice-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 148px;
+      align-items: center;
+      gap: 18px;
+      margin-top: 16px;
+      padding: 14px;
+      border: 1px solid rgba(196,164,112,0.28);
+      border-radius: var(--radius-sm);
+      background: rgba(140,29,56,0.08);
+    }
+    .language-choice-card strong { display: block; margin-bottom: 3px; color: var(--parchment); }
+    .language-choice-card p { margin: 0; color: rgba(246,233,207,0.62); font-size: 14px; }
+    .language-choice-card .field label { margin-bottom: 7px; }
+
+    .language-rule-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-bottom: 12px; }
+    .language-rule { padding: 11px 12px; border: 1px solid var(--divider); border-radius: var(--radius-sm); background: rgba(245,238,220,0.5); }
+    .language-rule strong { display: block; margin-top: 5px; color: var(--ink); }
+    .language-rule span { display: block; margin-top: 2px; color: var(--ink-soft); font-size: 13px; }
+
+    .trait-editor-list { display: grid; gap: 12px; }
+    .trait-editor-card { position: relative; display: grid; grid-template-columns: 1fr 1.7fr 40px; gap: 10px; align-items: start; padding: 13px; border: 1px solid rgba(196,164,112,0.24); border-radius: var(--radius-sm); background: rgba(196,164,112,0.04); }
+    .trait-editor-card input, .trait-editor-card textarea { width: 100%; min-height: 42px; padding: 9px 10px; border: 1px solid rgba(201,146,42,0.45); border-radius: 7px; background: rgba(201,146,42,0.07); color: var(--parchment); }
+    .trait-editor-card textarea { min-height: 78px; resize: vertical; }
+    .remove-trait { width: 38px; height: 38px; border: 1px solid rgba(166,43,74,0.5); border-radius: 8px; background: transparent; color: #e899aa; cursor: pointer; font-size: 20px; }
+    .remove-trait:hover { background: rgba(166,43,74,0.12); }
+    .add-trait { margin-top: 12px; }
+
+    .review-card { overflow: hidden; border: 1px solid rgba(196,164,112,0.36); border-radius: var(--radius-md); background: var(--parchment-deep); color: var(--ink-light); }
+    .review-head { display: grid; grid-template-columns: 56px 1fr; gap: 13px; align-items: center; padding: 15px; border-bottom: 1px solid var(--divider); }
+    .review-icon { width: 56px; height: 56px; display: grid; place-items: center; border-radius: 50%; background: var(--parchment-light); color: var(--claret); font: 700 15px/1 var(--display); letter-spacing: 0.04em; }
+    .review-head h4 { margin: 0; color: var(--ink); font: 700 23px/1.1 var(--display); }
+    .review-head p { margin: 3px 0 0; color: var(--ink-soft); font-size: 14px; }
+    .review-body { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding: 15px; }
+    .review-block h5 { margin: 0 0 6px; color: var(--claret); font: 700 17px/1.2 var(--display); }
+    .review-block p, .review-block ul { margin: 0; color: var(--ink-light); font-size: 14px; }
+    .review-block ul { padding-left: 18px; }
+
+    .editor-error { min-height: 22px; margin: 9px 0 0; color: #f0a7b6; font-size: 14px; }
+
+    .editor-footer { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 9px; padding: 13px 20px calc(13px + env(safe-area-inset-bottom)); border-top: 1px solid rgba(196,164,112,0.18); background: #17100c; }
+    .step-status { color: rgba(246,233,207,0.55); font-size: 13px; }
+
+    .confirm-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: rgba(12,8,5,0.72);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--quick) ease, visibility 0s linear var(--quick);
+    }
+    .confirm-layer.open { opacity: 1; visibility: visible; transition-delay: 0s; }
+    .confirm-dialog { width: min(430px, 100%); padding: 22px; border: 1px solid var(--gold); border-radius: var(--radius-md); background: var(--parchment); color: var(--ink-light); box-shadow: var(--paper-shadow); transform: scale(.97); transition: transform var(--quick) ease; }
+    .confirm-layer.open .confirm-dialog { transform: scale(1); }
+    .confirm-dialog h2 { margin: 0 0 8px; color: var(--ink); font: 700 24px/1.15 var(--display); }
+    .confirm-dialog p { margin: 0; }
+    .confirm-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
+    .toast {
+      position: fixed;
+      z-index: 80;
+      left: 50%;
+      bottom: 22px;
+      max-width: min(440px, calc(100vw - 32px));
+      padding: 11px 16px;
+      border: 1px solid rgba(196,164,112,0.42);
+      border-radius: 10px;
+      background: #17100c;
+      color: var(--parchment);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 16px);
+      transition: opacity var(--quick) ease, transform var(--quick) ease;
+      text-align: center;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes detail-in { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: translateX(0); } }
+
+    @media (max-width: 820px) {
+      .lineage-ledger { grid-template-columns: 160px minmax(0, 1fr); }
+      .inheritance-strip { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 767px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .rail { display: none; }
+      .codex-header { min-height: 84px; }
+      .content-area { padding: 8px 11px 11px; }
+      .manager-card { border-radius: 14px; }
+      .filter-topline { grid-template-columns: 1fr; gap: 11px; }
+      .search-wrap { max-width: none; }
+      .source-control { justify-content: space-between; }
+      .filter-bottomline { flex-wrap: wrap; gap: 7px; }
+      .chip-row { flex: 1; }
+      .filter-summary { width: 100%; justify-content: space-between; margin-left: 0; padding-top: 3px; }
+      .race-list { padding-inline: 13px; }
+      .race-row { grid-template-columns: 44px minmax(0, 1fr) 18px; gap: 11px; }
+      .race-icon { width: 44px; height: 44px; }
+      .ability-summary { display: none; }
+      .fab { right: 25px; bottom: 23px; width: 56px; padding: 0; }
+      .fab-label { display: none; }
+      .detail-view { padding-inline: 15px; }
+      .detail-backbar { margin-inline: -15px; }
+      .race-hero { grid-template-columns: 66px minmax(0, 1fr); gap: 13px; }
+      .hero-medallion { width: 64px; height: 64px; border-radius: 18px; font-size: 30px; }
+      .hero-stats { grid-column: 1 / -1; }
+      .stat-seal { flex: 1; }
+      .lineage-ledger { grid-template-columns: 1fr; gap: 0; }
+      .lineage-aside { padding: 4px 0 20px 25px; }
+      .lineage-aside::after { top: 7px; bottom: 0; left: 6px; right: auto; }
+      .lineage-knot { top: 3px; left: 0; right: auto; }
+      .detail-section::before { display: none; }
+      .trait-grid { grid-template-columns: 1fr; }
+      .modal-backdrop { padding: 9px 0 0; }
+      .editor-sheet { height: 94dvh; border-left: 0; border-right: 0; }
+      .editor-header { padding-inline: 16px; }
+      .editor-stepper { padding-inline: 8px; }
+      .step-tab { font-size: 9px; letter-spacing: 0.04em; }
+      .step-number { display: grid; margin: 0 auto 3px; }
+      .editor-body { padding: 17px 15px; }
+      .field-grid { grid-template-columns: 1fr; }
+      .field-grid .span-2 { grid-column: auto; }
+      .ability-editor { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .language-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .language-choice-card, .language-rule-grid { grid-template-columns: 1fr; }
+      .trait-editor-card { grid-template-columns: 1fr 40px; }
+      .trait-editor-card textarea { grid-column: 1 / -1; grid-row: 2; }
+      .trait-editor-card .remove-trait { grid-column: 2; grid-row: 1; }
+      .review-body { grid-template-columns: 1fr; }
+      .editor-footer { grid-template-columns: 1fr 1fr; padding-inline: 15px; }
+      .step-status { grid-column: 1 / -1; grid-row: 1; }
+      .footer-cancel { display: none; }
+    }
+
+    @media (max-width: 430px) {
+      .codex-header { grid-template-columns: 54px 1fr 54px; }
+      .collection-chrome { padding-inline: 13px; }
+      .source-title { font-size: 10px; }
+      .source-option { padding-inline: 10px; }
+      .row-title { font-size: 18px; }
+      .row-meta { font-size: 13px; }
+      .ability-editor { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to races</a>
+
+  <div class="app-shell" id="appShell">
+    <aside class="rail" aria-label="Primary navigation">
+      <div class="rail-mark" aria-hidden="true">V</div>
+      <button class="rail-button" type="button" aria-label="Characters" title="Characters">♙</button>
+      <button class="rail-button" type="button" aria-label="Compendium" aria-current="page" title="Compendium">▤</button>
+      <button class="rail-button" type="button" aria-label="Dice" title="Dice">◇</button>
+      <div class="rail-spacer"></div>
+      <button class="rail-button" type="button" aria-label="Settings" title="Settings">⚙</button>
+    </aside>
+
+    <main class="screen" id="main-content" tabindex="-1">
+      <header class="codex-header">
+        <button class="back-sword" id="compendiumBack" type="button" aria-label="Back to Compendium">
+          <svg viewBox="0 0 34 16" aria-hidden="true">
+            <path d="M0.5 8 L11 5.5 L18.6 6.2 L18.6 9.8 L11 10.5 Z" fill="currentColor"/>
+            <rect x="18.6" y="1.6" width="2.2" height="12.8" rx="1.1" fill="currentColor"/>
+            <rect x="20.8" y="7" width="8" height="2" rx="1" fill="currentColor"/>
+            <circle cx="30.7" cy="8" r="2.3" fill="currentColor"/>
+          </svg>
+          <span>Back</span>
+        </button>
+        <div class="page-heading">
+          <p class="eyebrow">Compendium</p>
+          <h1>Races</h1>
+        </div>
+        <div aria-hidden="true"></div>
+      </header>
+
+      <div class="content-area">
+        <section class="manager-card" id="managerCard" aria-label="Race compendium"></section>
+        <button class="fab" id="addRace" type="button" aria-label="Create custom race" title="Create custom race"><span class="fab-plus" aria-hidden="true">+</span><span class="fab-label">Create race</span></button>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="editorBackdrop" aria-hidden="true">
+    <section class="editor-sheet" id="editorSheet" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <header class="editor-header">
+        <div>
+          <p class="eyebrow" id="editorEyebrow">Custom ancestry</p>
+          <h2 id="editorTitle">New custom race</h2>
+        </div>
+        <button class="icon-button" id="closeEditor" type="button" aria-label="Close custom race editor">×</button>
+      </header>
+
+      <div class="editor-stepper" role="tablist" aria-label="Custom race editor steps">
+        <button class="step-tab" type="button" role="tab" aria-selected="true" aria-controls="editorPanel1" id="editorTab1" data-step="1"><span class="step-number">1</span>Identity</button>
+        <button class="step-tab" type="button" role="tab" aria-selected="false" aria-controls="editorPanel2" id="editorTab2" data-step="2" tabindex="-1"><span class="step-number">2</span>Inheritance</button>
+        <button class="step-tab" type="button" role="tab" aria-selected="false" aria-controls="editorPanel3" id="editorTab3" data-step="3" tabindex="-1"><span class="step-number">3</span>Traits</button>
+        <button class="step-tab" type="button" role="tab" aria-selected="false" aria-controls="editorPanel4" id="editorTab4" data-step="4" tabindex="-1"><span class="step-number">4</span>Review</button>
+      </div>
+
+      <div class="editor-body" id="editorBody">
+        <section class="editor-panel active" id="editorPanel1" role="tabpanel" aria-labelledby="editorTab1">
+          <div class="panel-intro">
+            <h3>Name the ancestry</h3>
+            <p>Set the rules every character of this race inherits. Subrace-specific rules can be managed separately.</p>
+          </div>
+          <div class="field-grid">
+            <div class="field span-2">
+              <label for="raceName">Race name</label>
+              <input id="raceName" name="raceName" maxlength="80" autocomplete="off" placeholder="e.g. Aetherkin">
+            </div>
+            <div class="field">
+              <label for="raceSpeed">Walking speed</label>
+              <input id="raceSpeed" name="raceSpeed" type="number" min="0" max="120" step="5" inputmode="numeric">
+              <p class="field-help">Feet per turn. Most SRD races use 25 or 30.</p>
+            </div>
+            <fieldset class="field" style="border:0;padding:0;margin:0">
+              <legend>Size</legend>
+              <div class="size-options">
+                <div class="size-choice"><input id="sizeSmall" type="radio" name="raceSize" value="Small"><label for="sizeSmall">Small</label></div>
+                <div class="size-choice"><input id="sizeMedium" type="radio" name="raceSize" value="Medium"><label for="sizeMedium">Medium</label></div>
+              </div>
+            </fieldset>
+            <div class="field span-2">
+              <label for="sizeDescription">Size description</label>
+              <textarea id="sizeDescription" maxlength="600" placeholder="Describe typical height, build, and how size is determined."></textarea>
+            </div>
+            <div class="field">
+              <label for="raceAge">Age</label>
+              <textarea id="raceAge" maxlength="800" placeholder="When do they mature, and how long do they live?"></textarea>
+            </div>
+            <div class="field">
+              <label for="raceAlignment">Alignment</label>
+              <textarea id="raceAlignment" maxlength="800" placeholder="Describe common tendencies without prescribing them."></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="editor-panel" id="editorPanel2" role="tabpanel" aria-labelledby="editorTab2" hidden>
+          <div class="panel-intro">
+            <h3>Set inherited bonuses</h3>
+            <p>Choose the fixed ability modifiers and languages granted to every character of this race.</p>
+          </div>
+          <p class="utility-label" style="margin-bottom:9px">Ability score bonuses</p>
+          <div class="ability-editor" id="abilityEditor"></div>
+          <p class="field-help" id="bonusTotal">Total fixed bonus: +0</p>
+          <hr class="section-rule">
+          <p class="utility-label" style="margin-bottom:9px">Fixed languages</p>
+          <div class="language-grid" id="languageGrid"></div>
+          <div class="language-choice-card">
+            <div>
+              <strong>Languages of choice</strong>
+              <p>Characters choose these during creation; they are not added to the race’s fixed language list.</p>
+            </div>
+            <div class="field">
+              <label for="languageChoiceCount">Number chosen</label>
+              <select id="languageChoiceCount">
+                <option value="0">None</option>
+                <option value="1">Choose 1</option>
+                <option value="2">Choose 2</option>
+                <option value="3">Choose 3</option>
+              </select>
+            </div>
+          </div>
+          <div class="field" style="margin-top:16px">
+            <label for="languageDescription">Language description</label>
+            <textarea id="languageDescription" maxlength="800" placeholder="Explain how these languages are spoken, read, or learned."></textarea>
+          </div>
+        </section>
+
+        <section class="editor-panel" id="editorPanel3" role="tabpanel" aria-labelledby="editorTab3" hidden>
+          <div class="panel-intro">
+            <h3>Define racial traits</h3>
+            <p>Add the reusable rules granted by the base race. Keep subrace-only traits out of this list.</p>
+          </div>
+          <div class="trait-editor-list" id="traitEditorList"></div>
+          <button class="button button-quiet add-trait" id="addTrait" type="button">+ Add trait</button>
+        </section>
+
+        <section class="editor-panel" id="editorPanel4" role="tabpanel" aria-labelledby="editorTab4" hidden>
+          <div class="panel-intro">
+            <h3>Review the lineage</h3>
+            <p>This is how the race will read in the Compendium and character creator.</p>
+          </div>
+          <div id="reviewPreview"></div>
+          <p class="editor-error" id="editorError" role="alert" tabindex="-1"></p>
+        </section>
+      </div>
+
+      <footer class="editor-footer">
+        <button class="button button-quiet footer-cancel" id="cancelEditor" type="button">Cancel</button>
+        <span class="step-status" id="stepStatus">Step 1 of 4 · Identity</span>
+        <button class="button button-quiet" id="previousStep" type="button" disabled>Previous</button>
+        <button class="button button-primary" id="nextStep" type="button">Next</button>
+      </footer>
+    </section>
+  </div>
+
+  <div class="confirm-layer" id="confirmLayer" aria-hidden="true">
+    <section class="confirm-dialog" id="confirmDialog" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+      <h2 id="confirmTitle">Archive custom race?</h2>
+      <p id="confirmMessage"></p>
+      <div class="confirm-actions">
+        <button class="button button-secondary" id="confirmCancel" type="button">Cancel</button>
+        <button class="button button-primary" id="confirmAction" type="button">Archive</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const abilityNames = { STR: 'Strength', DEX: 'Dexterity', CON: 'Constitution', INT: 'Intelligence', WIS: 'Wisdom', CHA: 'Charisma' };
+    const languageOptions = ['Common', 'Dwarvish', 'Elvish', 'Giant', 'Gnomish', 'Goblin', 'Halfling', 'Orc', 'Draconic', 'Infernal', 'Primordial'];
+    const icons = { elf: '🧝', human: '👤', dwarf: '⛏️', halfling: '🍀', dragonborn: '🐉', tiefling: '😈', gnome: '🍄', 'half-orc': '🪓', 'half-elf': '✨' };
+
+    let races = [
+      {
+        id: 'elf', name: 'Elf', icon: icons.elf, source: 'SRD', isCustom: false, speed: 30, size: 'Medium',
+        abilities: { DEX: 2 }, languages: ['Common', 'Elvish'],
+        languageDescription: 'You can speak, read, and write Common and Elvish. Elvish is fluid, with subtle intonations and intricate grammar.',
+        sizeDescription: 'Elves range from under 5 to over 6 feet tall and have slender builds. Your size is Medium.',
+        age: 'Although elves reach physical maturity at about the same age as humans, the elven understanding of adulthood includes worldly experience. An elf typically claims adulthood around age 100 and can live to be 750 years old.',
+        alignment: 'Elves love freedom, variety, and self-expression, so they lean toward the gentler aspects of chaos. They value and protect others’ freedom as well as their own.',
+        traits: [
+          { name: 'Darkvision', description: 'You can see in dim light within 60 feet as if it were bright light, and in darkness as if it were dim light.' },
+          { name: 'Fey Ancestry', description: 'You have advantage on saving throws against being charmed, and magic cannot put you to sleep.' },
+          { name: 'Trance', description: 'Elves do not need to sleep. Instead, they meditate deeply for 4 hours a day.' },
+          { name: 'Keen Senses', description: 'You have proficiency in the Perception skill.' }
+        ],
+        subraces: [{ name: 'High Elf', icon: '🌙', summary: '+1 INT · 3 additional traits' }]
+      },
+      {
+        id: 'human', name: 'Human', icon: icons.human, source: 'SRD', isCustom: false, speed: 30, size: 'Medium',
+        abilities: { STR: 1, DEX: 1, CON: 1, INT: 1, WIS: 1, CHA: 1 }, languages: ['Common'], languageChoiceCount: 1,
+        languageDescription: 'You can speak, read, and write Common and one extra language of your choice.',
+        sizeDescription: 'Humans vary widely in height and build, from barely 5 feet to well over 6 feet tall. Your size is Medium.',
+        age: 'Humans reach adulthood in their late teens and live less than a century.',
+        alignment: 'Humans tend toward no particular alignment. The best and the worst are found among them.',
+        traits: [], subraces: []
+      },
+      {
+        id: 'dwarf', name: 'Dwarf', icon: icons.dwarf, source: 'SRD', isCustom: false, speed: 25, size: 'Medium',
+        abilities: { CON: 2 }, languages: ['Common', 'Dwarvish'],
+        languageDescription: 'You can speak, read, and write Common and Dwarvish, a language full of hard consonants and guttural sounds.',
+        sizeDescription: 'Dwarves stand between 4 and 5 feet tall and average about 150 pounds. Your size is Medium.',
+        age: 'Dwarves mature at the same rate as humans, but are considered young until age 50. On average, they live about 350 years.',
+        alignment: 'Most dwarves are lawful, believing firmly in the benefits of a well-ordered society, and tend toward good.',
+        traits: [
+          { name: 'Darkvision', description: 'Accustomed to life underground, you can see in darkness out to 60 feet.' },
+          { name: 'Dwarven Resilience', description: 'You have advantage on saving throws against poison and resistance against poison damage.' },
+          { name: 'Stonecunning', description: 'Your History checks related to the origin of stonework add double your proficiency bonus.' },
+          { name: 'Dwarven Combat Training', description: 'You have proficiency with the battleaxe, handaxe, light hammer, and warhammer.' },
+          { name: 'Tool Proficiency', description: "You gain proficiency with the artisan's tools of your choice: smith's tools, brewer's supplies, or mason's tools." }
+        ],
+        subraces: [{ name: 'Hill Dwarf', icon: '⛰️', summary: '+1 WIS · Dwarven Toughness' }]
+      },
+      {
+        id: 'halfling', name: 'Halfling', icon: icons.halfling, source: 'SRD', isCustom: false, speed: 25, size: 'Small',
+        abilities: { DEX: 2 }, languages: ['Common', 'Halfling'],
+        languageDescription: 'You can speak, read, and write Common and Halfling.',
+        sizeDescription: 'Halflings average about 3 feet tall and weigh about 40 pounds. Your size is Small.',
+        age: 'A halfling reaches adulthood at age 20 and generally lives into the middle of their second century.',
+        alignment: 'Most halflings are lawful good: good-hearted, orderly, and strongly supported by community and tradition.',
+        traits: [
+          { name: 'Lucky', description: 'When you roll a 1 on an attack roll, ability check, or saving throw, you can reroll the die.' },
+          { name: 'Brave', description: 'You have advantage on saving throws against being frightened.' },
+          { name: 'Halfling Nimbleness', description: 'You can move through the space of any creature one size larger than you.' }
+        ],
+        subraces: [{ name: 'Lightfoot Halfling', icon: '🪶', summary: '+1 CHA · Naturally Stealthy' }]
+      },
+      {
+        id: 'dragonborn', name: 'Dragonborn', icon: icons.dragonborn, source: 'SRD', isCustom: false, speed: 30, size: 'Medium',
+        abilities: { STR: 2, CHA: 1 }, languages: ['Common', 'Draconic'], languageDescription: 'You can speak, read, and write Common and Draconic.',
+        sizeDescription: 'Dragonborn are taller and heavier than humans, standing well over 6 feet tall. Your size is Medium.', age: 'Young dragonborn grow quickly and reach adulthood by age 15. They live to around 80.', alignment: 'Dragonborn tend to extremes, making a conscious choice for one side or the other in the cosmic war between good and evil.',
+        traits: [{ name: 'Draconic Ancestry', description: 'Choose one type of dragon; it determines the damage type for your breath weapon and resistance.' }, { name: 'Breath Weapon', description: 'Exhale destructive energy determined by your draconic ancestry.' }, { name: 'Damage Resistance', description: 'You have resistance to the damage type associated with your draconic ancestry.' }], subraces: []
+      },
+      {
+        id: 'gnome', name: 'Gnome', icon: icons.gnome, source: 'SRD', isCustom: false, speed: 25, size: 'Small',
+        abilities: { INT: 2 }, languages: ['Common', 'Gnomish'], languageDescription: 'You can speak, read, and write Common and Gnomish.',
+        sizeDescription: 'Gnomes are between 3 and 4 feet tall and average about 40 pounds. Your size is Small.', age: 'Gnomes mature at the same rate as humans and can live 350 to almost 500 years.', alignment: 'Gnomes are most often good. Those who tend toward law are sages and inventors; those who tend toward chaos are tricksters and wanderers.',
+        traits: [{ name: 'Darkvision', description: 'You can see in dim light within 60 feet as if it were bright light.' }, { name: 'Gnome Cunning', description: 'You have advantage on Intelligence, Wisdom, and Charisma saving throws against magic.' }],
+        subraces: [{ name: 'Rock Gnome', icon: '⚙️', summary: '+1 CON · Artificer’s Lore & Tinker' }]
+      },
+      {
+        id: 'half-elf', name: 'Half-Elf', icon: icons['half-elf'], source: 'SRD', isCustom: false, speed: 30, size: 'Medium',
+        abilities: { CHA: 2 }, languages: ['Common', 'Elvish'], languageChoiceCount: 1, languageDescription: 'You can speak, read, and write Common, Elvish, and one extra language of your choice.',
+        sizeDescription: 'Half-elves are about the same size as humans. Your size is Medium.', age: 'Half-elves mature at the same rate humans do and often exceed 180 years.', alignment: 'Half-elves share the chaotic bent of their elven heritage and value both personal freedom and creative expression.',
+        traits: [{ name: 'Darkvision', description: 'Thanks to your elf blood, you have superior vision in dark and dim conditions.' }, { name: 'Fey Ancestry', description: 'You have advantage against being charmed, and magic cannot put you to sleep.' }, { name: 'Skill Versatility', description: 'You gain proficiency in two skills of your choice.' }], subraces: []
+      },
+      {
+        id: 'half-orc', name: 'Half-Orc', icon: icons['half-orc'], source: 'SRD', isCustom: false, speed: 30, size: 'Medium',
+        abilities: { STR: 2, CON: 1 }, languages: ['Common', 'Orc'], languageDescription: 'You can speak, read, and write Common and Orc.',
+        sizeDescription: 'Half-orcs are somewhat larger and bulkier than humans. Your size is Medium.', age: 'Half-orcs mature a little faster than humans and rarely live longer than 75 years.', alignment: 'Half-orcs inherit a tendency toward chaos and are not strongly inclined toward good.',
+        traits: [{ name: 'Darkvision', description: 'You have superior vision in dark and dim conditions. You can see in dim light within 60 feet as if it were bright light, and in darkness as if it were dim light. You cannot discern color in darkness, only shades of gray.' }, { name: 'Relentless Endurance', description: 'When reduced to 0 hit points but not killed outright, you can drop to 1 hit point instead.' }, { name: 'Savage Attacks', description: 'On a critical hit with a melee weapon, roll one weapon damage die one additional time.' }, { name: 'Menacing', description: 'You gain proficiency in the Intimidation skill.' }], subraces: []
+      },
+      {
+        id: 'tiefling', name: 'Tiefling', icon: icons.tiefling, source: 'SRD', isCustom: false, speed: 30, size: 'Medium',
+        abilities: { INT: 1, CHA: 2 }, languages: ['Common', 'Infernal'], languageDescription: 'You can speak, read, and write Common and Infernal.',
+        sizeDescription: 'Tieflings are about the same size and build as humans. Your size is Medium.', age: 'Tieflings mature at the same rate as humans but live a few years longer.', alignment: 'Tieflings might not have an innate tendency toward evil, but many end up there. Independent natures incline many toward chaos.',
+        traits: [{ name: 'Darkvision', description: 'Thanks to your infernal heritage, you have superior vision in dark and dim conditions.' }, { name: 'Hellish Resistance', description: 'You have resistance to fire damage.' }, { name: 'Infernal Legacy', description: 'You know thaumaturgy and learn additional innate spells as you gain levels.' }], subraces: []
+      },
+      {
+        id: 'aetherkin', name: 'Aetherkin', icon: '🜁', source: 'Custom', isCustom: true, speed: 30, size: 'Medium', usageCount: 2,
+        abilities: { INT: 1, WIS: 2 }, languages: ['Common', 'Primordial'],
+        languageDescription: 'Aetherkin speak Common and Primordial in low, resonant tones that carry strangely through open air.',
+        sizeDescription: 'Aetherkin are slender and slightly taller than humans. Their weight seems to shift with the weather. Your size is Medium.',
+        age: 'Aetherkin reach adulthood near age 30 and can live for almost three centuries.',
+        alignment: 'Their wandering enclaves prize curiosity and mutual obligation over rigid law.',
+        traits: [{ name: 'Echo Sense', description: 'You always know which way is north while you can hear moving air.' }, { name: 'Weightless Step', description: 'Your long and high jump distances increase by 5 feet.' }],
+        subraces: []
+      }
+    ];
+
+    const state = { showSrd: true, query: '', size: 'All', selectedId: null, step: 1, editingId: null, draft: null, initialDraft: null };
+    const managerCard = document.getElementById('managerCard');
+    const addRaceButton = document.getElementById('addRace');
+    const appShell = document.getElementById('appShell');
+    const editorBackdrop = document.getElementById('editorBackdrop');
+    const editorSheet = document.getElementById('editorSheet');
+    const confirmLayer = document.getElementById('confirmLayer');
+    const toast = document.getElementById('toast');
+    let toastTimer;
+    let lastFocusedElement = null;
+    let confirmCallback = null;
+    let confirmCancelCallback = null;
+    let confirmReturnFocus = null;
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' })[char]);
+    }
+
+    function slugify(value) {
+      return String(value).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || `custom-race-${Date.now()}`;
+    }
+
+    function abilityEntries(race) {
+      return Object.entries(race.abilities || {}).filter(([, bonus]) => bonus > 0);
+    }
+
+    function abilitySummary(race) {
+      const entries = abilityEntries(race);
+      return entries.length ? entries.map(([ability, bonus]) => `${ability} +${bonus}`).join(', ') : 'No fixed bonuses';
+    }
+
+    function compactAbilityBonuses(race) {
+      const entries = abilityEntries(race);
+      if (entries.length === 6 && entries.every(([, bonus]) => bonus === 1)) return ['All +1'];
+      return entries.map(([ability, bonus]) => `${ability} +${bonus}`);
+    }
+
+    function lineageMark(name) {
+      const words = String(name || '').match(/[\p{L}\p{N}]+/gu) || [];
+      if (!words.length) return '—';
+      return words.length > 1 ? words.slice(0, 2).map(word => [...word][0]).join('').toUpperCase() : [...words[0]].slice(0, 2).join('').toUpperCase();
+    }
+
+    function languageSummary(race) {
+      const fixedCount = race.languages.length;
+      const choiceCount = race.languageChoiceCount ?? 0;
+      return choiceCount ? `${fixedCount} fixed + ${choiceCount} choice${choiceCount === 1 ? '' : 's'}` : `${fixedCount} language${fixedCount === 1 ? '' : 's'}`;
+    }
+
+    function showToast(message) {
+      clearTimeout(toastTimer);
+      toast.textContent = message;
+      toast.classList.add('show');
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
+    function getVisibleRaces() {
+      const query = state.query.trim().toLowerCase();
+      return races.filter(race => {
+        if (!state.showSrd && !race.isCustom) return false;
+        if (state.size !== 'All' && race.size !== state.size) return false;
+        if (!query) return true;
+        const haystack = [race.name, race.source, race.size, ...race.languages, ...race.traits.map(trait => trait.name)].join(' ').toLowerCase();
+        return haystack.includes(query);
+      }).sort((left, right) => left.name.localeCompare(right.name));
+    }
+
+    function renderList({ focusSearch = false } = {}) {
+      state.selectedId = null;
+      const visible = getVisibleRaces();
+      const hasActiveFilters = Boolean(state.query || state.size !== 'All' || !state.showSrd);
+      managerCard.innerHTML = `
+        <div class="view collection-view">
+          <div class="collection-chrome">
+            <div class="filter-topline">
+              <div class="search-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                <label class="sr-only" for="raceSearch">Search races</label>
+                <input class="search-input" id="raceSearch" type="search" value="${escapeHtml(state.query)}" placeholder="Search races, traits, or languages" autocomplete="off">
+                <button class="clear-search ${state.query ? 'visible' : ''}" id="clearSearch" type="button" aria-label="Clear race search">×</button>
+              </div>
+              <div class="source-control">
+                <span class="source-title">Collection</span>
+                <div class="source-segment" role="group" aria-label="Choose race collection">
+                  <button class="source-option" type="button" data-source-mode="all" aria-pressed="${state.showSrd}">All races</button>
+                  <button class="source-option" type="button" data-source-mode="custom" aria-pressed="${!state.showSrd}">My races</button>
+                </div>
+              </div>
+            </div>
+            <div class="filter-bottomline">
+              <span class="chip-label">Size</span>
+              <div class="chip-row" aria-label="Filter races by size">
+                ${['All','Small','Medium'].map(size => `<button class="filter-chip" type="button" data-size="${size}" aria-pressed="${state.size === size}">${size}</button>`).join('')}
+              </div>
+              <div class="filter-summary">
+                <span class="result-count" aria-live="polite"><strong>${visible.length}</strong> of ${races.length} race${races.length === 1 ? '' : 's'}</span>
+                ${hasActiveFilters ? '<button class="clear-filters" id="clearFilters" type="button">Reset filters</button>' : ''}
+              </div>
+            </div>
+          </div>
+          <div class="race-list" id="raceList">
+            ${visible.length ? visible.map(race => `
+              <button class="race-row" type="button" data-race-id="${race.id}" aria-label="View ${escapeHtml(race.name)} race details">
+                <span class="race-icon" aria-hidden="true">${lineageMark(race.name)}</span>
+                <span class="row-copy">
+                  <span class="row-title-line"><span class="row-title">${escapeHtml(race.name)}</span><span class="source-badge ${race.isCustom ? 'custom' : ''}">${race.isCustom ? 'Mine' : 'SRD'}</span></span>
+                  <span class="row-meta">${escapeHtml(race.size)} · ${race.speed} ft speed · ${race.traits.length} trait${race.traits.length === 1 ? '' : 's'} · ${languageSummary(race)}</span>
+                </span>
+                <span class="ability-summary" aria-label="${escapeHtml(abilitySummary(race))}">${compactAbilityBonuses(race).map(bonus => `<span class="mini-bonus">${bonus}</span>`).join('') || '<span class="mini-bonus">Flexible</span>'}</span>
+                <span class="chevron" aria-hidden="true">›</span>
+              </button>`).join('') : `
+              <div class="empty-state">
+                <div class="empty-glyph" aria-hidden="true">⌁</div>
+                <h2>${state.showSrd ? 'No lineages found' : 'No custom races yet'}</h2>
+                <p>${state.query || state.size !== 'All' ? 'Try a different name, trait, language, or size.' : 'Create a race to make it available in character creation.'}</p>
+                ${hasActiveFilters ? '<button class="button button-secondary" id="clearEmpty" type="button">Reset filters</button>' : ''}
+              </div>`}
+          </div>
+        </div>`;
+      addRaceButton.hidden = false;
+      wireListInteractions();
+      if (focusSearch) document.getElementById('raceSearch')?.focus();
+    }
+
+    function wireListInteractions() {
+      const search = document.getElementById('raceSearch');
+      search?.addEventListener('input', event => { state.query = event.target.value; renderList({ focusSearch: true }); const next = document.getElementById('raceSearch'); next?.setSelectionRange(state.query.length, state.query.length); });
+      document.getElementById('clearSearch')?.addEventListener('click', () => { state.query = ''; renderList({ focusSearch: true }); });
+      managerCard.querySelectorAll('[data-source-mode]').forEach(button => button.addEventListener('click', () => { state.showSrd = button.dataset.sourceMode === 'all'; renderList(); }));
+      managerCard.querySelectorAll('[data-size]').forEach(button => button.addEventListener('click', () => { state.size = button.dataset.size; renderList(); }));
+      const resetFilters = () => { state.query = ''; state.size = 'All'; state.showSrd = true; renderList(); };
+      document.getElementById('clearFilters')?.addEventListener('click', resetFilters);
+      document.getElementById('clearEmpty')?.addEventListener('click', resetFilters);
+      managerCard.querySelectorAll('[data-race-id]').forEach(button => button.addEventListener('click', () => renderDetail(button.dataset.raceId)));
+    }
+
+    function renderDetail(id) {
+      const race = races.find(item => item.id === id);
+      if (!race) return renderList();
+      const languageChoiceCount = race.languageChoiceCount ?? 0;
+      state.selectedId = id;
+      managerCard.innerHTML = `
+        <article class="view detail-view" aria-labelledby="raceDetailName">
+          <div class="detail-backbar">
+            <button class="back-sword ink" id="detailBack" type="button" aria-label="Back to all races">
+              <svg viewBox="0 0 34 16" aria-hidden="true">
+                <path d="M0.5 8 L11 5.5 L18.6 6.2 L18.6 9.8 L11 10.5 Z" fill="currentColor"/>
+                <rect x="18.6" y="1.6" width="2.2" height="12.8" rx="1.1" fill="currentColor"/>
+                <rect x="20.8" y="7" width="8" height="2" rx="1" fill="currentColor"/>
+                <circle cx="30.7" cy="8" r="2.3" fill="currentColor"/>
+              </svg>
+              <span>Back</span>
+            </button>
+            <div class="detail-backbar-title">${escapeHtml(race.name)}</div>
+            <div></div>
+          </div>
+          <div class="race-hero">
+            <div class="hero-medallion" aria-hidden="true">${lineageMark(race.name)}</div>
+            <div class="hero-copy">
+              <p class="utility-label">${race.isCustom ? 'Custom race' : 'System Reference Document'}</p>
+              <h2 id="raceDetailName">${escapeHtml(race.name)}</h2>
+              <p>${race.isCustom && race.usageCount ? `Used by ${race.usageCount} characters` : race.subraces.length ? `${race.subraces.length} available subrace${race.subraces.length === 1 ? '' : 's'}` : 'Base ancestry'}</p>
+            </div>
+            <div class="hero-stats" aria-label="Race movement and size">
+              <div class="stat-seal"><span class="stat-value">${race.speed}</span><span class="stat-label">Speed · ft</span></div>
+              <div class="stat-seal"><span class="stat-value word">${escapeHtml(race.size)}</span><span class="stat-label">Size</span></div>
+            </div>
+          </div>
+
+          <nav class="detail-jump-links" aria-label="Jump to race details">
+            <a href="#traits"><span>Traits</span><span class="jump-count">${race.traits.length}</span></a>
+            <a href="#languages">Languages</a>
+            <a href="#life-and-build">Life &amp; build</a>
+            <a href="#subraces"><span>Subraces</span><span class="jump-count">${race.subraces.length}</span></a>
+          </nav>
+
+          <div class="lineage-ledger">
+            <aside class="lineage-aside">
+              <span class="lineage-knot" aria-hidden="true"></span>
+              <p class="utility-label">Shared inheritance</p>
+              <h3>Every ${escapeHtml(race.name)} begins here</h3>
+              <p>These rules carry into each subrace and character choice.</p>
+            </aside>
+            <div class="ledger-content">
+              <div class="inheritance-strip">
+                <div class="inheritance-card">
+                  <span class="utility-label">Ability bonuses</span>
+                  <div class="ability-seals">${abilityEntries(race).length ? abilityEntries(race).map(([ability, bonus]) => `<span class="ability-seal" title="${abilityNames[ability]}">${ability} +${bonus}</span>`).join('') : '<strong>None fixed</strong>'}</div>
+                </div>
+                <div class="inheritance-card">
+                  <span class="utility-label">Languages</span>
+                  <strong>${escapeHtml(race.languages.join(', ') || 'None')}</strong>
+                  <span>${race.languages.length} fixed · ${languageChoiceCount ? `${languageChoiceCount} choice${languageChoiceCount === 1 ? '' : 's'}` : 'no choices'}</span>
+                </div>
+                <div class="inheritance-card">
+                  <span class="utility-label">Racial traits</span>
+                  <strong>${race.traits.length}</strong>
+                  <span>${race.traits.length === 1 ? 'shared rule' : 'shared rules'}</span>
+                </div>
+              </div>
+
+              <section class="detail-section" id="traits">
+                <h3>Racial traits</h3>
+                ${race.traits.length ? `<div class="trait-grid">${race.traits.map(trait => `<div class="trait-card"><h4>${escapeHtml(trait.name)}</h4><p>${escapeHtml(trait.description)}</p></div>`).join('')}</div>` : '<p>No racial traits are listed.</p>'}
+              </section>
+
+              <section class="detail-section" id="languages">
+                <h3>Languages</h3>
+                <div class="language-rule-grid">
+                  <div class="language-rule">
+                    <span class="utility-label">Always known</span>
+                    <strong>${escapeHtml(race.languages.join(', ') || 'None')}</strong>
+                    <span>Fixed by the race</span>
+                  </div>
+                  <div class="language-rule">
+                    <span class="utility-label">Character chooses</span>
+                    <strong>${languageChoiceCount ? `Choose ${languageChoiceCount}` : 'None'}</strong>
+                    <span>${languageChoiceCount ? 'Selected during character creation' : 'No additional language choice'}</span>
+                  </div>
+                </div>
+                <p>${escapeHtml(race.languageDescription || 'No language guidance is listed.')}</p>
+              </section>
+
+              <section class="detail-section" id="life-and-build">
+                <h3>Life &amp; build</h3>
+                <p><strong>Age.</strong> ${escapeHtml(race.age || 'No age guidance is listed.')}</p>
+                <p><strong>Size.</strong> ${escapeHtml(race.sizeDescription || `Your size is ${race.size}.`)}</p>
+                <p><strong>Alignment.</strong> ${escapeHtml(race.alignment || 'No alignment tendency is listed.')}</p>
+              </section>
+
+              <section class="detail-section" id="subraces">
+                <h3>Subraces</h3>
+                ${race.subraces.length ? `<div class="subrace-list">${race.subraces.map(subrace => `<button class="subrace-link" type="button" data-subrace="${escapeHtml(subrace.name)}"><span class="subrace-icon" aria-hidden="true">${lineageMark(subrace.name)}</span><span><strong>${escapeHtml(subrace.name)}</strong><small>${escapeHtml(subrace.summary)}</small></span><span aria-hidden="true">›</span></button>`).join('')}</div>` : `<p>No subraces are currently attached to ${escapeHtml(race.name)}.</p>`}
+              </section>
+
+              ${race.isCustom ? `<div class="detail-actions"><button class="button button-secondary" id="editRace" type="button">Edit race</button><button class="button button-danger" id="archiveRace" type="button">Archive</button></div>` : ''}
+            </div>
+          </div>
+        </article>`;
+      addRaceButton.hidden = true;
+      document.getElementById('detailBack').addEventListener('click', () => { renderList(); setTimeout(() => managerCard.querySelector(`[data-race-id="${id}"]`)?.focus(), 0); });
+      managerCard.querySelectorAll('[data-subrace]').forEach(button => button.addEventListener('click', () => showToast(`${button.dataset.subrace} would open in the Subraces compendium.`)));
+      document.getElementById('editRace')?.addEventListener('click', () => openEditor(race));
+      document.getElementById('archiveRace')?.addEventListener('click', event => confirmArchive(race, event.currentTarget));
+      setTimeout(() => document.getElementById('detailBack')?.focus(), 0);
+    }
+
+    function blankDraft() {
+      return {
+        name: '', speed: 30, size: 'Medium', sizeDescription: '', age: '', alignment: '',
+        abilities: { STR: 0, DEX: 0, CON: 0, INT: 0, WIS: 0, CHA: 0 },
+        languages: ['Common'], languageChoiceCount: 0, languageDescription: '', traits: []
+      };
+    }
+
+    function raceToDraft(race) {
+      const draft = blankDraft();
+      return { ...draft, ...structuredClone(race), abilities: { ...draft.abilities, ...race.abilities }, traits: structuredClone(race.traits), languages: [...race.languages] };
+    }
+
+    function openEditor(race = null) {
+      lastFocusedElement = document.activeElement;
+      state.editingId = race?.id || null;
+      state.draft = race ? raceToDraft(race) : blankDraft();
+      state.initialDraft = JSON.stringify(state.draft);
+      state.step = 1;
+      document.getElementById('editorTitle').textContent = race ? 'Edit custom race' : 'New custom race';
+      document.getElementById('editorEyebrow').textContent = race ? 'Custom ancestry · Editing' : 'Custom ancestry';
+      syncFieldsFromDraft();
+      renderAbilityEditor();
+      renderLanguages();
+      renderTraitEditor();
+      setEditorStep(1, false);
+      editorBackdrop.classList.add('open');
+      editorBackdrop.setAttribute('aria-hidden', 'false');
+      appShell.setAttribute('inert', '');
+      setTimeout(() => document.getElementById('raceName').focus(), 320);
+    }
+
+    function isDraftDirty() { return state.draft && JSON.stringify(state.draft) !== state.initialDraft; }
+
+    function requestCloseEditor(confirmOpener = document.activeElement) {
+      syncDraftFromFields();
+      if (isDraftDirty()) {
+        showConfirm({
+          title: 'Discard custom race draft?',
+          message: 'Your unsaved changes will be lost.',
+          actionLabel: 'Discard',
+          danger: true,
+          returnFocus: confirmOpener,
+          onAction: () => {
+            closeConfirm(false, false);
+            closeEditor();
+          }
+        });
+      } else closeEditor();
+    }
+
+    function closeEditor() {
+      editorBackdrop.classList.remove('open');
+      editorBackdrop.setAttribute('aria-hidden', 'true');
+      appShell.removeAttribute('inert');
+      state.draft = null;
+      state.editingId = null;
+      setTimeout(() => lastFocusedElement?.focus(), 20);
+    }
+
+    function syncFieldsFromDraft() {
+      const draft = state.draft;
+      document.getElementById('raceName').value = draft.name;
+      document.getElementById('raceSpeed').value = draft.speed;
+      document.querySelectorAll('[name="raceSize"]').forEach(input => input.checked = input.value === draft.size);
+      document.getElementById('sizeDescription').value = draft.sizeDescription || '';
+      document.getElementById('raceAge').value = draft.age || '';
+      document.getElementById('raceAlignment').value = draft.alignment || '';
+      document.getElementById('languageChoiceCount').value = String(draft.languageChoiceCount ?? 0);
+      document.getElementById('languageDescription').value = draft.languageDescription || '';
+    }
+
+    function syncDraftFromFields() {
+      if (!state.draft) return;
+      state.draft.name = document.getElementById('raceName').value.trim();
+      state.draft.speed = Number(document.getElementById('raceSpeed').value || 0);
+      state.draft.size = document.querySelector('[name="raceSize"]:checked')?.value || '';
+      state.draft.sizeDescription = document.getElementById('sizeDescription').value.trim();
+      state.draft.age = document.getElementById('raceAge').value.trim();
+      state.draft.alignment = document.getElementById('raceAlignment').value.trim();
+      state.draft.languageChoiceCount = Number(document.getElementById('languageChoiceCount').value || 0);
+      state.draft.languageDescription = document.getElementById('languageDescription').value.trim();
+      document.querySelectorAll('.trait-editor-card').forEach((card, index) => {
+        if (!state.draft.traits[index]) return;
+        state.draft.traits[index].name = card.querySelector('[data-trait-name]').value.trim();
+        state.draft.traits[index].description = card.querySelector('[data-trait-description]').value.trim();
+      });
+    }
+
+    function renderAbilityEditor() {
+      const editor = document.getElementById('abilityEditor');
+      editor.innerHTML = Object.keys(abilityNames).map(ability => `
+        <div class="ability-control">
+          <span class="ability-name">${abilityNames[ability]} <small>(${ability})</small></span>
+          <div class="bonus-stepper">
+            <button type="button" data-ability="${ability}" data-delta="-1" aria-label="Decrease ${abilityNames[ability]} bonus">−</button>
+            <output class="bonus-value" id="bonus-${ability}" aria-live="polite">+${state.draft.abilities[ability] || 0}</output>
+            <button type="button" data-ability="${ability}" data-delta="1" aria-label="Increase ${abilityNames[ability]} bonus">+</button>
+          </div>
+        </div>`).join('');
+      editor.querySelectorAll('[data-ability]').forEach(button => button.addEventListener('click', () => {
+        const ability = button.dataset.ability;
+        const next = Math.max(0, Math.min(3, (state.draft.abilities[ability] || 0) + Number(button.dataset.delta)));
+        state.draft.abilities[ability] = next;
+        document.getElementById(`bonus-${ability}`).textContent = `+${next}`;
+        updateBonusTotal();
+      }));
+      updateBonusTotal();
+    }
+
+    function updateBonusTotal() {
+      const total = Object.values(state.draft.abilities).reduce((sum, value) => sum + value, 0);
+      document.getElementById('bonusTotal').textContent = `Total fixed bonus: +${total}${total > 3 ? ' · high for an SRD-style race' : ''}`;
+    }
+
+    function renderLanguages() {
+      const grid = document.getElementById('languageGrid');
+      grid.innerHTML = languageOptions.map((language, index) => {
+        const id = `language-${index}`;
+        return `<div class="check-card"><input id="${id}" type="checkbox" value="${language}" ${state.draft.languages.includes(language) ? 'checked' : ''}><label for="${id}">${language}</label></div>`;
+      }).join('');
+      grid.querySelectorAll('input').forEach(input => input.addEventListener('change', () => {
+        state.draft.languages = [...grid.querySelectorAll('input:checked')].map(item => item.value);
+      }));
+    }
+
+    function renderTraitEditor() {
+      const list = document.getElementById('traitEditorList');
+      list.innerHTML = state.draft.traits.length ? state.draft.traits.map((trait, index) => `
+        <div class="trait-editor-card" data-trait-index="${index}">
+          <input data-trait-name aria-label="Trait ${index + 1} name" maxlength="80" placeholder="Trait name" value="${escapeHtml(trait.name)}">
+          <textarea data-trait-description aria-label="Trait ${index + 1} description" maxlength="1200" placeholder="Describe the rule">${escapeHtml(trait.description)}</textarea>
+          <button class="remove-trait" type="button" data-remove-trait="${index}" aria-label="Remove ${escapeHtml(trait.name || `trait ${index + 1}`)}">×</button>
+        </div>`).join('') : '<p style="color:rgba(246,233,207,.58);margin:0">No racial traits yet. Add one when the base race grants a reusable rule.</p>';
+      list.querySelectorAll('[data-remove-trait]').forEach(button => button.addEventListener('click', () => {
+        syncDraftFromFields();
+        state.draft.traits.splice(Number(button.dataset.removeTrait), 1);
+        renderTraitEditor();
+      }));
+    }
+
+    function addTrait() {
+      syncDraftFromFields();
+      state.draft.traits.push({ name: '', description: '' });
+      renderTraitEditor();
+      setTimeout(() => document.querySelector(`[data-trait-index="${state.draft.traits.length - 1}"] [data-trait-name]`)?.focus(), 0);
+    }
+
+    function validateDraft() {
+      syncDraftFromFields();
+      if (!state.draft.name) return 'Enter a race name.';
+      if (state.draft.speed < 0 || state.draft.speed > 120) return 'Set walking speed between 0 and 120 feet.';
+      if (!state.draft.size) return 'Choose Small or Medium size.';
+      const incompleteTrait = state.draft.traits.find(trait => !trait.name || !trait.description);
+      if (incompleteTrait) return 'Give every racial trait a name and description.';
+      return '';
+    }
+
+    function renderReview() {
+      syncDraftFromFields();
+      const draft = state.draft;
+      const error = validateDraft();
+      const bonuses = Object.entries(draft.abilities).filter(([, value]) => value > 0);
+      document.getElementById('reviewPreview').innerHTML = `
+        <div class="review-card">
+          <div class="review-head"><div class="review-icon" aria-hidden="true">${lineageMark(draft.name)}</div><div><h4>${escapeHtml(draft.name || 'Unnamed race')}</h4><p>Custom · ${escapeHtml(draft.size || 'No size')} · ${draft.speed || 0} ft</p></div></div>
+          <div class="review-body">
+            <div class="review-block"><h5>Ability bonuses</h5><p>${bonuses.length ? bonuses.map(([ability, value]) => `${ability} +${value}`).join(', ') : 'No fixed bonuses'}</p></div>
+            <div class="review-block"><h5>Languages</h5><p><strong>Fixed:</strong> ${escapeHtml(draft.languages.join(', ') || 'None')}<br><strong>Choice:</strong> ${draft.languageChoiceCount ? `Choose ${draft.languageChoiceCount}` : 'None'}</p></div>
+            <div class="review-block"><h5>Racial traits</h5>${draft.traits.length ? `<ul>${draft.traits.map(trait => `<li>${escapeHtml(trait.name || 'Unnamed trait')}</li>`).join('')}</ul>` : '<p>No traits</p>'}</div>
+            <div class="review-block"><h5>Life &amp; build</h5><p>${escapeHtml(draft.sizeDescription || 'No size description yet.')}</p></div>
+          </div>
+        </div>`;
+      document.getElementById('editorError').textContent = error;
+    }
+
+    function setEditorStep(step, focus = true) {
+      syncDraftFromFields();
+      state.step = Math.max(1, Math.min(4, step));
+      document.querySelectorAll('.step-tab').forEach((tab, index) => {
+        const active = index + 1 === state.step;
+        tab.setAttribute('aria-selected', String(active));
+        tab.dataset.complete = String(index + 1 < state.step);
+        tab.tabIndex = active ? 0 : -1;
+      });
+      document.querySelectorAll('.editor-panel').forEach((panel, index) => {
+        const active = index + 1 === state.step;
+        panel.classList.toggle('active', active);
+        panel.hidden = !active;
+      });
+      const labels = ['Identity', 'Inheritance', 'Traits', 'Review'];
+      document.getElementById('stepStatus').textContent = `Step ${state.step} of 4 · ${labels[state.step - 1]}`;
+      document.getElementById('previousStep').disabled = state.step === 1;
+      document.getElementById('nextStep').textContent = state.step === 4 ? (state.editingId ? 'Save changes' : 'Create race') : 'Next';
+      if (state.step === 4) renderReview();
+      document.getElementById('editorBody').scrollTop = 0;
+      if (focus) document.getElementById(`editorTab${state.step}`).focus();
+    }
+
+    function saveDraft() {
+      const error = validateDraft();
+      if (error) {
+        setEditorStep(4, false);
+        document.getElementById('editorError').textContent = error;
+        document.getElementById('editorError').focus?.();
+        return;
+      }
+      const existing = races.find(race => race.id === state.editingId);
+      const id = existing?.id || slugify(state.draft.name);
+      const nextRace = {
+        ...existing,
+        ...structuredClone(state.draft),
+        id,
+        icon: existing?.icon || '🧬',
+        source: 'Custom',
+        isCustom: true,
+        usageCount: existing?.usageCount || 0,
+        subraces: existing?.subraces || []
+      };
+      if (existing) races = races.map(race => race.id === existing.id ? nextRace : race);
+      else races.push(nextRace);
+      const wasEditing = Boolean(existing);
+      state.initialDraft = JSON.stringify(state.draft);
+      closeEditor();
+      renderDetail(id);
+      showToast(wasEditing ? `${nextRace.name} updated.` : `${nextRace.name} created.`);
+    }
+
+    function showConfirm({ title, message, actionLabel, danger = false, onAction, onCancel = null, returnFocus = document.activeElement }) {
+      confirmReturnFocus = returnFocus instanceof HTMLElement ? returnFocus : null;
+      confirmCallback = onAction;
+      confirmCancelCallback = onCancel;
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmMessage').textContent = message;
+      const action = document.getElementById('confirmAction');
+      action.textContent = actionLabel;
+      action.className = `button ${danger ? 'button-primary' : 'button-secondary'}`;
+      confirmLayer.classList.add('open');
+      confirmLayer.setAttribute('aria-hidden', 'false');
+      if (editorBackdrop.classList.contains('open')) editorSheet.setAttribute('inert', '');
+      else appShell.setAttribute('inert', '');
+      setTimeout(() => document.getElementById('confirmCancel').focus(), 20);
+    }
+
+    function closeConfirm(runCancel = false, restoreFocus = true) {
+      const returnFocus = confirmReturnFocus;
+      confirmLayer.classList.remove('open');
+      confirmLayer.setAttribute('aria-hidden', 'true');
+      editorSheet.removeAttribute('inert');
+      if (!editorBackdrop.classList.contains('open')) appShell.removeAttribute('inert');
+      if (runCancel) confirmCancelCallback?.();
+      confirmCallback = null;
+      confirmCancelCallback = null;
+      confirmReturnFocus = null;
+      if (restoreFocus && returnFocus?.isConnected) {
+        setTimeout(() => returnFocus.focus(), 20);
+      }
+    }
+
+    function confirmArchive(race, returnFocus = document.activeElement) {
+      showConfirm({
+        title: 'Archive custom race?',
+        message: `${race.name} will no longer be available to new characters.${race.usageCount ? ` ${race.usageCount} existing characters will keep it.` : ' Existing characters keep it.'}`,
+        actionLabel: 'Archive',
+        danger: true,
+        returnFocus,
+        onAction: () => {
+          races = races.filter(item => item.id !== race.id);
+          closeConfirm(false, false);
+          renderList();
+          showToast(`${race.name} archived.`);
+        }
+      });
+    }
+
+    function trapFocus(event, container) {
+      if (event.key !== 'Tab') return;
+      const focusable = [...container.querySelectorAll('button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])')].filter(element => !element.hidden && element.offsetParent !== null);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+
+    addRaceButton.addEventListener('click', () => openEditor());
+    document.getElementById('closeEditor').addEventListener('click', event => requestCloseEditor(event.currentTarget));
+    document.getElementById('cancelEditor').addEventListener('click', event => requestCloseEditor(event.currentTarget));
+    document.getElementById('addTrait').addEventListener('click', addTrait);
+    document.getElementById('previousStep').addEventListener('click', () => setEditorStep(state.step - 1));
+    document.getElementById('nextStep').addEventListener('click', () => state.step === 4 ? saveDraft() : setEditorStep(state.step + 1));
+    document.querySelectorAll('.step-tab').forEach(tab => {
+      tab.addEventListener('click', () => setEditorStep(Number(tab.dataset.step), false));
+      tab.addEventListener('keydown', event => {
+        if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+        event.preventDefault();
+        const next = event.key === 'Home' ? 1 : event.key === 'End' ? 4 : state.step + (event.key === 'ArrowRight' ? 1 : -1);
+        setEditorStep(next);
+      });
+    });
+    document.getElementById('confirmCancel').addEventListener('click', () => closeConfirm(true));
+    document.getElementById('confirmAction').addEventListener('click', () => confirmCallback?.());
+    document.getElementById('compendiumBack').addEventListener('click', () => showToast('Back to the Compendium hub.'));
+    document.querySelectorAll('.rail-button').forEach(button => button.addEventListener('click', () => showToast(`${button.getAttribute('aria-label')} navigation.`)));
+    editorBackdrop.addEventListener('mousedown', event => { if (event.target === editorBackdrop) requestCloseEditor(); });
+    confirmLayer.addEventListener('mousedown', event => { if (event.target === confirmLayer) closeConfirm(true); });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        if (confirmLayer.classList.contains('open')) closeConfirm(true);
+        else if (editorBackdrop.classList.contains('open')) requestCloseEditor();
+      }
+      if (confirmLayer.classList.contains('open')) trapFocus(event, document.getElementById('confirmDialog'));
+      else if (editorBackdrop.classList.contains('open')) trapFocus(event, editorSheet);
+    });
+
+    const requestedView = new URLSearchParams(window.location.search).get('view');
+    if (requestedView === 'new') {
+      renderList();
+      setTimeout(() => openEditor(), 0);
+    } else if (requestedView === 'edit') {
+      renderDetail('aetherkin');
+      setTimeout(() => openEditor(races.find(race => race.id === 'aetherkin')), 0);
+    } else if (requestedView && races.some(race => race.id === requestedView)) {
+      renderDetail(requestedView);
+    } else {
+      renderList();
+    }
+  </script>
+</body>
+</html>

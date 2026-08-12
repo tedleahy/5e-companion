@@ -1,0 +1,2102 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>Compendium Feats — Interactive Design</title>
+    <style>
+        :root {
+            --parchment: #f6e9cf;
+            --parchment-light: #f5eedc;
+            --parchment-deep: #f0e0c0;
+            --card: #f0e0bc;
+            --ink: #2b1c11;
+            --ink-light: #3d2b1f;
+            --ink-soft: rgba(110, 81, 48, 0.66);
+            --ember: #5f4325;
+            --gold: #c4a470;
+            --gold-bright: #e8b84b;
+            --gold-dark: #9e845b;
+            --claret: #8c1d38;
+            --claret-light: #a62b4a;
+            --crimson: #7b1e1e;
+            --night: #1f1711;
+            --night-deep: #110b07;
+            --night-card: #19110c;
+            --divider: rgba(139, 90, 43, 0.24);
+            --rail-border: rgba(201, 146, 42, 0.15);
+            --sheet-border: rgba(201, 146, 42, 0.25);
+            --sheet-wash: rgba(201, 146, 42, 0.07);
+            --success: #2f684f;
+            --display: Georgia, "Iowan Old Style", "Times New Roman", serif;
+            --body: "Palatino Linotype", Palatino, Georgia, serif;
+            --utility: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+            --quick: 160ms;
+            --standard: 240ms;
+            --ease: cubic-bezier(.2, .8, .2, 1);
+        }
+
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+
+        html {
+            min-width: 320px;
+            height: 100%;
+            overflow: hidden;
+            background: var(--night-deep);
+        }
+
+        body {
+            height: 100vh;
+            height: 100dvh;
+            margin: 0;
+            overflow: hidden;
+            color: var(--parchment);
+            background:
+                radial-gradient(circle at 53% -18%, rgba(196, 164, 112, 0.085), transparent 37rem),
+                var(--night);
+            font: 16px/1.5 var(--body);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button, input, textarea, select { font: inherit; }
+        button { -webkit-tap-highlight-color: transparent; }
+        button:not(:disabled), select:not(:disabled), input[type="checkbox"]:not(:disabled) { cursor: pointer; }
+        button, input, textarea, select, label { touch-action: manipulation; }
+
+        :focus-visible {
+            outline: 3px solid var(--gold-bright);
+            outline-offset: 3px;
+        }
+
+        .skip-link {
+            position: fixed;
+            z-index: 200;
+            top: 8px;
+            left: 56px;
+            transform: translateY(-160%);
+            padding: 10px 14px;
+            border-radius: 8px;
+            color: var(--night);
+            background: var(--gold-bright);
+            font: 700 13px/1 var(--utility);
+            transition: transform var(--quick) var(--ease);
+        }
+
+        .skip-link:focus { transform: translateY(0); }
+
+        .app-shell {
+            height: 100%;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: 48px minmax(0, 1fr);
+        }
+
+        .rail {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            width: 48px;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 8px 1px 16px;
+            border-right: 1px solid var(--rail-border);
+            background: var(--night-deep);
+        }
+
+        .rail-avatar,
+        .rail-button {
+            display: grid;
+            place-items: center;
+            border: 0;
+            color: rgba(201, 146, 42, 0.55);
+            background: transparent;
+        }
+
+        .rail-avatar {
+            width: 44px;
+            height: 44px;
+            margin-bottom: 8px;
+            border: 1.5px solid rgba(201, 146, 42, 0.4);
+            border-radius: 50%;
+            background: #3d1a0a;
+            font-size: 18px;
+        }
+
+        .rail-divider { width: 28px; height: 1px; margin-bottom: 8px; background: var(--rail-border); }
+        .rail-spacer { flex: 1; }
+
+        .rail-button {
+            width: 44px;
+            height: 44px;
+            margin-block: 1px;
+            border-radius: 10px;
+            font-size: 18px;
+        }
+
+        .rail-avatar:hover,
+        .rail-button:hover,
+        .rail-button[aria-current="page"] {
+            color: var(--gold);
+            background: rgba(201, 146, 42, 0.075);
+        }
+
+        .rail-expand { margin-top: 8px; margin-bottom: 16px; color: rgba(201, 146, 42, 0.3); font-size: 15px; }
+
+        .app {
+            width: min(1180px, 100%);
+            min-width: 0;
+            height: 100%;
+            min-height: 0;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .codex-header {
+            flex: 0 0 auto;
+            display: grid;
+            grid-template-columns: 90px minmax(0, 1fr) 90px;
+            align-items: center;
+            min-height: 86px;
+            padding: 8px 16px 12px;
+            border-bottom: 1px solid var(--rail-border);
+        }
+
+        .header-title { min-width: 0; text-align: center; }
+        h1, h2, h3, h4, p { margin-top: 0; }
+
+        .eyebrow,
+        .utility-label {
+            margin: 0;
+            color: rgba(196, 164, 112, 0.72);
+            font: 750 11px/1.4 var(--utility);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        .codex-header h1 {
+            margin: 4px 0 0;
+            color: var(--parchment);
+            font: 700 clamp(27px, 4vw, 32px)/1.15 var(--display);
+        }
+
+        .back-control {
+            width: 48px;
+            min-height: 48px;
+            display: grid;
+            grid-template-rows: 16px 10px;
+            justify-items: center;
+            align-content: center;
+            gap: 4px;
+            padding: 2px 0;
+            border: 0;
+            border-radius: var(--radius-sm);
+            color: var(--gold);
+            background: transparent;
+        }
+
+        .back-control:hover { color: var(--gold-bright); background: rgba(201, 146, 42, 0.07); }
+        .back-control--ink { color: var(--claret); }
+        .back-control--ink:hover { color: var(--claret-light); background: rgba(140, 29, 56, 0.08); }
+        .back-sword { width: 34px; height: 16px; fill: currentColor; transition: transform var(--quick) var(--ease); }
+        .back-control:active .back-sword { transform: translateX(-4px); }
+        .back-caption { font: 800 9px/1 var(--utility); letter-spacing: 0.16em; text-transform: uppercase; }
+
+        main {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            padding: 10px 16px 16px;
+        }
+
+        .manager-card {
+            position: relative;
+            width: 100%;
+            min-height: 0;
+            flex: 1;
+            overflow: hidden;
+            border: 1px solid rgba(196, 164, 112, 0.42);
+            border-radius: var(--radius-md);
+            color: var(--ink-light);
+            background:
+                radial-gradient(circle at 6% -5%, rgba(255, 255, 255, 0.42), transparent 25rem),
+                repeating-linear-gradient(0deg, rgba(101, 69, 36, 0.018) 0, rgba(101, 69, 36, 0.018) 1px, transparent 1px, transparent 4px),
+                var(--parchment-deep);
+            box-shadow: 0 11px 32px rgba(0, 0, 0, 0.22);
+        }
+
+        .scene { height: 100%; min-height: 0; }
+
+        .list-scene {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toolbar {
+            flex: 0 0 auto;
+            display: grid;
+            grid-template-columns: minmax(280px, 1fr) auto;
+            align-items: center;
+            gap: 24px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--divider);
+            background: rgba(255, 249, 234, 0.2);
+        }
+
+        .field-label {
+            display: block;
+            margin: 0 0 6px;
+            color: var(--ember);
+            font: 800 10px/1.3 var(--utility);
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+        }
+
+        .search-wrap { position: relative; display: block; }
+        .search-icon {
+            position: absolute;
+            top: 50%;
+            left: 13px;
+            color: var(--ink-soft);
+            font: 700 22px/1 var(--display);
+            transform: translateY(-53%) rotate(-14deg);
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 46px;
+            padding: 10px 52px 10px 43px;
+            border: 1px solid rgba(139, 90, 43, 0.42);
+            border-radius: 10px;
+            color: var(--ink);
+            background: rgba(255, 249, 234, 0.5);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .search-input::placeholder { color: rgba(61, 43, 31, 0.52); }
+        .search-input:focus { border-color: var(--claret); }
+
+        .clear-search {
+            position: absolute;
+            top: 50%;
+            right: 5px;
+            width: 44px;
+            height: 44px;
+            display: grid;
+            place-items: center;
+            padding: 0;
+            border: 0;
+            border-radius: 8px;
+            color: var(--ember);
+            background: transparent;
+            font: 22px/1 var(--utility);
+            transform: translateY(-50%);
+        }
+
+        .clear-search:hover { background: rgba(140, 29, 56, 0.07); }
+
+        .source-control {
+            min-width: 190px;
+            min-height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .source-copy { text-align: right; }
+        .source-title { display: block; color: var(--ink); font-size: 14px; font-weight: 700; }
+        .source-hint { display: block; margin-top: 2px; color: var(--ink-soft); font: 650 11px/1.2 var(--utility); }
+
+        .switch { position: relative; min-width: 46px; min-height: 44px; display: grid; place-items: center; flex: 0 0 auto; }
+        .switch input { position: absolute; opacity: 0; pointer-events: none; }
+        .switch-track {
+            position: relative;
+            width: 46px;
+            height: 26px;
+            display: block;
+            border: 1px solid rgba(95, 67, 37, 0.35);
+            border-radius: 999px;
+            background: rgba(95, 67, 37, 0.22);
+            transition: background var(--quick), border-color var(--quick);
+        }
+
+        .switch-track::after {
+            content: "";
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fff8e9;
+            box-shadow: 0 1px 4px rgba(43, 28, 17, 0.35);
+            transition: transform var(--quick) var(--ease);
+        }
+
+        .switch input:checked + .switch-track { border-color: var(--claret); background: var(--claret); }
+        .switch input:checked + .switch-track::after { transform: translateX(20px); }
+        .switch input:focus-visible + .switch-track { outline: 3px solid var(--gold-bright); outline-offset: 3px; }
+
+        .filter-strip {
+            flex: 0 0 auto;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 20px;
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--divider);
+            background: rgba(196, 164, 112, 0.055);
+        }
+
+        .filter-chips {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+
+        .filter-label {
+            flex: 0 0 auto;
+            margin-right: 3px;
+            color: var(--ink-soft);
+            font: 800 10px/1 var(--utility);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .filter-chip {
+            min-height: 40px;
+            flex: 0 0 auto;
+            padding: 7px 12px;
+            border: 1px solid rgba(140, 29, 56, 0.3);
+            border-radius: 999px;
+            color: var(--claret);
+            background: rgba(255, 249, 234, 0.3);
+            font: 750 12px/1 var(--utility);
+        }
+
+        .filter-chip:hover { background: rgba(140, 29, 56, 0.07); }
+        .filter-chip[aria-pressed="true"] { border-color: var(--claret); color: var(--parchment); background: var(--claret); }
+
+        .list-tally {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--ink-soft);
+            font: 750 11px/1.2 var(--utility);
+            white-space: nowrap;
+        }
+
+        .context-diamond {
+            width: 9px;
+            height: 9px;
+            flex: 0 0 auto;
+            border: 1px solid var(--gold-dark);
+            background: rgba(196, 164, 112, 0.2);
+            transform: rotate(45deg);
+        }
+
+        .feat-list {
+            width: 100%;
+            min-height: 0;
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            align-content: start;
+            gap: 12px;
+            margin: 0;
+            padding: 18px 20px 96px;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            scrollbar-width: thin;
+            list-style: none;
+        }
+
+        .feat-list-item { min-width: 0; }
+
+        .feat-row {
+            width: 100%;
+            min-height: 154px;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 54px minmax(0, 1fr) 20px;
+            align-items: start;
+            gap: 14px;
+            padding: 17px 15px;
+            border: 1px solid rgba(139, 90, 43, 0.22);
+            border-radius: 12px;
+            color: inherit;
+            background:
+                linear-gradient(145deg, rgba(255, 249, 234, 0.38), rgba(255, 249, 234, 0.12));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34);
+            text-align: left;
+            transition: border-color var(--quick), box-shadow var(--quick), transform var(--quick) var(--ease);
+        }
+
+        .feat-row:hover {
+            border-color: rgba(140, 29, 56, 0.38);
+            box-shadow: 0 8px 18px rgba(82, 51, 24, 0.1), inset 3px 0 0 rgba(140, 29, 56, 0.72);
+            transform: translateY(-2px);
+        }
+        .feat-row:active { transform: translateY(0); }
+
+        .feat-sigil {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            display: grid;
+            place-items: center;
+            color: var(--claret);
+            background: rgba(255, 249, 234, 0.44);
+            border: 1px solid rgba(140, 29, 56, 0.24);
+            clip-path: polygon(28% 0, 72% 0, 100% 28%, 100% 72%, 72% 100%, 28% 100%, 0 72%, 0 28%);
+            font: 700 20px/1 var(--display);
+        }
+
+        .feat-sigil::before {
+            content: "";
+            position: absolute;
+            inset: 5px;
+            border: 1px solid rgba(158, 132, 91, 0.56);
+            clip-path: inherit;
+        }
+
+        .row-copy { min-width: 0; align-self: stretch; display: flex; flex-direction: column; }
+        .row-heading { display: flex; align-items: baseline; gap: 9px; min-width: 0; }
+        .row-name {
+            min-width: 0;
+            overflow: hidden;
+            margin: 0;
+            color: var(--ink);
+            font: 700 19px/1.25 var(--display);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .source-tag {
+            flex: 0 0 auto;
+            padding: 3px 7px;
+            border: 1px solid rgba(95, 67, 37, 0.24);
+            border-radius: 999px;
+            color: var(--ember);
+            background: rgba(255, 249, 234, 0.38);
+            font: 800 9px/1 var(--utility);
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+        }
+
+        .source-tag.custom { border-color: rgba(140, 29, 56, 0.26); color: var(--claret); }
+
+        .row-description {
+            display: -webkit-box;
+            overflow: hidden;
+            margin: 5px 0 0;
+            color: rgba(61, 43, 31, 0.78);
+            font-size: 13px;
+            line-height: 1.42;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+
+        .requirement-clasp {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            min-width: 0;
+            margin-top: auto;
+            padding-top: 11px;
+            color: var(--ember);
+            font: 750 10px/1.2 var(--utility);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .requirement-clasp::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(158, 132, 91, 0.54), transparent);
+        }
+
+        .clasp-node {
+            position: relative;
+            width: 9px;
+            height: 9px;
+            flex: 0 0 auto;
+            border: 1px solid var(--gold-dark);
+            background: var(--parchment-light);
+            transform: rotate(45deg);
+            margin-top: 1px;
+        }
+
+        .clasp-label { flex: 0 0 auto; color: var(--ink-soft); font-size: 9px; }
+        .clasp-text { min-width: 0; line-height: 1.35; }
+        .clasp-open { color: var(--ink-soft); }
+        .chevron {
+            width: 20px;
+            height: 20px;
+            display: grid;
+            place-items: center;
+            margin-top: 15px;
+            border-radius: 50%;
+            color: var(--claret);
+            background: rgba(140, 29, 56, 0.07);
+            font: 20px/1 var(--display);
+        }
+
+        .empty-state {
+            min-height: 0;
+            flex: 1;
+            display: grid;
+            place-items: center;
+            padding: 40px 22px 110px;
+            text-align: center;
+        }
+
+        .empty-seal {
+            width: 58px;
+            height: 58px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 14px;
+            border: 1px solid rgba(140, 29, 56, 0.3);
+            color: var(--claret);
+            clip-path: polygon(28% 0, 72% 0, 100% 28%, 100% 72%, 72% 100%, 28% 100%, 0 72%, 0 28%);
+            font: 700 24px/1 var(--display);
+        }
+
+        .empty-state h2 { margin: 0; color: var(--ink); font: 700 23px/1.2 var(--display); }
+        .empty-state p { margin: 8px auto 0; max-width: 390px; color: var(--ink-soft); font-size: 14px; }
+        .empty-reset { margin-top: 18px; }
+
+        .fab {
+            position: absolute;
+            z-index: 6;
+            right: 28px;
+            bottom: 26px;
+            min-width: 56px;
+            min-height: 54px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 0 18px;
+            border: 1px solid rgba(255, 232, 184, 0.32);
+            border-radius: 14px;
+            color: var(--parchment);
+            background: var(--claret);
+            box-shadow: 0 9px 22px rgba(61, 10, 25, 0.29);
+            font: 800 12px/1 var(--utility);
+            letter-spacing: .035em;
+            transition: transform var(--quick) var(--ease), background var(--quick);
+        }
+
+        .fab-plus { margin-top: -2px; font: 300 25px/1 var(--utility); }
+
+        .fab:hover { background: var(--claret-light); transform: translateY(-2px); }
+        .fab:active { transform: translateY(0); }
+
+        .detail-scene {
+            display: flex;
+            flex-direction: column;
+            animation: detail-in var(--standard) var(--ease) both;
+        }
+
+        @keyframes detail-in {
+            from { opacity: 0; transform: translateX(24px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .detail-topbar {
+            flex: 0 0 auto;
+            display: grid;
+            grid-template-columns: 64px minmax(0, 1fr) 64px;
+            align-items: center;
+            min-height: 68px;
+            padding: 7px 14px;
+            border-bottom: 1px solid var(--divider);
+            background: rgba(246, 233, 207, 0.3);
+        }
+
+        .detail-bar-title {
+            overflow: hidden;
+            margin: 0;
+            color: var(--ink);
+            font: 700 17px/1.2 var(--display);
+            text-align: center;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .detail-scroll { min-height: 0; flex: 1; overflow: auto; padding: 31px clamp(18px, 5vw, 58px) 46px; }
+        .detail-content { width: min(850px, 100%); margin: 0 auto; }
+
+        .detail-hero {
+            display: grid;
+            grid-template-columns: 78px minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 18px;
+            padding-bottom: 22px;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .detail-sigil { width: 72px; height: 72px; font-size: 28px; }
+        .detail-heading { min-width: 0; }
+        .detail-heading h2 { margin: 2px 0 4px; color: var(--ink); font: 700 clamp(26px, 5vw, 36px)/1.1 var(--display); }
+        .detail-heading p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+
+        .source-seal {
+            width: 62px;
+            height: 62px;
+            display: grid;
+            place-items: center;
+            padding: 7px;
+            border: 1px solid rgba(140, 29, 56, 0.36);
+            border-radius: 50%;
+            color: var(--claret);
+            background: rgba(255, 249, 234, 0.34);
+            font: 850 9px/1.2 var(--utility);
+            letter-spacing: 0.08em;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .threshold {
+            position: relative;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 18px;
+            margin: 20px 0 24px;
+            padding: 16px 18px;
+            border: 1px solid rgba(158, 132, 91, 0.48);
+            border-radius: var(--radius-sm);
+            background: rgba(255, 249, 234, 0.3);
+        }
+
+        .threshold::before,
+        .threshold::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 10px;
+            height: 10px;
+            border: 1px solid var(--gold-dark);
+            background: var(--parchment-deep);
+            transform: translateY(-50%) rotate(45deg);
+        }
+
+        .threshold::before { left: -6px; }
+        .threshold::after { right: -6px; }
+        .threshold-label { color: var(--ember); font: 850 10px/1.35 var(--utility); letter-spacing: 0.13em; text-transform: uppercase; }
+        .threshold-value { color: var(--ink); font-weight: 700; }
+        .threshold-value span { display: inline-block; }
+        .threshold-value span + span::before { content: " or "; color: var(--ink-soft); font-weight: 400; }
+
+        .detail-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(220px, .68fr); gap: 40px; }
+        .section-title { margin: 0 0 12px; color: var(--ember); font: 850 10px/1.3 var(--utility); letter-spacing: .15em; text-transform: uppercase; }
+        .benefit-lead { margin: 0 0 13px; color: var(--ink); font-size: 16px; line-height: 1.58; }
+
+        .benefit-list { margin: 0; padding: 0; list-style: none; }
+        .benefit-list li { position: relative; padding: 11px 0 11px 24px; border-top: 1px solid var(--divider); color: var(--ink-light); line-height: 1.55; }
+        .benefit-list li::before { content: "◆"; position: absolute; top: 13px; left: 3px; color: var(--claret); font-size: 8px; }
+
+        .fact-list {
+            margin: 0;
+            overflow: hidden;
+            border: 1px solid rgba(140, 29, 56, 0.22);
+            border-radius: var(--radius-sm);
+            background: rgba(255, 249, 234, 0.27);
+        }
+
+        .fact-row { display: grid; gap: 3px; padding: 13px 15px; border-bottom: 1px solid var(--divider); }
+        .fact-row:last-child { border-bottom: 0; }
+        .fact-row dt { color: var(--ink-soft); font: 800 9px/1.2 var(--utility); letter-spacing: .11em; text-transform: uppercase; }
+        .fact-row dd { margin: 0; color: var(--ink); font-weight: 700; }
+
+        .model-note {
+            margin-top: 14px;
+            padding: 11px 13px;
+            border: 1px solid rgba(158, 132, 91, 0.26);
+            border-radius: 9px;
+            color: rgba(61, 43, 31, 0.74);
+            background: rgba(196, 164, 112, 0.08);
+            font-size: 12px;
+            line-height: 1.48;
+        }
+
+        .model-note summary { color: var(--ember); cursor: pointer; font: 800 9px/1.3 var(--utility); letter-spacing: .12em; text-transform: uppercase; }
+        .model-note p { margin: 9px 0 0; }
+
+        .detail-actions { display: flex; gap: 10px; margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--divider); }
+
+        .button {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 10px 16px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            font: 800 12px/1 var(--utility);
+            letter-spacing: .035em;
+        }
+
+        .button-primary { color: var(--parchment); background: var(--claret); }
+        .button-primary:hover { background: var(--claret-light); }
+        .button-secondary { border-color: rgba(140, 29, 56, .5); color: var(--claret); background: transparent; }
+        .button-secondary:hover { background: rgba(140, 29, 56, .07); }
+        .button-danger { border-color: rgba(123, 30, 30, .22); color: var(--crimson); background: transparent; }
+        .button-danger:hover { background: rgba(123, 30, 30, .08); }
+        .button-quiet { border-color: var(--sheet-border); color: rgba(246, 233, 207, .76); background: transparent; }
+        .button-quiet:hover { background: var(--sheet-wash); }
+        .button-small { min-height: 44px; padding: 8px 12px; }
+
+        dialog { padding: 0; }
+        dialog::backdrop { background: rgba(20, 14, 8, .72); backdrop-filter: blur(2px); }
+
+        .editor-dialog {
+            width: min(940px, calc(100% - 24px));
+            max-width: none;
+            height: min(88vh, 820px);
+            max-height: calc(100dvh - 24px);
+            margin: auto auto 0;
+            overflow: hidden;
+            border: 1px solid rgba(201, 146, 42, .34);
+            border-radius: 18px 18px 0 0;
+            color: var(--parchment);
+            background: var(--night-card);
+            box-shadow: var(--shadow);
+        }
+
+        .editor-dialog[open] { animation: sheet-in var(--standard) var(--ease) both; }
+        @keyframes sheet-in { from { opacity: 0; transform: translateY(34px); } to { opacity: 1; transform: translateY(0); } }
+
+        .editor-form { height: 100%; display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto auto; }
+        .sheet-handle { width: 40px; height: 4px; margin: 9px auto 0; border-radius: 999px; background: rgba(196, 164, 112, .4); }
+
+        .editor-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 8px 22px 15px;
+            border-bottom: 1px solid var(--sheet-border);
+        }
+
+        .editor-header h2 { margin: 3px 0 0; color: var(--parchment); font: 700 26px/1.2 var(--display); }
+        .icon-button {
+            width: 44px;
+            height: 44px;
+            display: grid;
+            place-items: center;
+            flex: 0 0 auto;
+            padding: 0;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            color: var(--gold);
+            background: transparent;
+            font: 24px/1 var(--utility);
+        }
+
+        .icon-button:hover { border-color: var(--sheet-border); background: var(--sheet-wash); }
+
+        .stage-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0;
+            padding: 12px 22px;
+            border-bottom: 1px solid var(--sheet-border);
+        }
+
+        .stage-tab {
+            position: relative;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 6px 8px;
+            border: 0;
+            color: rgba(246, 233, 207, .48);
+            background: transparent;
+            font: 800 10px/1.2 var(--utility);
+            letter-spacing: .09em;
+            text-transform: uppercase;
+        }
+
+        .stage-tab::after { content: ""; position: absolute; top: 50%; right: 0; left: calc(50% + 50px); height: 1px; background: rgba(201, 146, 42, .2); }
+        .stage-tab:last-child::after { display: none; }
+        .stage-number {
+            width: 24px;
+            height: 24px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(201, 146, 42, .28);
+            border-radius: 50%;
+            color: rgba(246, 233, 207, .5);
+            background: var(--night-card);
+            font-size: 9px;
+        }
+        .stage-tab.is-active { color: var(--gold-bright); }
+        .stage-tab.is-active .stage-number { border-color: var(--claret-light); color: var(--parchment); background: var(--claret); }
+        .stage-tab.is-complete { color: rgba(246, 233, 207, .74); }
+        .stage-tab.is-complete .stage-number { border-color: rgba(201, 146, 42, .54); color: var(--night); background: var(--gold); }
+
+        .editor-scroll { min-height: 0; overflow: auto; overscroll-behavior: contain; }
+        .editor-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(240px, .72fr); gap: 24px; padding: 22px; }
+        .form-stage[hidden] { display: none; }
+        .stage-heading { margin-bottom: 18px; }
+        .stage-heading h3 { margin: 0 0 5px; color: var(--parchment); font: 700 23px/1.2 var(--display); }
+        .stage-heading p { margin: 0; color: rgba(246, 233, 207, .57); font-size: 14px; line-height: 1.46; }
+        .form-stack { display: grid; gap: 17px; }
+        .form-field { display: grid; gap: 7px; }
+        .editor-dialog .field-label { margin: 0; color: rgba(196, 164, 112, .78); }
+        .field-hint { color: rgba(246, 233, 207, .46); font-size: 12px; line-height: 1.4; }
+
+        .night-input,
+        .night-textarea,
+        .night-select {
+            width: 100%;
+            min-height: 46px;
+            padding: 10px 12px;
+            border: 1px solid rgba(201, 146, 42, .42);
+            border-radius: 8px;
+            color: var(--parchment);
+            background: var(--sheet-wash);
+            box-shadow: 0 0 4px rgba(201, 146, 42, .1);
+        }
+
+        .night-textarea { min-height: 164px; resize: vertical; line-height: 1.5; }
+        .night-input::placeholder, .night-textarea::placeholder { color: rgba(246, 233, 207, .28); }
+        .night-input[aria-invalid="true"], .night-textarea[aria-invalid="true"], .night-select[aria-invalid="true"] { border-color: #cf676c; }
+        .night-select option { color: var(--ink); background: var(--parchment); }
+
+        .description-guide {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            gap: 10px;
+            padding: 11px 12px;
+            border: 1px solid var(--sheet-border);
+            border-radius: 9px;
+            color: rgba(246, 233, 207, .55);
+            background: rgba(201, 146, 42, .04);
+            font-size: 12px;
+        }
+
+        .description-guide strong { color: var(--gold); font: 800 9px/1.4 var(--utility); letter-spacing: .1em; text-transform: uppercase; }
+
+        .requirement-choice {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 9px;
+            padding: 5px;
+            border: 1px solid var(--sheet-border);
+            border-radius: 12px;
+            background: rgba(201, 146, 42, .04);
+        }
+
+        .requirement-choice label { position: relative; }
+        .requirement-choice input { position: absolute; opacity: 0; pointer-events: none; }
+        .choice-face { min-height: 54px; display: grid; align-content: center; padding: 8px 12px; border: 1px solid transparent; border-radius: 8px; color: rgba(246, 233, 207, .58); background: transparent; }
+        .choice-face strong { color: var(--parchment); font-size: 14px; }
+        .choice-face span { font-size: 11px; }
+        .requirement-choice input:checked + .choice-face { border-color: rgba(166, 43, 74, .7); background: rgba(166, 43, 74, .16); }
+        .requirement-choice input:focus-visible + .choice-face { outline: 3px solid var(--gold-bright); outline-offset: 3px; }
+
+        .schema-callout {
+            position: relative;
+            padding: 12px 14px;
+            border: 1px solid rgba(196, 164, 112, .28);
+            border-radius: 10px;
+            color: rgba(246, 233, 207, .64);
+            background: rgba(196, 164, 112, .04);
+            font-size: 12px;
+            line-height: 1.48;
+        }
+
+        .schema-callout summary { color: var(--gold); cursor: pointer; font: 850 9px/1.3 var(--utility); letter-spacing: .13em; text-transform: uppercase; }
+        .schema-callout p { margin: 9px 0 0; }
+
+        .requirement-editor { display: grid; gap: 11px; }
+        .requirement-group {
+            padding: 13px;
+            border: 1px solid var(--sheet-border);
+            border-radius: var(--radius-sm);
+            background: var(--sheet-wash);
+        }
+
+        .requirement-group-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+        .requirement-group-head strong { color: var(--parchment); font-size: 14px; }
+        .requirement-group-head span { color: rgba(246, 233, 207, .45); font-size: 11px; }
+        .requirement-row { display: grid; grid-template-columns: minmax(110px, .95fr) minmax(112px, 1fr) 78px 44px; gap: 8px; align-items: center; }
+        .remove-requirement { width: 44px; height: 44px; border: 1px solid rgba(201, 146, 42, .2); border-radius: 8px; color: #e39a9e; background: transparent; font: 20px/1 var(--utility); }
+        .remove-requirement:hover { background: rgba(123, 30, 30, .16); }
+        .add-alternative { min-height: 44px; margin-top: 6px; padding: 8px; color: var(--gold); border: 0; background: transparent; font: 750 12px/1.2 var(--utility); }
+        .add-alternative:hover { color: var(--gold-bright); }
+        .add-group { width: 100%; border-style: dashed; }
+        .logic-joiner { display: flex; align-items: center; gap: 9px; color: rgba(246, 233, 207, .4); font: 800 9px/1 var(--utility); letter-spacing: .12em; text-transform: uppercase; }
+        .logic-joiner::before, .logic-joiner::after { content: ""; height: 1px; flex: 1; background: var(--sheet-border); }
+
+        .review-card {
+            overflow: hidden;
+            border: 1px solid rgba(196, 164, 112, .32);
+            border-radius: var(--radius-sm);
+            background: var(--sheet-wash);
+        }
+
+        .review-head { padding: 17px 17px 14px; border-bottom: 1px solid var(--sheet-border); }
+        .review-head h4 { margin: 3px 0 5px; color: var(--parchment); font: 700 22px/1.2 var(--display); }
+        .review-source { color: rgba(246, 233, 207, .48); font-size: 12px; }
+        .review-section { padding: 14px 17px; border-bottom: 1px solid var(--sheet-border); }
+        .review-section:last-child { border-bottom: 0; }
+        .review-section strong { display: block; margin-bottom: 5px; color: var(--gold); font: 800 9px/1.3 var(--utility); letter-spacing: .12em; text-transform: uppercase; }
+        .review-section p { margin: 0; color: rgba(246, 233, 207, .72); font-size: 13px; white-space: pre-line; }
+
+        .live-card {
+            position: sticky;
+            top: 0;
+            overflow: hidden;
+            border: 1px solid rgba(196, 164, 112, .28);
+            border-radius: var(--radius-sm);
+            background: linear-gradient(145deg, rgba(201, 146, 42, .11), rgba(201, 146, 42, .035));
+        }
+
+        .live-card-top { padding: 16px; text-align: center; border-bottom: 1px solid var(--sheet-border); }
+        .preview-sigil { width: 54px; height: 54px; margin: 0 auto 10px; color: var(--gold-bright); border-color: rgba(232, 184, 75, .32); background: rgba(201, 146, 42, .08); }
+        .live-card h3 { overflow-wrap: anywhere; margin: 0; color: var(--parchment); font: 700 19px/1.2 var(--display); }
+        .live-card-source { margin: 4px 0 0; color: rgba(246, 233, 207, .44); font-size: 11px; }
+        .live-requirement { padding: 13px 16px; border-bottom: 1px solid var(--sheet-border); }
+        .live-requirement strong { display: block; margin-bottom: 5px; color: var(--gold); font: 800 9px/1.3 var(--utility); letter-spacing: .1em; text-transform: uppercase; }
+        .live-requirement span { color: rgba(246, 233, 207, .76); font-size: 12px; }
+        .live-effect { padding: 14px 16px 16px; color: rgba(246, 233, 207, .56); font-size: 12px; line-height: 1.48; }
+
+        .editor-error { min-height: 18px; margin: 0; padding: 0 22px; color: #e59a9d; font: 600 12px/1.4 var(--utility); }
+        .editor-footer { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 10px; padding: 12px 22px 16px; border-top: 1px solid var(--sheet-border); background: rgba(17, 11, 7, .92); }
+        .stage-status { color: rgba(246, 233, 207, .46); font: 750 10px/1.3 var(--utility); letter-spacing: .07em; text-transform: uppercase; }
+
+        .confirm-dialog {
+            width: min(430px, calc(100% - 32px));
+            max-width: none;
+            border: 1px solid var(--gold);
+            border-radius: var(--radius-md);
+            color: var(--ink);
+            background: var(--parchment);
+            box-shadow: var(--shadow);
+        }
+
+        .confirm-content { padding: 22px; }
+        .confirm-content h2 { margin: 0 0 8px; color: var(--ink); font: 700 24px/1.2 var(--display); }
+        .confirm-content p { margin: 0; color: var(--ink-light); line-height: 1.5; }
+        .confirm-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 20px; }
+
+        .toast {
+            position: fixed;
+            z-index: 220;
+            right: 18px;
+            bottom: 18px;
+            max-width: min(360px, calc(100% - 36px));
+            padding: 12px 16px;
+            border: 1px solid rgba(196, 164, 112, .42);
+            border-radius: 10px;
+            color: var(--parchment);
+            background: #34231a;
+            box-shadow: 0 8px 26px rgba(0, 0, 0, .3);
+            font: 600 13px/1.35 var(--utility);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(12px);
+            transition: opacity var(--quick), transform var(--quick);
+        }
+
+        .toast.is-visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 720px) {
+            .app-shell { grid-template-columns: 1fr; }
+            .rail { display: none; }
+            .skip-link { left: 8px; }
+            .codex-header { grid-template-columns: 54px minmax(0, 1fr) 54px; min-height: 78px; padding-inline: 8px; }
+            main { padding: 8px 8px 12px; }
+            .manager-card { min-height: 0; border-radius: 14px; }
+            .toolbar { grid-template-columns: 1fr; gap: 10px; padding: 13px; }
+            .source-control { justify-content: space-between; }
+            .source-copy { text-align: left; }
+            .filter-strip { gap: 10px; padding-inline: 13px; }
+            .filter-chip { min-height: 44px; }
+            .feat-list { grid-template-columns: 1fr; gap: 9px; padding: 12px 12px 88px; }
+            .feat-row { grid-template-columns: 48px minmax(0, 1fr) 20px; gap: 11px; min-height: 126px; padding: 14px 12px; }
+            .feat-sigil { width: 44px; height: 44px; font-size: 18px; }
+            .row-name { font-size: 18px; }
+            .row-description { -webkit-line-clamp: 1; }
+            .detail-scroll { padding: 20px 16px 36px; }
+            .detail-hero { grid-template-columns: 60px minmax(0, 1fr); gap: 13px; }
+            .detail-sigil { width: 58px; height: 58px; font-size: 23px; }
+            .source-seal { display: none; }
+            .detail-grid { grid-template-columns: 1fr; gap: 22px; }
+            .fab { right: 20px; bottom: 20px; }
+            .editor-dialog { width: 100%; height: 94dvh; max-height: 94dvh; border-right: 0; border-bottom: 0; border-left: 0; }
+            .editor-header { padding-inline: 16px; }
+            .stage-tabs { padding-inline: 10px; }
+            .stage-tab::after { left: calc(50% + 44px); }
+            .editor-grid { grid-template-columns: 1fr; padding: 18px 16px 28px; }
+            .live-card { position: static; }
+            .requirement-row { grid-template-columns: minmax(90px, .9fr) minmax(104px, 1fr) 68px 44px; }
+            .editor-footer { grid-template-columns: 1fr 1fr; padding-inline: 14px; }
+            .stage-status { grid-column: 1 / -1; grid-row: 1; }
+            #editor-back[hidden] + #editor-next { grid-column: 1 / -1; justify-self: stretch; }
+        }
+
+        @media (max-width: 430px) {
+            .source-tag { display: none; }
+            .filter-label { display: none; }
+            .filter-strip { grid-template-columns: minmax(0, 1fr); }
+            .list-tally { padding-left: 2px; }
+            .requirement-clasp { gap: 6px; }
+            .clasp-label { display: none; }
+            .row-description { display: none; }
+            .feat-row { min-height: 108px; }
+            .threshold { grid-template-columns: 1fr; gap: 5px; }
+            .detail-actions { flex-direction: column; }
+            .editor-header h2 { font-size: 23px; }
+            .stage-tab { padding-inline: 3px; letter-spacing: .05em; }
+            .stage-tab::after { display: none; }
+            .stage-number { display: none; }
+            .requirement-choice { grid-template-columns: 1fr; }
+            .requirement-row { grid-template-columns: minmax(0, 1fr) 70px 44px; }
+            .requirement-row .requirement-type { grid-column: 1 / -1; }
+            .confirm-actions { flex-direction: column-reverse; }
+            .confirm-actions .button { width: 100%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a class="skip-link" href="#manager">Skip to feats</a>
+
+    <div class="app-shell" id="app-shell">
+        <aside class="rail" aria-label="Primary navigation">
+            <button class="rail-avatar" type="button" aria-label="Open navigation drawer" title="Open navigation drawer">🧙</button>
+            <div class="rail-divider" aria-hidden="true"></div>
+            <button class="rail-button" type="button" aria-label="Open characters" title="Characters">👤</button>
+            <button class="rail-button" type="button" aria-label="Open compendium" aria-current="page" title="Compendium">📚</button>
+            <div class="rail-spacer"></div>
+            <button class="rail-button" type="button" aria-label="Open settings" title="Settings">⚙</button>
+            <button class="rail-button rail-expand" type="button" aria-label="Expand navigation drawer" title="Expand navigation drawer">▶</button>
+        </aside>
+
+        <div class="app">
+            <header class="codex-header">
+                <button class="back-control back-to-hub" type="button" aria-label="Back to Compendium">
+                    <svg class="back-sword" viewBox="0 0 34 16" aria-hidden="true">
+                        <path d="M0.5 8 L11 5.5 L18.6 6.2 L18.6 9.8 L11 10.5 Z"></path>
+                        <rect x="18.6" y="1.6" width="2.2" height="12.8" rx="1.1"></rect>
+                        <rect x="20.8" y="7" width="8" height="2" rx="1"></rect>
+                        <circle cx="30.7" cy="8" r="2.3"></circle>
+                    </svg>
+                    <span class="back-caption">Back</span>
+                </button>
+                <div class="header-title">
+                    <p class="eyebrow">Compendium</p>
+                    <h1>Feats</h1>
+                </div>
+                <span aria-hidden="true"></span>
+            </header>
+
+            <main id="manager">
+                <section class="manager-card" aria-label="Feat manager">
+                    <div class="scene list-scene" id="list-scene">
+                        <div class="toolbar">
+                            <label for="feat-search">
+                                <span class="field-label">Find a feat</span>
+                                <span class="search-wrap">
+                                    <span class="search-icon" aria-hidden="true">⌕</span>
+                                    <input class="search-input" id="feat-search" type="search" autocomplete="off" placeholder="Search name, effect, or requirement">
+                                    <button class="clear-search" id="clear-search" type="button" aria-label="Clear search" hidden>×</button>
+                                </span>
+                            </label>
+
+                            <div class="source-control">
+                                <div class="source-copy">
+                                    <label class="source-title" for="include-srd">Include SRD feats</label>
+                                    <span class="source-hint">Official rules reference</span>
+                                </div>
+                                <label class="switch">
+                                    <input id="include-srd" type="checkbox" checked>
+                                    <span class="switch-track" aria-hidden="true"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="filter-strip">
+                            <div class="filter-chips" aria-label="Filter feats by prerequisite">
+                                <span class="filter-label">Show</span>
+                                <button class="filter-chip" type="button" data-filter="all" aria-pressed="true">All feats</button>
+                                <button class="filter-chip" type="button" data-filter="open" aria-pressed="false">No prerequisite</button>
+                                <button class="filter-chip" type="button" data-filter="gated" aria-pressed="false">Prerequisite required</button>
+                            </div>
+                            <div class="list-tally">
+                                <span class="context-diamond" aria-hidden="true"></span>
+                                <output id="result-count" aria-live="polite"></output>
+                            </div>
+                        </div>
+
+                        <ul class="feat-list" id="feat-list"></ul>
+
+                        <div class="empty-state" id="empty-state" hidden>
+                            <div>
+                                <div class="empty-seal" aria-hidden="true">◇</div>
+                                <h2>No matching feats.</h2>
+                                <p>Clear the search or change the filters to reveal more entries.</p>
+                                <button class="button button-secondary empty-reset" id="reset-filters" type="button">Clear filters</button>
+                            </div>
+                        </div>
+
+                        <button class="fab" id="create-feat" type="button"><span class="fab-plus" aria-hidden="true">+</span><span>Create feat</span></button>
+                    </div>
+
+                    <div class="scene detail-scene" id="detail-scene" hidden>
+                        <div class="detail-topbar">
+                            <button class="back-control back-control--ink" id="detail-back" type="button" aria-label="Back to all feats">
+                                <svg class="back-sword" viewBox="0 0 34 16" aria-hidden="true">
+                                    <path d="M0.5 8 L11 5.5 L18.6 6.2 L18.6 9.8 L11 10.5 Z"></path>
+                                    <rect x="18.6" y="1.6" width="2.2" height="12.8" rx="1.1"></rect>
+                                    <rect x="20.8" y="7" width="8" height="2" rx="1"></rect>
+                                    <circle cx="30.7" cy="8" r="2.3"></circle>
+                                </svg>
+                                <span class="back-caption">Back</span>
+                            </button>
+                            <h2 class="detail-bar-title" id="detail-title"></h2>
+                            <span aria-hidden="true"></span>
+                        </div>
+                        <div class="detail-scroll">
+                            <article class="detail-content" id="detail-content"></article>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <dialog class="editor-dialog" id="editor-dialog" aria-labelledby="editor-title">
+        <form class="editor-form" id="editor-form" novalidate>
+            <div>
+                <div class="sheet-handle" aria-hidden="true"></div>
+                <header class="editor-header">
+                    <div>
+                        <p class="eyebrow">Custom feat</p>
+                        <h2 id="editor-title">Create a feat</h2>
+                    </div>
+                    <button class="icon-button" id="close-editor" type="button" aria-label="Close feat editor">×</button>
+                </header>
+            </div>
+
+            <nav class="stage-tabs" aria-label="Feat editor steps">
+                <button class="stage-tab is-active" type="button" data-stage="0" aria-current="step"><span class="stage-number">1</span><span>Feat</span></button>
+                <button class="stage-tab" type="button" data-stage="1"><span class="stage-number">2</span><span>Requirements</span></button>
+                <button class="stage-tab" type="button" data-stage="2"><span class="stage-number">3</span><span>Review</span></button>
+            </nav>
+
+            <div class="editor-scroll">
+                <div class="editor-grid">
+                    <div>
+                        <section class="form-stage" data-panel="0">
+                            <div class="stage-heading">
+                                <h3>Describe the feat.</h3>
+                                <p>Give players a clear name and the complete rules they need to make a choice.</p>
+                            </div>
+                            <div class="form-stack">
+                                <label class="form-field" for="feat-name">
+                                    <span class="field-label">Feat name</span>
+                                    <input class="night-input" id="feat-name" name="name" required maxlength="80" aria-describedby="feat-name-hint editor-error" placeholder="e.g. Emberbound Sentinel">
+                                    <span class="field-hint" id="feat-name-hint">Use a unique name within your custom feat library.</span>
+                                </label>
+                                <label class="form-field" for="source-book">
+                                    <span class="field-label">Source label</span>
+                                    <input class="night-input" id="source-book" name="sourceBook" maxlength="40" value="Homebrew">
+                                </label>
+                                <label class="form-field" for="feat-description">
+                                    <span class="field-label">Description and benefits</span>
+                                    <textarea class="night-textarea" id="feat-description" name="description" required maxlength="1800" aria-describedby="feat-description-hint editor-error" placeholder="Introduce the feat, then start each distinct benefit on a new line with a dash."></textarea>
+                                    <span class="field-hint" id="feat-description-hint">Start each distinct benefit on a new line with a dash.</span>
+                                </label>
+                                <div class="description-guide">
+                                    <strong>Writing pattern</strong>
+                                    <span>Lead with one plain sentence. Put each mechanical benefit on its own “-” line so detail views stay easy to scan.</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="form-stage" data-panel="1" hidden>
+                            <div class="stage-heading">
+                                <h3>Define the threshold.</h3>
+                                <p>Requirements answer one question clearly: can this character take the feat right now?</p>
+                            </div>
+                            <div class="form-stack">
+                                <fieldset class="requirement-choice">
+                                    <legend class="field-label" style="position:absolute;clip:rect(0 0 0 0);clip-path:inset(50%);width:1px;height:1px;overflow:hidden">Prerequisite mode</legend>
+                                    <label>
+                                        <input type="radio" name="requirementMode" value="open" checked>
+                                        <span class="choice-face"><strong>Open to all</strong><span>No prerequisite</span></span>
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="requirementMode" value="gated">
+                                        <span class="choice-face"><strong>Set requirements</strong><span>One or more qualification groups</span></span>
+                                    </label>
+                                </fieldset>
+
+                                <div class="requirement-editor" id="requirement-editor" hidden></div>
+                                <button class="button button-quiet add-group" id="add-requirement-group" type="button" hidden>+ Add another required group</button>
+
+                                <details class="schema-callout">
+                                    <summary>Prototype data note</summary>
+                                    <p>Structured prerequisite fields do not exist yet. This design assumes typed rules, with OR inside a group and AND between groups. Referenced values persist stable indexes or owned IDs, never display labels.</p>
+                                </details>
+                            </div>
+                        </section>
+
+                        <section class="form-stage" data-panel="2" hidden>
+                            <div class="stage-heading">
+                                <h3>Review the complete feat.</h3>
+                                <p>Check the qualification language and the rule text as a player will read them.</p>
+                            </div>
+                            <article class="review-card">
+                                <div class="review-head">
+                                    <p class="eyebrow">Custom feat</p>
+                                    <h4 id="review-name">Untitled feat</h4>
+                                    <span class="review-source" id="review-source">Homebrew</span>
+                                </div>
+                                <div class="review-section">
+                                    <strong>Prerequisite</strong>
+                                    <p id="review-requirement">None</p>
+                                </div>
+                                <div class="review-section">
+                                    <strong>Effect</strong>
+                                    <p id="review-description">Add a description to explain what the feat grants.</p>
+                                </div>
+                            </article>
+                        </section>
+                    </div>
+
+                    <aside class="live-card" aria-label="Live feat preview">
+                        <div class="live-card-top">
+                            <div class="feat-sigil preview-sigil" id="preview-sigil" aria-hidden="true">?</div>
+                            <h3 id="preview-name">Untitled feat</h3>
+                            <p class="live-card-source" id="preview-source">Homebrew · Custom</p>
+                        </div>
+                        <div class="live-requirement">
+                            <strong>Threshold</strong>
+                            <span id="preview-requirement">Open to all</span>
+                        </div>
+                        <div class="live-effect" id="preview-effect">Describe the feat to preview its opening effect.</div>
+                    </aside>
+                </div>
+            </div>
+
+            <p class="editor-error" id="editor-error" role="alert"></p>
+            <footer class="editor-footer">
+                <span class="stage-status" id="stage-status">Step 1 of 3 · Feat</span>
+                <button class="button button-quiet" id="editor-back" type="button" hidden>Back</button>
+                <button class="button button-primary" id="editor-next" type="submit">Continue</button>
+            </footer>
+        </form>
+    </dialog>
+
+    <dialog class="confirm-dialog" id="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+        <div class="confirm-content">
+            <h2 id="confirm-title"></h2>
+            <p id="confirm-message"></p>
+            <div class="confirm-actions">
+                <button class="button button-secondary" id="confirm-cancel" type="button"></button>
+                <button class="button button-primary" id="confirm-accept" type="button"></button>
+            </div>
+        </div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+        (function () {
+            "use strict";
+
+            var feats = [
+                {
+                    id: "grappler",
+                    name: "Grappler",
+                    sourceBook: "SRD",
+                    isCustom: false,
+                    usageCount: 0,
+                    description: "You’ve developed the skills necessary to hold your own in close-quarters grappling. You gain the following benefits:\n- You have advantage on attack rolls against a creature you are grappling.\n- You can use your action to try to pin a creature grappled by you. Make another grapple check; on a success, you and the creature are both restrained until the grapple ends.",
+                    requirements: [[{ type: "Ability score", value: "str", qualifier: "13" }]]
+                },
+                {
+                    id: "emberbound-sentinel",
+                    name: "Emberbound Sentinel",
+                    sourceBook: "Homebrew",
+                    isCustom: true,
+                    usageCount: 2,
+                    description: "You keep watch with an ember’s patience and answer danger in a flash.\n- When a creature you can see enters your reach, you can use your reaction to move 5 feet without provoking opportunity attacks.\n- Once per long rest, a creature hit by your opportunity attack takes an extra 1d6 fire damage.",
+                    requirements: [[{ type: "Ability score", value: "con", qualifier: "13" }]]
+                },
+                {
+                    id: "quick-study",
+                    name: "Quick Study",
+                    sourceBook: "Homebrew",
+                    isCustom: true,
+                    usageCount: 0,
+                    description: "You turn observation into practical knowledge.\n- Gain proficiency in one skill of your choice.\n- After watching a willing creature use a tool for 10 minutes, you may add half your proficiency bonus to one check with that tool before your next long rest.",
+                    requirements: []
+                },
+                {
+                    id: "warden-of-the-old-road",
+                    name: "Warden of the Old Road",
+                    sourceBook: "Campaign guide",
+                    isCustom: true,
+                    usageCount: 1,
+                    description: "Years spent guarding forgotten paths have sharpened your eye for an ambush.\n- Difficult terrain caused by undergrowth does not cost you extra movement.\n- You have advantage on Wisdom (Perception) checks made to notice hidden creatures while travelling.",
+                    requirements: [[
+                        { type: "Proficiency", value: "survival", qualifier: "" },
+                        { type: "Proficiency", value: "perception", qualifier: "" }
+                    ]]
+                }
+            ];
+
+            var state = {
+                query: "",
+                filter: "all",
+                includeSrd: true,
+                selectedId: null,
+                previousRowId: null,
+                editorMode: "create",
+                editingId: null,
+                stage: 0,
+                requirementGroups: [],
+                initialSnapshot: "",
+                focusReturn: null,
+                confirmAction: null,
+                confirmCancelAction: null,
+                confirmFocusReturn: null
+            };
+
+            var listScene = document.getElementById("list-scene");
+            var detailScene = document.getElementById("detail-scene");
+            var featList = document.getElementById("feat-list");
+            var emptyState = document.getElementById("empty-state");
+            var resultCount = document.getElementById("result-count");
+            var searchInput = document.getElementById("feat-search");
+            var clearSearch = document.getElementById("clear-search");
+            var resetFilters = document.getElementById("reset-filters");
+            var includeSrd = document.getElementById("include-srd");
+            var createButton = document.getElementById("create-feat");
+            var detailTitle = document.getElementById("detail-title");
+            var detailContent = document.getElementById("detail-content");
+            var editorDialog = document.getElementById("editor-dialog");
+            var editorForm = document.getElementById("editor-form");
+            var editorTitle = document.getElementById("editor-title");
+            var editorError = document.getElementById("editor-error");
+            var editorBack = document.getElementById("editor-back");
+            var editorNext = document.getElementById("editor-next");
+            var stageStatus = document.getElementById("stage-status");
+            var nameInput = document.getElementById("feat-name");
+            var sourceInput = document.getElementById("source-book");
+            var descriptionInput = document.getElementById("feat-description");
+            var requirementEditor = document.getElementById("requirement-editor");
+            var addRequirementGroup = document.getElementById("add-requirement-group");
+            var confirmDialog = document.getElementById("confirm-dialog");
+            var toast = document.getElementById("toast");
+            var toastTimer = null;
+            var ABILITY_OPTIONS = [
+                { value: "str", label: "Strength" },
+                { value: "dex", label: "Dexterity" },
+                { value: "con", label: "Constitution" },
+                { value: "int", label: "Intelligence" },
+                { value: "wis", label: "Wisdom" },
+                { value: "cha", label: "Charisma" }
+            ];
+            var PROFICIENCY_OPTIONS = [
+                { value: "arcana", label: "Arcana" },
+                { value: "athletics", label: "Athletics" },
+                { value: "martial-weapons", label: "Martial weapons" },
+                { value: "perception", label: "Perception" },
+                { value: "survival", label: "Survival" },
+                { value: "clx-owned-prof-cartographers-tools", label: "Cartographer’s tools (custom)" }
+            ];
+            var RACE_OPTIONS = [
+                { value: "dwarf", label: "Dwarf" },
+                { value: "elf", label: "Elf" },
+                { value: "halfling", label: "Halfling" },
+                { value: "human", label: "Human" },
+                { value: "clx-owned-race-ashenborn", label: "Ashenborn (custom)" }
+            ];
+
+            function escapeHtml(value) {
+                return String(value == null ? "" : value)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            function firstLetters(name) {
+                var letters = String(name || "?").trim().split(/\s+/).filter(Boolean).slice(0, 2).map(function (part) {
+                    return part.charAt(0).toUpperCase();
+                }).join("");
+                return letters || "?";
+            }
+
+            function optionsForType(type) {
+                if (type === "Ability score") return ABILITY_OPTIONS;
+                if (type === "Proficiency") return PROFICIENCY_OPTIONS;
+                if (type === "Race") return RACE_OPTIONS;
+                return [];
+            }
+
+            function referenceLabel(type, value) {
+                var option = optionsForType(type).find(function (item) { return item.value === value; });
+                return option ? option.label.replace(" (custom)", "") : "";
+            }
+
+            function ruleLabel(rule) {
+                if (rule.type === "Ability score") return (referenceLabel(rule.type, rule.value) || "Ability") + " " + (rule.qualifier || "?");
+                if (rule.type === "Character level") return "Character level " + (rule.qualifier || "?");
+                if (rule.type === "Proficiency") return (referenceLabel(rule.type, rule.value) || "A proficiency") + " proficiency";
+                if (rule.type === "Race") return referenceLabel(rule.type, rule.value) || "A race";
+                if (rule.type === "Spellcasting") return "Spellcasting";
+                return rule.value || "Requirement";
+            }
+
+            function requirementLabel(groups, openLabel) {
+                if (!groups || groups.length === 0) return openLabel || "None";
+                return groups.map(function (group) {
+                    var labels = group.map(ruleLabel);
+                    return labels.length > 1 ? "(" + labels.join(" or ") + ")" : labels[0];
+                }).join(" and ");
+            }
+
+            function sourceLabel(feat) {
+                return feat.isCustom ? (feat.sourceBook || "Homebrew") : "SRD";
+            }
+
+            function searchableText(feat) {
+                return [feat.name, feat.description, sourceLabel(feat), requirementLabel(feat.requirements, "open to all")].join(" ").toLowerCase();
+            }
+
+            function visibleFeats() {
+                var query = state.query.trim().toLowerCase();
+                return feats.filter(function (feat) {
+                    if (!state.includeSrd && !feat.isCustom) return false;
+                    if (state.filter === "open" && feat.requirements.length > 0) return false;
+                    if (state.filter === "gated" && feat.requirements.length === 0) return false;
+                    return !query || searchableText(feat).indexOf(query) >= 0;
+                }).sort(function (left, right) { return left.name.localeCompare(right.name); });
+            }
+
+            function renderList() {
+                var visible = visibleFeats();
+                featList.innerHTML = "";
+                resultCount.textContent = visible.length + (visible.length === 1 ? " feat" : " feats") + " · A–Z";
+                emptyState.hidden = visible.length !== 0;
+                featList.hidden = visible.length === 0;
+
+                visible.forEach(function (feat) {
+                    var item = document.createElement("li");
+                    item.className = "feat-list-item";
+                    var requirement = feat.requirements.length ? requirementLabel(feat.requirements) : "Open to all";
+                    item.innerHTML =
+                        '<button class="feat-row" type="button" data-view="' + escapeHtml(feat.id) + '" aria-label="View ' + escapeHtml(feat.name) + ' feat">' +
+                            '<span class="feat-sigil" aria-hidden="true">' + escapeHtml(firstLetters(feat.name)) + '</span>' +
+                            '<span class="row-copy">' +
+                                '<span class="row-heading"><span class="row-name">' + escapeHtml(feat.name) + '</span><span class="source-tag ' + (feat.isCustom ? "custom" : "") + '">' + escapeHtml(sourceLabel(feat)) + '</span></span>' +
+                                '<span class="row-description">' + escapeHtml(feat.description.split("\n")[0]) + '</span>' +
+                                '<span class="requirement-clasp ' + (feat.requirements.length ? "" : "clasp-open") + '">' +
+                                    '<span class="clasp-node" aria-hidden="true"></span><span class="clasp-label">Prerequisite</span>' +
+                                    '<span class="clasp-text">' + escapeHtml(requirement) + '</span>' +
+                                '</span>' +
+                            '</span>' +
+                            '<span class="chevron" aria-hidden="true">›</span>' +
+                        '</button>';
+                    featList.appendChild(item);
+                });
+
+                featList.querySelectorAll("[data-view]").forEach(function (button) {
+                    button.addEventListener("click", function () { openDetail(button.getAttribute("data-view")); });
+                });
+            }
+
+            function descriptionParts(description) {
+                var lines = String(description || "").split(/\n+/).map(function (line) { return line.trim(); }).filter(Boolean);
+                return {
+                    lead: lines.filter(function (line) { return line.charAt(0) !== "-"; }).join(" "),
+                    benefits: lines.filter(function (line) { return line.charAt(0) === "-"; }).map(function (line) { return line.replace(/^-\s*/, ""); })
+                };
+            }
+
+            function openDetail(id) {
+                var feat = feats.find(function (item) { return item.id === id; });
+                if (!feat) return;
+                state.selectedId = id;
+                state.previousRowId = id;
+                var parts = descriptionParts(feat.description);
+                var requirement = requirementLabel(feat.requirements, "None — open to all characters");
+                var benefits = parts.benefits.length
+                    ? '<ul class="benefit-list">' + parts.benefits.map(function (benefit) { return "<li>" + escapeHtml(benefit) + "</li>"; }).join("") + "</ul>"
+                    : '<ul class="benefit-list"><li>' + escapeHtml(feat.description) + "</li></ul>";
+                var actions = feat.isCustom
+                    ? '<div class="detail-actions"><button class="button button-primary" id="edit-selected" type="button">Edit feat</button><button class="button button-danger" id="archive-selected" type="button">Archive feat</button></div>'
+                    : "";
+                detailTitle.textContent = feat.name;
+                detailContent.innerHTML =
+                    '<div class="detail-hero">' +
+                        '<div class="feat-sigil detail-sigil" aria-hidden="true">' + escapeHtml(firstLetters(feat.name)) + '</div>' +
+                        '<div class="detail-heading"><p class="eyebrow">' + (feat.isCustom ? "Custom feat" : "Rules reference") + '</p><h2>' + escapeHtml(feat.name) + '</h2><p>' + escapeHtml(sourceLabel(feat)) + '</p></div>' +
+                        '<div class="source-seal" aria-label="' + escapeHtml(sourceLabel(feat)) + ' source">' + escapeHtml(feat.isCustom ? "Your feat" : "SRD") + '</div>' +
+                    '</div>' +
+                    '<div class="threshold"><span class="threshold-label">Prerequisite</span><span class="threshold-value">' + escapeHtml(requirement) + '</span></div>' +
+                    '<div class="detail-grid">' +
+                        '<section><h3 class="section-title">What it grants</h3>' + (parts.lead ? '<p class="benefit-lead">' + escapeHtml(parts.lead) + '</p>' : "") + benefits + '</section>' +
+                        '<aside><h3 class="section-title">At a glance</h3><dl class="fact-list">' +
+                            '<div class="fact-row"><dt>Source</dt><dd>' + escapeHtml(sourceLabel(feat)) + '</dd></div>' +
+                            '<div class="fact-row"><dt>Library</dt><dd>' + (feat.isCustom ? "Custom" : "Rules reference") + '</dd></div>' +
+                            (feat.isCustom ? '<div class="fact-row"><dt>Used by</dt><dd>' + feat.usageCount + (feat.usageCount === 1 ? " character" : " characters") + '</dd></div>' : "") +
+                            '</dl><details class="model-note"><summary>Prototype implementation note</summary><p>' +
+                                (feat.requirements.length ? "This prerequisite needs structured typed rules before it can be persisted." : "This feat does not require a prerequisite rule.") +
+                                (feat.isCustom ? " Archive behaviour must preserve the feat on existing character sheets." : "") +
+                            '</p></details></aside>' +
+                    '</div>' + actions;
+                listScene.hidden = true;
+                detailScene.hidden = false;
+                createButton.hidden = true;
+
+                var editButton = document.getElementById("edit-selected");
+                var archiveButton = document.getElementById("archive-selected");
+                if (editButton) editButton.addEventListener("click", function () { openEditor("edit", feat.id, editButton); });
+                if (archiveButton) archiveButton.addEventListener("click", function () { requestArchive(feat, archiveButton); });
+                window.requestAnimationFrame(function () { document.getElementById("detail-back").focus(); });
+            }
+
+            function closeDetail() {
+                var previous = state.previousRowId;
+                state.selectedId = null;
+                detailScene.hidden = true;
+                listScene.hidden = false;
+                createButton.hidden = false;
+                renderList();
+                window.requestAnimationFrame(function () {
+                    var row = previous ? featList.querySelector('[data-view="' + CSS.escape(previous) + '"]') : null;
+                    (row || searchInput).focus();
+                });
+            }
+
+            function emptyRule() {
+                return { type: "Ability score", value: "str", qualifier: "13" };
+            }
+
+            function copyGroups(groups) {
+                return (groups || []).map(function (group) {
+                    return group.map(function (rule) { return { type: rule.type, value: rule.value, qualifier: rule.qualifier }; });
+                });
+            }
+
+            function currentRequirementMode() {
+                var checked = editorForm.querySelector('input[name="requirementMode"]:checked');
+                return checked ? checked.value : "open";
+            }
+
+            function editorSnapshot() {
+                return JSON.stringify({
+                    name: nameInput.value,
+                    sourceBook: sourceInput.value,
+                    description: descriptionInput.value,
+                    requirementMode: currentRequirementMode(),
+                    requirements: copyGroups(state.requirementGroups)
+                });
+            }
+
+            function isEditorDirty() {
+                return editorSnapshot() !== state.initialSnapshot;
+            }
+
+            function typeOptions(selected) {
+                return ["Ability score", "Character level", "Proficiency", "Race", "Spellcasting"].map(function (type) {
+                    return '<option value="' + type + '"' + (type === selected ? " selected" : "") + ">" + type + "</option>";
+                }).join("");
+            }
+
+            function selectOptions(options, selected, placeholder) {
+                var result = placeholder == null ? "" : '<option value="">' + escapeHtml(placeholder) + "</option>";
+                return result + options.map(function (option) {
+                    return '<option value="' + escapeHtml(option.value) + '"' + (option.value === selected ? " selected" : "") + ">" + escapeHtml(option.label) + "</option>";
+                }).join("");
+            }
+
+            function requirementValueControl(rule, ariaLabel) {
+                var common = ' aria-label="' + escapeHtml(ariaLabel) + '" aria-describedby="editor-error"';
+                if (rule.type === "Ability score") {
+                    return '<select class="night-select requirement-value"' + common + '>' + selectOptions(ABILITY_OPTIONS, rule.value, null) + "</select>";
+                }
+                if (rule.type === "Proficiency") {
+                    return '<select class="night-select requirement-value"' + common + '>' + selectOptions(PROFICIENCY_OPTIONS, rule.value, "Choose proficiency") + "</select>";
+                }
+                if (rule.type === "Race") {
+                    return '<select class="night-select requirement-value"' + common + '>' + selectOptions(RACE_OPTIONS, rule.value, "Choose race") + "</select>";
+                }
+                return '<input class="night-input requirement-value"' + common + ' value="—" disabled>';
+            }
+
+            function requirementQualifierControl(rule, ariaLabel) {
+                if (rule.type !== "Ability score" && rule.type !== "Character level") {
+                    return '<input class="night-input requirement-qualifier" aria-label="' + escapeHtml(ariaLabel) + '" aria-describedby="editor-error" value="—" disabled>';
+                }
+                var minimum = 1;
+                var maximum = rule.type === "Ability score" ? 30 : 20;
+                return '<input class="night-input requirement-qualifier" type="number" inputmode="numeric" min="' + minimum + '" max="' + maximum + '" step="1" aria-label="' + escapeHtml(ariaLabel) + '" aria-describedby="editor-error" value="' + escapeHtml(rule.qualifier) + '">';
+            }
+
+            function clearDynamicFieldError(field) {
+                field.removeAttribute("aria-invalid");
+                if (!editorForm.querySelector('[aria-invalid="true"]')) editorError.textContent = "";
+            }
+
+            function renderRequirementEditor() {
+                var gated = currentRequirementMode() === "gated";
+                requirementEditor.hidden = !gated;
+                addRequirementGroup.hidden = !gated;
+                if (!gated) {
+                    updatePreview();
+                    return;
+                }
+                if (state.requirementGroups.length === 0) state.requirementGroups = [[emptyRule()]];
+                requirementEditor.innerHTML = state.requirementGroups.map(function (group, groupIndex) {
+                    var rows = group.map(function (rule, ruleIndex) {
+                        var fieldPrefix = "Requirement " + (groupIndex + 1) + ", alternative " + (ruleIndex + 1);
+                        return '<div class="requirement-row" data-group="' + groupIndex + '" data-rule="' + ruleIndex + '">' +
+                            '<select class="night-select requirement-type" aria-label="' + escapeHtml(fieldPrefix + " type") + '" aria-describedby="editor-error">' + typeOptions(rule.type) + '</select>' +
+                            requirementValueControl(rule, fieldPrefix + " value") +
+                            requirementQualifierControl(rule, fieldPrefix + " minimum") +
+                            '<button class="remove-requirement" type="button" aria-label="Remove requirement alternative ' + (ruleIndex + 1) + '">×</button>' +
+                        '</div>' + (ruleIndex < group.length - 1 ? '<div class="logic-joiner">or</div>' : '');
+                    }).join("");
+                    return '<section class="requirement-group"><div class="requirement-group-head"><strong>Requirement ' + (groupIndex + 1) + '</strong><span>' + (group.length > 1 ? "Choose one" : "Must qualify") + '</span></div>' + rows + '<button class="add-alternative" type="button" data-add-alternative="' + groupIndex + '">+ Add an “or” alternative</button></section>';
+                }).join('<div class="logic-joiner">and</div>');
+
+                requirementEditor.querySelectorAll(".requirement-row").forEach(function (row) {
+                    var groupIndex = Number(row.getAttribute("data-group"));
+                    var ruleIndex = Number(row.getAttribute("data-rule"));
+                    var type = row.querySelector(".requirement-type");
+                    var value = row.querySelector(".requirement-value");
+                    var qualifier = row.querySelector(".requirement-qualifier");
+                    type.addEventListener("change", function () {
+                        var rule = state.requirementGroups[groupIndex][ruleIndex];
+                        rule.type = type.value;
+                        if (rule.type === "Character level") { rule.value = ""; rule.qualifier = "4"; }
+                        else if (rule.type === "Spellcasting") { rule.value = ""; rule.qualifier = ""; }
+                        else if (rule.type === "Ability score") { rule.value = "str"; rule.qualifier = "13"; }
+                        else { rule.qualifier = ""; rule.value = ""; }
+                        renderRequirementEditor();
+                    });
+                    value.addEventListener("change", function () {
+                        state.requirementGroups[groupIndex][ruleIndex].value = value.disabled ? "" : value.value;
+                        clearDynamicFieldError(value);
+                        updatePreview();
+                    });
+                    qualifier.addEventListener("input", function () {
+                        state.requirementGroups[groupIndex][ruleIndex].qualifier = qualifier.disabled ? "" : qualifier.value;
+                        clearDynamicFieldError(qualifier);
+                        updatePreview();
+                    });
+                    row.querySelector(".remove-requirement").addEventListener("click", function () {
+                        if (state.requirementGroups[groupIndex].length > 1) state.requirementGroups[groupIndex].splice(ruleIndex, 1);
+                        else if (state.requirementGroups.length > 1) state.requirementGroups.splice(groupIndex, 1);
+                        else state.requirementGroups = [[emptyRule()]];
+                        renderRequirementEditor();
+                    });
+                });
+                requirementEditor.querySelectorAll("[data-add-alternative]").forEach(function (button) {
+                    button.addEventListener("click", function () {
+                        state.requirementGroups[Number(button.getAttribute("data-add-alternative"))].push(emptyRule());
+                        renderRequirementEditor();
+                    });
+                });
+                updatePreview();
+            }
+
+            function updatePreview() {
+                var name = nameInput.value.trim() || "Untitled feat";
+                var source = sourceInput.value.trim() || "Homebrew";
+                var description = descriptionInput.value.trim();
+                var groups = currentRequirementMode() === "gated" ? state.requirementGroups : [];
+                var requirement = requirementLabel(groups, "Open to all");
+                document.getElementById("preview-sigil").textContent = firstLetters(nameInput.value);
+                document.getElementById("preview-name").textContent = name;
+                document.getElementById("preview-source").textContent = source + " · Custom";
+                document.getElementById("preview-requirement").textContent = requirement;
+                document.getElementById("preview-effect").textContent = description ? description.split("\n")[0] : "Describe the feat to preview its opening effect.";
+                document.getElementById("review-name").textContent = name;
+                document.getElementById("review-source").textContent = source;
+                document.getElementById("review-requirement").textContent = groups.length ? requirementLabel(groups) : "None";
+                document.getElementById("review-description").textContent = description || "Add a description to explain what the feat grants.";
+            }
+
+            function showStage(nextStage) {
+                state.stage = Math.max(0, Math.min(2, nextStage));
+                document.querySelectorAll("[data-panel]").forEach(function (panel) {
+                    panel.hidden = Number(panel.getAttribute("data-panel")) !== state.stage;
+                });
+                document.querySelectorAll(".stage-tab").forEach(function (tab) {
+                    var tabStage = Number(tab.getAttribute("data-stage"));
+                    tab.classList.toggle("is-active", tabStage === state.stage);
+                    tab.classList.toggle("is-complete", tabStage < state.stage);
+                    if (tabStage === state.stage) tab.setAttribute("aria-current", "step");
+                    else tab.removeAttribute("aria-current");
+                });
+                var labels = ["Feat", "Requirements", "Review"];
+                stageStatus.textContent = "Step " + (state.stage + 1) + " of 3 · " + labels[state.stage];
+                editorBack.hidden = state.stage === 0;
+                editorNext.textContent = state.stage === 2 ? (state.editorMode === "edit" ? "Save changes" : "Create feat") : "Continue";
+                editorError.textContent = "";
+                updatePreview();
+            }
+
+            function fillEditor(feat) {
+                nameInput.value = feat ? feat.name : "";
+                sourceInput.value = feat ? (feat.sourceBook || "Homebrew") : "Homebrew";
+                descriptionInput.value = feat ? feat.description : "";
+                state.requirementGroups = feat ? copyGroups(feat.requirements) : [];
+                var mode = feat && feat.requirements.length ? "gated" : "open";
+                var radio = editorForm.querySelector('input[name="requirementMode"][value="' + mode + '"]');
+                radio.checked = true;
+                renderRequirementEditor();
+                updatePreview();
+            }
+
+            function openEditor(mode, id, trigger) {
+                var feat = mode === "edit" ? feats.find(function (item) { return item.id === id; }) : null;
+                state.editorMode = mode;
+                state.editingId = feat ? feat.id : null;
+                state.focusReturn = trigger || createButton;
+                editorTitle.textContent = feat ? "Edit " + feat.name : "Create a feat";
+                fillEditor(feat);
+                showStage(0);
+                nameInput.removeAttribute("aria-invalid");
+                descriptionInput.removeAttribute("aria-invalid");
+                editorError.textContent = "";
+                state.initialSnapshot = editorSnapshot();
+                editorDialog.showModal();
+                window.requestAnimationFrame(function () { nameInput.focus(); });
+            }
+
+            function closeEditorImmediately() {
+                if (!editorDialog.open) return;
+                editorDialog.close();
+                var focusReturn = state.focusReturn;
+                state.editingId = null;
+                state.initialSnapshot = "";
+                window.requestAnimationFrame(function () {
+                    if (focusReturn && focusReturn.isConnected) focusReturn.focus();
+                });
+            }
+
+            function requestCloseEditor() {
+                if (!isEditorDirty()) {
+                    closeEditorImmediately();
+                    return;
+                }
+                showConfirmation({
+                    title: "Discard feat changes?",
+                    message: "Your unsaved edits will be lost.",
+                    cancelLabel: "Keep editing",
+                    acceptLabel: "Discard",
+                    destructive: true,
+                    onAccept: closeEditorImmediately
+                });
+            }
+
+            function validateStage(stage) {
+                nameInput.removeAttribute("aria-invalid");
+                descriptionInput.removeAttribute("aria-invalid");
+                if (stage === 1) {
+                    requirementEditor.querySelectorAll('[aria-invalid="true"]').forEach(function (field) {
+                        field.removeAttribute("aria-invalid");
+                    });
+                }
+                editorError.textContent = "";
+                if (stage === 0) {
+                    if (!nameInput.value.trim()) {
+                        nameInput.setAttribute("aria-invalid", "true");
+                        editorError.textContent = "Add a feat name to continue.";
+                        nameInput.focus();
+                        return false;
+                    }
+                    var normalizedName = nameInput.value.trim().normalize("NFKC").toLocaleLowerCase();
+                    var duplicate = feats.find(function (feat) {
+                        return feat.isCustom
+                            && feat.id !== state.editingId
+                            && feat.name.trim().normalize("NFKC").toLocaleLowerCase() === normalizedName;
+                    });
+                    if (duplicate) {
+                        nameInput.setAttribute("aria-invalid", "true");
+                        editorError.textContent = "You already have a custom feat named “" + duplicate.name + "”. Choose a unique name.";
+                        nameInput.focus();
+                        return false;
+                    }
+                    if (!descriptionInput.value.trim()) {
+                        descriptionInput.setAttribute("aria-invalid", "true");
+                        editorError.textContent = "Describe what the feat grants to continue.";
+                        descriptionInput.focus();
+                        return false;
+                    }
+                }
+                if (stage === 1 && currentRequirementMode() === "gated") {
+                    var invalid = null;
+                    state.requirementGroups.some(function (group, groupIndex) {
+                        return group.some(function (rule, ruleIndex) {
+                            var missingValue = rule.type !== "Character level" && rule.type !== "Spellcasting" && !rule.value.trim();
+                            var missingQualifier = (rule.type === "Ability score" || rule.type === "Character level") && !rule.qualifier.trim();
+                            if (missingValue) {
+                                invalid = { groupIndex: groupIndex, ruleIndex: ruleIndex, field: "value", message: "Choose a referenced " + rule.type.toLowerCase() + "." };
+                                return true;
+                            }
+                            if (missingQualifier) {
+                                invalid = { groupIndex: groupIndex, ruleIndex: ruleIndex, field: "qualifier", message: "Add the minimum score or level." };
+                                return true;
+                            }
+                            if (rule.type === "Ability score" || rule.type === "Character level") {
+                                var minimum = 1;
+                                var maximum = rule.type === "Ability score" ? 30 : 20;
+                                var numericValue = Number(rule.qualifier);
+                                if (!/^\d+$/.test(rule.qualifier) || !Number.isInteger(numericValue) || numericValue < minimum || numericValue > maximum) {
+                                    invalid = {
+                                        groupIndex: groupIndex,
+                                        ruleIndex: ruleIndex,
+                                        field: "qualifier",
+                                        message: rule.type === "Ability score"
+                                            ? "Ability thresholds must be whole numbers from 1 to 30."
+                                            : "Character levels must be whole numbers from 1 to 20."
+                                    };
+                                    return true;
+                                }
+                            }
+                            return false;
+                        });
+                    });
+                    if (invalid) {
+                        editorError.textContent = invalid.message;
+                        var row = requirementEditor.querySelector('[data-group="' + invalid.groupIndex + '"][data-rule="' + invalid.ruleIndex + '"]');
+                        var field = row.querySelector(invalid.field === "value" ? ".requirement-value" : ".requirement-qualifier");
+                        field.setAttribute("aria-invalid", "true");
+                        field.focus();
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            function validateAll() {
+                showStage(0);
+                if (!validateStage(0)) return false;
+                showStage(1);
+                if (!validateStage(1)) return false;
+                showStage(2);
+                return true;
+            }
+
+            function slugify(value) {
+                return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "custom-feat";
+            }
+
+            function saveFeat() {
+                if (!validateAll()) return;
+                var existing = state.editingId ? feats.find(function (item) { return item.id === state.editingId; }) : null;
+                var saved = {
+                    id: existing ? existing.id : slugify(nameInput.value) + "-" + Date.now().toString(36),
+                    name: nameInput.value.trim(),
+                    sourceBook: sourceInput.value.trim() || "Homebrew",
+                    isCustom: true,
+                    usageCount: existing ? existing.usageCount : 0,
+                    description: descriptionInput.value.trim(),
+                    requirements: currentRequirementMode() === "gated" ? copyGroups(state.requirementGroups) : []
+                };
+                if (existing) feats[feats.indexOf(existing)] = saved;
+                else feats.push(saved);
+                state.initialSnapshot = editorSnapshot();
+                closeEditorImmediately();
+                renderList();
+                openDetail(saved.id);
+                showToast(existing ? "Feat changes saved." : "Custom feat created.");
+            }
+
+            function showConfirmation(config) {
+                state.confirmAction = config.onAccept || null;
+                state.confirmCancelAction = config.onCancel || null;
+                state.confirmFocusReturn = document.activeElement;
+                document.getElementById("confirm-title").textContent = config.title;
+                document.getElementById("confirm-message").textContent = config.message;
+                document.getElementById("confirm-cancel").textContent = config.cancelLabel;
+                document.getElementById("confirm-accept").textContent = config.acceptLabel;
+                document.getElementById("confirm-accept").className = "button " + (config.destructive ? "button-danger" : "button-primary");
+                confirmDialog.showModal();
+                window.requestAnimationFrame(function () { document.getElementById("confirm-cancel").focus(); });
+            }
+
+            function resolveConfirmation(accepted) {
+                if (!confirmDialog.open) return;
+                var action = accepted ? state.confirmAction : state.confirmCancelAction;
+                var focusReturn = state.confirmFocusReturn;
+                state.confirmAction = null;
+                state.confirmCancelAction = null;
+                state.confirmFocusReturn = null;
+                confirmDialog.close();
+                if (action) action();
+                else if (focusReturn && focusReturn.isConnected) window.requestAnimationFrame(function () { focusReturn.focus(); });
+            }
+
+            function requestArchive(feat, trigger) {
+                var usage = feat.usageCount === 1
+                    ? "Prototype intent: 1 existing character keeps this feat."
+                    : feat.usageCount > 1
+                        ? "Prototype intent: " + feat.usageCount + " existing characters keep this feat."
+                        : "No prototype characters currently use it.";
+                state.confirmFocusReturn = trigger;
+                showConfirmation({
+                    title: "Archive custom feat?",
+                    message: '“' + feat.name + '” will leave future feat choices. ' + usage + " CharacterFeat and linked CharacterFeature preservation must be implemented before this guarantee ships.",
+                    cancelLabel: "Keep feat",
+                    acceptLabel: "Archive",
+                    destructive: true,
+                    onAccept: function () {
+                        feats = feats.filter(function (item) { return item.id !== feat.id; });
+                        state.previousRowId = null;
+                        detailScene.hidden = true;
+                        listScene.hidden = false;
+                        createButton.hidden = false;
+                        renderList();
+                        showToast("Custom feat archived.");
+                        window.requestAnimationFrame(function () { searchInput.focus(); });
+                    }
+                });
+            }
+
+            function showToast(message) {
+                window.clearTimeout(toastTimer);
+                toast.textContent = message;
+                toast.classList.add("is-visible");
+                toastTimer = window.setTimeout(function () { toast.classList.remove("is-visible"); }, 2600);
+            }
+
+            searchInput.addEventListener("input", function () {
+                state.query = searchInput.value;
+                clearSearch.hidden = !searchInput.value;
+                renderList();
+            });
+
+            clearSearch.addEventListener("click", function () {
+                searchInput.value = "";
+                state.query = "";
+                clearSearch.hidden = true;
+                renderList();
+                searchInput.focus();
+            });
+
+            resetFilters.addEventListener("click", function () {
+                searchInput.value = "";
+                state.query = "";
+                clearSearch.hidden = true;
+                state.filter = "all";
+                state.includeSrd = true;
+                includeSrd.checked = true;
+                document.querySelectorAll(".filter-chip").forEach(function (chip) {
+                    chip.setAttribute("aria-pressed", String(chip.getAttribute("data-filter") === "all"));
+                });
+                renderList();
+                searchInput.focus();
+            });
+
+            includeSrd.addEventListener("change", function () { state.includeSrd = includeSrd.checked; renderList(); });
+
+            document.querySelectorAll(".filter-chip").forEach(function (chip) {
+                chip.addEventListener("click", function () {
+                    state.filter = chip.getAttribute("data-filter");
+                    document.querySelectorAll(".filter-chip").forEach(function (item) { item.setAttribute("aria-pressed", String(item === chip)); });
+                    renderList();
+                });
+            });
+
+            createButton.addEventListener("click", function () { openEditor("create", null, createButton); });
+            document.getElementById("detail-back").addEventListener("click", closeDetail);
+            document.querySelector(".back-to-hub").addEventListener("click", function () { showToast("Back to Compendium is outside this prototype."); });
+            document.querySelectorAll(".rail button").forEach(function (button) {
+                button.addEventListener("click", function () { showToast((button.getAttribute("title") || button.getAttribute("aria-label")) + " is outside this prototype."); });
+            });
+
+            [nameInput, sourceInput, descriptionInput].forEach(function (input) {
+                input.addEventListener("input", function () { input.removeAttribute("aria-invalid"); editorError.textContent = ""; updatePreview(); });
+            });
+
+            editorForm.querySelectorAll('input[name="requirementMode"]').forEach(function (radio) {
+                radio.addEventListener("change", function () { renderRequirementEditor(); });
+            });
+
+            addRequirementGroup.addEventListener("click", function () { state.requirementGroups.push([emptyRule()]); renderRequirementEditor(); });
+            document.getElementById("close-editor").addEventListener("click", requestCloseEditor);
+            editorDialog.addEventListener("cancel", function (event) { event.preventDefault(); requestCloseEditor(); });
+
+            document.querySelectorAll(".stage-tab").forEach(function (tab) {
+                tab.addEventListener("click", function () {
+                    var next = Number(tab.getAttribute("data-stage"));
+                    if (next > state.stage && !validateStage(state.stage)) return;
+                    showStage(next);
+                });
+            });
+
+            editorBack.addEventListener("click", function () { showStage(state.stage - 1); });
+            editorForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+                if (state.stage < 2) {
+                    if (validateStage(state.stage)) showStage(state.stage + 1);
+                    return;
+                }
+                saveFeat();
+            });
+
+            document.getElementById("confirm-cancel").addEventListener("click", function () { resolveConfirmation(false); });
+            document.getElementById("confirm-accept").addEventListener("click", function () { resolveConfirmation(true); });
+            confirmDialog.addEventListener("cancel", function (event) { event.preventDefault(); resolveConfirmation(false); });
+
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Escape" && !editorDialog.open && !confirmDialog.open && !detailScene.hidden) {
+                    event.preventDefault();
+                    closeDetail();
+                }
+            });
+
+            renderList();
+        }());
+    </script>
+</body>
+</html>

@@ -1,0 +1,1733 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>Compendium · Subraces — interactive design</title>
+    <style>
+        :root {
+            --night: #1b130e;
+            --rail: #0e0906;
+            --rail-border: rgba(201, 146, 42, 0.15);
+            --parchment: #f4e7ca;
+            --parchment-light: #f8f1e2;
+            --parchment-deep: #ead6af;
+            --card: #efddb7;
+            --ink: #2b1c11;
+            --ink-light: #3d2b1f;
+            --ink-soft: rgba(79, 55, 34, 0.7);
+            --ember: #5f4325;
+            --gold: #bd9450;
+            --gold-bright: #e8b84b;
+            --claret: #851d36;
+            --claret-light: #a62b4a;
+            --crimson: #7b1e1e;
+            --divider: rgba(112, 73, 35, 0.25);
+            --success: #2d6a4f;
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 20px;
+            --space-xl: 24px;
+            --space-xxl: 40px;
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --shadow-sheet: 0 -12px 48px rgba(0, 0, 0, 0.48);
+            --shadow-card: 0 18px 54px rgba(7, 4, 2, .22), inset 0 1px rgba(255, 255, 255, .32);
+            --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+            --font-body: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+            --font-ui: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+            --ease: cubic-bezier(.2, .8, .2, 1);
+        }
+
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+
+        html, body { min-height: 100%; }
+
+        body {
+            margin: 0;
+            color: var(--parchment);
+            background:
+                radial-gradient(circle at 75% -20%, rgba(196, 164, 112, 0.07), transparent 38rem),
+                var(--night);
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.45;
+        }
+
+        button, input, select, textarea { font: inherit; }
+        button { -webkit-tap-highlight-color: transparent; }
+        button:not(:disabled), select:not(:disabled) { cursor: pointer; }
+
+        :focus-visible {
+            outline: 3px solid var(--gold-bright);
+            outline-offset: 3px;
+        }
+
+        .app {
+            min-height: 100dvh;
+            display: flex;
+        }
+
+        .rail {
+            width: 48px;
+            flex: 0 0 48px;
+            min-height: 100dvh;
+            position: sticky;
+            top: 0;
+            align-self: flex-start;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 8px 4px 16px;
+            background: var(--rail);
+            border-right: 1px solid var(--rail-border);
+            z-index: 2;
+        }
+
+        .avatar,
+        .rail-button {
+            border: 0;
+            display: grid;
+            place-items: center;
+            color: rgba(201, 146, 42, 0.55);
+            background: transparent;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            margin-bottom: 8px;
+            border-radius: 999px;
+            border: 1.5px solid rgba(201, 146, 42, 0.4);
+            background: #3d1a0a;
+            font-size: 18px;
+        }
+
+        .rail-divider { width: 28px; height: 1px; margin-bottom: 8px; background: var(--rail-border); }
+        .rail-spacer { flex: 1; }
+
+        .rail-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            font-size: 18px;
+        }
+
+        .rail-button:hover,
+        .rail-button[aria-current="page"] { background: rgba(201, 146, 42, 0.07); color: var(--gold); }
+
+        .main {
+            min-width: 0;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .page {
+            width: min(82%, 1160px);
+            min-width: 0;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-header {
+            display: grid;
+            grid-template-columns: 56px 1fr 56px;
+            align-items: center;
+            min-height: 94px;
+            padding: 10px 8px 16px;
+            border-bottom: 1px solid var(--rail-border);
+        }
+
+        .title-wrap { min-width: 0; text-align: center; }
+
+        .eyebrow,
+        .utility-label {
+            margin: 0;
+            color: var(--gold);
+            font-family: var(--font-ui);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .2em;
+            line-height: 1.25;
+            text-transform: uppercase;
+        }
+
+        .eyebrow { opacity: .7; }
+
+        h1 {
+            margin: 4px 0 0;
+            color: var(--parchment);
+            font-family: var(--font-display);
+            font-size: clamp(28px, 4vw, 32px);
+            line-height: 1.15;
+        }
+
+        .sword-back {
+            width: 48px;
+            min-height: 48px;
+            padding: 3px 0 2px;
+            border: 0;
+            border-radius: var(--radius-sm);
+            display: grid;
+            justify-items: center;
+            align-content: center;
+            gap: 3px;
+            color: var(--gold);
+            background: transparent;
+        }
+
+        .sword-back:hover { color: var(--gold-bright); background: rgba(201, 146, 42, 0.07); }
+        .sword-back.ink { color: var(--claret); }
+        .sword-back.ink:hover { color: var(--claret-light); background: rgba(140, 29, 56, .1); }
+        .sword-back svg { width: 30px; height: 14px; fill: currentColor; transition: transform 160ms var(--ease); }
+        .sword-back:active svg { transform: translateX(-4px); }
+        .sword-back span { font-size: 10px; font-weight: 700; letter-spacing: .16em; line-height: 1; text-transform: uppercase; }
+
+        .content {
+            min-height: 0;
+            flex: 1;
+            display: flex;
+            padding: 10px 16px 22px;
+        }
+
+        .manager {
+            min-height: 520px;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(189, 148, 80, .82);
+            border-radius: var(--radius-md);
+            color: var(--ink-light);
+            background:
+                radial-gradient(circle at 92% 2%, rgba(255, 255, 255, .24), transparent 22rem),
+                repeating-linear-gradient(0deg, transparent 0, transparent 29px, rgba(139, 90, 43, .018) 30px),
+                var(--card);
+            box-shadow: var(--shadow-card);
+        }
+
+        .list-view,
+        .detail-view {
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .list-view.is-leaving { animation: fadeAway 220ms var(--ease) both; }
+        .detail-view { animation: detailIn 240ms var(--ease) both; }
+        .detail-view.is-leaving { animation: detailOut 220ms var(--ease) both; }
+
+        @keyframes fadeAway { to { opacity: 0; } }
+        @keyframes detailIn { from { opacity: 0; transform: translateX(48px); } }
+        @keyframes detailOut { to { opacity: 0; transform: translateX(48px); } }
+
+        .controls {
+            padding: 18px 18px 14px;
+            display: grid;
+            gap: 14px;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .control-top {
+            display: grid;
+            grid-template-columns: minmax(240px, 1fr) auto;
+            gap: 18px;
+            align-items: end;
+        }
+
+        .search-field { min-width: 0; display: grid; gap: 6px; }
+        .search-label,
+        .filter-label {
+            color: var(--ember);
+            font: 700 10px/1.2 var(--font-ui);
+            letter-spacing: .14em;
+            text-transform: uppercase;
+        }
+
+        .search-wrap { position: relative; display: block; max-width: 540px; }
+        .search-icon {
+            width: 18px;
+            height: 18px;
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            z-index: 1;
+            color: var(--ink-soft);
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+        .search-input {
+            min-height: 44px;
+            padding: 9px 42px;
+            border: 1px solid var(--divider);
+            border-radius: var(--radius-sm);
+            color: var(--ink);
+            background: rgba(248, 241, 226, .7);
+            box-shadow: inset 0 1px 2px rgba(71, 42, 20, .05);
+            font-family: var(--font-ui);
+        }
+        .search-input::placeholder { color: var(--ink-soft); }
+        .search-input:focus { border-color: var(--claret); outline: 2px solid rgba(133, 29, 54, .12); outline-offset: 1px; }
+        .clear-search {
+            width: 32px;
+            height: 32px;
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            border: 0;
+            border-radius: 9px;
+            display: grid;
+            place-items: center;
+            color: var(--claret);
+            background: transparent;
+            font: 20px/1 var(--font-ui);
+            transform: translateY(-50%);
+        }
+        .clear-search:hover { background: rgba(133, 29, 54, .08); }
+
+        .source-row {
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 7px 5px 13px;
+            border: 1px solid var(--divider);
+            border-radius: var(--radius-sm);
+            background: rgba(248, 241, 226, .42);
+        }
+
+        .source-copy { min-width: 0; }
+        .source-copy strong { display: block; color: var(--ink); font: 700 13px/1.2 var(--font-ui); }
+        .source-copy small { display: block; margin-top: 2px; color: var(--ink-soft); font: 11px/1.2 var(--font-ui); }
+
+        .list-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            color: var(--ink-soft);
+            font: 13px/1.3 var(--font-ui);
+        }
+        .list-summary strong { color: var(--ink-light); font-weight: 700; }
+        .reset-filters {
+            padding: 3px 0;
+            border: 0;
+            color: var(--claret);
+            background: transparent;
+            font: 700 12px/1.2 var(--font-ui);
+        }
+        .reset-filters:hover { text-decoration: underline; }
+
+        .switch {
+            width: 48px;
+            height: 28px;
+            flex: 0 0 auto;
+            position: relative;
+            border: 0;
+            border-radius: 999px;
+            background: rgba(110, 81, 48, .3);
+            transition: background 160ms var(--ease);
+        }
+
+        .switch::after {
+            content: "";
+            width: 22px;
+            height: 22px;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            border-radius: 50%;
+            background: var(--parchment-light);
+            box-shadow: 0 1px 3px rgba(43, 28, 17, .35);
+            transition: transform 160ms var(--ease);
+        }
+
+        .switch[aria-checked="true"] { background: var(--crimson); }
+        .switch[aria-checked="true"]::after { transform: translateX(20px); }
+
+        .filter-bar { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; }
+        .filter-wrap { position: relative; min-width: 0; }
+        .filter-wrap::after {
+            content: "";
+            width: 24px;
+            position: absolute;
+            inset: 0 0 0 auto;
+            pointer-events: none;
+            background: linear-gradient(90deg, transparent, var(--card));
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 1px 24px 3px 1px;
+            scrollbar-width: thin;
+        }
+
+        .chip {
+            min-height: 32px;
+            flex: 0 0 auto;
+            padding: 4px 13px;
+            border: 1px solid var(--gold);
+            border-radius: 999px;
+            color: var(--ink-light);
+            background: transparent;
+            font-family: var(--font-ui);
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .chip:hover { background: rgba(140, 29, 56, .06); }
+        .chip[aria-pressed="true"] { border-color: var(--crimson); color: var(--parchment); background: var(--crimson); }
+
+        .rows { flex: 1; padding: 4px 18px 76px; }
+
+        .subrace-row {
+            position: relative;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 12px;
+            border-bottom: 1px solid var(--divider);
+            transition: background 160ms var(--ease), box-shadow 160ms var(--ease);
+        }
+
+        .subrace-row:hover {
+            background: rgba(248, 241, 226, .34);
+            box-shadow: 18px 0 rgba(248, 241, 226, .34), -18px 0 rgba(248, 241, 226, .34);
+        }
+
+        .row-main {
+            min-width: 0;
+            padding: 17px 0;
+            border: 0;
+            display: grid;
+            grid-template-columns: 44px minmax(0, 1fr) 18px;
+            gap: 16px;
+            align-items: center;
+            color: inherit;
+            text-align: left;
+            background: transparent;
+        }
+
+        .row-main::after {
+            content: "›";
+            align-self: center;
+            color: var(--ink-soft);
+            font-family: Arial, sans-serif;
+            font-size: 25px;
+            line-height: 1;
+        }
+
+        .row-main:hover .row-title { color: var(--claret); }
+        .row-main:hover .row-badge { transform: translateY(-1px); border-color: var(--claret); }
+
+        .row-badge {
+            width: 44px;
+            height: 44px;
+            display: grid;
+            place-items: center;
+            position: relative;
+            border: 1px solid rgba(133, 29, 54, .2);
+            border-radius: var(--radius-sm);
+            background: var(--parchment-light);
+            color: var(--claret);
+            font: 700 20px/1 var(--font-display);
+            transition: 160ms var(--ease);
+        }
+
+        .row-copy { min-width: 0; }
+        .row-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 8px; }
+        .row-title { color: var(--ink); font-size: 19px; font-weight: 700; line-height: 1.25; transition: color 160ms; }
+        .source-mark {
+            padding: 2px 6px;
+            border: 1px solid rgba(140, 29, 56, .32);
+            border-radius: 999px;
+            color: var(--claret);
+            font: 700 9px/1.2 var(--font-ui);
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+        .row-meta { margin-top: 5px; display: flex; flex-wrap: wrap; align-items: center; gap: 5px 8px; color: var(--ink-soft); font: 600 12px/1.25 var(--font-ui); }
+        .row-meta .parent-name { color: var(--ember); }
+        .ability-pill {
+            padding: 2px 7px;
+            border-radius: 999px;
+            color: var(--claret);
+            background: rgba(133, 29, 54, .08);
+            font-weight: 700;
+        }
+        .meta-dot { color: rgba(95, 67, 37, .45); }
+        .row-description {
+            display: -webkit-box;
+            margin: 6px 0 0;
+            overflow: hidden;
+            color: rgba(61, 43, 31, .72);
+            font-size: 14px;
+            line-height: 1.45;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+
+        .row-actions { display: flex; gap: 5px; align-self: center; }
+        .icon-button {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border: 1px solid var(--divider);
+            border-radius: var(--radius-sm);
+            display: grid;
+            place-items: center;
+            color: var(--ink-light);
+            background: var(--parchment-light);
+        }
+        .icon-button:hover { background: var(--parchment-deep); }
+        .icon-button.danger { color: var(--crimson); }
+        .icon-button svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; }
+
+        .empty {
+            min-height: 270px;
+            display: grid;
+            place-items: center;
+            padding: 32px 20px;
+            text-align: center;
+        }
+        .empty-seal {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 12px;
+            border: 1px solid var(--gold);
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: var(--claret);
+            font-size: 28px;
+            background: var(--parchment-light);
+        }
+        .empty h2 { margin: 0; color: var(--ink); font-size: 20px; }
+        .empty p { margin: 6px 0 0; color: var(--ink-soft); }
+        .empty .button { margin-top: 16px; }
+
+        .fab {
+            width: auto;
+            min-width: 56px;
+            height: 56px;
+            position: fixed;
+            right: max(32px, calc((100vw - min(82vw, 1160px) - 48px) / 2 + 32px));
+            bottom: 52px;
+            z-index: 5;
+            padding: 0 19px;
+            border: 0;
+            border-radius: var(--radius-md);
+            display: grid;
+            place-items: center;
+            color: var(--parchment);
+            background: var(--crimson);
+            box-shadow: 0 7px 24px rgba(74, 16, 24, .35);
+            gap: 9px;
+            font: 700 13px/1 var(--font-ui);
+            line-height: 1;
+            transition: transform 160ms var(--ease), background 160ms;
+        }
+        .fab .fab-plus { font: 300 27px/1 var(--font-ui); }
+        .fab:hover { transform: translateY(-2px); background: var(--claret); }
+
+        .detail-toolbar {
+            min-height: 62px;
+            padding: 7px 18px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .detail-scroll { padding: 24px 24px 44px; }
+        .detail-hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px; align-items: start; }
+        .detail-source {
+            width: fit-content;
+            margin-bottom: 8px;
+            padding: 3px 8px;
+            border: 1px solid rgba(133, 29, 54, .22);
+            border-radius: 999px;
+            color: var(--claret);
+            background: rgba(248, 241, 226, .45);
+            font: 700 10px/1.25 var(--font-ui);
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+        .detail-name { margin: 0; color: var(--ink); font-size: clamp(27px, 4vw, 36px); line-height: 1.12; }
+        .detail-description { max-width: 760px; margin: 12px 0 0; color: var(--ink-light); font-size: 17px; line-height: 1.55; }
+        .detail-emblem {
+            width: 78px;
+            height: 78px;
+            position: relative;
+            border: 1px solid rgba(133, 29, 54, .25);
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: var(--claret);
+            background: var(--parchment-light);
+            box-shadow: 0 0 0 5px rgba(248, 241, 226, .38);
+            font: 700 34px/1 var(--font-display);
+        }
+
+        .lineage-branch {
+            margin-top: 22px;
+            padding: 16px 18px;
+            border: 1px solid rgba(133, 29, 54, .2);
+            border-radius: var(--radius-sm);
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 52px minmax(0, 1fr);
+            align-items: stretch;
+            background: rgba(248, 241, 226, .64);
+            box-shadow: inset 0 1px rgba(255, 255, 255, .42);
+        }
+
+        .lineage-node { min-width: 0; display: flex; gap: 10px; align-items: center; }
+        .lineage-glyph {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 auto;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            color: var(--claret);
+            background: var(--parchment-deep);
+            font: 700 18px/1 var(--font-display);
+        }
+        .lineage-node small { display: block; color: var(--ink-soft); font: 700 10px/1.25 var(--font-ui); letter-spacing: .12em; text-transform: uppercase; }
+        .lineage-node strong { display: block; overflow: hidden; color: var(--ink); text-overflow: ellipsis; white-space: nowrap; }
+        .lineage-node em { display: block; margin-top: 2px; color: var(--ink-soft); font: normal 12px/1.25 var(--font-ui); }
+        .lineage-node .bonus { color: var(--claret); font-size: 19px; }
+
+        .branch-line { position: relative; min-height: 46px; }
+        .branch-line::before {
+            content: "";
+            position: absolute;
+            left: 9px;
+            right: 9px;
+            top: 50%;
+            border-top: 1px solid var(--gold);
+        }
+        .branch-line::after {
+            content: "";
+            width: 7px;
+            height: 7px;
+            position: absolute;
+            top: calc(50% - 4px);
+            right: 8px;
+            border-top: 1px solid var(--gold);
+            border-right: 1px solid var(--gold);
+            transform: rotate(45deg);
+        }
+        .branch-line span {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            z-index: 1;
+            padding: 2px 5px;
+            color: var(--ink-soft);
+            background: var(--parchment);
+            font: 700 8px/1 var(--font-ui);
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            transform: translate(-50%, -50%);
+        }
+
+        .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--divider); }
+        .section-title { margin: 0 0 8px; color: var(--claret); font-size: 21px; }
+        .inherited-note { margin: -2px 0 14px; color: var(--ink-soft); font: 14px/1.45 var(--font-ui); }
+        .trait-list { display: grid; gap: 10px; }
+        .trait-card { padding: 15px 16px; border: 1px solid var(--divider); border-radius: var(--radius-sm); background: rgba(248, 241, 226, .86); box-shadow: inset 3px 0 var(--parchment-deep); }
+        .trait-card h3 { margin: 0; color: var(--ink); font-size: 17px; }
+        .trait-card p { margin: 5px 0 0; color: var(--ink-light); font-size: 14px; }
+        details.inherited { padding: 0; }
+        details.inherited summary { width: fit-content; padding: 7px 9px; border-radius: 8px; color: var(--ember); font: 700 14px/1.3 var(--font-ui); cursor: pointer; }
+        details.inherited summary:hover { color: var(--claret); background: rgba(133, 29, 54, .06); }
+        details.inherited .trait-list { margin-top: 12px; }
+
+        .detail-actions { display: flex; gap: 8px; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--divider); }
+        .button {
+            min-height: 44px;
+            padding: 10px 18px;
+            border: 1px solid var(--gold);
+            border-radius: var(--radius-sm);
+            color: var(--ink);
+            background: transparent;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+        .button:hover { background: rgba(140, 29, 56, .07); }
+        .button.primary { border-color: var(--crimson); color: var(--parchment); background: var(--crimson); }
+        .button.primary:hover { background: var(--claret); }
+        .button.danger { margin-left: auto; border-color: rgba(123, 30, 30, .4); color: var(--crimson); }
+        .button:disabled { cursor: not-allowed; opacity: .45; }
+
+        .backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            display: grid;
+            align-items: end;
+            justify-items: center;
+            padding-left: 48px;
+            background: rgba(20, 14, 8, .66);
+            animation: veilIn 180ms ease-out both;
+        }
+        @keyframes veilIn { from { opacity: 0; } }
+
+        .sheet {
+            width: min(820px, calc(100vw - 80px));
+            max-height: 88dvh;
+            overflow: hidden;
+            border: 1px solid rgba(201, 146, 42, .46);
+            border-bottom: 0;
+            border-radius: 18px 18px 0 0;
+            color: var(--parchment);
+            background:
+                radial-gradient(circle at 80% 0, rgba(201, 146, 42, .06), transparent 27rem),
+                var(--night);
+            box-shadow: var(--shadow-sheet);
+            animation: sheetIn 260ms var(--ease) both;
+        }
+        .sheet.is-closing { animation: sheetOut 200ms var(--ease) both; }
+        @keyframes sheetIn { from { transform: translateY(48px); opacity: .6; } }
+        @keyframes sheetOut { to { transform: translateY(48px); opacity: 0; } }
+
+        .sheet-handle { width: 40px; height: 4px; margin: 10px auto 4px; border-radius: 999px; background: rgba(196, 164, 112, .5); }
+        .sheet-scroll { max-height: calc(88dvh - 18px); overflow-y: auto; padding: 12px 20px 40px; }
+        .sheet-header { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
+        .sheet-header h2 { margin: 0; color: var(--parchment); font-size: 23px; }
+        .sheet-header p { margin: 4px 0 0; color: var(--gold); font: 14px/1.4 var(--font-ui); opacity: .88; }
+        .close-button { width: 40px; height: 40px; border: 0; border-radius: 10px; color: var(--gold); background: transparent; font-size: 24px; }
+        .close-button:hover { background: rgba(201, 146, 42, .08); }
+
+        .form { margin-top: 18px; display: grid; gap: 18px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .field { min-width: 0; display: grid; gap: 7px; }
+        .field > label,
+        .field legend { color: var(--gold); font: 700 11px/1.3 var(--font-ui); letter-spacing: .14em; text-transform: uppercase; }
+        .field legend { padding: 0; }
+
+        input, select, textarea {
+            width: 100%;
+            min-height: 44px;
+            border: 1px solid rgba(201, 146, 42, .55);
+            border-radius: 6px;
+            color: var(--parchment);
+            background: rgba(201, 146, 42, .07);
+            box-shadow: 0 0 4px rgba(201, 146, 42, .18);
+            padding: 10px 12px;
+            font-family: var(--font-ui);
+        }
+        select { color-scheme: dark; }
+        textarea { min-height: 112px; resize: vertical; }
+        input::placeholder, textarea::placeholder { color: rgba(246, 233, 207, .46); }
+        .hint { margin: 0; color: rgba(220, 187, 127, .76); font: 12px/1.45 var(--font-ui); }
+
+        .parent-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .parent-option {
+            min-height: 60px;
+            padding: 8px 9px;
+            border: 1px solid rgba(201, 146, 42, .22);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 9px;
+            color: var(--parchment-deep);
+            background: rgba(201, 146, 42, .07);
+            font-family: var(--font-ui);
+            font-size: 13px;
+        }
+        .parent-sigil { width: 28px; height: 28px; flex: 0 0 auto; border-radius: 50%; display: grid; place-items: center; color: var(--gold); background: rgba(201, 146, 42, .1); font: 700 16px/1 var(--font-display); }
+        .parent-option-copy { min-width: 0; display: grid; text-align: left; }
+        .parent-option-copy small { color: rgba(220, 187, 127, .72); font-size: 10px; }
+        .parent-option[aria-pressed="true"] .parent-sigil { color: var(--claret); background: var(--parchment); }
+        .parent-option[aria-pressed="true"] .parent-option-copy small { color: rgba(244, 231, 202, .72); }
+        .parent-option:hover { border-color: rgba(201, 146, 42, .55); }
+        .parent-option[aria-pressed="true"] { border-color: var(--gold); color: var(--parchment); background: var(--crimson); }
+
+        fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+        .bonus-row { display: grid; grid-template-columns: minmax(0, 1fr) 112px; gap: 10px; }
+        .inherited-preview { min-height: 54px; padding: 11px 13px; border: 1px solid rgba(201, 146, 42, .22); border-radius: var(--radius-sm); display: flex; align-items: center; gap: 10px; background: rgba(201, 146, 42, .05); color: var(--parchment-deep); font: 13px/1.4 var(--font-ui); }
+        .inherited-preview strong { color: var(--gold); }
+        .preview-sigil { width: 30px; height: 30px; flex: 0 0 auto; border-radius: 50%; display: grid; place-items: center; color: var(--gold); background: rgba(201, 146, 42, .1); font-family: var(--font-display); }
+
+        .traits-editor { display: grid; gap: 10px; }
+        .traits-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .add-trait { min-height: 38px; padding: 7px 12px; border: 0; border-radius: var(--radius-sm); color: var(--parchment); background: var(--crimson); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+        .trait-editor {
+            position: relative;
+            display: grid;
+            gap: 11px;
+            padding: 12px;
+            border: 1px solid rgba(201, 146, 42, .22);
+            border-radius: var(--radius-sm);
+            background: rgba(201, 146, 42, .05);
+        }
+        .trait-editor-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .trait-number { color: var(--gold); font: 700 10px/1.2 var(--font-ui); letter-spacing: .14em; text-transform: uppercase; }
+        .trait-fields { display: grid; grid-template-columns: minmax(150px, .42fr) minmax(0, 1fr); gap: 10px; align-items: start; }
+        .trait-field { min-width: 0; display: grid; gap: 5px; }
+        .trait-field > span { color: rgba(220, 187, 127, .78); font: 700 10px/1.2 var(--font-ui); letter-spacing: .1em; text-transform: uppercase; }
+        .trait-editor textarea { min-height: 72px; }
+        .remove-trait { width: 38px; height: 38px; border: 1px solid rgba(123, 30, 30, .5); border-radius: 10px; color: #efb1ad; background: rgba(123, 30, 30, .12); font-size: 19px; }
+
+        .form-error { min-height: 0; margin: 0; color: #ffd1cc; font: 14px/1.4 var(--font-ui); }
+        .form-error:not(:empty) { padding: 10px 12px; border: 1px solid rgba(255, 119, 112, .3); border-radius: 10px; background: rgba(123, 30, 30, .16); }
+        .form-actions { position: sticky; bottom: -40px; display: flex; justify-content: flex-end; gap: 8px; padding: 15px 0 0; background: linear-gradient(transparent, var(--night) 22%); }
+        .form-actions .button { color: var(--parchment-deep); }
+        .form-actions .button.primary { color: var(--parchment); }
+
+        .confirm-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: grid;
+            place-items: center;
+            padding: 20px;
+            background: rgba(12, 8, 5, .74);
+            animation: veilIn 160ms ease-out both;
+        }
+
+        .confirm-dialog {
+            width: min(430px, 100%);
+            padding: 22px;
+            border: 1px solid var(--gold);
+            border-radius: var(--radius-md);
+            color: var(--ink-light);
+            background: var(--parchment);
+            box-shadow: 0 18px 48px rgba(8, 4, 2, .38);
+            animation: confirmIn 180ms var(--ease) both;
+        }
+
+        @keyframes confirmIn {
+            from { opacity: 0; transform: translateY(8px) scale(.98); }
+        }
+
+        .confirm-dialog h2 { margin: 0; color: var(--ink); font-size: 23px; line-height: 1.2; }
+        .confirm-dialog p { margin: 9px 0 0; }
+        .confirm-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
+        .toast {
+            position: fixed;
+            left: calc(50% + 24px);
+            bottom: 22px;
+            z-index: 40;
+            max-width: min(420px, calc(100vw - 40px));
+            padding: 11px 16px;
+            border: 1px solid rgba(196, 164, 112, .35);
+            border-radius: var(--radius-sm);
+            color: var(--parchment);
+            background: #39261a;
+            box-shadow: 0 8px 24px rgba(0,0,0,.3);
+            transform: translate(-50%, 12px);
+            opacity: 0;
+            pointer-events: none;
+            transition: 180ms var(--ease);
+        }
+        .toast.show { transform: translate(-50%, 0); opacity: 1; }
+
+        @media (max-width: 1023px) {
+            .page { width: 90%; }
+            .fab { right: max(32px, calc((100vw - 90vw - 48px) / 2 + 32px)); }
+        }
+
+        @media (max-width: 767px) {
+            .rail { display: none; }
+            .page { width: 100%; }
+            .page-header { min-height: 82px; }
+            .content { padding: 8px 12px 12px; }
+            .manager { min-height: calc(100dvh - 104px); }
+            .controls { padding: 15px 14px 12px; gap: 12px; }
+            .control-top { grid-template-columns: 1fr; gap: 10px; }
+            .search-wrap { max-width: none; }
+            .source-row { justify-content: space-between; }
+            .rows { padding-inline: 14px; }
+            .row-main { grid-template-columns: 42px minmax(0, 1fr) 14px; gap: 12px; }
+            .row-actions { display: none; }
+            .fab { width: 56px; right: 24px; bottom: 24px; padding: 0; }
+            .fab-label { display: none; }
+            .backdrop { padding-left: 0; }
+            .sheet { width: 100%; max-height: 92dvh; }
+            .sheet-scroll { max-height: calc(92dvh - 18px); padding-inline: 16px; }
+            .parent-grid { grid-template-columns: repeat(2, 1fr); }
+            .trait-fields { grid-template-columns: 1fr; }
+            .toast { left: 50%; }
+        }
+
+        @media (max-width: 520px) {
+            .page-header { grid-template-columns: 52px 1fr 52px; }
+            .filter-bar { grid-template-columns: 1fr; gap: 7px; }
+            .list-summary { align-items: start; }
+            .detail-scroll { padding-inline: 16px; }
+            .detail-hero { grid-template-columns: 1fr; }
+            .detail-emblem { grid-row: 1; width: 58px; height: 58px; }
+            .lineage-branch { grid-template-columns: 1fr; gap: 7px; padding: 14px; }
+            .branch-line { min-height: 26px; }
+            .branch-line::before { left: 18px; right: auto; top: 0; bottom: 0; height: auto; border-top: 0; border-left: 1px solid var(--gold); }
+            .branch-line::after { top: auto; right: auto; bottom: 0; left: 15px; transform: rotate(135deg); }
+            .branch-line span { left: 18px; top: 50%; transform: translate(-50%, -50%) rotate(-90deg); }
+            .detail-actions { flex-wrap: wrap; }
+            .detail-actions .button { flex: 1; }
+            .detail-actions .danger { flex: 1 0 100%; margin-left: 0; }
+            .form-grid { grid-template-columns: 1fr; }
+            .bonus-row { grid-template-columns: 1fr 100px; }
+        }
+
+        @media (max-width: 390px) {
+            .content { padding-inline: 8px; }
+            .row-main { grid-template-columns: 38px minmax(0, 1fr) 12px; gap: 10px; }
+            .row-badge { width: 38px; height: 38px; }
+            .row-description { -webkit-line-clamp: 2; }
+            .source-copy small { display: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app" id="app-shell">
+        <nav class="rail" aria-label="Primary navigation">
+            <button class="avatar" aria-label="Open navigation drawer">🧙</button>
+            <div class="rail-divider" aria-hidden="true"></div>
+            <button class="rail-button" aria-label="Open characters">👤</button>
+            <button class="rail-button" aria-current="page" aria-label="Open compendium">📚</button>
+            <div class="rail-spacer"></div>
+            <button class="rail-button" aria-label="Open settings">⚙</button>
+            <button class="rail-button" aria-label="Expand navigation drawer">▶</button>
+        </nav>
+
+        <main class="main">
+            <div class="page">
+                <header class="page-header">
+                    <button class="sword-back" aria-label="Back to all Compendium categories" title="Back to Compendium">
+                        <svg viewBox="0 0 34 16" aria-hidden="true"><path d="M.5 8 11 5.5l7.6.7v3.6l-7.6.7zM18.6 1.6h2.2v12.8h-2.2zM20.8 7h8v2h-8z"/><circle cx="30.7" cy="8" r="2.3"/></svg>
+                        <span>Back</span>
+                    </button>
+                    <div class="title-wrap">
+                        <p class="eyebrow">Compendium</p>
+                        <h1>Subraces</h1>
+                    </div>
+                    <div aria-hidden="true"></div>
+                </header>
+
+                <div class="content">
+                    <section class="manager" id="manager" aria-label="Subrace compendium"></section>
+                </div>
+            </div>
+        </main>
+
+        <button class="fab" id="add-subrace" aria-label="Create custom subrace" title="Create custom subrace">
+            <span class="fab-plus" aria-hidden="true">+</span><span class="fab-label">New subrace</span>
+        </button>
+    </div>
+
+    <div class="backdrop" id="editor-backdrop" hidden>
+        <section class="sheet" id="editor-sheet" role="dialog" aria-modal="true" aria-labelledby="editor-title">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <div class="sheet-scroll">
+                <header class="sheet-header">
+                    <div>
+                        <h2 id="editor-title">Create subrace</h2>
+                        <p>Add a lineage that characters can choose beneath a parent race.</p>
+                    </div>
+                    <button class="close-button" id="close-editor" type="button" aria-label="Close custom subrace form">×</button>
+                </header>
+
+                <form class="form" id="subrace-form" novalidate>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="subrace-name">Subrace name <span aria-hidden="true">·</span> required</label>
+                            <input id="subrace-name" name="name" maxlength="80" autocomplete="off" placeholder="e.g. Forgeheart Dwarf" required>
+                        </div>
+                        <div class="field">
+                            <label for="source-book">Source label <span aria-hidden="true">·</span> optional</label>
+                            <input id="source-book" name="sourceBook" maxlength="40" autocomplete="off" placeholder="e.g. Home campaign">
+                        </div>
+                    </div>
+
+                    <fieldset class="field">
+                        <legend>Parent race</legend>
+                        <div class="parent-grid" id="parent-options"></div>
+                        <input id="parent-race" name="parentRace" type="hidden" required>
+                        <p class="hint">The subrace inherits the parent race’s movement, size, languages, bonuses, and base traits.</p>
+                    </fieldset>
+
+                    <div class="field">
+                        <label for="subrace-description">Description</label>
+                        <textarea id="subrace-description" name="description" maxlength="1200" placeholder="Describe the lineage’s culture and distinguishing qualities."></textarea>
+                    </div>
+
+                    <fieldset class="field">
+                        <legend>Additional ability bonus</legend>
+                        <div class="bonus-row">
+                            <select id="ability-score" name="abilityScore" aria-label="Ability score">
+                                <option value="">No extra ability bonus</option>
+                                <option value="STR">Strength</option>
+                                <option value="DEX">Dexterity</option>
+                                <option value="CON">Constitution</option>
+                                <option value="INT">Intelligence</option>
+                                <option value="WIS">Wisdom</option>
+                                <option value="CHA">Charisma</option>
+                            </select>
+                            <select id="ability-value" name="abilityValue" aria-label="Bonus amount">
+                                <option value="1">+1</option>
+                                <option value="2">+2</option>
+                            </select>
+                        </div>
+                        <p class="hint">This is added to the parent race’s existing ability bonus.</p>
+                    </fieldset>
+
+                    <div class="inherited-preview" id="inherited-preview" aria-live="polite">Choose a parent race to preview inherited rules.</div>
+
+                    <section class="traits-editor" aria-labelledby="traits-editor-title">
+                        <div class="traits-heading">
+                            <div>
+                                <p class="utility-label" id="traits-editor-title">Subrace traits</p>
+                                <p class="hint">Only add traits granted by this subrace.</p>
+                            </div>
+                            <button class="add-trait" id="add-trait" type="button">+ Add trait</button>
+                        </div>
+                        <div id="trait-editors"></div>
+                    </section>
+
+                    <p class="form-error" id="form-error" role="alert"></p>
+
+                    <div class="form-actions">
+                        <button class="button" id="cancel-editor" type="button">Cancel</button>
+                        <button class="button primary" type="submit">Save subrace</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <div class="confirm-layer" id="confirm-layer" hidden>
+        <section
+            class="confirm-dialog"
+            id="confirm-dialog"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="confirm-title"
+            aria-describedby="confirm-message"
+        >
+            <h2 id="confirm-title">Confirm action</h2>
+            <p id="confirm-message"></p>
+            <div class="confirm-actions">
+                <button class="button" id="confirm-cancel" type="button">Cancel</button>
+                <button class="button primary" id="confirm-action" type="button">Confirm</button>
+            </div>
+        </section>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+        const parentRaces = {
+            Dwarf: {
+                icon: '◆',
+                bonus: '+2 CON',
+                inheritance: '25 ft · Medium · Common, Dwarvish · 5 base traits',
+                inheritedTraits: [
+                    ['Darkvision', 'See in dim light within 60 feet as if it were bright light, and in darkness as if it were dim light.'],
+                    ['Dwarven Resilience', 'Advantage on saving throws against poison, and resistance against poison damage.'],
+                    ['Stonecunning', 'Expert knowledge checks related to the origin of stonework.']
+                ]
+            },
+            Elf: {
+                icon: '✦',
+                bonus: '+2 DEX',
+                inheritance: '30 ft · Medium · Common, Elvish · 4 base traits',
+                inheritedTraits: [
+                    ['Darkvision', 'See in dim light within 60 feet as if it were bright light, and in darkness as if it were dim light.'],
+                    ['Keen Senses', 'You have proficiency in the Perception skill.'],
+                    ['Fey Ancestry', 'Advantage on saving throws against being charmed, and magic cannot put you to sleep.'],
+                    ['Trance', 'Elves meditate deeply for 4 hours and gain the benefit a human gets from 8 hours of sleep.']
+                ]
+            },
+            Halfling: {
+                icon: '♧',
+                bonus: '+2 DEX',
+                inheritance: '25 ft · Small · Common, Halfling · 3 base traits',
+                inheritedTraits: [
+                    ['Brave', 'You have advantage on saving throws against being frightened.'],
+                    ['Halfling Nimbleness', 'Move through the space of any creature that is larger than you.'],
+                    ['Lucky', 'When you roll a 1 on an attack roll, ability check, or saving throw, you can reroll the die.']
+                ]
+            },
+            Gnome: {
+                icon: '⚙︎',
+                bonus: '+2 INT',
+                inheritance: '25 ft · Small · Common, Gnomish · 2 base traits',
+                inheritedTraits: [
+                    ['Darkvision', 'See in dim light within 60 feet as if it were bright light, and in darkness as if it were dim light.'],
+                    ['Gnome Cunning', 'Advantage on Intelligence, Wisdom, and Charisma saving throws against magic.']
+                ]
+            }
+        };
+
+        let subraces = [
+            {
+                id: 'hill-dwarf', name: 'Hill Dwarf', parent: 'Dwarf', source: 'SRD', custom: false,
+                description: 'As a hill dwarf, you have keen senses, deep intuition, and remarkable resilience.',
+                ability: { score: 'WIS', value: 1 },
+                traits: [['Dwarven Toughness', 'Your hit point maximum increases by 1, and it increases by 1 every time you gain a level.']]
+            },
+            {
+                id: 'high-elf', name: 'High Elf', parent: 'Elf', source: 'SRD', custom: false,
+                description: 'As a high elf, you have a keen mind and a mastery of at least the basics of magic. High elves value learning, artistry, and long-held arcane traditions.',
+                ability: { score: 'INT', value: 1 },
+                traits: [
+                    ['Elf Weapon Training', 'You have proficiency with the longsword, shortsword, shortbow, and longbow.'],
+                    ['High Elf Cantrip', 'You know one cantrip of your choice from the wizard spell list. Intelligence is your spellcasting ability for it.'],
+                    ['Extra Language', 'You can speak, read, and write one extra language of your choice.']
+                ]
+            },
+            {
+                id: 'lightfoot-halfling', name: 'Lightfoot Halfling', parent: 'Halfling', source: 'SRD', custom: false,
+                description: 'As a lightfoot halfling, you can easily hide from notice, even using other people as cover. Lightfoots are affable, wandering, and at home among other folk.',
+                ability: { score: 'CHA', value: 1 },
+                traits: [['Naturally Stealthy', 'You can attempt to hide even when you are obscured only by a creature that is at least one size larger than you.']]
+            },
+            {
+                id: 'rock-gnome', name: 'Rock Gnome', parent: 'Gnome', source: 'SRD', custom: false,
+                description: 'As a rock gnome, you have a natural inventiveness and hardiness beyond that of other gnomes.',
+                ability: { score: 'CON', value: 1 },
+                traits: [
+                    ["Artificer's Lore", 'Add twice your proficiency bonus to History checks related to magic items, alchemical objects, or technological devices.'],
+                    ['Tinker', "Using tinker's tools, you can construct a Tiny clockwork device such as a clockwork toy, fire starter, or music box."]
+                ]
+            },
+            {
+                id: 'forgeheart-dwarf', name: 'Forgeheart Dwarf', parent: 'Dwarf', source: 'Home campaign', custom: true,
+                description: 'Forgehearts read the temper of metal as readily as weather. Generations beside the ember halls have made them patient artisans and steadfast sentinels.',
+                ability: { score: 'STR', value: 1 },
+                traits: [
+                    ['Emberwise', 'You have resistance to fire damage caused by nonmagical environmental heat.'],
+                    ['Master of the Bellows', "You gain proficiency with smith's tools. If already proficient, add double your proficiency bonus to checks made with them."]
+                ]
+            }
+        ];
+
+        const state = {
+            includeSrd: true,
+            parent: 'All',
+            query: '',
+            selectedId: null,
+            editingId: null,
+            selectedParent: '',
+            dirty: false,
+            returnFocus: null
+        };
+
+        const manager = document.getElementById('manager');
+        const fab = document.getElementById('add-subrace');
+        const appShell = document.getElementById('app-shell');
+        const backdrop = document.getElementById('editor-backdrop');
+        const sheet = document.getElementById('editor-sheet');
+        const confirmLayer = document.getElementById('confirm-layer');
+        const confirmDialog = document.getElementById('confirm-dialog');
+        const confirmCancelButton = document.getElementById('confirm-cancel');
+        const confirmActionButton = document.getElementById('confirm-action');
+        const form = document.getElementById('subrace-form');
+        const nameInput = document.getElementById('subrace-name');
+        const sourceInput = document.getElementById('source-book');
+        const descriptionInput = document.getElementById('subrace-description');
+        const abilityScore = document.getElementById('ability-score');
+        const abilityValue = document.getElementById('ability-value');
+        const parentInput = document.getElementById('parent-race');
+        const parentOptions = document.getElementById('parent-options');
+        const inheritedPreview = document.getElementById('inherited-preview');
+        const traitEditors = document.getElementById('trait-editors');
+        const formError = document.getElementById('form-error');
+        const toast = document.getElementById('toast');
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let toastTimer;
+        let pendingConfirmation = null;
+
+        function escapeHtml(value = '') {
+            return String(value).replace(/[&<>'"]/g, character => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            })[character]);
+        }
+
+        function abilityBonusLabel(item) {
+            return item.ability
+                ? `+${item.ability.value} ${item.ability.score}`
+                : 'No additional bonus';
+        }
+
+        const abilityNames = {
+            STR: 'Strength', DEX: 'Dexterity', CON: 'Constitution',
+            INT: 'Intelligence', WIS: 'Wisdom', CHA: 'Charisma'
+        };
+
+        function abilityBonusNarration(item) {
+            return item.ability
+                ? `adds ${abilityBonusLabel(item)}`
+                : 'adds no additional ability bonus';
+        }
+
+        function visibleSubraces() {
+            const query = state.query.trim().toLocaleLowerCase();
+            return subraces.filter(item => {
+                if (!state.includeSrd && !item.custom) return false;
+                if (state.parent !== 'All' && item.parent !== state.parent) return false;
+                if (!query) return true;
+                const searchable = [
+                    item.name, item.parent, item.source, item.description,
+                    abilityBonusLabel(item),
+                    ...item.traits.flat()
+                ].join(' ').toLocaleLowerCase();
+                return searchable.includes(query);
+            }).sort((left, right) => left.name.localeCompare(right.name));
+        }
+
+        function render() {
+            const selected = subraces.find(item => item.id === state.selectedId);
+            if (selected) renderDetail(selected);
+            else renderList();
+            fab.hidden = Boolean(selected);
+        }
+
+        function renderList() {
+            const visible = visibleSubraces();
+            const raceNames = ['All', ...Object.keys(parentRaces)];
+            const filtersActive = Boolean(state.query || state.parent !== 'All' || !state.includeSrd);
+            const resultLabel = `${visible.length} ${visible.length === 1 ? 'lineage' : 'lineages'}`;
+            manager.innerHTML = `
+                <div class="list-view">
+                    <div class="controls">
+                        <div class="control-top">
+                            <div class="search-field">
+                                <label class="search-label" for="subrace-search">Find a lineage</label>
+                                <span class="search-wrap">
+                                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+                                    <input class="search-input" id="subrace-search" type="search" value="${escapeHtml(state.query)}" autocomplete="off" placeholder="Search names, traits, or parent races">
+                                    <button class="clear-search" id="clear-search" type="button" aria-label="Clear search" ${state.query ? '' : 'hidden'}>×</button>
+                                </span>
+                            </div>
+                            <div class="source-row">
+                                <div class="source-copy">
+                                    <strong>SRD lineages</strong>
+                                    <small>Show official options</small>
+                                </div>
+                                <button class="switch" id="source-switch" role="switch" aria-checked="${state.includeSrd}" aria-label="Show SRD lineages"></button>
+                            </div>
+                        </div>
+                        <div class="filter-bar">
+                            <span class="filter-label">Parent race</span>
+                            <div class="filter-wrap">
+                                <div class="filters" aria-label="Filter by parent race">
+                                    ${raceNames.map(race => `<button class="chip" data-filter="${escapeHtml(race)}" aria-pressed="${race === state.parent}">${escapeHtml(race)}</button>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-summary" aria-live="polite">
+                            <span><strong>${resultLabel}</strong>${state.parent === 'All' ? '' : ` beneath ${escapeHtml(state.parent)}`}${state.query ? ` matching “${escapeHtml(state.query)}”` : ''}</span>
+                            ${filtersActive ? '<button class="reset-filters" id="reset-filters" type="button">Reset filters</button>' : ''}
+                        </div>
+                    </div>
+                    <div class="rows">
+                        ${visible.length ? visible.map(rowTemplate).join('') : emptyTemplate()}
+                    </div>
+                </div>`;
+
+            const search = manager.querySelector('#subrace-search');
+            search.addEventListener('input', event => {
+                state.query = event.currentTarget.value;
+                renderList();
+                const nextSearch = manager.querySelector('#subrace-search');
+                nextSearch.focus();
+                nextSearch.setSelectionRange(state.query.length, state.query.length);
+            });
+
+            manager.querySelector('#clear-search').addEventListener('click', () => {
+                state.query = '';
+                renderList();
+                manager.querySelector('#subrace-search').focus();
+            });
+
+            manager.querySelector('#reset-filters')?.addEventListener('click', () => {
+                state.query = '';
+                state.parent = 'All';
+                state.includeSrd = true;
+                renderList();
+                manager.querySelector('#subrace-search').focus();
+            });
+
+            manager.querySelector('#empty-reset')?.addEventListener('click', () => {
+                state.query = '';
+                state.parent = 'All';
+                state.includeSrd = true;
+                renderList();
+                manager.querySelector('#subrace-search').focus();
+            });
+
+            manager.querySelector('#source-switch').addEventListener('click', event => {
+                state.includeSrd = !state.includeSrd;
+                event.currentTarget.setAttribute('aria-checked', String(state.includeSrd));
+                renderList();
+                manager.querySelector('#source-switch').focus();
+            });
+
+            manager.querySelectorAll('[data-filter]').forEach(button => {
+                button.addEventListener('click', () => {
+                    state.parent = button.dataset.filter;
+                    renderList();
+                    manager.querySelector(`[data-filter="${CSS.escape(state.parent)}"]`)?.focus();
+                });
+            });
+
+            manager.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => openDetail(button.dataset.view)));
+            manager.querySelectorAll('[data-edit]').forEach(button => button.addEventListener('click', event => {
+                event.stopPropagation();
+                openEditor(button.dataset.edit, button);
+            }));
+            manager.querySelectorAll('[data-delete]').forEach(button => button.addEventListener('click', event => {
+                event.stopPropagation();
+                archiveSubrace(button.dataset.delete);
+            }));
+        }
+
+        function rowTemplate(item) {
+            const parent = parentRaces[item.parent];
+            return `
+                <article class="subrace-row">
+                    <button class="row-main" data-view="${escapeHtml(item.id)}" aria-label="View details for ${escapeHtml(item.name)}">
+                        <span class="row-badge" aria-hidden="true">${parent.icon}</span>
+                        <span class="row-copy">
+                            <span class="row-heading">
+                                <span class="row-title">${escapeHtml(item.name)}</span>
+                                ${item.custom ? '<span class="source-mark">Custom</span>' : ''}
+                            </span>
+                            <span class="row-meta">
+                                <span class="parent-name">${escapeHtml(item.parent)} parent</span>
+                                <span class="ability-pill">${escapeHtml(abilityBonusLabel(item))}</span>
+                                <span class="meta-dot" aria-hidden="true">•</span>
+                                <span>${item.traits.length} ${item.traits.length === 1 ? 'added trait' : 'added traits'}</span>
+                            </span>
+                            <span class="row-description">${escapeHtml(item.description)}</span>
+                        </span>
+                    </button>
+                    ${item.custom ? `
+                        <div class="row-actions" aria-label="Actions for ${escapeHtml(item.name)}">
+                            <button class="icon-button" data-edit="${escapeHtml(item.id)}" aria-label="Edit ${escapeHtml(item.name)}" title="Edit">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l11-11-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/></svg>
+                            </button>
+                            <button class="icon-button danger" data-delete="${escapeHtml(item.id)}" aria-label="Archive ${escapeHtml(item.name)}" title="Archive">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13M10 11v5m4-5v5"/></svg>
+                            </button>
+                        </div>` : ''}
+                </article>`;
+        }
+
+        function emptyTemplate() {
+            const parentCopy = state.parent === 'All' ? '' : ` for ${state.parent}`;
+            const hasFilters = Boolean(state.query || state.parent !== 'All' || !state.includeSrd);
+            return `<div class="empty">
+                <div><div class="empty-seal" aria-hidden="true">⌁</div>
+                <h2>${hasFilters ? 'No matching lineages' : `No custom subraces${escapeHtml(parentCopy)} yet`}</h2>
+                <p>${hasFilters ? 'Try another name, parent race, or source.' : 'Create a lineage of your own to add it here.'}</p>
+                ${hasFilters ? '<button class="button" id="empty-reset" type="button">Reset filters</button>' : ''}</div>
+            </div>`;
+        }
+
+        function openDetail(id) {
+            const listView = manager.querySelector('.list-view');
+            if (!reducedMotion && listView) listView.classList.add('is-leaving');
+            const go = () => {
+                state.selectedId = id;
+                render();
+                manager.querySelector('[data-detail-back]')?.focus();
+            };
+            reducedMotion ? go() : window.setTimeout(go, 150);
+        }
+
+        function renderDetail(item) {
+            const parent = parentRaces[item.parent];
+            const additionalBonusLong = item.ability
+                ? `+${item.ability.value} ${abilityNames[item.ability.score]}`
+                : 'No extra bonus';
+            manager.innerHTML = `
+                <div class="detail-view">
+                    <div class="detail-toolbar">
+                        <button class="sword-back ink" data-detail-back aria-label="Back to all subraces">
+                            <svg viewBox="0 0 34 16" aria-hidden="true"><path d="M.5 8 11 5.5l7.6.7v3.6l-7.6.7zM18.6 1.6h2.2v12.8h-2.2zM20.8 7h8v2h-8z"/><circle cx="30.7" cy="8" r="2.3"/></svg><span>Back</span>
+                        </button>
+                    </div>
+                    <div class="detail-scroll">
+                        <div class="detail-hero">
+                            <div>
+                                <div class="detail-source">${item.custom ? `Custom · ${escapeHtml(item.source || 'Personal compendium')}` : 'SRD lineage'}</div>
+                                <h2 class="detail-name">${escapeHtml(item.name)}</h2>
+                                <p class="detail-description">${escapeHtml(item.description) || 'No description provided.'}</p>
+                            </div>
+                            <div class="detail-emblem" aria-hidden="true">${parent.icon}</div>
+                        </div>
+
+                        <div class="lineage-branch" aria-label="Lineage inheritance: ${escapeHtml(item.parent)} grants ${escapeHtml(parent.bonus)}; ${escapeHtml(item.name)} ${escapeHtml(abilityBonusNarration(item))}">
+                            <div class="lineage-node">
+                                <span class="lineage-glyph" aria-hidden="true">${parent.icon}</span>
+                                <span><small>Parent race</small><strong>${escapeHtml(item.parent)}</strong><em>${escapeHtml(parent.bonus)} inherited</em></span>
+                            </div>
+                            <div class="branch-line" aria-hidden="true"><span>plus</span></div>
+                            <div class="lineage-node">
+                                <span class="lineage-glyph bonus" aria-hidden="true">${item.ability ? `+${item.ability.value}` : '—'}</span>
+                                <span><small>Subrace bonus</small><strong>${escapeHtml(additionalBonusLong)}</strong><em>${item.traits.length} ${item.traits.length === 1 ? 'trait' : 'traits'} added</em></span>
+                            </div>
+                        </div>
+
+                        <section class="section">
+                            <h2 class="section-title">Subrace traits</h2>
+                            <p class="inherited-note">These traits are added to the ${escapeHtml(item.parent)} traits your character already receives.</p>
+                            <div class="trait-list">
+                                ${item.traits.length ? item.traits.map(trait => `<article class="trait-card"><h3>${escapeHtml(trait[0])}</h3><p>${escapeHtml(trait[1])}</p></article>`).join('') : '<p class="inherited-note">No additional traits listed.</p>'}
+                            </div>
+                        </section>
+
+                        <section class="section">
+                            <h2 class="section-title">Parent race rules</h2>
+                            <p class="inherited-note">${escapeHtml(parent.inheritance)}</p>
+                            <details class="inherited">
+                                <summary>Review inherited ${escapeHtml(item.parent)} traits (${parent.inheritedTraits.length})</summary>
+                                <div class="trait-list">
+                                    ${parent.inheritedTraits.map(trait => `<article class="trait-card"><h3>${escapeHtml(trait[0])}</h3><p>${escapeHtml(trait[1])}</p></article>`).join('')}
+                                </div>
+                            </details>
+                        </section>
+
+                        ${item.custom ? `<div class="detail-actions">
+                            <button class="button" data-detail-edit="${escapeHtml(item.id)}">Edit subrace</button>
+                            <button class="button danger" data-detail-delete="${escapeHtml(item.id)}">Archive</button>
+                        </div>` : ''}
+                    </div>
+                </div>`;
+
+            manager.querySelector('[data-detail-back]').addEventListener('click', closeDetail);
+            manager.querySelector('[data-detail-edit]')?.addEventListener('click', event => openEditor(event.currentTarget.dataset.detailEdit, event.currentTarget));
+            manager.querySelector('[data-detail-delete]')?.addEventListener('click', event => archiveSubrace(event.currentTarget.dataset.detailDelete));
+        }
+
+        function closeDetail() {
+            const detail = manager.querySelector('.detail-view');
+            if (!reducedMotion && detail) detail.classList.add('is-leaving');
+            const go = () => {
+                const previous = state.selectedId;
+                state.selectedId = null;
+                render();
+                manager.querySelector(`[data-view="${CSS.escape(previous)}"]`)?.focus();
+            };
+            reducedMotion ? go() : window.setTimeout(go, 170);
+        }
+
+        function renderParentOptions() {
+            parentOptions.innerHTML = Object.entries(parentRaces).map(([name, race]) => `
+                <button class="parent-option" type="button" data-parent-option="${escapeHtml(name)}" aria-pressed="${name === state.selectedParent}">
+                    <span class="parent-sigil" aria-hidden="true">${race.icon}</span>
+                    <span class="parent-option-copy"><span>${escapeHtml(name)}</span><small>${escapeHtml(race.bonus)}</small></span>
+                </button>`).join('');
+            parentOptions.querySelectorAll('[data-parent-option]').forEach(button => button.addEventListener('click', () => {
+                state.selectedParent = button.dataset.parentOption;
+                parentInput.value = state.selectedParent;
+                state.dirty = true;
+                renderParentOptions();
+                updateInheritedPreview();
+                parentOptions.querySelector(`[data-parent-option="${CSS.escape(state.selectedParent)}"]`)?.focus();
+            }));
+        }
+
+        function updateInheritedPreview() {
+            const parent = parentRaces[state.selectedParent];
+            inheritedPreview.innerHTML = parent
+                ? `<span class="preview-sigil" aria-hidden="true">${parent.icon}</span><span><strong>Inherited from ${escapeHtml(state.selectedParent)}</strong><br>${escapeHtml(parent.bonus)} · ${escapeHtml(parent.inheritance)}</span>`
+                : 'Choose a parent race to preview inherited rules.';
+        }
+
+        function renderTraitEditors(traits = []) {
+            traitEditors.innerHTML = traits.map((trait, index) => `
+                <div class="trait-editor" data-trait-row>
+                    <div class="trait-editor-head">
+                        <span class="trait-number">Trait ${index + 1}</span>
+                        <button class="remove-trait" type="button" data-remove-trait aria-label="Remove trait ${index + 1}">×</button>
+                    </div>
+                    <div class="trait-fields">
+                        <label class="trait-field"><span>Name</span><input aria-label="Trait ${index + 1} name" data-trait-name maxlength="80" placeholder="e.g. Emberwise" value="${escapeHtml(trait[0])}"></label>
+                        <label class="trait-field"><span>What it grants</span><textarea aria-label="Trait ${index + 1} description" data-trait-description maxlength="900" placeholder="Describe the rule in plain language">${escapeHtml(trait[1])}</textarea></label>
+                    </div>
+                </div>`).join('');
+            traitEditors.querySelectorAll('[data-remove-trait]').forEach(button => button.addEventListener('click', () => {
+                button.closest('[data-trait-row]').remove();
+                renumberTraitLabels();
+                state.dirty = true;
+            }));
+            traitEditors.querySelectorAll('input, textarea').forEach(input => input.addEventListener('input', () => { state.dirty = true; }));
+        }
+
+        function currentTraits() {
+            return [...traitEditors.querySelectorAll('[data-trait-row]')].map(row => [
+                row.querySelector('[data-trait-name]').value.trim(),
+                row.querySelector('[data-trait-description]').value.trim()
+            ]);
+        }
+
+        function renumberTraitLabels() {
+            [...traitEditors.querySelectorAll('[data-trait-row]')].forEach((row, index) => {
+                row.querySelector('.trait-number').textContent = `Trait ${index + 1}`;
+                row.querySelector('[data-trait-name]').setAttribute('aria-label', `Trait ${index + 1} name`);
+                row.querySelector('[data-trait-description]').setAttribute('aria-label', `Trait ${index + 1} description`);
+                row.querySelector('[data-remove-trait]').setAttribute('aria-label', `Remove trait ${index + 1}`);
+            });
+        }
+
+        function openEditor(id = null, trigger = fab) {
+            const item = subraces.find(candidate => candidate.id === id);
+            state.editingId = item?.id || null;
+            state.selectedParent = item?.parent || '';
+            state.returnFocus = trigger;
+            state.dirty = false;
+            document.getElementById('editor-title').textContent = item ? 'Edit subrace' : 'Create subrace';
+            nameInput.value = item?.name || '';
+            sourceInput.value = item?.source === 'Personal compendium' ? '' : item?.source || '';
+            descriptionInput.value = item?.description || '';
+            abilityScore.value = item?.ability?.score || '';
+            abilityValue.value = String(item?.ability?.value || 1);
+            syncAbilityValueAvailability();
+            parentInput.value = state.selectedParent;
+            formError.textContent = '';
+            renderParentOptions();
+            updateInheritedPreview();
+            renderTraitEditors(item?.traits || []);
+            backdrop.hidden = false;
+            setAppIsolation(true);
+            document.body.style.overflow = 'hidden';
+            window.setTimeout(() => nameInput.focus(), reducedMotion ? 0 : 220);
+        }
+
+        function syncAbilityValueAvailability() {
+            abilityValue.disabled = abilityScore.value === '';
+        }
+
+        function setAppIsolation(isolated) {
+            if (isolated) {
+                appShell.setAttribute('inert', '');
+                appShell.setAttribute('aria-hidden', 'true');
+                return;
+            }
+
+            appShell.removeAttribute('inert');
+            appShell.removeAttribute('aria-hidden');
+        }
+
+        function requestCloseEditor() {
+            if (!state.dirty) {
+                closeEditor();
+                return;
+            }
+
+            showConfirmation({
+                title: 'Discard changes?',
+                message: 'You have unsaved changes to this subrace. Discard them?',
+                confirmLabel: 'Discard',
+                onConfirm: closeEditor,
+            });
+        }
+
+        function closeEditor() {
+            const finish = () => {
+                backdrop.hidden = true;
+                sheet.classList.remove('is-closing');
+                setAppIsolation(false);
+                document.body.style.overflow = '';
+                state.editingId = null;
+                state.dirty = false;
+                state.returnFocus?.focus?.();
+            };
+            if (reducedMotion) finish();
+            else {
+                sheet.classList.add('is-closing');
+                window.setTimeout(finish, 190);
+            }
+        }
+
+        function slugify(value) {
+            return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        }
+
+        function saveSubrace(event) {
+            event.preventDefault();
+            const traits = currentTraits();
+            const incompleteTrait = traits.some(trait => !trait[0] || !trait[1]);
+            if (!nameInput.value.trim()) {
+                formError.textContent = 'Enter a subrace name.';
+                nameInput.focus();
+                return;
+            }
+            if (!state.selectedParent) {
+                formError.textContent = 'Choose a parent race.';
+                parentOptions.querySelector('button')?.focus();
+                return;
+            }
+            if (incompleteTrait) {
+                formError.textContent = 'Complete both fields for each trait, or remove the unfinished trait.';
+                traitEditors.querySelector('input:placeholder-shown, textarea:placeholder-shown')?.focus();
+                return;
+            }
+
+            const existing = subraces.find(item => item.id === state.editingId);
+            const saved = {
+                id: existing?.id || `${slugify(nameInput.value)}-${Date.now()}`,
+                name: nameInput.value.trim(),
+                parent: state.selectedParent,
+                source: sourceInput.value.trim() || 'Personal compendium',
+                custom: true,
+                description: descriptionInput.value.trim(),
+                ability: abilityScore.value
+                    ? { score: abilityScore.value, value: Number(abilityValue.value) }
+                    : null,
+                traits
+            };
+
+            if (existing) subraces = subraces.map(item => item.id === existing.id ? saved : item);
+            else subraces = [...subraces, saved];
+            state.selectedId = existing && state.selectedId === existing.id ? saved.id : state.selectedId;
+            state.dirty = false;
+            closeEditor();
+            render();
+            showToast(existing ? `${saved.name} updated.` : `${saved.name} added to your compendium.`);
+        }
+
+        function archiveSubrace(id) {
+            const item = subraces.find(candidate => candidate.id === id);
+            if (!item?.custom) return;
+            showConfirmation({
+                title: 'Archive custom subrace?',
+                message: `${item.name} will no longer be available to new characters. Existing characters keep it.`,
+                confirmLabel: 'Archive',
+                onConfirm: () => {
+                    subraces = subraces.filter(candidate => candidate.id !== id);
+                    if (state.selectedId === id) state.selectedId = null;
+                    render();
+                    manager.querySelector('#source-switch')?.focus();
+                    showToast(`${item.name} archived.`);
+                },
+            });
+        }
+
+        function showConfirmation({ title, message, confirmLabel, onConfirm, onCancel = null }) {
+            pendingConfirmation = {
+                onConfirm,
+                onCancel,
+                returnFocus: document.activeElement,
+            };
+            document.getElementById('confirm-title').textContent = title;
+            document.getElementById('confirm-message').textContent = message;
+            confirmActionButton.textContent = confirmLabel;
+            confirmLayer.hidden = false;
+
+            if (!backdrop.hidden) {
+                sheet.setAttribute('inert', '');
+                sheet.setAttribute('aria-hidden', 'true');
+            } else {
+                setAppIsolation(true);
+            }
+
+            window.setTimeout(() => confirmCancelButton.focus(), reducedMotion ? 0 : 80);
+        }
+
+        function resolveConfirmation(confirmed) {
+            if (!pendingConfirmation) return;
+
+            const current = pendingConfirmation;
+            pendingConfirmation = null;
+            confirmLayer.hidden = true;
+
+            if (!backdrop.hidden) {
+                sheet.removeAttribute('inert');
+                sheet.removeAttribute('aria-hidden');
+            } else {
+                setAppIsolation(false);
+            }
+
+            if (confirmed) {
+                current.onConfirm?.();
+                return;
+            }
+
+            current.onCancel?.();
+            window.setTimeout(() => current.returnFocus?.focus?.(), 0);
+        }
+
+        function showToast(message) {
+            window.clearTimeout(toastTimer);
+            toast.textContent = message;
+            toast.classList.add('show');
+            toastTimer = window.setTimeout(() => toast.classList.remove('show'), 3200);
+        }
+
+        function trapFocus(event, container) {
+            if (event.key !== 'Tab') return;
+            const focusable = [...container.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled)')]
+                .filter(element => element.offsetParent !== null);
+            if (!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        }
+
+        fab.addEventListener('click', () => openEditor());
+        document.getElementById('close-editor').addEventListener('click', requestCloseEditor);
+        document.getElementById('cancel-editor').addEventListener('click', requestCloseEditor);
+        document.getElementById('add-trait').addEventListener('click', () => {
+            const traits = currentTraits();
+            traits.push(['', '']);
+            renderTraitEditors(traits);
+            state.dirty = true;
+            traitEditors.lastElementChild?.querySelector('input')?.focus();
+        });
+        form.addEventListener('submit', saveSubrace);
+        form.addEventListener('input', () => { state.dirty = true; formError.textContent = ''; });
+        abilityScore.addEventListener('change', syncAbilityValueAvailability);
+        confirmCancelButton.addEventListener('click', () => resolveConfirmation(false));
+        confirmActionButton.addEventListener('click', () => resolveConfirmation(true));
+        backdrop.addEventListener('mousedown', event => {
+            if (event.target === backdrop) requestCloseEditor();
+        });
+        confirmLayer.addEventListener('mousedown', event => {
+            if (event.target === confirmLayer) resolveConfirmation(false);
+        });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') {
+                if (!confirmLayer.hidden) resolveConfirmation(false);
+                else if (!backdrop.hidden) requestCloseEditor();
+            }
+
+            if (!confirmLayer.hidden) trapFocus(event, confirmDialog);
+            else if (!backdrop.hidden) trapFocus(event, sheet);
+        });
+
+        render();
+    </script>
+</body>
+</html>
