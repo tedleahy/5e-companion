@@ -1,6 +1,6 @@
 import React from 'react';
 import type { MockedResponse } from '@apollo/client/testing';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { PaperProvider } from 'react-native-paper';
 import AddSpellSheet, { GET_SPELL_DETAIL_FOR_SHEET, SEARCH_SPELLS_FOR_SHEET } from '../AddSpellSheet';
@@ -227,9 +227,9 @@ const FILTERED_SPELLS_SECOND_PAGE_MOCK = {
 };
 
 /**
- * Flushes pending React Native animation timers inside `act(...)`.
+ * Flushes only the pending test work needed after one interaction.
  */
-async function flushAnimationTimers(milliseconds = 400) {
+async function flushTestWork(milliseconds = 0) {
     await act(async () => {
         jest.advanceTimersByTime(milliseconds);
         await Promise.resolve();
@@ -279,7 +279,7 @@ function renderSheetWithMocks(
     const onSpellRemoved = overrides?.onSpellRemoved ?? jest.fn().mockResolvedValue(undefined);
 
     render(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={mocks} mockLinkDefaultOptions={{ delay: 0 }}>
             <PaperProvider>
                 <AddSpellSheet
                     visible={true}
@@ -321,28 +321,29 @@ describe('AddSpellSheet', () => {
         jest.useFakeTimers();
     });
 
-    afterEach(async () => {
-        await flushAnimationTimers(1_000);
+    afterEach(() => {
+        cleanup();
+        jest.clearAllTimers();
         jest.useRealTimers();
     });
 
     it('toggles one spell by tapping + then tick in the list row', async () => {
         const { onClose, onSpellAdded, onSpellRemoved } = renderSheet();
-        await flushAnimationTimers();
+        await flushTestWork();
 
         await waitFor(() => {
             expect(screen.getByText('Magic Missile')).toBeTruthy();
         });
 
         fireEvent.press(screen.getByLabelText('Add spell'));
-        await flushAnimationTimers();
+        await flushTestWork();
 
         await waitFor(() => {
             expect(onSpellAdded).toHaveBeenCalledWith(expect.objectContaining({ id: 'spell-magic-missile' }));
         });
 
         fireEvent.press(screen.getByLabelText('Remove spell'));
-        await flushAnimationTimers();
+        await flushTestWork();
 
         await waitFor(() => {
             expect(onSpellRemoved).toHaveBeenCalledWith(expect.objectContaining({ id: 'spell-magic-missile' }));
@@ -352,24 +353,23 @@ describe('AddSpellSheet', () => {
         expect(screen.getByText('Add Spell')).toBeTruthy();
     });
 
-it('switches detail action label from add to remove for selected spells', async () => {
+    it('switches detail action label from add to remove for selected spells', async () => {
         const { onSpellAdded, onSpellRemoved } = renderSheet();
-        await flushAnimationTimers();
+        await flushTestWork();
 
         await waitFor(() => {
             expect(screen.getByLabelText('Open details for Magic Missile')).toBeTruthy();
         });
 
         fireEvent.press(screen.getByLabelText('Open details for Magic Missile'));
-        await flushAnimationTimers();
-        await flushAnimationTimers();
+        await flushTestWork(80);
 
         await waitFor(() => {
             expect(screen.getByText('+ Add to spell list')).toBeTruthy();
         });
 
         fireEvent.press(screen.getByText('+ Add to spell list'));
-        await flushAnimationTimers();
+        await flushTestWork();
 
         await waitFor(() => {
             expect(onSpellAdded).toHaveBeenCalledWith(expect.objectContaining({ id: 'spell-magic-missile' }));
@@ -380,7 +380,7 @@ it('switches detail action label from add to remove for selected spells', async 
         });
 
         fireEvent.press(screen.getByText('Remove from spell list'));
-        await flushAnimationTimers();
+        await flushTestWork();
 
         await waitFor(() => {
             expect(onSpellRemoved).toHaveBeenCalledWith(expect.objectContaining({ id: 'spell-magic-missile' }));
@@ -393,7 +393,7 @@ it('switches detail action label from add to remove for selected spells', async 
         ], {
             selectionLimit: 1,
         });
-        await flushAnimationTimers();
+        await flushTestWork();
 
         await waitFor(() => {
             expect(screen.getByText('Magic Missile')).toBeTruthy();
@@ -401,7 +401,7 @@ it('switches detail action label from add to remove for selected spells', async 
         });
 
         fireEvent.press(screen.getAllByLabelText('Add spell')[0]!);
-        await flushAnimationTimers();
+        await flushTestWork();
 
         await waitFor(() => {
             expect(onSpellAdded).toHaveBeenCalledWith(expect.objectContaining({ id: 'spell-magic-missile' }));
@@ -412,7 +412,7 @@ it('switches detail action label from add to remove for selected spells', async 
         });
 
         fireEvent.press(screen.getByLabelText('Selection limit reached'));
-        await flushAnimationTimers();
+        await flushTestWork();
 
         expect(onSpellAdded).toHaveBeenCalledTimes(1);
     });
@@ -427,14 +427,14 @@ it('switches detail action label from add to remove for selected spells', async 
         });
 
         renderSheet({ onSpellAdded });
-        await flushAnimationTimers();
+        await flushTestWork();
 
         await waitFor(() => {
             expect(screen.getByLabelText('Add spell')).toBeTruthy();
         });
 
         fireEvent.press(screen.getByLabelText('Add spell'));
-        await flushAnimationTimers();
+        await flushTestWork();
 
         await waitFor(() => {
             expect(onSpellAdded).toHaveBeenCalledWith(expect.objectContaining({ id: 'spell-magic-missile' }));
@@ -443,7 +443,7 @@ it('switches detail action label from add to remove for selected spells', async 
         expect(screen.getByText('Add Spell')).toBeTruthy();
 
         resolveAddMutationRef.current?.();
-        await flushAnimationTimers();
+        await flushTestWork();
 
         await waitFor(() => {
             expect(screen.getByLabelText('Remove spell')).toBeTruthy();
@@ -457,20 +457,20 @@ it('switches detail action label from add to remove for selected spells', async 
             buildSpellDetailQueryMock(),
             buildSpellDetailQueryMock(),
         ]);
-        await flushAnimationTimers();
+        await flushTestWork();
 
         await waitFor(() => {
             expect(screen.getByText('Magic Missile')).toBeTruthy();
         });
 
         fireEvent.press(screen.getByLabelText('Open spell filters'));
-        await flushAnimationTimers();
+        await flushTestWork();
 
         fireEvent.press(screen.getByText('Abjuration'));
-        await flushAnimationTimers();
+        await flushTestWork();
 
         fireEvent.press(screen.getByLabelText('Show filtered spell results'));
-        await flushAnimationTimers();
+        await flushTestWork();
 
         await waitFor(() => {
             expect(screen.getByText('Shield')).toBeTruthy();
@@ -488,7 +488,7 @@ it('switches detail action label from add to remove for selected spells', async 
             PAGINATED_SPELLS_FIRST_PAGE_MOCK,
             PAGINATED_SPELLS_SECOND_PAGE_MOCK,
         ]);
-        await flushAnimationTimers();
+        await flushTestWork();
 
         await waitFor(() => {
             expect(screen.getByTestId('add-spell-section-list')).toBeTruthy();
@@ -497,7 +497,7 @@ it('switches detail action label from add to remove for selected spells', async 
         expect(secondPageResult).not.toHaveBeenCalled();
 
         fireEvent(screen.getByTestId('add-spell-section-list'), 'onEndReached');
-        await flushAnimationTimers();
+        await flushTestWork();
 
         await waitFor(() => {
             expect(secondPageResult).toHaveBeenCalled();
@@ -530,22 +530,22 @@ it('switches detail action label from add to remove for selected spells', async 
                 result: filteredSecondPageResult,
             },
         ]);
-        await flushAnimationTimers();
+        await flushTestWork();
 
         await waitFor(() => {
             expect(screen.getByText('Page One Spell 0')).toBeTruthy();
         });
 
         fireEvent(screen.getByTestId('add-spell-section-list'), 'onEndReached');
-        await flushAnimationTimers(100);
+        await flushTestWork(100);
         expect(staleSecondPageResult).not.toHaveBeenCalled();
 
         fireEvent.press(screen.getByLabelText('Open spell filters'));
-        await flushAnimationTimers();
+        await flushTestWork();
         fireEvent.press(screen.getByText('Abjuration'));
-        await flushAnimationTimers();
+        await flushTestWork();
         fireEvent.press(screen.getByLabelText('Show filtered spell results'));
-        await flushAnimationTimers();
+        await flushTestWork();
 
         await waitFor(() => {
             expect(screen.getByText('Filtered Spell 0')).toBeTruthy();
@@ -553,14 +553,14 @@ it('switches detail action label from add to remove for selected spells', async 
         expect(screen.queryByText('Page One Spell 0')).toBeNull();
 
         // Completing the stale page must not contaminate the filtered list or pagination flags.
-        await flushAnimationTimers(5_000);
+        await flushTestWork(5_000);
         expect(staleSecondPageResult).toHaveBeenCalled();
         expect(screen.queryByText('Stale Fireball')).toBeNull();
         expect(screen.getByText('Filtered Spell 0')).toBeTruthy();
 
         // Current filter can still paginate after the stale response is ignored.
         fireEvent(screen.getByTestId('add-spell-section-list'), 'onEndReached');
-        await flushAnimationTimers();
+        await flushTestWork();
         await act(async () => {
             await Promise.resolve();
         });
