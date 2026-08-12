@@ -26,6 +26,8 @@ The `test` script sets `NODE_OPTIONS='--no-experimental-webstorage'`. **Don't dr
 - **Route-group parentheses** (`app/(rail)/...`, `app/(auth)/...`) are **zsh globs**. Quote them in shell commands; prefer `yarn test character-sheet.test.tsx` or `bun app:test character-sheet` over literal route-group paths.
 - **`SectionList` virtualises rows** — off-screen items aren't in the test tree. Filter/search first (or scroll) before asserting on or pressing deep list rows. Same applies to spell lists — see [`features/spells.md`](./features/spells.md).
 - **`jest.requireActual('react-native')`**: if you extend RN mocks, **mutate the actual module in place — do not spread it**. RN 0.81's index has lazy getters (`DevMenu`, `SettingsManager`, …) that call `TurboModuleRegistry.getEnforcing` and throw under Jest the moment they're touched.
+- **Apollo Client 4 `MockedProvider` adds a random 20–50 ms delay by default.** Set `mockLinkDefaultOptions={{ delay: 0 }}` for deterministic tests, then put an explicit `delay` on the individual mock only when the test asserts a loading or stale-response state.
+- **React Native Testing Library's `waitFor` polls every 50 ms with real timers.** Large screen suites should import the 20 ms wrapper from `@/test-utils/waitFor`; fake-timer suites can keep the direct library helper because it advances virtual time.
 - **Don't suppress `act(...)` warnings** with production code changes. Fix timers, mocks, or assertions instead.
 - **Spellbook prepare/unprepare toggles** live inside the spell row's accordion actions (`character-spell-prepare-*`). Open the row (`character-spell-row-*`) before pressing.
 

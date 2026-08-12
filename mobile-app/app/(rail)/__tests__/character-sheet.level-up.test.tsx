@@ -1,8 +1,9 @@
-import { fireEvent, screen, waitFor, within } from '@testing-library/react-native';
+import { act, fireEvent, screen, within } from '@testing-library/react-native';
 import { SEARCH_SPELLS_FOR_SHEET } from '@/components/character-sheet/spells/AddSpellSheet';
 import { SAVE_CHARACTER_SHEET } from '@/graphql/characterSheet.operations';
 import { GET_ATTACHED_CLASS_DETAILS } from '@/graphql/class.operations';
 import type { SaveCharacterSheetMutationVariables } from '@/types/generated_graphql_types';
+import { waitFor } from '@/test-utils/waitFor';
 import { CHARACTERS_MOCK, MOCK_CHARACTER, SAVE_CORE_CHARACTER_MOCKS } from './mocks/character-sheet.mocks';
 import {
     enableCharacterSheetEditMode,
@@ -11,6 +12,37 @@ import {
     renderCharacterSheetScreen,
     setupCharacterSheetScreenTestHooks,
 } from './character-sheet.test-utils';
+
+// Keep the route integration real while mounting only the active sheet page.
+jest.mock('@/components/character-sheet/CharacterSheetPager', () => {
+    const React = jest.requireActual<typeof import('react')>('react');
+
+    return {
+        __esModule: true,
+        default: React.forwardRef(function MockCharacterSheetPager(
+            { children, initialPage = 0 }: { children?: import('react').ReactNode; initialPage?: number },
+            ref: import('react').ForwardedRef<unknown>,
+        ) {
+            const pages = React.Children.toArray(children);
+            const [pageIndex, setPageIndex] = React.useState(initialPage);
+
+            React.useImperativeHandle(ref, () => ({
+                setPage: setPageIndex,
+                setPageWithoutAnimation: setPageIndex,
+            }), []);
+
+            return pages[pageIndex] ?? null;
+        }),
+    };
+});
+// Level-up assertions need real Vitals/Features pages; other sheet areas have dedicated suites.
+jest.mock('@/components/character-sheet/AbilitiesTab', () => () => null);
+jest.mock('@/components/character-sheet/DeathSavesCard', () => () => null);
+jest.mock('@/components/character-sheet/GearTab', () => () => null);
+jest.mock('@/components/character-sheet/QuickStatsCard', () => () => null);
+jest.mock('@/components/character-sheet/skills/PassiveSensesCard', () => () => null);
+jest.mock('@/components/character-sheet/SpellsTab', () => () => null);
+jest.mock('@/components/character-sheet/TraitsTab', () => () => null);
 
 jest.mock('@/hooks/useAvailableSubclasses', () => ({
     __esModule: true,
@@ -350,32 +382,6 @@ const LEVEL_UP_SPELL_SELECTION_QUERY_MOCK = {
     },
 };
 
-const COUNTERSPELL = {
-    __typename: 'Spell',
-    id: 'spell-counterspell',
-    name: 'Counterspell',
-    level: 3,
-    schoolIndex: 'abjuration',
-    classIndexes: ['wizard', 'sorcerer', 'warlock'],
-    castingTime: '1 reaction',
-    range: '60 feet',
-    concentration: false,
-    ritual: false,
-} as const;
-
-const WALL_OF_FORCE = {
-    __typename: 'Spell',
-    id: 'spell-wall-of-force',
-    name: 'Wall of Force',
-    level: 5,
-    schoolIndex: 'evocation',
-    classIndexes: ['wizard'],
-    castingTime: '1 action',
-    range: '120 feet',
-    concentration: true,
-    ritual: false,
-} as const;
-
 /** Full definition for a custom class the owner has since archived. */
 const CUSTOM_WARDEN_CLASS_DETAIL = {
     __typename: 'ClassDetails',
@@ -489,11 +495,22 @@ async function chooseWizardLevelUpSpells() {
     });
 }
 
+/** Completes the hit-point die animation without waiting for its real timer. */
+async function finishHitPointRoll() {
+    await act(async () => {
+        jest.runOnlyPendingTimers();
+        await Promise.resolve();
+    });
+}
+
 describe('CharacterByIdScreen level-up wizard', () => {
     setupCharacterSheetScreenTestHooks();
 
+    let randomSpy: jest.SpiedFunction<typeof Math.random> | undefined;
+
     afterEach(() => {
-        jest.restoreAllMocks();
+        randomSpy?.mockRestore();
+        randomSpy = undefined;
     });
 
     it('only shows the level-up button while edit mode is active', async () => {
@@ -596,7 +613,7 @@ describe('CharacterByIdScreen level-up wizard', () => {
     });
 
     it('captures rolled, rerolled, and average hit points before continuing', async () => {
-        const randomSpy = jest.spyOn(Math, 'random');
+        randomSpy = jest.spyOn(Math, 'random');
 
         renderCharacterSheetScreen();
 
@@ -616,40 +633,48 @@ describe('CharacterByIdScreen level-up wizard', () => {
         expect(String(screen.getByTestId('level-up-hit-points-die-value').props.children)).toBe('d6');
         expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(true);
 
-        randomSpy.mockReturnValue(0.5);
-        await pressAndFlush(screen.getByTestId('level-up-hit-points-roll-button'));
+        jest.useFakeTimers();
+        try {
+            randomSpy.mockReturnValue(0.5);
+            await pressAndFlush(screen.getByTestId('level-up-hit-points-roll-button'));
+            await finishHitPointRoll();
 
-        await waitFor(() => {
-            expect(screen.getByTestId('level-up-hit-points-breakdown')).toBeTruthy();
-        });
+            await waitFor(() => {
+                expect(screen.getByTestId('level-up-hit-points-breakdown')).toBeTruthy();
+            });
 
-        expect(String(screen.getByTestId('level-up-hit-points-die-value').props.children)).toBe('4');
-        expect(screen.getByText('Hit Die Roll')).toBeTruthy();
-        expect(screen.getByText('+6')).toBeTruthy();
-        expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
-        expect(screen.getByText('Re-roll')).toBeTruthy();
+            expect(String(screen.getByTestId('level-up-hit-points-die-value').props.children)).toBe('4');
+            expect(screen.getByText('Hit Die Roll')).toBeTruthy();
+            expect(screen.getByText('+6')).toBeTruthy();
+            expect(screen.getByTestId('level-up-next-button').props.accessibilityState?.disabled).toBe(false);
+            expect(screen.getByText('Re-roll')).toBeTruthy();
 
-        await waitFor(() => {
-            expect(screen.getByTestId('level-up-hit-points-roll-button').props.accessibilityState?.disabled).toBe(false);
-        });
+            await waitFor(() => {
+                expect(screen.getByTestId('level-up-hit-points-roll-button').props.accessibilityState?.disabled).toBe(false);
+            });
 
-        randomSpy.mockReturnValue(0.99);
-        await pressAndFlush(screen.getByTestId('level-up-hit-points-roll-button'));
+            randomSpy.mockReturnValue(0.99);
+            await pressAndFlush(screen.getByTestId('level-up-hit-points-roll-button'));
+            await finishHitPointRoll();
 
-        await waitFor(() => {
-            expect(screen.getByText('+8')).toBeTruthy();
-        });
+            await waitFor(() => {
+                expect(screen.getByText('+8')).toBeTruthy();
+            });
 
-        expect(String(screen.getByTestId('level-up-hit-points-die-value').props.children)).toBe('6');
+            expect(String(screen.getByTestId('level-up-hit-points-die-value').props.children)).toBe('6');
 
-        await pressAndFlush(screen.getByTestId('level-up-hit-points-average-button'));
+            await pressAndFlush(screen.getByTestId('level-up-hit-points-average-button'));
 
-        await waitFor(() => {
-            expect(screen.getByText('Average Hit Die')).toBeTruthy();
-        });
+            await waitFor(() => {
+                expect(screen.getByText('Average Hit Die')).toBeTruthy();
+            });
 
-        expect(String(screen.getByTestId('level-up-hit-points-die-value').props.children)).toBe('4');
-        expect(screen.getByText('+6')).toBeTruthy();
+            expect(String(screen.getByTestId('level-up-hit-points-die-value').props.children)).toBe('4');
+            expect(screen.getByText('+6')).toBeTruthy();
+        } finally {
+            jest.clearAllTimers();
+            jest.useRealTimers();
+        }
     });
 
     it('applies the minimum-one HP rule for low-CON characters', async () => {

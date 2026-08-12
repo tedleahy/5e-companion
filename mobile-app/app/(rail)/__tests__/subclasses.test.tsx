@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { PaperProvider } from 'react-native-paper';
 import CustomSubclassesScreen from '../compendium/subclasses';
 import {
@@ -10,6 +10,7 @@ import {
 import { GET_COMPENDIUM_COUNTS } from '@/graphql/compendium.operations';
 import { GET_AVAILABLE_SUBCLASSES } from '@/graphql/characterSheet.operations';
 import { supabase } from '@/lib/supabase';
+import { waitFor } from '@/test-utils/waitFor';
 
 const mockReplace = jest.fn();
 const mockUseQuery = jest.fn();
@@ -298,17 +299,13 @@ describe('CustomSubclassesScreen', () => {
             await Promise.resolve();
         });
 
-        await waitFor(() => {
-            expect(screen.getByText('No subclasses available.')).toBeTruthy();
-        });
+        expect(screen.getByText('No subclasses available.')).toBeTruthy();
     });
 
     it('renders the empty state and requests the subclass query', async () => {
         await renderScreenAndFlush();
 
-        await waitFor(() => {
-            expect(screen.getByText('No subclasses available.')).toBeTruthy();
-        });
+        expect(screen.getByText('No subclasses available.')).toBeTruthy();
         expect(mockUseQuery).toHaveBeenCalledWith(
             GET_AVAILABLE_SUBCLASSES,
             expect.objectContaining({
@@ -332,9 +329,7 @@ describe('CustomSubclassesScreen', () => {
 
         await renderScreenAndFlush();
 
-        await waitFor(() => {
-            expect(screen.getByText('School of Evocation')).toBeTruthy();
-        });
+        expect(screen.getByText('School of Evocation')).toBeTruthy();
         expect(screen.queryByText('SRD')).toBeNull();
         expect(screen.queryByText('Custom')).toBeNull();
         expect(screen.queryByTestId('edit-custom-subclass-srd-subclass-evocation')).toBeNull();
@@ -348,25 +343,19 @@ describe('CustomSubclassesScreen', () => {
 
         await renderScreenAndFlush();
 
-        await waitFor(() => {
-            expect(screen.getByText('School of Evocation')).toBeTruthy();
-        });
+        expect(screen.getByText('School of Evocation')).toBeTruthy();
 
         fireEvent.press(screen.getByTestId('custom-subclass-row-srd-subclass-evocation'));
 
-        await waitFor(() => {
-            expect(screen.getByTestId('subclass-expand-back')).toBeTruthy();
-            expect(screen.queryByTestId('add-custom-subclass')).toBeNull();
-        });
+        expect(screen.getByTestId('subclass-expand-back')).toBeTruthy();
+        expect(screen.queryByTestId('add-custom-subclass')).toBeNull();
         expect(screen.getByTestId('custom-subclass-row-srd-subclass-evocation').props.accessibilityState?.expanded).toBe(true);
         expect(screen.getByText('School of Evocation')).toBeTruthy();
 
         fireEvent.press(screen.getByTestId('subclass-expand-back'));
 
-        await waitFor(() => {
-            expect(screen.getByText('School of Lanterns')).toBeTruthy();
-            expect(screen.getByTestId('add-custom-subclass')).toBeTruthy();
-        });
+        expect(screen.getByText('School of Lanterns')).toBeTruthy();
+        expect(screen.getByTestId('add-custom-subclass')).toBeTruthy();
     });
 
     it('shows ordered feature details when a subclass row is expanded', async () => {
@@ -378,9 +367,7 @@ describe('CustomSubclassesScreen', () => {
 
         fireEvent.press(screen.getByTestId('custom-subclass-row-srd-subclass-evocation'));
 
-        await waitFor(() => {
-            expect(screen.getByText('Features')).toBeTruthy();
-        });
+        expect(screen.getByText('Features')).toBeTruthy();
         expect(screen.getByText('Level 2')).toBeTruthy();
         expect(screen.getByText('Sculpt Spells')).toBeTruthy();
         expect(screen.getByText('Protect allies from your evocations.')).toBeTruthy();
@@ -395,27 +382,21 @@ describe('CustomSubclassesScreen', () => {
 
         fireEvent.press(screen.getByTestId('custom-subclass-row-srd-subclass-evocation'));
 
-        await waitFor(() => {
-            expect(screen.getByTestId('subclass-expand-back')).toBeTruthy();
-        });
+        expect(screen.getByTestId('subclass-expand-back')).toBeTruthy();
         expect(screen.queryByText('School of Lanterns')).toBeNull();
         expect(screen.queryByText('Banner Knight')).toBeNull();
         expect(screen.queryByTestId('subclass-filter-fighter')).toBeNull();
 
         fireEvent.press(screen.getByTestId('subclass-expand-back'));
 
-        await waitFor(() => {
-            expect(screen.queryByTestId('subclass-expand-back')).toBeNull();
-            expect(screen.getByTestId('subclass-filter-fighter')).toBeTruthy();
-            expect(screen.getByText('School of Lanterns')).toBeTruthy();
-            expect(screen.getByText('Banner Knight')).toBeTruthy();
-        });
+        expect(screen.queryByTestId('subclass-expand-back')).toBeNull();
+        expect(screen.getByTestId('subclass-filter-fighter')).toBeTruthy();
+        expect(screen.getByText('School of Lanterns')).toBeTruthy();
+        expect(screen.getByText('Banner Knight')).toBeTruthy();
         fireEvent.press(screen.getByTestId('subclass-filter-fighter'));
 
-        await waitFor(() => {
-            expect(screen.getByText('Banner Knight')).toBeTruthy();
-            expect(screen.queryByText('School of Evocation')).toBeNull();
-        });
+        expect(screen.getByText('Banner Knight')).toBeTruthy();
+        expect(screen.queryByText('School of Evocation')).toBeNull();
     });
 
     it('filters subclass rows by selected class', async () => {
@@ -425,10 +406,8 @@ describe('CustomSubclassesScreen', () => {
 
         await renderScreenAndFlush();
 
-        await waitFor(() => {
-            expect(screen.getByText('School of Evocation')).toBeTruthy();
-            expect(screen.getByText('School of Lanterns')).toBeTruthy();
-        });
+        expect(screen.getByText('School of Evocation')).toBeTruthy();
+        expect(screen.getByText('School of Lanterns')).toBeTruthy();
         expect(screen.getByText('Banner Knight')).toBeTruthy();
 
         fireEvent.press(screen.getByTestId('subclass-filter-fighter'));
@@ -445,20 +424,16 @@ describe('CustomSubclassesScreen', () => {
 
         await renderScreenAndFlush();
 
-        await waitFor(() => {
-            expect(screen.getByText('School of Evocation')).toBeTruthy();
-            expect(screen.getByText('School of Lanterns')).toBeTruthy();
-            expect(screen.getByText('Banner Knight')).toBeTruthy();
-        });
+        expect(screen.getByText('School of Evocation')).toBeTruthy();
+        expect(screen.getByText('School of Lanterns')).toBeTruthy();
+        expect(screen.getByText('Banner Knight')).toBeTruthy();
 
         const srdSwitch = screen.getByTestId('subclass-source-switch');
         expect(srdSwitch.props.value).toBe(true);
 
         fireEvent(srdSwitch, 'onValueChange', false);
 
-        await waitFor(() => {
-            expect(screen.queryByText('School of Evocation')).toBeNull();
-        });
+        expect(screen.queryByText('School of Evocation')).toBeNull();
         expect(screen.getByText('School of Lanterns')).toBeTruthy();
         expect(screen.getByText('Banner Knight')).toBeTruthy();
     });
@@ -470,16 +445,12 @@ describe('CustomSubclassesScreen', () => {
 
         await renderScreenAndFlush();
 
-        await waitFor(() => {
-            expect(screen.getByText('School of Evocation')).toBeTruthy();
-        });
+        expect(screen.getByText('School of Evocation')).toBeTruthy();
 
         fireEvent(screen.getByTestId('subclass-source-switch'), 'onValueChange', false);
 
-        await waitFor(() => {
-            expect(screen.getByText('No custom subclasses available.')).toBeTruthy();
-            expect(screen.getByText('Add a custom subclass to make one available.')).toBeTruthy();
-        });
+        expect(screen.getByText('No custom subclasses available.')).toBeTruthy();
+        expect(screen.getByText('Add a custom subclass to make one available.')).toBeTruthy();
         expect(screen.queryByText('School of Evocation')).toBeNull();
     });
 
@@ -505,9 +476,7 @@ describe('CustomSubclassesScreen', () => {
         fireEvent.changeText(screen.getByTestId('custom-subclass-selection-level-input'), '2');
         fireEvent.changeText(screen.getByTestId('custom-subclass-description-input'), '  A circle sworn to moonlit borders.  ');
 
-        await waitFor(() => {
-            expect(screen.getByTestId('save-custom-subclass').props.accessibilityState.disabled).toBe(false);
-        });
+        expect(screen.getByTestId('save-custom-subclass').props.accessibilityState.disabled).toBe(false);
         expect(screen.getByTestId('custom-subclass-description-counter').props.children).toEqual([
             38,
             '/',
@@ -558,9 +527,7 @@ describe('CustomSubclassesScreen', () => {
         fireEvent.changeText(screen.getByTestId('custom-subclass-feature-name-0'), 'Moonlit Ward');
         fireEvent.changeText(screen.getByTestId('custom-subclass-feature-description-0'), 'You guard allies in silver light.');
 
-        await waitFor(() => {
-            expect(screen.getByTestId('save-custom-subclass').props.accessibilityState.disabled).toBe(false);
-        });
+        expect(screen.getByTestId('save-custom-subclass').props.accessibilityState.disabled).toBe(false);
         expect(screen.getByTestId('custom-subclass-feature-level-0').props.value).toBe('3');
 
         fireEvent.press(screen.getByTestId('save-custom-subclass'));
@@ -611,7 +578,9 @@ describe('CustomSubclassesScreen', () => {
         await waitFor(() => {
             expect(screen.queryByText('Discard changes?')).toBeNull();
         });
-        expect(screen.getByText('Create Subclass')).toBeTruthy();
+        await waitFor(() => {
+            expect(screen.getByText('Create Subclass')).toBeTruthy();
+        });
         expect(screen.getByTestId('custom-subclass-name-input').props.value).toBe('Moon Warden');
     });
 
@@ -620,9 +589,7 @@ describe('CustomSubclassesScreen', () => {
 
         fireEvent.press(screen.getByTestId('add-custom-subclass'));
 
-        await waitFor(() => {
-            expect(screen.getByText('Create Subclass')).toBeTruthy();
-        });
+        expect(screen.getByText('Create Subclass')).toBeTruthy();
 
         fireEvent.press(screen.getByTestId('cancel-custom-subclass-form'));
 
@@ -660,9 +627,7 @@ describe('CustomSubclassesScreen', () => {
 
         fireEvent.press(screen.getByTestId('custom-subclass-row-custom-subclass-1'));
 
-        await waitFor(() => {
-            expect(screen.getByTestId('subclass-expand-back')).toBeTruthy();
-        });
+        expect(screen.getByTestId('subclass-expand-back')).toBeTruthy();
 
         fireEvent.press(screen.getByTestId('edit-custom-subclass-custom-subclass-1'));
 
@@ -702,15 +667,15 @@ describe('CustomSubclassesScreen', () => {
         await waitFor(() => {
             expect(screen.getByTestId('custom-subclass-feature-name-0').props.value).toBe('Lantern Ward');
         });
-        expect(screen.getByTestId('custom-subclass-class-wizard').props.accessibilityState.disabled).toBe(true);
+        await waitFor(() => {
+            expect(screen.getByTestId('custom-subclass-class-wizard').props.accessibilityState.disabled).toBe(true);
+        });
         expect(screen.getByText('Remove saved feature definitions before changing the parent class.')).toBeTruthy();
 
         fireEvent.changeText(screen.getByTestId('custom-subclass-feature-description-0'), 'You raise brighter wards.');
         fireEvent.press(screen.getByTestId('remove-custom-subclass-feature-1'));
 
-        await waitFor(() => {
-            expect(screen.queryByText('Feature 2')).toBeNull();
-        });
+        expect(screen.queryByText('Feature 2')).toBeNull();
 
         fireEvent.press(screen.getByTestId('save-custom-subclass'));
 
@@ -747,16 +712,12 @@ describe('CustomSubclassesScreen', () => {
 
         fireEvent.press(screen.getByTestId('edit-custom-subclass-custom-subclass-1'));
 
-        await waitFor(() => {
-            expect(screen.getByTestId('custom-subclass-class-wizard').props.accessibilityState.disabled).toBe(true);
-        });
+        expect(screen.getByTestId('custom-subclass-class-wizard').props.accessibilityState.disabled).toBe(true);
 
         fireEvent.press(screen.getByTestId('remove-custom-subclass-feature-1'));
         fireEvent.press(screen.getByTestId('remove-custom-subclass-feature-0'));
 
-        await waitFor(() => {
-            expect(screen.getByTestId('custom-subclass-class-fighter').props.accessibilityState.disabled).toBe(false);
-        });
+        expect(screen.getByTestId('custom-subclass-class-fighter').props.accessibilityState.disabled).toBe(false);
 
         fireEvent.press(screen.getByTestId('custom-subclass-class-fighter'));
         fireEvent.press(screen.getByTestId('save-custom-subclass'));
@@ -787,9 +748,7 @@ describe('CustomSubclassesScreen', () => {
 
         fireEvent.press(screen.getByTestId('custom-subclass-row-custom-subclass-1'));
 
-        await waitFor(() => {
-            expect(screen.getByTestId('subclass-expand-back')).toBeTruthy();
-        });
+        expect(screen.getByTestId('subclass-expand-back')).toBeTruthy();
 
         fireEvent.press(screen.getByTestId('delete-custom-subclass-custom-subclass-1'));
 

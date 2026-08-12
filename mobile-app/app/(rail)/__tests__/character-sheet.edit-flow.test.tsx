@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor, act } from '@testing-library/react-native';
+import { fireEvent, screen, act } from '@testing-library/react-native';
 import { BackHandler } from 'react-native';
 import {
     CHARACTERS_MOCK,
@@ -13,6 +13,18 @@ import {
     openCharacterSheetTab,
 } from './character-sheet.test-utils';
 import { SAVE_CHARACTER_SHEET } from '@/graphql/characterSheet.operations';
+import { waitFor } from '@/test-utils/waitFor';
+
+// This suite exercises header and gear editing; sibling sheet areas are covered separately.
+jest.mock('@/components/character-sheet/AbilitiesTab', () => () => null);
+jest.mock('@/components/character-sheet/DeathSavesCard', () => () => null);
+jest.mock('@/components/character-sheet/FeaturesTab', () => () => null);
+jest.mock('@/components/character-sheet/level-up/LevelUpWizardSheet', () => () => null);
+jest.mock('@/components/character-sheet/QuickStatsCard', () => () => null);
+jest.mock('@/components/character-sheet/skills/PassiveSensesCard', () => () => null);
+jest.mock('@/components/character-sheet/SpellsTab', () => () => null);
+jest.mock('@/components/character-sheet/TraitsTab', () => () => null);
+jest.mock('@/components/character-sheet/VitalsCard', () => () => null);
 
 /**
  * Returns the most recently registered hardware-back handler from the mocked BackHandler.

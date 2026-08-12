@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler/jestSetup';
 import { BackHandler } from 'react-native';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { MockedProvider } from '@apollo/client/testing/react';
 import type { MockedResponse } from '@apollo/client/testing';
 import { PaperProvider } from 'react-native-paper';
@@ -13,6 +13,7 @@ import {
     UPDATE_CUSTOM_CLASS,
 } from '@/graphql/class.operations';
 import { GET_COMPENDIUM_COUNTS } from '@/graphql/compendium.operations';
+import { waitFor } from '@/test-utils/waitFor';
 import type { ClassDetailsFieldsFragment } from '@/types/generated_graphql_types';
 
 let mockCreateClass: jest.Mock | null = null;
@@ -109,7 +110,7 @@ function renderEditor(
 ) {
     const { mocks = proficiencyMocks, visible = true, ...editorProps } = props;
     const view = render(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={mocks} mockLinkDefaultOptions={{ delay: 0 }}>
             <PaperProvider>
                 <CustomClassEditor visible={visible} onClose={onClose} {...editorProps} />
             </PaperProvider>
@@ -191,7 +192,7 @@ describe('CustomClassEditor', () => {
         expect(screen.getByDisplayValue('Night Warden')).toBeTruthy();
 
         rerender(
-            <MockedProvider mocks={proficiencyMocks}>
+            <MockedProvider mocks={proficiencyMocks} mockLinkDefaultOptions={{ delay: 0 }}>
                 <PaperProvider>
                     <CustomClassEditor
                         visible

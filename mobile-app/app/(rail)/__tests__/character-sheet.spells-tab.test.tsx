@@ -1,4 +1,5 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { fireEvent, screen } from '@testing-library/react-native';
+import { waitFor } from '@/test-utils/waitFor';
 import {
     CHARACTERS_MOCK,
     PREPARE_BIGBYS_HAND_MOCK,
@@ -12,6 +13,17 @@ import {
     renderCharacterSheetScreen,
     setupCharacterSheetScreenTestHooks,
 } from './character-sheet.test-utils';
+
+// Sibling sheet areas have dedicated route suites; omit them from this focused render.
+jest.mock('@/components/character-sheet/AbilitiesTab', () => () => null);
+jest.mock('@/components/character-sheet/DeathSavesCard', () => () => null);
+jest.mock('@/components/character-sheet/FeaturesTab', () => () => null);
+jest.mock('@/components/character-sheet/GearTab', () => () => null);
+jest.mock('@/components/character-sheet/level-up/LevelUpWizardSheet', () => () => null);
+jest.mock('@/components/character-sheet/QuickStatsCard', () => () => null);
+jest.mock('@/components/character-sheet/skills/PassiveSensesCard', () => () => null);
+jest.mock('@/components/character-sheet/TraitsTab', () => () => null);
+jest.mock('@/components/character-sheet/VitalsCard', () => () => null);
 
 describe('CharacterByIdScreen spells tab', () => {
     setupCharacterSheetScreenTestHooks();

@@ -1,4 +1,5 @@
-import { screen, waitFor } from '@testing-library/react-native';
+import { screen } from '@testing-library/react-native';
+import { waitFor } from '@/test-utils/waitFor';
 import {
     renderCharacterSheetScreen,
     setupCharacterSheetScreenTestHooks,

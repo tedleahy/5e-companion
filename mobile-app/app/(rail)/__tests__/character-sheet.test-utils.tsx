@@ -1,14 +1,14 @@
 import React from 'react';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { MockedProvider } from '@apollo/client/testing/react';
 import type { MockLink } from '@apollo/client/testing';
-import { Animated } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 import CharacterByIdScreen from '../character/[id]';
 import { SEARCH_SPELLS_FOR_SHEET } from '@/components/character-sheet/spells/AddSpellSheet';
 import { GET_AVAILABLE_SUBCLASSES } from '@/graphql/characterSheet.operations';
 import { GET_AVAILABLE_CLASSES, GET_CUSTOM_CLASSES } from '@/graphql/class.operations';
 import { CLASS_OPTIONS } from '@/lib/characterCreation/options';
+import { waitFor } from '@/test-utils/waitFor';
 import { CHARACTERS_MOCK } from './mocks/character-sheet.mocks';
 
 /**
@@ -112,16 +112,6 @@ export const CUSTOM_CLASSES_MOCK: MockLink.MockedResponse = {
  */
 export const mockUseLocalSearchParams = jest.fn(() => ({ id: 'char-1' }));
 
-type AnimatedValueLike = Animated.Value | Animated.ValueXY;
-
-type AnimatedCompositeLike = {
-    start(callback?: (result: { finished: boolean }) => void): void;
-    stop?(): void;
-    reset?(): void;
-};
-
-type AnimatedConfigWithToValue = any;
-
 jest.mock('expo-router', () => ({
     useRouter: () => ({
         push: jest.fn(),
@@ -140,86 +130,16 @@ jest.mock('@/components/navigation/RailScreenShell', () => ({
 }));
 
 /**
- * Returns one no-op Animated composite used to make route tests deterministic.
- */
-function immediateAnimation(
-    apply?: () => void,
-): AnimatedCompositeLike {
-    return {
-        start(callback) {
-            apply?.();
-            callback?.({ finished: true });
-        },
-        stop() {},
-        reset() {},
-    };
-}
-
-/**
- * Applies one optional target value onto an Animated.Value-like instance.
- */
-function applyAnimatedTarget(
-    value: AnimatedValueLike,
-    config?: AnimatedConfigWithToValue,
-) {
-    const toValue = config?.toValue;
-    // Skip if toValue is an Animated node (should not happen in tests)
-    if (toValue && typeof toValue === 'object' && ('__getValue' in toValue || 'interpolate' in toValue)) {
-        return;
-    }
-    if (typeof toValue === 'number') {
-        (value as Animated.Value).setValue(toValue);
-    } else if (toValue && typeof toValue === 'object' && 'x' in toValue && 'y' in toValue) {
-        (value as Animated.ValueXY).setValue(toValue);
-    }
-}
-
-/**
- * Installs synchronous Animated mocks for route tests.
- */
-function installImmediateAnimatedMocks() {
-    jest.spyOn(Animated, 'timing').mockImplementation((value: AnimatedValueLike, config: AnimatedConfigWithToValue) => (
-        immediateAnimation(() => {
-            applyAnimatedTarget(value, config);
-        }) as never
-    ));
-    jest.spyOn(Animated, 'spring').mockImplementation((value: AnimatedValueLike, config: AnimatedConfigWithToValue) => (
-        immediateAnimation(() => {
-            applyAnimatedTarget(value, config);
-        }) as never
-    ));
-    jest.spyOn(Animated, 'delay').mockImplementation(() => (
-        immediateAnimation() as never
-    ));
-    jest.spyOn(Animated, 'sequence').mockImplementation((animations: AnimatedCompositeLike[]) => (
-        immediateAnimation(() => {
-            for (const animation of animations) {
-                animation.start();
-            }
-        }) as never
-    ));
-    jest.spyOn(Animated, 'parallel').mockImplementation((animations: AnimatedCompositeLike[]) => (
-        immediateAnimation(() => {
-            for (const animation of animations) {
-                animation.start();
-            }
-        }) as never
-    ));
-    jest.spyOn(Animated, 'loop').mockImplementation((animation: AnimatedCompositeLike) => (
-        immediateAnimation(() => {
-            animation.start();
-        }) as never
-    ));
-}
-
-/**
  * Renders the character-sheet route with the standard Apollo and Paper providers.
  */
 export function renderCharacterSheetScreen(
     mocks: MockLink.MockedResponse[] = [CHARACTERS_MOCK],
 ) {
     return render(
-        <MockedProvider mocks={[...mocks, ADD_SPELL_LIST_MOCK, AVAILABLE_SUBCLASSES_MOCK, AVAILABLE_CLASSES_MOCK, CUSTOM_CLASSES_MOCK]}>
+        <MockedProvider
+            mocks={[...mocks, ADD_SPELL_LIST_MOCK, AVAILABLE_SUBCLASSES_MOCK, AVAILABLE_CLASSES_MOCK, CUSTOM_CLASSES_MOCK]}
+            mockLinkDefaultOptions={{ delay: 0 }}
+        >
             <PaperProvider>
                 <CharacterByIdScreen />
             </PaperProvider>
@@ -254,10 +174,6 @@ export async function flushCharacterSheetMicrotasks() {
  * Applies the shared test lifecycle used by the split character-sheet suites.
  */
 export function setupCharacterSheetScreenTestHooks() {
-    beforeAll(() => {
-        installImmediateAnimatedMocks();
-    });
-
     beforeEach(() => {
         jest.clearAllMocks();
         mockUseLocalSearchParams.mockReturnValue({ id: 'char-1' });
@@ -265,10 +181,6 @@ export function setupCharacterSheetScreenTestHooks() {
 
     afterEach(async () => {
         await flushCharacterSheetMicrotasks();
-    });
-
-    afterAll(() => {
-        jest.restoreAllMocks();
     });
 }
 

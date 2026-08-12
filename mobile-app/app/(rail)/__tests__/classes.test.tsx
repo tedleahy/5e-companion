@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler/jestSetup';
 import type { ComponentProps } from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { GraphQLError } from 'graphql';
 import { PaperProvider } from 'react-native-paper';
@@ -10,6 +10,7 @@ import {
     GET_CLASS_DETAILS,
 } from '@/graphql/class.operations';
 import { GET_COMPENDIUM_COUNTS } from '@/graphql/compendium.operations';
+import { waitFor } from '@/test-utils/waitFor';
 
 let mockArchiveClass: jest.Mock | null = null;
 

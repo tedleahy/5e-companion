@@ -1,8 +1,7 @@
 import React from 'react';
 import 'react-native-gesture-handler/jestSetup';
 import 'expo-router/build/testing-library/expect';
-import { Pressable } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Pressable, Text } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { fireEvent, renderRouter, screen, testRouter } from 'expo-router/testing-library';

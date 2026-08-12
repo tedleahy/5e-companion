@@ -123,6 +123,13 @@ jest.mock('react-native', () => {
             stop: () => {},
             reset: () => {},
         }),
+        delay: (_milliseconds: number) => ({
+            start: (callback?: (result: { finished: boolean }) => void) => {
+                callback?.(done);
+            },
+            stop: () => {},
+            reset: () => {},
+        }),
         // Loop wraps an inner animation; the real impl reads _isUsingNativeDriver()
         // on it, which our mocked timing/spring don't expose. Return a no-op that
         // just fires the callback once so consumers like Paper's ActivityIndicator
