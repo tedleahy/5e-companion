@@ -22,9 +22,11 @@ Reference mockup: [`../mockups/compendium-mockup.html`](../mockups/compendium-mo
 
 ## Future category managers
 
-Add category managers only as their backend data and custom-content operations become available. Reuse established components where behaviour genuinely overlaps, but do not force Spells and Subclasses into one config-driven abstraction: their search, pagination, filters, and editing flows differ materially.
+Browse-only list and detail for Races, Subraces, Backgrounds, Feats, and Languages is specified in [`../mockups/compendium-remaining-screens-plan.html`](../mockups/compendium-remaining-screens-plan.html). That brief is the source of truth for the next implementation pass: a shared `CompendiumCollection` shell, typed schema promotions out of `raw`, and design-faithful extras (cross-links, usage counts, suggested characteristics). Custom CRUD stays out of scope.
 
-Draft fields for future managers:
+Do not force Spells and Subclasses into that collection shell: their search, pagination, filters, and editing flows differ materially.
+
+Draft fields for those browse screens:
 
 | Type | Fields |
 | --- | --- |
