@@ -82,14 +82,16 @@ model Spell {
 }
 
 model AbilityScore {
-    id             String         @id @default(cuid())
-    source         SpellSource
-    srdIndex       String?        @unique
-    name           String
-    fullName       String
-    description    String[]
-    skillIndexes   String[]
-    abilityBonuses AbilityBonus[]
+    id                    String                @id @default(cuid())
+    source                SpellSource
+    srdIndex              String?               @unique
+    name                  String
+    fullName              String
+    description           String[]
+    skillIndexes          String[]
+    abilityBonuses        AbilityBonus[]
+    subraceAbilityBonuses SubraceAbilityBonus[]
+    featPrerequisites     FeatPrerequisite[]
 }
 
 model Race {
@@ -129,6 +131,17 @@ model AbilityBonus {
     bonus          Int
 
     @@id([raceId, abilityScoreId])
+}
+
+// Parallel to AbilityBonus — subrace ASI cannot share [raceId, abilityScoreId].
+model SubraceAbilityBonus {
+    subrace        Subrace      @relation(fields: [subraceId], references: [id], onDelete: Cascade)
+    subraceId      String
+    abilityScore   AbilityScore @relation(fields: [abilityScoreId], references: [id])
+    abilityScoreId String
+    bonus          Int
+
+    @@id([subraceId, abilityScoreId])
 }
 
 model Class {
@@ -232,19 +245,21 @@ model Subclass {
 }
 
 model Background {
-    id                  String         @id @default(cuid())
-    ownerUserId         String?
-    srdIndex            String?        @unique
-    name                String
-    featureName         String?
-    featureDescription  String[]       @default([])
-    languageChoiceCount Int?
-    sourceBook          String?
-    raw                 Json?
-    proficiencies       Proficiency[]  @relation("BackgroundProficiencies")
-    languages           Language[]     @relation("BackgroundLanguages")
-    features            Feature[]      @relation("BackgroundFeatures")
-    characters          Character[]    @relation("CharacterBackgroundRelation")
+    id                       String         @id @default(cuid())
+    ownerUserId              String?
+    srdIndex                 String?        @unique
+    name                     String
+    featureName              String?
+    featureDescription       String[]       @default([])
+    languageChoiceCount      Int?
+    startingEquipment        Json?
+    suggestedCharacteristics Json?
+    sourceBook               String?
+    raw                      Json?
+    proficiencies            Proficiency[]  @relation("BackgroundProficiencies")
+    languages                Language[]     @relation("BackgroundLanguages")
+    features                 Feature[]      @relation("BackgroundFeatures")
+    characters               Character[]    @relation("CharacterBackgroundRelation")
 
     @@index([ownerUserId])
     @@index([name])
@@ -270,18 +285,19 @@ model Trait {
 }
 
 model Subrace {
-    id              String      @id @default(cuid())
+    id              String                @id @default(cuid())
     ownerUserId     String?
-    srdIndex        String?     @unique
+    srdIndex        String?               @unique
     name            String
     description     String?
     raceId          String
-    raceRef         Race        @relation(fields: [raceId], references: [id], onDelete: Cascade)
+    raceRef         Race                  @relation(fields: [raceId], references: [id], onDelete: Cascade)
     sourceBook      String?
     raw             Json?
-    traits          Trait[]     @relation("SubraceTraits")
-    features        Feature[]   @relation("SubraceFeatures")
-    characters      Character[] @relation("CharacterSubraceRelation")
+    traits          Trait[]               @relation("SubraceTraits")
+    features        Feature[]             @relation("SubraceFeatures")
+    abilityBonuses  SubraceAbilityBonus[]
+    characters      Character[]           @relation("CharacterSubraceRelation")
 
     @@index([ownerUserId])
     @@index([raceId])
@@ -289,34 +305,47 @@ model Subrace {
 }
 
 model Feat {
-    id              String          @id @default(cuid())
+    id              String             @id @default(cuid())
     ownerUserId     String?
-    srdIndex        String?         @unique
+    srdIndex        String?            @unique
     name            String
-    description     String[]        @default([])
+    description     String[]           @default([])
+    prerequisites   FeatPrerequisite[]
     sourceBook      String?
     raw             Json?
-    features        Feature[]       @relation("FeatFeatures")
+    features        Feature[]          @relation("FeatFeatures")
     characterFeats  CharacterFeat[]
 
     @@index([ownerUserId])
     @@index([name])
 }
 
+model FeatPrerequisite {
+    feat           Feat         @relation(fields: [featId], references: [id], onDelete: Cascade)
+    featId         String
+    abilityScore   AbilityScore @relation(fields: [abilityScoreId], references: [id])
+    abilityScoreId String
+    minimumScore   Int
+
+    @@id([featId, abilityScoreId])
+    @@index([abilityScoreId])
+}
+
 model Language {
-    id                  String              @id @default(cuid())
-    ownerUserId         String?
-    srdIndex            String?             @unique
-    name                String
-    type                String?
-    script              String?
-    description         String?
-    sourceBook          String?
-    raw                 Json?
-    races               Race[]              @relation("RaceLanguages")
-    backgrounds         Background[]        @relation("BackgroundLanguages")
-    traits              Trait[]             @relation("TraitLanguages")
-    characterLanguages  CharacterLanguage[]
+    id                 String              @id @default(cuid())
+    ownerUserId        String?
+    srdIndex           String?             @unique
+    name               String
+    type               String?
+    script             String?
+    typicalSpeakers    String[]            @default([])
+    description        String?
+    sourceBook         String?
+    raw                Json?
+    races              Race[]              @relation("RaceLanguages")
+    backgrounds        Background[]        @relation("BackgroundLanguages")
+    traits             Trait[]             @relation("TraitLanguages")
+    characterLanguages CharacterLanguage[]
 
     @@index([ownerUserId])
     @@index([name])

@@ -8,18 +8,23 @@ import {
     type SrdMulticlassing,
     type SrdProficiencyChoiceOption,
 } from './classPrerequisiteSeed';
+import {
+    backgroundSeedPayload,
+    featSeedPayload,
+    languageSeedPayload,
+    startingEquipmentFromSrd,
+    subraceSeedPayload,
+    type SrdBackground,
+    type SrdFeat,
+    type SrdLanguage,
+    type SrdStartingEquipmentItem,
+    type SrdStartingEquipmentOption,
+    type SrdSubrace,
+} from './compendiumBrowseSeed';
 
 type SrdReference = {
     index: string;
     name: string;
-};
-
-type SrdLanguage = {
-    index: string;
-    name: string;
-    type?: string;
-    script?: string;
-    desc?: string;
 };
 
 type SrdProficiency = {
@@ -43,8 +48,8 @@ type SrdClass = {
         from?: { options?: SrdProficiencyChoiceOption[] };
     }>;
     saving_throws?: SrdReference[];
-    starting_equipment?: Array<{ equipment: SrdReference; quantity: number }>;
-    starting_equipment_options?: Array<{ desc?: string; choose?: number }>;
+    starting_equipment?: SrdStartingEquipmentItem[];
+    starting_equipment_options?: SrdStartingEquipmentOption[];
     multi_classing?: SrdMulticlassing;
 };
 
@@ -69,27 +74,6 @@ type SrdSubclass = {
     class: SrdReference;
 };
 
-type SrdBackground = {
-    index: string;
-    name: string;
-    starting_proficiencies?: SrdReference[];
-    language_options?: {
-        choose?: number;
-    };
-    feature?: {
-        name: string;
-        desc?: string[];
-    };
-};
-
-type SrdSubrace = {
-    index: string;
-    name: string;
-    desc?: string;
-    race: SrdReference;
-    racial_traits?: SrdReference[];
-};
-
 type SrdTrait = {
     index: string;
     name: string;
@@ -108,12 +92,6 @@ type SrdTrait = {
             }>;
         };
     };
-};
-
-type SrdFeat = {
-    index: string;
-    name: string;
-    desc?: string[];
 };
 
 type SrdFeature = {
@@ -169,24 +147,13 @@ async function loadJson<T>(relativePath: string): Promise<T> {
 
 async function seedLanguages(languages: SrdLanguage[]) {
     for (const language of languages) {
+        const payload = languageSeedPayload(language);
         await prisma.language.upsert({
             where: { srdIndex: language.index },
-            update: {
-                name: language.name,
-                type: language.type ?? null,
-                script: language.script ?? null,
-                description: language.desc ?? null,
-                sourceBook: 'SRD',
-                raw: language as Prisma.InputJsonValue,
-            },
+            update: payload,
             create: {
                 srdIndex: language.index,
-                name: language.name,
-                type: language.type ?? null,
-                script: language.script ?? null,
-                description: language.desc ?? null,
-                sourceBook: 'SRD',
-                raw: language as Prisma.InputJsonValue,
+                ...payload,
             },
         });
     }
@@ -248,20 +215,10 @@ async function seedClasses(classes: SrdClass[], levels: SrdLevel[], spells: SrdS
             : spellcastingAbility
                 ? ClassSpellcastingMode.STANDARD
                 : ClassSpellcastingMode.NONE;
-        const equipment = [
-            ...(srdClass.starting_equipment ?? []).map((item) => ({
-                name: item.equipment.name,
-                quantity: item.quantity,
-                choiceGroup: null,
-                choiceCount: null,
-            })),
-            ...(srdClass.starting_equipment_options ?? []).map((option, index) => ({
-                name: option.desc ?? `Equipment choice ${index + 1}`,
-                quantity: 1,
-                choiceGroup: index + 1,
-                choiceCount: option.choose ?? 1,
-            })),
-        ];
+        const equipment = startingEquipmentFromSrd(
+            srdClass.starting_equipment,
+            srdClass.starting_equipment_options,
+        );
 
         const classRef = await prisma.class.upsert({
             where: { srdIndex: srdClass.index },
@@ -388,16 +345,14 @@ async function seedBackgrounds(backgrounds: SrdBackground[]) {
         const proficiencyConnect = (background.starting_proficiencies ?? []).map((proficiency) => ({
             srdIndex: proficiency.index,
         }));
+        const { suggestedCharacteristics, ...scalars } = backgroundSeedPayload(background);
+        const suggestedCharacteristicsJson = suggestedCharacteristics ?? Prisma.DbNull;
 
         await prisma.background.upsert({
             where: { srdIndex: background.index },
             update: {
-                name: background.name,
-                featureName: background.feature?.name ?? null,
-                featureDescription: background.feature?.desc ?? [],
-                languageChoiceCount: background.language_options?.choose ?? null,
-                sourceBook: 'SRD',
-                raw: background as Prisma.InputJsonValue,
+                ...scalars,
+                suggestedCharacteristics: suggestedCharacteristicsJson,
                 proficiencies: {
                     set: proficiencyConnect,
                 },
@@ -407,12 +362,8 @@ async function seedBackgrounds(backgrounds: SrdBackground[]) {
             },
             create: {
                 srdIndex: background.index,
-                name: background.name,
-                featureName: background.feature?.name ?? null,
-                featureDescription: background.feature?.desc ?? [],
-                languageChoiceCount: background.language_options?.choose ?? null,
-                sourceBook: 'SRD',
-                raw: background as Prisma.InputJsonValue,
+                ...scalars,
+                suggestedCharacteristics: suggestedCharacteristicsJson,
                 proficiencies: {
                     connect: proficiencyConnect,
                 },
@@ -423,30 +374,23 @@ async function seedBackgrounds(backgrounds: SrdBackground[]) {
 
 async function seedSubraces(subraces: SrdSubrace[]) {
     for (const subrace of subraces) {
+        const { abilityBonuses, ...scalars } = subraceSeedPayload(subrace);
+
         await prisma.subrace.upsert({
             where: { srdIndex: subrace.index },
             update: {
-                name: subrace.name,
-                description: subrace.desc ?? null,
-                raceRef: {
-                    connect: {
-                        srdIndex: subrace.race.index,
-                    },
+                ...scalars,
+                abilityBonuses: {
+                    deleteMany: {},
+                    create: abilityBonuses,
                 },
-                sourceBook: 'SRD',
-                raw: subrace as Prisma.InputJsonValue,
             },
             create: {
                 srdIndex: subrace.index,
-                name: subrace.name,
-                description: subrace.desc ?? null,
-                raceRef: {
-                    connect: {
-                        srdIndex: subrace.race.index,
-                    },
+                ...scalars,
+                abilityBonuses: {
+                    create: abilityBonuses,
                 },
-                sourceBook: 'SRD',
-                raw: subrace as Prisma.InputJsonValue,
             },
         });
     }
@@ -539,20 +483,23 @@ async function seedRaceRelations(races: SrdRace[]) {
 
 async function seedFeats(feats: SrdFeat[]) {
     for (const feat of feats) {
+        const { prerequisites, ...scalars } = featSeedPayload(feat);
+
         await prisma.feat.upsert({
             where: { srdIndex: feat.index },
             update: {
-                name: feat.name,
-                description: feat.desc ?? [],
-                sourceBook: 'SRD',
-                raw: feat as Prisma.InputJsonValue,
+                ...scalars,
+                prerequisites: {
+                    deleteMany: {},
+                    create: prerequisites,
+                },
             },
             create: {
                 srdIndex: feat.index,
-                name: feat.name,
-                description: feat.desc ?? [],
-                sourceBook: 'SRD',
-                raw: feat as Prisma.InputJsonValue,
+                ...scalars,
+                prerequisites: {
+                    create: prerequisites,
+                },
             },
         });
     }

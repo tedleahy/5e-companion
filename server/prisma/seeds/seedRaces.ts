@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import prisma from '../prisma';
 
 type AbilityBonus = {
@@ -34,6 +33,7 @@ function toRecord(race: Race) {
         languageIndexes: race.languages.map(({ index }) => index),
         traitIndexes: race.traits.map(({ index }) => index),
         subraceIndexes: race.subraces.map(({ index }) => index),
+        sourceBook: 'SRD',
         abilityBonuses: {
             create: race.ability_bonuses.map(abilityBonus => ({
                 bonus: abilityBonus.bonus,
@@ -60,7 +60,7 @@ export default async function seedRaces() {
         for (const race of races) {
             const result = await prisma.race.upsert({
                 where: { srdIndex: race.index },
-                update: {},
+                update: { sourceBook: 'SRD' },
                 create: toRecord(race),
             });
 

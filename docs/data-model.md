@@ -1,6 +1,6 @@
 # Data Model
 
-Source of truth: [`@/home/ted/projects/5e-companion/server/prisma/schema.prisma:1-498`](../server/prisma/schema.prisma).
+Source of truth: [`@/home/ted/projects/5e-companion/server/prisma/schema.prisma:1-608`](../server/prisma/schema.prisma).
 
 ## Two halves of the schema
 
@@ -97,15 +97,18 @@ See [`@/home/ted/projects/5e-companion/server/resolvers/character/fieldResolvers
 
 ## Reference data (SRD) models
 
-The reference tables are normalised rather than JSON — `AGENTS.md` is explicit that Prisma is the source of truth for SRD data. Notable relations:
+Reference data uses normalised relations for queryable entities and compact JSON only for structured display payloads. Prisma remains the source of truth for promoted SRD data. Notable relations:
 
 - `Race` → many-to-many to `Trait` and `Language`, plus `AbilityBonus` (join row with bonus) and `Subrace`.
+- `Subrace` → belongs to a `Race`, plus `SubraceAbilityBonus` (a parallel join; do not overload `AbilityBonus`'s `[raceId, abilityScoreId]` key).
 - `Class` contains the shared SRD/custom definition: description, core abilities/saves, hit die, archive state, multiclass prerequisites, equipment JSON, spellcasting mode/ability, and whether prepared-spell counts include the spellcasting ability modifier. SRD rows have no owner; custom rows are scoped by `ownerUserId`.
 - `ClassLevelProgression` normalizes levels 1–20, including ASI grants, nine spell-slot counts, cantrips/spells known, prepared-spell base counts, and display-only class-specific values.
 - `ClassProficiency` distinguishes starting from multiclass grants and represents fixed or grouped choice entries. `ClassSpell` is the explicit custom/SRD class spell-list join.
 - `Class` still has many `Subclass` and `Feature` rows. Custom class features use `CLASS_FEATURE`.
 - `Subclass` → belongs to a `Class`, carries `description: String[]` and the canonical `selectionLevel` (an integer from 1–20). SRD rows have `ownerUserId: null`; reusable custom subclass rows are user-owned and have `srdIndex: null`. The SRD seeder assigns the 2014 levels (Cleric/Sorcerer/Warlock 1, Druid/Wizard 2, all others 3).
-- `Background` → many-to-many to `Proficiency` and `Language`, plus the background `Feature`.
+- `Background` → many-to-many to `Proficiency` and `Language`, plus the background `Feature`. `startingEquipment` uses the same `{ name, quantity, choiceGroup, choiceCount }` JSON shape as classes. `suggestedCharacteristics` is `{ personalityTraits, ideals, bonds, flaws }`, each `{ choose, options }`.
+- `Feat` has `FeatPrerequisite` rows keyed by `(featId, abilityScoreId)`, with an indexed `AbilityScore` relation and `minimumScore`. Grappler requires Strength 13; open-to-all feats have no prerequisite rows.
+- `Language` stores `typicalSpeakers` as `String[]`.
 - `Feature` is polymorphic — optional FKs to any of `classId`, `subclassId`, `raceId`, `subraceId`, `backgroundId`, `traitId`, `featId`. `FeatureKind` enum tags the owner. When adding feature data, set exactly one of these plus `kind`. User-owned custom subclass feature definitions use `kind: SUBCLASS_FEATURE`, `ownerUserId`, `classId`, and `subclassId`.
 - `Feature.parentFeatureId` models SRD parent/child feature trees such as Pact Boon, Fighting Style, Circle of the Land, and Hunter choices. `Feature.chooseCount` is only populated for parent features that use SRD `feature_specific.subfeature_options`.
 - `CharacterFeature` stores the resolved result of those choices on the character sheet: the parent feature row plus only the chosen child feature rows, not every child option.
