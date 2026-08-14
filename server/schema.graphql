@@ -21,7 +21,173 @@ type CompendiumCounts {
     customClassCount: Int!
     srdSubclassCount: Int!
     customSubclassCount: Int!
+    srdRaceCount: Int!
+    customRaceCount: Int!
+    srdSubraceCount: Int!
+    customSubraceCount: Int!
+    srdBackgroundCount: Int!
+    customBackgroundCount: Int!
+    srdFeatCount: Int!
+    customFeatCount: Int!
+    srdLanguageCount: Int!
+    customLanguageCount: Int!
     spellCount: Int!
+}
+
+type CompendiumReference {
+    value: String!
+    name: String!
+}
+
+type CompendiumAbilityBonus {
+    abilityIndex: String!
+    abilityName: String!
+    bonus: Int!
+}
+
+type CompendiumTrait {
+    value: String!
+    name: String!
+    description: [String!]!
+    languageChoiceCount: Int
+}
+
+type CompendiumSubraceSummary {
+    value: String!
+    name: String!
+    abilityBonuses: [CompendiumAbilityBonus!]!
+    abilitySummary: String!
+    traitCount: Int!
+}
+
+type CompendiumRace {
+    id: ID!
+    value: String!
+    srdIndex: String
+    name: String!
+    isCustom: Boolean!
+    sourceBook: String
+    speed: Int
+    size: String
+    sizeDescription: String
+    age: String
+    alignment: String
+    languageDescription: String
+    languageChoiceCount: Int!
+    abilityBonuses: [CompendiumAbilityBonus!]!
+    abilitySummary: String!
+    traits: [CompendiumTrait!]!
+    languages: [CompendiumReference!]!
+    subraces: [CompendiumSubraceSummary!]!
+    characterUsageCount: Int!
+}
+
+type CompendiumParentRace {
+    value: String!
+    name: String!
+    speed: Int
+    size: String
+    languageDescription: String
+    languageChoiceCount: Int!
+    abilityBonuses: [CompendiumAbilityBonus!]!
+    abilitySummary: String!
+    traits: [CompendiumTrait!]!
+    languages: [CompendiumReference!]!
+}
+
+type CompendiumSubrace {
+    id: ID!
+    value: String!
+    srdIndex: String
+    name: String!
+    description: String
+    isCustom: Boolean!
+    sourceBook: String
+    parentRace: CompendiumParentRace!
+    abilityBonuses: [CompendiumAbilityBonus!]!
+    abilitySummary: String!
+    traits: [CompendiumTrait!]!
+    characterUsageCount: Int!
+}
+
+type CompendiumProficiency {
+    value: String!
+    name: String!
+    type: String!
+    isCustom: Boolean!
+}
+
+type CompendiumEquipment {
+    name: String!
+    quantity: Int!
+    choiceGroup: Int
+    choiceCount: Int
+}
+
+type CompendiumCharacteristicOptions {
+    choose: Int!
+    options: [String!]!
+}
+
+type CompendiumSuggestedCharacteristics {
+    personalityTraits: CompendiumCharacteristicOptions
+    ideals: CompendiumCharacteristicOptions
+    bonds: CompendiumCharacteristicOptions
+    flaws: CompendiumCharacteristicOptions
+}
+
+type CompendiumBackground {
+    id: ID!
+    value: String!
+    srdIndex: String
+    name: String!
+    isCustom: Boolean!
+    sourceBook: String
+    featureName: String
+    featureDescription: [String!]!
+    languageChoiceCount: Int!
+    proficiencies: [CompendiumProficiency!]!
+    languages: [CompendiumReference!]!
+    startingEquipment: [CompendiumEquipment!]!
+    suggestedCharacteristics: CompendiumSuggestedCharacteristics
+    characterUsageCount: Int!
+}
+
+type CompendiumFeatPrerequisite {
+    abilityIndex: String!
+    abilityName: String!
+    minimumScore: Int!
+}
+
+type CompendiumFeat {
+    id: ID!
+    value: String!
+    srdIndex: String
+    name: String!
+    isCustom: Boolean!
+    sourceBook: String
+    description: [String!]!
+    prerequisites: [CompendiumFeatPrerequisite!]!
+    prerequisiteSummary: String!
+    characterUsageCount: Int!
+}
+
+type CompendiumLanguage {
+    id: ID!
+    value: String!
+    srdIndex: String
+    name: String!
+    isCustom: Boolean!
+    sourceBook: String
+    type: String
+    script: String
+    typicalSpeakers: [String!]!
+    description: String
+    grantingRaces: [CompendiumReference!]!
+    grantingBackgrounds: [CompendiumReference!]!
+    grantingTraits: [CompendiumReference!]!
+    sameScriptLanguages: [CompendiumReference!]!
+    characterUsageCount: Int!
 }
 
 type AvailableClass {
@@ -698,6 +864,11 @@ input SaveCharacterSheetInput {
 
 type Query {
     compendiumCounts: CompendiumCounts!
+    compendiumRaces: [CompendiumRace!]!
+    compendiumSubraces: [CompendiumSubrace!]!
+    compendiumBackgrounds: [CompendiumBackground!]!
+    compendiumFeats: [CompendiumFeat!]!
+    compendiumLanguages: [CompendiumLanguage!]!
     availableClasses: [AvailableClass!]!
     classDetails(value: String!): ClassDetails
     customClasses: [AvailableClass!]!

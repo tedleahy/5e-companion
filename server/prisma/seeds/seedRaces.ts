@@ -1,4 +1,5 @@
 import prisma from '../prisma';
+import { raceLanguageChoiceCountFromSrd } from './compendiumBrowseSeed';
 
 type AbilityBonus = {
     ability_score: { index: string },
@@ -15,6 +16,7 @@ type Race = {
     size: string;
     size_description: string;
     language_desc: string;
+    language_options?: { choose?: number };
     languages: Array<{ index: string }>
     traits: Array<{ index: string }>
     subraces: Array<{ index: string }>
@@ -30,6 +32,7 @@ function toRecord(race: Race) {
         size: race.size,
         sizeDescription: race.size_description,
         languageDescription: race.language_desc,
+        languageChoiceCount: raceLanguageChoiceCountFromSrd(race),
         languageIndexes: race.languages.map(({ index }) => index),
         traitIndexes: race.traits.map(({ index }) => index),
         subraceIndexes: race.subraces.map(({ index }) => index),
@@ -58,10 +61,11 @@ export default async function seedRaces() {
         let totalInserts = 0;
 
         for (const race of races) {
+            const { abilityBonuses, ...scalars } = toRecord(race);
             const result = await prisma.race.upsert({
                 where: { srdIndex: race.index },
-                update: { sourceBook: 'SRD' },
-                create: toRecord(race),
+                update: scalars,
+                create: { ...scalars, abilityBonuses },
             });
 
             if (result.id) totalInserts++;

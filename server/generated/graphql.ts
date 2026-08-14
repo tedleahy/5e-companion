@@ -275,13 +275,194 @@ export type ClassSpell = {
   name: Scalars['String']['output'];
 };
 
+export type CompendiumAbilityBonus = {
+  __typename?: 'CompendiumAbilityBonus';
+  abilityIndex: Scalars['String']['output'];
+  abilityName: Scalars['String']['output'];
+  bonus: Scalars['Int']['output'];
+};
+
+export type CompendiumBackground = {
+  __typename?: 'CompendiumBackground';
+  characterUsageCount: Scalars['Int']['output'];
+  featureDescription: Array<Scalars['String']['output']>;
+  featureName?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  languageChoiceCount: Scalars['Int']['output'];
+  languages: Array<CompendiumReference>;
+  name: Scalars['String']['output'];
+  proficiencies: Array<CompendiumProficiency>;
+  sourceBook?: Maybe<Scalars['String']['output']>;
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  startingEquipment: Array<CompendiumEquipment>;
+  suggestedCharacteristics?: Maybe<CompendiumSuggestedCharacteristics>;
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumCharacteristicOptions = {
+  __typename?: 'CompendiumCharacteristicOptions';
+  choose: Scalars['Int']['output'];
+  options: Array<Scalars['String']['output']>;
+};
+
 export type CompendiumCounts = {
   __typename?: 'CompendiumCounts';
+  customBackgroundCount: Scalars['Int']['output'];
   customClassCount: Scalars['Int']['output'];
+  customFeatCount: Scalars['Int']['output'];
+  customLanguageCount: Scalars['Int']['output'];
+  customRaceCount: Scalars['Int']['output'];
   customSubclassCount: Scalars['Int']['output'];
+  customSubraceCount: Scalars['Int']['output'];
   spellCount: Scalars['Int']['output'];
+  srdBackgroundCount: Scalars['Int']['output'];
   srdClassCount: Scalars['Int']['output'];
+  srdFeatCount: Scalars['Int']['output'];
+  srdLanguageCount: Scalars['Int']['output'];
+  srdRaceCount: Scalars['Int']['output'];
   srdSubclassCount: Scalars['Int']['output'];
+  srdSubraceCount: Scalars['Int']['output'];
+};
+
+export type CompendiumEquipment = {
+  __typename?: 'CompendiumEquipment';
+  choiceCount?: Maybe<Scalars['Int']['output']>;
+  choiceGroup?: Maybe<Scalars['Int']['output']>;
+  name: Scalars['String']['output'];
+  quantity: Scalars['Int']['output'];
+};
+
+export type CompendiumFeat = {
+  __typename?: 'CompendiumFeat';
+  characterUsageCount: Scalars['Int']['output'];
+  description: Array<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  prerequisiteSummary: Scalars['String']['output'];
+  prerequisites: Array<CompendiumFeatPrerequisite>;
+  sourceBook?: Maybe<Scalars['String']['output']>;
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumFeatPrerequisite = {
+  __typename?: 'CompendiumFeatPrerequisite';
+  abilityIndex: Scalars['String']['output'];
+  abilityName: Scalars['String']['output'];
+  minimumScore: Scalars['Int']['output'];
+};
+
+export type CompendiumLanguage = {
+  __typename?: 'CompendiumLanguage';
+  characterUsageCount: Scalars['Int']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  grantingBackgrounds: Array<CompendiumReference>;
+  grantingRaces: Array<CompendiumReference>;
+  grantingTraits: Array<CompendiumReference>;
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  sameScriptLanguages: Array<CompendiumReference>;
+  script?: Maybe<Scalars['String']['output']>;
+  sourceBook?: Maybe<Scalars['String']['output']>;
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
+  typicalSpeakers: Array<Scalars['String']['output']>;
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumParentRace = {
+  __typename?: 'CompendiumParentRace';
+  abilityBonuses: Array<CompendiumAbilityBonus>;
+  abilitySummary: Scalars['String']['output'];
+  languageChoiceCount: Scalars['Int']['output'];
+  languageDescription?: Maybe<Scalars['String']['output']>;
+  languages: Array<CompendiumReference>;
+  name: Scalars['String']['output'];
+  size?: Maybe<Scalars['String']['output']>;
+  speed?: Maybe<Scalars['Int']['output']>;
+  traits: Array<CompendiumTrait>;
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumProficiency = {
+  __typename?: 'CompendiumProficiency';
+  isCustom: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumRace = {
+  __typename?: 'CompendiumRace';
+  abilityBonuses: Array<CompendiumAbilityBonus>;
+  abilitySummary: Scalars['String']['output'];
+  age?: Maybe<Scalars['String']['output']>;
+  alignment?: Maybe<Scalars['String']['output']>;
+  characterUsageCount: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  languageChoiceCount: Scalars['Int']['output'];
+  languageDescription?: Maybe<Scalars['String']['output']>;
+  languages: Array<CompendiumReference>;
+  name: Scalars['String']['output'];
+  size?: Maybe<Scalars['String']['output']>;
+  sizeDescription?: Maybe<Scalars['String']['output']>;
+  sourceBook?: Maybe<Scalars['String']['output']>;
+  speed?: Maybe<Scalars['Int']['output']>;
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  subraces: Array<CompendiumSubraceSummary>;
+  traits: Array<CompendiumTrait>;
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumReference = {
+  __typename?: 'CompendiumReference';
+  name: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumSubrace = {
+  __typename?: 'CompendiumSubrace';
+  abilityBonuses: Array<CompendiumAbilityBonus>;
+  abilitySummary: Scalars['String']['output'];
+  characterUsageCount: Scalars['Int']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  parentRace: CompendiumParentRace;
+  sourceBook?: Maybe<Scalars['String']['output']>;
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  traits: Array<CompendiumTrait>;
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumSubraceSummary = {
+  __typename?: 'CompendiumSubraceSummary';
+  abilityBonuses: Array<CompendiumAbilityBonus>;
+  abilitySummary: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  traitCount: Scalars['Int']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumSuggestedCharacteristics = {
+  __typename?: 'CompendiumSuggestedCharacteristics';
+  bonds?: Maybe<CompendiumCharacteristicOptions>;
+  flaws?: Maybe<CompendiumCharacteristicOptions>;
+  ideals?: Maybe<CompendiumCharacteristicOptions>;
+  personalityTraits?: Maybe<CompendiumCharacteristicOptions>;
+};
+
+export type CompendiumTrait = {
+  __typename?: 'CompendiumTrait';
+  description: Array<Scalars['String']['output']>;
+  languageChoiceCount?: Maybe<Scalars['Int']['output']>;
+  name: Scalars['String']['output'];
+  value: Scalars['String']['output'];
 };
 
 export type CreateCharacterClassInput = {
@@ -672,7 +853,12 @@ export type Query = {
   availableSubclasses: Array<AvailableSubclass>;
   character?: Maybe<Character>;
   classDetails?: Maybe<ClassDetails>;
+  compendiumBackgrounds: Array<CompendiumBackground>;
   compendiumCounts: CompendiumCounts;
+  compendiumFeats: Array<CompendiumFeat>;
+  compendiumLanguages: Array<CompendiumLanguage>;
+  compendiumRaces: Array<CompendiumRace>;
+  compendiumSubraces: Array<CompendiumSubrace>;
   currentUserCharacters: Array<Character>;
   customClasses: Array<AvailableClass>;
   customSubclasses: Array<CustomSubclass>;
@@ -1057,7 +1243,22 @@ export type ResolversTypes = {
   ClassProficiency: ResolverTypeWrapper<ClassProficiency>;
   ClassProficiencyInput: ClassProficiencyInput;
   ClassSpell: ResolverTypeWrapper<ClassSpell>;
+  CompendiumAbilityBonus: ResolverTypeWrapper<CompendiumAbilityBonus>;
+  CompendiumBackground: ResolverTypeWrapper<CompendiumBackground>;
+  CompendiumCharacteristicOptions: ResolverTypeWrapper<CompendiumCharacteristicOptions>;
   CompendiumCounts: ResolverTypeWrapper<CompendiumCounts>;
+  CompendiumEquipment: ResolverTypeWrapper<CompendiumEquipment>;
+  CompendiumFeat: ResolverTypeWrapper<CompendiumFeat>;
+  CompendiumFeatPrerequisite: ResolverTypeWrapper<CompendiumFeatPrerequisite>;
+  CompendiumLanguage: ResolverTypeWrapper<CompendiumLanguage>;
+  CompendiumParentRace: ResolverTypeWrapper<CompendiumParentRace>;
+  CompendiumProficiency: ResolverTypeWrapper<CompendiumProficiency>;
+  CompendiumRace: ResolverTypeWrapper<CompendiumRace>;
+  CompendiumReference: ResolverTypeWrapper<CompendiumReference>;
+  CompendiumSubrace: ResolverTypeWrapper<CompendiumSubrace>;
+  CompendiumSubraceSummary: ResolverTypeWrapper<CompendiumSubraceSummary>;
+  CompendiumSuggestedCharacteristics: ResolverTypeWrapper<CompendiumSuggestedCharacteristics>;
+  CompendiumTrait: ResolverTypeWrapper<CompendiumTrait>;
   CreateCharacterClassInput: CreateCharacterClassInput;
   CreateCharacterInput: CreateCharacterInput;
   Currency: ResolverTypeWrapper<Currency>;
@@ -1137,7 +1338,22 @@ export type ResolversParentTypes = {
   ClassProficiency: ClassProficiency;
   ClassProficiencyInput: ClassProficiencyInput;
   ClassSpell: ClassSpell;
+  CompendiumAbilityBonus: CompendiumAbilityBonus;
+  CompendiumBackground: CompendiumBackground;
+  CompendiumCharacteristicOptions: CompendiumCharacteristicOptions;
   CompendiumCounts: CompendiumCounts;
+  CompendiumEquipment: CompendiumEquipment;
+  CompendiumFeat: CompendiumFeat;
+  CompendiumFeatPrerequisite: CompendiumFeatPrerequisite;
+  CompendiumLanguage: CompendiumLanguage;
+  CompendiumParentRace: CompendiumParentRace;
+  CompendiumProficiency: CompendiumProficiency;
+  CompendiumRace: CompendiumRace;
+  CompendiumReference: CompendiumReference;
+  CompendiumSubrace: CompendiumSubrace;
+  CompendiumSubraceSummary: CompendiumSubraceSummary;
+  CompendiumSuggestedCharacteristics: CompendiumSuggestedCharacteristics;
+  CompendiumTrait: CompendiumTrait;
   CreateCharacterClassInput: CreateCharacterClassInput;
   CreateCharacterInput: CreateCharacterInput;
   Currency: Currency;
@@ -1401,12 +1617,193 @@ export type ClassSpellResolvers<ContextType = Context, ParentType extends Resolv
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type CompendiumAbilityBonusResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumAbilityBonus'] = ResolversParentTypes['CompendiumAbilityBonus']> = {
+  abilityIndex?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  abilityName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  bonus?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CompendiumBackgroundResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumBackground'] = ResolversParentTypes['CompendiumBackground']> = {
+  characterUsageCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  featureDescription?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  featureName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isCustom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  languageChoiceCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  languages?: Resolver<Array<ResolversTypes['CompendiumReference']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  proficiencies?: Resolver<Array<ResolversTypes['CompendiumProficiency']>, ParentType, ContextType>;
+  sourceBook?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  srdIndex?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  startingEquipment?: Resolver<Array<ResolversTypes['CompendiumEquipment']>, ParentType, ContextType>;
+  suggestedCharacteristics?: Resolver<Maybe<ResolversTypes['CompendiumSuggestedCharacteristics']>, ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CompendiumCharacteristicOptionsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumCharacteristicOptions'] = ResolversParentTypes['CompendiumCharacteristicOptions']> = {
+  choose?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  options?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type CompendiumCountsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumCounts'] = ResolversParentTypes['CompendiumCounts']> = {
+  customBackgroundCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   customClassCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  customFeatCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  customLanguageCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  customRaceCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   customSubclassCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  customSubraceCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   spellCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  srdBackgroundCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   srdClassCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  srdFeatCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  srdLanguageCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  srdRaceCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   srdSubclassCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  srdSubraceCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CompendiumEquipmentResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumEquipment'] = ResolversParentTypes['CompendiumEquipment']> = {
+  choiceCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  choiceGroup?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  quantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CompendiumFeatResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumFeat'] = ResolversParentTypes['CompendiumFeat']> = {
+  characterUsageCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  description?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isCustom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  prerequisiteSummary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  prerequisites?: Resolver<Array<ResolversTypes['CompendiumFeatPrerequisite']>, ParentType, ContextType>;
+  sourceBook?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  srdIndex?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CompendiumFeatPrerequisiteResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumFeatPrerequisite'] = ResolversParentTypes['CompendiumFeatPrerequisite']> = {
+  abilityIndex?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  abilityName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  minimumScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CompendiumLanguageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumLanguage'] = ResolversParentTypes['CompendiumLanguage']> = {
+  characterUsageCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  grantingBackgrounds?: Resolver<Array<ResolversTypes['CompendiumReference']>, ParentType, ContextType>;
+  grantingRaces?: Resolver<Array<ResolversTypes['CompendiumReference']>, ParentType, ContextType>;
+  grantingTraits?: Resolver<Array<ResolversTypes['CompendiumReference']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isCustom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sameScriptLanguages?: Resolver<Array<ResolversTypes['CompendiumReference']>, ParentType, ContextType>;
+  script?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  sourceBook?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  srdIndex?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  type?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  typicalSpeakers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CompendiumParentRaceResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumParentRace'] = ResolversParentTypes['CompendiumParentRace']> = {
+  abilityBonuses?: Resolver<Array<ResolversTypes['CompendiumAbilityBonus']>, ParentType, ContextType>;
+  abilitySummary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  languageChoiceCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  languageDescription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  languages?: Resolver<Array<ResolversTypes['CompendiumReference']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  size?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  speed?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  traits?: Resolver<Array<ResolversTypes['CompendiumTrait']>, ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CompendiumProficiencyResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumProficiency'] = ResolversParentTypes['CompendiumProficiency']> = {
+  isCustom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CompendiumRaceResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumRace'] = ResolversParentTypes['CompendiumRace']> = {
+  abilityBonuses?: Resolver<Array<ResolversTypes['CompendiumAbilityBonus']>, ParentType, ContextType>;
+  abilitySummary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  age?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  alignment?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  characterUsageCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isCustom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  languageChoiceCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  languageDescription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  languages?: Resolver<Array<ResolversTypes['CompendiumReference']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  size?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  sizeDescription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  sourceBook?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  speed?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  srdIndex?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  subraces?: Resolver<Array<ResolversTypes['CompendiumSubraceSummary']>, ParentType, ContextType>;
+  traits?: Resolver<Array<ResolversTypes['CompendiumTrait']>, ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CompendiumReferenceResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumReference'] = ResolversParentTypes['CompendiumReference']> = {
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CompendiumSubraceResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumSubrace'] = ResolversParentTypes['CompendiumSubrace']> = {
+  abilityBonuses?: Resolver<Array<ResolversTypes['CompendiumAbilityBonus']>, ParentType, ContextType>;
+  abilitySummary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  characterUsageCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isCustom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  parentRace?: Resolver<ResolversTypes['CompendiumParentRace'], ParentType, ContextType>;
+  sourceBook?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  srdIndex?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  traits?: Resolver<Array<ResolversTypes['CompendiumTrait']>, ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CompendiumSubraceSummaryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumSubraceSummary'] = ResolversParentTypes['CompendiumSubraceSummary']> = {
+  abilityBonuses?: Resolver<Array<ResolversTypes['CompendiumAbilityBonus']>, ParentType, ContextType>;
+  abilitySummary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  traitCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CompendiumSuggestedCharacteristicsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumSuggestedCharacteristics'] = ResolversParentTypes['CompendiumSuggestedCharacteristics']> = {
+  bonds?: Resolver<Maybe<ResolversTypes['CompendiumCharacteristicOptions']>, ParentType, ContextType>;
+  flaws?: Resolver<Maybe<ResolversTypes['CompendiumCharacteristicOptions']>, ParentType, ContextType>;
+  ideals?: Resolver<Maybe<ResolversTypes['CompendiumCharacteristicOptions']>, ParentType, ContextType>;
+  personalityTraits?: Resolver<Maybe<ResolversTypes['CompendiumCharacteristicOptions']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CompendiumTraitResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumTrait'] = ResolversParentTypes['CompendiumTrait']> = {
+  description?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  languageChoiceCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1510,7 +1907,12 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   availableSubclasses?: Resolver<Array<ResolversTypes['AvailableSubclass']>, ParentType, ContextType, Partial<QueryAvailableSubclassesArgs>>;
   character?: Resolver<Maybe<ResolversTypes['Character']>, ParentType, ContextType, RequireFields<QueryCharacterArgs, 'id'>>;
   classDetails?: Resolver<Maybe<ResolversTypes['ClassDetails']>, ParentType, ContextType, RequireFields<QueryClassDetailsArgs, 'value'>>;
+  compendiumBackgrounds?: Resolver<Array<ResolversTypes['CompendiumBackground']>, ParentType, ContextType>;
   compendiumCounts?: Resolver<ResolversTypes['CompendiumCounts'], ParentType, ContextType>;
+  compendiumFeats?: Resolver<Array<ResolversTypes['CompendiumFeat']>, ParentType, ContextType>;
+  compendiumLanguages?: Resolver<Array<ResolversTypes['CompendiumLanguage']>, ParentType, ContextType>;
+  compendiumRaces?: Resolver<Array<ResolversTypes['CompendiumRace']>, ParentType, ContextType>;
+  compendiumSubraces?: Resolver<Array<ResolversTypes['CompendiumSubrace']>, ParentType, ContextType>;
   currentUserCharacters?: Resolver<Array<ResolversTypes['Character']>, ParentType, ContextType>;
   customClasses?: Resolver<Array<ResolversTypes['AvailableClass']>, ParentType, ContextType>;
   customSubclasses?: Resolver<Array<ResolversTypes['CustomSubclass']>, ParentType, ContextType, Partial<QueryCustomSubclassesArgs>>;
@@ -1623,7 +2025,22 @@ export type Resolvers<ContextType = Context> = {
   ClassMulticlassPrerequisite?: ClassMulticlassPrerequisiteResolvers<ContextType>;
   ClassProficiency?: ClassProficiencyResolvers<ContextType>;
   ClassSpell?: ClassSpellResolvers<ContextType>;
+  CompendiumAbilityBonus?: CompendiumAbilityBonusResolvers<ContextType>;
+  CompendiumBackground?: CompendiumBackgroundResolvers<ContextType>;
+  CompendiumCharacteristicOptions?: CompendiumCharacteristicOptionsResolvers<ContextType>;
   CompendiumCounts?: CompendiumCountsResolvers<ContextType>;
+  CompendiumEquipment?: CompendiumEquipmentResolvers<ContextType>;
+  CompendiumFeat?: CompendiumFeatResolvers<ContextType>;
+  CompendiumFeatPrerequisite?: CompendiumFeatPrerequisiteResolvers<ContextType>;
+  CompendiumLanguage?: CompendiumLanguageResolvers<ContextType>;
+  CompendiumParentRace?: CompendiumParentRaceResolvers<ContextType>;
+  CompendiumProficiency?: CompendiumProficiencyResolvers<ContextType>;
+  CompendiumRace?: CompendiumRaceResolvers<ContextType>;
+  CompendiumReference?: CompendiumReferenceResolvers<ContextType>;
+  CompendiumSubrace?: CompendiumSubraceResolvers<ContextType>;
+  CompendiumSubraceSummary?: CompendiumSubraceSummaryResolvers<ContextType>;
+  CompendiumSuggestedCharacteristics?: CompendiumSuggestedCharacteristicsResolvers<ContextType>;
+  CompendiumTrait?: CompendiumTraitResolvers<ContextType>;
   Currency?: CurrencyResolvers<ContextType>;
   CustomSubclass?: CustomSubclassResolvers<ContextType>;
   DeathSaves?: DeathSavesResolvers<ContextType>;

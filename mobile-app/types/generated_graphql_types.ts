@@ -271,13 +271,194 @@ export type ClassSpell = {
   name: Scalars['String']['output'];
 };
 
+export type CompendiumAbilityBonus = {
+  __typename?: 'CompendiumAbilityBonus';
+  abilityIndex: Scalars['String']['output'];
+  abilityName: Scalars['String']['output'];
+  bonus: Scalars['Int']['output'];
+};
+
+export type CompendiumBackground = {
+  __typename?: 'CompendiumBackground';
+  characterUsageCount: Scalars['Int']['output'];
+  featureDescription: Array<Scalars['String']['output']>;
+  featureName?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  languageChoiceCount: Scalars['Int']['output'];
+  languages: Array<CompendiumReference>;
+  name: Scalars['String']['output'];
+  proficiencies: Array<CompendiumProficiency>;
+  sourceBook?: Maybe<Scalars['String']['output']>;
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  startingEquipment: Array<CompendiumEquipment>;
+  suggestedCharacteristics?: Maybe<CompendiumSuggestedCharacteristics>;
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumCharacteristicOptions = {
+  __typename?: 'CompendiumCharacteristicOptions';
+  choose: Scalars['Int']['output'];
+  options: Array<Scalars['String']['output']>;
+};
+
 export type CompendiumCounts = {
   __typename?: 'CompendiumCounts';
+  customBackgroundCount: Scalars['Int']['output'];
   customClassCount: Scalars['Int']['output'];
+  customFeatCount: Scalars['Int']['output'];
+  customLanguageCount: Scalars['Int']['output'];
+  customRaceCount: Scalars['Int']['output'];
   customSubclassCount: Scalars['Int']['output'];
+  customSubraceCount: Scalars['Int']['output'];
   spellCount: Scalars['Int']['output'];
+  srdBackgroundCount: Scalars['Int']['output'];
   srdClassCount: Scalars['Int']['output'];
+  srdFeatCount: Scalars['Int']['output'];
+  srdLanguageCount: Scalars['Int']['output'];
+  srdRaceCount: Scalars['Int']['output'];
   srdSubclassCount: Scalars['Int']['output'];
+  srdSubraceCount: Scalars['Int']['output'];
+};
+
+export type CompendiumEquipment = {
+  __typename?: 'CompendiumEquipment';
+  choiceCount?: Maybe<Scalars['Int']['output']>;
+  choiceGroup?: Maybe<Scalars['Int']['output']>;
+  name: Scalars['String']['output'];
+  quantity: Scalars['Int']['output'];
+};
+
+export type CompendiumFeat = {
+  __typename?: 'CompendiumFeat';
+  characterUsageCount: Scalars['Int']['output'];
+  description: Array<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  prerequisiteSummary: Scalars['String']['output'];
+  prerequisites: Array<CompendiumFeatPrerequisite>;
+  sourceBook?: Maybe<Scalars['String']['output']>;
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumFeatPrerequisite = {
+  __typename?: 'CompendiumFeatPrerequisite';
+  abilityIndex: Scalars['String']['output'];
+  abilityName: Scalars['String']['output'];
+  minimumScore: Scalars['Int']['output'];
+};
+
+export type CompendiumLanguage = {
+  __typename?: 'CompendiumLanguage';
+  characterUsageCount: Scalars['Int']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  grantingBackgrounds: Array<CompendiumReference>;
+  grantingRaces: Array<CompendiumReference>;
+  grantingTraits: Array<CompendiumReference>;
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  sameScriptLanguages: Array<CompendiumReference>;
+  script?: Maybe<Scalars['String']['output']>;
+  sourceBook?: Maybe<Scalars['String']['output']>;
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
+  typicalSpeakers: Array<Scalars['String']['output']>;
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumParentRace = {
+  __typename?: 'CompendiumParentRace';
+  abilityBonuses: Array<CompendiumAbilityBonus>;
+  abilitySummary: Scalars['String']['output'];
+  languageChoiceCount: Scalars['Int']['output'];
+  languageDescription?: Maybe<Scalars['String']['output']>;
+  languages: Array<CompendiumReference>;
+  name: Scalars['String']['output'];
+  size?: Maybe<Scalars['String']['output']>;
+  speed?: Maybe<Scalars['Int']['output']>;
+  traits: Array<CompendiumTrait>;
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumProficiency = {
+  __typename?: 'CompendiumProficiency';
+  isCustom: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumRace = {
+  __typename?: 'CompendiumRace';
+  abilityBonuses: Array<CompendiumAbilityBonus>;
+  abilitySummary: Scalars['String']['output'];
+  age?: Maybe<Scalars['String']['output']>;
+  alignment?: Maybe<Scalars['String']['output']>;
+  characterUsageCount: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  languageChoiceCount: Scalars['Int']['output'];
+  languageDescription?: Maybe<Scalars['String']['output']>;
+  languages: Array<CompendiumReference>;
+  name: Scalars['String']['output'];
+  size?: Maybe<Scalars['String']['output']>;
+  sizeDescription?: Maybe<Scalars['String']['output']>;
+  sourceBook?: Maybe<Scalars['String']['output']>;
+  speed?: Maybe<Scalars['Int']['output']>;
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  subraces: Array<CompendiumSubraceSummary>;
+  traits: Array<CompendiumTrait>;
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumReference = {
+  __typename?: 'CompendiumReference';
+  name: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumSubrace = {
+  __typename?: 'CompendiumSubrace';
+  abilityBonuses: Array<CompendiumAbilityBonus>;
+  abilitySummary: Scalars['String']['output'];
+  characterUsageCount: Scalars['Int']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  parentRace: CompendiumParentRace;
+  sourceBook?: Maybe<Scalars['String']['output']>;
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  traits: Array<CompendiumTrait>;
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumSubraceSummary = {
+  __typename?: 'CompendiumSubraceSummary';
+  abilityBonuses: Array<CompendiumAbilityBonus>;
+  abilitySummary: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  traitCount: Scalars['Int']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type CompendiumSuggestedCharacteristics = {
+  __typename?: 'CompendiumSuggestedCharacteristics';
+  bonds?: Maybe<CompendiumCharacteristicOptions>;
+  flaws?: Maybe<CompendiumCharacteristicOptions>;
+  ideals?: Maybe<CompendiumCharacteristicOptions>;
+  personalityTraits?: Maybe<CompendiumCharacteristicOptions>;
+};
+
+export type CompendiumTrait = {
+  __typename?: 'CompendiumTrait';
+  description: Array<Scalars['String']['output']>;
+  languageChoiceCount?: Maybe<Scalars['Int']['output']>;
+  name: Scalars['String']['output'];
+  value: Scalars['String']['output'];
 };
 
 export type CreateCharacterClassInput = {
@@ -668,7 +849,12 @@ export type Query = {
   availableSubclasses: Array<AvailableSubclass>;
   character?: Maybe<Character>;
   classDetails?: Maybe<ClassDetails>;
+  compendiumBackgrounds: Array<CompendiumBackground>;
   compendiumCounts: CompendiumCounts;
+  compendiumFeats: Array<CompendiumFeat>;
+  compendiumLanguages: Array<CompendiumLanguage>;
+  compendiumRaces: Array<CompendiumRace>;
+  compendiumSubraces: Array<CompendiumSubrace>;
   currentUserCharacters: Array<Character>;
   customClasses: Array<AvailableClass>;
   customSubclasses: Array<CustomSubclass>;
@@ -987,6 +1173,11 @@ export type AddSpellSheetSpellDetailQueryVariables = Exact<{
 
 export type AddSpellSheetSpellDetailQuery = { __typename?: 'Query', spell?: { __typename?: 'Spell', classIndexes: Array<string>, description: Array<string>, higherLevel: Array<string>, components: Array<string>, material?: string | null, duration?: string | null, id: string, name: string, level: number, schoolIndex: string, castingTime: string, range?: string | null, concentration: boolean, ritual: boolean } | null };
 
+export type CompendiumBackgroundsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CompendiumBackgroundsQuery = { __typename?: 'Query', compendiumBackgrounds: Array<{ __typename?: 'CompendiumBackground', id: string, value: string, srdIndex?: string | null, name: string, isCustom: boolean, sourceBook?: string | null, featureName?: string | null, featureDescription: Array<string>, languageChoiceCount: number, characterUsageCount: number, proficiencies: Array<{ __typename?: 'CompendiumProficiency', value: string, name: string, type: string, isCustom: boolean }>, languages: Array<{ __typename?: 'CompendiumReference', value: string, name: string }>, startingEquipment: Array<{ __typename?: 'CompendiumEquipment', name: string, quantity: number, choiceGroup?: number | null, choiceCount?: number | null }>, suggestedCharacteristics?: { __typename?: 'CompendiumSuggestedCharacteristics', personalityTraits?: { __typename?: 'CompendiumCharacteristicOptions', choose: number, options: Array<string> } | null, ideals?: { __typename?: 'CompendiumCharacteristicOptions', choose: number, options: Array<string> } | null, bonds?: { __typename?: 'CompendiumCharacteristicOptions', choose: number, options: Array<string> } | null, flaws?: { __typename?: 'CompendiumCharacteristicOptions', choose: number, options: Array<string> } | null } | null }> };
+
 export type CharacterRosterFieldsFragment = { __typename?: 'Character', id: string, name: string, race: string, level: number, initiative: number, ac: number, conditions: Array<string>, classes: Array<{ __typename?: 'CharacterClass', id: string, classId: string, className: string, subclassId?: string | null, subclassName?: string | null, level: number, isStartingClass: boolean }>, spellcastingProfiles: Array<{ __typename?: 'SpellcastingProfile', classId: string, spellAttackBonus: number }>, weapons: Array<{ __typename?: 'Weapon', attackBonus: string }>, stats?: { __typename?: 'CharacterStats', hp: { __typename?: 'HP', current: number, max: number } } | null };
 
 export type CharacterSheetFieldsFragment = { __typename?: 'Character', id: string, name: string, race: string, level: number, alignment: string, background: string, proficiencyBonus: number, inspiration: boolean, ac: number, speed: number, initiative: number, conditions: Array<string>, classes: Array<{ __typename?: 'CharacterClass', id: string, classId: string, className: string, subclassId?: string | null, subclassName?: string | null, level: number, isStartingClass: boolean }>, spellcastingProfiles: Array<{ __typename?: 'SpellcastingProfile', classId: string, className: string, subclassId?: string | null, subclassName?: string | null, classLevel: number, spellcastingAbility: string, spellSaveDC: number, spellAttackBonus: number, slotKind: SpellSlotKind }>, features: Array<{ __typename?: 'CharacterFeature', id: string, name: string, source: string, description: string, usesMax?: number | null, usesRemaining?: number | null, recharge?: string | null }>, weapons: Array<{ __typename?: 'Weapon', id: string, name: string, attackBonus: string, damage: string, type: string }>, inventory: Array<{ __typename?: 'InventoryItem', id: string, name: string, quantity: number, weight?: number | null, description?: string | null, equipped: boolean, magical: boolean }>, spellSlots: Array<{ __typename?: 'SpellSlot', id: string, kind: SpellSlotKind, level: number, total: number, used: number }>, spellbook: Array<{ __typename?: 'CharacterSpell', prepared: boolean, spell: { __typename?: 'Spell', id: string, name: string, level: number, schoolIndex: string, classIndexes: Array<string>, castingTime: string, range?: string | null, concentration: boolean, ritual: boolean } }>, stats?: { __typename?: 'CharacterStats', id: string, savingThrowProficiencies: Array<string>, abilityScores: { __typename?: 'AbilityScores', strength: number, dexterity: number, constitution: number, intelligence: number, wisdom: number, charisma: number }, hp: { __typename?: 'HP', current: number, max: number, temp: number }, deathSaves: { __typename?: 'DeathSaves', successes: number, failures: number }, hitDicePools: Array<{ __typename?: 'HitDicePool', id: string, classId: string, className: string, total: number, remaining: number, die: string }>, traits: { __typename?: 'Traits', personality: string, ideals: string, bonds: string, flaws: string, armorProficiencies?: Array<string> | null, weaponProficiencies?: Array<string> | null, toolProficiencies?: Array<string> | null, languages?: Array<string> | null }, skillProficiencies: { __typename?: 'SkillProficiencies', acrobatics: ProficiencyLevel, animalHandling: ProficiencyLevel, arcana: ProficiencyLevel, athletics: ProficiencyLevel, deception: ProficiencyLevel, history: ProficiencyLevel, insight: ProficiencyLevel, intimidation: ProficiencyLevel, investigation: ProficiencyLevel, medicine: ProficiencyLevel, nature: ProficiencyLevel, perception: ProficiencyLevel, performance: ProficiencyLevel, persuasion: ProficiencyLevel, religion: ProficiencyLevel, sleightOfHand: ProficiencyLevel, stealth: ProficiencyLevel, survival: ProficiencyLevel }, currency: { __typename?: 'Currency', cp: number, sp: number, ep: number, gp: number, pp: number } } | null };
@@ -1171,7 +1362,7 @@ export type ArchiveCustomClassMutation = { __typename?: 'Mutation', archiveCusto
 export type CompendiumCountsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CompendiumCountsQuery = { __typename?: 'Query', compendiumCounts: { __typename?: 'CompendiumCounts', srdClassCount: number, customClassCount: number, srdSubclassCount: number, customSubclassCount: number, spellCount: number } };
+export type CompendiumCountsQuery = { __typename?: 'Query', compendiumCounts: { __typename?: 'CompendiumCounts', srdClassCount: number, customClassCount: number, srdSubclassCount: number, customSubclassCount: number, srdRaceCount: number, customRaceCount: number, srdSubraceCount: number, customSubraceCount: number, srdBackgroundCount: number, customBackgroundCount: number, srdFeatCount: number, customFeatCount: number, srdLanguageCount: number, customLanguageCount: number, spellCount: number } };
 
 export type CustomSubclassManagerFieldsFragment = { __typename?: 'CustomSubclass', id: string, value: string, classId: string, className: string, name: string, selectionLevel: number, description: Array<string>, characterUsageCount: number, canChangeClass: boolean, cannotChangeClassReason?: string | null, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> };
 
@@ -1204,6 +1395,26 @@ export type ArchiveCustomSubclassMutationVariables = Exact<{
 
 export type ArchiveCustomSubclassMutation = { __typename?: 'Mutation', archiveCustomSubclass: boolean };
 
+export type CompendiumFeatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CompendiumFeatsQuery = { __typename?: 'Query', compendiumFeats: Array<{ __typename?: 'CompendiumFeat', id: string, value: string, srdIndex?: string | null, name: string, isCustom: boolean, sourceBook?: string | null, description: Array<string>, prerequisiteSummary: string, characterUsageCount: number, prerequisites: Array<{ __typename?: 'CompendiumFeatPrerequisite', abilityIndex: string, abilityName: string, minimumScore: number }> }> };
+
+export type CompendiumLanguagesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CompendiumLanguagesQuery = { __typename?: 'Query', compendiumLanguages: Array<{ __typename?: 'CompendiumLanguage', id: string, value: string, srdIndex?: string | null, name: string, isCustom: boolean, sourceBook?: string | null, type?: string | null, script?: string | null, typicalSpeakers: Array<string>, description?: string | null, characterUsageCount: number, grantingRaces: Array<{ __typename?: 'CompendiumReference', value: string, name: string }>, grantingBackgrounds: Array<{ __typename?: 'CompendiumReference', value: string, name: string }>, grantingTraits: Array<{ __typename?: 'CompendiumReference', value: string, name: string }>, sameScriptLanguages: Array<{ __typename?: 'CompendiumReference', value: string, name: string }> }> };
+
+export type CompendiumRacesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CompendiumRacesQuery = { __typename?: 'Query', compendiumRaces: Array<{ __typename?: 'CompendiumRace', id: string, value: string, srdIndex?: string | null, name: string, isCustom: boolean, sourceBook?: string | null, speed?: number | null, size?: string | null, sizeDescription?: string | null, age?: string | null, alignment?: string | null, languageDescription?: string | null, languageChoiceCount: number, abilitySummary: string, characterUsageCount: number, abilityBonuses: Array<{ __typename?: 'CompendiumAbilityBonus', abilityIndex: string, abilityName: string, bonus: number }>, traits: Array<{ __typename?: 'CompendiumTrait', value: string, name: string, description: Array<string>, languageChoiceCount?: number | null }>, languages: Array<{ __typename?: 'CompendiumReference', value: string, name: string }>, subraces: Array<{ __typename?: 'CompendiumSubraceSummary', value: string, name: string, abilitySummary: string, traitCount: number, abilityBonuses: Array<{ __typename?: 'CompendiumAbilityBonus', abilityIndex: string, abilityName: string, bonus: number }> }> }> };
+
 export type SpellListFieldsFragment = { __typename?: 'Spell', id: string, name: string, level: number, schoolIndex: string, classIndexes: Array<string>, castingTime: string, range?: string | null, concentration: boolean, ritual: boolean };
 
 export type CharacterSpellbookEntryFieldsFragment = { __typename?: 'CharacterSpell', prepared: boolean, spell: { __typename?: 'Spell', id: string, name: string, level: number, schoolIndex: string, classIndexes: Array<string>, castingTime: string, range?: string | null, concentration: boolean, ritual: boolean } };
+
+export type CompendiumSubracesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CompendiumSubracesQuery = { __typename?: 'Query', compendiumSubraces: Array<{ __typename?: 'CompendiumSubrace', id: string, value: string, srdIndex?: string | null, name: string, description?: string | null, isCustom: boolean, sourceBook?: string | null, abilitySummary: string, characterUsageCount: number, parentRace: { __typename?: 'CompendiumParentRace', value: string, name: string, speed?: number | null, size?: string | null, languageDescription?: string | null, languageChoiceCount: number, abilitySummary: string, abilityBonuses: Array<{ __typename?: 'CompendiumAbilityBonus', abilityIndex: string, abilityName: string, bonus: number }>, traits: Array<{ __typename?: 'CompendiumTrait', value: string, name: string, description: Array<string>, languageChoiceCount?: number | null }>, languages: Array<{ __typename?: 'CompendiumReference', value: string, name: string }> }, abilityBonuses: Array<{ __typename?: 'CompendiumAbilityBonus', abilityIndex: string, abilityName: string, bonus: number }>, traits: Array<{ __typename?: 'CompendiumTrait', value: string, name: string, description: Array<string>, languageChoiceCount?: number | null }> }> };

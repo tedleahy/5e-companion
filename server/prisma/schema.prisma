@@ -105,6 +105,7 @@ model Race {
     size                String?
     sizeDescription     String?
     languageDescription String?
+    languageChoiceCount Int?
     languageIndexes     String[]       @default([])
     traitIndexes        String[]       @default([])
     subraceIndexes      String[]       @default([])

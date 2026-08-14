@@ -3,6 +3,7 @@ import {
     backgroundSeedPayload,
     featSeedPayload,
     languageSeedPayload,
+    raceLanguageChoiceCountFromSrd,
     startingEquipmentFromSrd,
     subraceSeedPayload,
     type SrdBackground,
@@ -10,6 +11,18 @@ import {
     type SrdLanguage,
     type SrdSubrace,
 } from './compendiumBrowseSeed';
+
+describe('raceLanguageChoiceCountFromSrd', () => {
+    test('promotes Human language choices without parsing raw data at query time', async () => {
+        const races = await Bun.file(new URL('../../srd-json-files/5e-SRD-Races.json', import.meta.url)).json() as Array<{
+            index: string;
+            language_options?: { choose?: number };
+        }>;
+
+        expect(raceLanguageChoiceCountFromSrd(races.find((race) => race.index === 'human')!)).toBe(1);
+        expect(raceLanguageChoiceCountFromSrd(races.find((race) => race.index === 'elf')!)).toBeNull();
+    });
+});
 
 describe('featSeedPayload', () => {
     test('maps Grappler to an ability-score threshold of Strength 13', async () => {

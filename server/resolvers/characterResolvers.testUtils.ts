@@ -22,6 +22,8 @@ export const classCountMock: any = mock((_args: unknown) => Promise.resolve(0));
 export const subclassFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const subclassFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const subclassCountMock: any = mock((_args: unknown) => Promise.resolve(0));
+export const subraceFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
+export const subraceCountMock: any = mock((_args: unknown) => Promise.resolve(0));
 export const subclassCreateMock: any = mock((_args: unknown) => Promise.resolve({}));
 export const subclassCreateManyAndReturnMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const subclassUpdateMock: any = mock((_args: unknown) => Promise.resolve({}));
@@ -31,9 +33,16 @@ export const featureCreateMock: any = mock((_args: unknown) => Promise.resolve({
 export const featureCreateManyMock: any = mock((_args: unknown) => Promise.resolve({ count: 0 }));
 export const featureUpdateMock: any = mock((_args: unknown) => Promise.resolve({}));
 export const featureDeleteManyMock: any = mock((_args: unknown) => Promise.resolve({ count: 0 }));
+export const raceFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 export const raceFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
+export const raceCountMock: any = mock((_args: unknown) => Promise.resolve(0));
 export const backgroundFindFirstMock: any = mock((_args: unknown) => Promise.resolve(null));
 export const backgroundFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
+export const backgroundCountMock: any = mock((_args: unknown) => Promise.resolve(0));
+export const featFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
+export const featCountMock: any = mock((_args: unknown) => Promise.resolve(0));
+export const languageFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
+export const languageCountMock: any = mock((_args: unknown) => Promise.resolve(0));
 export const proficiencyFindManyMock: any = mock((_args: unknown) => Promise.resolve([]));
 
 // field resolver model mocks
@@ -183,6 +192,10 @@ function createMockTransactionClient() {
             createManyAndReturn: subclassCreateManyAndReturnMock,
             update: subclassUpdateMock,
         },
+        subrace: {
+            findMany: subraceFindManyMock,
+            count: subraceCountMock,
+        },
         feature: {
             findMany: featureFindManyMock,
             findFirst: featureFindFirstMock,
@@ -192,11 +205,22 @@ function createMockTransactionClient() {
             deleteMany: featureDeleteManyMock,
         },
         race: {
+            findMany: raceFindManyMock,
             findFirst: raceFindFirstMock,
+            count: raceCountMock,
         },
         background: {
             findFirst: backgroundFindFirstMock,
             findMany: backgroundFindManyMock,
+            count: backgroundCountMock,
+        },
+        feat: {
+            findMany: featFindManyMock,
+            count: featCountMock,
+        },
+        language: {
+            findMany: languageFindManyMock,
+            count: languageCountMock,
         },
         proficiency: {
             findMany: proficiencyFindManyMock,
@@ -452,6 +476,8 @@ export function clearAllCharacterResolverMocks() {
     subclassFindManyMock.mockClear();
     subclassFindFirstMock.mockClear();
     subclassCountMock.mockClear();
+    subraceFindManyMock.mockClear();
+    subraceCountMock.mockClear();
     subclassCreateMock.mockClear();
     subclassCreateManyAndReturnMock.mockClear();
     subclassUpdateMock.mockClear();
@@ -461,9 +487,16 @@ export function clearAllCharacterResolverMocks() {
     featureCreateManyMock.mockClear();
     featureUpdateMock.mockClear();
     featureDeleteManyMock.mockClear();
+    raceFindManyMock.mockClear();
     raceFindFirstMock.mockClear();
+    raceCountMock.mockClear();
     backgroundFindFirstMock.mockClear();
     backgroundFindManyMock.mockClear();
+    backgroundCountMock.mockClear();
+    featFindManyMock.mockClear();
+    featCountMock.mockClear();
+    languageFindManyMock.mockClear();
+    languageCountMock.mockClear();
     proficiencyFindManyMock.mockClear();
     weaponFindManyMock.mockClear();
     inventoryItemFindManyMock.mockClear();

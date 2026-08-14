@@ -1,6 +1,6 @@
 # Data Model
 
-Source of truth: [`@/home/ted/projects/5e-companion/server/prisma/schema.prisma:1-608`](../server/prisma/schema.prisma).
+Source of truth: [`@/home/ted/projects/5e-companion/server/prisma/schema.prisma:1-609`](../server/prisma/schema.prisma).
 
 ## Two halves of the schema
 
@@ -99,7 +99,7 @@ See [`@/home/ted/projects/5e-companion/server/resolvers/character/fieldResolvers
 
 Reference data uses normalised relations for queryable entities and compact JSON only for structured display payloads. Prisma remains the source of truth for promoted SRD data. Notable relations:
 
-- `Race` → many-to-many to `Trait` and `Language`, plus `AbilityBonus` (join row with bonus) and `Subrace`.
+- `Race` → many-to-many to `Trait` and `Language`, plus `AbilityBonus` (join row with bonus) and `Subrace`. `languageChoiceCount` records additional choose-N languages without requiring resolvers to parse `raw`.
 - `Subrace` → belongs to a `Race`, plus `SubraceAbilityBonus` (a parallel join; do not overload `AbilityBonus`'s `[raceId, abilityScoreId]` key).
 - `Class` contains the shared SRD/custom definition: description, core abilities/saves, hit die, archive state, multiclass prerequisites, equipment JSON, spellcasting mode/ability, and whether prepared-spell counts include the spellcasting ability modifier. SRD rows have no owner; custom rows are scoped by `ownerUserId`.
 - `ClassLevelProgression` normalizes levels 1–20, including ASI grants, nine spell-slot counts, cantrips/spells known, prepared-spell base counts, and display-only class-specific values.

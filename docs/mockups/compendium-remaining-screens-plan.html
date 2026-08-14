@@ -424,7 +424,7 @@
         </div>
       </div>
 
-      <p>Selection key is <code>srdIndex ?? id</code>, matching classes. Optional <code>?value=</code> search param opens detail on arrival so race→subrace and language peer jumps work.</p>
+      <p>Every result exposes <code>value: srdIndex ?? id</code>, matching classes. The client uses that stable selection key locally; an optional <code>?value=</code> search param opens detail on arrival so race→subrace and language peer jumps work.</p>
 
       <article class="sketch">
         <p class="kicker">Render-prop sketch</p>
@@ -477,6 +477,12 @@ type CompendiumCollectionProps&lt;T extends CompendiumCollectionItem&gt; = {
           </thead>
           <tbody>
             <tr>
+              <td>Race language choices</td>
+              <td><code>race-language-choice-count</code></td>
+              <td><code>Race.languageChoiceCount Int?</code>, exposed to clients as zero when absent.</td>
+              <td><code>5e-SRD-Races.json</code> <code>language_options.choose</code></td>
+            </tr>
+            <tr>
               <td>Subrace ASI</td>
               <td><code>subrace-ability-bonuses</code></td>
               <td>New <code>SubraceAbilityBonus</code> join mirroring <code>AbilityBonus</code>: composite id <code>[subraceId, abilityScoreId]</code>, <code>bonus Int</code>. Do not overload the race join.</td>
@@ -513,7 +519,7 @@ type CompendiumCollectionProps&lt;T extends CompendiumCollectionItem&gt; = {
 
     <section id="graphql">
       <h2>GraphQL</h2>
-      <p>Every new field is behind <code>requireUser</code>. Catalogs are tiny: one unpaginated list query per category returning the full browse payload. Resolve rows by <code>value</code> (<code>srdIndex ?? id</code>).</p>
+      <p>Every new query is behind <code>requireUser</code>. Catalogs are tiny: one unpaginated list query per category returning the full browse payload. Each returned row exposes <code>value</code> as <code>srdIndex ?? id</code>; list/detail selection happens locally in the client.</p>
 
       <h3>Counts</h3>
       <p>Extend <code>CompendiumCounts</code> with srd/custom pairs for the five types. These tables have no <code>archivedAt</code>; custom means <code>ownerUserId = caller</code>. Hub copy in <code>index.tsx</code> follows classes: <code>"{n} SRD · {m} custom"</code>.</p>
@@ -616,7 +622,7 @@ type CompendiumCollectionProps&lt;T extends CompendiumCollectionItem&gt; = {
       <div class="order">
         <article class="step">
           <h3>Prisma migration and seeders</h3>
-          <p>Run <code>bun db:migrate -- &lt;short_name&gt;</code> once per promotion, then <code>bun db:generate</code> after the last of the set (or after each, if you are landing GraphQL per category). Suggested names: <code>subrace-ability-bonuses</code>, <code>feat-prerequisites</code>, <code>language-typical-speakers</code>, <code>background-starting-equipment</code>, <code>background-suggested-characteristics</code>. Seed each field in the same change as its migration. <code>sourceBook: 'SRD'</code> is seeder-only.</p>
+          <p>Run <code>bun db:migrate -- &lt;short_name&gt;</code> once per promotion, then <code>bun db:generate</code> after the last of the set (or after each, if you are landing GraphQL per category). Suggested names: <code>race-language-choice-count</code>, <code>subrace-ability-bonuses</code>, <code>feat-prerequisites</code>, <code>language-typical-speakers</code>, <code>background-starting-equipment</code>, <code>background-suggested-characteristics</code>. Seed each field in the same change as its migration. <code>sourceBook: 'SRD'</code> is seeder-only.</p>
         </article>
         <article class="step">
           <h3>GraphQL and resolver tests</h3>

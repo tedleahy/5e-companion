@@ -1,5 +1,14 @@
 import type { Prisma } from '@prisma/client';
 
+type SrdRaceLanguageOptions = {
+    language_options?: { choose?: number };
+};
+
+/** Returns the number of additional languages selected by a race, when any. */
+export function raceLanguageChoiceCountFromSrd(race: SrdRaceLanguageOptions): number | null {
+    return race.language_options?.choose ?? null;
+}
+
 /** One starting-equipment row stored on Class and Background (`startingEquipment` JSON). */
 export type StartingEquipmentItem = {
     name: string;

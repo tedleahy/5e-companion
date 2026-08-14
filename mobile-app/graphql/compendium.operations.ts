@@ -8,6 +8,16 @@ export const GET_COMPENDIUM_COUNTS = gql`
             customClassCount
             srdSubclassCount
             customSubclassCount
+            srdRaceCount
+            customRaceCount
+            srdSubraceCount
+            customSubraceCount
+            srdBackgroundCount
+            customBackgroundCount
+            srdFeatCount
+            customFeatCount
+            srdLanguageCount
+            customLanguageCount
             spellCount
         }
     }

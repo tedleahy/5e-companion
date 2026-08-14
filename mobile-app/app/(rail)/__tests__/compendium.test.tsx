@@ -20,6 +20,16 @@ const COUNTS_DATA = {
         customClassCount: 3,
         srdSubclassCount: 1,
         customSubclassCount: 1,
+        srdRaceCount: 9,
+        customRaceCount: 0,
+        srdSubraceCount: 4,
+        customSubraceCount: 0,
+        srdBackgroundCount: 1,
+        customBackgroundCount: 0,
+        srdFeatCount: 1,
+        customFeatCount: 0,
+        srdLanguageCount: 16,
+        customLanguageCount: 0,
         spellCount: 2,
     },
 };
@@ -78,12 +88,8 @@ describe('Compendium screen', () => {
             result: {
                 data: {
                     compendiumCounts: {
-                        __typename: 'CompendiumCounts',
-                        srdClassCount: 12,
-                        customClassCount: 3,
-                        srdSubclassCount: 1,
+                        ...COUNTS_DATA.compendiumCounts,
                         customSubclassCount: 2,
-                        spellCount: 2,
                     },
                 },
             },
