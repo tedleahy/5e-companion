@@ -444,6 +444,8 @@ type CompendiumCollectionProps&lt;T extends CompendiumCollectionItem&gt; = {
   showSrd: boolean;
   onShowSrdChange: (next: boolean) =&gt; void;
   filters?: ReactNode;          // exclusive chips, script select
+  categoryFiltersActive?: boolean;
+  onClearCategoryFilters?: () =&gt; void;
   items: T[];                   // already filtered by the screen
   selectedValue: string | null;
   onSelectedValueChange: (value: string | null) =&gt; void;
@@ -454,6 +456,8 @@ type CompendiumCollectionProps&lt;T extends CompendiumCollectionItem&gt; = {
   emptyTitle: string;
   emptyBody: string;
   loading?: boolean;
+  errorMessage?: string | null;
+  onRetry?: () =&gt; void;
 };`}</pre>
       </article>
 
