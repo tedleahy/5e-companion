@@ -2,11 +2,11 @@ import prisma from '../prisma';
 import { raceLanguageChoiceCountFromSrd } from './compendiumBrowseSeed';
 
 type AbilityBonus = {
-    ability_score: { index: string },
+    ability_score: { index: string };
     bonus: number;
-}
+};
 
-type Race = {
+export type SrdRace = {
     index: string;
     name: string;
     speed: number;
@@ -17,12 +17,13 @@ type Race = {
     size_description: string;
     language_desc: string;
     language_options?: { choose?: number };
-    languages: Array<{ index: string }>
-    traits: Array<{ index: string }>
-    subraces: Array<{ index: string }>
+    languages: Array<{ index: string }>;
+    traits: Array<{ index: string }>;
+    subraces: Array<{ index: string }>;
 };
 
-function toRecord(race: Race) {
+/** Maps an SRD race into Race upsert scalars plus nested ability-bonus create rows. */
+export function raceSeedPayload(race: SrdRace) {
     return {
         srdIndex: race.index,
         name: race.name,
@@ -37,15 +38,34 @@ function toRecord(race: Race) {
         traitIndexes: race.traits.map(({ index }) => index),
         subraceIndexes: race.subraces.map(({ index }) => index),
         sourceBook: 'SRD',
-        abilityBonuses: {
-            create: race.ability_bonuses.map(abilityBonus => ({
-                bonus: abilityBonus.bonus,
-                abilityScore: {
-                    connect: {
-                        srdIndex: abilityBonus.ability_score.index,
-                    }
-                }
-            })),
+        abilityBonuses: race.ability_bonuses.map((abilityBonus) => ({
+            bonus: abilityBonus.bonus,
+            abilityScore: {
+                connect: {
+                    srdIndex: abilityBonus.ability_score.index,
+                },
+            },
+        })),
+    };
+}
+
+/** Prisma race upsert args that replace ability-bonus join rows on reseed. */
+export function raceUpsertArgs(race: SrdRace) {
+    const { abilityBonuses, ...scalars } = raceSeedPayload(race);
+    return {
+        where: { srdIndex: race.index },
+        update: {
+            ...scalars,
+            abilityBonuses: {
+                deleteMany: {},
+                create: abilityBonuses,
+            },
+        },
+        create: {
+            ...scalars,
+            abilityBonuses: {
+                create: abilityBonuses,
+            },
         },
     };
 }
@@ -54,19 +74,14 @@ export default async function seedRaces() {
     try {
         const relativeFilePath = '../../srd-json-files/5e-SRD-Races.json';
         const filePath = new URL(relativeFilePath, import.meta.url).pathname;
-        const races = (await Bun.file(filePath).json()) as Race[];
+        const races = (await Bun.file(filePath).json()) as SrdRace[];
 
         console.log(`Loaded ${races.length} races from SRD JSON.`);
 
         let totalInserts = 0;
 
         for (const race of races) {
-            const { abilityBonuses, ...scalars } = toRecord(race);
-            const result = await prisma.race.upsert({
-                where: { srdIndex: race.index },
-                update: scalars,
-                create: { ...scalars, abilityBonuses },
-            });
+            const result = await prisma.race.upsert(raceUpsertArgs(race));
 
             if (result.id) totalInserts++;
         }
