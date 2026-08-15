@@ -436,28 +436,26 @@
 };
 
 type CompendiumCollectionProps&lt;T extends CompendiumCollectionItem&gt; = {
-  title: string;
-  noun: string;                 // "race" → "Include SRD races", "9 races · A–Z"
-  searchPlaceholder: string;
-  searchText: string;
-  onSearchTextChange: (text: string) =&gt; void;
-  showSrd: boolean;
-  onShowSrdChange: (next: boolean) =&gt; void;
-  filters?: ReactNode;          // exclusive chips, script select
-  categoryFiltersActive?: boolean;
-  onClearCategoryFilters?: () =&gt; void;
-  items: T[];                   // already filtered by the screen
-  selectedValue: string | null;
-  onSelectedValueChange: (value: string | null) =&gt; void;
-  renderMark: (item: T) =&gt; ReactNode;
-  renderMeta: (item: T) =&gt; ReactNode;
-  renderRowExtra?: (item: T) =&gt; ReactNode;  // race ability pills
+  heading: { title: string; noun: string };
+  filters: {
+    search: { placeholder: string; value: string; onChange: (value: string) =&gt; void };
+    includeSrd: { value: boolean; onChange: (value: boolean) =&gt; void };
+    category?: { content: ReactNode; active: boolean; onClear: () =&gt; void };
+  };
+  collection: {
+    items: T[];                 // already filtered by the screen
+    selectedValue: string | null;
+    onSelectedValueChange: (value: string | null) =&gt; void;
+    loading?: boolean;
+    error?: { message: string; onRetry?: () =&gt; void };
+  };
+  empty: { title: string; body: string };
+  row: {
+    mark: (item: T) =&gt; ReactNode;
+    meta: (item: T) =&gt; ReactNode;
+    extra?: (item: T) =&gt; ReactNode;  // race ability pills
+  };
   renderDetail: (item: T) =&gt; ReactNode;
-  emptyTitle: string;
-  emptyBody: string;
-  loading?: boolean;
-  errorMessage?: string | null;
-  onRetry?: () =&gt; void;
 };`}</pre>
       </article>
 

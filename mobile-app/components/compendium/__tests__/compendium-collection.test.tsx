@@ -45,35 +45,50 @@ function Harness({
     return (
         <PaperProvider>
             <CompendiumCollection
-                title="Races"
-                noun="race"
-                searchPlaceholder="Search races"
-                searchText={searchText}
-                onSearchTextChange={setSearchText}
-                showSrd={showSrd}
-                onShowSrdChange={setShowSrd}
-                filters={withCategoryFilter ? (
-                    <Pressable onPress={() => setCategoryFilterActive(true)}>
-                        <Text>Only elves</Text>
-                    </Pressable>
-                ) : undefined}
-                categoryFiltersActive={categoryFilterActive}
-                onClearCategoryFilters={() => setCategoryFilterActive(false)}
-                items={items}
-                selectedValue={selectedValue}
-                onSelectedValueChange={setSelectedValue}
-                renderMark={(item) => <Text>{item.name.slice(0, 1)}</Text>}
-                renderMeta={(item) => item.meta}
+                heading={{ title: 'Races', noun: 'race' }}
+                filters={{
+                    search: {
+                        placeholder: 'Search races',
+                        value: searchText,
+                        onChange: setSearchText,
+                    },
+                    includeSrd: {
+                        value: showSrd,
+                        onChange: setShowSrd,
+                    },
+                    category: withCategoryFilter ? {
+                        content: (
+                            <Pressable onPress={() => setCategoryFilterActive(true)}>
+                                <Text>Only elves</Text>
+                            </Pressable>
+                        ),
+                        active: categoryFilterActive,
+                        onClear: () => setCategoryFilterActive(false),
+                    } : undefined,
+                }}
+                collection={{
+                    items,
+                    selectedValue,
+                    onSelectedValueChange: setSelectedValue,
+                    loading,
+                    error: errorMessage == null ? undefined : {
+                        message: errorMessage,
+                        onRetry,
+                    },
+                }}
+                empty={{
+                    title: 'No races found',
+                    body: 'Try a broader search.',
+                }}
+                row={{
+                    mark: (item) => <Text>{item.name.slice(0, 1)}</Text>,
+                    meta: (item) => item.meta,
+                }}
                 renderDetail={(item) => (
                     <View>
                         <Text>{item.name} details</Text>
                     </View>
                 )}
-                emptyTitle="No races found"
-                emptyBody="Try a broader search."
-                loading={loading}
-                errorMessage={errorMessage}
-                onRetry={onRetry}
             />
         </PaperProvider>
     );
