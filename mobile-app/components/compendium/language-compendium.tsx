@@ -3,41 +3,27 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useQuery } from '@apollo/client/react';
 import CompendiumCollection from '@/components/compendium/compendium-collection';
 import {
-    countLabel,
     matchesCompendiumSearch,
     sourceLabel,
 } from '@/components/compendium/compendium-browse-presentation';
-import {
-    CompendiumBodyText,
-    CompendiumDetailHero,
-    CompendiumDetailSection,
-    CompendiumPills,
-    CompendiumReferenceList,
-} from '@/components/compendium/compendium-detail-elements';
 import CompendiumSelectFilter from '@/components/compendium/compendium-select-filter';
 import ExclusiveFilterChips, {
     ALL_FILTER_VALUE,
 } from '@/components/compendium/exclusive-filter-chips';
 import { GET_COMPENDIUM_LANGUAGES } from '@/graphql/language.operations';
+import LanguageDetail from '@/components/compendium/language-detail';
+import {
+    displayLanguageType,
+    languageScriptMark,
+} from '@/components/compendium/language-presentation';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { CompendiumLanguagesQuery } from '@/types/generated_graphql_types';
-
-type Language = CompendiumLanguagesQuery['compendiumLanguages'][number];
 
 const UNWRITTEN_FILTER_VALUE = 'unwritten';
 const TYPE_OPTIONS = [
     { value: 'standard', label: 'Standard' },
     { value: 'exotic', label: 'Exotic' },
 ];
-
-function displayType(type: string | null | undefined) {
-    if (!type) return 'Unknown type';
-    return `${type.slice(0, 1).toLocaleUpperCase()}${type.slice(1).toLocaleLowerCase()}`;
-}
-
-function scriptMark(script: string | null | undefined) {
-    return script ? script.slice(0, 2) : '∅';
-}
 
 /** Browse-only language Compendium with type and script filters. */
 export default function LanguageCompendium() {
@@ -138,66 +124,13 @@ export default function LanguageCompendium() {
             }}
             empty={{ title: 'No matching languages', body: 'Clear the filters to browse every recorded tongue.' }}
             row={{
-                mark: (language) => <Text style={styles.scriptMark}>{scriptMark(language.script)}</Text>,
-                meta: (language) => `${displayType(language.type)} · ${language.script ? `${language.script} script` : 'Unwritten / unknown'} · ${language.typicalSpeakers.join(', ') || language.description || 'No typical speakers listed'}`,
+                mark: (language) => <Text style={styles.scriptMark}>{languageScriptMark(language.script)}</Text>,
+                meta: (language) => `${displayLanguageType(language.type)} · ${language.script ? `${language.script} script` : 'Unwritten / unknown'} · ${language.typicalSpeakers.join(', ') || language.description || 'No typical speakers listed'}`,
             }}
             renderDetail={(language) => (
                 <LanguageDetail language={language} onSelectPeer={selectPeer} />
             )}
         />
-    );
-}
-
-function LanguageDetail({ language, onSelectPeer }: {
-    language: Language;
-    onSelectPeer: (value: string) => void;
-}) {
-    const learningGroups = [
-        { label: 'Races', items: language.grantingRaces },
-        { label: 'Backgrounds', items: language.grantingBackgrounds },
-        { label: 'Traits', items: language.grantingTraits },
-    ];
-
-    return (
-        <>
-            <CompendiumDetailHero
-                mark={scriptMark(language.script)}
-                eyebrow={sourceLabel(language.sourceBook, language.isCustom)}
-                title={language.name}
-                summary={language.description ?? 'No description is recorded.'}
-                facts={[{ label: 'Known by', value: countLabel(language.characterUsageCount, 'character') }]}
-            />
-            <CompendiumPills values={[
-                displayType(language.type),
-                language.script ? `${language.script} script` : 'Unwritten / unknown',
-            ]} />
-            <CompendiumDetailSection title="About the language">
-                <CompendiumBodyText>{language.description ?? 'No description is recorded.'}</CompendiumBodyText>
-            </CompendiumDetailSection>
-            <CompendiumDetailSection title="Typical speakers">
-                <CompendiumPills
-                    values={language.typicalSpeakers}
-                    emptyLabel="No typical speakers are listed."
-                />
-            </CompendiumDetailSection>
-            <CompendiumDetailSection title="Learning this language">
-                <View style={styles.learningGroups}>
-                    {learningGroups.map((group) => (
-                        <View key={group.label} style={styles.learningGroup}>
-                            <Text style={styles.groupLabel}>{group.label}</Text>
-                            <CompendiumReferenceList items={group.items} />
-                        </View>
-                    ))}
-                </View>
-            </CompendiumDetailSection>
-            <CompendiumDetailSection title="Shares this script">
-                <CompendiumReferenceList
-                    items={language.sameScriptLanguages}
-                    emptyLabel="No other languages share this script."
-                    onSelect={onSelectPeer}
-                />
-            </CompendiumDetailSection>
-        </>
     );
 }
 
@@ -209,15 +142,5 @@ const styles = StyleSheet.create({
         ...fantasyTokens.typography.sectionTitle,
         color: fantasyTokens.colors.claret,
         fontStyle: 'italic',
-    },
-    learningGroups: {
-        gap: fantasyTokens.spacing.md,
-    },
-    learningGroup: {
-        gap: fantasyTokens.spacing.sm,
-    },
-    groupLabel: {
-        ...fantasyTokens.typography.eyebrow,
-        color: fantasyTokens.colors.ember,
     },
 });

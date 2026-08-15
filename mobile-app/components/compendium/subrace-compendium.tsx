@@ -4,34 +4,18 @@ import { useQuery } from '@apollo/client/react';
 import CompendiumCollection from '@/components/compendium/compendium-collection';
 import {
     countLabel,
-    listOrFallback,
     matchesCompendiumSearch,
     sourceLabel,
 } from '@/components/compendium/compendium-browse-presentation';
-import {
-    CompendiumBodyText,
-    CompendiumDetailHero,
-    CompendiumDetailSection,
-    CompendiumDisclosure,
-    CompendiumFactGrid,
-    CompendiumReferenceList,
-    CompendiumTraitList,
-} from '@/components/compendium/compendium-detail-elements';
 import ExclusiveFilterChips, {
     ALL_FILTER_VALUE,
 } from '@/components/compendium/exclusive-filter-chips';
+import SubraceDetail from '@/components/compendium/subrace-detail';
+import { parentMark } from '@/components/compendium/subrace-presentation';
 import { GET_COMPENDIUM_SUBRACES } from '@/graphql/subrace.operations';
 import useProtectedNavigation from '@/hooks/useProtectedNavigation';
-import { RACE_OPTIONS } from '@/lib/characterCreation/options';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { CompendiumSubracesQuery } from '@/types/generated_graphql_types';
-
-type Subrace = CompendiumSubracesQuery['compendiumSubraces'][number];
-
-function parentMark(parentName: string) {
-    return RACE_OPTIONS.find((option) => option.label.toLocaleLowerCase() === parentName.toLocaleLowerCase())
-        ?.icon ?? '✦';
-}
 
 /** Browse-only subrace Compendium with an exclusive parent-race filter. */
 export default function SubraceCompendium() {
@@ -110,57 +94,6 @@ export default function SubraceCompendium() {
                 <SubraceDetail subrace={subrace} onOpenParentRace={openParentRace} />
             )}
         />
-    );
-}
-
-function SubraceDetail({ subrace, onOpenParentRace }: {
-    subrace: Subrace;
-    onOpenParentRace: (value: string) => void;
-}) {
-    const [parentExpanded, setParentExpanded] = useState(false);
-    const parent = subrace.parentRace;
-
-    return (
-        <>
-            <CompendiumDetailHero
-                mark={parentMark(parent.name)}
-                eyebrow={`${sourceLabel(subrace.sourceBook, subrace.isCustom)} · ${parent.name} lineage`}
-                title={subrace.name}
-                summary={subrace.description ?? 'No description is recorded.'}
-                facts={[{ label: 'Characters', value: countLabel(subrace.characterUsageCount, 'character') }]}
-            />
-            <CompendiumDetailSection title="Lineage inheritance">
-                <CompendiumFactGrid facts={[
-                    { label: `${parent.name} grants`, value: parent.abilitySummary || 'No bonus listed' },
-                    { label: `${subrace.name} adds`, value: subrace.abilitySummary || 'No additional bonus' },
-                    { label: 'Added traits', value: countLabel(subrace.traits.length, 'trait') },
-                ]} />
-            </CompendiumDetailSection>
-            <CompendiumDetailSection title="Subrace traits">
-                <CompendiumTraitList traits={subrace.traits} emptyLabel="No additional traits are listed." />
-            </CompendiumDetailSection>
-            <CompendiumDetailSection title="Parent race rules">
-                <CompendiumReferenceList
-                    items={[{ value: parent.value, name: parent.name }]}
-                    onSelect={onOpenParentRace}
-                />
-                <CompendiumDisclosure
-                    title={`Inherited from ${parent.name}`}
-                    summary={`${parent.speed ?? '—'} ft. · ${parent.size ?? 'Unknown size'} · ${countLabel(parent.traits.length, 'trait')}`}
-                    expanded={parentExpanded}
-                    onToggle={() => setParentExpanded((current) => !current)}
-                    testID="subrace-parent-rules"
-                >
-                    <CompendiumFactGrid facts={[
-                        { label: 'Speed', value: parent.speed == null ? 'Not listed' : `${parent.speed} ft.` },
-                        { label: 'Size', value: parent.size ?? 'Not listed' },
-                        { label: 'Languages', value: listOrFallback(parent.languages.map((language) => language.name)) },
-                    ]} />
-                    {parent.languageDescription ? <CompendiumBodyText>{parent.languageDescription}</CompendiumBodyText> : null}
-                    <CompendiumTraitList traits={parent.traits} emptyLabel="No inherited traits are listed." />
-                </CompendiumDisclosure>
-            </CompendiumDetailSection>
-        </>
     );
 }
 

@@ -1,0 +1,75 @@
+import { countLabel, listOrFallback, sourceLabel } from '@/components/compendium/compendium-browse-presentation';
+import CompendiumBodyText from '@/components/compendium/detail/body-text';
+import CompendiumDetailHero from '@/components/compendium/detail/detail-hero';
+import CompendiumDetailSection from '@/components/compendium/detail/detail-section';
+import CompendiumFactGrid from '@/components/compendium/detail/fact-grid';
+import CompendiumPills from '@/components/compendium/detail/pills';
+import CompendiumReferenceList from '@/components/compendium/detail/reference-list';
+import CompendiumTraitList from '@/components/compendium/detail/trait-list';
+import { raceLanguageSummary, raceMark, type Race } from '@/components/compendium/race-presentation';
+
+export default function RaceDetail({
+    race,
+    onOpenSubrace,
+}: {
+    race: Race;
+    onOpenSubrace: (value: string) => void;
+}) {
+    const languageChoices = race.languageChoiceCount > 0
+        ? `Choose ${race.languageChoiceCount} additional ${race.languageChoiceCount === 1 ? 'language' : 'languages'}.`
+        : 'No additional language choices.';
+
+    return (
+        <>
+            <CompendiumDetailHero
+                mark={raceMark(race)}
+                eyebrow={sourceLabel(race.sourceBook, race.isCustom)}
+                title={race.name}
+                summary={race.abilitySummary}
+                facts={[
+                    { label: 'Speed', value: race.speed == null ? 'Not listed' : `${race.speed} ft.` },
+                    { label: 'Size', value: race.size ?? 'Not listed' },
+                    { label: 'Characters', value: countLabel(race.characterUsageCount, 'character') },
+                    { label: 'Subraces', value: countLabel(race.subraces.length, 'available subrace') },
+                ]}
+            />
+            <CompendiumPills values={[
+                `Traits · ${race.traits.length}`,
+                `Languages · ${race.languages.length + race.languageChoiceCount}`,
+                'Life & build',
+                `Subraces · ${race.subraces.length}`,
+            ]} />
+            <CompendiumDetailSection title="Lineage ledger">
+                <CompendiumFactGrid facts={[
+                    { label: 'Ability scores', value: race.abilitySummary || 'No bonus listed' },
+                    { label: 'Languages', value: raceLanguageSummary(race) },
+                    { label: 'Racial traits', value: countLabel(race.traits.length, 'trait') },
+                ]} />
+            </CompendiumDetailSection>
+            <CompendiumDetailSection title="Racial traits">
+                <CompendiumTraitList traits={race.traits} />
+            </CompendiumDetailSection>
+            <CompendiumDetailSection title="Languages">
+                <CompendiumFactGrid facts={[
+                    { label: 'Always known', value: listOrFallback(race.languages.map((language) => language.name)) },
+                    { label: 'Additional choices', value: languageChoices },
+                ]} />
+                {race.languageDescription ? <CompendiumBodyText>{race.languageDescription}</CompendiumBodyText> : null}
+            </CompendiumDetailSection>
+            <CompendiumDetailSection title="Life & build">
+                <CompendiumFactGrid facts={[
+                    { label: 'Age', value: race.age ?? 'Not listed' },
+                    { label: 'Size', value: race.sizeDescription ?? race.size ?? 'Not listed' },
+                    { label: 'Alignment', value: race.alignment ?? 'Not listed' },
+                ]} />
+            </CompendiumDetailSection>
+            <CompendiumDetailSection title="Subraces">
+                <CompendiumReferenceList
+                    items={race.subraces}
+                    emptyLabel="No subraces are listed."
+                    onSelect={onOpenSubrace}
+                />
+            </CompendiumDetailSection>
+        </>
+    );
+}
