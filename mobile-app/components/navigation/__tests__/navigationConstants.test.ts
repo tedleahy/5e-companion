@@ -38,10 +38,20 @@ describe('navigation constants', () => {
             '/compendium/classes',
             '/compendium/subclasses',
             '/compendium/spells',
+            '/compendium/races',
+            '/compendium/subraces',
+            '/compendium/backgrounds',
+            '/compendium/feats',
+            '/compendium/languages',
         ]);
         expect(isTopLevelCompendiumCategoryPath('/compendium/classes')).toBe(true);
         expect(isTopLevelCompendiumCategoryPath('/compendium/subclasses')).toBe(true);
         expect(isTopLevelCompendiumCategoryPath('/compendium/spells')).toBe(true);
+        expect(isTopLevelCompendiumCategoryPath('/compendium/races')).toBe(true);
+        expect(isTopLevelCompendiumCategoryPath('/compendium/subraces')).toBe(true);
+        expect(isTopLevelCompendiumCategoryPath('/compendium/backgrounds')).toBe(true);
+        expect(isTopLevelCompendiumCategoryPath('/compendium/feats')).toBe(true);
+        expect(isTopLevelCompendiumCategoryPath('/compendium/languages')).toBe(true);
         expect(isTopLevelCompendiumCategoryPath('/compendium')).toBe(false);
         expect(isTopLevelCompendiumCategoryPath('/characters')).toBe(false);
         expect(isTopLevelCompendiumCategoryPath('/compendium/classes/extra')).toBe(false);

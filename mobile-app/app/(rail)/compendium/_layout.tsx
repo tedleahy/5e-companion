@@ -26,6 +26,11 @@ export default function CompendiumLayout() {
                 <Stack.Screen name="classes" />
                 <Stack.Screen name="subclasses" />
                 <Stack.Screen name="spells" />
+                <Stack.Screen name="races" />
+                <Stack.Screen name="subraces" />
+                <Stack.Screen name="backgrounds" />
+                <Stack.Screen name="feats" />
+                <Stack.Screen name="languages" />
             </Stack>
         </RailScreenShell>
     );

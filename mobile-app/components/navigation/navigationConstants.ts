@@ -86,6 +86,11 @@ export const TOP_LEVEL_COMPENDIUM_CATEGORY_PATHS = [
     '/compendium/classes',
     '/compendium/subclasses',
     '/compendium/spells',
+    '/compendium/races',
+    '/compendium/subraces',
+    '/compendium/backgrounds',
+    '/compendium/feats',
+    '/compendium/languages',
 ] as const;
 
 /**

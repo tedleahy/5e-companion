@@ -46,5 +46,10 @@ describe('CompendiumLayout', () => {
         expect(within(stack).getByTestId('compendium-stack-screen-classes')).toBeTruthy();
         expect(within(stack).getByTestId('compendium-stack-screen-subclasses')).toBeTruthy();
         expect(within(stack).getByTestId('compendium-stack-screen-spells')).toBeTruthy();
+        expect(within(stack).getByTestId('compendium-stack-screen-races')).toBeTruthy();
+        expect(within(stack).getByTestId('compendium-stack-screen-subraces')).toBeTruthy();
+        expect(within(stack).getByTestId('compendium-stack-screen-backgrounds')).toBeTruthy();
+        expect(within(stack).getByTestId('compendium-stack-screen-feats')).toBeTruthy();
+        expect(within(stack).getByTestId('compendium-stack-screen-languages')).toBeTruthy();
     });
 });
