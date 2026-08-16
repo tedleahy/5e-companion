@@ -35,6 +35,7 @@ Full style guide: [`docs/conventions.md`](./docs/conventions.md). Non-negotiable
 - Don't commit root-level markdown/txt/html except `AGENTS.md`.
 - Write simple, clean, DRY, maintainable code. Less code is usually better than more code.
 - Ensure that all code has meaningful test coverage.
+- Avoid having multiple react components in the same file, except for very small JSX fragments that are only used once.
 
 ## Code Reviews
 - Pay particular attention to readability, maintainability, code cleanliness and DRYness. Don't just focus on functional blockers, also focus on increasing the quality of the code itself.

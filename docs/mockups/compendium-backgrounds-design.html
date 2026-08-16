@@ -1,9 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-GB">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <title>Compendium Backgrounds — Interactive Design</title>
     <style>
         :root {
@@ -11,9 +14,10 @@
             --parchment-light: #f5eedc;
             --parchment-deep: #f0e0c0;
             --card-bg: #f0e0bc;
+            --ink: #2b1c11;
             --ink-dark: #2b1c11;
             --ink-light: #3d2b1f;
-            --ink-soft: rgba(110, 81, 48, 0.62);
+            --ink-soft: #6e513084;
             --ember: #5f4325;
             --gold: #c4a470;
             --gold-light: #e8b84b;
@@ -23,14 +27,16 @@
             --crimson: #7b1e1e;
             --night: #1f1711;
             --night-deep: #110b07;
-            --divider: rgba(139, 90, 43, 0.22);
+            --divider: rgba(139, 90, 43, 0.3);
             --sheet-border: rgba(201, 146, 42, 0.24);
             --sheet-card: rgba(201, 146, 42, 0.07);
-            --display: Georgia, "Times New Roman", serif;
-            --body: "Palatino Linotype", Palatino, Georgia, serif;
-            --utility: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            --rail-border: rgba(201, 146, 42, 0.15);
+            --display: "Spectral", Georgia, "Times New Roman", serif;
+            --body: "Spectral", Georgia, "Times New Roman", serif;
+            --utility: "Spectral", Georgia, "Times New Roman", serif;
             --radius-sm: 12px;
             --radius-md: 16px;
+            --radius-lg: 18px;
             --shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
             --quick: 160ms;
             --standard: 240ms;
@@ -179,7 +185,7 @@
         }
 
         .app {
-            width: min(1180px, 100%);
+            width: min(1100px, 100%);
             min-width: 0;
             min-height: 100vh;
             min-height: 100dvh;
@@ -191,9 +197,9 @@
         .codex-header {
             position: relative;
             display: grid;
-            grid-template-columns: 90px 1fr 90px;
+            grid-template-columns: 112px 1fr 112px;
             align-items: center;
-            min-height: 86px;
+            min-height: 92px;
             padding: 8px 16px 12px;
             border-bottom: 1px solid rgba(201, 146, 42, 0.15);
         }
@@ -296,10 +302,8 @@
             border: 1px solid var(--gold);
             border-radius: var(--radius-md);
             color: var(--ink-dark);
-            background:
-                linear-gradient(rgba(240, 224, 188, 0.95), rgba(240, 224, 188, 0.95)),
-                repeating-linear-gradient(0deg, transparent, transparent 24px, rgba(139, 90, 43, 0.025) 25px);
-            box-shadow: 0 10px 34px rgba(0, 0, 0, 0.17);
+            background: var(--parchment);
+            box-shadow: var(--shadow);
         }
 
         .scene {
@@ -312,157 +316,184 @@
             display: none;
         }
 
-        .list-toolbar {
-            display: grid;
-            grid-template-columns: minmax(220px, 1fr) auto;
-            gap: 12px 22px;
-            align-items: end;
-            padding: 16px;
-            border-bottom: 1px solid var(--divider);
-        }
-
-        .search-field {
-            display: grid;
-            gap: 6px;
-        }
-
-        .field-label {
-            color: var(--ember);
-            font-family: var(--utility);
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-        }
-
-        .search-wrap {
+        .collection-chrome {
             position: relative;
+            z-index: 2;
+            display: grid;
+            gap: 11px;
+            padding: 15px 16px 13px;
+            background:
+                linear-gradient(100deg, rgba(255,255,255,0.12), transparent 44%),
+                rgba(240, 224, 188, 0.97);
+            border-bottom: 1px solid var(--divider);
+            box-shadow: 0 8px 22px rgba(71, 42, 19, 0.045);
         }
 
-        .search-icon {
+        .filter-topline {
+            display: grid;
+            grid-template-columns: minmax(210px, 1fr) auto;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .search-wrap { position: relative; max-width: 475px; }
+
+        .search-wrap svg {
             position: absolute;
+            left: 12px;
             top: 50%;
-            left: 13px;
+            width: 18px;
+            height: 18px;
+            color: var(--ember);
             transform: translateY(-50%);
-            color: var(--ink-soft);
-            font-family: var(--utility);
-            font-size: 18px;
             pointer-events: none;
         }
 
         .search-input {
             width: 100%;
-            min-height: 44px;
-            padding: 9px 42px 9px 40px;
-            border: 1px solid rgba(139, 90, 43, 0.32);
+            height: 42px;
+            padding: 8px 40px;
+            border: 1px solid rgba(139, 90, 43, 0.38);
             border-radius: 10px;
-            color: var(--ink-dark);
-            background: rgba(245, 238, 220, 0.72);
+            background: rgba(246, 233, 207, 0.62);
+            color: var(--ink);
+            font-family: var(--body);
         }
 
-        .search-input::placeholder {
-            color: rgba(61, 43, 31, 0.56);
-        }
+        .search-input::placeholder { color: var(--ink-soft); }
 
         .clear-search {
             position: absolute;
-            top: 50%;
-            right: 4px;
-            width: 36px;
-            height: 36px;
-            transform: translateY(-50%);
+            right: 5px;
+            top: 5px;
+            width: 32px;
+            height: 32px;
+            display: none;
+            place-items: center;
             border: 0;
             border-radius: 8px;
-            color: var(--ember);
             background: transparent;
+            color: var(--ember);
             cursor: pointer;
-            font-family: var(--utility);
-            font-size: 17px;
         }
 
-        .clear-search:hover {
-            background: rgba(140, 29, 56, 0.08);
+        .clear-search.visible,
+        .clear-search:not([hidden]) { display: grid; }
+        .clear-search:hover { background: rgba(140, 29, 56, 0.1); }
+
+        .source-control {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            white-space: nowrap;
         }
 
-        .result-count {
-            display: block;
-            margin-top: 1px;
-            color: var(--ink-soft);
-            font-size: 13px;
-            line-height: 1.25;
+        .source-copy { text-align: right; }
+        .source-title { display: block; color: var(--ink); font-weight: 700; }
+
+        .switch { position: relative; width: 48px; height: 27px; flex: 0 0 auto; }
+        .switch input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+
+        .switch-track {
+            position: absolute;
+            inset: 0;
+            border: 1px solid rgba(95, 67, 37, 0.34);
+            border-radius: 999px;
+            background: rgba(95, 67, 37, 0.22);
+            cursor: pointer;
+            transition: background var(--quick) ease, border-color var(--quick) ease;
         }
+
+        .switch-track::after {
+            content: "";
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 19px;
+            height: 19px;
+            border-radius: 50%;
+            background: var(--parchment-light);
+            box-shadow: 0 1px 4px rgba(43, 28, 17, 0.34);
+            transition: transform var(--quick) ease;
+        }
+
+        .switch input:checked + .switch-track { border-color: var(--claret); background: var(--claret); }
+        .switch input:checked + .switch-track::after { transform: translateX(21px); }
+        .switch input:focus-visible + .switch-track { outline: 3px solid var(--gold-light); outline-offset: 3px; }
 
         .background-list {
             flex: 1;
             margin: 0;
-            padding: 0 16px 94px;
+            padding: 0 0 72px;
+            background: var(--parchment);
             list-style: none;
+            overflow-y: auto;
         }
 
         .background-list li {
-            border-bottom: 1px solid var(--divider);
+            border-bottom: 0;
         }
 
         .background-row {
-            width: 100%;
+            position: relative;
+            width: calc(100% - 40px);
             min-height: 88px;
+            margin-inline: 20px;
             display: grid;
-            grid-template-columns: 54px minmax(0, 1fr) auto;
+            grid-template-columns: 48px minmax(0, 1fr) auto;
             align-items: center;
-            gap: 14px;
-            padding: 11px 4px;
+            gap: 16px;
+            padding: 14px 0;
             border: 0;
+            border-bottom: 1px solid var(--divider);
             color: inherit;
             background: transparent;
             cursor: pointer;
             text-align: left;
-            transition: background var(--quick), transform var(--quick);
+        }
+
+        .background-row::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 23px;
+            width: 1px;
+            background: rgba(196, 164, 112, 0.32);
         }
 
         .background-row:hover {
             background: rgba(140, 29, 56, 0.045);
         }
 
-        .background-row:active {
-            transform: scale(0.997);
-        }
-
-        .origin-mark {
+        .origin-mark,
+        .index-mark {
             position: relative;
+            z-index: 1;
             width: 48px;
             height: 48px;
             display: grid;
             place-items: center;
-            border: 1px solid rgba(139, 90, 43, 0.24);
+            border: 1px solid rgba(140, 29, 56, 0.25);
             border-radius: var(--radius-sm);
             color: var(--claret);
             background: var(--parchment-light);
             font-family: var(--display);
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
             letter-spacing: -0.03em;
-        }
-
-        .origin-mark::after {
-            content: "";
-            position: absolute;
-            right: 5px;
-            bottom: 5px;
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: var(--gold-dark);
         }
 
         .row-main {
             min-width: 0;
         }
 
-        .row-title-line {
+        .row-title-line,
+        .row-heading {
             display: flex;
             flex-wrap: wrap;
-            align-items: baseline;
-            gap: 7px 10px;
+            align-items: center;
+            gap: 7px 9px;
         }
 
         .row-title {
@@ -473,23 +504,18 @@
             line-height: 1.25;
         }
 
-        .source-tag {
+        .source-tag,
+        .source-badge {
             padding: 2px 6px;
-            border: 1px solid rgba(140, 29, 56, 0.2);
+            border: 1px solid rgba(140, 29, 56, 0.26);
             border-radius: 999px;
             color: var(--claret);
-            background: rgba(140, 29, 56, 0.055);
+            background: transparent;
             font-family: var(--utility);
             font-size: 9px;
-            font-weight: 800;
-            letter-spacing: 0.12em;
+            font-weight: 700;
+            letter-spacing: 0.09em;
             text-transform: uppercase;
-        }
-
-        .source-tag.srd {
-            border-color: rgba(95, 67, 37, 0.23);
-            color: var(--ember);
-            background: rgba(95, 67, 37, 0.045);
         }
 
         .row-feature {
@@ -508,12 +534,93 @@
             font-style: italic;
         }
 
-        .chevron {
-            padding-right: 7px;
+        .row-meta {
+            display: block;
+            margin-top: 2px;
+            color: var(--ember);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .row-description {
+            display: -webkit-box;
+            margin-top: 2px;
+            overflow: hidden;
             color: var(--ink-soft);
-            font-family: var(--utility);
-            font-size: 22px;
+            font-size: 13px;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+
+        .chevron {
+            position: relative;
+            z-index: 1;
+            padding-right: 4px;
+            color: var(--gold-dark);
+            font-size: 25px;
             font-weight: 300;
+        }
+
+        .results-bar {
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 7px 19px;
+            border-bottom: 1px solid rgba(139, 90, 43, 0.2);
+            background: rgba(245, 238, 220, 0.34);
+        }
+
+        .result-count {
+            color: var(--ink-soft);
+            font: 700 11px/1.2 var(--utility);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .clear-filters {
+            min-height: 30px;
+            padding: 4px 8px;
+            border: 0;
+            border-radius: 7px;
+            background: transparent;
+            color: var(--claret);
+            cursor: pointer;
+            font: 700 11px/1.2 var(--utility);
+        }
+
+        .clear-filters:hover { background: rgba(140, 29, 56, 0.07); }
+
+        .field-label {
+            color: var(--ember);
+            font-family: var(--utility);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .fab {
+            position: absolute;
+            z-index: 6;
+            right: 22px;
+            bottom: 22px;
+            width: 56px;
+            height: 56px;
+            display: grid;
+            place-items: center;
+            border: 0;
+            border-radius: var(--radius-md);
+            color: var(--parchment);
+            background: var(--crimson);
+            box-shadow: 0 10px 24px rgba(123, 30, 30, 0.25);
+            font-size: 27px;
+            cursor: pointer;
+        }
+
+        .fab:hover {
+            background: var(--claret-light);
         }
 
         .empty-state {
@@ -569,7 +676,7 @@
 
         .detail-hero {
             display: grid;
-            grid-template-columns: 74px minmax(0, 1fr) auto;
+            grid-template-columns: 74px minmax(0, 1fr);
             gap: 18px;
             align-items: start;
         }
@@ -612,26 +719,6 @@
             color: var(--ink-light);
             font-size: 16px;
             line-height: 1.55;
-        }
-
-        .source-seal {
-            width: 64px;
-            height: 64px;
-            display: grid;
-            place-items: center;
-            border: 1px solid rgba(140, 29, 56, 0.34);
-            border-radius: 50%;
-            color: var(--claret);
-            background:
-                radial-gradient(circle, transparent 54%, rgba(140, 29, 56, 0.07) 55%),
-                rgba(245, 238, 220, 0.6);
-            font-family: var(--utility);
-            font-size: 10px;
-            font-weight: 900;
-            letter-spacing: 0.08em;
-            text-align: center;
-            text-transform: uppercase;
-            transform: rotate(5deg);
         }
 
         .detail-grid {
@@ -1534,396 +1621,8 @@
                 inset 0 0 0 5px rgba(255, 248, 229, 0.2);
         }
 
-        .collection-intro {
-            position: relative;
-            min-height: 188px;
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) auto;
-            align-items: center;
-            gap: 28px;
-            overflow: hidden;
-            padding: 28px clamp(22px, 4vw, 46px);
-            color: var(--parchment);
-            background:
-                radial-gradient(circle at 85% 45%, rgba(196, 164, 112, 0.18), transparent 13rem),
-                linear-gradient(115deg, #251810 0%, #3a2119 62%, #25140f 100%);
-        }
-
-        .collection-intro::before,
-        .collection-intro::after {
-            content: "";
-            position: absolute;
-            pointer-events: none;
-        }
-
-        .collection-intro::before {
-            inset: 10px;
-            border: 1px solid rgba(196, 164, 112, 0.18);
-        }
-
-        .collection-intro::after {
-            right: 9%;
-            bottom: -75px;
-            width: 250px;
-            height: 150px;
-            border: 1px solid rgba(196, 164, 112, 0.12);
-            border-radius: 50%;
-            box-shadow:
-                0 0 0 24px rgba(196, 164, 112, 0.025),
-                0 0 0 48px rgba(196, 164, 112, 0.02);
-            transform: rotate(-12deg);
-        }
-
-        .collection-copy,
-        .collection-side {
-            position: relative;
-            z-index: 1;
-        }
-
-        .collection-copy {
-            max-width: 690px;
-        }
-
-        .collection-copy .eyebrow {
-            color: var(--gold);
-        }
-
-        .collection-copy h2 {
-            max-width: 620px;
-            margin: 6px 0 7px;
-            color: #fff7e6;
-            font-family: var(--display);
-            font-size: clamp(27px, 4vw, 38px);
-            font-weight: 700;
-            line-height: 1.08;
-            letter-spacing: -0.02em;
-        }
-
-        .collection-copy > p:last-child {
-            max-width: 640px;
-            margin: 0;
-            color: rgba(246, 233, 207, 0.7);
-            font-size: 15px;
-            line-height: 1.52;
-        }
-
-        .collection-side {
-            display: grid;
-            justify-items: center;
-            gap: 10px;
-        }
-
-        .collection-seal {
-            width: 68px;
-            height: 68px;
-            display: grid;
-            place-items: center;
-            border: 1px solid rgba(196, 164, 112, 0.34);
-            border-radius: 50%;
-            color: var(--gold);
-            background: rgba(17, 11, 7, 0.26);
-            box-shadow: inset 0 0 0 5px rgba(196, 164, 112, 0.045);
-        }
-
-        .collection-seal svg {
-            width: 44px;
-            height: 44px;
-            overflow: visible;
-            fill: none;
-            stroke: currentColor;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke-width: 1.8;
-        }
-
-        .create-button {
-            min-height: 46px;
-            border-color: var(--gold);
-            color: var(--night-deep);
-            background: var(--gold);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
-            white-space: nowrap;
-        }
-
-        .create-button:hover {
-            border-color: var(--gold-light);
-            background: var(--gold-light);
-            transform: translateY(-2px);
-        }
-
-        .create-button span {
-            margin-top: -1px;
-            font-size: 17px;
-            line-height: 1;
-        }
-
-        .list-toolbar {
-            grid-template-columns: minmax(280px, 1fr) minmax(280px, auto);
-            align-items: end;
-            gap: 18px 28px;
-            padding: 19px clamp(18px, 3vw, 30px) 17px;
-            background: rgba(245, 238, 220, 0.46);
-        }
-
-        .search-input {
-            border-color: rgba(95, 67, 37, 0.28);
-            background: rgba(255, 251, 239, 0.64);
-            box-shadow: inset 0 1px 2px rgba(61, 43, 31, 0.04);
-            transition: border-color var(--quick), box-shadow var(--quick), background var(--quick);
-        }
-
-        .search-input:focus {
-            border-color: var(--gold-dark);
-            background: rgba(255, 252, 242, 0.9);
-            box-shadow: 0 0 0 3px rgba(158, 132, 91, 0.12);
-            outline: 0;
-        }
-
-        .source-filter {
-            min-width: 0;
-            margin: 0;
-            padding: 0;
-            border: 0;
-        }
-
-        .source-filter legend {
-            margin-bottom: 6px;
-            padding: 0;
-        }
-
-        .filter-row {
-            min-height: 44px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .segmented-control {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            padding: 3px;
-            border: 1px solid rgba(95, 67, 37, 0.24);
-            border-radius: 11px;
-            background: rgba(95, 67, 37, 0.07);
-        }
-
-        .filter-button {
-            min-width: 74px;
-            min-height: 36px;
-            padding: 6px 11px;
-            border: 0;
-            border-radius: 8px;
-            color: rgba(61, 43, 31, 0.68);
-            background: transparent;
-            cursor: pointer;
-            font-family: var(--utility);
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            transition: color var(--quick), background var(--quick), box-shadow var(--quick);
-        }
-
-        .filter-button:hover {
-            color: var(--claret);
-        }
-
-        .filter-button.is-active {
-            color: var(--parchment-light);
-            background: var(--claret);
-            box-shadow: 0 2px 7px rgba(61, 20, 26, 0.22);
-        }
-
-        .result-count {
-            min-width: 88px;
-            margin: 0;
-            color: var(--ink-soft);
-            font-family: var(--utility);
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            text-align: right;
-            white-space: nowrap;
-        }
-
-        .background-list {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            align-content: start;
-            gap: 14px;
-            padding: 22px clamp(18px, 3vw, 30px) 30px;
-        }
-
-        .background-list li {
-            min-width: 0;
-            border: 0;
-        }
-
-        .background-row {
-            position: relative;
-            min-height: 238px;
-            height: 100%;
-            display: grid;
-            grid-template-columns: 50px minmax(0, 1fr) auto;
-            grid-template-rows: auto 1fr;
-            align-items: start;
-            gap: 13px;
-            overflow: hidden;
-            padding: 17px 17px 15px;
-            border: 1px solid rgba(95, 67, 37, 0.2);
-            border-radius: 13px;
-            color: inherit;
-            background:
-                linear-gradient(145deg, rgba(255, 252, 240, 0.76), rgba(245, 233, 205, 0.46)),
-                var(--parchment-light);
-            box-shadow: 0 6px 16px rgba(61, 43, 31, 0.07);
-            transition: border-color var(--quick), box-shadow var(--quick), transform var(--quick);
-        }
-
-        .background-row::before {
-            content: "";
-            position: absolute;
-            inset: 0 auto 0 0;
-            width: 4px;
-            background: var(--claret);
-            opacity: 0.74;
-            transition: width var(--quick), opacity var(--quick);
-        }
-
-        .background-row:hover {
-            border-color: rgba(140, 29, 56, 0.34);
-            background:
-                linear-gradient(145deg, rgba(255, 253, 245, 0.9), rgba(245, 233, 205, 0.6)),
-                var(--parchment-light);
-            box-shadow: 0 12px 26px rgba(61, 43, 31, 0.12);
-            transform: translateY(-2px);
-        }
-
-        .background-row:hover::before {
-            width: 6px;
-            opacity: 1;
-        }
-
-        .background-row:active {
-            transform: translateY(0);
-        }
-
-        .origin-mark {
-            width: 48px;
-            height: 48px;
-            border-color: rgba(140, 29, 56, 0.22);
-            border-radius: 50%;
-            background: rgba(255, 252, 242, 0.76);
-            box-shadow: inset 0 0 0 4px rgba(140, 29, 56, 0.035);
-        }
-
-        .origin-mark::after {
-            right: 2px;
-            bottom: 4px;
-            width: 7px;
-            height: 7px;
-            border: 2px solid var(--parchment-light);
-        }
-
-        .row-main {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .row-title-line {
-            padding-right: 4px;
-        }
-
-        .row-title {
-            font-size: 21px;
-            letter-spacing: -0.01em;
-        }
-
-        .row-summary {
-            display: -webkit-box;
-            min-height: 58px;
-            margin-top: 10px;
-            overflow: hidden;
-            color: rgba(61, 43, 31, 0.76);
-            font-size: 14px;
-            line-height: 1.42;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 3;
-        }
-
-        .grant-pills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 12px;
-        }
-
-        .grant-pill {
-            min-height: 26px;
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 8px;
-            border: 1px solid rgba(95, 67, 37, 0.16);
-            border-radius: 7px;
-            color: var(--ember);
-            background: rgba(95, 67, 37, 0.045);
-            font-family: var(--utility);
-            font-size: 10px;
-            font-weight: 700;
-        }
-
-        .row-feature {
-            display: grid;
-            gap: 1px;
-            margin-top: auto;
-            padding-top: 12px;
-            overflow: visible;
-            color: var(--ink-dark);
-            font-style: normal;
-            text-overflow: clip;
-            white-space: normal;
-        }
-
-        .row-feature small {
-            color: var(--ink-soft);
-            font-family: var(--utility);
-            font-size: 8px;
-            font-weight: 800;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-        }
-
-        .row-feature strong {
-            color: var(--claret);
-            font-family: var(--body);
-            font-size: 13px;
-            font-style: italic;
-            font-weight: 600;
-        }
-
-        .chevron {
-            width: 30px;
-            height: 30px;
-            display: grid;
-            place-items: center;
-            align-self: center;
-            padding: 0;
-            border: 1px solid rgba(95, 67, 37, 0.16);
-            border-radius: 50%;
-            color: var(--claret);
-            background: rgba(255, 252, 242, 0.56);
-            font-size: 20px;
-            transition: transform var(--quick), background var(--quick);
-        }
-
-        .background-row:hover .chevron {
-            background: rgba(140, 29, 56, 0.08);
-            transform: translateX(2px);
-        }
-
         .empty-state {
-            min-height: 350px;
+            min-height: 330px;
         }
 
         .empty-state > div {
@@ -2011,7 +1710,7 @@
             background: var(--gold);
         }
 
-        @media (max-width: 720px) {
+        @media (max-width: 767px) {
             .app-shell {
                 grid-template-columns: 1fr;
             }
@@ -2025,13 +1724,13 @@
             }
 
             .codex-header {
-                grid-template-columns: 54px 1fr 54px;
+                grid-template-columns: 76px 1fr 76px;
                 min-height: 78px;
                 padding-inline: 8px;
             }
 
             main {
-                padding: 8px 8px 12px;
+                padding: 8px 12px 12px;
             }
 
             .manager-card {
@@ -2039,48 +1738,11 @@
                 border-radius: 14px;
             }
 
-            .collection-intro {
-                min-height: 0;
-                grid-template-columns: 1fr;
-                gap: 18px;
-                padding: 25px 23px 23px;
-            }
-
-            .collection-copy h2 {
-                max-width: 440px;
-                font-size: clamp(26px, 8vw, 34px);
-            }
-
-            .collection-side {
-                display: flex;
-                justify-content: flex-start;
-            }
-
-            .collection-seal {
-                display: none;
-            }
-
-            .create-button {
-                width: 100%;
-            }
-
-            .list-toolbar {
-                grid-template-columns: 1fr;
-                gap: 11px;
-                padding: 13px;
-            }
-
-            .filter-row {
-                justify-content: space-between;
-            }
-
-            .segmented-control {
-                flex: 1;
-            }
-
-            .filter-button {
-                min-width: 0;
-            }
+            .collection-chrome { gap: 10px; padding: 12px 11px 11px; }
+            .filter-topline { grid-template-columns: 1fr; gap: 10px; }
+            .source-control { width: 100%; justify-content: space-between; }
+            .source-copy { text-align: left; }
+            .search-wrap { max-width: none; }
 
             .background-list {
                 grid-template-columns: 1fr;
@@ -2090,10 +1752,11 @@
             }
 
             .background-row {
-                grid-template-columns: 48px minmax(0, 1fr) auto;
-                gap: 11px;
-                min-height: 218px;
-                padding: 15px;
+                width: calc(100% - 24px);
+                margin-inline: 12px;
+                grid-template-columns: 44px minmax(0, 1fr) auto;
+                gap: 12px;
+                min-height: 88px;
             }
 
             .origin-mark {
@@ -2123,10 +1786,6 @@
                 width: 56px;
                 height: 56px;
                 font-size: 17px;
-            }
-
-            .source-seal {
-                display: none;
             }
 
             .detail-summary {
@@ -2221,13 +1880,8 @@
             }
 
             .background-row {
-                grid-template-columns: 44px minmax(0, 1fr) 28px;
-                min-height: 228px;
-            }
-
-            .row-summary {
-                -webkit-line-clamp: 2;
-                min-height: 40px;
+                grid-template-columns: 44px minmax(0, 1fr) auto;
+                min-height: 88px;
             }
 
             .editor-header h2 {
@@ -2295,65 +1949,36 @@
             <main id="manager">
                 <section class="manager-card" aria-label="Background manager">
                     <div class="scene" id="list-scene">
-                        <div class="collection-intro">
-                            <div class="collection-copy">
-                                <p class="eyebrow">Origin archive</p>
-                                <h2>Every hero arrives with a past.</h2>
-                                <p>Browse the training, possessions, and connections that shaped a character before their first adventure.</p>
-                            </div>
-                            <div class="collection-side">
-                                <div class="collection-seal" aria-hidden="true">
-                                    <svg viewBox="0 0 64 64">
-                                        <path d="M42 11c-8 2-17 10-21 19-3 6-4 13-3 18 5-1 12-4 17-8 8-7 13-18 12-28-1-1-3-1-5-1Z"></path>
-                                        <path d="M17 51c7-11 14-20 25-31M22 40l11-1M28 31l1 9"></path>
-                                    </svg>
-                                </div>
-                                <button class="button create-button" id="create-background" type="button">
-                                    <span aria-hidden="true">＋</span>
-                                    Create background
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="list-toolbar">
-                            <label class="search-field" for="background-search">
-                                <span class="field-label">Find a background</span>
-                                <span class="search-wrap">
-                                    <span class="search-icon" aria-hidden="true">⌕</span>
-                                    <input
-                                        class="search-input"
-                                        id="background-search"
-                                        type="search"
-                                        autocomplete="off"
-                                        placeholder="Search name, skill, or feature"
-                                    >
+                        <div class="collection-chrome">
+                            <div class="filter-topline">
+                                <div class="search-wrap">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="m21 21-4.4-4.4m2.4-5.1a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"/></svg>
+                                    <input class="search-input" id="background-search" type="search" autocomplete="off" placeholder="Search names, skills, or features" aria-label="Search backgrounds">
                                     <button class="clear-search" id="clear-search" type="button" aria-label="Clear search" hidden>×</button>
-                                </span>
-                            </label>
-
-                            <fieldset class="source-filter">
-                                <legend class="field-label">Source</legend>
-                                <div class="filter-row">
-                                    <div class="segmented-control" aria-label="Filter backgrounds by source">
-                                        <button type="button" class="filter-button is-active" data-filter="all" aria-pressed="true">All</button>
-                                        <button type="button" class="filter-button" data-filter="custom" aria-pressed="false">Custom</button>
-                                        <button type="button" class="filter-button" data-filter="srd" aria-pressed="false">SRD</button>
-                                    </div>
-                                    <output class="result-count" id="result-count" aria-live="polite">4 backgrounds</output>
                                 </div>
-                            </fieldset>
+                                <div class="source-control">
+                                    <span class="source-copy"><span class="source-title">Include SRD backgrounds</span></span>
+                                    <label class="switch">
+                                        <input id="include-srd" type="checkbox" checked aria-label="Include SRD backgrounds">
+                                        <span class="switch-track" aria-hidden="true"></span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
-
+                        <div class="results-bar">
+                            <span class="result-count" id="result-count" role="status" aria-live="polite"><strong>4 backgrounds</strong> · A–Z</span>
+                            <button class="clear-filters" id="reset-filters" type="button" hidden>Clear filters</button>
+                        </div>
                         <ul class="background-list" id="background-list"></ul>
-
                         <div class="empty-state" id="empty-state" hidden>
                             <div>
-                                <span class="empty-mark" aria-hidden="true">⌕</span>
-                                <h2>No matching origins</h2>
-                                <p>Try a different name, skill, or source.</p>
-                                <button class="button button-secondary" id="reset-filters" type="button">Clear search and filters</button>
+                                <span class="empty-mark" aria-hidden="true">◇</span>
+                                <h2>No matching backgrounds</h2>
+                                <p>Clear the search or include SRD entries to reveal more origins.</p>
+                                <button class="button button-secondary" id="empty-reset" type="button">Clear filters</button>
                             </div>
                         </div>
+                        <button class="fab" id="create-background" type="button" aria-label="Create custom background">+</button>
                     </div>
 
                     <div class="scene" id="detail-scene" hidden>
@@ -2418,7 +2043,7 @@
                                 </label>
                                 <label class="form-field" for="source-book">
                                     <span class="field-label">Source label</span>
-                                    <input class="night-input" id="source-book" name="sourceBook" maxlength="40" value="Homebrew">
+                                    <input class="night-input" id="source-book" name="sourceBook" maxlength="40" value="Home campaign">
                                 </label>
                             </div>
                         </section>
@@ -2627,7 +2252,7 @@
                     name: "Border Courier",
                     initials: "BC",
                     isCustom: true,
-                    sourceBook: "Homebrew",
+                    sourceBook: "Home campaign",
                     summary: "You carried sealed messages across disputed roads, reading weather, patrols, and people before any map.",
                     skills: ["Perception", "Survival"],
                     tools: ["Navigator's tools"],
@@ -2646,7 +2271,7 @@
                     name: "Guild Cartographer",
                     initials: "GC",
                     isCustom: true,
-                    sourceBook: "Homebrew",
+                    sourceBook: "Home campaign",
                     summary: "You surveyed roads and ruins for a mapmakers' guild, turning dangerous journeys into reliable lines of ink.",
                     skills: ["Arcana", "Investigation"],
                     tools: ["Cartographer's tools"],
@@ -2665,7 +2290,7 @@
                     name: "Street Physician",
                     initials: "SP",
                     isCustom: true,
-                    sourceBook: "Homebrew",
+                    sourceBook: "Home campaign",
                     summary: "You treated injuries where formal healers would not go, earning trust one doorstep and back room at a time.",
                     skills: ["Insight", "Medicine"],
                     tools: ["Herbalism kit"],
@@ -2684,7 +2309,8 @@
             var editorMode = "create";
             var editingId = null;
             var currentStage = 0;
-            var sourceFilter = "all";
+            var includeSrd = true;
+            var previousRowId = null;
             var languageChoiceCount = 0;
             var equipmentDraft = [];
             var toastTimer = null;
@@ -2698,9 +2324,10 @@
             var emptyState = document.getElementById("empty-state");
             var searchInput = document.getElementById("background-search");
             var clearSearch = document.getElementById("clear-search");
-            var filterButtons = Array.prototype.slice.call(document.querySelectorAll(".filter-button"));
+            var includeSrdInput = document.getElementById("include-srd");
             var resultCount = document.getElementById("result-count");
             var resetFilters = document.getElementById("reset-filters");
+            var emptyReset = document.getElementById("empty-reset");
             var detailBack = document.getElementById("detail-back");
             var createButton = document.getElementById("create-background");
             var editorDialog = document.getElementById("editor-dialog");
@@ -2749,23 +2376,20 @@
                 return background.isCustom ? "Custom" : "SRD";
             }
 
-            function grantPillsHtml(background) {
-                var pills = [];
-                if (background.skills.length) pills.push(background.skills.join(" · "));
-                if (background.tools.length) pills.push(background.tools.join(", "));
+            function grantMeta(background) {
+                var parts = [];
+                if (background.skills.length) parts.push(background.skills.join(", "));
+                if (background.tools.length) parts.push(background.tools.join(", "));
                 if (background.languageChoiceCount) {
-                    pills.push(pluralize(background.languageChoiceCount, "language") + " of choice");
+                    parts.push(pluralize(background.languageChoiceCount, "language") + " of choice");
                 }
-                return (pills.length ? pills : ["No grants listed"]).map(function (pill) {
-                    return '<span class="grant-pill">' + escapeHtml(pill) + "</span>";
-                }).join("");
+                return parts.join(" · ") || "No grants listed";
             }
 
             function renderList() {
                 var query = searchInput.value.trim().toLowerCase();
                 var visible = backgrounds.filter(function (background) {
-                    if (sourceFilter === "custom" && !background.isCustom) return false;
-                    if (sourceFilter === "srd" && background.isCustom) return false;
+                    if (!includeSrd && !background.isCustom) return false;
                     if (!query) return true;
                     var haystack = [
                         background.name,
@@ -2780,8 +2404,10 @@
 
                 backgroundList.innerHTML = "";
                 clearSearch.hidden = !query;
-                resultCount.textContent = pluralize(visible.length, "background");
+                resultCount.innerHTML = "<strong>" + pluralize(visible.length, "background") + "</strong> · A–Z";
+                resetFilters.hidden = !(query || !includeSrd);
                 emptyState.hidden = visible.length !== 0;
+                createButton.hidden = false;
 
                 visible.forEach(function (background) {
                     var item = document.createElement("li");
@@ -2789,16 +2415,16 @@
                     row.className = "background-row";
                     row.type = "button";
                     row.setAttribute("aria-label", "View " + background.name + " background");
+                    row.setAttribute("data-view", background.id);
                     row.innerHTML =
-                        '<span class="origin-mark" aria-hidden="true">' + escapeHtml(background.initials) + "</span>" +
+                        '<span class="index-mark origin-mark" aria-hidden="true">' + escapeHtml(background.initials) + "</span>" +
                         '<span class="row-main">' +
-                            '<span class="row-title-line">' +
-                                '<span class="row-title">' + escapeHtml(background.name) + "</span>" +
-                                '<span class="source-tag ' + (background.isCustom ? "" : "srd") + '">' + sourceLabel(background) + "</span>" +
+                            '<span class="row-heading row-title-line">' +
+                                '<strong class="row-title">' + escapeHtml(background.name) + "</strong>" +
+                                '<span class="source-badge">' + sourceLabel(background) + "</span>" +
                             "</span>" +
-                            '<span class="row-summary">' + escapeHtml(background.summary) + "</span>" +
-                            '<span class="grant-pills">' + grantPillsHtml(background) + "</span>" +
-                            '<span class="row-feature"><small>Defining feature</small><strong>' + escapeHtml(background.featureName) + "</strong></span>" +
+                            '<span class="row-meta">' + escapeHtml(grantMeta(background)) + "</span>" +
+                            '<span class="row-description">' + escapeHtml(background.summary) + "</span>" +
                         "</span>" +
                         '<span class="chevron" aria-hidden="true">›</span>';
                     row.addEventListener("click", function () {
@@ -2835,6 +2461,8 @@
                 var background = backgrounds.find(function (item) { return item.id === id; });
                 if (!background) return;
                 selectedId = id;
+                previousRowId = id;
+                createButton.hidden = true;
                 detailTitle.textContent = background.name;
 
                 var toolsText = background.tools.length ? background.tools.join(", ") : "None";
@@ -2851,14 +2479,12 @@
                                 "<h2>" + escapeHtml(background.name) + "</h2>" +
                                 '<p class="detail-summary">' + escapeHtml(background.summary) + "</p>" +
                             "</div>" +
-                            '<div class="source-seal" aria-label="' + escapeHtml(sourceLabel(background)) + ' source">' + escapeHtml(sourceLabel(background)) + "</div>" +
                         "</header>" +
                         '<div class="grant-summary" aria-label="Background grants">' +
                             '<div class="grant-summary-item"><span>Skills</span><strong>' + escapeHtml(background.skills.join(" & ") || "None") + "</strong></div>" +
                             '<div class="grant-summary-item"><span>Tools</span><strong>' + escapeHtml(toolsText) + "</strong></div>" +
                             '<div class="grant-summary-item"><span>Languages</span><strong>' + escapeHtml(languageText) + "</strong></div>" +
                         "</div>" +
-                        detailActionsHtml(background) +
                         '<div class="detail-grid">' +
                             '<div class="detail-column">' +
                                 '<section class="detail-section">' +
@@ -2885,6 +2511,7 @@
                                 "</section>" +
                             "</div>" +
                         "</div>" +
+                        detailActionsHtml(background) +
                     "</article>";
 
                 listScene.hidden = true;
@@ -2909,13 +2536,15 @@
             }
 
             function closeDetail() {
+                var previous = previousRowId;
                 selectedId = null;
                 detailTitle.textContent = "";
                 detailScene.hidden = true;
                 listScene.hidden = false;
+                createButton.hidden = false;
                 window.requestAnimationFrame(function () {
-                    var firstRow = backgroundList.querySelector(".background-row");
-                    (firstRow || searchInput).focus();
+                    var row = previous ? backgroundList.querySelector('[data-view="' + previous + '"]') : null;
+                    (row || searchInput).focus();
                 });
             }
 
@@ -2943,7 +2572,7 @@
                     name: nameInput.value.trim(),
                     initials: initialsFor(nameInput.value),
                     isCustom: true,
-                    sourceBook: sourceBookInput.value.trim() || "Homebrew",
+                    sourceBook: sourceBookInput.value.trim() || "Home campaign",
                     summary: summaryInput.value.trim(),
                     skills: selectedValues("skills"),
                     tools: selectedValues("tools"),
@@ -3059,7 +2688,7 @@
             function fillEditor(background) {
                 nameInput.value = background ? background.name : "";
                 summaryInput.value = background ? background.summary : "";
-                sourceBookInput.value = background ? background.sourceBook : "Homebrew";
+                sourceBookInput.value = background ? background.sourceBook : "Home campaign";
                 featureNameInput.value = background ? background.featureName : "";
                 featureDescriptionInput.value = background ? background.featureDescription : "";
                 setSelectedValues("skills", background ? background.skills : []);
@@ -3208,28 +2837,19 @@
                 renderList();
                 searchInput.focus();
             });
-            filterButtons.forEach(function (button) {
-                button.addEventListener("click", function () {
-                    sourceFilter = button.getAttribute("data-filter");
-                    filterButtons.forEach(function (candidate) {
-                        var isActive = candidate === button;
-                        candidate.classList.toggle("is-active", isActive);
-                        candidate.setAttribute("aria-pressed", String(isActive));
-                    });
-                    renderList();
-                });
+            includeSrdInput.addEventListener("change", function () {
+                includeSrd = includeSrdInput.checked;
+                renderList();
             });
-            resetFilters.addEventListener("click", function () {
-                sourceFilter = "all";
+            function resetListFilters() {
+                includeSrd = true;
+                includeSrdInput.checked = true;
                 searchInput.value = "";
-                filterButtons.forEach(function (button) {
-                    var isActive = button.getAttribute("data-filter") === "all";
-                    button.classList.toggle("is-active", isActive);
-                    button.setAttribute("aria-pressed", String(isActive));
-                });
                 renderList();
                 searchInput.focus();
-            });
+            }
+            resetFilters.addEventListener("click", resetListFilters);
+            emptyReset.addEventListener("click", resetListFilters);
             detailBack.addEventListener("click", closeDetail);
             createButton.addEventListener("click", function () {
                 openEditor("create", null, createButton);
