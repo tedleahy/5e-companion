@@ -325,4 +325,50 @@ describe('compendium browse queries', () => {
             }),
         ]);
     });
+
+    test('does not treat missing or blank scripts as a shared peer group', async () => {
+        languageFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'language-deep-speech', ownerUserId: null, srdIndex: 'deep-speech', name: 'Deep Speech',
+                sourceBook: 'SRD', type: 'Exotic', script: null, typicalSpeakers: ['Aboleths'],
+                description: null, races: [], backgrounds: [], traits: [],
+            },
+            {
+                id: 'language-cant', ownerUserId: null, srdIndex: 'thieves-cant', name: "Thieves' Cant",
+                sourceBook: 'SRD', type: 'Exotic', script: null, typicalSpeakers: ['Rogues'],
+                description: null, races: [], backgrounds: [], traits: [],
+            },
+            {
+                id: 'language-invented', ownerUserId: 'user-abc', srdIndex: null, name: 'Invented',
+                sourceBook: 'Personal compendium', type: 'Exotic', script: '   ', typicalSpeakers: [],
+                description: null, races: [], backgrounds: [], traits: [],
+            },
+            {
+                id: 'language-common', ownerUserId: null, srdIndex: 'common', name: 'Common',
+                sourceBook: 'SRD', type: 'Standard', script: 'Common', typicalSpeakers: ['Humans'],
+                description: null, races: [], backgrounds: [], traits: [],
+            },
+            {
+                id: 'language-halfling', ownerUserId: null, srdIndex: 'halfling', name: 'Halfling',
+                sourceBook: 'SRD', type: 'Standard', script: 'Common', typicalSpeakers: ['Halflings'],
+                description: null, races: [], backgrounds: [], traits: [],
+            },
+        ]);
+
+        const result = await compendiumLanguages({}, {}, authedCtx);
+
+        expect(result).toEqual([
+            expect.objectContaining({ value: 'deep-speech', sameScriptLanguages: [] }),
+            expect.objectContaining({ value: 'thieves-cant', sameScriptLanguages: [] }),
+            expect.objectContaining({ value: 'language-invented', sameScriptLanguages: [] }),
+            expect.objectContaining({
+                value: 'common',
+                sameScriptLanguages: [{ value: 'halfling', name: 'Halfling' }],
+            }),
+            expect.objectContaining({
+                value: 'halfling',
+                sameScriptLanguages: [{ value: 'common', name: 'Common' }],
+            }),
+        ]);
+    });
 });

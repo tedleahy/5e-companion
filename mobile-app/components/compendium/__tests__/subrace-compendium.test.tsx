@@ -1,3 +1,4 @@
+import { useLocalSearchParams } from 'expo-router';
 import { fireEvent, screen } from '@testing-library/react-native';
 import SubraceCompendium from '@/components/compendium/subrace-compendium';
 import {
@@ -40,6 +41,7 @@ const subrace = {
 describe('SubraceCompendium', () => {
     beforeEach(() => {
         mockProtectedPush.mockClear();
+        (useLocalSearchParams as jest.Mock).mockReturnValue({});
     });
 
     it('browses, filters, opens, and empties subraces', async () => {
@@ -52,6 +54,13 @@ describe('SubraceCompendium', () => {
         fireEvent.press(screen.getByTestId('subrace-parent-filter-elf'));
         fireEvent.press(screen.getByTestId('compendium-row-high-elf'));
         expect(screen.getByText('Lineage inheritance')).toBeTruthy();
+        expect(screen.getByTestId('compendium-lineage-branch').props.accessibilityLabel).toBe(
+            'Lineage inheritance: Elf grants +2 Dexterity; High Elf adds +1 Intelligence',
+        );
+        expect(screen.getByText('Parent race')).toBeTruthy();
+        expect(screen.getByText('+2 Dexterity inherited')).toBeTruthy();
+        expect(screen.getByText('Subrace bonus')).toBeTruthy();
+        expect(screen.getByText('1 trait added')).toBeTruthy();
         expect(screen.getByText('Parent race rules')).toBeTruthy();
         fireEvent.press(screen.getByRole('button', { name: 'Elf' }));
         expect(mockProtectedPush).toHaveBeenCalledWith({
@@ -63,5 +72,15 @@ describe('SubraceCompendium', () => {
 
         await returnToListAndHideSrd();
         expect(screen.getByText('No matching lineages')).toBeTruthy();
+    });
+
+    it('opens a matching subrace deep link on arrival', async () => {
+        (useLocalSearchParams as jest.Mock).mockReturnValue({ value: 'high-elf' });
+        renderBrowseScreen(SubraceCompendium, GET_COMPENDIUM_SUBRACES, {
+            compendiumSubraces: [subrace],
+        });
+
+        await waitFor(() => expect(screen.getByTestId('compendium-lineage-branch')).toBeTruthy());
+        expect(screen.getByText('Lineage inheritance')).toBeTruthy();
     });
 });

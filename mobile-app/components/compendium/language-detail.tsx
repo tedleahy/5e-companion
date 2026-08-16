@@ -7,11 +7,13 @@ import CompendiumPills from '@/components/compendium/detail/pills';
 import CompendiumReferenceList from '@/components/compendium/detail/reference-list';
 import {
     displayLanguageType,
+    hasRecordedScript,
     languageScriptMark,
     type Language,
 } from '@/components/compendium/language-presentation';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
+/** Language detail with speakers, learning sources, and same-script peer jumps. */
 export default function LanguageDetail({
     language,
     onSelectPeer,
@@ -36,7 +38,7 @@ export default function LanguageDetail({
             />
             <CompendiumPills values={[
                 displayLanguageType(language.type),
-                language.script ? `${language.script} script` : 'Unwritten / unknown',
+                hasRecordedScript(language.script) ? `${language.script} script` : 'Unwritten / unknown',
             ]} />
             <CompendiumDetailSection title="About the language">
                 <CompendiumBodyText>{language.description ?? 'No description is recorded.'}</CompendiumBodyText>
@@ -60,7 +62,9 @@ export default function LanguageDetail({
             <CompendiumDetailSection title="Shares this script">
                 <CompendiumReferenceList
                     items={language.sameScriptLanguages}
-                    emptyLabel="No other languages share this script."
+                    emptyLabel={hasRecordedScript(language.script)
+                        ? 'No other languages share this script.'
+                        : 'No recorded script to share with other languages.'}
                     onSelect={onSelectPeer}
                 />
             </CompendiumDetailSection>

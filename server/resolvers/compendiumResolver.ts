@@ -190,6 +190,17 @@ function languageInclude(userId: string) {
     } satisfies Prisma.LanguageInclude;
 }
 
+/** True when a language has a named script rather than missing metadata. */
+function hasRecordedScript(script: string | null | undefined): script is string {
+    return script != null && script.trim() !== '';
+}
+
+/** Peers that share a recorded script with `row`. Null/blank scripts are not a shared group. */
+function sameScriptPeersOf<T extends { id: string; script: string | null }>(row: T, rows: T[]) {
+    if (!hasRecordedScript(row.script)) return [];
+    return rows.filter((peer) => peer.id !== row.id && peer.script === row.script);
+}
+
 /** Returns lightweight Compendium totals without loading content rows. */
 export default async function compendiumCounts(
     _parent: unknown,
@@ -444,9 +455,7 @@ export async function compendiumLanguages(_parent: unknown, _args: unknown, ctx:
         grantingRaces: row.races.map(referenceOf),
         grantingBackgrounds: row.backgrounds.map(referenceOf),
         grantingTraits: row.traits.map(referenceOf),
-        sameScriptLanguages: rows
-            .filter((peer) => peer.id !== row.id && peer.script === row.script)
-            .map(referenceOf),
+        sameScriptLanguages: sameScriptPeersOf(row, rows).map(referenceOf),
         characterUsageCount: usageCounts.get(row.id) ?? 0,
     }));
 }

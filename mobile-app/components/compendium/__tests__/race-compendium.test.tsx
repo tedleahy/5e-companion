@@ -1,4 +1,6 @@
+import { useLocalSearchParams } from 'expo-router';
 import { fireEvent, screen } from '@testing-library/react-native';
+import { ScrollView } from 'react-native';
 import RaceCompendium from '@/components/compendium/race-compendium';
 import {
     renderBrowseScreen,
@@ -42,6 +44,7 @@ const race = {
 describe('RaceCompendium', () => {
     beforeEach(() => {
         mockProtectedPush.mockClear();
+        (useLocalSearchParams as jest.Mock).mockReturnValue({});
     });
 
     it('browses, opens, and empties races', async () => {
@@ -51,7 +54,10 @@ describe('RaceCompendium', () => {
         expect(screen.getByText(/Medium · 30 ft/)).toBeTruthy();
         fireEvent.press(screen.getByTestId('compendium-row-elf'));
         expect(screen.getByText('Lineage ledger')).toBeTruthy();
-        expect(screen.getAllByText('Life & build')).toHaveLength(2);
+        expect(screen.getByRole('button', { name: 'Jump to Traits (1)' })).toBeTruthy();
+        expect(screen.getByRole('button', { name: 'Jump to Languages (2)' })).toBeTruthy();
+        expect(screen.getByRole('button', { name: 'Jump to Life & build' })).toBeTruthy();
+        expect(screen.getByRole('button', { name: 'Jump to Subraces (1)' })).toBeTruthy();
         expect(screen.getByText('High Elf')).toBeTruthy();
         fireEvent.press(screen.getByRole('button', { name: 'High Elf' }));
         expect(mockProtectedPush).toHaveBeenCalledWith({
@@ -61,5 +67,34 @@ describe('RaceCompendium', () => {
 
         await returnToListAndHideSrd();
         expect(screen.getByText('No lineages found')).toBeTruthy();
+    });
+
+    it('opens a matching race deep link on arrival', async () => {
+        (useLocalSearchParams as jest.Mock).mockReturnValue({ value: 'elf' });
+        renderBrowseScreen(RaceCompendium, GET_COMPENDIUM_RACES, { compendiumRaces: [race] });
+
+        await waitFor(() => expect(screen.getByText('Lineage ledger')).toBeTruthy());
+        expect(screen.getByRole('button', { name: 'Jump to Traits (1)' })).toBeTruthy();
+    });
+
+    it('scrolls race detail to the chosen jump target', async () => {
+        const scrollTo = jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(() => {});
+        try {
+            renderBrowseScreen(RaceCompendium, GET_COMPENDIUM_RACES, { compendiumRaces: [race] });
+
+            await waitFor(() => expect(screen.getByTestId('compendium-row-elf')).toBeTruthy());
+            fireEvent.press(screen.getByTestId('compendium-row-elf'));
+            fireEvent(screen.getByTestId('compendium-detail-body'), 'layout', {
+                nativeEvent: { layout: { x: 0, y: 72, width: 400, height: 900 } },
+            });
+            fireEvent(screen.getByTestId('compendium-section-traits'), 'layout', {
+                nativeEvent: { layout: { x: 0, y: 240, width: 400, height: 180 } },
+            });
+            fireEvent.press(screen.getByRole('button', { name: 'Jump to Traits (1)' }));
+
+            expect(scrollTo).toHaveBeenCalledWith({ y: 312, animated: true });
+        } finally {
+            scrollTo.mockRestore();
+        }
     });
 });

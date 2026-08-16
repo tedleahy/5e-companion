@@ -5,15 +5,22 @@ import CompendiumDetailHero from '@/components/compendium/detail/detail-hero';
 import CompendiumDetailSection from '@/components/compendium/detail/detail-section';
 import CompendiumDisclosure from '@/components/compendium/detail/disclosure';
 import CompendiumFactGrid from '@/components/compendium/detail/fact-grid';
+import CompendiumLineageBranch from '@/components/compendium/detail/lineage-branch';
 import CompendiumReferenceList from '@/components/compendium/detail/reference-list';
 import CompendiumTraitList from '@/components/compendium/detail/trait-list';
-import { parentMark, type Subrace } from '@/components/compendium/subrace-presentation';
+import {
+    lineageInheritanceLabel,
+    parentMark,
+    subraceBonusGlyph,
+    type Subrace,
+} from '@/components/compendium/subrace-presentation';
 
 type SubraceDetailProps = {
     subrace: Subrace;
     onOpenParentRace: (value: string) => void;
 };
 
+/** Subrace detail with a parent → child inheritance diagram and inherited rules. */
 export default function SubraceDetail({ subrace, onOpenParentRace }: SubraceDetailProps) {
     const [parentExpanded, setParentExpanded] = useState(false);
     const parent = subrace.parentRace;
@@ -28,11 +35,24 @@ export default function SubraceDetail({ subrace, onOpenParentRace }: SubraceDeta
                 facts={[{ label: 'Characters', value: countLabel(subrace.characterUsageCount, 'character') }]}
             />
             <CompendiumDetailSection title="Lineage inheritance">
-                <CompendiumFactGrid facts={[
-                    { label: `${parent.name} grants`, value: parent.abilitySummary || 'No bonus listed' },
-                    { label: `${subrace.name} adds`, value: subrace.abilitySummary || 'No additional bonus' },
-                    { label: 'Added traits', value: countLabel(subrace.traits.length, 'trait') },
-                ]} />
+                <CompendiumLineageBranch
+                    accessibilityLabel={lineageInheritanceLabel(subrace)}
+                    parent={{
+                        glyph: parentMark(parent.name),
+                        label: 'Parent race',
+                        name: parent.name,
+                        detail: parent.abilitySummary
+                            ? `${parent.abilitySummary} inherited`
+                            : 'No inherited bonus',
+                    }}
+                    child={{
+                        glyph: subraceBonusGlyph(subrace.abilityBonuses),
+                        label: 'Subrace bonus',
+                        name: subrace.abilitySummary || 'No additional bonus',
+                        detail: `${countLabel(subrace.traits.length, 'trait')} added`,
+                        emphasiseGlyph: true,
+                    }}
+                />
             </CompendiumDetailSection>
             <CompendiumDetailSection title="Subrace traits">
                 <CompendiumTraitList traits={subrace.traits} emptyLabel="No additional traits are listed." />

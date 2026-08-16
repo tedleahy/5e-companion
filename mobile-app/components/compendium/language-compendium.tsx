@@ -14,6 +14,7 @@ import { GET_COMPENDIUM_LANGUAGES } from '@/graphql/language.operations';
 import LanguageDetail from '@/components/compendium/language-detail';
 import {
     displayLanguageType,
+    hasRecordedScript,
     languageScriptMark,
 } from '@/components/compendium/language-presentation';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -38,7 +39,9 @@ export default function LanguageCompendium() {
     });
     const allLanguages = useMemo(() => query.data?.compendiumLanguages ?? [], [query.data]);
     const scriptOptions = useMemo(() => {
-        const scripts = new Set(allLanguages.map((language) => language.script).filter(Boolean) as string[]);
+        const scripts = new Set(
+            allLanguages.map((language) => language.script).filter(hasRecordedScript),
+        );
         return [
             { value: ALL_FILTER_VALUE, label: 'All scripts' },
             ...[...scripts].sort((left, right) => left.localeCompare(right)).map((script) => ({
@@ -53,7 +56,9 @@ export default function LanguageCompendium() {
         .filter((language) => typeFilter === ALL_FILTER_VALUE
             || language.type?.toLocaleLowerCase() === typeFilter)
         .filter((language) => scriptFilter === ALL_FILTER_VALUE
-            || (scriptFilter === UNWRITTEN_FILTER_VALUE ? !language.script : language.script === scriptFilter))
+            || (scriptFilter === UNWRITTEN_FILTER_VALUE
+                ? !hasRecordedScript(language.script)
+                : language.script === scriptFilter))
         .filter((language) => matchesCompendiumSearch(
             searchText,
             language.name,
@@ -125,7 +130,7 @@ export default function LanguageCompendium() {
             empty={{ title: 'No matching languages', body: 'Clear the filters to browse every recorded tongue.' }}
             row={{
                 mark: (language) => <Text style={styles.scriptMark}>{languageScriptMark(language.script)}</Text>,
-                meta: (language) => `${displayLanguageType(language.type)} · ${language.script ? `${language.script} script` : 'Unwritten / unknown'} · ${language.typicalSpeakers.join(', ') || language.description || 'No typical speakers listed'}`,
+                meta: (language) => `${displayLanguageType(language.type)} · ${hasRecordedScript(language.script) ? `${language.script} script` : 'Unwritten / unknown'} · ${language.typicalSpeakers.join(', ') || language.description || 'No typical speakers listed'}`,
             }}
             renderDetail={(language) => (
                 <LanguageDetail language={language} onSelectPeer={selectPeer} />
