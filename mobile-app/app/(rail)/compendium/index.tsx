@@ -11,7 +11,7 @@ import useProtectedNavigation from '@/hooks/useProtectedNavigation';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { CompendiumCountsQuery } from '@/types/generated_graphql_types';
 
-/** Hub for browsing implemented and planned Compendium content categories. */
+/** Hub for browsing Compendium content categories. */
 export default function CompendiumScreen() {
     const { width } = useWindowDimensions();
     const protectedRouter = useProtectedNavigation();
@@ -21,16 +21,26 @@ export default function CompendiumScreen() {
     const cardWidth = width >= fantasyTokens.breakpoints.tablet ? '31%' : '47%';
     const counts = data?.compendiumCounts;
     const unavailableSummary = loading ? 'Gathering records…' : 'Counts unavailable';
-    const summaries: Partial<Record<CompendiumCategoryKey, string>> = counts && !error
+    const summaries: Record<CompendiumCategoryKey, string> = counts && !error
         ? {
             classes: `${counts.srdClassCount} SRD · ${counts.customClassCount} custom`,
             subclasses: `${counts.srdSubclassCount} SRD · ${counts.customSubclassCount} custom`,
             spells: `${counts.spellCount} available`,
+            races: `${counts.srdRaceCount} SRD · ${counts.customRaceCount} custom`,
+            subraces: `${counts.srdSubraceCount} SRD · ${counts.customSubraceCount} custom`,
+            backgrounds: `${counts.srdBackgroundCount} SRD · ${counts.customBackgroundCount} custom`,
+            feats: `${counts.srdFeatCount} SRD · ${counts.customFeatCount} custom`,
+            languages: `${counts.srdLanguageCount} SRD · ${counts.customLanguageCount} custom`,
         }
         : {
             classes: unavailableSummary,
             subclasses: unavailableSummary,
             spells: unavailableSummary,
+            races: unavailableSummary,
+            subraces: unavailableSummary,
+            backgrounds: unavailableSummary,
+            feats: unavailableSummary,
+            languages: unavailableSummary,
         };
 
     return (

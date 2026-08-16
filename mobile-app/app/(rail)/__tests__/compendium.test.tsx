@@ -24,9 +24,9 @@ const COUNTS_DATA = {
         customRaceCount: 0,
         srdSubraceCount: 4,
         customSubraceCount: 0,
-        srdBackgroundCount: 1,
+        srdBackgroundCount: 5,
         customBackgroundCount: 0,
-        srdFeatCount: 1,
+        srdFeatCount: 6,
         customFeatCount: 0,
         srdLanguageCount: 16,
         customLanguageCount: 0,
@@ -64,16 +64,29 @@ describe('Compendium screen', () => {
         expect(screen.queryByText('Traits')).toBeNull();
         expect(screen.getByText('Subclasses')).toBeTruthy();
         expect(screen.getByText('Spells')).toBeTruthy();
-        await waitFor(() => expect(screen.getByText('2 available')).toBeTruthy());
+        await waitFor(() => {
+            expect(screen.getByText('2 available')).toBeTruthy();
+            expect(screen.getByText('9 SRD · 0 custom')).toBeTruthy();
+            expect(screen.getByText('4 SRD · 0 custom')).toBeTruthy();
+            expect(screen.getByText('5 SRD · 0 custom')).toBeTruthy();
+            expect(screen.getByText('6 SRD · 0 custom')).toBeTruthy();
+            expect(screen.getByText('16 SRD · 0 custom')).toBeTruthy();
+        });
+        expect(screen.queryByText('Coming soon')).toBeNull();
     });
 
-    it('shows live counts for implemented categories', async () => {
+    it('shows live counts for every category', async () => {
         renderScreen();
 
         await waitFor(() => {
             expect(screen.getByText('1 SRD · 1 custom')).toBeTruthy();
             expect(screen.getByText('12 SRD · 3 custom')).toBeTruthy();
             expect(screen.getByText('2 available')).toBeTruthy();
+            expect(screen.getByText('9 SRD · 0 custom')).toBeTruthy();
+            expect(screen.getByText('4 SRD · 0 custom')).toBeTruthy();
+            expect(screen.getByText('5 SRD · 0 custom')).toBeTruthy();
+            expect(screen.getByText('6 SRD · 0 custom')).toBeTruthy();
+            expect(screen.getByText('16 SRD · 0 custom')).toBeTruthy();
         });
     });
 
@@ -107,7 +120,7 @@ describe('Compendium screen', () => {
         await waitFor(() => expect(screen.getByText('1 SRD · 2 custom')).toBeTruthy());
     });
 
-    it('opens implemented categories and leaves future categories disabled', async () => {
+    it('opens every category from the hub', async () => {
         renderScreen();
 
         await waitFor(() => expect(screen.getByText('2 available')).toBeTruthy());
@@ -115,12 +128,22 @@ describe('Compendium screen', () => {
         fireEvent.press(screen.getByTestId('compendium-category-subclasses'));
         fireEvent.press(screen.getByTestId('compendium-category-spells'));
         fireEvent.press(screen.getByTestId('compendium-category-classes'));
+        fireEvent.press(screen.getByTestId('compendium-category-races'));
+        fireEvent.press(screen.getByTestId('compendium-category-subraces'));
+        fireEvent.press(screen.getByTestId('compendium-category-backgrounds'));
+        fireEvent.press(screen.getByTestId('compendium-category-feats'));
+        fireEvent.press(screen.getByTestId('compendium-category-languages'));
 
         await waitFor(() => {
             expect(mockPush.mock.calls).toEqual([
                 ['/(rail)/compendium/subclasses'],
                 ['/(rail)/compendium/spells'],
                 ['/(rail)/compendium/classes'],
+                ['/(rail)/compendium/races'],
+                ['/(rail)/compendium/subraces'],
+                ['/(rail)/compendium/backgrounds'],
+                ['/(rail)/compendium/feats'],
+                ['/(rail)/compendium/languages'],
             ]);
         });
     });

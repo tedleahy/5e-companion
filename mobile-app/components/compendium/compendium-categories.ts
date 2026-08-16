@@ -27,11 +27,11 @@ export const COMPENDIUM_CATEGORIES = [
         label: 'Spells',
         href: '/(rail)/compendium/spells',
     },
-    { key: 'races', icon: '🧝', label: 'Races', href: undefined },
-    { key: 'subraces', icon: '🌿', label: 'Subraces', href: undefined },
-    { key: 'backgrounds', icon: '🎭', label: 'Backgrounds', href: undefined },
-    { key: 'feats', icon: '🏅', label: 'Feats', href: undefined },
-    { key: 'languages', icon: '🗣️', label: 'Languages', href: undefined },
+    { key: 'races', icon: '🧝', label: 'Races', href: '/(rail)/compendium/races' },
+    { key: 'subraces', icon: '🌿', label: 'Subraces', href: '/(rail)/compendium/subraces' },
+    { key: 'backgrounds', icon: '🎭', label: 'Backgrounds', href: '/(rail)/compendium/backgrounds' },
+    { key: 'feats', icon: '🏅', label: 'Feats', href: '/(rail)/compendium/feats' },
+    { key: 'languages', icon: '🗣️', label: 'Languages', href: '/(rail)/compendium/languages' },
 ] as const satisfies readonly CompendiumCategory[];
 
 /** Stable keys inferred from the Compendium category definitions. */
