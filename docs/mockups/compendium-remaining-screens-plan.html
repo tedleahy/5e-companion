@@ -332,9 +332,9 @@
       </div>
       <div>
         <p class="eyebrow">Compendium · implementation brief</p>
-        <h1>Five coming-soon shelves, one shared collection</h1>
+        <h1>Five browse shelves, one shared collection</h1>
       </div>
-      <p class="lede" id="brief">This is a plan for a later implementation pass, not the screens themselves. Visual source remains the five root <code>compendium-*-design.html</code> files. Ship browse-only list and in-place detail that match those designs, built on one collection shell, after promoting the fields that today live only in Prisma <code>raw</code>.</p>
+      <p class="lede" id="brief">This brief defined the implementation pass for five browse-only Compendium categories. The visual sources are the five sibling <code>compendium-*-design.html</code> files. The shared shell, typed browse data, category screens, and hub enablement are complete; this brief remains the reference for their behaviour and follow-up fidelity work.</p>
     </header>
 
     <nav class="folio-nav" aria-label="Brief sections">
@@ -564,7 +564,7 @@ type CompendiumCollectionProps&lt;T extends CompendiumCollectionItem&gt; = {
 
       <div class="map-grid">
         <article class="category sources">
-          <p class="kicker">Design · <a href="../../compendium-races-design.html">compendium-races-design.html</a></p>
+          <p class="kicker">Design · <a href="compendium-races-design.html">compendium-races-design.html</a></p>
           <h3>Races</h3>
           <p><strong>Chips.</strong> None beyond Include SRD. Size is visible on the row and only splits 2 Small / 7 Medium in the SRD, so a size filter does not earn a chip row.</p>
           <p><strong>Row.</strong> Initials or emoji mark; name; SRD/Custom pill; meta is size · speed ft · trait count · languages (<code>N fixed + M choices</code>); ability mini-pills on tablet (<code>DEX +2</code>, Human <code>All +1</code>).</p>
@@ -572,7 +572,7 @@ type CompendiumCollectionProps&lt;T extends CompendiumCollectionItem&gt; = {
           <p><strong>Search.</strong> Name, source, size, languages, trait names.</p>
         </article>
         <article class="category sources">
-          <p class="kicker">Design · <a href="../../compendium-subraces-design.html">compendium-subraces-design.html</a></p>
+          <p class="kicker">Design · <a href="compendium-subraces-design.html">compendium-subraces-design.html</a></p>
           <h3>Subraces</h3>
           <p><strong>Chips.</strong> Parent race: All plus one chip per parent present in the loaded list (Dwarf / Elf / Halfling / Gnome today).</p>
           <p><strong>Row.</strong> Parent-race sigil, not initials; meta is parent · <code>+N SCORE</code> or “No additional bonus” · “N added traits”.</p>
@@ -580,7 +580,7 @@ type CompendiumCollectionProps&lt;T extends CompendiumCollectionItem&gt; = {
           <p><strong>Search.</strong> Name, parent, source, description, ability label, traits.</p>
         </article>
         <article class="category sources">
-          <p class="kicker">Design · <a href="../../compendium-backgrounds-design.html">compendium-backgrounds-design.html</a></p>
+          <p class="kicker">Design · <a href="compendium-backgrounds-design.html">compendium-backgrounds-design.html</a></p>
           <h3>Backgrounds</h3>
           <p><strong>Chips.</strong> None beyond Include SRD.</p>
           <p><strong>Row.</strong> Initials mark; meta is skills · tools · “N language(s) of choice”; clamp the summary/feature lead, not the full feature body.</p>
@@ -588,7 +588,7 @@ type CompendiumCollectionProps&lt;T extends CompendiumCollectionItem&gt; = {
           <p><strong>Search.</strong> Name, skills, feature, summary, source.</p>
         </article>
         <article class="category sources">
-          <p class="kicker">Design · <a href="../../compendium-feats-design.html">compendium-feats-design.html</a></p>
+          <p class="kicker">Design · <a href="compendium-feats-design.html">compendium-feats-design.html</a></p>
           <h3>Feats</h3>
           <p><strong>Chips.</strong> None beyond Include SRD. The row meta already shows the prerequisite or “Open to all”; a two-bucket filter does not earn a chip row on a one-feat SRD catalog.</p>
           <p><strong>Row.</strong> Initials mark; meta is the prerequisite sentence or “Open to all”; clamp the first description paragraph.</p>
@@ -596,7 +596,7 @@ type CompendiumCollectionProps&lt;T extends CompendiumCollectionItem&gt; = {
           <p><strong>Search.</strong> Name, description, source, prerequisite text.</p>
         </article>
         <article class="category sources">
-          <p class="kicker">Design · <a href="../../compendium-languages-design.html">compendium-languages-design.html</a></p>
+          <p class="kicker">Design · <a href="compendium-languages-design.html">compendium-languages-design.html</a></p>
           <h3>Languages</h3>
           <p><strong>Chips + select.</strong> Type: All / Standard / Exotic. Script <code>&lt;select&gt;</code> of unique scripts (plus Unwritten). The script cartouche is this page’s signature row mark.</p>
           <p><strong>Row.</strong> Cartouche (<code>Co</code> / <code>Dw</code> / <code>El</code> / ∅); meta is type · script or “Unwritten / unknown”; clamp speakers, else description, else “No typical speakers listed”.</p>
@@ -611,7 +611,7 @@ type CompendiumCollectionProps&lt;T extends CompendiumCollectionItem&gt; = {
       <ul>
         <li>Add stack screens beside <code>classes.tsx</code>: <code>races</code>, <code>subraces</code>, <code>backgrounds</code>, <code>feats</code>, <code>languages</code>.</li>
         <li>Register each in <code>mobile-app/app/(rail)/compendium/_layout.tsx</code>.</li>
-        <li>Set <code>href</code> on <code>COMPENDIUM_CATEGORIES</code> (today those five are <code>undefined</code>, which is what paints “Coming soon”).</li>
+        <li>Set <code>href</code> on <code>COMPENDIUM_CATEGORIES</code> so all eight cards are enabled and show their SRD/custom summaries.</li>
         <li>Append the five pathnames to <code>TOP_LEVEL_COMPENDIUM_CATEGORY_PATHS</code> so phone layouts omit the hamburger over the Back control.</li>
         <li>Cross-links use <code>protectedRouter.push</code> to <code>/(rail)/compendium/{category}?value=…</code>.</li>
         <li>Hub counts stay in <code>graphql/compendium.operations.ts</code>. Each category’s browse query lives in its own <code>graphql/{domain}.operations.ts</code> file. Extend <code>mobile-app/codegen.yml</code> only if a document is added outside scanned folders.</li>
@@ -640,11 +640,11 @@ type CompendiumCollectionProps&lt;T extends CompendiumCollectionItem&gt; = {
         </article>
         <article class="step">
           <h3>Hub counts and enable cards</h3>
-          <p>Wire summaries and <code>href</code>s. Coming-soon badges disappear because <code>onPress</code> is no longer undefined.</p>
+          <p>Completed: wire summaries and <code>href</code>s. All eight hub cards are enabled and their browse routes are reachable.</p>
         </article>
         <article class="step">
           <h3>Docs</h3>
-          <p>Update <code>docs/features/compendium.md</code> current behaviour. Drop “coming soon” and first-phase bullets that no longer apply. Note the language usage-count caveat. Update <code>docs/data-model.md</code> for the promoted columns.</p>
+          <p>Completed: current behaviour, promoted data-model fields, and the language usage-count caveat are documented. Follow-up polish is tracked in <code>docs/features/compendium-improvements.md</code>.</p>
         </article>
       </div>
     </section>

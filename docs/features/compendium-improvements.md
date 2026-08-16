@@ -14,7 +14,3 @@ These are follow-up opportunities for the browse-only Compendium screens. They a
 ## Data correctness
 
 - Do not group languages with a `null` script as same-script peers unless that is intentional. “Unwritten / unknown” describes missing script metadata, not necessarily a shared script.
-
-## Documentation hygiene
-
-- If the five design prototypes remain under `docs/mockups/`, update the links in the remaining-screens plan that still point to root-level prototype files.
