@@ -8,6 +8,16 @@ jest.mock('expo-router', () => ({
     usePathname: () => '/',
     useSegments: () => [],
     useLocalSearchParams: jest.fn(() => ({})),
+    // Screens are focused on mount. `blurFocusedScreens()` / `focusScreens()`
+    // from test-utils/screenFocus drive the effect the way navigating to and
+    // from a sibling screen does, without unmounting it.
+    useFocusEffect: (effect: () => undefined | (() => void)) => {
+        const { useEffect, useState } = require('react');
+        const { registerFocusListener } = require('./test-utils/screenFocus');
+        const [focused, setFocused] = useState(true);
+        useEffect(() => registerFocusListener(setFocused), []);
+        useEffect(() => (focused ? effect() : undefined), [effect, focused]);
+    },
     Redirect: ({ href }: { href: string }) => null,
     Stack: () => null,
 }));

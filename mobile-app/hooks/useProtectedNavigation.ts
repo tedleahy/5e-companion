@@ -46,6 +46,21 @@ export default function useProtectedNavigation() {
         router.push(href);
     }, [router]);
 
+    /**
+     * Pops back to the target route when it is already in the stack, otherwise
+     * pushes. Used for lateral jumps between sibling screens so repeated
+     * cross-links cannot grow the stack without bound.
+     */
+    const navigate = useCallback(async (href: Href) => {
+        if (hasUnsavedChanges()) {
+            const shouldDiscard = await confirmDiscardChanges();
+            if (!shouldDiscard) {
+                return;
+            }
+        }
+        router.navigate(href);
+    }, [router]);
+
     const replace = useCallback(async (href: Href) => {
         if (hasUnsavedChanges()) {
             const shouldDiscard = await confirmDiscardChanges();
@@ -68,5 +83,5 @@ export default function useProtectedNavigation() {
 
     const canGoBack = useCallback(() => router.canGoBack(), [router]);
 
-    return { push, replace, back, canGoBack };
+    return { push, navigate, replace, back, canGoBack };
 }
