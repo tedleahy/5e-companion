@@ -16,6 +16,7 @@ import {
     displayLanguageType,
     hasRecordedScript,
     languageScriptMark,
+    scriptLabel,
 } from '@/components/compendium/language-presentation';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { CompendiumLanguagesQuery } from '@/types/generated_graphql_types';
@@ -130,7 +131,7 @@ export default function LanguageCompendium() {
             empty={{ title: 'No matching languages', body: 'Clear the filters to browse every recorded tongue.' }}
             row={{
                 mark: (language) => <Text style={styles.scriptMark}>{languageScriptMark(language.script)}</Text>,
-                meta: (language) => `${displayLanguageType(language.type)} · ${hasRecordedScript(language.script) ? `${language.script} script` : 'Unwritten / unknown'} · ${language.typicalSpeakers.join(', ') || language.description || 'No typical speakers listed'}`,
+                meta: (language) => `${displayLanguageType(language.type)} · ${scriptLabel(language.script)} · ${language.typicalSpeakers.join(', ') || language.description || 'No typical speakers listed'}`,
             }}
             renderDetail={(language) => (
                 <LanguageDetail language={language} onSelectPeer={selectPeer} />

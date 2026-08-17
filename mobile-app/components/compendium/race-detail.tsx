@@ -26,7 +26,7 @@ export default function RaceDetail({
                 mark={raceMark(race)}
                 eyebrow={sourceLabel(race.sourceBook, race.isCustom)}
                 title={race.name}
-                summary={race.abilitySummary}
+                summary={race.abilitySummary ?? 'No ability score increase'}
                 facts={[
                     { label: 'Speed', value: race.speed == null ? 'Not listed' : `${race.speed} ft.` },
                     { label: 'Size', value: race.size ?? 'Not listed' },
@@ -37,14 +37,14 @@ export default function RaceDetail({
             <CompendiumJumpLinks
                 links={[
                     { id: 'traits', label: 'Traits', count: race.traits.length },
-                    { id: 'languages', label: 'Languages', count: race.languages.length + race.languageChoiceCount },
+                    { id: 'languages', label: 'Languages', count: race.languages.length },
                     { id: 'life-and-build', label: 'Life & build' },
                     { id: 'subraces', label: 'Subraces', count: race.subraces.length },
                 ]}
             />
             <CompendiumDetailSection title="Lineage ledger">
                 <CompendiumFactGrid facts={[
-                    { label: 'Ability scores', value: race.abilitySummary || 'No bonus listed' },
+                    { label: 'Ability scores', value: race.abilitySummary ?? 'No bonus listed' },
                     { label: 'Languages', value: raceLanguageSummary(race) },
                     { label: 'Racial traits', value: countLabel(race.traits.length, 'trait') },
                 ]} />

@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { equipmentLines, proficienciesOfType, type Background } from '@/components/compendium/background-presentation';
+import {
+    equipmentLines,
+    equipmentMarker,
+    proficienciesOfType,
+    type Background,
+} from '@/components/compendium/background-presentation';
 import {
     countLabel,
     entryInitials,
@@ -34,6 +39,7 @@ export default function BackgroundDetail({ background }: { background: Backgroun
     const characteristicSummary = characteristicGroups
         .map((group) => `${group.value?.options.length ?? 0} ${group.label.toLocaleLowerCase()}`)
         .join(' · ');
+    const hasCharacteristics = characteristicGroups.some((group) => (group.value?.options.length ?? 0) > 0);
 
     return (
         <>
@@ -41,7 +47,6 @@ export default function BackgroundDetail({ background }: { background: Backgroun
                 mark={entryInitials(background.name)}
                 eyebrow={sourceLabel(background.sourceBook, background.isCustom)}
                 title={background.name}
-                summary={background.featureDescription[0] ?? 'No overview is listed.'}
                 facts={[{ label: 'Characters', value: countLabel(background.characterUsageCount, 'character') }]}
             />
             <CompendiumFactGrid facts={[
@@ -54,9 +59,9 @@ export default function BackgroundDetail({ background }: { background: Backgroun
                     Starting equipment is reference-only and is not automatically added to inventory.
                 </CompendiumBodyText>
                 <View style={styles.equipmentList}>
-                    {equipmentLines(background).map((item) => (
-                        <View key={item.text} style={styles.equipmentRow}>
-                            <Text style={styles.diamond}>{item.choice ? 'Choose:' : '◆'}</Text>
+                    {equipmentLines(background).map((item, index) => (
+                        <View key={`${background.value}-equipment-${index}`} style={styles.equipmentRow}>
+                            <Text style={styles.diamond}>{equipmentMarker(item.choose)}</Text>
                             <Text style={styles.equipmentText} selectable>{item.text}</Text>
                         </View>
                     ))}
@@ -76,26 +81,28 @@ export default function BackgroundDetail({ background }: { background: Backgroun
                     ))}
                 </View>
             </CompendiumDetailSection>
-            <CompendiumDetailSection title="Suggested characteristics">
-                <CompendiumDisclosure
-                    title="Roleplaying prompts"
-                    summary={characteristicSummary}
-                    expanded={characteristicsExpanded}
-                    onToggle={() => setCharacteristicsExpanded((current) => !current)}
-                    testID="background-characteristics"
-                >
-                    {characteristicGroups.map((group) => (
-                        <View key={group.label} style={styles.characteristicGroup}>
-                            <Text style={styles.characteristicTitle}>{group.label}</Text>
-                            {group.value?.options.length ? group.value.options.map((option, index) => (
-                                <Text key={`${group.label}-${index}`} style={styles.characteristicOption} selectable>
-                                    ◆ {option}
-                                </Text>
-                            )) : <CompendiumBodyText>None listed.</CompendiumBodyText>}
-                        </View>
-                    ))}
-                </CompendiumDisclosure>
-            </CompendiumDetailSection>
+            {hasCharacteristics ? (
+                <CompendiumDetailSection title="Suggested characteristics">
+                    <CompendiumDisclosure
+                        title="Roleplaying prompts"
+                        summary={characteristicSummary}
+                        expanded={characteristicsExpanded}
+                        onToggle={() => setCharacteristicsExpanded((current) => !current)}
+                        testID="background-characteristics"
+                    >
+                        {characteristicGroups.map((group) => (
+                            <View key={group.label} style={styles.characteristicGroup}>
+                                <Text style={styles.characteristicTitle}>{group.label}</Text>
+                                {group.value?.options.length ? group.value.options.map((option, index) => (
+                                    <Text key={`${group.label}-${index}`} style={styles.characteristicOption} selectable>
+                                        ◆ {option}
+                                    </Text>
+                                )) : <CompendiumBodyText>None listed.</CompendiumBodyText>}
+                            </View>
+                        ))}
+                    </CompendiumDisclosure>
+                </CompendiumDetailSection>
+            ) : null}
         </>
     );
 }

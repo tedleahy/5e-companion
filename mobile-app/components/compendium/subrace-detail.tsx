@@ -41,14 +41,14 @@ export default function SubraceDetail({ subrace, onOpenParentRace }: SubraceDeta
                         glyph: parentMark(parent.name),
                         label: 'Parent race',
                         name: parent.name,
-                        detail: parent.abilitySummary
-                            ? `${parent.abilitySummary} inherited`
-                            : 'No inherited bonus',
+                        detail: parent.abilitySummary == null
+                            ? 'No inherited bonus'
+                            : `${parent.abilitySummary} inherited`,
                     }}
                     child={{
                         glyph: subraceBonusGlyph(subrace.abilityBonuses),
                         label: 'Subrace bonus',
-                        name: subrace.abilitySummary || 'No additional bonus',
+                        name: subrace.abilitySummary ?? 'No additional bonus',
                         detail: `${countLabel(subrace.traits.length, 'trait')} added`,
                         emphasiseGlyph: true,
                     }}

@@ -15,8 +15,8 @@ export default function CompendiumPills({
 
     return (
         <View style={styles.pills}>
-            {values.map((value) => (
-                <View key={value} style={styles.pill}>
+            {values.map((value, index) => (
+                <View key={`${value}-${index}`} style={styles.pill}>
                     <Text style={styles.text} selectable>{value}</Text>
                 </View>
             ))}

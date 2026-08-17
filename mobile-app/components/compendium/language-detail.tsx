@@ -9,6 +9,8 @@ import {
     displayLanguageType,
     hasRecordedScript,
     languageScriptMark,
+    scriptLabel,
+    speakerSummary,
     type Language,
 } from '@/components/compendium/language-presentation';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -33,15 +35,18 @@ export default function LanguageDetail({
                 mark={languageScriptMark(language.script)}
                 eyebrow={sourceLabel(language.sourceBook, language.isCustom)}
                 title={language.name}
-                summary={language.description ?? 'No description is recorded.'}
+                summary={speakerSummary(language.typicalSpeakers)}
                 facts={[{ label: 'Known by', value: countLabel(language.characterUsageCount, 'character') }]}
             />
             <CompendiumPills values={[
                 displayLanguageType(language.type),
-                hasRecordedScript(language.script) ? `${language.script} script` : 'Unwritten / unknown',
+                scriptLabel(language.script),
             ]} />
             <CompendiumDetailSection title="About the language">
-                <CompendiumBodyText>{language.description ?? 'No description is recorded.'}</CompendiumBodyText>
+                <CompendiumBodyText>{language.description ?? (language.isCustom
+                    ? 'No description provided.'
+                    : 'No descriptive text is supplied for this SRD entry. Its classification, script, and typical speakers are still available.')}
+                </CompendiumBodyText>
             </CompendiumDetailSection>
             <CompendiumDetailSection title="Typical speakers">
                 <CompendiumPills

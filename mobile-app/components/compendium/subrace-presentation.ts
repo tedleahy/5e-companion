@@ -17,9 +17,9 @@ export function subraceBonusGlyph(bonuses: readonly { bonus: number }[]) {
 
 /** Spoken summary of parent grants plus the subrace addition. */
 export function lineageInheritanceLabel(subrace: Pick<Subrace, 'name' | 'abilitySummary' | 'parentRace'>) {
-    const parentGrant = subrace.parentRace.abilitySummary || 'no listed bonus';
-    const addition = subrace.abilitySummary
-        ? `adds ${subrace.abilitySummary}`
-        : 'adds no additional ability bonus';
+    const parentGrant = subrace.parentRace.abilitySummary ?? 'no listed bonus';
+    const addition = subrace.abilitySummary == null
+        ? 'adds no additional ability bonus'
+        : `adds ${subrace.abilitySummary}`;
     return `Lineage inheritance: ${subrace.parentRace.name} grants ${parentGrant}; ${subrace.name} ${addition}`;
 }

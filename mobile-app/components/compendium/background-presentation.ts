@@ -2,28 +2,55 @@ import type { CompendiumBackgroundsQuery } from '@/types/generated_graphql_types
 
 export type Background = CompendiumBackgroundsQuery['compendiumBackgrounds'][number];
 
+type EquipmentEntry = Background['startingEquipment'][number];
+
+/** One rendered starting-equipment line: a fixed grant, or a choose-N group. */
+export type EquipmentLine = {
+    text: string;
+    /** Present only for choice groups; the number of options the player picks. */
+    choose?: number;
+};
+
 export function proficienciesOfType(background: Background, type: string) {
     return background.proficiencies
         .filter((proficiency) => proficiency.type.toLocaleUpperCase() === type)
         .map((proficiency) => proficiency.name);
 }
 
-export function equipmentLines(background: Background) {
-    const fixed = background.startingEquipment
-        .filter((item) => item.choiceGroup == null)
-        .map((item) => `${item.quantity}× ${item.name}`);
-    const groups = new Map<number, typeof background.startingEquipment>();
+function equipmentText(item: EquipmentEntry) {
+    return `${item.quantity}× ${item.name}`;
+}
 
-    background.startingEquipment.forEach((item) => {
-        if (item.choiceGroup == null) return;
-        groups.set(item.choiceGroup, [...(groups.get(item.choiceGroup) ?? []), item]);
-    });
+/**
+ * Fixed grants first, then one line per choice group. The "choose N" wording is
+ * carried by `choose` rather than baked into `text`, so the renderer owns the
+ * prefix and cannot double it up.
+ */
+export function equipmentLines(background: Background): EquipmentLine[] {
+    const fixed: EquipmentLine[] = [];
+    const groups = new Map<number, EquipmentEntry[]>();
+
+    for (const item of background.startingEquipment) {
+        if (item.choiceGroup == null) {
+            fixed.push({ text: equipmentText(item) });
+            continue;
+        }
+        const group = groups.get(item.choiceGroup);
+        if (group) group.push(item);
+        else groups.set(item.choiceGroup, [item]);
+    }
 
     return [
-        ...fixed.map((line) => ({ choice: false, text: line })),
+        ...fixed,
         ...[...groups.values()].map((items) => ({
-            choice: true,
-            text: `Choose ${items[0]?.choiceCount ?? 1}: ${items.map((item) => `${item.quantity}× ${item.name}`).join(' or ')}`,
+            choose: items[0]?.choiceCount ?? 1,
+            text: items.map(equipmentText).join(' or '),
         })),
     ];
+}
+
+/** Diamond for a fixed grant, or a single "Choose" prefix for a choice group. */
+export function equipmentMarker(choose: number | undefined) {
+    if (choose == null) return '◆';
+    return choose > 1 ? `Choose ${choose}:` : 'Choose:';
 }

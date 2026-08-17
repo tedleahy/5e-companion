@@ -53,7 +53,7 @@ export default function FeatCompendium() {
             empty={{ title: 'No matching feats', body: 'Clear the filters to reopen the feat ledger.' }}
             row={{
                 mark: (feat) => <Text style={styles.rowMark}>{entryInitials(feat.name)}</Text>,
-                meta: (feat) => `${feat.prerequisiteSummary || 'Open to all'} · ${featDescriptionParts(feat.description).lead || 'No description listed'}`,
+                meta: (feat) => `${feat.prerequisiteSummary ?? 'Open to all'} · ${featDescriptionParts(feat.description).lead || 'No description listed'}`,
             }}
             renderDetail={(feat) => <FeatDetail feat={feat} />}
         />

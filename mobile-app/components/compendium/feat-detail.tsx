@@ -9,9 +9,7 @@ import { fantasyTokens } from '@/theme/fantasyTheme';
 
 export default function FeatDetail({ feat }: { feat: Feat }) {
     const parts = featDescriptionParts(feat.description);
-    const threshold = feat.prerequisites.length > 0
-        ? feat.prerequisiteSummary
-        : 'None — open to all';
+    const threshold = feat.prerequisiteSummary ?? 'Open to all';
 
     return (
         <>
@@ -31,8 +29,8 @@ export default function FeatDetail({ feat }: { feat: Feat }) {
                 ))}
                 {parts.benefits.length > 0 ? (
                     <View style={styles.benefits}>
-                        {parts.benefits.map((benefit) => (
-                            <View key={benefit} style={styles.benefit}>
+                        {parts.benefits.map((benefit, index) => (
+                            <View key={`${feat.value}-benefit-${index}`} style={styles.benefit}>
                                 <Text style={styles.diamond}>◆</Text>
                                 <View style={styles.benefitText}>
                                     <CompendiumBodyText>{benefit}</CompendiumBodyText>
@@ -48,7 +46,6 @@ export default function FeatDetail({ feat }: { feat: Feat }) {
             <CompendiumDetailSection title="At a glance">
                 <CompendiumFactGrid facts={[
                     { label: 'Source', value: sourceLabel(feat.sourceBook, feat.isCustom) },
-                    { label: 'Ownership', value: feat.isCustom ? 'Custom' : 'SRD' },
                     { label: 'Characters', value: countLabel(feat.characterUsageCount, 'character') },
                 ]} />
             </CompendiumDetailSection>

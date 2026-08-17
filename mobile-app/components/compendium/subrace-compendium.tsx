@@ -88,7 +88,7 @@ export default function SubraceCompendium() {
             empty={{ title: 'No matching lineages', body: 'Clear the filters to browse every subrace.' }}
             row={{
                 mark: (subrace) => <Text style={styles.rowMark}>{parentMark(subrace.parentRace.name)}</Text>,
-                meta: (subrace) => `${subrace.parentRace.name} · ${subrace.abilitySummary || 'No additional bonus'} · ${countLabel(subrace.traits.length, 'added trait')}`,
+                meta: (subrace) => `${subrace.parentRace.name} · ${subrace.abilitySummary ?? 'No additional bonus'} · ${countLabel(subrace.traits.length, 'added trait')}`,
             }}
             renderDetail={(subrace) => (
                 <SubraceDetail subrace={subrace} onOpenParentRace={openParentRace} />
