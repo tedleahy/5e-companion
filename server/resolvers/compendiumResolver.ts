@@ -426,6 +426,9 @@ export async function compendiumLanguages(_parent: unknown, _args: unknown, ctx:
                 },
             },
         });
+    // Best effort: racial grants and persisted CharacterLanguage rows only.
+    // Trait-granted languages are surfaced as a learning source but are not
+    // written to CharacterLanguage yet, so they are not counted here.
     const usageCounts = new Map<string, number>();
 
     for (const character of characters) {

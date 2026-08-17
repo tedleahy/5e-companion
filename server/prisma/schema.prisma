@@ -321,6 +321,8 @@ model Feat {
     @@index([name])
 }
 
+// `minimumScore` is additionally constrained to 1..30 by a CHECK constraint in
+// migrations/20260813230002_feat-prerequisites; Prisma cannot express it here.
 model FeatPrerequisite {
     feat           Feat         @relation(fields: [featId], references: [id], onDelete: Cascade)
     featId         String
