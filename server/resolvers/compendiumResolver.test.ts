@@ -277,7 +277,7 @@ describe('compendium browse queries', () => {
         expect(result[1]).toEqual(expect.objectContaining({
             value: 'feat-custom',
             isCustom: true,
-            prerequisiteSummary: 'Open to all',
+            prerequisiteSummary: null,
         }));
     });
 
@@ -324,6 +324,34 @@ describe('compendium browse queries', () => {
                 characterUsageCount: 2,
             }),
         ]);
+    });
+
+    test('returns null summaries when an entry has no bonuses or prerequisites', async () => {
+        raceFindManyMock.mockResolvedValueOnce([{
+            id: 'race-plain', ownerUserId: 'user-abc', srdIndex: null, name: 'Plainsfolk',
+            speed: 30, alignment: null, age: null, size: 'Medium', sizeDescription: null,
+            languageDescription: null, languageChoiceCount: null, sourceBook: null,
+            abilityBonuses: [],
+            traits: [], languages: [], subraces: [{
+                id: 'subrace-plain', srdIndex: null, name: 'Nomad',
+                abilityBonuses: [], _count: { traits: 0 },
+            }],
+            _count: { characters: 0 },
+        }]);
+        featFindManyMock.mockResolvedValueOnce([{
+            id: 'feat-open', ownerUserId: null, srdIndex: 'open', name: 'Open',
+            sourceBook: 'SRD', description: [], prerequisites: [],
+            _count: { characterFeats: 0 },
+        }]);
+
+        const [races, feats] = await Promise.all([
+            compendiumRaces({}, {}, authedCtx),
+            compendiumFeats({}, {}, authedCtx),
+        ]);
+
+        expect(races[0]).toEqual(expect.objectContaining({ abilitySummary: null }));
+        expect(races[0]!.subraces[0]).toEqual(expect.objectContaining({ abilitySummary: null }));
+        expect(feats[0]).toEqual(expect.objectContaining({ prerequisiteSummary: null }));
     });
 
     test('does not treat missing or blank scripts as a shared peer group', async () => {

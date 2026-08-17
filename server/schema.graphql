@@ -56,7 +56,7 @@ type CompendiumSubraceSummary {
     value: String!
     name: String!
     abilityBonuses: [CompendiumAbilityBonus!]!
-    abilitySummary: String!
+    abilitySummary: String
     traitCount: Int!
 }
 
@@ -75,7 +75,7 @@ type CompendiumRace {
     languageDescription: String
     languageChoiceCount: Int!
     abilityBonuses: [CompendiumAbilityBonus!]!
-    abilitySummary: String!
+    abilitySummary: String
     traits: [CompendiumTrait!]!
     languages: [CompendiumReference!]!
     subraces: [CompendiumSubraceSummary!]!
@@ -90,7 +90,7 @@ type CompendiumParentRace {
     languageDescription: String
     languageChoiceCount: Int!
     abilityBonuses: [CompendiumAbilityBonus!]!
-    abilitySummary: String!
+    abilitySummary: String
     traits: [CompendiumTrait!]!
     languages: [CompendiumReference!]!
 }
@@ -105,7 +105,7 @@ type CompendiumSubrace {
     sourceBook: String
     parentRace: CompendiumParentRace!
     abilityBonuses: [CompendiumAbilityBonus!]!
-    abilitySummary: String!
+    abilitySummary: String
     traits: [CompendiumTrait!]!
     characterUsageCount: Int!
 }
@@ -168,7 +168,7 @@ type CompendiumFeat {
     sourceBook: String
     description: [String!]!
     prerequisites: [CompendiumFeatPrerequisite!]!
-    prerequisiteSummary: String!
+    prerequisiteSummary: String
     characterUsageCount: Int!
 }
 

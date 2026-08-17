@@ -1,5 +1,6 @@
 import type { Prisma } from '@prisma/client';
 import type { Context } from '..';
+import { hasRecordedScript } from '../../shared/compendium/languageScript';
 import { requireUser } from '../lib/auth';
 import prisma from '../prisma/prisma';
 
@@ -56,9 +57,10 @@ function abilityBonusesOf(rows: AbilityBonusRow[]) {
         }));
 }
 
-function abilitySummaryOf(rows: AbilityBonusRow[]): string {
+/** Null when the entry grants no bonus, so clients own the empty-state wording. */
+function abilitySummaryOf(rows: AbilityBonusRow[]): string | null {
     const bonuses = abilityBonusesOf(rows);
-    if (bonuses.length === 0) return 'No ability score increase';
+    if (bonuses.length === 0) return null;
 
     const sharedBonus = bonuses[0]!.bonus;
     if (bonuses.length === ABILITY_ORDER.length && bonuses.every(({ bonus }) => bonus === sharedBonus)) {
@@ -188,11 +190,6 @@ function languageInclude(userId: string) {
         backgrounds: { where: visible, orderBy: { name: 'asc' as const } },
         traits: { where: visible, orderBy: { name: 'asc' as const } },
     } satisfies Prisma.LanguageInclude;
-}
-
-/** True when a language has a named script rather than missing metadata. */
-function hasRecordedScript(script: string | null | undefined): script is string {
-    return script != null && script.trim() !== '';
 }
 
 /** Peers that share a recorded script with `row`. Null/blank scripts are not a shared group. */
@@ -394,7 +391,7 @@ export async function compendiumFeats(_parent: unknown, _args: unknown, ctx: Con
             description: row.description,
             prerequisites,
             prerequisiteSummary: prerequisites.length === 0
-                ? 'Open to all'
+                ? null
                 : prerequisites.map(({ abilityName, minimumScore }) => `${abilityName} ${minimumScore} or higher`).join(' and '),
             characterUsageCount: row._count.characterFeats,
         };

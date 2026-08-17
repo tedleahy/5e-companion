@@ -340,7 +340,7 @@ export type CompendiumFeat = {
   id: Scalars['ID']['output'];
   isCustom: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
-  prerequisiteSummary: Scalars['String']['output'];
+  prerequisiteSummary?: Maybe<Scalars['String']['output']>;
   prerequisites: Array<CompendiumFeatPrerequisite>;
   sourceBook?: Maybe<Scalars['String']['output']>;
   srdIndex?: Maybe<Scalars['String']['output']>;
@@ -376,7 +376,7 @@ export type CompendiumLanguage = {
 export type CompendiumParentRace = {
   __typename?: 'CompendiumParentRace';
   abilityBonuses: Array<CompendiumAbilityBonus>;
-  abilitySummary: Scalars['String']['output'];
+  abilitySummary?: Maybe<Scalars['String']['output']>;
   languageChoiceCount: Scalars['Int']['output'];
   languageDescription?: Maybe<Scalars['String']['output']>;
   languages: Array<CompendiumReference>;
@@ -398,7 +398,7 @@ export type CompendiumProficiency = {
 export type CompendiumRace = {
   __typename?: 'CompendiumRace';
   abilityBonuses: Array<CompendiumAbilityBonus>;
-  abilitySummary: Scalars['String']['output'];
+  abilitySummary?: Maybe<Scalars['String']['output']>;
   age?: Maybe<Scalars['String']['output']>;
   alignment?: Maybe<Scalars['String']['output']>;
   characterUsageCount: Scalars['Int']['output'];
@@ -427,7 +427,7 @@ export type CompendiumReference = {
 export type CompendiumSubrace = {
   __typename?: 'CompendiumSubrace';
   abilityBonuses: Array<CompendiumAbilityBonus>;
-  abilitySummary: Scalars['String']['output'];
+  abilitySummary?: Maybe<Scalars['String']['output']>;
   characterUsageCount: Scalars['Int']['output'];
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -443,7 +443,7 @@ export type CompendiumSubrace = {
 export type CompendiumSubraceSummary = {
   __typename?: 'CompendiumSubraceSummary';
   abilityBonuses: Array<CompendiumAbilityBonus>;
-  abilitySummary: Scalars['String']['output'];
+  abilitySummary?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   traitCount: Scalars['Int']['output'];
   value: Scalars['String']['output'];
@@ -1681,7 +1681,7 @@ export type CompendiumFeatResolvers<ContextType = Context, ParentType extends Re
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isCustom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  prerequisiteSummary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  prerequisiteSummary?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   prerequisites?: Resolver<Array<ResolversTypes['CompendiumFeatPrerequisite']>, ParentType, ContextType>;
   sourceBook?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   srdIndex?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -1717,7 +1717,7 @@ export type CompendiumLanguageResolvers<ContextType = Context, ParentType extend
 
 export type CompendiumParentRaceResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumParentRace'] = ResolversParentTypes['CompendiumParentRace']> = {
   abilityBonuses?: Resolver<Array<ResolversTypes['CompendiumAbilityBonus']>, ParentType, ContextType>;
-  abilitySummary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  abilitySummary?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   languageChoiceCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   languageDescription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   languages?: Resolver<Array<ResolversTypes['CompendiumReference']>, ParentType, ContextType>;
@@ -1739,7 +1739,7 @@ export type CompendiumProficiencyResolvers<ContextType = Context, ParentType ext
 
 export type CompendiumRaceResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumRace'] = ResolversParentTypes['CompendiumRace']> = {
   abilityBonuses?: Resolver<Array<ResolversTypes['CompendiumAbilityBonus']>, ParentType, ContextType>;
-  abilitySummary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  abilitySummary?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   age?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   alignment?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   characterUsageCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -1768,7 +1768,7 @@ export type CompendiumReferenceResolvers<ContextType = Context, ParentType exten
 
 export type CompendiumSubraceResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumSubrace'] = ResolversParentTypes['CompendiumSubrace']> = {
   abilityBonuses?: Resolver<Array<ResolversTypes['CompendiumAbilityBonus']>, ParentType, ContextType>;
-  abilitySummary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  abilitySummary?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   characterUsageCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -1784,7 +1784,7 @@ export type CompendiumSubraceResolvers<ContextType = Context, ParentType extends
 
 export type CompendiumSubraceSummaryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompendiumSubraceSummary'] = ResolversParentTypes['CompendiumSubraceSummary']> = {
   abilityBonuses?: Resolver<Array<ResolversTypes['CompendiumAbilityBonus']>, ParentType, ContextType>;
-  abilitySummary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  abilitySummary?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   traitCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
