@@ -117,12 +117,13 @@ describe('LanguageCompendium', () => {
         expect(screen.getByTestId('compendium-row-draconic')).toBeTruthy();
     });
 
-    it('selects a same-script peer even when search would hide it', async () => {
+    it('selects a same-script peer even when search would hide it, without clearing filters', async () => {
         renderBrowseScreen(LanguageCompendium, GET_COMPENDIUM_LANGUAGES, {
             compendiumLanguages: [common, halfling],
         });
 
         await waitFor(() => expect(screen.getByTestId('compendium-row-common')).toBeTruthy());
+        fireEvent.press(screen.getByTestId('language-type-filter-standard'));
         fireEvent.changeText(screen.getByLabelText('Search languages'), 'Humans');
         expect(screen.queryByTestId('compendium-row-halfling')).toBeNull();
 
@@ -131,6 +132,13 @@ describe('LanguageCompendium', () => {
 
         expect(screen.getByText('Halflings')).toBeTruthy();
         expect(screen.getByRole('button', { name: 'Common' })).toBeTruthy();
+
+        // Returning to the list must restore the search and type filter the peer
+        // jump was made from, rather than silently resetting them.
+        fireEvent.press(screen.getByTestId('compendium-detail-back'));
+        expect(screen.getByLabelText('Search languages').props.value).toBe('Humans');
+        expect(screen.getByTestId('language-type-filter-standard').props.accessibilityState.selected).toBe(true);
+        expect(screen.queryByTestId('compendium-row-halfling')).toBeNull();
     });
 
     it('opens a matching language deep link on arrival', async () => {

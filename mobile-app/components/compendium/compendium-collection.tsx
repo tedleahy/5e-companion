@@ -29,12 +29,12 @@ export default function CompendiumCollection<T extends CompendiumCollectionItem>
     renderDetail,
 }: CompendiumCollectionProps<T>) {
     const { scrollRef, api } = useCompendiumDetailScrollController();
-    const selectedItem = collection.items.find(
+    const selectedItem = collection.allItems.find(
         (item) => item.value === collection.selectedValue,
     ) ?? null;
 
     useCompendiumDeepLink({
-        items: collection.items,
+        items: collection.allItems,
         loading: collection.loading ?? false,
         errorMessage: collection.error?.message,
         onSelect: collection.onSelectedValueChange,

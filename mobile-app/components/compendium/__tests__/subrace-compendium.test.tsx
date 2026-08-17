@@ -8,12 +8,13 @@ import {
 import { GET_COMPENDIUM_SUBRACES } from '@/graphql/subrace.operations';
 import { waitFor } from '@/test-utils/waitFor';
 
-const mockProtectedPush = jest.fn();
+const mockProtectedNavigate = jest.fn();
 
 jest.mock('@/hooks/useProtectedNavigation', () => ({
     __esModule: true,
     default: () => ({
-        push: mockProtectedPush,
+        push: jest.fn(),
+        navigate: mockProtectedNavigate,
         replace: jest.fn(),
         back: jest.fn(),
         canGoBack: jest.fn(() => false),
@@ -40,7 +41,7 @@ const subrace = {
 
 describe('SubraceCompendium', () => {
     beforeEach(() => {
-        mockProtectedPush.mockClear();
+        mockProtectedNavigate.mockClear();
         (useLocalSearchParams as jest.Mock).mockReturnValue({});
     });
 
@@ -63,7 +64,7 @@ describe('SubraceCompendium', () => {
         expect(screen.getByText('1 trait added')).toBeTruthy();
         expect(screen.getByText('Parent race rules')).toBeTruthy();
         fireEvent.press(screen.getByRole('button', { name: 'Elf' }));
-        expect(mockProtectedPush).toHaveBeenCalledWith({
+        expect(mockProtectedNavigate).toHaveBeenCalledWith({
             pathname: '/(rail)/compendium/races',
             params: { value: 'elf' },
         });
@@ -72,6 +73,25 @@ describe('SubraceCompendium', () => {
 
         await returnToListAndHideSrd();
         expect(screen.getByText('No matching lineages')).toBeTruthy();
+    });
+
+    it('falls back to All when the selected parent has no visible subraces', async () => {
+        renderBrowseScreen(SubraceCompendium, GET_COMPENDIUM_SUBRACES, {
+            compendiumSubraces: [subrace],
+        });
+
+        await waitFor(() => expect(screen.getByTestId('compendium-row-high-elf')).toBeTruthy());
+        fireEvent.press(screen.getByTestId('subrace-parent-filter-elf'));
+        expect(screen.getByTestId('compendium-row-high-elf')).toBeTruthy();
+
+        // Hiding SRD rows removes the Elf chip entirely; the filter must not
+        // strand the user on an empty list with no visible cause.
+        fireEvent(screen.getByRole('switch'), 'valueChange', false);
+        expect(screen.queryByTestId('subrace-parent-filter-elf')).toBeNull();
+        expect(screen.getByTestId('subrace-parent-filter-all').props.accessibilityState.selected).toBe(true);
+
+        fireEvent(screen.getByRole('switch'), 'valueChange', true);
+        expect(screen.getByTestId('compendium-row-high-elf')).toBeTruthy();
     });
 
     it('opens a matching subrace deep link on arrival', async () => {

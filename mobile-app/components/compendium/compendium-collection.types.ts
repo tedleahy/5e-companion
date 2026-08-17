@@ -24,7 +24,14 @@ export type CompendiumCollectionFilters = {
 };
 
 export type CompendiumCollectionData<T extends CompendiumCollectionItem> = {
+    /** Rows to list, after search and filters. */
     items: T[];
+    /**
+     * Every visible row before filtering. The open detail resolves against this
+     * so narrowing the filters (or jumping to a filtered-out peer) does not
+     * close it.
+     */
+    allItems: T[];
     selectedValue: string | null;
     onSelectedValueChange: (value: string | null) => void;
     loading?: boolean;
@@ -36,7 +43,8 @@ export type CompendiumCollectionData<T extends CompendiumCollectionItem> = {
 
 export type CompendiumCollectionRowRenderers<T extends CompendiumCollectionItem> = {
     mark: (item: T) => ReactNode;
-    meta: (item: T) => ReactNode;
+    /** Rendered inside a `Text`, so it must be a string. */
+    meta: (item: T) => string;
     extra?: (item: T) => ReactNode;
 };
 

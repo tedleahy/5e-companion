@@ -1,55 +1,59 @@
 import { useMemo, useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
-import { useQuery } from '@apollo/client/react';
 import CompendiumCollection from '@/components/compendium/compendium-collection';
 import {
     countLabel,
-    matchesCompendiumSearch,
     sourceLabel,
 } from '@/components/compendium/compendium-browse-presentation';
+import CompendiumRowMark from '@/components/compendium/compendium-row-mark';
 import ExclusiveFilterChips, {
     ALL_FILTER_VALUE,
 } from '@/components/compendium/exclusive-filter-chips';
 import SubraceDetail from '@/components/compendium/subrace-detail';
-import { parentMark } from '@/components/compendium/subrace-presentation';
+import { parentMark, type Subrace } from '@/components/compendium/subrace-presentation';
+import useCompendiumBrowse from '@/components/compendium/use-compendium-browse';
 import { GET_COMPENDIUM_SUBRACES } from '@/graphql/subrace.operations';
 import useProtectedNavigation from '@/hooks/useProtectedNavigation';
-import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { CompendiumSubracesQuery } from '@/types/generated_graphql_types';
+
+const selectSubraces = (data: CompendiumSubracesQuery | undefined) => data?.compendiumSubraces ?? [];
+
+const subraceSearchFields = (subrace: Subrace) => [
+    subrace.name,
+    subrace.parentRace.name,
+    sourceLabel(subrace.sourceBook, subrace.isCustom),
+    subrace.description,
+    subrace.abilitySummary,
+    subrace.traits.map((trait) => trait.name),
+];
 
 /** Browse-only subrace Compendium with an exclusive parent-race filter. */
 export default function SubraceCompendium() {
     const protectedRouter = useProtectedNavigation();
-    const [searchText, setSearchText] = useState('');
-    const [includeSrd, setIncludeSrd] = useState(true);
     const [parentFilter, setParentFilter] = useState(ALL_FILTER_VALUE);
-    const [selectedValue, setSelectedValue] = useState<string | null>(null);
-    const query = useQuery<CompendiumSubracesQuery>(GET_COMPENDIUM_SUBRACES, {
-        fetchPolicy: 'cache-and-network',
-        notifyOnNetworkStatusChange: true,
+    const browse = useCompendiumBrowse({
+        document: GET_COMPENDIUM_SUBRACES,
+        noun: 'subrace',
+        select: selectSubraces,
+        searchFields: subraceSearchFields,
     });
-    const sourceRows = useMemo(() => (query.data?.compendiumSubraces ?? [])
-        .filter((subrace) => includeSrd || subrace.isCustom), [includeSrd, query.data]);
-    const parentOptions = useMemo(() => [...new Map(sourceRows.map((subrace) => [
+    const parentOptions = useMemo(() => [...new Map(browse.sourceRows.map((subrace) => [
         subrace.parentRace.value,
         { value: subrace.parentRace.value, label: subrace.parentRace.name },
-    ])).values()].sort((left, right) => left.label.localeCompare(right.label)), [sourceRows]);
-    const subraces = useMemo(() => sourceRows
-        .filter((subrace) => parentFilter === ALL_FILTER_VALUE
-            || subrace.parentRace.value === parentFilter)
-        .filter((subrace) => matchesCompendiumSearch(
-            searchText,
-            subrace.name,
-            subrace.parentRace.name,
-            sourceLabel(subrace.sourceBook, subrace.isCustom),
-            subrace.description,
-            subrace.abilitySummary,
-            subrace.traits.map((trait) => trait.name),
-        ))
-        .sort((left, right) => left.name.localeCompare(right.name)), [parentFilter, searchText, sourceRows]);
+    ])).values()].sort((left, right) => left.label.localeCompare(right.label)), [browse.sourceRows]);
+    // A parent with no visible subraces (its rows hidden by the SRD switch) falls
+    // back to All, rather than stranding the user on an empty list with no cause.
+    const activeParent = parentOptions.some((option) => option.value === parentFilter)
+        ? parentFilter
+        : ALL_FILTER_VALUE;
+    const items = useMemo(
+        () => (activeParent === ALL_FILTER_VALUE
+            ? browse.collection.items
+            : browse.collection.items.filter((subrace) => subrace.parentRace.value === activeParent)),
+        [activeParent, browse.collection.items],
+    );
 
     function openParentRace(value: string) {
-        void protectedRouter.push({
+        void protectedRouter.navigate({
             pathname: '/(rail)/compendium/races',
             params: { value },
         });
@@ -59,35 +63,26 @@ export default function SubraceCompendium() {
         <CompendiumCollection
             heading={{ title: 'Subraces', noun: 'subrace' }}
             filters={{
-                search: { placeholder: 'Search subraces', value: searchText, onChange: setSearchText },
-                includeSrd: { value: includeSrd, onChange: setIncludeSrd },
+                search: browse.search,
+                includeSrd: browse.includeSrd,
                 category: {
                     content: (
                         <ExclusiveFilterChips
                             options={parentOptions}
-                            selectedValue={parentFilter}
+                            selectedValue={activeParent}
                             onSelectedValueChange={setParentFilter}
                             accessibilityLabelPrefix="Filter subraces by parent race"
                             testID="subrace-parent-filter"
                         />
                     ),
-                    active: parentFilter !== ALL_FILTER_VALUE,
+                    active: activeParent !== ALL_FILTER_VALUE,
                     onClear: () => setParentFilter(ALL_FILTER_VALUE),
                 },
             }}
-            collection={{
-                items: subraces,
-                selectedValue,
-                onSelectedValueChange: setSelectedValue,
-                loading: query.loading,
-                error: query.error ? {
-                    message: query.error.message,
-                    onRetry: () => { void query.refetch(); },
-                } : undefined,
-            }}
+            collection={{ ...browse.collection, items }}
             empty={{ title: 'No matching lineages', body: 'Clear the filters to browse every subrace.' }}
             row={{
-                mark: (subrace) => <Text style={styles.rowMark}>{parentMark(subrace.parentRace.name)}</Text>,
+                mark: (subrace) => <CompendiumRowMark>{parentMark(subrace.parentRace.name)}</CompendiumRowMark>,
                 meta: (subrace) => `${subrace.parentRace.name} · ${subrace.abilitySummary ?? 'No additional bonus'} · ${countLabel(subrace.traits.length, 'added trait')}`,
             }}
             renderDetail={(subrace) => (
@@ -96,10 +91,3 @@ export default function SubraceCompendium() {
         />
     );
 }
-
-const styles = StyleSheet.create({
-    rowMark: {
-        ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.claret,
-    },
-});

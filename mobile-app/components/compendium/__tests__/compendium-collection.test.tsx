@@ -1,9 +1,11 @@
 import { useLocalSearchParams } from 'expo-router';
+import { act } from 'react';
 import { useMemo, useState } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { Pressable, Text, View } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 import CompendiumCollection from '@/components/compendium/compendium-collection';
+import { blurFocusedScreens, focusScreens } from '@/test-utils/screenFocus';
 
 type RaceItem = {
     value: string;
@@ -68,6 +70,7 @@ function Harness({
                 }}
                 collection={{
                     items,
+                    allItems: initialItems,
                     selectedValue,
                     onSelectedValueChange: setSelectedValue,
                     loading,
@@ -166,6 +169,37 @@ describe('CompendiumCollection', () => {
 
         expect(screen.getByTestId('compendium-collection-list')).toBeTruthy();
         expect(screen.queryByText('missing-race details')).toBeNull();
+    });
+
+    it('resolves the open detail against unfiltered rows', () => {
+        render(<Harness />);
+
+        fireEvent.press(screen.getByTestId('compendium-row-elf'));
+        expect(screen.getByText('Elf details')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('compendium-detail-back'));
+
+        // Riverfolk is the only row search leaves visible, but the detail is
+        // resolved from `allItems`, so a hidden row can still be opened.
+        fireEvent.changeText(screen.getByLabelText('Search races'), 'river');
+        expect(screen.queryByTestId('compendium-row-elf')).toBeNull();
+        fireEvent.press(screen.getByTestId('compendium-row-riverfolk'));
+        expect(screen.getByText('Riverfolk details')).toBeTruthy();
+    });
+
+    it('reopens a deep link after the screen is navigated away from and back', async () => {
+        (useLocalSearchParams as jest.Mock).mockReturnValue({ value: 'elf' });
+        render(<Harness />);
+
+        await waitFor(() => expect(screen.getByText('Elf details')).toBeTruthy());
+        fireEvent.press(screen.getByTestId('compendium-detail-back'));
+        expect(screen.getByTestId('compendium-collection-list')).toBeTruthy();
+
+        // A lateral jump pops back to this still-mounted screen rather than
+        // remounting it, so the same `?value=` must resolve again on refocus.
+        act(() => { blurFocusedScreens(); });
+        act(() => { focusScreens(); });
+
+        await waitFor(() => expect(screen.getByText('Elf details')).toBeTruthy());
     });
 
     it('waits to resolve a deep link until a failed collection retry has loaded items', async () => {

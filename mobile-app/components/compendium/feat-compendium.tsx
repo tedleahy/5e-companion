@@ -1,68 +1,44 @@
-import { useMemo, useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
-import { useQuery } from '@apollo/client/react';
 import CompendiumCollection from '@/components/compendium/compendium-collection';
 import {
     entryInitials,
-    matchesCompendiumSearch,
     sourceLabel,
 } from '@/components/compendium/compendium-browse-presentation';
+import CompendiumRowMark from '@/components/compendium/compendium-row-mark';
+import useCompendiumBrowse from '@/components/compendium/use-compendium-browse';
 import FeatDetail from '@/components/compendium/feat-detail';
-import { featDescriptionParts } from '@/components/compendium/feat-presentation';
+import { featDescriptionParts, type Feat } from '@/components/compendium/feat-presentation';
 import { GET_COMPENDIUM_FEATS } from '@/graphql/feat.operations';
-import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { CompendiumFeatsQuery } from '@/types/generated_graphql_types';
+
+const selectFeats = (data: CompendiumFeatsQuery | undefined) => data?.compendiumFeats ?? [];
+
+const featSearchFields = (feat: Feat) => [
+    feat.name,
+    feat.description,
+    sourceLabel(feat.sourceBook, feat.isCustom),
+    feat.prerequisiteSummary,
+];
 
 /** Browse-only feat Compendium backed by the typed aggregate query. */
 export default function FeatCompendium() {
-    const [searchText, setSearchText] = useState('');
-    const [includeSrd, setIncludeSrd] = useState(true);
-    const [selectedValue, setSelectedValue] = useState<string | null>(null);
-    const query = useQuery<CompendiumFeatsQuery>(GET_COMPENDIUM_FEATS, {
-        fetchPolicy: 'cache-and-network',
-        notifyOnNetworkStatusChange: true,
+    const browse = useCompendiumBrowse({
+        document: GET_COMPENDIUM_FEATS,
+        noun: 'feat',
+        select: selectFeats,
+        searchFields: featSearchFields,
     });
-    const feats = useMemo(() => (query.data?.compendiumFeats ?? [])
-        .filter((feat) => includeSrd || feat.isCustom)
-        .filter((feat) => matchesCompendiumSearch(
-            searchText,
-            feat.name,
-            feat.description,
-            sourceLabel(feat.sourceBook, feat.isCustom),
-            feat.prerequisiteSummary,
-        ))
-        .sort((left, right) => left.name.localeCompare(right.name)), [includeSrd, query.data, searchText]);
 
     return (
         <CompendiumCollection
             heading={{ title: 'Feats', noun: 'feat' }}
-            filters={{
-                search: { placeholder: 'Search feats', value: searchText, onChange: setSearchText },
-                includeSrd: { value: includeSrd, onChange: setIncludeSrd },
-            }}
-            collection={{
-                items: feats,
-                selectedValue,
-                onSelectedValueChange: setSelectedValue,
-                loading: query.loading,
-                error: query.error ? {
-                    message: query.error.message,
-                    onRetry: () => { void query.refetch(); },
-                } : undefined,
-            }}
+            filters={{ search: browse.search, includeSrd: browse.includeSrd }}
+            collection={browse.collection}
             empty={{ title: 'No matching feats', body: 'Clear the filters to reopen the feat ledger.' }}
             row={{
-                mark: (feat) => <Text style={styles.rowMark}>{entryInitials(feat.name)}</Text>,
+                mark: (feat) => <CompendiumRowMark>{entryInitials(feat.name)}</CompendiumRowMark>,
                 meta: (feat) => `${feat.prerequisiteSummary ?? 'Open to all'} · ${featDescriptionParts(feat.description).lead || 'No description listed'}`,
             }}
             renderDetail={(feat) => <FeatDetail feat={feat} />}
         />
     );
 }
-
-const styles = StyleSheet.create({
-    rowMark: {
-        ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.claret,
-    },
-});

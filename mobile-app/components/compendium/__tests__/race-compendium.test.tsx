@@ -9,12 +9,13 @@ import {
 import { GET_COMPENDIUM_RACES } from '@/graphql/race.operations';
 import { waitFor } from '@/test-utils/waitFor';
 
-const mockProtectedPush = jest.fn();
+const mockProtectedNavigate = jest.fn();
 
 jest.mock('@/hooks/useProtectedNavigation', () => ({
     __esModule: true,
     default: () => ({
-        push: mockProtectedPush,
+        push: jest.fn(),
+        navigate: mockProtectedNavigate,
         replace: jest.fn(),
         back: jest.fn(),
         canGoBack: jest.fn(() => false),
@@ -43,7 +44,7 @@ const race = {
 
 describe('RaceCompendium', () => {
     beforeEach(() => {
-        mockProtectedPush.mockClear();
+        mockProtectedNavigate.mockClear();
         (useLocalSearchParams as jest.Mock).mockReturnValue({});
     });
 
@@ -60,7 +61,7 @@ describe('RaceCompendium', () => {
         expect(screen.getByRole('button', { name: 'Jump to Subraces (1)' })).toBeTruthy();
         expect(screen.getByText('High Elf')).toBeTruthy();
         fireEvent.press(screen.getByRole('button', { name: 'High Elf' }));
-        expect(mockProtectedPush).toHaveBeenCalledWith({
+        expect(mockProtectedNavigate).toHaveBeenCalledWith({
             pathname: '/(rail)/compendium/subraces',
             params: { value: 'high-elf' },
         });

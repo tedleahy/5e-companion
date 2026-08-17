@@ -1,15 +1,13 @@
 import { useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { useQuery } from '@apollo/client/react';
+import { StyleSheet, View } from 'react-native';
 import CompendiumCollection from '@/components/compendium/compendium-collection';
-import {
-    matchesCompendiumSearch,
-    sourceLabel,
-} from '@/components/compendium/compendium-browse-presentation';
+import { sourceLabel } from '@/components/compendium/compendium-browse-presentation';
+import CompendiumRowMark from '@/components/compendium/compendium-row-mark';
 import CompendiumSelectFilter from '@/components/compendium/compendium-select-filter';
 import ExclusiveFilterChips, {
     ALL_FILTER_VALUE,
 } from '@/components/compendium/exclusive-filter-chips';
+import useCompendiumBrowse from '@/components/compendium/use-compendium-browse';
 import { GET_COMPENDIUM_LANGUAGES } from '@/graphql/language.operations';
 import LanguageDetail from '@/components/compendium/language-detail';
 import {
@@ -17,6 +15,7 @@ import {
     hasRecordedScript,
     languageScriptMark,
     scriptLabel,
+    type Language,
 } from '@/components/compendium/language-presentation';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import type { CompendiumLanguagesQuery } from '@/types/generated_graphql_types';
@@ -27,21 +26,30 @@ const TYPE_OPTIONS = [
     { value: 'exotic', label: 'Exotic' },
 ];
 
+const selectLanguages = (data: CompendiumLanguagesQuery | undefined) => data?.compendiumLanguages ?? [];
+
+const languageSearchFields = (language: Language) => [
+    language.name,
+    language.type,
+    language.script,
+    language.typicalSpeakers,
+    language.description,
+    sourceLabel(language.sourceBook, language.isCustom),
+];
+
 /** Browse-only language Compendium with type and script filters. */
 export default function LanguageCompendium() {
-    const [searchText, setSearchText] = useState('');
-    const [includeSrd, setIncludeSrd] = useState(true);
     const [typeFilter, setTypeFilter] = useState(ALL_FILTER_VALUE);
     const [scriptFilter, setScriptFilter] = useState(ALL_FILTER_VALUE);
-    const [selectedValue, setSelectedValue] = useState<string | null>(null);
-    const query = useQuery<CompendiumLanguagesQuery>(GET_COMPENDIUM_LANGUAGES, {
-        fetchPolicy: 'cache-and-network',
-        notifyOnNetworkStatusChange: true,
+    const browse = useCompendiumBrowse({
+        document: GET_COMPENDIUM_LANGUAGES,
+        noun: 'language',
+        select: selectLanguages,
+        searchFields: languageSearchFields,
     });
-    const allLanguages = useMemo(() => query.data?.compendiumLanguages ?? [], [query.data]);
     const scriptOptions = useMemo(() => {
         const scripts = new Set(
-            allLanguages.map((language) => language.script).filter(hasRecordedScript),
+            browse.allRows.map((language) => language.script).filter(hasRecordedScript),
         );
         return [
             { value: ALL_FILTER_VALUE, label: 'All scripts' },
@@ -51,50 +59,27 @@ export default function LanguageCompendium() {
             })),
             { value: UNWRITTEN_FILTER_VALUE, label: 'Unwritten' },
         ];
-    }, [allLanguages]);
-    const languages = useMemo(() => allLanguages
-        .filter((language) => includeSrd || language.isCustom)
+    }, [browse.allRows]);
+    const items = useMemo(() => browse.collection.items
         .filter((language) => typeFilter === ALL_FILTER_VALUE
             || language.type?.toLocaleLowerCase() === typeFilter)
         .filter((language) => scriptFilter === ALL_FILTER_VALUE
             || (scriptFilter === UNWRITTEN_FILTER_VALUE
                 ? !hasRecordedScript(language.script)
-                : language.script === scriptFilter))
-        .filter((language) => matchesCompendiumSearch(
-            searchText,
-            language.name,
-            language.type,
-            language.script,
-            language.typicalSpeakers,
-            language.description,
-            sourceLabel(language.sourceBook, language.isCustom),
-        ))
-        .sort((left, right) => left.name.localeCompare(right.name)), [
-        allLanguages,
-        includeSrd,
-        scriptFilter,
-        searchText,
-        typeFilter,
-    ]);
+                : language.script === scriptFilter)),
+    [browse.collection.items, scriptFilter, typeFilter]);
 
     function clearCategoryFilters() {
         setTypeFilter(ALL_FILTER_VALUE);
         setScriptFilter(ALL_FILTER_VALUE);
     }
 
-    function selectPeer(value: string) {
-        setSearchText('');
-        setIncludeSrd(true);
-        clearCategoryFilters();
-        setSelectedValue(value);
-    }
-
     return (
         <CompendiumCollection
             heading={{ title: 'Languages', noun: 'language' }}
             filters={{
-                search: { placeholder: 'Search languages', value: searchText, onChange: setSearchText },
-                includeSrd: { value: includeSrd, onChange: setIncludeSrd },
+                search: browse.search,
+                includeSrd: browse.includeSrd,
                 category: {
                     content: (
                         <View style={styles.filters}>
@@ -118,23 +103,16 @@ export default function LanguageCompendium() {
                     onClear: clearCategoryFilters,
                 },
             }}
-            collection={{
-                items: languages,
-                selectedValue,
-                onSelectedValueChange: setSelectedValue,
-                loading: query.loading,
-                error: query.error ? {
-                    message: query.error.message,
-                    onRetry: () => { void query.refetch(); },
-                } : undefined,
-            }}
+            collection={{ ...browse.collection, items }}
             empty={{ title: 'No matching languages', body: 'Clear the filters to browse every recorded tongue.' }}
             row={{
-                mark: (language) => <Text style={styles.scriptMark}>{languageScriptMark(language.script)}</Text>,
+                mark: (language) => (
+                    <CompendiumRowMark italic>{languageScriptMark(language.script)}</CompendiumRowMark>
+                ),
                 meta: (language) => `${displayLanguageType(language.type)} · ${scriptLabel(language.script)} · ${language.typicalSpeakers.join(', ') || language.description || 'No typical speakers listed'}`,
             }}
             renderDetail={(language) => (
-                <LanguageDetail language={language} onSelectPeer={selectPeer} />
+                <LanguageDetail language={language} onSelectPeer={browse.selectValue} />
             )}
         />
     );
@@ -143,10 +121,5 @@ export default function LanguageCompendium() {
 const styles = StyleSheet.create({
     filters: {
         gap: fantasyTokens.spacing.sm,
-    },
-    scriptMark: {
-        ...fantasyTokens.typography.sectionTitle,
-        color: fantasyTokens.colors.claret,
-        fontStyle: 'italic',
     },
 });

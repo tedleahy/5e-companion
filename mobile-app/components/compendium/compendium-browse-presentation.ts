@@ -1,4 +1,4 @@
-type SearchValue = string | number | null | undefined | readonly SearchValue[];
+export type SearchValue = string | number | null | undefined | readonly SearchValue[];
 
 /** Case-insensitive collection search across strings, numbers, and nested lists. */
 export function matchesCompendiumSearch(query: string, ...values: SearchValue[]) {
@@ -22,7 +22,7 @@ export function entryInitials(name: string) {
 }
 
 export function sourceLabel(sourceBook: string | null | undefined, isCustom: boolean) {
-    return isCustom ? sourceBook ?? 'Personal compendium' : sourceBook ?? 'SRD';
+    return sourceBook ?? (isCustom ? 'Personal compendium' : 'SRD');
 }
 
 export function countLabel(count: number, singular: string, plural = `${singular}s`) {
