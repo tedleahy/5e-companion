@@ -28,7 +28,7 @@ export default function SubraceDetail({ subrace, onOpenParentRace }: SubraceDeta
     return (
         <>
             <CompendiumDetailHero
-                mark={parentMark(parent.name)}
+                mark={parentMark(parent.value)}
                 eyebrow={`${sourceLabel(subrace.sourceBook, subrace.isCustom)} · ${parent.name} lineage`}
                 title={subrace.name}
                 summary={subrace.description ?? 'No description is recorded.'}
@@ -38,7 +38,7 @@ export default function SubraceDetail({ subrace, onOpenParentRace }: SubraceDeta
                 <CompendiumLineageBranch
                     accessibilityLabel={lineageInheritanceLabel(subrace)}
                     parent={{
-                        glyph: parentMark(parent.name),
+                        glyph: parentMark(parent.value),
                         label: 'Parent race',
                         name: parent.name,
                         detail: parent.abilitySummary == null

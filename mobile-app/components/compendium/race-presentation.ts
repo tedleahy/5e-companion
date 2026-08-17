@@ -4,19 +4,35 @@ import type { CompendiumRacesQuery } from '@/types/generated_graphql_types';
 
 export type Race = CompendiumRacesQuery['compendiumRaces'][number];
 
-export function raceMark(race: Pick<Race, 'name' | 'isCustom'>) {
+/** Ability scores a race can be granted a bonus in. */
+const ABILITY_COUNT = 6;
+
+export function raceMark(race: Pick<Race, 'value' | 'name' | 'isCustom'>) {
     if (race.isCustom) return entryInitials(race.name);
-    return raceIcon(race.name) ?? entryInitials(race.name);
+    return raceIcon(race.value) ?? entryInitials(race.name);
 }
 
-export function raceIcon(name: string) {
-    return RACE_OPTIONS.find((option) => option.label.toLocaleLowerCase() === name.toLocaleLowerCase())
-        ?.icon;
+/**
+ * Emblem for an SRD race, resolved by `value` (`srdIndex ?? id`) rather than by
+ * display label, so renaming a race cannot silently drop its icon.
+ */
+export function raceIcon(value: string) {
+    return RACE_OPTIONS.find(
+        (option) => option.value.toLocaleLowerCase() === value.toLocaleLowerCase(),
+    )?.icon;
 }
 
+/**
+ * Collapses a uniform spread into one pill. Mirrors the `All +N` case in
+ * `abilitySummaryOf` (server/resolvers/compendiumResolver.ts) so the row pills
+ * and the summary agree for any bonus, not just +1.
+ */
 export function raceAbilityPills(race: Pick<Race, 'abilityBonuses'>) {
-    if (race.abilityBonuses.length === 6 && race.abilityBonuses.every((bonus) => bonus.bonus === 1)) {
-        return ['All +1'];
+    const [first] = race.abilityBonuses;
+    if (first != null
+        && race.abilityBonuses.length === ABILITY_COUNT
+        && race.abilityBonuses.every((bonus) => bonus.bonus === first.bonus)) {
+        return [`All +${first.bonus}`];
     }
     return race.abilityBonuses.map((bonus) => `${bonus.abilityIndex.toLocaleUpperCase()} +${bonus.bonus}`);
 }

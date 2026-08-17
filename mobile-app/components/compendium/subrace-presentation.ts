@@ -4,8 +4,8 @@ import type { CompendiumSubracesQuery } from '@/types/generated_graphql_types';
 export type Subrace = CompendiumSubracesQuery['compendiumSubraces'][number];
 
 /** Parent-race mark reused as the subrace row and detail emblem. */
-export function parentMark(parentName: string) {
-    return raceIcon(parentName) ?? '✦';
+export function parentMark(parentValue: string) {
+    return raceIcon(parentValue) ?? '✦';
 }
 
 /** Compact glyph for the subrace side of the inheritance diagram. */

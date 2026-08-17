@@ -1,6 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
-import { act } from 'react';
-import { useMemo, useState } from 'react';
+import { act, useMemo, useState } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { Pressable, Text, View } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
