@@ -17,6 +17,7 @@ import {
     useCompendiumDetailScrollController,
 } from '@/components/compendium/compendium-detail-scroll';
 import CompendiumScreenHeader from '@/components/compendium/compendium-screen-header';
+import FloatingAddButton from '@/components/floating-add-button';
 import useCompendiumDeepLink from '@/components/compendium/use-compendium-deep-link';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
@@ -63,6 +64,8 @@ export default function CompendiumCollection<T extends CompendiumCollectionItem>
     empty,
     row,
     renderDetail,
+    floatingAction,
+    overlay,
 }: CompendiumCollectionProps<T>) {
     const { scrollRef, api } = useCompendiumDetailScrollController();
     const selectedItem = collection.allItems.find(
@@ -143,6 +146,14 @@ export default function CompendiumCollection<T extends CompendiumCollectionItem>
                     </Animated.View>
                 )}
             </View>
+            {floatingAction != null && selectedItem == null ? (
+                <FloatingAddButton
+                    accessibilityLabel={floatingAction.accessibilityLabel}
+                    onPress={floatingAction.onPress}
+                    testID={floatingAction.testID ?? 'compendium-floating-action'}
+                />
+            ) : null}
+            {overlay}
         </View>
     );
 }

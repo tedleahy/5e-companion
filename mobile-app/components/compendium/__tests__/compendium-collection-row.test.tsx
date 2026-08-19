@@ -27,6 +27,44 @@ describe('CompendiumCollectionRow', () => {
         expect(onSelect).toHaveBeenCalledWith('high-elf');
     });
 
+    it('renders declared actions with their own labels and destructive tint', () => {
+        const onEdit = jest.fn();
+        const onDelete = jest.fn();
+        render(
+            <CompendiumCollectionRow
+                value="path-of-embers"
+                name="Path of Embers"
+                isCustom
+                mark={<Text>PE</Text>}
+                meta="Barbarian · level 3"
+                actions={[
+                    {
+                        icon: 'create-outline',
+                        accessibilityLabel: 'Edit Path of Embers',
+                        onPress: onEdit,
+                        testID: 'edit-path-of-embers',
+                    },
+                    {
+                        icon: 'trash-outline',
+                        accessibilityLabel: 'Delete Path of Embers',
+                        onPress: onDelete,
+                        destructive: true,
+                        testID: 'delete-path-of-embers',
+                    },
+                ]}
+                onSelect={jest.fn()}
+            />,
+        );
+
+        fireEvent.press(screen.getByTestId('edit-path-of-embers'));
+        expect(onEdit).toHaveBeenCalledTimes(1);
+
+        const remove = screen.getByTestId('delete-path-of-embers');
+        fireEvent.press(remove);
+        expect(onDelete).toHaveBeenCalledTimes(1);
+        expect(remove.props.accessibilityLabel).toBe('Delete Path of Embers');
+    });
+
     it('labels custom content distinctly for sighted and screen-reader users', () => {
         render(
             <CompendiumCollectionRow

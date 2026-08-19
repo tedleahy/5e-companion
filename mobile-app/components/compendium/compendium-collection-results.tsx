@@ -73,6 +73,7 @@ export default function CompendiumCollectionResults<T extends CompendiumCollecti
                     mark={row.mark(item)}
                     meta={row.meta(item)}
                     extra={row.extra?.(item)}
+                    actions={row.actions?.(item)}
                     onSelect={collection.onSelectedValueChange}
                     testID={`compendium-row-${item.value}`}
                 />

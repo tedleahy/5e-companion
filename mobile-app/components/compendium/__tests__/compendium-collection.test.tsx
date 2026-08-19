@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
-import { act, useMemo, useState } from 'react';
+import { act, useMemo, useState, type ReactNode } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { Pressable, Text, View } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
@@ -24,6 +24,10 @@ type HarnessProps = {
     errorMessage?: string | null;
     onRetry?: () => void;
     withCategoryFilter?: boolean;
+    onEdit?: (item: RaceItem) => void;
+    onDelete?: (item: RaceItem) => void;
+    onCreate?: () => void;
+    overlay?: ReactNode;
 };
 
 function Harness({
@@ -32,6 +36,10 @@ function Harness({
     errorMessage,
     onRetry,
     withCategoryFilter = false,
+    onEdit,
+    onDelete,
+    onCreate,
+    overlay,
 }: HarnessProps) {
     const [searchText, setSearchText] = useState('');
     const [showSrd, setShowSrd] = useState(true);
@@ -85,12 +93,37 @@ function Harness({
                 row={{
                     mark: (item) => <Text>{item.name.slice(0, 1)}</Text>,
                     meta: (item) => item.meta,
+                    actions: onEdit == null && onDelete == null ? undefined : (item) => (
+                        item.isCustom
+                            ? [
+                                {
+                                    icon: 'create-outline',
+                                    accessibilityLabel: `Edit ${item.name}`,
+                                    onPress: () => onEdit?.(item),
+                                    testID: `edit-${item.value}`,
+                                },
+                                {
+                                    icon: 'trash-outline',
+                                    accessibilityLabel: `Delete ${item.name}`,
+                                    onPress: () => onDelete?.(item),
+                                    destructive: true,
+                                    testID: `delete-${item.value}`,
+                                },
+                            ]
+                            : []
+                    ),
                 }}
                 renderDetail={(item) => (
                     <View>
                         <Text>{item.name} details</Text>
                     </View>
                 )}
+                floatingAction={onCreate == null ? undefined : {
+                    accessibilityLabel: 'Add custom race',
+                    onPress: onCreate,
+                    testID: 'add-custom-race',
+                }}
+                overlay={overlay}
             />
         </PaperProvider>
     );
@@ -120,6 +153,63 @@ describe('CompendiumCollection', () => {
         expect(screen.getByText('No races found')).toBeTruthy();
         fireEvent.press(screen.getByText('Reset filters'));
         expect(screen.getByText('2 races · A–Z')).toBeTruthy();
+    });
+
+    it('offers row actions only on rows the caller marks as editable', () => {
+        const onEdit = jest.fn();
+        const onDelete = jest.fn();
+        render(<Harness onEdit={onEdit} onDelete={onDelete} />);
+
+        // The SRD row returns no actions, so it stays read-only beside the custom one.
+        expect(screen.queryByLabelText('Edit Elf')).toBeNull();
+        expect(screen.queryByLabelText('Delete Elf')).toBeNull();
+
+        fireEvent.press(screen.getByLabelText('Edit Riverfolk'));
+        expect(onEdit).toHaveBeenCalledWith(RACES[1]);
+    });
+
+    it('keeps a row action from also opening the detail behind it', () => {
+        const onDelete = jest.fn();
+        render(<Harness onDelete={onDelete} />);
+
+        fireEvent.press(screen.getByLabelText('Delete Riverfolk'));
+
+        expect(onDelete).toHaveBeenCalledTimes(1);
+        expect(screen.queryByText('Riverfolk details')).toBeNull();
+        expect(screen.getByTestId('compendium-collection-list')).toBeTruthy();
+    });
+
+    it('hides the floating action while a detail is open and restores it on the way back', async () => {
+        const onCreate = jest.fn();
+        render(<Harness onCreate={onCreate} />);
+
+        fireEvent.press(screen.getByTestId('add-custom-race'));
+        expect(onCreate).toHaveBeenCalledTimes(1);
+
+        fireEvent.press(screen.getByLabelText('Elf, SRD'));
+        await waitFor(() => expect(screen.getByText('Elf details')).toBeTruthy());
+        expect(screen.queryByTestId('add-custom-race')).toBeNull();
+
+        fireEvent.press(screen.getByTestId('compendium-detail-back'));
+        await waitFor(() => expect(screen.getByTestId('add-custom-race')).toBeTruthy());
+    });
+
+    it('omits the floating action entirely for browse-only categories', () => {
+        render(<Harness />);
+
+        expect(screen.queryByTestId('add-custom-race')).toBeNull();
+        expect(screen.queryByTestId('compendium-floating-action')).toBeNull();
+    });
+
+    it('keeps the overlay mounted across list and detail, so sheets survive selection', async () => {
+        render(<Harness overlay={<Text>Custom race form</Text>} />);
+
+        expect(screen.getByText('Custom race form')).toBeTruthy();
+
+        fireEvent.press(screen.getByLabelText('Elf, SRD'));
+        await waitFor(() => expect(screen.getByText('Elf details')).toBeTruthy());
+
+        expect(screen.getByText('Custom race form')).toBeTruthy();
     });
 
     it('renders loading, error, retry, and empty states', () => {
