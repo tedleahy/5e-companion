@@ -14,6 +14,7 @@ import {
     raceFindManyMock,
     spellCountMock,
     subclassCountMock,
+    subclassFindManyMock,
     subraceCountMock,
     subraceFindManyMock,
     unauthedCtx,
@@ -25,6 +26,7 @@ const {
     compendiumFeats,
     compendiumLanguages,
     compendiumRaces,
+    compendiumSubclasses,
     compendiumSubraces,
 } = await import('./compendiumResolver');
 
@@ -85,10 +87,11 @@ describe('compendiumCounts', () => {
 describe('compendium browse queries', () => {
     beforeEach(clearAllCharacterResolverMocks);
 
-    test('all five catalogs require authentication before reading reference data', () => {
+    test('every catalog requires authentication before reading reference data', () => {
         const calls = [
             compendiumRaces({}, {}, unauthedCtx),
             compendiumSubraces({}, {}, unauthedCtx),
+            compendiumSubclasses({}, {}, unauthedCtx),
             compendiumBackgrounds({}, {}, unauthedCtx),
             compendiumFeats({}, {}, unauthedCtx),
             compendiumLanguages({}, {}, unauthedCtx),
@@ -97,6 +100,7 @@ describe('compendium browse queries', () => {
         for (const call of calls) expect(call).rejects.toThrow('UNAUTHENTICATED');
         expect(raceFindManyMock).not.toHaveBeenCalled();
         expect(subraceFindManyMock).not.toHaveBeenCalled();
+        expect(subclassFindManyMock).not.toHaveBeenCalled();
         expect(backgroundFindManyMock).not.toHaveBeenCalled();
         expect(featFindManyMock).not.toHaveBeenCalled();
         expect(languageFindManyMock).not.toHaveBeenCalled();
@@ -190,6 +194,119 @@ describe('compendium browse queries', () => {
             characterUsageCount: 1,
             parentRace: expect.objectContaining({ value: 'elf', abilitySummary: 'DEX +2' }),
         }));
+    });
+
+    test('maps SRD subclass rows, promoting the parent class SRD index', async () => {
+        subclassFindManyMock.mockResolvedValueOnce([{
+            id: 'subclass-evocation-id',
+            ownerUserId: null,
+            srdIndex: 'evocation',
+            name: 'School of Evocation',
+            description: ['You focus your study on magic that creates elemental effects.'],
+            selectionLevel: 2,
+            sourceBook: 'SRD',
+            classId: 'class-wizard-id',
+            classRef: { id: 'class-wizard-id', srdIndex: 'wizard', name: 'Wizard' },
+            features: [{
+                id: 'feature-sculpt-spells',
+                name: 'Sculpt Spells',
+                description: ['You can create pockets of relative safety.'],
+                level: 2,
+            }],
+            _count: { characterClasses: 2 },
+        }]);
+
+        const result = await compendiumSubclasses({}, {}, authedCtx);
+
+        const query = subclassFindManyMock.mock.calls[0]![0];
+        expect(query.orderBy).toEqual({ name: 'asc' });
+        expect(query.include._count.select.characterClasses.where)
+            .toEqual({ character: { ownerUserId: 'user-abc' } });
+        expect(query.include.features.where).toEqual({ kind: 'SUBCLASS_FEATURE' });
+        expect(result).toEqual([{
+            id: 'subclass-evocation-id',
+            value: 'evocation',
+            srdIndex: 'evocation',
+            name: 'School of Evocation',
+            description: ['You focus your study on magic that creates elemental effects.'],
+            isCustom: false,
+            sourceBook: 'SRD',
+            classId: 'wizard',
+            className: 'Wizard',
+            selectionLevel: 2,
+            features: [{
+                id: 'feature-sculpt-spells',
+                name: 'Sculpt Spells',
+                description: 'You can create pockets of relative safety.',
+                level: 2,
+            }],
+            characterUsageCount: 2,
+            // SRD rows are never editable, so re-parenting never applies to them.
+            canChangeClass: false,
+            cannotChangeClassReason: null,
+        }]);
+    });
+
+    test('falls back to the row id for customs and locks re-parenting once a character depends on it', async () => {
+        subclassFindManyMock.mockResolvedValueOnce([
+            {
+                id: 'subclass-custom-unused',
+                ownerUserId: 'user-abc',
+                srdIndex: null,
+                name: 'Path of Embers',
+                description: ['A homebrew barbarian path.'],
+                selectionLevel: 3,
+                sourceBook: null,
+                classId: 'class-custom-id',
+                classRef: { id: 'class-custom-id', srdIndex: null, name: 'Emberkin' },
+                features: [],
+                _count: { characterClasses: 0 },
+            },
+            {
+                id: 'subclass-custom-used',
+                ownerUserId: 'user-abc',
+                srdIndex: null,
+                name: 'Path of Ash',
+                description: [],
+                selectionLevel: 3,
+                sourceBook: null,
+                classId: 'class-barbarian-id',
+                classRef: { id: 'class-barbarian-id', srdIndex: 'barbarian', name: 'Barbarian' },
+                features: [],
+                _count: { characterClasses: 4 },
+            },
+        ]);
+
+        const result = await compendiumSubclasses({}, {}, authedCtx);
+
+        expect(result[0]).toEqual(expect.objectContaining({
+            value: 'subclass-custom-unused',
+            isCustom: true,
+            // Custom parent classes have no SRD index, so the class id carries through.
+            classId: 'class-custom-id',
+            canChangeClass: true,
+            cannotChangeClassReason: null,
+        }));
+        expect(result[1]).toEqual(expect.objectContaining({
+            value: 'subclass-custom-used',
+            classId: 'barbarian',
+            characterUsageCount: 4,
+            canChangeClass: false,
+            cannotChangeClassReason: 'Cannot change the parent class of a subclass used by 4 character(s).',
+        }));
+    });
+
+    test('hides archived customs and subclasses of archived classes without hiding SRD rows', async () => {
+        subclassFindManyMock.mockResolvedValueOnce([]);
+
+        await compendiumSubclasses({}, {}, authedCtx);
+
+        expect(subclassFindManyMock.mock.calls[0]![0].where).toEqual({
+            AND: [
+                { OR: [{ ownerUserId: null }, { ownerUserId: 'user-abc', archivedAt: null }] },
+                { classRef: { archivedAt: null } },
+            ],
+        });
     });
 
     test('maps typed background JSON and filters related custom references by owner', async () => {

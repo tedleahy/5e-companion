@@ -24,6 +24,7 @@ Each doc is short and cross-links to the code; it does not duplicate the code. [
 ## Features
 
 - [`features/compendium.md`](./features/compendium.md) — library hub, category routing, and custom managers
+- [`features/compendium-crud.md`](./features/compendium-crud.md) — planned read-write collection shell, subclasses migration first
 - [`features/character-creation.md`](./features/character-creation.md) — multi-step create-character wizard
 - [`features/level-up-wizard.md`](./features/level-up-wizard.md) — per-class level-up wizard and step assembly
 - [`features/spells.md`](./features/spells.md) — SRD + custom spells, filters, spellbook

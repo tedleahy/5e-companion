@@ -3,6 +3,11 @@ import type { Context } from '..';
 import { hasRecordedScript } from '../../shared/compendium/languageScript';
 import { requireUser } from '../lib/auth';
 import prisma from '../prisma/prisma';
+import {
+    classChangeAvailability,
+    FEATURE_KIND,
+    mapSubclassFeatureRow,
+} from './character/subclassReferences';
 
 type ReferenceRow = {
     id: string;
@@ -161,6 +166,23 @@ function subraceInclude(userId: string) {
         traits: { where: visible, orderBy: { name: 'asc' as const } },
         _count: { select: { characters: { where: { ownerUserId: userId } } } },
     } satisfies Prisma.SubraceInclude;
+}
+
+/**
+ * Subclass rows carry their parent class and SRD-only features, and count usage
+ * against the caller's characters only, as every other browse category does.
+ */
+function subclassInclude(userId: string) {
+    return {
+        classRef: true,
+        features: {
+            where: { kind: FEATURE_KIND.SUBCLASS_FEATURE },
+            orderBy: [{ level: 'asc' as const }, { name: 'asc' as const }],
+        },
+        _count: {
+            select: { characterClasses: { where: { character: { ownerUserId: userId } } } },
+        },
+    } satisfies Prisma.SubclassInclude;
 }
 
 function backgroundInclude(userId: string) {
@@ -331,6 +353,50 @@ export async function compendiumSubraces(_parent: unknown, _args: unknown, ctx: 
         traits: row.traits.map(traitOf),
         characterUsageCount: row._count.characters,
     }));
+}
+
+/**
+ * Returns all subclass browse rows visible to the caller.
+ *
+ * Subclasses are the first browse category with archiving, so visibility cannot
+ * use `visibleReferenceWhere`: an archived custom subclass, or one whose parent
+ * class has been archived, disappears from browse while remaining valid on the
+ * characters already using it.
+ */
+export async function compendiumSubclasses(_parent: unknown, _args: unknown, ctx: Context) {
+    const userId = requireUser(ctx);
+    const rows = await prisma.subclass.findMany({
+        where: {
+            AND: [
+                { OR: [{ ownerUserId: null }, { ownerUserId: userId, archivedAt: null }] },
+                { classRef: { archivedAt: null } },
+            ],
+        },
+        include: subclassInclude(userId),
+        orderBy: { name: 'asc' },
+    });
+
+    return rows.map((row) => {
+        const isCustom = row.ownerUserId != null;
+        const characterUsageCount = row._count.characterClasses;
+
+        return {
+            id: row.id,
+            value: valueOf(row),
+            srdIndex: row.srdIndex,
+            name: row.name,
+            description: row.description,
+            isCustom,
+            sourceBook: row.sourceBook,
+            // Classes are selected by SRD index, so fall back to the id only for customs.
+            classId: row.classRef.srdIndex ?? row.classId,
+            className: row.classRef.name,
+            selectionLevel: row.selectionLevel,
+            features: row.features.map(mapSubclassFeatureRow),
+            characterUsageCount,
+            ...classChangeAvailability(isCustom, characterUsageCount),
+        };
+    });
 }
 
 /** Returns all background browse rows visible to the caller. */

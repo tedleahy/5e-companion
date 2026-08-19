@@ -110,6 +110,23 @@ type CompendiumSubrace {
     characterUsageCount: Int!
 }
 
+type CompendiumSubclass {
+    id: ID!
+    value: String!
+    srdIndex: String
+    name: String!
+    description: [String!]!
+    isCustom: Boolean!
+    sourceBook: String
+    classId: String!
+    className: String!
+    selectionLevel: Int!
+    features: [AvailableSubclassFeature!]!
+    characterUsageCount: Int!
+    canChangeClass: Boolean!
+    cannotChangeClassReason: String
+}
+
 type CompendiumProficiency {
     value: String!
     name: String!
@@ -864,6 +881,7 @@ input SaveCharacterSheetInput {
 
 type Query {
     compendiumCounts: CompendiumCounts!
+    compendiumSubclasses: [CompendiumSubclass!]!
     compendiumRaces: [CompendiumRace!]!
     compendiumSubraces: [CompendiumSubrace!]!
     compendiumBackgrounds: [CompendiumBackground!]!

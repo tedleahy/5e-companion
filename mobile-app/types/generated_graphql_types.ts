@@ -420,6 +420,24 @@ export type CompendiumReference = {
   value: Scalars['String']['output'];
 };
 
+export type CompendiumSubclass = {
+  __typename?: 'CompendiumSubclass';
+  canChangeClass: Scalars['Boolean']['output'];
+  cannotChangeClassReason?: Maybe<Scalars['String']['output']>;
+  characterUsageCount: Scalars['Int']['output'];
+  classId: Scalars['String']['output'];
+  className: Scalars['String']['output'];
+  description: Array<Scalars['String']['output']>;
+  features: Array<AvailableSubclassFeature>;
+  id: Scalars['ID']['output'];
+  isCustom: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  selectionLevel: Scalars['Int']['output'];
+  sourceBook?: Maybe<Scalars['String']['output']>;
+  srdIndex?: Maybe<Scalars['String']['output']>;
+  value: Scalars['String']['output'];
+};
+
 export type CompendiumSubrace = {
   __typename?: 'CompendiumSubrace';
   abilityBonuses: Array<CompendiumAbilityBonus>;
@@ -854,6 +872,7 @@ export type Query = {
   compendiumFeats: Array<CompendiumFeat>;
   compendiumLanguages: Array<CompendiumLanguage>;
   compendiumRaces: Array<CompendiumRace>;
+  compendiumSubclasses: Array<CompendiumSubclass>;
   compendiumSubraces: Array<CompendiumSubrace>;
   currentUserCharacters: Array<Character>;
   customClasses: Array<AvailableClass>;

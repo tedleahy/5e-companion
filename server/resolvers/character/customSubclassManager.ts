@@ -11,7 +11,7 @@ import type {
 } from "../../generated/graphql";
 import { requireUser } from "../../lib/auth";
 import prisma from "../../prisma/prisma";
-import { buildSubclassFeatureSourceLabel, mapSubclassRowToBase } from "./subclassReferences";
+import { buildSubclassFeatureSourceLabel, classChangeAvailability, mapSubclassRowToBase } from "./subclassReferences";
 import { reconcileOwnedCollection } from "./reconcileSheetCollection";
 import {
     CUSTOM_SUBCLASS_NAME_MAX_LENGTH,
@@ -222,17 +222,11 @@ export function translateActiveCustomSubclassNameConflict(
 
 function toCustomSubclass(subclassRef: CustomSubclassResponseRow): CustomSubclass {
     const characterUsageCount = subclassRef._count?.characterClasses ?? 0;
-    const featureCount = subclassRef._count?.features ?? 0;
-    const canChangeClass = characterUsageCount === 0;
-    const cannotChangeClassReason = characterUsageCount > 0
-        ? `Cannot change the parent class of a subclass used by ${characterUsageCount} character(s).`
-        : null;
 
     return {
         ...mapSubclassRowToBase(subclassRef),
         characterUsageCount,
-        canChangeClass,
-        cannotChangeClassReason,
+        ...classChangeAvailability(true, characterUsageCount),
     };
 }
 

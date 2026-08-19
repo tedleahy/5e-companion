@@ -22,6 +22,7 @@ import compendiumCounts, {
     compendiumFeats,
     compendiumLanguages,
     compendiumRaces,
+    compendiumSubclasses,
     compendiumSubraces,
 } from './resolvers/compendiumResolver';
 import * as characterResolvers from './resolvers/characterResolvers';
@@ -98,6 +99,7 @@ async function context({ req }: ExpressContextFunctionArgument): Promise<Context
 const resolvers: Resolvers = {
     Query: {
         compendiumCounts,
+        compendiumSubclasses,
         compendiumRaces,
         compendiumSubraces,
         compendiumBackgrounds,

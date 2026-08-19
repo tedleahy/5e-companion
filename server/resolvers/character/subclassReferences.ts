@@ -13,7 +13,7 @@ import type {
     ResolvedCharacterClass,
 } from "./multiclassRules";
 
-const FEATURE_KIND = {
+export const FEATURE_KIND = {
     CLASS_FEATURE: "CLASS_FEATURE",
     SUBCLASS_FEATURE: "SUBCLASS_FEATURE",
     TRAIT_FEATURE: "TRAIT_FEATURE",
@@ -127,6 +127,31 @@ export function mapSubclassRowToBase(subclassRef: SubclassRowLike) {
         selectionLevel: subclassRef.selectionLevel,
         description: subclassRef.description,
         features: subclassRef.features.map(mapSubclassFeatureRow),
+    };
+}
+
+/**
+ * Whether one subclass row may be re-parented onto a different class.
+ *
+ * SRD rows are never editable, and a custom subclass locks its parent class once
+ * a character depends on it. Shared so the manager and the Compendium browse
+ * query cannot drift on the wording shown to the user.
+ */
+export function classChangeAvailability(isCustom: boolean, characterUsageCount: number): {
+    canChangeClass: boolean;
+    cannotChangeClassReason: string | null;
+} {
+    if (!isCustom) {
+        return { canChangeClass: false, cannotChangeClassReason: null };
+    }
+
+    if (characterUsageCount === 0) {
+        return { canChangeClass: true, cannotChangeClassReason: null };
+    }
+
+    return {
+        canChangeClass: false,
+        cannotChangeClassReason: `Cannot change the parent class of a subclass used by ${characterUsageCount} character(s).`,
     };
 }
 
