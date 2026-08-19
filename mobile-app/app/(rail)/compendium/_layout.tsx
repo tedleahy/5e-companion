@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+import CompendiumScreenTransition from '@/components/compendium/compendium-screen-transition';
 import RailScreenShell from '@/components/navigation/RailScreenShell';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
@@ -18,9 +19,15 @@ export default function CompendiumLayout() {
                 screenOptions={{
                     headerShown: false,
                     contentStyle: { backgroundColor: fantasyTokens.colors.night },
-                    animation: 'slide_from_right',
-                    animationDuration: fantasyTokens.motion.standard,
+                    // Depth is expressed by CompendiumScreenTransition's shared-axis-Z
+                    // fade/scale instead of a lateral slide; keep the iOS back gesture
+                    // even though it no longer tracks the finger with a matching slide.
+                    animation: 'none',
+                    gestureEnabled: true,
                 }}
+                screenLayout={({ children }) => (
+                    <CompendiumScreenTransition>{children}</CompendiumScreenTransition>
+                )}
             >
                 <Stack.Screen name="index" />
                 <Stack.Screen name="classes" />

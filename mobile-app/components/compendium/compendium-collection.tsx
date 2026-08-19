@@ -1,5 +1,10 @@
+import { useEffect, useRef } from 'react';
 import { ScrollView, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
-import Animated, { FadeIn, ReduceMotion, SlideInRight } from 'react-native-reanimated';
+import Animated, {
+    useReducedMotion,
+    withTiming,
+    type EntryExitAnimationFunction,
+} from 'react-native-reanimated';
 import CompendiumBackButton from '@/components/compendium/compendium-back-button';
 import CompendiumCollectionList from '@/components/compendium/compendium-collection-list';
 import type {
@@ -19,6 +24,37 @@ export type { CompendiumCollectionItem } from '@/components/compendium/compendiu
 
 const DETAIL_CONTENT_PADDING = fantasyTokens.spacing.lg;
 
+const PANEL_ENTER_DURATION = fantasyTokens.motion.quick;
+const PANEL_EXIT_DURATION = Math.round(fantasyTokens.motion.quick * 0.75);
+/** Just enough travel to hint direction; the stack push owns the full-width motion. */
+const PANEL_ENTER_OFFSET = 16;
+
+/** Builds a cross-fade entrance that drifts in from `offset` px along the x axis. */
+function makePanelEnter(offset: number): EntryExitAnimationFunction {
+    return () => {
+        'worklet';
+        return {
+            initialValues: { opacity: 0, transform: [{ translateX: offset }] },
+            animations: {
+                opacity: withTiming(1, { duration: PANEL_ENTER_DURATION }),
+                transform: [{ translateX: withTiming(0, { duration: PANEL_ENTER_DURATION }) }],
+            },
+        };
+    };
+}
+
+const enterFromRight = makePanelEnter(PANEL_ENTER_OFFSET);
+const enterFromLeft = makePanelEnter(-PANEL_ENTER_OFFSET);
+
+/** Outgoing panel only fades, and faster than the incoming one arrives. */
+const exitPanel: EntryExitAnimationFunction = () => {
+    'worklet';
+    return {
+        initialValues: { opacity: 1 },
+        animations: { opacity: withTiming(0, { duration: PANEL_EXIT_DURATION }) },
+    };
+};
+
 /** Shared list/detail shell for browse-only Compendium categories. */
 export default function CompendiumCollection<T extends CompendiumCollectionItem>({
     heading,
@@ -32,6 +68,14 @@ export default function CompendiumCollection<T extends CompendiumCollectionItem>
     const selectedItem = collection.allItems.find(
         (item) => item.value === collection.selectedValue,
     ) ?? null;
+
+    const reducedMotion = useReducedMotion();
+    // The stack push already animates the first paint, so only animate later swaps.
+    const hasMounted = useRef(false);
+    useEffect(() => {
+        hasMounted.current = true;
+    }, []);
+    const animatePanels = hasMounted.current && !reducedMotion;
 
     useCompendiumDeepLink({
         items: collection.allItems,
@@ -54,10 +98,9 @@ export default function CompendiumCollection<T extends CompendiumCollectionItem>
             <View style={styles.card}>
                 {selectedItem == null ? (
                     <Animated.View
-                        entering={FadeIn
-                            .duration(fantasyTokens.motion.quick)
-                            .reduceMotion(ReduceMotion.System)}
-                        style={styles.flex}
+                        entering={animatePanels ? enterFromLeft : undefined}
+                        exiting={animatePanels ? exitPanel : undefined}
+                        style={styles.panel}
                     >
                         <CompendiumCollectionList
                             noun={heading.noun}
@@ -69,10 +112,9 @@ export default function CompendiumCollection<T extends CompendiumCollectionItem>
                     </Animated.View>
                 ) : (
                     <Animated.View
-                        entering={SlideInRight
-                            .duration(fantasyTokens.motion.standard)
-                            .reduceMotion(ReduceMotion.System)}
-                        style={styles.flex}
+                        entering={animatePanels ? enterFromRight : undefined}
+                        exiting={animatePanels ? exitPanel : undefined}
+                        style={styles.panel}
                     >
                         <CompendiumDetailScrollContext.Provider value={api}>
                             <ScrollView
@@ -110,8 +152,10 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: fantasyTokens.colors.night,
     },
-    flex: {
-        flex: 1,
+    // Absolute so the outgoing panel can overlap the incoming one mid-cross-fade
+    // instead of the two splitting the card's height.
+    panel: {
+        ...StyleSheet.absoluteFillObject,
     },
     card: {
         flex: 1,
