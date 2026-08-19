@@ -32,3 +32,11 @@ export function countLabel(count: number, singular: string, plural = `${singular
 export function listOrFallback(values: readonly string[], fallback = 'None listed') {
     return values.length > 0 ? values.join(', ') : fallback;
 }
+
+/**
+ * Plural for a browse noun. Naive `+s` breaks on `subclass`, so sibilant
+ * endings take `es` instead.
+ */
+export function pluralNoun(noun: string) {
+    return /(?:s|x|z|ch|sh)$/i.test(noun) ? `${noun}es` : `${noun}s`;
+}

@@ -1,5 +1,6 @@
 import { FlatList, StyleSheet, View } from 'react-native';
 import ListSkeletonRows from '@/components/ListSkeletonRows';
+import { pluralNoun } from '@/components/compendium/compendium-browse-presentation';
 import CompendiumCollectionRow from '@/components/compendium/compendium-collection-row';
 import CompendiumCollectionState from '@/components/compendium/compendium-collection-state';
 import type {
@@ -39,7 +40,7 @@ export default function CompendiumCollectionResults<T extends CompendiumCollecti
     if (collection.error != null && collection.items.length === 0) {
         return (
             <CompendiumCollectionState
-                title={`Unable to load ${noun}s`}
+                title={`Unable to load ${pluralNoun(noun)}`}
                 body={collection.error.message}
                 action={collection.error.onRetry == null ? undefined : {
                     label: 'Retry',

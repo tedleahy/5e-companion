@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import FilterSwitch from '@/components/FilterSwitch';
 import SearchBarInput from '@/components/SearchBarInput';
+import { pluralNoun } from '@/components/compendium/compendium-browse-presentation';
 import CompendiumCollectionResults from '@/components/compendium/compendium-collection-results';
 import type {
     CompendiumCollectionData,
@@ -33,7 +34,7 @@ export default function CompendiumCollectionList<T extends CompendiumCollectionI
     const filtersActive = filters.search.value.trim().length > 0
         || !filters.includeSrd.value
         || filters.category?.active === true;
-    const pluralNoun = items.length === 1 ? noun : `${noun}s`;
+    const countedNoun = items.length === 1 ? noun : pluralNoun(noun);
 
     function clearFilters() {
         if (filters.search.value !== '') filters.search.onChange('');
@@ -50,13 +51,13 @@ export default function CompendiumCollectionList<T extends CompendiumCollectionI
                     onChangeSearchText={filters.search.onChange}
                 />
                 <FilterSwitch
-                    label={`Include SRD ${noun}s`}
+                    label={`Include SRD ${pluralNoun(noun)}`}
                     value={filters.includeSrd.value}
                     onToggle={() => filters.includeSrd.onChange(!filters.includeSrd.value)}
                 />
                 {filters.category?.content}
                 <View style={styles.resultsBar}>
-                    <Text style={styles.resultsText}>{items.length} {pluralNoun} · A–Z</Text>
+                    <Text style={styles.resultsText}>{items.length} {countedNoun} · A–Z</Text>
                     {filtersActive ? (
                         <Pressable
                             accessibilityRole="button"

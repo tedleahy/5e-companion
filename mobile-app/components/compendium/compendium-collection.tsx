@@ -6,6 +6,7 @@ import Animated, {
     type EntryExitAnimationFunction,
 } from 'react-native-reanimated';
 import CompendiumBackButton from '@/components/compendium/compendium-back-button';
+import { pluralNoun } from '@/components/compendium/compendium-browse-presentation';
 import CompendiumCollectionList from '@/components/compendium/compendium-collection-list';
 import type {
     CompendiumCollectionItem,
@@ -128,7 +129,7 @@ export default function CompendiumCollection<T extends CompendiumCollectionItem>
                             >
                                 <CompendiumDetailBackBar
                                     title={selectedItem.name}
-                                    accessibilityLabel={`Back to all ${heading.noun}s`}
+                                    accessibilityLabel={`Back to all ${pluralNoun(heading.noun)}`}
                                     onBack={() => collection.onSelectedValueChange(null)}
                                     bleed={DETAIL_CONTENT_PADDING}
                                     testID="compendium-detail-back"

@@ -34,16 +34,16 @@ test.describe('Subclass manager — viewing and filtering', () => {
         await expect(page.getByText('Lore').first()).toBeVisible();
 
         // All class filter chips are visible
-        await expect(page.getByTestId('subclass-filter-all')).toBeVisible();
-        await expect(page.getByTestId('subclass-filter-wizard')).toBeVisible();
-        await expect(page.getByTestId('subclass-filter-barbarian')).toBeVisible();
+        await expect(page.getByTestId('subclass-class-filter-all')).toBeVisible();
+        await expect(page.getByTestId('subclass-class-filter-wizard')).toBeVisible();
+        await expect(page.getByTestId('subclass-class-filter-barbarian')).toBeVisible();
     });
 
     test('expands an SRD subclass to show features and collapses back', async ({ page }) => {
         await openSubclassManager(page);
 
         await expandSubclass(page, 'Berserker');
-        await expect(page.getByText('Features')).toBeVisible();
+        await expect(page.getByText('Subclass features')).toBeVisible();
         // "Frenzy" appears in both the feature title and its description text
         // ("you can go into a frenzy when you rage"), so use .first().
         await expect(page.getByText('Frenzy').first()).toBeVisible();
@@ -74,7 +74,7 @@ test.describe('Subclass manager — viewing and filtering', () => {
         // asserting the correct empty message wording instead.
         await selectClassFilter(page, 'barbarian');
         await expect(page.getByText('Berserker').first()).toBeVisible();
-        await expect(page.getByText('No Barbarian subclasses yet.')).toBeHidden();
+        await expect(page.getByText('No matching subclasses')).toBeHidden();
 
         // If we create a custom subclass for a class and then filter away,
         // the empty state should show correctly. That is tested in the CRUD suite.
@@ -100,7 +100,7 @@ test.describe('Subclass manager — create', () => {
 
         // Scope the row to avoid matching the class filter chip or stale
         // custom subclass rows from previous test runs.
-        const row = page.getByTestId(`custom-subclass-row-${id}`);
+        const row = page.getByTestId(`compendium-row-${id}`);
         await expect(row.getByText(name)).toBeVisible();
         await expect(row.getByText('Fighter').first()).toBeVisible();
 
@@ -129,8 +129,8 @@ test.describe('Subclass manager — create', () => {
         await expandSubclass(page, name);
         await expect(page.getByText('Arcane Resilience')).toBeVisible();
         await expect(page.getByText('Spellweaving')).toBeVisible();
-        await expect(page.getByTestId('subclass-detail-scroll').getByText('Level 2')).toBeVisible();
-        await expect(page.getByTestId('subclass-detail-scroll').getByText('Level 6')).toBeVisible();
+        await expect(page.getByTestId('compendium-detail-scroll').getByText('Level 2')).toBeVisible();
+        await expect(page.getByTestId('compendium-detail-scroll').getByText('Level 6')).toBeVisible();
 
         // Clean up
         await collapseExpandedSubclass(page);
@@ -315,7 +315,7 @@ test.describe('Subclass manager — edit', () => {
 
         // Scope to the updated row to avoid matching the Fighter filter chip
         // and stale fighter subclasses from previous test runs.
-        const row = page.getByTestId(`custom-subclass-row-${id}`);
+        const row = page.getByTestId(`compendium-row-${id}`);
         await expect(row.getByText('Fighter').first()).toBeVisible();
 
         // Clean up

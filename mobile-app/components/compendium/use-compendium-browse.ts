@@ -1,8 +1,10 @@
+import type { ErrorLike } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import type { DocumentNode } from 'graphql';
 import { useMemo, useState } from 'react';
 import {
     matchesCompendiumSearch,
+    pluralNoun,
     type SearchValue,
 } from '@/components/compendium/compendium-browse-presentation';
 import type {
@@ -23,6 +25,8 @@ type UseCompendiumBrowseOptions<TData, TItem> = {
 type UseCompendiumBrowseResult<TItem extends CompendiumCollectionItem> = {
     /** Every row the caller can see, before any filter. */
     allRows: TItem[];
+    /** Raw query error, for screens that branch on the failure (e.g. auth). */
+    error: ErrorLike | undefined;
     /** Rows after the Include-SRD switch only — the basis for category options. */
     sourceRows: TItem[];
     search: CompendiumCollectionFilters['search'];
@@ -68,9 +72,10 @@ export default function useCompendiumBrowse<TData, TItem extends CompendiumColle
 
     return {
         allRows,
+        error: query.error,
         sourceRows,
         search: {
-            placeholder: `Search ${noun}s`,
+            placeholder: `Search ${pluralNoun(noun)}`,
             value: searchText,
             onChange: setSearchText,
         },

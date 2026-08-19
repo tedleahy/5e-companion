@@ -1433,6 +1433,11 @@ export type SpellListFieldsFragment = { __typename?: 'Spell', id: string, name: 
 
 export type CharacterSpellbookEntryFieldsFragment = { __typename?: 'CharacterSpell', prepared: boolean, spell: { __typename?: 'Spell', id: string, name: string, level: number, schoolIndex: string, classIndexes: Array<string>, castingTime: string, range?: string | null, concentration: boolean, ritual: boolean } };
 
+export type CompendiumSubclassesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CompendiumSubclassesQuery = { __typename?: 'Query', compendiumSubclasses: Array<{ __typename?: 'CompendiumSubclass', id: string, value: string, srdIndex?: string | null, name: string, description: Array<string>, isCustom: boolean, sourceBook?: string | null, classId: string, className: string, selectionLevel: number, characterUsageCount: number, canChangeClass: boolean, cannotChangeClassReason?: string | null, features: Array<{ __typename?: 'AvailableSubclassFeature', id: string, name: string, description: string, level: number }> }> };
+
 export type CompendiumSubracesQueryVariables = Exact<{ [key: string]: never; }>;
 
 

@@ -12,10 +12,10 @@ export function uniqueSubclassName(prefix: string): string {
  */
 export async function openSubclassManager(page: Page): Promise<void> {
     await page.goto('/compendium/subclasses');
-    // The manager card is the unique page landmark; the "Subclasses" title text
-    // also matches the hidden compendium category label, so it cannot be used
-    // as a readiness check under Playwright strict mode.
-    await expect(page.getByTestId('subclass-manager-card')).toBeVisible();
+    // The virtualized list is the unique page landmark; the "Subclasses" title
+    // text also matches the hidden compendium category label, so it cannot be
+    // used as a readiness check under Playwright strict mode.
+    await expect(page.getByTestId('compendium-collection-list')).toBeVisible();
 }
 
 /**
@@ -88,23 +88,24 @@ export async function cancelSubclassForm(page: Page): Promise<void> {
  * Expands a subclass row by name.
  */
 export async function expandSubclass(page: Page, name: string): Promise<void> {
-    await page.getByRole('button', { name: `View details for ${name}` }).click();
-    await expect(page.getByTestId('subclass-expand-back')).toBeVisible();
+    // Shared rows are labelled `<name>, SRD` or `<name>, Custom`.
+    await page.getByRole('button', { name: new RegExp(`^${name}, (SRD|Custom)$`) }).click();
+    await expect(page.getByTestId('compendium-detail-back')).toBeVisible();
 }
 
 /**
  * Clicks the Back button to collapse an expanded subclass.
  */
 export async function collapseExpandedSubclass(page: Page): Promise<void> {
-    await page.getByTestId('subclass-expand-back').click();
-    await expect(page.getByTestId('subclass-expand-back')).toBeHidden();
+    await page.getByTestId('compendium-detail-back').click();
+    await expect(page.getByTestId('compendium-detail-back')).toBeHidden();
 }
 
 /**
  * Opens edit form for a custom subclass from its collapsed row.
  */
 export async function editSubclassFromRow(page: Page, id: string): Promise<void> {
-    await page.getByTestId('subclass-list-scroll').getByTestId(`edit-custom-subclass-${id}`).click();
+    await page.getByTestId('compendium-collection-list').getByTestId(`edit-custom-subclass-${id}`).click();
     await expect(page.getByTestId('custom-subclass-form-sheet')).toBeVisible();
     await expect(page.getByText('Edit Subclass')).toBeVisible();
 }
@@ -115,7 +116,7 @@ export async function editSubclassFromRow(page: Page, id: string): Promise<void>
 export async function deleteSubclassFromRow(page: Page, id: string): Promise<void> {
     // The floating add button can cover the center of this control on the last visible row.
     await page
-        .getByTestId('subclass-list-scroll')
+        .getByTestId('compendium-collection-list')
         .getByTestId(`delete-custom-subclass-${id}`)
         .click({ position: { x: 8, y: 8 } });
     await expect(page.getByText('Delete custom subclass?')).toBeVisible();
@@ -141,7 +142,7 @@ export async function cancelDelete(page: Page): Promise<void> {
  * Selects a class filter chip.
  */
 export async function selectClassFilter(page: Page, classId: string): Promise<void> {
-    await page.getByTestId(`subclass-filter-${classId}`).click();
+    await page.getByTestId(`subclass-class-filter-${classId}`).click();
 }
 
 /**
@@ -149,13 +150,14 @@ export async function selectClassFilter(page: Page, classId: string): Promise<vo
  * This is needed because row testIDs include the generated Prisma id.
  */
 export async function findCustomSubclassRowId(page: Page, name: string): Promise<string | null> {
-    const row = page.getByTestId('subclass-list-scroll').locator('[data-testid^="custom-subclass-row-"]').filter({
+    const row = page.getByTestId('compendium-collection-list').locator('[data-testid^="compendium-row-"]').filter({
         has: page.locator('text=' + name),
     });
     if (await row.count() === 0) return null;
     const testId = await row.getAttribute('data-testid');
     if (!testId) return null;
-    // testId format: custom-subclass-row-{id}
-    const parts = testId.split('custom-subclass-row-');
+    // testId format: compendium-row-{value}; custom rows have no srdIndex, so
+    // the value is the row id the CRUD helpers need.
+    const parts = testId.split('compendium-row-');
     return parts[1] ?? null;
 }
