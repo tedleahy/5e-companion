@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Riso mixer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,sans-serif}
+.gal-top{padding:14px 22px 0;max-width:1600px;margin:0 auto}
+.gal-top b{font-weight:600;font-size:13px;color:#fff}
+.gal-intro{max-width:66ch;padding:10px 22px 18px;margin:0}
+.gal-intro h1{font-size:26px;font-weight:700;margin:0 0 8px;letter-spacing:-.015em}
+.gal-intro p{margin:0;color:#a9b0b9;font-size:14.5px;line-height:1.55}
+.mixer{position:sticky;top:0;z-index:50;background:rgba(23,25,29,.94);backdrop-filter:blur(8px);
+  border-bottom:1px solid #3c4046;padding:10px 22px}
+.mixer-inner{max-width:1600px;margin:0 auto}
+.mixer-toggle{display:flex;align-items:center;gap:12px;width:100%;margin:0;padding:2px 0;
+  border:0;background:none;color:#e7e9ec;font:600 13px/1.2 "Manrope",system-ui,sans-serif;
+  cursor:pointer;text-align:left}
+.mixer-toggle:hover,.mixer-toggle:focus-visible{color:#fff}
+.mixer-toggle-action{flex:none}
+.mixer-now{display:flex;align-items:center;gap:8px;min-width:0;flex:1;color:#8a919a;font-weight:500}
+.mixer-now b{color:#d4d8de;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mixer-now-inks{display:grid;grid-template-columns:repeat(4,11px);gap:2px;flex:none}
+.mixer-now-inks i{display:block;height:18px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+.mixer-chevron{flex:none;width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  transform:rotate(45deg);margin-top:-3px}
+.mixer.is-closed .mixer-chevron{transform:rotate(-45deg);margin-top:2px}
+.mixer.is-closed .mixer-body{display:none}
+.mixer:not(.is-closed) .mixer-toggle{margin-bottom:10px}
+.mixer h2{margin:0 0 8px;font-size:12px;font-weight:600;color:#8a919a}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.preset{display:flex;align-items:center;gap:8px;padding:6px 10px 6px 6px;border:1px solid #3c4046;
+  background:#1c1e22;color:#c3c9d1;font:600 12.5px/1.2 "Manrope",system-ui,sans-serif;cursor:pointer}
+.preset:hover,.preset:focus-visible{border-color:#6f7681;color:#fff}
+.preset[aria-current=true]{border-color:#fff;color:#fff;background:#26292e}
+.preset-inks{display:grid;grid-template-columns:repeat(4,11px);gap:2px}
+.preset-inks i{display:block;height:22px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+.drums{display:flex;gap:10px;flex-wrap:wrap}
+.drum{display:flex;align-items:center;gap:8px;min-width:0;padding:6px 8px;border:1px solid #3c4046;background:#1c1e22}
+.drum span{font-size:12px;color:#8a919a;white-space:nowrap}
+.swatch{position:relative;width:28px;height:22px;flex:none;background:var(--sw,#333);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+.swatch input[type=color]{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;
+  opacity:0;cursor:pointer}
+.drum input[type=text]{all:unset;width:7.2ch;font:500 12.5px/1 ui-monospace,"Cascadia Mono",monospace;color:#e7e9ec}
+.note{margin:10px 0 0;color:#8a919a;font-size:12.5px;line-height:1.45;max-width:80ch}
+.note b{color:#d4d8de;font-weight:600}
+.hexline{margin:6px 0 0;color:#6f7681;font:12px/1.4 ui-monospace,"Cascadia Mono",monospace}
+.studio{padding:28px 22px 48px}
+.pair{max-width:1600px;margin:0 auto;display:flex;gap:34px;align-items:flex-start}
+.stagewrap{flex:1 1 auto;min-width:0}
+.stagebox{overflow:hidden}
+.stage{transform-origin:top left;overflow:hidden;border-radius:8px;box-shadow:0 24px 60px -24px rgba(0,0,0,.7)}
+.phone{flex:none;width:414px;padding:12px;border-radius:44px;background:#111318;
+  box-shadow:0 24px 60px -24px rgba(0,0,0,.75), inset 0 0 0 1px #43474e}
+.phone-screen{width:390px;height:812px;border-radius:33px;overflow:hidden;position:relative}
+.phone-scroll{width:100%;height:100%;overflow-y:auto;scrollbar-width:none}
+.phone-scroll::-webkit-scrollbar{display:none}
+.frame-label{font-size:11.5px;color:#8a919a;margin:0 0 8px 2px}
+@media (max-width:1180px){.pair{flex-direction:column-reverse}.stagewrap{width:100%}}
+@media (max-width:720px){
+  .gal-intro{padding:8px 16px 12px}
+  .gal-intro h1{font-size:22px}
+  .mixer{padding:8px 16px}
+  .studio{padding:18px 16px 36px}
+}
+:focus-visible{outline:2px solid #7cc4ff;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---- shared skeleton ---- */
+.mat{height:100%;display:flex;flex-direction:column;position:relative}
+.top{padding:20px 18px 14px}
+.title{margin:0;font-size:21px;font-weight:700;letter-spacing:-.015em}
+.title sup{font-size:12px;font-weight:600;margin-left:8px;top:-.55em;opacity:.66}
+.find{display:flex;gap:8px;margin-top:13px}
+.find label{flex:1;display:flex;align-items:center;gap:8px;padding:9px 12px;min-width:0}
+.find input{all:unset;flex:1;font-size:14px;font-family:inherit;min-width:0}
+.sortbtn{padding:0 13px;font-size:13px;cursor:pointer;font-family:inherit}
+.chips{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.chip{font-size:12px;padding:4px 10px;cursor:default;white-space:nowrap}
+.rows{flex:1;padding:12px 12px 0;display:flex;flex-direction:column;gap:9px}
+.row{display:grid;grid-template-columns:56px 1fr auto;gap:13px;align-items:center;padding:11px 12px}
+.tok{width:56px;height:56px;display:grid;place-items:center;position:relative;font-weight:700;font-size:20px;
+  color:#fff;background:var(--tok,#555);flex:none}
+.tok b{position:absolute;bottom:-7px;right:-7px;width:23px;height:23px;display:grid;place-items:center;
+  font-size:11.5px;font-weight:700;line-height:1}
+.name{margin:0;font-size:16.5px;font-weight:700;letter-spacing:-.01em}
+.sub{margin:2px 0 8px;font-size:12.5px}
+.meter{display:flex;gap:2px}
+.meter i{flex:1;height:14px;background:var(--full)}
+.meter i[data-e]{background:var(--empty)}
+.meter[data-hurt] i{background:var(--low)}
+.meter[data-hurt] i[data-e]{background:var(--empty)}
+.hp{margin:5px 0 0;font-size:12px;font-weight:600}
+.stat{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:54px}
+.ac{width:44px;height:44px;display:grid;place-items:center;font-weight:700;font-size:17px;line-height:1;flex:none}
+.ac em{display:block;font-style:normal;font-size:8px;font-weight:700;opacity:.75;margin-top:1px}
+.mark{font-size:11px;padding:3px 7px;white-space:nowrap;line-height:1.35}
+.marks{display:flex;gap:6px;flex-wrap:wrap}
+.tray{margin-top:14px;padding-top:13px}
+.trayhead{margin:0 0 9px;font-size:12px;font-weight:700;opacity:.75}
+.draft{display:grid;grid-template-columns:56px 1fr auto;gap:13px;align-items:center;padding:11px 12px}
+.resume{padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+.newwrap{position:sticky;bottom:0;padding:14px 12px 18px;margin-top:8px}
+.newbtn{width:100%;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.d{overflow:hidden}
+.d .dtop{display:flex;align-items:flex-end;gap:20px;padding:26px 34px 16px}
+.d .title{font-size:30px}
+.d .find{margin:0;flex:1;max-width:420px}
+.d .chips{margin:0}
+.dnew{width:auto;margin-left:auto;padding:12px 20px;font-size:14px}
+.cols{display:grid;grid-template-columns:74px 1fr 200px 104px 224px 132px;gap:16px;padding:10px 34px;
+  font-size:11.5px;font-weight:700;opacity:.75}
+.drow{display:grid;grid-template-columns:74px 1fr 200px 104px 224px 132px;gap:16px;align-items:center;padding:14px 34px}
+.d .tok{width:64px;height:64px;font-size:23px}
+.d .name{font-size:19px}
+.d .sub{font-size:13px}
+.go{padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.traywrap{padding:16px 34px}
+.d .tray{margin:0}
+.d .draft{grid-template-columns:74px 1fr auto}
+
+.riso{--full:var(--a);--low:var(--b);
+  font-family:"Space Grotesk",system-ui,sans-serif;color:var(--ink);
+  background:
+    radial-gradient(var(--dot) 1.1px,transparent 1.1px) 0 0/9px 9px,
+    linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 27px,
+    linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/27px 100%,
+    var(--paper)}
+.riso .top{background:var(--a);color:var(--on-a);padding-bottom:16px;box-shadow:5px 5px 0 var(--b)}
+.riso .title{font-weight:700;letter-spacing:-.03em}
+.riso .title sup{opacity:1}
+.riso .find label{background:var(--sheet);color:var(--dim);box-shadow:4px 4px 0 var(--b)}
+.riso .find input{color:var(--ink)}
+.riso .find input::placeholder{color:var(--dim)}
+.riso .sortbtn{background:var(--b);color:var(--on-b);border:0;font-weight:700}
+.riso .chip{background:var(--chip);color:var(--on-a);font-weight:600}
+.riso .chip:is([data-on],[aria-pressed=true]){background:var(--sheet);color:var(--a);font-weight:700}
+.riso .row,.riso .draft{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
+.riso .tok{border-radius:50%;font-weight:700;color:var(--on-tok,var(--on-a));box-shadow:4px 4px 0 var(--b)}
+.riso .tok b{background:var(--sheet);color:var(--ink);border-radius:50%;box-shadow:0 0 0 2px var(--a)}
+.riso .name{font-weight:700;letter-spacing:-.02em}
+.riso .sub{color:var(--dim)}
+.riso .meter{gap:2px}
+.riso .meter i{height:13px}
+.riso .hp{color:var(--dim);font-weight:500}
+.riso .hp b{color:var(--a);font-weight:700}
+.riso .ac{border-radius:50%;border:2px solid var(--a);color:var(--a);background:var(--sheet);
+  box-shadow:3px 3px 0 var(--b);width:46px;height:46px}
+.riso .ac em{opacity:1}
+.riso .mark{border:1.5px solid var(--a);color:var(--a);background:var(--sheet);font-weight:600}
+.riso .mark[data-t=bad]{border-color:var(--b);color:var(--b-text)}
+.riso .mark[data-t=conc]{border-color:var(--mix);color:var(--mix)}
+.riso .tray{border-top:2px dashed var(--b)}
+.riso .trayhead{color:var(--dim);opacity:1}
+.riso .draft{border-style:dashed;box-shadow:none;background:var(--draft-bg)}
+.riso .draft .tok{background:var(--sheet);color:var(--a);box-shadow:4px 4px 0 var(--rule),inset 0 0 0 2px var(--a)}
+.riso .resume{background:var(--a);color:var(--on-a);border:0}
+.riso .newbtn{background:var(--b);color:var(--on-b);border:0;box-shadow:5px 5px 0 var(--a)}
+.riso .newwrap{background:linear-gradient(180deg,transparent,var(--paper) 45%);padding-bottom:24px}
+.riso .d .dtop{background:var(--a);color:var(--on-a);box-shadow:0 5px 0 var(--b);margin-bottom:5px}
+.riso .cols{color:var(--dim);opacity:1;border-bottom:2px solid var(--a)}
+.riso .drow{border-bottom:1.5px solid var(--rule)}
+.riso .drow:nth-child(even){background:var(--wash)}
+.riso .go{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
+.riso .traywrap{padding-top:20px}
+
+/* ---- interaction states ---- */
+.riso :focus-visible{outline:2px solid var(--a);outline-offset:3px}
+.riso .top :focus-visible,.riso .dtop :focus-visible{outline-color:var(--on-a)}
+.riso .find label:focus-within{outline:2px solid var(--on-a);outline-offset:3px}
+.riso .find input:focus-visible{outline:none}
+.riso .row:active,.riso .newbtn:active{transform:translate(5px,5px);box-shadow:none}
+.riso .go:active{transform:translate(3px,3px);box-shadow:none}
+.riso .resume:active,.riso .sortbtn:active,.riso .chip:active{box-shadow:inset 0 0 0 2px currentColor}
+.riso .go[aria-pressed=true]{background:var(--a);color:var(--on-a)}
+.riso :is(.newbtn,.resume,.go,.sortbtn):is(:disabled,[aria-disabled=true]){background:transparent;color:var(--dim);
+  box-shadow:inset 0 0 0 2px var(--rule);transform:none;cursor:not-allowed}
+.riso .go:is(:disabled,[aria-disabled=true]){border-color:var(--rule);box-shadow:none}
+</style>
+</head>
+<body>
+<header class="gal-top">
+  <b>Riso mixer</b>
+  <div class="gal-intro">
+    <h1>Dusk blue / dusty rose</h1>
+    <p>One mockup. Nudge paper, cards, structural, accent and overprint if you want.
+    Type colour, hurt labels and the grid recompute from those five.</p>
+  </div>
+</header>
+
+<div class="mixer" id="mixer">
+  <div class="mixer-inner">
+    <button class="mixer-toggle" type="button" id="mixer-toggle" aria-expanded="true" aria-controls="mixer-body">
+      <span class="mixer-toggle-action" id="mixer-action">Hide inks</span>
+      <span class="mixer-now" id="mixer-now"></span>
+      <span class="mixer-chevron" aria-hidden="true"></span>
+    </button>
+    <div class="mixer-body" id="mixer-body">
+      <h2>Reset</h2>
+      <div class="presets" id="presets"></div>
+      <h2>Drums</h2>
+      <div class="drums">
+        <label class="drum"><span>Paper</span><span class="swatch" data-swatch="paper"><input type="color" data-key="paper"></span><input type="text" data-hex="paper" spellcheck="false" maxlength="7" aria-label="Paper hex"></label>
+        <label class="drum"><span>Cards</span><span class="swatch" data-swatch="sheet"><input type="color" data-key="sheet"></span><input type="text" data-hex="sheet" spellcheck="false" maxlength="7" aria-label="Cards hex"></label>
+        <label class="drum"><span>Structural</span><span class="swatch" data-swatch="a"><input type="color" data-key="a"></span><input type="text" data-hex="a" spellcheck="false" maxlength="7" aria-label="Structural hex"></label>
+        <label class="drum"><span>Accent</span><span class="swatch" data-swatch="b"><input type="color" data-key="b"></span><input type="text" data-hex="b" spellcheck="false" maxlength="7" aria-label="Accent hex"></label>
+        <label class="drum"><span>Overprint</span><span class="swatch" data-swatch="mix"><input type="color" data-key="mix"></span><input type="text" data-hex="mix" spellcheck="false" maxlength="7" aria-label="Overprint hex"></label>
+      </div>
+      <p class="note" id="note"></p>
+      <p class="hexline" id="hexline"></p>
+    </div>
+  </div>
+</div>
+
+<div class="studio">
+  <div class="pair">
+    <div data-slot="phone"></div>
+    <div class="stagewrap" data-slot="desktop"></div>
+  </div>
+</div>
+
+<template id="tpl-phone">
+  <div class="mat">
+    <div class="top">
+      <h2 class="title">Characters<sup>6 saved</sup></h2>
+      <div class="find">
+        <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+          <input placeholder="Find a character" aria-label="Find a character"></label>
+        <button class="sortbtn">Sort: level</button>
+      </div>
+      <div class="chips">
+        <span class="chip" data-on>All</span>
+        <span class="chip">Below half</span>
+        <span class="chip">Conditions</span>
+        <span class="chip">Sunless Crown</span>
+      </div>
+    </div>
+    <div class="rows">
+      <article class="row" style="--tok:var(--a);--on-tok:var(--on-a)">
+        <div class="tok">B<b>6</b></div>
+        <div>
+          <h3 class="name">Brenna Duskhollow</h3>
+          <p class="sub">Half-elf warlock, the Fiend</p>
+          <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+          <p class="hp"><b>31</b>/44 hit points, 5 temporary</p>
+        </div>
+        <div class="stat">
+          <div class="ac"><span>13<em>AC</em></span></div>
+          <span class="mark" data-t="conc">Hex</span>
+        </div>
+      </article>
+      <article class="row" style="--tok:var(--b);--on-tok:var(--on-b)">
+        <div class="tok">T<b>8</b></div>
+        <div>
+          <h3 class="name">Thorn Grimsby</h3>
+          <p class="sub">Mountain dwarf fighter, Champion</p>
+          <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div>
+          <p class="hp"><b>68</b>/72 hit points, second wind ready</p>
+        </div>
+        <div class="stat">
+          <div class="ac"><span>18<em>AC</em></span></div>
+          <span class="mark" data-t="ok">Second wind</span>
+        </div>
+      </article>
+      <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
+        <div class="tok">V<b>5</b></div>
+        <div>
+          <h3 class="name">Vesper Quill</h3>
+          <p class="sub">Rock gnome wizard, Divination</p>
+          <div class="meter" data-hurt><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+          <p class="hp"><b>12</b>/26 hit points, 2 slots left</p>
+        </div>
+        <div class="stat">
+          <div class="ac"><span>12<em>AC</em></span></div>
+          <span class="mark" data-t="bad">Below half</span>
+        </div>
+      </article>
+      <article class="row" style="--tok:var(--a);--on-tok:var(--on-a)">
+        <div class="tok">A<b>7</b></div>
+        <div>
+          <h3 class="name">Alarra Vane</h3>
+          <p class="sub">Human cleric, Life domain</p>
+          <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <p class="hp"><b>52</b>/52 hit points, channel divinity 2</p>
+        </div>
+        <div class="stat">
+          <div class="ac"><span>19<em>AC</em></span></div>
+          <span class="mark" data-t="ok">Channel 2 of 2</span>
+        </div>
+      </article>
+      <article class="row" style="--tok:var(--b);--on-tok:var(--on-b)">
+        <div class="tok">M<b>4</b></div>
+        <div>
+          <h3 class="name">Mudge Tealeaf</h3>
+          <p class="sub">Lightfoot halfling rogue, Arcane Trickster</p>
+          <div class="meter" data-hurt><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+          <p class="hp"><b>9</b>/27 hit points, 1 hit die</p>
+        </div>
+        <div class="stat">
+          <div class="ac"><span>15<em>AC</em></span></div>
+          <span class="mark" data-t="bad">Poisoned</span>
+        </div>
+      </article>
+      <div class="tray">
+        <h3 class="trayhead">Waiting to be finished</h3>
+        <article class="draft">
+          <div class="tok">K<b>3</b></div>
+          <div>
+            <h3 class="name">Kethra Ironsong</h3>
+            <p class="sub" style="margin-bottom:0">Level 3 to 4, three of five choices made. Her sheet is untouched until you confirm.</p>
+          </div>
+          <button class="resume">Resume</button>
+        </article>
+      </div>
+    </div>
+    <div class="newwrap"><button class="newbtn">Create character</button></div>
+  </div>
+</template>
+
+<template id="tpl-desktop">
+  <div class="mat d">
+    <div class="dtop">
+      <h2 class="title">Characters</h2>
+      <div class="find">
+        <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+          <input placeholder="Find a character" aria-label="Find a character"></label>
+        <button class="sortbtn">Sort: level</button>
+      </div>
+      <div class="chips">
+        <span class="chip" data-on>All</span>
+        <span class="chip">Below half</span>
+        <span class="chip">Conditions</span>
+        <span class="chip">Sunless Crown</span>
+      </div>
+      <button class="newbtn dnew">Create character</button>
+    </div>
+    <div class="cols"><span></span><span>Character</span><span>Hit points</span><span>Armour</span><span>Conditions and resources</span><span></span></div>
+    <div class="drow" style="--tok:var(--a);--on-tok:var(--on-a)">
+      <div class="tok">B<b>6</b></div>
+      <div><h3 class="name">Brenna Duskhollow</h3><p class="sub" style="margin-bottom:0">Half-elf warlock, the Fiend</p></div>
+      <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>31</b>/44 hit points, 5 temporary</p></div>
+      <div class="ac"><span>13<em>AC</em></span></div>
+      <div class="marks"><span class="mark" data-t="conc">Hex</span><span class="mark" data-t="ok">1 pact slot</span></div>
+      <button class="go">Open sheet</button>
+    </div>
+    <div class="drow" style="--tok:var(--b);--on-tok:var(--on-b)">
+      <div class="tok">T<b>8</b></div>
+      <div><h3 class="name">Thorn Grimsby</h3><p class="sub" style="margin-bottom:0">Mountain dwarf fighter, Champion</p></div>
+      <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>68</b>/72 hit points, second wind ready</p></div>
+      <div class="ac"><span>18<em>AC</em></span></div>
+      <div class="marks"><span class="mark" data-t="ok">Second wind</span><span class="mark" data-t="ok">Action surge</span></div>
+      <button class="go">Open sheet</button>
+    </div>
+    <div class="drow" style="--tok:var(--mix);--on-tok:var(--on-mix)">
+      <div class="tok">V<b>5</b></div>
+      <div><h3 class="name">Vesper Quill</h3><p class="sub" style="margin-bottom:0">Rock gnome wizard, Divination</p></div>
+      <div><div class="meter" data-hurt><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points, 2 slots left</p></div>
+      <div class="ac"><span>12<em>AC</em></span></div>
+      <div class="marks"><span class="mark" data-t="bad">Below half</span><span class="mark" data-t="conc">Portent 1</span></div>
+      <button class="go">Open sheet</button>
+    </div>
+    <div class="drow" style="--tok:var(--a);--on-tok:var(--on-a)">
+      <div class="tok">A<b>7</b></div>
+      <div><h3 class="name">Alarra Vane</h3><p class="sub" style="margin-bottom:0">Human cleric, Life domain</p></div>
+      <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p class="hp"><b>52</b>/52 hit points, channel divinity 2</p></div>
+      <div class="ac"><span>19<em>AC</em></span></div>
+      <div class="marks"><span class="mark" data-t="ok">Channel 2 of 2</span></div>
+      <button class="go">Open sheet</button>
+    </div>
+    <div class="drow" style="--tok:var(--b);--on-tok:var(--on-b)">
+      <div class="tok">M<b>4</b></div>
+      <div><h3 class="name">Mudge Tealeaf</h3><p class="sub" style="margin-bottom:0">Lightfoot halfling rogue, Arcane Trickster</p></div>
+      <div><div class="meter" data-hurt><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>9</b>/27 hit points, 1 hit die</p></div>
+      <div class="ac"><span>15<em>AC</em></span></div>
+      <div class="marks"><span class="mark" data-t="bad">Poisoned</span><span class="mark" data-t="ok">Sneak 2d6</span></div>
+      <button class="go">Open sheet</button>
+    </div>
+    <div class="traywrap">
+      <div class="tray">
+        <h3 class="trayhead">Waiting to be finished</h3>
+        <article class="draft">
+          <div class="tok">K<b>3</b></div>
+          <div>
+            <h3 class="name">Kethra Ironsong, level 3 to 4</h3>
+            <p class="sub" style="margin-bottom:0">Three of five choices made. Next up is an ability increase or a feat. Nothing reaches her sheet until you confirm.</p>
+          </div>
+          <button class="resume">Resume level-up</button>
+        </article>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+(function(){
+  var PRESETS = [
+    {id:'p0s', name:'Dusk blue / dusty rose', note:'Darker, greyer blue on the plate, a rose that is not fluorescent, duskier paper so the inks have somewhere to sit. The reset button puts this pairing back if you have been turning the drums.',
+      paper:'#eae6de', sheet:'#f0ece4', a:'#2560b0', b:'#e0689c', mix:'#5c3d88'}
+  ];
+
+  function hexToRgb(hex){
+    hex = hex.replace('#','');
+    if(hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+    return [parseInt(hex.slice(0,2),16), parseInt(hex.slice(2,4),16), parseInt(hex.slice(4,6),16)];
+  }
+  function rgbToHex(r,g,b){
+    return '#'+[r,g,b].map(function(x){
+      return ('0'+Math.round(Math.max(0,Math.min(255,x))).toString(16)).slice(-2);
+    }).join('');
+  }
+  function mix(a,b,t){
+    var A = hexToRgb(a), B = hexToRgb(b);
+    return rgbToHex(A[0]+(B[0]-A[0])*t, A[1]+(B[1]-A[1])*t, A[2]+(B[2]-A[2])*t);
+  }
+  function rgba(hex,a){
+    var c = hexToRgb(hex);
+    return 'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')';
+  }
+  function lum(hex){
+    var rgb = hexToRgb(hex).map(function(c){
+      c /= 255;
+      return c <= 0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4);
+    });
+    return 0.2126*rgb[0] + 0.7152*rgb[1] + 0.0722*rgb[2];
+  }
+  var AA = 4.5;
+  function contrast(x, y){
+    var p = lum(x) + 0.05, q = lum(y) + 0.05;
+    return p > q ? p / q : q / p;
+  }
+  function steps(from, to, by){
+    var out = [], n = Math.round((to - from) / by);
+    for(var i = 0; i <= n; i++) out.push(+(from + by * i).toFixed(2));
+    return out;
+  }
+  // First candidate that reaches AA against every background, else the last candidate.
+  function ensure(fn, ts, bgs){
+    for(var i = 0; i < ts.length; i++){
+      var c = fn(ts[i]);
+      if(bgs.every(function(bg){ return contrast(c, bg) >= AA; })) return c;
+    }
+    return fn(ts[ts.length - 1]);
+  }
+  // Light text if it passes AA on the ink, otherwise the lightest darkened ink that does.
+  function onInk(bg, paper){
+    var light = lum(paper) > 0.65 ? mix(paper, '#ffffff', 0.4) : '#ffffff';
+    if(contrast(light, bg) >= AA) return light;
+    var dark = ensure(function(t){ return mix(bg, '#140c08', t); }, steps(0.6, 1, 0.02), [bg]);
+    return contrast(dark, bg) >= contrast(light, bg) ? dark : light;
+  }
+  function parseHex(v){
+    if(!v) return null;
+    v = v.trim();
+    if(v[0] !== '#') v = '#'+v;
+    if(/^#([0-9a-fA-F]{3})$/.test(v) || /^#([0-9a-fA-F]{6})$/.test(v)){
+      var rgb = hexToRgb(v);
+      return rgbToHex(rgb[0], rgb[1], rgb[2]);
+    }
+    return null;
+  }
+  function derive(p){
+    var paper = p.paper, sheet = p.sheet, a = p.a, b = p.b, mx = p.mix;
+    var ink = mix(a, '#14110e', lum(a) > 0.2 ? 0.72 : 0.35);
+    if(lum(ink) > 0.22) ink = mix(ink, '#14110e', 0.55);
+    var onA = onInk(a, paper);
+    var draftSolid = mix(sheet, b, 0.11);
+    var chipAlpha = steps(0.16, 0, -0.02).filter(function(al){
+      return contrast(onA, mix(a, onA, al)) >= AA;
+    })[0] || 0;
+    return {
+      paper: paper, sheet: sheet, a: a, b: b, mix: mx, ink: ink,
+      dim: ensure(function(t){ return mix(ink, paper, t); }, steps(0.42, 0, -0.02), [paper, sheet, draftSolid]),
+      onA: onA, onB: onInk(b, paper), onMix: onInk(mx, paper),
+      bText: ensure(function(t){ return mix(b, '#1a0a08', t); }, steps(0.15, 0.9, 0.05), [sheet, draftSolid]),
+      wash: rgba('#ffffff', 0.5),
+      dot: rgba(a, 0.13),
+      line: rgba(b, lum(b) > 0.6 ? 0.28 : 0.18),
+      empty: rgba(lum(b) > 0.55 ? mix(b, '#3a3010', 0.35) : b, 0.26),
+      draftBg: rgba(b, 0.11),
+      rule: rgba(a, 0.28),
+      chip: rgba(onA, chipAlpha)
+    };
+  }
+
+  var phoneTpl = document.getElementById('tpl-phone');
+  var deskTpl = document.getElementById('tpl-desktop');
+  var phoneSlot = document.querySelector('[data-slot=phone]');
+  var deskSlot = document.querySelector('[data-slot=desktop]');
+
+  var phoneLabel = document.createElement('p');
+  phoneLabel.className = 'frame-label';
+  phoneLabel.innerHTML = 'Phone, 390 &times; 812';
+  var phone = document.createElement('div');
+  phone.className = 'phone';
+  var screen = document.createElement('div');
+  screen.className = 'phone-screen';
+  var scroll = document.createElement('div');
+  scroll.className = 'phone-scroll riso live';
+  scroll.appendChild(phoneTpl.content.cloneNode(true));
+  screen.appendChild(scroll);
+  phone.appendChild(screen);
+  phoneSlot.appendChild(phoneLabel);
+  phoneSlot.appendChild(phone);
+
+  var deskLabel = document.createElement('p');
+  deskLabel.className = 'frame-label';
+  deskLabel.innerHTML = 'Desktop, 1440 &times; 900';
+  var stage = document.createElement('div');
+  stage.className = 'stage riso live';
+  stage.dataset.w = '1440';
+  stage.dataset.h = '900';
+  stage.appendChild(deskTpl.content.cloneNode(true));
+  deskSlot.appendChild(deskLabel);
+  deskSlot.appendChild(stage);
+  var box = document.createElement('div');
+  box.className = 'stagebox';
+  stage.parentElement.insertBefore(box, stage);
+  box.appendChild(stage);
+
+  var lives = document.querySelectorAll('.live');
+  var picks = {paper:'', sheet:'', a:'', b:'', mix:''};
+  var activeId = PRESETS[0].id;
+  var custom = false;
+
+  function apply(t){
+    lives.forEach(function(el){
+      el.style.setProperty('--paper', t.paper);
+      el.style.setProperty('--sheet', t.sheet);
+      el.style.setProperty('--a', t.a);
+      el.style.setProperty('--b', t.b);
+      el.style.setProperty('--mix', t.mix);
+      el.style.setProperty('--ink', t.ink);
+      el.style.setProperty('--dim', t.dim);
+      el.style.setProperty('--on-a', t.onA);
+      el.style.setProperty('--on-b', t.onB);
+      el.style.setProperty('--on-mix', t.onMix);
+      el.style.setProperty('--b-text', t.bText);
+      el.style.setProperty('--dot', t.dot);
+      el.style.setProperty('--line', t.line);
+      el.style.setProperty('--empty', t.empty);
+      el.style.setProperty('--draft-bg', t.draftBg);
+      el.style.setProperty('--rule', t.rule);
+      el.style.setProperty('--chip', t.chip);
+      el.style.setProperty('--wash', t.wash);
+    });
+  }
+  function syncPickers(){
+    ['paper','sheet','a','b','mix'].forEach(function(key){
+      var hex = picks[key];
+      var color = document.querySelector('input[data-key="'+key+'"]');
+      var text = document.querySelector('input[data-hex="'+key+'"]');
+      var sw = document.querySelector('[data-swatch="'+key+'"]');
+      if(color) color.value = hex;
+      if(text && document.activeElement !== text) text.value = hex;
+      if(sw) sw.style.setProperty('--sw', hex);
+    });
+  }
+  function setNote(){
+    var preset = PRESETS.filter(function(p){ return p.id === activeId; })[0];
+    var title = custom ? (preset.name + ', then tuned') : preset.name;
+    document.getElementById('note').innerHTML = '<b>'+title+'.</b> '+preset.note;
+    document.getElementById('hexline').textContent =
+      'paper '+picks.paper+'   cards '+picks.sheet+'   structural '+picks.a+'   accent '+picks.b+'   overprint '+picks.mix;
+    document.getElementById('mixer-now').innerHTML =
+      '<span class="mixer-now-inks">'+
+      '<i style="background:'+picks.a+'"></i>'+
+      '<i style="background:'+picks.b+'"></i>'+
+      '<i style="background:'+picks.mix+'"></i>'+
+      '<i style="background:'+picks.paper+'"></i></span><b>'+title+'</b>';
+  }
+  function paint(){
+    apply(derive(picks));
+    syncPickers();
+    setNote();
+    document.querySelectorAll('.preset').forEach(function(btn){
+      btn.setAttribute('aria-current', btn.dataset.id === activeId && !custom ? 'true' : 'false');
+    });
+  }
+  function loadPreset(id){
+    var p = PRESETS.filter(function(x){ return x.id === id; })[0];
+    picks = {paper:p.paper, sheet:p.sheet, a:p.a, b:p.b, mix:p.mix};
+    activeId = id;
+    custom = false;
+    paint();
+  }
+
+  var presetWrap = document.getElementById('presets');
+  PRESETS.forEach(function(p){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'preset';
+    btn.dataset.id = p.id;
+    btn.innerHTML = '<span class="preset-inks">'+
+      '<i style="background:'+p.a+'"></i>'+
+      '<i style="background:'+p.b+'"></i>'+
+      '<i style="background:'+p.mix+'"></i>'+
+      '<i style="background:'+p.paper+'"></i></span>'+p.name;
+    btn.addEventListener('click', function(){ loadPreset(p.id); });
+    presetWrap.appendChild(btn);
+  });
+
+  document.querySelectorAll('input[data-key]').forEach(function(input){
+    input.addEventListener('input', function(){
+      picks[input.dataset.key] = input.value;
+      custom = true;
+      paint();
+    });
+  });
+  document.querySelectorAll('input[data-hex]').forEach(function(input){
+    input.addEventListener('change', function(){
+      var hex = parseHex(input.value);
+      if(!hex){ input.value = picks[input.dataset.hex]; return; }
+      picks[input.dataset.hex] = hex;
+      custom = true;
+      paint();
+    });
+    input.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){ input.blur(); }
+    });
+  });
+
+  function fit(){
+    var w = +stage.dataset.w, h = +stage.dataset.h;
+    var wrap = stage.parentElement;
+    var avail = wrap.parentElement.clientWidth;
+    var scale = Math.min(1, avail / w);
+    stage.style.width = w + 'px';
+    stage.style.height = h + 'px';
+    stage.style.transform = 'scale(' + scale + ')';
+    wrap.style.height = (h * scale) + 'px';
+  }
+  var mixer = document.getElementById('mixer');
+  var mixerToggle = document.getElementById('mixer-toggle');
+  var mixerAction = document.getElementById('mixer-action');
+  function setMixerOpen(open){
+    mixer.classList.toggle('is-closed', !open);
+    mixerToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    mixerAction.textContent = open ? 'Hide inks' : 'Show inks';
+  }
+  mixerToggle.addEventListener('click', function(){
+    setMixerOpen(mixer.classList.contains('is-closed'));
+  });
+  setMixerOpen(!window.matchMedia('(max-width: 720px)').matches);
+
+  loadPreset(PRESETS[0].id);
+  fit();
+  window.addEventListener('resize', fit);
+  document.fonts && document.fonts.ready.then(fit);
+})();
+</script>
+</body>
+</html>

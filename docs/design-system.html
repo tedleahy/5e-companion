@@ -1,0 +1,1130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5e Companion design system, v0.3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   DOC CHROME
+   Dark gallery shell, matches the mockup viewer. Not part of
+   the product design system. Everything inside .riso is.
+   ========================================================= */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,sans-serif;font-size:14.5px;line-height:1.55}
+a{color:#9cc9ff}
+code,kbd{font:500 12.5px/1.4 ui-monospace,"Cascadia Mono",monospace;background:#1c1e22;padding:1px 5px;border:1px solid #3c4046;color:#d4d8de}
+pre{margin:12px 0 0;padding:12px 14px;background:#1c1e22;border:1px solid #3c4046;overflow:auto;font:12.5px/1.5 ui-monospace,"Cascadia Mono",monospace;color:#c3c9d1}
+pre code{background:none;border:0;padding:0;font:inherit}
+.doc-head{padding:24px 22px 18px;border-bottom:1px solid #3c4046;background:rgba(23,25,29,.94)}
+.doc-head-inner{max-width:1240px;margin:0 auto}
+.doc-head b{font-weight:600;font-size:13px;color:#fff}
+.doc-head h1{font-size:26px;font-weight:700;margin:8px 0 8px;letter-spacing:-.015em}
+.doc-head p{margin:0;color:#a9b0b9;max-width:70ch}
+.doc-layout{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:200px minmax(0,1fr);gap:34px;padding:24px 22px 64px}
+.specimen.scroll-x{overflow-x:auto}
+.doc-nav{position:sticky;top:20px;align-self:start;font-size:13px}
+.doc-nav h2{margin:0 0 6px;font-size:11.5px;font-weight:600;color:#8a919a;text-transform:uppercase;letter-spacing:.06em}
+.doc-nav ul{list-style:none;margin:0 0 18px;padding:0}
+.doc-nav li{margin:0}
+.doc-nav a{display:block;padding:4px 0;color:#c3c9d1;text-decoration:none}
+.doc-nav a:hover{color:#fff}
+section{margin:0 0 56px}
+section>h2{font-size:21px;font-weight:700;margin:0 0 6px;letter-spacing:-.015em;padding-top:8px}
+section>p.lead{margin:0 0 22px;color:#a9b0b9;max-width:70ch}
+h3{font-size:15px;font-weight:700;margin:32px 0 6px}
+h3:first-of-type{margin-top:0}
+.why{margin:0 0 12px;color:#a9b0b9;max-width:70ch;font-size:13.5px}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0 0}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #3c4046;vertical-align:top}
+th{font-weight:600;color:#8a919a;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em}
+td code{white-space:nowrap}
+.sw{display:inline-block;width:22px;height:22px;vertical-align:middle;margin-right:8px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+.sw.on-paper{background-color:#eae6de;background-image:var(--sw-fill)}
+.specimen{margin:12px 0 0;padding:26px 24px;overflow:hidden;position:relative}
+.specimen.tight{padding:18px 20px}
+.specimen-label{position:absolute;top:8px;right:12px;font:600 10.5px/1 "Manrope",system-ui,sans-serif;color:rgba(31,68,119,.5);letter-spacing:.06em;text-transform:uppercase}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.dodont{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:12px}
+.dodont div{padding:14px 16px;border:1px solid #3c4046;background:#1c1e22;font-size:13.5px}
+.dodont b{display:block;margin-bottom:6px;font-size:12px;letter-spacing:.05em;text-transform:uppercase}
+.dodont .do b{color:#8fd19e}
+.dodont .dont b{color:#f29a9a}
+.dodont ul{margin:0;padding-left:18px}
+.dodont li{margin:3px 0}
+.stack{display:flex;flex-direction:column;gap:14px}
+.inline{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.phone-frame{width:390px;max-width:100%;border-radius:8px;overflow:hidden;box-shadow:0 24px 60px -24px rgba(0,0,0,.7)}
+.desk-frame{width:100%;border-radius:8px;overflow:hidden;box-shadow:0 24px 60px -24px rgba(0,0,0,.7)}
+.type-row{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--rule)}
+.type-row small{font:500 11px/1.3 "Manrope",system-ui,sans-serif;color:var(--dim)}
+.space-row{display:flex;align-items:center;gap:12px;margin:6px 0;font-size:12.5px;color:var(--dim)}
+.space-row i{display:block;height:14px;background:var(--a)}
+.space-row b{width:38px;font-weight:700;color:var(--ink)}
+@media (max-width:860px){.doc-layout{grid-template-columns:1fr}.doc-nav{position:static}}
+:focus-visible{outline:2px solid #7cc4ff;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* =========================================================
+   DESIGN SYSTEM: TOKENS
+   Five source inks. Everything else is derived from them
+   (formulas in the mockup's derive() function, values here
+   are the computed output for the Dusk blue / dusty rose set).
+   ========================================================= */
+.riso{
+  /* source inks */
+  --paper:#eae6de;   /* page background */
+  --sheet:#f0ece4;   /* card and field surface, one step lighter than paper */
+  --a:#2560b0;       /* structural ink: plates, borders, primary text accents */
+  --b:#e0689c;       /* accent ink: offset shadows, hurt state, CTA */
+  --mix:#5c3d88;     /* overprint: where a and b would overlap; concentration, third token colour */
+
+  /* derived. Text tokens are contrast-targeted to 4.5:1, see derive() */
+  --ink:#1f4477;     /* body text, a darkened */
+  --dim:#48648c;     /* secondary text, ink mixed 20% toward paper */
+  --on-a:#f2f0eb;    /* text on structural */
+  --on-b:#412029;    /* text on accent: dark, light text fails on rose */
+  --on-mix:#f2f0eb;  /* text on overprint */
+  --b-text:#9b4768;  /* accent as text or small graphics on sheet */
+  --dot:rgba(37,96,176,.13);     /* grid dots */
+  --line:rgba(224,104,156,.18);  /* grid lines */
+  --empty:rgba(224,104,156,.26); /* empty meter segments */
+  --draft-bg:rgba(224,104,156,.11); /* draft card fill */
+  --rule:rgba(37,96,176,.28);    /* hairline rules, disabled outline, dead token */
+  --chip:rgba(242,240,235,.10);  /* inactive chip on a plate */
+  --wash:rgba(255,255,255,.5);   /* even table rows */
+
+  /* semantic aliases used by components */
+  --full:var(--a);   /* filled meter, same for every character */
+  --low:var(--b);    /* filled meter when below half */
+}
+
+/* =========================================================
+   DESIGN SYSTEM: SURFACE
+   ========================================================= */
+.riso{
+  font-family:"Space Grotesk",system-ui,sans-serif;color:var(--ink);
+  background:
+    radial-gradient(var(--dot) 1.1px,transparent 1.1px) 0 0/9px 9px,
+    linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 27px,
+    linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/27px 100%,
+    var(--paper)}
+.riso.flat{background:var(--paper)}
+
+/* =========================================================
+   DESIGN SYSTEM: COMPONENTS
+   Structural CSS (layout, size) and riso skin (colour, shadow)
+   are kept as separate rules, as in the mockup, so the skin
+   can be swapped without touching layout.
+   ========================================================= */
+/* shared skeleton */
+.mat{height:100%;display:flex;flex-direction:column;position:relative}
+.top{padding:20px 18px 14px}
+.title{margin:0;font-size:21px;font-weight:700;letter-spacing:-.015em}
+.title sup{font-size:12px;font-weight:600;margin-left:8px;top:-.55em;opacity:.66}
+.find{display:flex;gap:8px;margin-top:13px}
+.find label{flex:1;display:flex;align-items:center;gap:8px;padding:9px 12px;min-width:0}
+.find input{all:unset;flex:1;font-size:14px;font-family:inherit;min-width:0}
+.sortbtn{padding:0 13px;font-size:13px;cursor:pointer;font-family:inherit}
+.chips{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.chip{font-size:12px;padding:4px 10px;cursor:default;white-space:nowrap}
+.rows{flex:1;padding:12px 12px 0;display:flex;flex-direction:column;gap:9px}
+.row{display:grid;grid-template-columns:56px 1fr auto;gap:13px;align-items:center;padding:11px 12px}
+.tok{width:56px;height:56px;display:grid;place-items:center;position:relative;font-weight:700;font-size:20px;
+  color:#fff;background:var(--tok,#555);flex:none}
+.tok b{position:absolute;bottom:-7px;right:-7px;width:23px;height:23px;display:grid;place-items:center;
+  font-size:11.5px;font-weight:700;line-height:1}
+.name{margin:0;font-size:16.5px;font-weight:700;letter-spacing:-.01em}
+.sub{margin:2px 0 8px;font-size:12.5px}
+.meter{display:flex;gap:2px}
+.meter i{flex:1;height:14px;background:var(--full)}
+.meter i[data-e]{background:var(--empty)}
+.meter[data-hurt] i{background:var(--low)}
+.meter[data-hurt] i[data-e]{background:var(--empty)}
+.hp{margin:5px 0 0;font-size:12px;font-weight:600}
+.stat{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:54px}
+.ac{width:44px;height:44px;display:grid;place-items:center;font-weight:700;font-size:17px;line-height:1;flex:none}
+.ac em{display:block;font-style:normal;font-size:8px;font-weight:700;opacity:.75;margin-top:1px}
+.mark{font-size:11px;padding:3px 7px;white-space:nowrap;line-height:1.35}
+.marks{display:flex;gap:6px;flex-wrap:wrap}
+.tray{margin-top:14px;padding-top:13px}
+.trayhead{margin:0 0 9px;font-size:12px;font-weight:700;opacity:.75}
+.draft{display:grid;grid-template-columns:56px 1fr auto;gap:13px;align-items:center;padding:11px 12px}
+.resume{padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+.newwrap{position:sticky;bottom:0;padding:14px 12px 18px;margin-top:8px}
+.newbtn{width:100%;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.d{overflow:hidden}
+.d .dtop{display:flex;align-items:flex-end;gap:20px;padding:26px 34px 16px}
+.d .title{font-size:30px}
+.d .find{margin:0;flex:1;max-width:420px}
+.d .chips{margin:0}
+.dnew{width:auto;margin-left:auto;padding:12px 20px;font-size:14px}
+.cols{display:grid;grid-template-columns:74px 1fr 200px 104px 224px 132px;gap:16px;padding:10px 34px;
+  font-size:11.5px;font-weight:700;opacity:.75}
+.drow{display:grid;grid-template-columns:74px 1fr 200px 104px 224px 132px;gap:16px;align-items:center;padding:14px 34px}
+.d .tok{width:64px;height:64px;font-size:23px}
+.d .name{font-size:19px}
+.d .sub{font-size:13px}
+.go{padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.traywrap{padding:16px 34px}
+.d .tray{margin:0}
+.d .draft{grid-template-columns:74px 1fr auto}
+
+/* riso skin */
+.riso .top{background:var(--a);color:var(--on-a);padding-bottom:16px;box-shadow:5px 5px 0 var(--b)}
+.riso .title{font-weight:700;letter-spacing:-.03em}
+.riso .title sup{opacity:1}
+.riso .find label{background:var(--sheet);color:var(--dim);box-shadow:4px 4px 0 var(--b)}
+.riso .find input{color:var(--ink)}
+.riso .find input::placeholder{color:var(--dim)}
+.riso .sortbtn{background:var(--b);color:var(--on-b);border:0;font-weight:700}
+.riso .chip{background:var(--chip);color:var(--on-a);font-weight:600}
+.riso .chip:is([data-on],[aria-pressed=true]){background:var(--sheet);color:var(--a);font-weight:700}
+.riso .row,.riso .draft{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
+.riso .tok{border-radius:50%;font-weight:700;color:var(--on-tok,var(--on-a));box-shadow:4px 4px 0 var(--b)}
+.riso .tok b{background:var(--sheet);color:var(--ink);border-radius:50%;box-shadow:0 0 0 2px var(--a)}
+.riso .name{font-weight:700;letter-spacing:-.02em}
+.riso .sub{color:var(--dim)}
+.riso .meter{gap:2px}
+.riso .meter i{height:13px}
+.riso .hp{color:var(--dim);font-weight:500}
+.riso .hp b{color:var(--a);font-weight:700}
+.riso .ac{border-radius:50%;border:2px solid var(--a);color:var(--a);background:var(--sheet);
+  box-shadow:3px 3px 0 var(--b);width:46px;height:46px}
+.riso .ac em{opacity:1}
+.riso .mark{border:1.5px solid var(--a);color:var(--a);background:var(--sheet);font-weight:600}
+.riso .mark[data-t=bad]{border-color:var(--b);color:var(--b-text)}
+.riso .mark[data-t=conc]{border-color:var(--mix);color:var(--mix)}
+.riso .tray{border-top:2px dashed var(--b)}
+.riso .trayhead{color:var(--dim);opacity:1}
+.riso .draft{border-style:dashed;box-shadow:none;background:var(--draft-bg)}
+.riso .draft .tok{background:var(--sheet);color:var(--a);box-shadow:4px 4px 0 var(--rule),inset 0 0 0 2px var(--a)}
+.riso .resume{background:var(--a);color:var(--on-a);border:0}
+.riso .newbtn{background:var(--b);color:var(--on-b);border:0;box-shadow:5px 5px 0 var(--a)}
+.riso .newwrap{background:linear-gradient(180deg,transparent,var(--paper) 45%);padding-bottom:24px}
+.riso .d .dtop{background:var(--a);color:var(--on-a);box-shadow:0 5px 0 var(--b);margin-bottom:5px}
+.riso .cols{color:var(--dim);opacity:1;border-bottom:2px solid var(--a)}
+.riso .drow{border-bottom:1.5px solid var(--rule)}
+.riso .drow:nth-child(even){background:var(--wash)}
+.riso .go{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
+.riso .traywrap{padding-top:20px}
+
+/* interaction states (also in the mockup) */
+.riso :focus-visible{outline:2px solid var(--a);outline-offset:3px}
+.riso .top :focus-visible,.riso .dtop :focus-visible{outline-color:var(--on-a)}
+.riso .find label:focus-within{outline:2px solid var(--on-a);outline-offset:3px}
+.riso .find input:focus-visible{outline:none}
+.riso .row:active,.riso .newbtn:active{transform:translate(5px,5px);box-shadow:none}
+.riso .go:active{transform:translate(3px,3px);box-shadow:none}
+.riso .resume:active,.riso .sortbtn:active,.riso .chip:active{box-shadow:inset 0 0 0 2px currentColor}
+.riso .go[aria-pressed=true]{background:var(--a);color:var(--on-a)}
+.riso :is(.newbtn,.resume,.go,.sortbtn):is(:disabled,[aria-disabled=true]){background:transparent;color:var(--dim);
+  box-shadow:inset 0 0 0 2px var(--rule);transform:none;cursor:not-allowed}
+.riso .go:is(:disabled,[aria-disabled=true]){border-color:var(--rule);box-shadow:none}
+
+/* zero hit points (new in v0.2, not in the mockup yet) */
+.saves{display:flex;gap:14px;align-items:center}
+.saves span{display:flex;gap:4px}
+.saves i{display:block;width:13px;height:13px}
+.riso .saves [data-k=ok] i{border-radius:50%;box-shadow:inset 0 0 0 2px var(--a)}
+.riso .saves [data-k=ok] i[data-on]{background:var(--a)}
+.riso .saves [data-k=bad] i{box-shadow:inset 0 0 0 2px var(--b-text)}
+.riso .saves [data-k=bad] i[data-on]{background:var(--b-text)}
+.riso .row[data-state=dead]{border-color:var(--rule);box-shadow:none}
+.riso [data-state=dead] .tok{background:var(--sheet);color:var(--dim);box-shadow:inset 0 0 0 2px var(--rule)}
+
+/* doc-only helpers inside specimens */
+.riso .is-pressed:is(.row,.newbtn){transform:translate(5px,5px);box-shadow:none}
+.riso .is-pressed.go{transform:translate(3px,3px);box-shadow:none}
+.riso .is-pressed:is(.resume,.sortbtn,.chip){box-shadow:inset 0 0 0 2px currentColor}
+.riso .is-focus{outline:2px solid var(--a);outline-offset:3px}
+.riso .plate .is-focus{outline-color:var(--on-a)}
+.riso .state-grid{display:grid;grid-template-columns:96px repeat(5,minmax(0,1fr));gap:22px 18px;align-items:center;font-size:12px;color:var(--dim)}
+.riso .state-grid>b{font-size:11.5px;font-weight:700;color:var(--dim)}
+.riso .state-grid .newbtn{padding:11px;font-size:14px}
+.riso .state-grid .plate{padding:10px 12px;box-shadow:none}
+.riso .plate{background:var(--a);color:var(--on-a);padding:16px 18px;box-shadow:5px 5px 0 var(--b)}
+.riso .shadow-demo{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}
+.riso .shadow-demo>div{background:var(--sheet);border:2px solid var(--a);padding:14px 16px;font-size:12.5px;min-width:150px}
+.riso .shadow-demo small{display:block;color:var(--dim);margin-top:4px;font-size:11px}
+.riso .shape{display:flex;gap:24px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--dim)}
+.riso .shape span{display:grid;place-items:center;width:64px;height:48px;background:var(--sheet);border:2px solid var(--a);box-shadow:4px 4px 0 var(--b);color:var(--a);font-weight:700}
+.riso .shape span.round{border-radius:50%;width:48px}
+.riso .shape span.dashed{border-style:dashed;box-shadow:none;background:var(--draft-bg)}
+.riso .tok-set{display:flex;gap:22px;align-items:flex-end;flex-wrap:wrap}
+.riso .tok-set figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:12px;font-size:11.5px;color:var(--dim)}
+.riso .meter-set{display:grid;gap:14px;max-width:360px}
+.riso .meter-set p{margin:4px 0 0;font-size:11.5px;color:var(--dim)}
+.riso .contrast{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;font-size:12px}
+.riso .contrast div{padding:12px;font-weight:600}
+.riso .contrast small{display:block;font-weight:500;opacity:.8;margin-top:2px;font-size:10.5px}
+</style>
+</head>
+<body>
+
+<header class="doc-head">
+  <div class="doc-head-inner">
+    <b>5e Companion</b>
+    <h1>Design system, v0.3</h1>
+    <p>Distilled from <code>character-list-final.html</code>. It records the "riso" direction: two-ink risograph printing on toned paper, with a third overprint colour where the inks would overlap. Everything on this page is rendered with the same CSS as the mockup, so the specimens are the source of truth, not the prose.</p>
+    <p style="margin-top:8px">v0.3, 12 September 2026: a <a href="#native">React Native</a> mapping, font weights capped at 700, and decisions on font scaling, safe areas and press feedback.<br>
+    v0.2, 11 September 2026: contrast-targeted colours, interaction states, a stored token colour, zero hit point states and an icon rule. See <a href="#decisions">decisions</a>.</p>
+  </div>
+</header>
+
+<div class="doc-layout">
+<nav class="doc-nav" aria-label="Sections">
+  <h2>Foundations</h2>
+  <ul>
+    <li><a href="#principles">Principles</a></li>
+    <li><a href="#inks">Inks and tokens</a></li>
+    <li><a href="#surface">Paper surface</a></li>
+    <li><a href="#type">Typography</a></li>
+    <li><a href="#shape">Shape and shadow</a></li>
+    <li><a href="#spacing">Spacing and density</a></li>
+    <li><a href="#states">Interaction states</a></li>
+    <li><a href="#icons">Icons</a></li>
+  </ul>
+  <h2>Components</h2>
+  <ul>
+    <li><a href="#plate">Header plate</a></li>
+    <li><a href="#search">Search and sort</a></li>
+    <li><a href="#chips">Filter chips</a></li>
+    <li><a href="#token">Character token</a></li>
+    <li><a href="#meter">Hit point meter</a></li>
+    <li><a href="#zero">Zero hit points</a></li>
+    <li><a href="#ac">Armour class ring</a></li>
+    <li><a href="#marks">Marks</a></li>
+    <li><a href="#card">Character card</a></li>
+    <li><a href="#draft">Draft tray</a></li>
+    <li><a href="#buttons">Buttons</a></li>
+    <li><a href="#table">Desktop table</a></li>
+  </ul>
+  <h2>Patterns</h2>
+  <ul>
+    <li><a href="#layouts">Phone and desktop</a></li>
+    <li><a href="#native">React Native</a></li>
+    <li><a href="#a11y">Accessibility</a></li>
+    <li><a href="#decisions">Decisions</a></li>
+    <li><a href="#open">Deferred</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<!-- ============================================================ -->
+<section id="principles">
+  <h2>Principles</h2>
+  <p class="lead">What the character list mockup is doing, stated so later screens can do the same thing.</p>
+  <div class="dodont">
+    <div class="do"><b>Two inks, one paper</b>
+      <ul>
+        <li>Structural blue does the work: plates, borders, primary numbers, text.</li>
+        <li>Accent rose is the second pass: offset shadows, the hurt state, the one primary call to action.</li>
+        <li>Purple is the overprint. Use it sparingly as a third token colour and for concentration-type marks.</li>
+      </ul>
+    </div>
+    <div class="do"><b>Print, not glass</b>
+      <ul>
+        <li>Hard offset shadows in flat accent ink. No blur, no gradients on components.</li>
+        <li>Square corners on rectangles. Circles for tokens and the armour class ring.</li>
+        <li>The paper is textured with a dot and line grid so cards sit on something.</li>
+      </ul>
+    </div>
+    <div class="do"><b>Built for play</b>
+      <ul>
+        <li>Status is readable at a glance: filled meter, a mark or two. Token colour is identity, not status.</li>
+        <li>Below half hit points changes the meter colour. The player should not need to read the number.</li>
+        <li>Dense is fine, unscannable is not. Every row has the same shape.</li>
+      </ul>
+    </div>
+    <div class="dont"><b>Avoid</b>
+      <ul>
+        <li>Rounded corners on cards, buttons or chips.</li>
+        <li>Soft drop shadows, glows, glassmorphism.</li>
+        <li>Introducing green, amber or red for status. Hurt is rose, fine is the token colour.</li>
+        <li>Adding a sixth colour. Derive it from the five inks instead.</li>
+        <li>Raw hex values, or opacity on text, in component styles. Use a token, so a new ink set, including a future dark one, needs no component changes.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="inks">
+  <h2>Inks and tokens</h2>
+  <p class="lead">Five source inks are chosen by hand. Everything else is computed from them, so a theme change is five values. The computed values below are for the current pairing, "Dusk blue / dusty rose".</p>
+
+  <h3>Source inks</h3>
+  <table>
+    <thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td><i class="sw" style="background:#eae6de"></i><code>--paper</code></td><td><code>#eae6de</code></td><td>Page background. Warm, slightly grey so the inks have somewhere to sit.</td></tr>
+      <tr><td><i class="sw" style="background:#f0ece4"></i><code>--sheet</code></td><td><code>#f0ece4</code></td><td>Card, field and ring surface. One step lighter than paper.</td></tr>
+      <tr><td><i class="sw" style="background:#2560b0"></i><code>--a</code></td><td><code>#2560b0</code></td><td>Structural ink. Header plate, card borders, primary numbers, default token.</td></tr>
+      <tr><td><i class="sw" style="background:#e0689c"></i><code>--b</code></td><td><code>#e0689c</code></td><td>Accent ink. Offset shadows, sort button, hurt meter, create button, dashed tray rule.</td></tr>
+      <tr><td><i class="sw" style="background:#5c3d88"></i><code>--mix</code></td><td><code>#5c3d88</code></td><td>Overprint. Third token colour and concentration marks.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Derived tokens</h3>
+  <p class="why">Formulas are in the mockup's <code>derive()</code> function. Text colours come from mixing structural ink toward near-black, secondary text mixes ink toward paper, and every translucent tint is an alpha of one of the inks. Every token that carries text is <b>contrast-targeted</b>. The derivation steps through mix ratios and keeps the first one that reaches 4.5:1 on every surface the text sits on, so the mixer cannot produce a failing palette whatever inks are chosen.</p>
+  <table>
+    <thead><tr><th>Token</th><th>Value</th><th>Derivation</th><th>Used for</th></tr></thead>
+    <tbody>
+      <tr><td><i class="sw" style="background:#1f4477"></i><code>--ink</code></td><td><code>#1f4477</code></td><td>structural mixed 72% toward <code>#14110e</code></td><td>Body text, level badge digit</td></tr>
+      <tr><td><i class="sw" style="background:#48648c"></i><code>--dim</code></td><td><code>#48648c</code></td><td>ink mixed toward paper. Lightest step from 42% that reaches 4.5:1 on paper, sheet and draft fill; currently 20%</td><td>Subtitles, hit point line, column headers, tray heading, placeholder, disabled text</td></tr>
+      <tr><td><i class="sw" style="background:#f2f0eb"></i><code>--on-a</code></td><td><code>#f2f0eb</code></td><td>paper mixed 40% toward white, kept because it reaches 4.5:1 on structural</td><td>Text on the header plate and blue tokens</td></tr>
+      <tr><td><i class="sw" style="background:#412029"></i><code>--on-b</code></td><td><code>#412029</code></td><td>light text only reaches 2.78:1 on rose, so accent is darkened toward <code>#140c08</code> until it reaches 4.5:1; currently 78%</td><td>Text on rose buttons and tokens</td></tr>
+      <tr><td><i class="sw" style="background:#f2f0eb"></i><code>--on-mix</code></td><td><code>#f2f0eb</code></td><td>same rule</td><td>Text on purple tokens</td></tr>
+      <tr><td><i class="sw" style="background:#9b4768"></i><code>--b-text</code></td><td><code>#9b4768</code></td><td>accent mixed toward <code>#1a0a08</code>. First step from 15% that reaches 4.5:1 on sheet and draft fill; currently 35%</td><td>Accent as text, and small accent graphics such as failed death saves</td></tr>
+      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(37,96,176,.13),rgba(37,96,176,.13))"></i><code>--dot</code></td><td><code>rgba(37,96,176,.13)</code></td><td>structural at 13%</td><td>Paper grid dots</td></tr>
+      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(224,104,156,.18),rgba(224,104,156,.18))"></i><code>--line</code></td><td><code>rgba(224,104,156,.18)</code></td><td>accent at 18%</td><td>Paper grid lines</td></tr>
+      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(224,104,156,.26),rgba(224,104,156,.26))"></i><code>--empty</code></td><td><code>rgba(224,104,156,.26)</code></td><td>accent at 26%</td><td>Empty meter segments</td></tr>
+      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(224,104,156,.11),rgba(224,104,156,.11))"></i><code>--draft-bg</code></td><td><code>rgba(224,104,156,.11)</code></td><td>accent at 11%</td><td>Draft card fill</td></tr>
+      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(37,96,176,.28),rgba(37,96,176,.28))"></i><code>--rule</code></td><td><code>rgba(37,96,176,.28)</code></td><td>structural at 28%</td><td>Table row rules, draft token shadow, disabled outline, dead token</td></tr>
+      <tr><td><i class="sw" style="background:#2560b0;background-image:linear-gradient(rgba(242,240,235,.10),rgba(242,240,235,.10))"></i><code>--chip</code></td><td><code>rgba(242,240,235,.10)</code></td><td>on-a at the highest alpha from 16% that keeps chip text at 4.5:1; currently 10%</td><td>Inactive filter chip on the plate</td></tr>
+      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,.5))"></i><code>--wash</code></td><td><code>rgba(255,255,255,.5)</code></td><td>white at 50%</td><td>Even rows in the desktop table</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Text on ink</h3>
+  <p class="why">Every filled surface has one legal text colour. Do not put structural text on accent or the reverse. Rose is light enough that it takes dark text, while blue and purple take light text.</p>
+  <div class="riso flat specimen tight">
+    <div class="contrast">
+      <div style="background:var(--paper);color:var(--ink)">ink on paper<small>body text, 7.84:1</small></div>
+      <div style="background:var(--sheet);color:var(--dim)">dim on sheet<small>secondary, 5.13:1</small></div>
+      <div style="background:var(--a);color:var(--on-a)">on-a on structural<small>plate, blue token, 5.46:1</small></div>
+      <div style="background:var(--b);color:var(--on-b)">on-b on accent<small>CTA, rose token, 4.53:1</small></div>
+      <div style="background:var(--mix);color:var(--on-mix)">on-mix on overprint<small>purple token, 7.44:1</small></div>
+      <div style="background:var(--sheet);color:var(--b-text)">b-text on sheet<small>bad marks, 5.10:1</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="surface">
+  <h2>Paper surface</h2>
+  <p class="lead">The page background is paper with a printed grid: structural dots on a 9px pitch, accent lines on a 27px pitch. It is the only decorative texture in the system, and it stays behind everything.</p>
+  <div class="riso specimen" style="min-height:140px">
+    <span class="specimen-label">paper + grid</span>
+  </div>
+  <pre><code>background:
+  radial-gradient(var(--dot) 1.1px, transparent 1.1px) 0 0 / 9px 9px,
+  linear-gradient(var(--line) 1px, transparent 1px) 0 0 / 100% 27px,
+  linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0 / 27px 100%,
+  var(--paper);</code></pre>
+  <p class="why" style="margin-top:12px">Cards use plain <code>--sheet</code> with no texture, which is what makes them read as stuck on. The sticky footer fades from transparent to paper so the grid is visible above the button.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="type">
+  <h2>Typography</h2>
+  <p class="lead">One family in product: Space Grotesk, weights 400 to 700. Manrope is only used in the mockup viewer chrome. Numbers that matter are bold and coloured in structural ink.</p>
+  <div class="riso flat specimen">
+    <div class="type-row"><small>Title, desktop<br>30 / 700 / -.03em</small><h2 class="title" style="font-size:30px">Characters</h2></div>
+    <div class="type-row"><small>Title, phone<br>21 / 700 / -.03em</small><h2 class="title">Characters<sup>6 saved</sup></h2></div>
+    <div class="type-row"><small>Name, desktop<br>19 / 700 / -.02em</small><h3 class="name" style="font-size:19px">Brenna Duskhollow</h3></div>
+    <div class="type-row"><small>Name, phone<br>16.5 / 700 / -.02em</small><h3 class="name">Brenna Duskhollow</h3></div>
+    <div class="type-row"><small>Input<br>14 / 400</small><span style="font-size:14px">Find a character</span></div>
+    <div class="type-row"><small>Subtitle<br>12.5 / 400 / dim</small><p class="sub" style="margin:0">Half-elf warlock, the Fiend</p></div>
+    <div class="type-row"><small>Hit point line<br>12 / 500 / dim, bold number in a</small><p class="hp" style="margin:0"><b>31</b>/44 hit points, 5 temporary</p></div>
+    <div class="type-row"><small>Column header<br>11.5 / 700 / dim</small><span style="font-size:11.5px;font-weight:700;color:var(--dim)">Conditions and resources</span></div>
+    <div class="type-row"><small>Mark<br>11 / 600</small><span class="mark">Second wind</span></div>
+    <div class="type-row"><small>Ring label<br>8 / 700</small><span style="font-size:8px;font-weight:700;color:var(--a)">AC</span></div>
+  </div>
+  <table>
+    <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td>Tracking</td><td>Titles and names are tracked tight (-.02em to -.03em). Nothing else is tracked.</td></tr>
+      <tr><td>Weights</td><td>700 for titles, names, numbers, buttons. 600 for chips and marks. 500 for the hit point line. 400 for input text and subtitles. 700 is the cap: Space Grotesk has no heavier face, and React Native will not fake one.</td></tr>
+      <tr><td>Case</td><td>Sentence case everywhere, including buttons and column headers. Only the "AC" ring label is caps.</td></tr>
+      <tr><td>Numbers</td><td>The current value is the bold one. Maximums and units stay in dim at regular weight.</td></tr>
+      <tr><td>Counts</td><td>Superscript count next to the title on phone only ("6 saved"). Desktop has the room to skip it.</td></tr>
+      <tr><td>Opacity</td><td>Never lower the opacity of text. Hierarchy comes from size, weight and the dim token, which is contrast-checked. Opacity on top of it is not.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="shape">
+  <h2>Shape and shadow</h2>
+  <p class="lead">Rectangles are square. Tokens and rings are circles. Elevation is a hard offset in the opposite ink, sized by how important the element is.</p>
+  <div class="riso specimen">
+    <div class="shape">
+      <span>card</span><span class="round">tok</span><span class="dashed">draft</span>
+      <span style="background:var(--a);color:var(--on-a);border-color:var(--a)">plate</span>
+      <span style="background:var(--b);color:var(--on-b);border-color:var(--b);box-shadow:5px 5px 0 var(--a)">CTA</span>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Element</th><th>Border</th><th>Shadow</th><th>Radius</th></tr></thead>
+    <tbody>
+      <tr><td>Header plate</td><td>none, filled a</td><td><code>5px 5px 0 b</code> (phone), <code>0 5px 0 b</code> (desktop, full width)</td><td>0</td></tr>
+      <tr><td>Character card</td><td><code>2px solid a</code></td><td><code>5px 5px 0 b</code></td><td>0</td></tr>
+      <tr><td>Search field</td><td>none, filled sheet</td><td><code>4px 4px 0 b</code></td><td>0</td></tr>
+      <tr><td>Token</td><td>none, filled</td><td><code>4px 4px 0 b</code></td><td>50%</td></tr>
+      <tr><td>Level badge</td><td><code>0 0 0 2px a</code> as ring</td><td>none</td><td>50%</td></tr>
+      <tr><td>Armour ring</td><td><code>2px solid a</code></td><td><code>3px 3px 0 b</code></td><td>50%</td></tr>
+      <tr><td>Secondary button (Open sheet)</td><td><code>2px solid a</code></td><td><code>3px 3px 0 b</code></td><td>0</td></tr>
+      <tr><td>Primary button (Create)</td><td>none, filled b</td><td><code>5px 5px 0 a</code></td><td>0</td></tr>
+      <tr><td>Mark</td><td><code>1.5px solid</code> in its state colour</td><td>none</td><td>0</td></tr>
+      <tr><td>Draft card</td><td><code>2px dashed a</code></td><td>none</td><td>0</td></tr>
+      <tr><td>Draft tray rule</td><td><code>2px dashed b</code> top</td><td>none</td><td>0</td></tr>
+    </tbody>
+  </table>
+  <p class="why" style="margin-top:12px">Shadow scale is 3, 4, 5. Three for small interactive elements, four for tokens and fields, five for cards, plates and the primary button. The shadow is always in the other ink: blue things cast rose, rose things cast blue. Drafts cast nothing because they are not real yet.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="spacing">
+  <h2>Spacing and density</h2>
+  <p class="lead">Values are taken from the mockup rather than snapped to a grid. Where the same number recurs it is listed once.</p>
+  <div class="riso flat specimen tight">
+    <div class="space-row"><b>2</b><i style="width:2px"></i>meter segment gap, level badge ring</div>
+    <div class="space-row"><b>6</b><i style="width:6px"></i>chip gap, mark gap, stat column gap</div>
+    <div class="space-row"><b>8</b><i style="width:8px"></i>search to sort gap, icon to input gap</div>
+    <div class="space-row"><b>9</b><i style="width:9px"></i>card to card gap (phone)</div>
+    <div class="space-row"><b>12</b><i style="width:12px"></i>phone list side padding, card inner padding</div>
+    <div class="space-row"><b>13</b><i style="width:13px"></i>card column gap, title to search</div>
+    <div class="space-row"><b>16</b><i style="width:16px"></i>desktop table column gap</div>
+    <div class="space-row"><b>18</b><i style="width:18px"></i>phone plate side padding</div>
+    <div class="space-row"><b>34</b><i style="width:34px"></i>desktop side padding</div>
+  </div>
+  <table>
+    <thead><tr><th>Component</th><th>Phone</th><th>Desktop</th></tr></thead>
+    <tbody>
+      <tr><td>Plate padding</td><td>20 18 16</td><td>26 34 16</td></tr>
+      <tr><td>Card padding</td><td>11 12</td><td>14 34 (row)</td></tr>
+      <tr><td>Card columns</td><td><code>56px 1fr auto</code></td><td><code>74px 1fr 200px 104px 224px 132px</code></td></tr>
+      <tr><td>Token size</td><td>56</td><td>64</td></tr>
+      <tr><td>Level badge</td><td>23, offset -7 -7</td><td>same</td></tr>
+      <tr><td>Armour ring</td><td>46</td><td>46</td></tr>
+      <tr><td>Meter height</td><td>13</td><td>13</td></tr>
+      <tr><td>Search field</td><td>9 12 padding</td><td>same, max 420 wide</td></tr>
+      <tr><td>Primary button</td><td>14 all round, full width</td><td>12 20, auto width, right aligned</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="states">
+  <h2>Interaction states</h2>
+  <p class="lead">States follow the print metaphor. Pressed things sink onto the paper, selected things invert, disabled things lose their ink. Nothing fades, glows or animates. Every change is instant, so reduced motion needs no special case.</p>
+  <div class="riso specimen">
+    <div class="state-grid">
+      <span></span><b>Rest</b><b>Pressed</b><b>Focus</b><b>Selected</b><b>Disabled</b>
+      <b>Primary</b>
+      <button class="newbtn">Create</button>
+      <button class="newbtn is-pressed">Create</button>
+      <button class="newbtn is-focus">Create</button>
+      <span>not used</span>
+      <button class="newbtn" disabled>Create</button>
+      <b>Structural</b>
+      <div><button class="resume">Resume</button></div>
+      <div><button class="resume is-pressed">Resume</button></div>
+      <div><button class="resume is-focus">Resume</button></div>
+      <span>not used</span>
+      <div><button class="resume" disabled>Resume</button></div>
+      <b>Outlined</b>
+      <div><button class="go">Open sheet</button></div>
+      <div><button class="go is-pressed">Open sheet</button></div>
+      <div><button class="go is-focus">Open sheet</button></div>
+      <div><button class="go" aria-pressed="true">Open sheet</button></div>
+      <div><button class="go" disabled>Open sheet</button></div>
+      <b>Chip, on plate</b>
+      <div class="plate"><span class="chip">Conditions</span></div>
+      <div class="plate"><span class="chip is-pressed">Conditions</span></div>
+      <div class="plate"><span class="chip is-focus">Conditions</span></div>
+      <div class="plate"><span class="chip" data-on>Conditions</span></div>
+      <span>hidden instead</span>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>State</th><th>Rule</th><th>Selector</th></tr></thead>
+    <tbody>
+      <tr><td>Pressed</td><td>Anything with an offset shadow moves by the shadow's offset and the shadow disappears. That means 5px for cards and the primary button, 3px for outlined buttons. Anything without a shadow gets a 2px inset ring in its own text colour. On phone the whole character card presses.</td><td><code>:active</code></td></tr>
+      <tr><td>Focus</td><td>2px structural outline, 3px offset. Inside the plate the outline is on-a, because structural on structural is invisible. The search field outlines the whole field, not the bare input.</td><td><code>:focus-visible</code>, <code>:focus-within</code> on the field</td></tr>
+      <tr><td>Selected</td><td>Inversion. On paper, the control fills with structural and its text turns on-a. On the plate, it becomes a sheet cutout with structural text, as the active chip already does.</td><td><code>[aria-pressed=true]</code>, or <code>[data-on]</code> on chips</td></tr>
+      <tr><td>Disabled</td><td>No fill, no shadow, dim text and a 2px rule-coloured outline. Controls on the plate are hidden rather than disabled, because dim text cannot reach contrast on structural.</td><td><code>:disabled</code>, <code>[aria-disabled=true]</code></td></tr>
+      <tr><td>Hover</td><td>Not defined yet. See deferred.</td><td></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="icons">
+  <h2>Icons</h2>
+  <p class="lead">The search glass is the only icon so far. It sets the rule for the rest.</p>
+  <div class="riso flat specimen tight">
+    <div class="inline" style="color:var(--dim);gap:26px">
+      <span class="inline" style="gap:8px;font-size:14px"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg> Find a character</span>
+      <span style="color:var(--a)"><svg width="45" height="45" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg></span>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td>Grid</td><td>16 by 16 viewBox, drawn at 15px beside 14px text.</td></tr>
+      <tr><td>Stroke</td><td>1.8 wide, no fill, default caps and joins. Outline only, never filled.</td></tr>
+      <tr><td>Colour</td><td><code>currentColor</code>, so the icon takes the text colour of wherever it sits.</td></tr>
+      <tr><td>Pairing</td><td>Next to a text label or placeholder. An icon-only button needs an <code>aria-label</code>.</td></tr>
+      <tr><td>Format</td><td>Inline SVG. No icon font.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="plate">
+  <h2>Header plate</h2>
+  <p class="lead">A solid block of structural ink holding the title, search, sort and filters. It is the only large filled area on the screen, so it anchors the page.</p>
+  <div class="riso specimen">
+    <div class="phone-frame">
+      <div class="top">
+        <h2 class="title">Characters<sup>6 saved</sup></h2>
+        <div class="find">
+          <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+            <input placeholder="Find a character" aria-label="Find a character"></label>
+          <button class="sortbtn">Sort: level</button>
+        </div>
+        <div class="chips">
+          <span class="chip" data-on>All</span>
+          <span class="chip">Below half</span>
+          <span class="chip">Conditions</span>
+          <span class="chip">Sunless Crown</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Aspect</th><th>Phone</th><th>Desktop</th></tr></thead>
+    <tbody>
+      <tr><td>Shadow</td><td>5px right and down in accent</td><td>5px down only, full width, 5px margin below to make room</td></tr>
+      <tr><td>Layout</td><td>Stacked: title, search row, chips</td><td>One row, baseline aligned: title, search, chips, create button pushed right</td></tr>
+      <tr><td>Count</td><td>Superscript after title</td><td>Omitted</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="search">
+  <h2>Search and sort</h2>
+  <p class="lead">A sheet-coloured field with a hairline search icon, paired with an accent-filled sort button. They sit inside the plate and share its height.</p>
+  <div class="riso specimen">
+    <div class="plate" style="max-width:420px">
+      <div class="find" style="margin:0">
+        <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+          <input placeholder="Find a character" aria-label="Find a character"></label>
+        <button class="sortbtn">Sort: level</button>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Field</td><td>Sheet fill, no border, 4px accent shadow, 9 12 padding. Icon is 15px, 1.8 stroke, in dim. Text in ink, placeholder in dim.</td></tr>
+      <tr><td>Sort</td><td>Accent fill, on-b text, 13px 700, 0 13 padding, no border, no shadow. Label pattern is "Sort: {key}".</td></tr>
+      <tr><td>Behaviour</td><td>Not specified in the mockup. Sort button presumably opens a menu; document when designed.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="chips">
+  <h2>Filter chips</h2>
+  <p class="lead">Chips live on the plate only. The active chip is a sheet-coloured cutout with structural text. Inactive chips are a translucent tint of the plate text.</p>
+  <div class="riso specimen">
+    <div class="plate" style="max-width:420px">
+      <div class="chips" style="margin:0">
+        <span class="chip" data-on>All</span>
+        <span class="chip">Below half</span>
+        <span class="chip">Conditions</span>
+        <span class="chip">Sunless Crown</span>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>State</th><th>Fill</th><th>Text</th><th>Weight</th></tr></thead>
+    <tbody>
+      <tr><td>Inactive</td><td><code>--chip</code> (on-a at 10%)</td><td><code>--on-a</code></td><td>600</td></tr>
+      <tr><td>Active <code>[data-on]</code></td><td><code>--sheet</code></td><td><code>--a</code></td><td>700</td></tr>
+    </tbody>
+  </table>
+  <p class="why" style="margin-top:12px">Filters seen so far: All, Below half, Conditions, and a campaign name. Single select is implied by "All" being present. Pressed, focus and selected follow the interaction states. Hover is deferred.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="token">
+  <h2>Character token</h2>
+  <p class="lead">A filled circle with the character's initial, and a level badge pinned to its lower right. The colour comes from the ink stored on the character, applied per row with <code>--tok</code> and <code>--on-tok</code>.</p>
+  <div class="riso specimen">
+    <div class="tok-set">
+      <figure style="--tok:var(--a);--on-tok:var(--on-a)"><div class="tok">B<b>6</b></div>structural</figure>
+      <figure style="--tok:var(--b);--on-tok:var(--on-b)"><div class="tok">T<b>8</b></div>accent</figure>
+      <figure style="--tok:var(--mix);--on-tok:var(--on-mix)"><div class="tok">V<b>5</b></div>overprint</figure>
+      <figure><div class="d" style="display:contents"><div class="tok" style="--tok:var(--a);--on-tok:var(--on-a);width:64px;height:64px;font-size:23px">A<b>7</b></div></div>desktop, 64</figure>
+      <figure><div class="draft" style="display:contents"><div class="tok">K<b>3</b></div></div>draft</figure>
+    </div>
+  </div>
+  <pre><code>&lt;article class="row" style="--tok:var(--b);--on-tok:var(--on-b)"&gt;
+  &lt;div class="tok"&gt;T&lt;b&gt;8&lt;/b&gt;&lt;/div&gt;
+  ...</code></pre>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Circle</td><td>56px phone, 64px desktop. Initial at 20 / 23px, 700. 4px accent shadow, always accent regardless of token colour.</td></tr>
+      <tr><td>Level badge</td><td>23px circle, sheet fill, ink digit at 11.5 / 700, 2px structural ring. Offset -7 -7 so it overlaps the token edge.</td></tr>
+      <tr><td>Colour assignment</td><td>Stored on the character as an ink role: structural, accent or overprint. The player picks it in the first creation step. The default is the ink they use least across their other characters. Sorting and filtering never change it.</td></tr>
+      <tr><td>Draft variant</td><td>Sheet fill, structural initial, 2px inset structural ring, shadow in <code>--rule</code> instead of accent. Reads as an outline of a token.</td></tr>
+      <tr><td>Text colour</td><td>Rose tokens carry dark text because light text fails on rose. Blue and purple tokens carry light text.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="meter">
+  <h2>Hit point meter</h2>
+  <p class="lead">Ten segments, 13px tall, 2px apart. Filled segments are structural ink. Below half, the filled segments switch to accent. Empty segments are always a rose tint. The meter colour does not depend on the row's token colour.</p>
+  <div class="riso specimen">
+    <div class="meter-set">
+      <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p>Full</p></div>
+      <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p>Above half</p></div>
+      <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p>Nearly full</p></div>
+      <div><div class="meter" data-hurt><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p>Below half <code>[data-hurt]</code>. Fill flips to accent.</p></div>
+      <div><div class="meter" data-hurt><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p>Well below half. Same state, no further escalation.</p></div>
+    </div>
+  </div>
+  <pre><code>&lt;div class="meter" data-hurt&gt;
+  &lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i data-e&gt;&lt;/i&gt; ... 10 total
+&lt;/div&gt;
+&lt;p class="hp"&gt;&lt;b&gt;12&lt;/b&gt;/26 hit points, 2 slots left&lt;/p&gt;</code></pre>
+  <table>
+    <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td>Resolution</td><td>Ten segments, so each is 10% of max. Rounding rule not set. Suggest round up so one hit point still shows one segment.</td></tr>
+      <tr><td>Hurt threshold</td><td>Strictly below half sets <code>data-hurt</code>. This matches the "Below half" filter chip and mark.</td></tr>
+      <tr><td>Temporary hit points</td><td>Shown in the line only ("5 temporary"), not on the meter.</td></tr>
+      <tr><td>Hit point line</td><td>Bold current value in structural, the rest in dim at 500. A comma then one short resource note, chosen per class.</td></tr>
+      <tr><td>Zero</td><td>At 0 hit points the meter is replaced or emptied. See zero hit points.</td></tr>
+      <tr><td>Contrast</td><td>Rose segments reach only 2.5:1 on paper, below the 3:1 target for graphics. That is acceptable only because the hit point line always states the value. Never show a meter without its line.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="zero">
+  <h2>Zero hit points</h2>
+  <p class="lead">At 0 hit points a character is dying, stable or dead. Each state changes what sits in the meter slot and adds a bad mark, so it reads without relying on colour. Death save counts are already stored on the character, so these states need no new data. This is a first proposal, and the character sheet may refine it.</p>
+  <div class="riso specimen">
+    <div class="phone-frame">
+      <div class="rows" style="padding:14px 12px 20px">
+        <article class="row" style="--tok:var(--b);--on-tok:var(--on-b)">
+          <div class="tok">M<b>4</b></div>
+          <div>
+            <h3 class="name">Mudge Tealeaf</h3>
+            <p class="sub">Lightfoot halfling rogue, Arcane Trickster</p>
+            <div class="saves" aria-hidden="true"><span data-k="ok"><i data-on></i><i></i><i></i></span><span data-k="bad"><i data-on></i><i data-on></i><i></i></span></div>
+            <p class="hp"><b>0</b>/27 hit points, 1 success, 2 failures</p>
+          </div>
+          <div class="stat">
+            <div class="ac"><span>15<em>AC</em></span></div>
+            <span class="mark" data-t="bad">Dying</span>
+          </div>
+        </article>
+        <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
+          <div class="tok">V<b>5</b></div>
+          <div>
+            <h3 class="name">Vesper Quill</h3>
+            <p class="sub">Rock gnome wizard, Divination</p>
+            <div class="meter" data-hurt><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+            <p class="hp"><b>0</b>/26 hit points, stable</p>
+          </div>
+          <div class="stat">
+            <div class="ac"><span>12<em>AC</em></span></div>
+            <span class="mark" data-t="bad">Unconscious</span>
+          </div>
+        </article>
+        <article class="row" data-state="dead" style="--tok:var(--a);--on-tok:var(--on-a)">
+          <div class="tok">T<b>8</b></div>
+          <div>
+            <h3 class="name">Thorn Grimsby</h3>
+            <p class="sub">Mountain dwarf fighter, Champion</p>
+            <p class="hp"><b>0</b>/72 hit points, 3 failures</p>
+          </div>
+          <div class="stat">
+            <div class="ac"><span>18<em>AC</em></span></div>
+            <span class="mark" data-t="bad">Dead</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+  <pre><code>&lt;div class="saves" aria-hidden="true"&gt;
+  &lt;span data-k="ok"&gt;&lt;i data-on&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;
+  &lt;span data-k="bad"&gt;&lt;i data-on&gt;&lt;/i&gt;&lt;i data-on&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;
+&lt;/div&gt;
+&lt;p class="hp"&gt;&lt;b&gt;0&lt;/b&gt;/27 hit points, 1 success, 2 failures&lt;/p&gt;</code></pre>
+  <table>
+    <thead><tr><th>State</th><th>When</th><th>Meter slot</th><th>Hit point line</th><th>Mark</th></tr></thead>
+    <tbody>
+      <tr><td>Dying</td><td>0 hit points, fewer than 3 successes and fewer than 3 failures</td><td>Death save pips</td><td>"0/27 hit points, 1 success, 2 failures"</td><td>Dying</td></tr>
+      <tr><td>Stable</td><td>0 hit points and 3 successes</td><td>Empty meter, all ten segments</td><td>"0/26 hit points, stable"</td><td>Unconscious</td></tr>
+      <tr><td>Dead</td><td>3 failures</td><td>Nothing. The line moves up.</td><td>"0/72 hit points, 3 failures"</td><td>Dead</td></tr>
+    </tbody>
+  </table>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Pips</td><td>Two groups of three, 13px so they fill the meter's slot, 4px apart with 14px between groups. Successes are structural circles. Failures are squares in <code>--b-text</code>, because they are small state graphics and raw rose is too faint. Marked pips are filled, unmarked ones are a 2px outline. Shape differs as well as colour.</td></tr>
+      <tr><td>Screen readers</td><td>Pips are hidden. The hit point line spells out both counts.</td></tr>
+      <tr><td>Dead card</td><td>Border in <code>--rule</code> and no shadow. The token loses its ink: sheet fill, dim initial and a <code>--rule</code> ring. The card is still solid-bordered, so it does not read as a draft.</td></tr>
+      <tr><td>Recovery</td><td>Any healing above 0 clears both counts and brings the normal meter back, as the rules do.</td></tr>
+      <tr><td>Mark priority</td><td>On phone, the zero hit point mark takes the single mark slot ahead of any other.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="ac">
+  <h2>Armour class ring</h2>
+  <p class="lead">A 46px ring on sheet with a 2px structural border and 3px accent shadow. The number is 17 / 700 and the label under it is 8px caps.</p>
+  <div class="riso specimen">
+    <div class="inline" style="gap:22px">
+      <div class="ac"><span>13<em>AC</em></span></div>
+      <div class="ac"><span>18<em>AC</em></span></div>
+      <div class="ac"><span>19<em>AC</em></span></div>
+    </div>
+  </div>
+  <p class="why" style="margin-top:12px">The ring is the pattern for a single labelled stat. Reuse it for passive perception, spell save DC, or speed where a number needs a tiny caption. Keep it circular and keep the label under, not beside.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="marks">
+  <h2>Marks</h2>
+  <p class="lead">Small outlined labels for conditions and resources. Three states, each a different ink for border and text, sheet fill always. No fills, no icons.</p>
+  <div class="riso specimen">
+    <div class="marks">
+      <span class="mark" data-t="ok">Second wind</span>
+      <span class="mark" data-t="ok">Channel 2 of 2</span>
+      <span class="mark" data-t="ok">Sneak 2d6</span>
+      <span class="mark" data-t="bad">Below half</span>
+      <span class="mark" data-t="bad">Poisoned</span>
+      <span class="mark" data-t="conc">Hex</span>
+      <span class="mark" data-t="conc">Portent 1</span>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th><code>data-t</code></th><th>Border and text</th><th>Meaning</th><th>Examples in mockup</th></tr></thead>
+    <tbody>
+      <tr><td><code>ok</code> (or unset)</td><td>structural, <code>--a</code></td><td>Resource available, feature ready</td><td>Second wind, Action surge, Channel 2 of 2, 1 pact slot, Sneak 2d6</td></tr>
+      <tr><td><code>bad</code></td><td>accent, text in <code>--b-text</code></td><td>Condition or danger</td><td>Below half, Poisoned, and the zero hit point marks Dying, Unconscious and Dead</td></tr>
+      <tr><td><code>conc</code></td><td>overprint, <code>--mix</code></td><td>Concentration or an active effect the player must track</td><td>Hex, Portent 1</td></tr>
+    </tbody>
+  </table>
+  <p class="why" style="margin-top:12px">Phone shows one mark per row, under the armour ring. Desktop shows up to two in a wrapping row. The priority order when truncating is bad, then conc, then ok.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="card">
+  <h2>Character card</h2>
+  <p class="lead">The phone list row. Three columns: token, identity plus meter, then a stat stack. Whole card is the tap target.</p>
+  <div class="riso specimen">
+    <div class="phone-frame">
+      <div class="rows" style="padding:14px 12px 20px">
+        <article class="row" style="--tok:var(--a);--on-tok:var(--on-a)">
+          <div class="tok">B<b>6</b></div>
+          <div>
+            <h3 class="name">Brenna Duskhollow</h3>
+            <p class="sub">Half-elf warlock, the Fiend</p>
+            <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+            <p class="hp"><b>31</b>/44 hit points, 5 temporary</p>
+          </div>
+          <div class="stat">
+            <div class="ac"><span>13<em>AC</em></span></div>
+            <span class="mark" data-t="conc">Hex</span>
+          </div>
+        </article>
+        <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
+          <div class="tok">V<b>5</b></div>
+          <div>
+            <h3 class="name">Vesper Quill</h3>
+            <p class="sub">Rock gnome wizard, Divination</p>
+            <div class="meter" data-hurt><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+            <p class="hp"><b>12</b>/26 hit points, 2 slots left</p>
+          </div>
+          <div class="stat">
+            <div class="ac"><span>12<em>AC</em></span></div>
+            <span class="mark" data-t="bad">Below half</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+  <pre><code>&lt;article class="row" style="--tok:var(--a);--on-tok:var(--on-a)"&gt;
+  &lt;div class="tok"&gt;B&lt;b&gt;6&lt;/b&gt;&lt;/div&gt;
+  &lt;div&gt;
+    &lt;h3 class="name"&gt;Brenna Duskhollow&lt;/h3&gt;
+    &lt;p class="sub"&gt;Half-elf warlock, the Fiend&lt;/p&gt;
+    &lt;div class="meter"&gt;...&lt;/div&gt;
+    &lt;p class="hp"&gt;&lt;b&gt;31&lt;/b&gt;/44 hit points, 5 temporary&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class="stat"&gt;
+    &lt;div class="ac"&gt;&lt;span&gt;13&lt;em&gt;AC&lt;/em&gt;&lt;/span&gt;&lt;/div&gt;
+    &lt;span class="mark" data-t="conc"&gt;Hex&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/article&gt;</code></pre>
+  <table>
+    <thead><tr><th>Content</th><th>Format</th></tr></thead>
+    <tbody>
+      <tr><td>Name</td><td>Full character name, one line. Truncation behaviour not designed.</td></tr>
+      <tr><td>Subtitle</td><td>"{Subrace or race} {class}, {subclass}". Subclass uses its in-game name ("the Fiend", "Champion", "Life domain").</td></tr>
+      <tr><td>Hit point line</td><td>Current, max, then one resource note relevant to the class.</td></tr>
+      <tr><td>Stat stack</td><td>Armour ring above one mark. Minimum width 54 so rings align across rows.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="draft">
+  <h2>Draft tray</h2>
+  <p class="lead">Unfinished creations and level-ups sit below the list under a dashed accent rule. Draft cards are dashed, unshadowed and tinted, so they read as not-yet-real. Nothing in a draft touches the saved sheet until confirmed.</p>
+  <div class="riso specimen">
+    <div class="phone-frame">
+      <div class="rows" style="padding:0 12px 20px">
+        <div class="tray">
+          <h3 class="trayhead">Waiting to be finished</h3>
+          <article class="draft">
+            <div class="tok">K<b>3</b></div>
+            <div>
+              <h3 class="name">Kethra Ironsong</h3>
+              <p class="sub" style="margin-bottom:0">Level 3 to 4, three of five choices made. Her sheet is untouched until you confirm.</p>
+            </div>
+            <button class="resume">Resume</button>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Tray rule</td><td>2px dashed accent, 13 padding above the heading.</td></tr>
+      <tr><td>Heading</td><td>"Waiting to be finished", 12 / 700 in dim.</td></tr>
+      <tr><td>Card</td><td>Same grid as a character card. 2px dashed structural border, <code>--draft-bg</code> fill, no shadow.</td></tr>
+      <tr><td>Token</td><td>Draft variant, outlined. Level badge shows the level being left, not the target.</td></tr>
+      <tr><td>Copy</td><td>States progress as "{n} of {m} choices made" and reassures that the sheet is untouched. Desktop adds what the next choice is.</td></tr>
+      <tr><td>Action</td><td>Resume button, structural fill. Label is "Resume" on phone, "Resume level-up" on desktop.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="buttons">
+  <h2>Buttons</h2>
+  <p class="lead">Four button styles appear. Fill and shadow ink tell you which is which. Only one primary per screen.</p>
+  <div class="riso specimen">
+    <div class="inline" style="gap:26px;align-items:flex-start">
+      <div style="width:220px"><button class="newbtn">Create character</button></div>
+      <button class="resume">Resume level-up</button>
+      <button class="go">Open sheet</button>
+      <div class="plate" style="padding:10px 12px"><button class="sortbtn" style="padding:9px 13px">Sort: level</button></div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Style</th><th>Class</th><th>Fill</th><th>Text</th><th>Shadow</th><th>Where</th></tr></thead>
+    <tbody>
+      <tr><td>Primary</td><td><code>.newbtn</code></td><td>accent</td><td>on-b, 15 / 700 (14 desktop)</td><td>5px structural</td><td>Create character. Sticky footer on phone, plate right on desktop.</td></tr>
+      <tr><td>Structural</td><td><code>.resume</code></td><td>structural</td><td>on-a, 12.5 / 700</td><td>none</td><td>Resume a draft. Inside a draft card.</td></tr>
+      <tr><td>Outlined</td><td><code>.go</code></td><td>sheet, 2px structural border</td><td>structural, 13 / 700</td><td>3px accent</td><td>Open sheet. Desktop rows only; on phone the card itself is the target.</td></tr>
+      <tr><td>On-plate</td><td><code>.sortbtn</code></td><td>accent</td><td>on-b, 13 / 700</td><td>none</td><td>Sort. Only inside the plate.</td></tr>
+    </tbody>
+  </table>
+  <p class="why" style="margin-top:12px">The primary button on phone sits in a sticky footer with a gradient from transparent to paper, so the list scrolls under it. Pressed, focus, selected and disabled follow the interaction states.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="table">
+  <h2>Desktop table</h2>
+  <p class="lead">Desktop drops the card border and shadow and lays the same content out as a table. Rows are separated by a hairline rule and alternate with a half-white wash.</p>
+  <div class="riso specimen scroll-x" style="padding:0">
+    <div class="desk-frame" style="min-width:1100px">
+      <div class="mat d">
+        <div class="cols"><span></span><span>Character</span><span>Hit points</span><span>Armour</span><span>Conditions and resources</span><span></span></div>
+        <div class="drow" style="--tok:var(--a);--on-tok:var(--on-a)">
+          <div class="tok">B<b>6</b></div>
+          <div><h3 class="name">Brenna Duskhollow</h3><p class="sub" style="margin-bottom:0">Half-elf warlock, the Fiend</p></div>
+          <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>31</b>/44 hit points, 5 temporary</p></div>
+          <div class="ac"><span>13<em>AC</em></span></div>
+          <div class="marks"><span class="mark" data-t="conc">Hex</span><span class="mark" data-t="ok">1 pact slot</span></div>
+          <button class="go">Open sheet</button>
+        </div>
+        <div class="drow" style="--tok:var(--b);--on-tok:var(--on-b)">
+          <div class="tok">T<b>8</b></div>
+          <div><h3 class="name">Thorn Grimsby</h3><p class="sub" style="margin-bottom:0">Mountain dwarf fighter, Champion</p></div>
+          <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>68</b>/72 hit points, second wind ready</p></div>
+          <div class="ac"><span>18<em>AC</em></span></div>
+          <div class="marks"><span class="mark" data-t="ok">Second wind</span><span class="mark" data-t="ok">Action surge</span></div>
+          <button class="go">Open sheet</button>
+        </div>
+        <div class="drow" style="--tok:var(--mix);--on-tok:var(--on-mix)">
+          <div class="tok">V<b>5</b></div>
+          <div><h3 class="name">Vesper Quill</h3><p class="sub" style="margin-bottom:0">Rock gnome wizard, Divination</p></div>
+          <div><div class="meter" data-hurt><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points, 2 slots left</p></div>
+          <div class="ac"><span>12<em>AC</em></span></div>
+          <div class="marks"><span class="mark" data-t="bad">Below half</span><span class="mark" data-t="conc">Portent 1</span></div>
+          <button class="go">Open sheet</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Column</th><th>Width</th><th>Content</th></tr></thead>
+    <tbody>
+      <tr><td>Token</td><td>74</td><td>64px token</td></tr>
+      <tr><td>Character</td><td>1fr</td><td>Name 19px, subtitle 13px</td></tr>
+      <tr><td>Hit points</td><td>200</td><td>Meter then hit point line</td></tr>
+      <tr><td>Armour</td><td>104</td><td>Ring</td></tr>
+      <tr><td>Conditions and resources</td><td>224</td><td>Up to two marks, wrapping</td></tr>
+      <tr><td>Action</td><td>132</td><td>Open sheet button</td></tr>
+    </tbody>
+  </table>
+  <p class="why" style="margin-top:12px">Column header row is 11.5 / 700 in dim with a 2px structural bottom border. Rows have a 1.5px <code>--rule</code> bottom border and even rows get <code>--wash</code>. Column widths are fixed pixels in the mockup and will need a breakpoint below about 1100px, which has not been designed. The draft tray on desktop sits in a 34px padded wrapper below the table.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="layouts">
+  <h2>Phone and desktop</h2>
+  <p class="lead">Two frames were designed: phone at 390 by 812 and desktop at 1440 by 900. The mockup has no in-between layout.</p>
+  <table>
+    <thead><tr><th>Concern</th><th>Phone</th><th>Desktop</th></tr></thead>
+    <tbody>
+      <tr><td>List</td><td>Stack of bordered, shadowed cards, 9px apart</td><td>Ruled table rows, no card chrome</td></tr>
+      <tr><td>Plate</td><td>Stacked controls, offset shadow</td><td>Single row, drop shadow below only</td></tr>
+      <tr><td>Primary action</td><td>Sticky footer, full width</td><td>In the plate, right aligned</td></tr>
+      <tr><td>Row action</td><td>Whole card</td><td>Open sheet button, plus row presumably clickable</td></tr>
+      <tr><td>Marks</td><td>One, under the ring</td><td>Two, own column</td></tr>
+      <tr><td>Draft copy</td><td>Short</td><td>Longer, names the next choice</td></tr>
+      <tr><td>Title count</td><td>Superscript</td><td>Omitted</td></tr>
+    </tbody>
+  </table>
+  <p class="why" style="margin-top:12px">Suggested rule for tablets: keep the phone card layout up to around 900px, then switch to the table. The card grid could also go two-up between 700 and 1100 but that is undesigned.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="native">
+  <h2>React Native</h2>
+  <p class="lead">The app ships as React Native on web, Android and iOS. This page stays HTML because it is the quickest way to iterate on the look, and the web build is a real target. Everything above is platform-neutral: tokens, sizes, anatomy, state rules and contrast. The CSS that renders it is not. This section maps each web technique onto its native equivalent, and records the decisions that only native forces.</p>
+
+  <h3>Mapping</h3>
+  <table>
+    <thead><tr><th>Here</th><th>In React Native</th></tr></thead>
+    <tbody>
+      <tr><td>Tokens as custom properties</td><td>A theme object in TypeScript. The derivation is already plain JavaScript with no browser calls, so it ports unchanged. Once code exists, that module is the source of truth and this page mirrors it.</td></tr>
+      <tr><td>Pixel sizes</td><td>Density-independent points. The same numbers carry over.</td></tr>
+      <tr><td>Cascade and descendant selectors</td><td>Explicit props. The riso skin becomes a style factory that takes the theme; there is no inheritance except for text inside text.</td></tr>
+      <tr><td>Grid columns on rows and the table</td><td>Flexbox. Fixed-width views for the token and action columns, flex 1 for the identity column. React Native has no grid.</td></tr>
+      <tr><td>Media queries</td><td>Window dimensions from a hook, so phone and desktop layouts become a width check.</td></tr>
+      <tr><td>Paper texture, three stacked gradients</td><td>Native gradient support exists but is experimental and single-layer in practice. Use one repeating SVG pattern, or a tiled image, painted behind the screen.</td></tr>
+      <tr><td>Hard offset shadows</td><td>Box shadow, which needs React Native 0.76 or later on the new architecture, and Android 9 or later. Otherwise draw a plain offset view behind the element, which also turns the pressed state into a position change.</td></tr>
+      <tr><td>Inset rings on the level badge, draft token and disabled controls</td><td>A border, or an inset box shadow where available. Inset shadows need Android 10 or later.</td></tr>
+      <tr><td>Dashed rule above the tray</td><td>React Native has no per-side border style, so the rule needs its own view or an SVG line. Dashed card borders are fine, because all four sides match.</td></tr>
+      <tr><td>Sticky footer with a fade</td><td>Put the Create button outside the scroll view. Use the gradient route above for the fade, or accept a solid paper bar.</td></tr>
+      <tr><td>Sticky plate</td><td>Sticky header indices on the phone scroll view.</td></tr>
+      <tr><td>Focus outline</td><td>Outline props, which landed in React Native 0.77 on the new architecture. They draw outside the border box without affecting layout, like CSS.</td></tr>
+      <tr><td>Hover, active, focus, disabled selectors</td><td>Pressable's pressed state, focus state from focus and blur handlers, and the disabled prop.</td></tr>
+      <tr><td>Placeholder colour</td><td>The placeholder text colour prop on the text input.</td></tr>
+      <tr><td>Even-row wash</td><td>Row index parity.</td></tr>
+      <tr><td>Letter spacing in em</td><td>Points, so the values must be multiplied out: -0.03em at 30px is -0.9, and -0.02em at 16.5px is -0.33.</td></tr>
+      <tr><td>Superscript count</td><td>A separate text node aligned to the top. There is no vertical alignment.</td></tr>
+      <tr><td>Reduced motion query</td><td>The accessibility info module. The system has no animation, so this only matters if one is added.</td></tr>
+      <tr><td>Semantic elements and accessibility attributes</td><td>Roles and accessibility props: a header role on titles, labels on icon-only buttons, hidden meters and pips, and selected or disabled state on chips and buttons.</td></tr>
+      <tr><td>Chip hit area</td><td>Hit slop, which settles the deferred touch target question on native. The web build still needs real padding.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Decisions native forces</h3>
+  <table>
+    <thead><tr><th>Topic</th><th>Decision</th></tr></thead>
+    <tbody>
+      <tr><td>Font weights</td><td>700 is the cap, applied here in v0.3. Space Grotesk has no heavier face. A browser quietly substitutes 700 for the 800 the mockup asked for; Android picks a face by family name and will not synthesise one. Bundle 400, 500, 600 and 700 as separate files.</td></tr>
+      <tr><td>Font scaling</td><td>Text grows with the operating system's text size setting. Names, subtitles, hit point lines, marks and button labels scale freely, and cards grow taller to fit. The token initial, level badge digit, armour ring number and ring label are capped at 1.3 times, because their circles are fixed geometry. This is a proposal: check it at the largest setting before signing off the character sheet.</td></tr>
+      <tr><td>Safe areas</td><td>The plate paints under the status bar, with its content inset below it. The sticky Create button is inset above the home indicator. Desktop is unaffected.</td></tr>
+      <tr><td>Press feedback</td><td>Turn off Android's ripple. The sink is the feedback, on every platform.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="a11y">
+  <h2>Accessibility</h2>
+  <p class="lead">The system targets WCAG AA. Text tokens are derived to meet it, so the checks below hold for any ink set the mixer produces, not only this one.</p>
+  <table>
+    <thead><tr><th>Pairing</th><th>Ratio</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td>Ink on paper</td><td>7.84</td><td>4.5</td></tr>
+      <tr><td>Dim on sheet</td><td>5.13</td><td>4.5</td></tr>
+      <tr><td>Dim on draft fill, the worst case</td><td>4.60</td><td>4.5</td></tr>
+      <tr><td>Structural on sheet</td><td>5.28</td><td>4.5</td></tr>
+      <tr><td>On-a on structural</td><td>5.46</td><td>4.5</td></tr>
+      <tr><td>Inactive chip text</td><td>4.51</td><td>4.5</td></tr>
+      <tr><td>On-b on accent</td><td>4.53</td><td>4.5</td></tr>
+      <tr><td>On-mix on overprint</td><td>7.44</td><td>4.5</td></tr>
+      <tr><td>Rose text on sheet</td><td>5.10</td><td>4.5</td></tr>
+      <tr><td>Rose text on draft fill</td><td>4.58</td><td>4.5</td></tr>
+      <tr><td>Focus outline on paper</td><td>4.99</td><td>3</td></tr>
+      <tr><td>Rose meter segments on paper</td><td>2.54</td><td>3, accepted, see meter</td></tr>
+    </tbody>
+  </table>
+  <table>
+    <thead><tr><th>Topic</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Focus</td><td>Defined in interaction states. Every interactive element shows a 2px outline on keyboard focus.</td></tr>
+      <tr><td>Motion</td><td>The system has no animation or transitions. Keep the reduced motion override anyway.</td></tr>
+      <tr><td>Text opacity</td><td>Banned. The mockup used opacity on the tray heading, column headers, title count and ring label, which pushed them below contrast. All four are now solid.</td></tr>
+      <tr><td>Colour alone</td><td>Hurt is shown by meter colour, a "Below half" mark and the number. Death saves differ in shape as well as colour and are spelled out in the line. Token colour carries no meaning.</td></tr>
+      <tr><td>Semantics</td><td>Cards are <code>article</code>, names are <code>h3</code>, search has a label. Meters and pips are decorative; the adjacent text carries the value.</td></tr>
+      <tr><td>Touch targets</td><td>Chips are 22px tall. Hit slop covers native; the web build still needs padding. See deferred.</td></tr>
+      <tr><td>Native semantics</td><td>HTML elements and accessibility attributes map onto React Native roles and props. See React Native.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="decisions">
+  <h2>Decisions</h2>
+  <p class="lead">Settled on 11 September 2026, before designing the next screen.</p>
+  <ul style="max-width:70ch;color:#c3c9d1">
+    <li><b>Contrast.</b> Text tokens are contrast-targeted in the derivation. Dim and rose text are darker, rose surfaces carry dark text, the inactive chip tint is lighter, and text never uses opacity.</li>
+    <li><b>Interaction states.</b> Pressed sinks, focus outlines, selected inverts and disabled loses its ink. Hover is deferred.</li>
+    <li><b>Meter colour.</b> Meters are structural for every character and turn rose below half. The unused alias that suggested token-coloured meters is gone.</li>
+    <li><b>Token colour.</b> Stored per character as an ink role and picked at creation. The data model and creation flow now include it.</li>
+    <li><b>Zero hit points.</b> Dying shows death save pips, stable shows an empty meter, and dead drops the token's ink. First proposal.</li>
+    <li><b>Icons.</b> Outline only, 1.8 stroke on a 16 grid, colour from context.</li>
+    <li><b>Font weights.</b> Capped at 700, the heaviest face Space Grotesk has. 12 September 2026.</li>
+    <li><b>Font scaling.</b> Body text scales with the operating system setting; fixed circles cap at 1.3 times. First proposal, 12 September 2026.</li>
+    <li><b>Safe areas and press feedback.</b> The plate paints under the status bar, the Create button clears the home indicator, and Android's ripple is off. 12 September 2026.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="open">
+  <h2>Deferred</h2>
+  <p class="lead">Deliberately left until a screen needs them.</p>
+  <ul style="max-width:70ch;color:#c3c9d1">
+    <li><b>Hover.</b> Desktop needs some pointer feedback. It should stay within the print metaphor and must not move layout.</li>
+    <li><b>Empty states.</b> Design each one with its screen: no characters, no search results, no drafts.</li>
+    <li><b>Tablet.</b> Nothing exists between 390 and 1440 wide. Decide once two or three screens show what needs to reflow.</li>
+    <li><b>Dark mode.</b> The token rule keeps this cheap. The derivation should handle a dark paper, but no dark pairing has been tried.</li>
+    <li><b>Chip touch targets.</b> Hit slop solves this on native. The web build still needs a larger hit area than 22px.</li>
+    <li><b>Sheet and form controls.</b> Steppers, toggles, other inputs and dialogs will come out of designing the character sheet.</li>
+  </ul>
+</section>
+
+</main>
+</div>
+</body>
+</html>
