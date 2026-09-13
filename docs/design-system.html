@@ -324,7 +324,7 @@ td code{white-space:nowrap}
     <div class="do"><b>Two inks, one paper</b>
       <ul>
         <li>Structural blue does the work: plates, borders, primary numbers, text.</li>
-        <li>Accent rose is the second pass: offset shadows, the hurt state, the one primary call to action.</li>
+        <li>Accent rose is the second pass: offset shadows, the hurt state, and the primary call to action on each screen or sheet.</li>
         <li>Purple is the overprint. Use it sparingly as a third token colour and for concentration-type marks.</li>
       </ul>
     </div>
@@ -925,10 +925,11 @@ td code{white-space:nowrap}
 <!-- ============================================================ -->
 <section id="buttons">
   <h2>Buttons</h2>
-  <p class="lead">Four button styles appear. Fill and shadow ink tell you which is which. Only one primary per screen.</p>
+  <p class="lead">Five button styles appear. Fill and shadow ink tell you which is which. Each screen or sheet has at most one full-width primary; repeated cards and rows may instead each carry one small primary for their own action.</p>
   <div class="riso specimen">
     <div class="inline" style="gap:26px;align-items:flex-start">
       <div style="width:220px"><button class="newbtn">Create character</button></div>
+      <button class="newbtn" style="width:auto;padding:9px 16px;font-size:13px;box-shadow:3px 3px 0 var(--a)">Cast</button>
       <button class="resume">Resume level-up</button>
       <button class="go">Open sheet</button>
       <div class="plate" style="padding:10px 12px"><button class="sortbtn" style="padding:9px 13px">Sort: level</button></div>
@@ -938,12 +939,23 @@ td code{white-space:nowrap}
     <thead><tr><th>Style</th><th>Class</th><th>Fill</th><th>Text</th><th>Shadow</th><th>Where</th></tr></thead>
     <tbody>
       <tr><td>Primary</td><td><code>.newbtn</code></td><td>accent</td><td>on-b, 15 / 700 (14 desktop)</td><td>5px structural</td><td>Create character. Sticky footer on phone, plate right on desktop.</td></tr>
+      <tr><td>Small primary</td><td><code>.castbtn.small</code> in the sheet mockup</td><td>accent</td><td>on-b, 13 / 700</td><td>3px structural</td><td>One per card or row, for that card&rsquo;s own action: Cast, Use, Transform. Also Save on a block being edited.</td></tr>
       <tr><td>Structural</td><td><code>.resume</code></td><td>structural</td><td>on-a, 12.5 / 700</td><td>none</td><td>Resume a draft. Inside a draft card.</td></tr>
       <tr><td>Outlined</td><td><code>.go</code></td><td>sheet, 2px structural border</td><td>structural, 13 / 700</td><td>3px accent</td><td>Open sheet. Desktop rows only; on phone the card itself is the target.</td></tr>
       <tr><td>On-plate</td><td><code>.sortbtn</code></td><td>accent</td><td>on-b, 13 / 700</td><td>none</td><td>Sort. Only inside the plate.</td></tr>
     </tbody>
   </table>
   <p class="why" style="margin-top:12px">The primary button on phone sits in a sticky footer with a gradient from transparent to paper, so the list scrolls under it. Pressed, focus, selected and disabled follow the interaction states.</p>
+  <table>
+    <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td>One full-width primary</td><td>A screen or a sheet has at most one full-width primary, the action that commits it: Take a short rest, Add Identify, Apply 7 damage.</td></tr>
+      <tr><td>Repeated small primaries</td><td>When a screen&rsquo;s actions belong to repeated cards or rows, each card or row may carry one small primary for its own action instead: a Cast on each way to cast a spell, a Use on each Channel Divinity effect, a Transform on each known form. A card never has two.</td></tr>
+      <tr><td>Never both</td><td>A layer uses one pattern or the other. A screen with small primaries has no full-width primary, and the reverse.</td></tr>
+      <tr><td>Layers</td><td>An open sheet is its own layer. The page&rsquo;s primary under the scrim does not count against the sheet&rsquo;s.</td></tr>
+      <tr><td>Destructive results</td><td>When an action removes something or ends in death, it uses the destructive button, never the rose primary, even where it is the screen&rsquo;s main action.</td></tr>
+    </tbody>
+  </table>
 </section>
 
 <!-- ============================================================ -->
@@ -1108,6 +1120,7 @@ td code{white-space:nowrap}
     <li><b>Font scaling.</b> Body text scales with the operating system setting; fixed circles cap at 1.3 times. First proposal, 12 September 2026.</li>
     <li><b>Safe areas and press feedback.</b> The plate paints under the status bar, the Create button clears the home indicator, and Android's ripple is off. 12 September 2026.</li>
     <li><b>Hit areas.</b> At least 44 by 44 for every control: an invisible extension on web, hit slop on native. Neighbours meet mid-gap, with a floor of 24. 12 September 2026.</li>
+    <li><b>Primary buttons.</b> "Only one primary per screen" becomes at most one full-width primary per screen or sheet, with repeated cards and rows allowed one small primary each for their own action. The character sheet designs settled it. 13 September 2026.</li>
   </ul>
 </section>
 
