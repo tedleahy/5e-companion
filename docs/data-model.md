@@ -336,6 +336,25 @@ Every transaction that changes a Character or one of its owned rows increments
 a level-up flow started. This includes in-play changes such as spending a
 resource, not only edits to the Characters row.
 
+`death_save_successes` and `death_save_failures` each hold 0 to 3, checked in
+the database. The range is structural rather than a rules check: three
+successes is how the model stores stable and three failures is how it stores
+dead, so a fourth has no meaning. Both counts only matter at 0 hit points. The
+app writes them from a death save made in the app or rolled at the table: 10 or
+higher adds a success, 9 or lower adds a failure, a natural 1 adds two
+failures, and a natural 20 sets `current_hit_points` to 1 and clears both.
+Damage at 0 hit points adds a failure, or two for a critical hit, and damage of
+at least `maximum_hit_points` sets failures to 3. Stabilising by another
+creature, such as spare the dying or a Medicine check, sets successes to 3. Any
+change that takes `current_hit_points` above 0 clears both counts.
+
+When `current_hit_points` reaches 0, the app adds an Unconscious CharacterEffects
+row with `source_kind` of `character`, the character as its own
+`source_character_id`, and `expiry_triggers` containing `hit_points_regained`,
+so it ends when the character is healed. Unconscious from another source, such
+as a sleep spell, does not list that trigger and stays until it ends by its own
+rules.
+
 Do not enforce D&D legality or sheet completeness with database constraints.
 Missing ability scores, total level above 20, invalid choice counts, or current
 resources exceeding their maximum produce overridable warnings. The database
@@ -671,11 +690,20 @@ keys are listed under JSONB contracts.
 - `expiry_triggers`: text array, default `{}`
 - `remaining_rounds`: positive integer, nullable
 - `rounds_tick_on`: text, nullable
+- `is_concentration`: boolean, default false
 - `state`: JSONB, default `{}`
 - `notes`: text, nullable
 
 ```sql
 UNIQUE (character_id, effect_key)
+
+CHECK (NOT is_concentration OR (
+  condition_id IS NULL
+  AND source_instance_key IS NOT NULL
+  AND source_kind IN ('character_spell', 'character_item', 'manual')
+  AND (source_character_id IS NULL OR source_character_id = character_id)
+  AND NOT ('concentration_end' = ANY (expiry_triggers))
+))
 
 CHECK (num_nonnulls(
   source_character_feature_id,
@@ -713,7 +741,8 @@ CHECK (expiry_triggers <@ ARRAY[
   'short_rest',
   'long_rest',
   'concentration_end',
-  'source_end'
+  'source_end',
+  'hit_points_regained'
 ]::text[])
 
 CHECK (
@@ -781,7 +810,9 @@ access to a spell does not retroactively end a non-concentration duration.
 
 `expiry_triggers` is a set. The application rejects duplicates and deletes the
 effect when any listed game event occurs. A long rest does not satisfy
-`short_rest`; only an explicit short rest matches that trigger. An empty array
+`short_rest`; only an explicit short rest matches that trigger.
+`hit_points_regained` matches any change that takes the character's current hit
+points above 0. An empty array
 means no known automatic game event; the player ends the effect manually. The
 model stores no wall-clock expiry because game time can pause between sessions.
 
@@ -806,6 +837,46 @@ CharacterResources tracks remaining Rages. Effect state only records temporary
 values such as form hit points or house-rule overrides. An Exhaustion effect
 stores its current level in `state.level`; the catalog still has one Exhaustion
 condition rather than six.
+
+### Concentration
+
+A character's own concentration is an anchor row: a CharacterEffects row on the
+caster with `is_concentration` set. The other rows only say they end when
+concentration ends; the anchor records that the caster is concentrating, and
+on which activation. It exists even when the spell affects nothing the app
+tracks, such as Hex on a monster. Add a partial unique index on
+`character_id` where `is_concentration` is true, so a character concentrates
+on one thing at a time. This is the one game rule the database enforces rather
+than warns about: concentration is not a build choice, and casting another
+concentration spell replaces the current one.
+
+When a character casts a spell whose catalog row has `requires_concentration`,
+the app writes the anchor in the same transaction as the cast. The anchor
+links the access path or item that was used, carries the activation's
+generated `source_instance_key`, and takes its `name` from the spell. A target
+the app does not track goes in `notes`. Effects the cast places on other
+characters, such as Bless on the party, are ordinary rows that share the
+instance key and list `concentration_end`. The anchor never lists
+`concentration_end` itself.
+
+The anchor's duration uses the existing columns:
+
+- one minute or less: `remaining_rounds` with `rounds_tick_on` of
+  `end_of_source_turn`, and `source_actor_key` set to the caster's own key
+- up to one hour: `expiry_triggers` of `short_rest` and `long_rest`
+- up to eight hours: `expiry_triggers` of `long_rest`
+- longer: no trigger; the player ends it
+
+Ending concentration is one transaction. It deletes the anchor and every
+CharacterEffects row, on any character, that shares its `source_instance_key`
+and lists `concentration_end`. The application ends concentration when the
+player ends it, when a concentration saving throw is recorded as lost, when the
+character casts another concentration spell, when the character gains the
+Incapacitated, Paralyzed, Petrified, Stunned, or Unconscious condition, when
+hit points reach 0, and when the anchor's own duration or trigger ends it. An
+active Wild Shape does not end it. These are application events, not database
+triggers. A rest or round counter that deletes the anchor runs the same
+transaction, so dependent rows never outlive it.
 
 ## CharacterGrantSuppressions
 
@@ -928,7 +999,8 @@ new result; it does not silently freeze the old target.
 
 CharacterActions are not advancement results. Their singular `origin` remains
 descriptive metadata for a manual action. CharacterEffects track live source
-instances through their source columns instead of grant origins.
+instances through their source columns instead of grant origins. A
+concentration anchor is an ordinary effect row and is never reconciled.
 
 ## AdvancementDrafts
 
