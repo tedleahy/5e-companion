@@ -3392,6 +3392,41 @@ button.mark{font-family:inherit;cursor:pointer}
 </div>
 </template>
 
+<template id="tpl-cast-replace">
+<div class="sheet">
+  <div class="shead">
+    <div class="sheadtop">
+      <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+      <div class="who"><h2 class="sname" style="font-size:19px">Invisibility</h2>
+        <p class="ssub">2nd-level illusion, 1 action, touch</p></div>
+      <button class="icnbtn" aria-label="Spell menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <div class="warn">
+      <div><b>Brenna is concentrating on Hex.</b> Casting Invisibility ends it, and the curse on the ogre chieftain with it.</div>
+    </div>
+
+    <div class="pathcard">
+      <div class="pathtop"><b>Pact magic</b><span>Known</span></div>
+      <div class="pathstats"><span>Concentration</span><span>Up to 1 hour</span><span>Two creatures at 3rd</span></div>
+      <div class="res">
+        <div class="resl"><b>1 of 2 pact slots</b><span>Back after a short rest</span></div>
+        <div class="pips"><i data-on></i><i></i></div>
+      </div>
+      <button class="castbtn small" style="margin-top:11px">Cast, ends Hex</button>
+      <p class="origin">From the Warlock class, chosen at level 3.</p>
+      <button class="dangerbtn small">Remove this way to cast</button>
+    </div>
+
+    <button class="disclose" aria-expanded="false">Rules text<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
+    <div style="height:4px"></div>
+  </div>
+</div>
+</template>
+
+
 <script>
 (function(){
   var BASE = {paper:'#eae6de', sheet:'#f0ece4', a:'#2560b0', b:'#e0689c', mix:'#5c3d88'};
@@ -3514,7 +3549,9 @@ button.mark{font-family:inherit;cursor:pointer}
     {id:'hex-detail', label:'Concentration on the spell detail, Hex',
      note:'Opened from the concentration mark on either header. A card in overprint ink leads, reading the anchor row: how long it lasts at the level cast, what ends it, and the target from its notes, with Move for when the target drops. End concentration is destructive and acts at once; the push to this screen is the deliberate step. Casting Hex again says it replaces this one.'},
     {id:'conc-save', label:'Concentration save after damage',
-     note:'Frame 5 applied 7 damage while Brenna concentrates on Hex, so the pad turns into the save. The DC works itself out, higher of 10 or half the damage. Roll is offered because the app stores the result: a lost save ends the anchor. Kept and Lost are for a roll made at the table, and Lost is outlined in rose because it ends the spell.'}
+     note:'Frame 5 applied 7 damage while Brenna concentrates on Hex, so the pad turns into the save. The DC works itself out, higher of 10 or half the damage. Roll is offered because the app stores the result: a lost save ends the anchor. Kept and Lost are for a roll made at the table, and Lost is outlined in rose because it ends the spell.'},
+    {id:'cast-replace', label:'Casting a second concentration spell',
+     note:'Invisibility needs concentration too, so its detail warns before anything happens and the Cast button names what it ends. Casting still goes ahead in one tap; the warning is the check, as the flows doc asks for warnings rather than blocks.'}
   ];
 
   function hexToRgb(hex){
