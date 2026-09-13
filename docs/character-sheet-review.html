@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Character sheet mockups, review of 13 September 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,sans-serif;font-size:14.5px;line-height:1.55}
+a{color:#9cc9ff}
+code{font:500 12.5px/1.4 ui-monospace,"Cascadia Mono",monospace;background:#1c1e22;padding:1px 5px;border:1px solid #3c4046;color:#d4d8de}
+.doc-head{padding:24px 22px 18px;border-bottom:1px solid #3c4046;background:rgba(23,25,29,.94)}
+.doc-head-inner{max-width:1240px;margin:0 auto}
+.doc-head b{font-weight:600;font-size:13px;color:#fff}
+.doc-head h1{font-size:26px;font-weight:700;margin:8px 0 8px;letter-spacing:-.015em}
+.doc-head p{margin:0 0 6px;color:#a9b0b9;max-width:76ch}
+.doc-layout{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:220px minmax(0,1fr);gap:34px;padding:24px 22px 64px}
+.doc-nav{position:sticky;top:20px;align-self:start;font-size:13px}
+.doc-nav h2{margin:0 0 6px;font-size:11.5px;font-weight:600;color:#8a919a;text-transform:uppercase;letter-spacing:.06em}
+.doc-nav ul{list-style:none;margin:0 0 18px;padding:0}
+.doc-nav a{display:block;padding:4px 0;color:#c3c9d1;text-decoration:none}
+.doc-nav a:hover{color:#fff}
+section{margin:0 0 48px}
+section>h2{font-size:21px;font-weight:700;margin:0 0 6px;letter-spacing:-.015em;padding-top:8px}
+section>p.lead{margin:0 0 18px;color:#a9b0b9;max-width:76ch}
+h3{font-size:15px;font-weight:700;margin:26px 0 6px}
+p{max-width:76ch}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0 0}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #3c4046;vertical-align:top}
+th{font-weight:600;color:#8a919a;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em}
+td:first-child{white-space:nowrap;color:#8a919a}
+.finding{margin:0 0 12px;padding:12px 16px;border:1px solid #3c4046;background:#1c1e22;max-width:none}
+.finding b{display:block;margin-bottom:3px;color:#fff}
+.finding .num{display:inline-block;min-width:26px;margin-right:8px;color:#8a919a;text-decoration:none;font-weight:600}
+.finding .num:hover{color:#fff}
+.finding .tag{float:right;font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#8fd19e;border:1px solid #3c5a44;padding:2px 7px;margin-left:8px}
+.finding:target{outline:2px solid #7cc4ff;outline-offset:2px}
+.finding.high{border-left:3px solid #f29a9a}
+.finding.mid{border-left:3px solid #f2cf8f}
+.finding.low{border-left:3px solid #6f7681}
+.finding small{display:block;margin-top:5px;color:#8a919a;font-size:12px}
+.key{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 18px;font-size:12.5px;color:#a9b0b9}
+.key span::before{content:"";display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+.key .h::before{background:#f29a9a}.key .m::before{background:#f2cf8f}.key .l::before{background:#6f7681}
+ul.plain{margin:6px 0 0;padding-left:18px;color:#c3c9d1}
+ul.plain li{margin:3px 0}
+@media (max-width:860px){.doc-layout{grid-template-columns:1fr}.doc-nav{position:static}}
+</style>
+</head>
+<body>
+
+<header class="doc-head">
+  <div class="doc-head-inner">
+    <b>5e Companion</b>
+    <h1>Character sheet mockups, review</h1>
+    <p>13 September 2026, against <code>mockups/character-sheet.html</code> at commit 1b3cedd, with <code>mockups/character-list.html</code>, <code>docs/design-system.html</code> v0.3 and <code>docs/character-sheet-plan.md</code> as the references. Frame numbers are the gallery's own. Findings are numbered 1 to 45 in reading order, and each number is an anchor. Findings 1 to 22 were fixed on 13 September 2026; the decisions behind them are in the plan under Decided.</p>
+    <p>The visual system holds. The problems are rules numbers, frames that disagree with each other, promised interactions no frame draws, and some system, markup and copy drift.</p>
+  </div>
+</header>
+
+<div class="doc-layout">
+<nav class="doc-nav" aria-label="Sections">
+  <h2>Review</h2>
+  <ul>
+    <li><a href="#method">What was checked</a></li>
+    <li><a href="#rules">Rules and numbers</a></li>
+    <li><a href="#state">Frames that disagree</a></li>
+    <li><a href="#gaps">Missing interactions</a></li>
+    <li><a href="#system">Design system</a></li>
+    <li><a href="#a11y">Markup and accessibility</a></li>
+    <li><a href="#copy">Copy</a></li>
+    <li><a href="#docs">Document drift</a></li>
+    <li><a href="#ok">What checked out</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<section id="method">
+  <h2>What was checked</h2>
+  <p class="lead">Four passes over the 46 frames.</p>
+  <ul class="plain">
+    <li>Every frame rendered with <code>./mockups/shoot.sh character-sheet</code> and read as an image, plus scrolled renders of frames 3, 6, 8, 10 and 15, which are taller than the phone.</li>
+    <li>A DOM audit injected into a throwaway copy, checking each frame for horizontal overflow, ellipsis truncation, clipped or nowrap text, header and tab bar heights, and the hit area of every control including its <code>::after</code> extension.</li>
+    <li>Every rules number compared with the JSON in <code>srd-json-files</code>: class levels, spell lists, monsters, equipment, proficiencies, languages, subclass spells and magic items.</li>
+    <li>The markup and CSS read in full, alongside the plan and the design system.</li>
+  </ul>
+  <p style="margin-top:12px">The audit found no truncation, no overflow and no control under 44 except the pips, which sit at their documented 24 or 26 wide by 44 tall.</p>
+  <div class="key"><span class="h">Wrong on the page</span><span class="m">Contradiction or gap</span><span class="l">Nit</span></div>
+</section>
+
+<section id="rules">
+  <h2>Rules and numbers</h2>
+  <p class="lead">Checked against the SRD data in the repository, not memory.</p>
+
+  <div class="finding high" id="f1"><b><a class="num" href="#f1">1</a>Brenna knows too many spells (frames 1, 3)<span class="tag">Fixed</span></b>
+    A warlock 6 knows 7 spells in the Levels data. Frame 3 lists 8 levelled warlock spells: Armor of Agathys, Hex, Charm person, Invisibility, Mirror image, Scorching ray, Fireball and Hunger of Hadar. The Play tab's "Cast a spell" row says "Nine known", which is those 8 plus Cure wounds.</div>
+
+  <div class="finding high" id="f2"><b><a class="num" href="#f2">2</a>Hex does not end on a short rest (frame 12)<span class="tag">Fixed</span></b>
+    The Ends group says "Concentration, 1 hour. A short rest takes that long." Every pact slot Brenna has is 3rd level, and Hex cast at 3rd or 4th level lasts 8 hours. Either the row moves to "Not on a short rest" or the reasoning line changes.</div>
+
+  <div class="finding high" id="f3"><b><a class="num" href="#f3">3</a>The ring's Cure wounds heals 2d8+3 (frame 4)<span class="tag">Fixed</span></b>
+    A ring of spell storing uses the original caster's spellcasting ability. Alarra's Wisdom is 18, so the second path heals 2d8+4. Disciple of Life does not carry, because Brenna is the caster, so it is not 2d8+8 either.</div>
+
+  <div class="finding high" id="f4"><b><a class="num" href="#f4">4</a>The brown bear header contradicts the Wild Shape screen (frames 6, 35)<span class="tag">Fixed</span></b>
+    Frame 6 gives the bear AC 12 and initiative +1. Frame 35 and the Monsters data give AC 11 and Dexterity 10, so initiative +0. The bear's meter is also drawn in the hurt state at 21 of 34, which is above half.</div>
+
+  <div class="finding high" id="f5"><b><a class="num" href="#f5">5</a>Long rest hit dice are "rounded up" (frame 13)<span class="tag">Fixed</span></b>
+    The line reads "Up to half of 7, rounded up". 5e rounds down, so the recovery is 3. The arithmetic in the row happens to survive because 5 plus 3 caps at 7, but the explanation is wrong.</div>
+
+  <div class="finding mid" id="f6"><b><a class="num" href="#f6">6</a>Invocations disagree with the repository's data (frame 24)<span class="tag">Fixed</span></b>
+    "3 known, a fourth at warlock 7" matches the printed SRD table. The Levels file gives warlock 6 four invocations and warlock 7 four. The app will read the file, so either the data or the mockup needs correcting before a sheet is generated from it.<small>Resolved by correcting the data: the Levels file now gives warlock 6 three invocations, recorded in ATTRIBUTION.md. The mockup stays as drawn.</small></div>
+
+  <div class="finding mid" id="f7"><b><a class="num" href="#f7">7</a>Cure wounds sits under "1st level, Cast at 3rd" (frame 3)<span class="tag">Fixed</span></b>
+    The block heading applies pact casting to every row. Cure wounds is cast at 1st through the feat and at 2nd through the ring, so the heading is wrong for that row.</div>
+
+  <div class="finding mid" id="f8"><b><a class="num" href="#f8">8</a>Truncated lists claim to be complete (frames 9, 42)<span class="tag">Fixed</span></b>
+    Frame 9 shows "4 of 9 chosen" and "3 of 5 chosen" with an empty search field. The SRD cleric list has 15 first-level and 17 second-level spells. Frame 42 lists 11 languages with an empty search; the catalog has 16. Gnomish, Goblin, Orc, Deep Speech and Primordial are missing. Either draw the search filled in or make the counts honest.</div>
+
+  <div class="finding mid" id="f9"><b><a class="num" href="#f9">9</a>"4 of 9 chosen" reads as a limit (frame 9)<span class="tag">Fixed</span></b>
+    On the same screen "12 of 11 prepared" is a limit. "4 of 9" is a count of rows in the section, two of which are locked domain spells that are also ticked. The two "of" phrases mean different things.</div>
+
+  <div class="finding low" id="f10"><b><a class="num" href="#f10">10</a>Half and Expertise are offered for a saving throw (frame 34)<span class="tag">Fixed</span></b>
+    No 5e rule grants half proficiency or expertise on a save. The data model allows every rank on every save, so this is a decision to record: hide the options for saves, or keep them as a house-rule escape hatch.<small>Resolved with a two-way selector for saves.</small></div>
+
+  <div class="finding low" id="f11"><b><a class="num" href="#f11">11</a>Disguise kit is labelled "Artisan's tools" (frame 41)<span class="tag">Fixed</span></b>
+    This matches the repository's proficiency data but not the SRD book, which lists disguise kit under other tools. Worth knowing when the catalog is imported.<small>Resolved by correcting the data: the disguise kit's type is now Other. The mockup row on frame 41 was updated to match.</small></div>
+
+  <div class="finding low" id="f12"><b><a class="num" href="#f12">12</a>Sacred flame is in Brenna's spells but not her attacks (frames 1, 3)<span class="tag">Fixed</span></b>
+    Alarra's Play tab lists Sacred flame in the attack table with its save DC. Brenna also has it, through Magic Initiate, and her attack table omits it.</div>
+</section>
+
+<section id="state">
+  <h2>Frames that disagree with each other</h2>
+  <p class="lead">Each character is drawn at one moment, so the frames should share a state.</p>
+
+  <div class="finding mid" id="f13"><b><a class="num" href="#f13">13</a>The rest screens contradict their characters (frames 12, 13)<span class="tag">Fixed</span></b>
+    Frame 12 has Brenna's pact slots at 0 and Dark One's Own Luck at 0, while frame 1 shows both full. Frame 13 has Alarra at 38 of 52 hit points, one Channel Divinity and five hit dice, while every other Alarra frame has her at 52 of 52 with two and seven.<small>Resolved by moving the characters: Brenna has one pact slot spent, Alarra is at 38 of 52 with one Channel Divinity and two hit dice spent, on the sheet and in the list.</small></div>
+
+  <div class="finding mid" id="f14"><b><a class="num" href="#f14">14</a>The character list disagrees with the sheet<span class="tag">Fixed</span></b>
+    The list shows Vesper as a level 5 wizard; the sheet's frame 6 makes her wizard 5 / rogue 2 at level 7. The list gives Brenna "1 pact slot"; the sheet shows both free.</div>
+
+  <div class="finding mid" id="f15"><b><a class="num" href="#f15">15</a>Kethra vanishes from the character list<span class="tag">Fixed</span></b>
+    She is a saved level 3 character with a level-up draft, and the title counts "6 saved", but she appears only in the tray. There is no way to open her sheet to play while the draft exists. The sheet's Character tab says the level-up card becomes a draft card during a level-up, which implies the sheet stays usable.<small>Resolved with a row and a Levelling up mark, plus the tray entry.</small></div>
+
+  <div class="finding mid" id="f16"><b><a class="num" href="#f16">16</a>Edit buttons come and go<span class="tag">Fixed</span></b>
+    Saving throws has no Edit on frame 10 and a disabled Edit on frame 16. Features and traits has no Edit at all on frame 15, yet frames 22 and 36 send the player to "the Features section's Edit" and "the Features draft".</div>
+
+  <div class="finding mid" id="f17"><b><a class="num" href="#f17">17</a>Only overridden values are tappable<span class="tag">Fixed</span></b>
+    Alarra's armour class ring carries a button role because it has an override. Brenna's ring on frame 1 and every Initiative, Speed and Spell save tile is inert. The plan says armour class, initiative and speed are all overridable, but nothing on the sheet opens their calculation or offers "Replace the bonus" the way a skill row does.</div>
+
+  <div class="finding low" id="f18"><b><a class="num" href="#f18">18</a>Hunger of Hadar is warned about on frame 6 and listed normally on frame 3<span class="tag">Fixed</span></b>
+    It is absent from both spell data files, which is presumably the point of the warning. If the warning is Brenna's live state, frame 3 should carry the strip and the row a mark.<small>Resolved by dropping Hunger of Hadar from Brenna's list, which also fixes finding 1. The frame 6 warning stays as a variant.</small></div>
+
+  <div class="finding low" id="f19"><b><a class="num" href="#f19">19</a>"Tap to heal or damage." appears only on Brenna's header (frame 1)<span class="tag">Fixed</span></b>
+    Alarra's and Thorn's headers show the bare hit point line, and Brenna's own line drops the hint on frame 5.</div>
+  <div class="finding low" id="f45"><b><a class="num" href="#f45">45</a>The character list is not in the order its sort button claims</b>
+    The plate says "Sort: level", but the rows run Brenna 6, Thorn 8, Vesper 7, Alarra 7, Mudge 4, Kethra 3. Found while adding Kethra's row for finding 15.</div>
+</section>
+
+<section id="gaps">
+  <h2>Interactions the plan promises that no frame draws</h2>
+  <p class="lead">Journey 3 is "quickly inspect and update the current state". These are state changes with no control.</p>
+
+  <div class="finding mid" id="f20"><b><a class="num" href="#f20">20</a>Conditions and exhaustion<span class="tag">Fixed</span></b>
+    The header lists "active conditions" as always visible and the character list has a Poisoned mark, but no sheet frame adds, removes or shows a condition, and nothing sets exhaustion.<small>Resolved by frame 47: a Condition control on the plate and a tap on any condition mark open a static bottom sheet that toggles conditions live, sets an optional end, and steps exhaustion. Inspiration and concentration remain finding 21.</small></div>
+
+  <div class="finding mid" id="f21"><b><a class="num" href="#f21">21</a>Inspiration and concentration<span class="tag">Fixed</span></b>
+    "Inspired" is a mark with no toggle. Hex shows an "Active" mark on two screens with no way to drop concentration.<small>Resolved by frames 48 to 51. Inspiration is a toggle in the status sheet that every mark opens. The concentration mark opens the spell detail, whose concentration card ends it, and prompts appear after damage, in the status sheet and when casting a second concentration spell. The data model gained a concentration anchor row to back them.</small></div>
+
+  <div class="finding mid" id="f22"><b><a class="num" href="#f22">22</a>Death saves<span class="tag">Fixed</span></b>
+    The plan says the app stores death saves and offers Roll for them. Frame 6 draws the pips as display only.<small>Resolved by frames 52 to 54. At 0 hit points the pad gains a Death save tab with Roll, four one-tap outcome buttons for a table roll, correctable pips and Mark stable. Damage at 0 counts as failures and warns when it kills, and a dead character gets Bring back. The data model gained a 0 to 3 check, the death save rules, and an automatic Unconscious that ends on healing.</small></div>
+
+  <div class="finding mid" id="f23"><b><a class="num" href="#f23">23</a>The compact header loses the two most frequent controls (frame 2)</b>
+    The hit point number is a plain span and Rest is gone, so both stop being "zero taps away" once the player scrolls. The purple "+5" for temporary hit points also carries its meaning by colour alone, which is the fault the concentration dot was fixed for.</div>
+
+  <div class="finding low" id="f24"><b><a class="num" href="#f24">24</a>"I rolled" has no entry pad (frames 12, 21)</b>
+    Both screens offer it as an outlined button. Nothing shows where the number goes.</div>
+
+  <div class="finding low" id="f25"><b><a class="num" href="#f25">25</a>The damage pad is not "in the header" (frame 5)</b>
+    The plan's working rule says tapping the meter opens the pad in the header. The mockup puts it in the body under the tabs, and the header drops the armour class rail while the pad is open.</div>
+</section>
+
+<section id="system">
+  <h2>Design system</h2>
+  <p class="lead">Where the frames break a rule v0.3 states, or stretch one until it means less.</p>
+
+  <div class="finding mid" id="f26"><b><a class="num" href="#f26">26</a>"Only one primary per screen" is broken (frames 4, 23, 35)</b>
+    Frame 4 has two rose Cast buttons, frame 23 two Use buttons, frame 35 four Transform buttons. Either the rule gains an exception for repeated row actions or the row actions become the outlined secondary.</div>
+
+  <div class="finding mid" id="f27"><b><a class="num" href="#f27">27</a>Dashed borders carry three meanings</b>
+    Editing drafts are blue dashed with the rose tint, warning strips are rose dashed with the same tint, and add rows are blue dashed on sheet. The tint was defined as "not real yet"; a rules warning is not a draft.</div>
+
+  <div class="finding mid" id="f28"><b><a class="num" href="#f28">28</a>Read-only text looks editable (frames 4, 15)</b>
+    The Notes block and "Your note" use the same wash and inset rule as the real inputs on frames 30, 33 and 45. In view mode they invite a tap that does nothing until Edit.</div>
+
+  <div class="finding low" id="f29"><b><a class="num" href="#f29">29</a>The origin line floats on bare paper (frames 23, 35)</b>
+    On every other detail screen it sits inside the rules card. Here it is dim text on the grid, below the disclosure.</div>
+
+  <div class="finding low" id="f30"><b><a class="num" href="#f30">30</a>Redundant labels (frames 17, 19, 20)</b>
+    Frame 17 says "Belt" three times: the toggle's subtitle, its mark and the Move row. Frames 19 and 20 pair an Equipped or Attuned toggle with a mark that repeats the same word.</div>
+
+  <div class="finding low" id="f31"><b><a class="num" href="#f31">31</a>The structure and skin split leaks</b>
+    Structural rules carry ink tokens: the row borders on <code>.res</code>, <code>.atk</code>, <code>.act</code>, <code>.prep</code>, <code>.calc</code>, <code>.change</code>, <code>.editrow</code>, <code>.erow</code>, <code>.form</code>, <code>.origin</code> and <code>.para</code>, and the fills on <code>.temp</code>, <code>.pips i</code> and <code>.over</code>. Two <code>.bhead</code> and two <code>.tabs</code> declarations override each other. Every detail title sets 19px inline. <code>.tok</code> keeps raw hex fallbacks in both mockups, and the list mockup's structural layer sets text opacity that the skin then cancels, though the system says opacity on text is banned.</div>
+</section>
+
+<section id="a11y">
+  <h2>Markup and accessibility</h2>
+  <p class="lead">Things that will carry into the web build if the markup is copied.</p>
+
+  <div class="finding high" id="f32"><b><a class="num" href="#f32">32</a>Pips are not controls</b>
+    Resource pips are <code>&lt;i&gt;</code> elements with a click handler: no role, no label, not focusable. Keyboard and screen reader users cannot spend a slot. The design system's note that pips are decorative was written for the list, where they are.</div>
+
+  <div class="finding high" id="f33"><b><a class="num" href="#f33">33</a>A button inside a toggle label (frame 9)</b>
+    The chevron on each preparation row is a <code>&lt;button&gt;</code> inside <code>&lt;label class="prep"&gt;</code>. That is invalid HTML, and activating it also toggles the checkbox.</div>
+
+  <div class="finding mid" id="f34"><b><a class="num" href="#f34">34</a>The vitals label hides the numbers</b>
+    <code>aria-label="Heal or damage"</code> on the vitals block replaces "31/44 hit points, 5 temporary" for assistive technology. Use <code>aria-describedby</code> or fold the values into the label.</div>
+
+  <div class="finding mid" id="f35"><b><a class="num" href="#f35">35</a>Selection state is a data attribute</b>
+    Tabs, pad tabs, the rest and coin switches and the catalog switch mark selection with <code>data-on</code> only. Rank selectors use <code>aria-pressed</code>. Disclosures have no <code>aria-expanded</code>. The bottom sheet is a dialog without <code>aria-modal</code> or a focus trap.</div>
+
+  <div class="finding low" id="f36"><b><a class="num" href="#f36">36</a>Jargon in labels (frame 45)</b>
+    The token swatches are labelled "Structural token", "Accent token" and "Overprint token". Screen readers announce the ink names.</div>
+
+  <div class="finding low" id="f37"><b><a class="num" href="#f37">37</a>aria-label on a plain div</b>
+    The temporary hit point block is a <code>div</code> with an aria-label and no role, which is ignored.</div>
+
+  <div class="finding low" id="f38"><b><a class="num" href="#f38">38</a>The character list card is not a control</b>
+    On phone the whole card is the target, but <code>article.row</code> has no role or tabindex. The list also predates the hit-area rule: chips are about 23px tall with no extension.</div>
+</section>
+
+<section id="copy">
+  <h2>Copy</h2>
+
+  <div class="finding low" id="f39"><b><a class="num" href="#f39">39</a>Feature names are cased two ways</b>
+    "Pact magic" on frame 1 and "Pact Magic" on frame 39. "Channel divinity" in the resource row and "Channel Divinity" as a screen title. "Fey ancestry" and "Skill versatility" next to "Dark One's Own Luck" and "Pact of the Blade". Pick one rule: SRD names as printed, or sentence case for all.</div>
+
+  <div class="finding low" id="f40"><b><a class="num" href="#f40">40</a>Spelling and abbreviations</b>
+    "Armor of Agathys" sits beside "armour class"; the catalog is American and the interface is British, so decide whether catalog names stay as imported. "GM" on frame 26 and "DM" on frame 37 and in the product doc. "Disadv." is the only abbreviation with a full stop.</div>
+
+  <div class="finding low" id="f41"><b><a class="num" href="#f41">41</a>"You" changes referent</b>
+    Sometimes it is the player: "Nothing on her sheet changes until you confirm." Sometimes it is the character: "10 temporary hit points when you drop a foe", beside "magic can't sleep her". "From Ring of spell storing, in your attuned items" is second person on a screen that says "Brenna" everywhere else.</div>
+
+  <div class="finding low" id="f42"><b><a class="num" href="#f42">42</a>Add a proficiency sits under Tools (frame 40)</b>
+    The row covers weapons and armour too, but its position implies tools only.</div>
+</section>
+
+<section id="docs">
+  <h2>Document drift</h2>
+
+  <div class="finding mid" id="f43"><b><a class="num" href="#f43">43</a>The plan's header measurements are stale</b>
+    <code>docs/character-sheet-plan.md</code> records the tall header as 228px, 28 percent of the screen. The render measures 248px plus a 58px tab bar, 306px in all, which is 38 percent. The compact figure of 112px still holds.</div>
+
+  <div class="finding low" id="f44"><b><a class="num" href="#f44">44</a>The v0.3 design system still says temporary hit points show in the line only</b>
+    The sheet draws them as an overprint block. Expected while v0.4 is pending, but the meter section will need rewriting.</div>
+</section>
+
+<section id="ok">
+  <h2>What checked out</h2>
+  <p class="lead">So the list above is not read as the whole picture.</p>
+  <ul class="plain">
+    <li>Alarra: slots 4, 3, 3 and 1; save DC 15 and attack +7; prepared count 11 with 7 domain spells and exactly 11 non-domain spells listed; healing bonuses on Cure wounds, Healing word, Prayer of healing and Mass healing word; Preserve Life 35; Turn Undead threshold; passive scores; skill and save bonuses; chain mail and shield arithmetic including the 12 without armour.</li>
+    <li>Brenna: save DC 15, attack +7, Agonizing Blast +4, two beams, Repelling Blast, Chill touch 2d8, Dark One's Blessing 10, the feat's DC 12 and +4, the damage pad's 29 of 44, the money pad, dagger numbers and cost, Armor of Agathys at 15, Scorching ray's four rays, hit dice 4 of 6 and the short rest average.</li>
+    <li>Thorn, Mudge and Vesper's headers, the four beast forms, the potion, the ring, darkvision, Fiendish Resilience and the Life domain's seven SRD spells all match the data.</li>
+    <li>Every quoted rules text matches the SRD JSON.</li>
+    <li>No truncation, no overflow, hit areas hold, and every text pairing seen in the renders reads clearly.</li>
+  </ul>
+</section>
+
+</main>
+</div>
+</body>
+</html>
