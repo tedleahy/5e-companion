@@ -628,6 +628,7 @@ button.mark{font-family:inherit;cursor:pointer}
 .bsheet .editrow{padding:0 8px;margin-top:6px}
 .bsheet .dur{margin:8px 0 0;padding:0 0 2px}
 
+.riso button.mark[aria-expanded=true]{box-shadow:inset 0 0 0 2px currentColor}
 .bsheet > .prep{padding:3px 8px;min-height:48px}
 .bsheet > .padnote{margin:10px 8px 0}
 
@@ -3212,6 +3213,77 @@ button.mark{font-family:inherit;cursor:pointer}
 </div>
 </template>
 
+
+<!-- ============================================================
+     INSPIRATION AND CONCENTRATION
+     ============================================================ -->
+<template id="tpl-status-brenna">
+<div class="sheet">
+  <div class="shead attached">
+    <div class="sheadtop">
+      <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+      <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">B<b>6</b></div>
+      <div class="who">
+        <h2 class="sname">Brenna Duskhollow</h2>
+        <p class="ssub">Half-elf warlock 6, the Fiend</p>
+      </div>
+      <button class="icnbtn" aria-label="Sheet menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+    </div>
+    <div class="vitals" role="button" tabindex="0" aria-label="Heal or damage">
+    <div class="hprow">
+      <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+      <div class="temp" aria-label="5 temporary hit points"></div>
+    </div>
+    <p class="hpline"><b>31</b>/44 hit points, <b>5</b> temporary. Tap to heal or damage.</p>
+    </div>
+    <div class="rail">
+      <div class="ac" role="button" tabindex="0" aria-label="Armour class 13"><span>13<em>AC</em></span></div>
+      <button class="tile"><b>+2</b><em>Initiative</em></button>
+      <button class="tile"><b>30</b><em>Speed</em></button>
+      <button class="tile"><b>15</b><em>Spell save</em></button>
+    </div>
+    <div class="hmarks">
+      <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Concentrating: Hex</button>
+      <button class="mark" aria-label="Inspired, open status" aria-expanded="true">Inspired</button>
+      <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
+      <button class="restbtn">Rest</button>
+    </div>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab" data-on><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg><span>Play</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"/><path d="M8 4.8l3 5.2H5z"/></svg><span>Stats</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg><span>Spells</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 6.5h9l-.8 7h-7.4z"/><path d="M6 6.5V5a2 2 0 0 1 4 0v1.5"/></svg><span>Gear</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="5.3" r="2.6"/><path d="M3 14c.6-3 2.5-4.6 5-4.6s4.4 1.6 5 4.6"/></svg><span>Character</span></button>
+  </nav>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
+      <div class="res">
+        <div class="resl"><b>Pact magic</b><span>Two 3rd-level slots, short rest</span></div>
+        <div class="pips"><i data-on></i><i></i></div>
+      </div>
+      <div class="res">
+        <div class="resl"><b>Dark One's Own Luck</b><span>Add 1d10, long rest</span></div>
+        <div class="pips"><i data-on></i></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="bscrim" aria-hidden="true"></div>
+  <div class="bsheet" role="dialog" aria-modal="true" aria-label="Status">
+    <p class="bsheet-title">Brenna Duskhollow</p>
+    <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Inspiration</b><span>Spend it for advantage on an attack, save or check</span></div></label>
+    <div class="condgrid" role="group" aria-label="Conditions"><button aria-pressed="false">Blinded</button><button aria-pressed="false">Charmed</button><button aria-pressed="false">Deafened</button><button aria-pressed="false">Frightened</button><button aria-pressed="false">Grappled</button><button aria-pressed="false">Incapacitated</button><button aria-pressed="false">Invisible</button><button aria-pressed="false">Paralyzed</button><button aria-pressed="false">Petrified</button><button aria-pressed="false">Poisoned</button><button aria-pressed="false">Prone</button><button aria-pressed="false">Restrained</button><button aria-pressed="false">Stunned</button><button aria-pressed="false">Unconscious</button><button class="condcustom"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Custom</button></div>
+    <p class="padnote"><b>Concentrating on Hex.</b> Incapacitated, Paralyzed, Petrified, Stunned or Unconscious would end it.</p>
+    <div class="editrow"><span class="lbl">Exhaustion</span><button class="step" aria-label="Lower exhaustion">&minus;</button><span class="num">0</span><button class="step" aria-label="Raise exhaustion">+</button><span class="mod">of 6</span></div>
+    <button class="menuitem close">Close</button>
+  </div>
+</div>
+</template>
+
 <script>
 (function(){
   var BASE = {paper:'#eae6de', sheet:'#f0ece4', a:'#2560b0', b:'#e0689c', mix:'#5c3d88'};
@@ -3326,7 +3398,11 @@ button.mark{font-family:inherit;cursor:pointer}
     {section:'Conditions',
      text:'Conditions toggle live from a bottom sheet, opened by the Condition control on the plate or by tapping any condition mark. It is the menu&rsquo;s static sheet, picked on 13 September 2026 over a taller scrolling one.'},
     {id:'cond-static', label:'Status sheet, Mudge',
-     note:'The same static sheet as the menu: instant, no drag, thumb height, over the same scrim. Inspiration sits at the top as a toggle, off for Mudge. Fourteen conditions sit in a three-column grid of names, selected ones inverted. Tapping adds with no duration, and tapping again removes. The condition just added gets an end under the grid, mapped to the data model: by hand, rounds counted down by hand, any rest, or a long rest. A save that ends a condition stays by hand, because the model has no save trigger. Exhaustion is a stepper row. Custom fills the grid&rsquo;s empty cell and opens its own screen, as every Add does. The sheet stops below the header marks, so the pressed Condition control and the Poisoned mark stay in view. Names only: the rules sit a tap away on the condition&rsquo;s detail.'}
+     note:'The same static sheet as the menu: instant, no drag, thumb height, over the same scrim. Inspiration sits at the top as a toggle, off for Mudge. Fourteen conditions sit in a three-column grid of names, selected ones inverted. Tapping adds with no duration, and tapping again removes. The condition just added gets an end under the grid, mapped to the data model: by hand, rounds counted down by hand, any rest, or a long rest. A save that ends a condition stays by hand, because the model has no save trigger. Exhaustion is a stepper row. Custom fills the grid&rsquo;s empty cell and opens its own screen, as every Add does. The sheet stops below the header marks, so the pressed Condition control and the Poisoned mark stay in view. Names only: the rules sit a tap away on the condition&rsquo;s detail.'},
+    {section:'Inspiration and concentration',
+     text:'Finding 21. Inspiration lives in the status sheet, and the concentration mark opens the spell behind it. Concentration is the data model&rsquo;s anchor row, so every screen here reads or ends that one row.'},
+    {id:'status-brenna', label:'Status sheet with inspiration, Brenna',
+     note:'Opened from the Inspired mark, which shows the pressed ring. Inspiration is ticked; untick it to spend it, and the mark leaves the plate. Every mark opens this sheet except concentration. While she concentrates, a line names the conditions that would end it, so nobody adds Stunned without knowing Hex goes too.'}
   ];
 
   function hexToRgb(hex){
