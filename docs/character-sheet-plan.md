@@ -301,6 +301,17 @@ All dated 12 September 2026.
   and nothing else, and a solid rose edge means a warning, so a warning can sit
   inside a block being edited without reading as part of the draft.
   13 September 2026.
+- Notes are the exception to the Edit rule. The character's notes and each
+  access path's note are fields you tap and type into, with no Edit button.
+  They save after typing pauses and when the field loses focus, and a small
+  line reads Saving, then Saved. Only a deliberate tap opens the keyboard, not
+  a touch that starts a scroll. Edits from two devices at once follow the
+  deferred edit-conflict work. 13 September 2026.
+- A long note shows its first six lines with Show all, and opens fully while
+  it has focus, so it never pushes the rest of a tab away. 13 September 2026.
+- A spell note belongs to one way to cast, because CharacterSpells stores notes
+  per access path. Each path card on the spell detail carries its own note
+  field, and there is no spell-wide note. 13 September 2026.
 - The conditions sheet is the menu's static sheet: a three-column grid of
   names with Custom in the last cell, the chosen condition's end under it, then
   exhaustion and Close. It stops below the header marks. A taller scrolling

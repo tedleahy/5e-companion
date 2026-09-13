@@ -52,7 +52,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .resetbtn:hover{border-color:#6f7681;color:#fff}
 .resetbtn[aria-pressed=true]{border-color:#fff;color:#fff}
 /* Debug paint for hit areas. Gallery only, so it may use a colour outside the inks. */
-.show-hits .riso :is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button)::after,.show-hits .riso .pips i::after{background:rgba(255,196,0,.3);box-shadow:inset 0 0 0 1px rgba(255,170,0,.95)}
+.show-hits .riso :is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button,.noteshow)::after,.show-hits .riso .pips i::after{background:rgba(255,196,0,.3);box-shadow:inset 0 0 0 1px rgba(255,170,0,.95)}
 .studio{padding:26px 22px 56px}
 .frames{max-width:1600px;margin:0 auto;display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start}
 .framewrap{width:414px}
@@ -291,7 +291,6 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .pathstats{display:flex;gap:14px;font-size:12px;font-weight:500;margin-bottom:10px;flex-wrap:wrap}
 .pathstats b{font-weight:700}
 .disclose{display:flex;align-items:center;gap:9px;padding:11px 12px;cursor:pointer;font-size:13px;font-weight:700;width:100%;text-align:left;font-family:inherit}
-.notefield{padding:10px 11px;font-size:12.5px;line-height:1.45;min-height:60px}
 .riso .pushbar{background:var(--a);color:var(--on-a);box-shadow:0 5px 0 var(--b)}
 .riso .origin{color:var(--dim)}
 .riso .castbtn{background:var(--b);color:var(--on-b);box-shadow:5px 5px 0 var(--a)}
@@ -299,7 +298,6 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .riso .pathcard{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
 .riso .pathtop span{color:var(--dim)}
 .riso .disclose{background:var(--sheet);border:2px solid var(--a);color:var(--a)}
-.riso .notefield{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--dim)}
 .riso .pathstats b{color:var(--a)}
 .riso .castbtn.small{width:auto;padding:9px 16px;font-size:13px;box-shadow:3px 3px 0 var(--a)}
 
@@ -710,14 +708,34 @@ button.mark{font-family:inherit;cursor:pointer}
 .riso .facegrid button:active{box-shadow:inset 0 0 0 2px var(--a)}
 .riso .castbtn:disabled{background:transparent;color:var(--dim);box-shadow:inset 0 0 0 2px var(--rule);transform:none;cursor:not-allowed}
 
+/* ---- notes: typed straight into, saved as you go ----
+   The one place persistent text is live without an Edit. It looks like a field
+   because it is one. A long note shows six lines with Show all, and expands
+   while it has focus. */
+.notearea{all:unset;box-sizing:border-box;display:block;width:100%;min-height:44px;padding:10px 11px;font-family:inherit;font-size:13px;line-height:1.45;white-space:pre-wrap;overflow:hidden;resize:none}
+.riso .notearea{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--ink)}
+.riso .notearea::placeholder{color:var(--dim)}
+.riso .notearea:focus{box-shadow:inset 0 0 0 2px var(--a);outline:none}
+/* Clamped, the bottom padding goes so no part of a seventh line shows through it. */
+.notearea.clamped{padding-bottom:0}
+.notefoot{display:flex;align-items:center;gap:10px;min-height:20px;margin-top:6px}
+.notestatus{margin:0;font-size:11px;font-weight:500}
+.riso .notestatus{color:var(--dim)}
+.noteshow{all:unset;cursor:pointer;margin-left:auto;font-size:12px;font-weight:700}
+.noteshow[hidden]{display:none}
+.riso .noteshow{color:var(--a)}
+.pathnote{display:block;margin-top:11px}
+.pathnote > span{display:block;font-size:11.5px;font-weight:700;margin-bottom:5px}
+.riso .pathnote > span{color:var(--dim)}
+
 /* ---- hit areas, web ----
    Every control answers taps across at least 44 by 44. The extension is an
    invisible ::after centred on the control, so nothing moves and nothing looks
    bigger. Where two controls sit closer than that, their areas meet at the
    midpoint of the gap instead of overlapping, and 24 is the floor in that
    direction. Native uses hitSlop with the same numbers. */
-:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button){position:relative}
-:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button)::after{content:"";position:absolute;
+:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button,.noteshow){position:relative}
+:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button,.noteshow)::after{content:"";position:absolute;
   top:min(0px,calc((100% - 44px) / 2));bottom:min(0px,calc((100% - 44px) / 2));
   left:min(0px,calc((100% - 44px) / 2));right:min(0px,calc((100% - 44px) / 2))}
 /* Pips sit 4px apart: 44 tall, and 26 or 24 wide, meeting mid-gap. Rows are
@@ -1094,6 +1112,7 @@ button.mark{font-family:inherit;cursor:pointer}
         <div class="pips"><i data-on></i></div>
       </div>
       <button class="castbtn small" style="margin-top:11px">Cast</button>
+      <label class="pathnote notewrap"><span>Note on this way to cast</span><textarea class="notearea" aria-label="Note on casting cure wounds through Magic Initiate" placeholder="Tap to add a note"></textarea><div class="notefoot"><p class="notestatus" aria-live="polite"></p><button class="noteshow" hidden>Show all</button></div></label>
       <p class="origin">From the Magic Initiate feat, taken at level 4.</p>
       <button class="dangerbtn small">Remove this way to cast</button>
     </div>
@@ -1108,14 +1127,10 @@ button.mark{font-family:inherit;cursor:pointer}
         <div class="pips wide"><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div>
       </div>
       <button class="castbtn small" style="margin-top:11px">Cast, spends 2 levels</button>
+      <label class="pathnote notewrap"><span>Note on this way to cast</span><textarea class="notearea" aria-label="Note on casting cure wounds from the ring" placeholder="Tap to add a note">Ring is Alarra's. Give it back after Sunless Crown.</textarea><div class="notefoot"><p class="notestatus" aria-live="polite">Saved</p><button class="noteshow" hidden>Show all</button></div></label>
       <p class="origin">From Ring of spell storing, in your attuned items.</p>
       <button class="dangerbtn small">Remove this way to cast</button>
     </div>
-
-    <section class="block">
-      <h3 class="bhead">Your note</h3>
-      <div class="notefield">Ring is Alarra's. Give it back after Sunless Crown.</div>
-    </section>
 
     <button class="disclose">Rules text<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
     <div style="height:4px"></div>
@@ -1921,8 +1936,14 @@ button.mark{font-family:inherit;cursor:pointer}
     </section>
 
     <section class="block">
-      <h3 class="bhead">Notes <button class="editbtn">Edit</button></h3>
-      <div class="notefield">Owes the Fiend one favour, unspecified. Sunless Crown: the third door on the left is a mimic.</div>
+      <h3 class="bhead">Notes <span>Saves as you type</span></h3>
+      <div class="notewrap"><textarea class="notearea" aria-label="Notes about Brenna" placeholder="Tap to add a note">Owes the Fiend one favour, unspecified.
+Sunless Crown: the third door on the left is a mimic.
+Session 11: the ferryman takes silver, not gold.
+Brother Tamsin keeps a ledger of everyone who visits the shrine.
+Session 12: borrowed Alarra's ring of spell storing. Give it back.
+The ogre chieftain wants the brand on her palm, not her.
+Session 13: the map in the chapel is upside down on purpose.</textarea><div class="notefoot"><p class="notestatus" aria-live="polite"></p><button class="noteshow" hidden>Show all</button></div></div>
     </section>
   </div>
 </div>
@@ -3950,7 +3971,7 @@ button.mark{font-family:inherit;cursor:pointer}
     {id:'spells', label:'Spells tab',
      note:'Two casting stat blocks, because a Magic Initiate feat brings its own ability, save DC and use. Spells group by level. Cure wounds carries a 2 paths mark. A warlock prepares nothing, so there are no preparation toggles; the cleric section has them. Add a spell sits at the foot of the list.'},
     {id:'detail', label:'Spell detail',
-     note:'One card per way to cast, each with its own numbers, uses and Cast button. The rules text sits under a disclosure. A spell with a single path gets a single card. Each card has its own Remove, because each path is a separate row.'},
+     note:'One card per way to cast, each with its own numbers, uses, Cast button and note. A note belongs to one way to cast, as the data model stores it, and is typed straight in: the ring&rsquo;s note has just saved. The rules text sits under a disclosure. A spell with a single path gets a single card. Each card has its own Remove, because each path is a separate row.'},
     {id:'hp', label:'Hit point pad, opened from the meter',
      note:'The most frequent interaction in the app. It opens as the static bottom sheet from the vitals here or the hit points on the compact header, so the player keeps their place, and the vitals stay visible through the scrim. Damage, heal or temporary, a stepper with quick amounts, and a line that says what will happen before you commit. No keyboard.'},
     {id:'variants', label:'Header variants and warnings',
@@ -3976,7 +3997,7 @@ button.mark{font-family:inherit;cursor:pointer}
     {id:'gear', label:'Gear tab, Brenna',
      note:'Money first, because it changes most at the table, and each coin opens a pad. Items group by what they are doing: equipped, attuned against the limit of three, and carried. A container opens in place with its contents indented. Each group has its own Edit. No weight, because the data model has no column for it.'},
     {id:'character', label:'Character tab, Brenna',
-     note:'Level-up is manual: the app does not track experience, so the entry is always here and the player starts it when their table levels. The button is the outlined secondary, because a permanent rose button would shout and tapping it only opens a draft. While a level-up is in progress, this card becomes the dashed draft card from the character list. Features and traits group by where they came from, then the profile and notes, each with its own Edit.'},
+     note:'Level-up is manual: the app does not track experience, so the entry is always here and the player starts it when their table levels. The button is the outlined secondary, because a permanent rose button would shout and tapping it only opens a draft. While a level-up is in progress, this card becomes the dashed draft card from the character list. Features and traits group by where they came from, then the profile with its Edit. Notes are the exception to Edit: tap and type, and they save as you go. A long note shows six lines with Show all, and opens fully while you type.'},
     {id:'edit', label:'Editing a section, Alarra',
      note:'Edit turns one block into a draft: dashed border, rose fill and no shadow, the draft skin from the character list, because nothing is real until Save. Steppers change scores, the modifier follows, and a line spells out the knock-on effects first. Other blocks lose their Edit while one is open. The header stays live.'},
     {section:'Detail screens',
@@ -4431,6 +4452,37 @@ button.mark{font-family:inherit;cursor:pointer}
         note.appendChild(replay);
       }
     }
+  });
+
+  // Notes save as you type. A long note shows six lines until expanded or focused.
+  function sizeNote(ta){
+    var wrap = ta.closest('.notewrap'), show = wrap.querySelector('.noteshow');
+    ta.classList.remove('clamped');
+    ta.style.height = 'auto';
+    var cs = getComputedStyle(ta), line = parseFloat(cs.lineHeight), padTop = parseFloat(cs.paddingTop);
+    var cap = line * 6 + padTop + parseFloat(cs.paddingBottom);
+    var full = ta.scrollHeight, focused = document.activeElement === ta, open = wrap.classList.contains('expanded');
+    if(full > cap + 1 && !focused && !open){
+      ta.classList.add('clamped');
+      ta.style.height = Math.floor(line * 6 + padTop) + 'px';
+      ta.scrollTop = 0;
+    } else {
+      ta.style.height = full + 'px';
+    }
+    show.hidden = !(full > cap + 1) || focused;
+    show.textContent = open ? 'Show less' : 'Show all';
+  }
+  document.querySelectorAll('.notearea').forEach(function(ta){
+    var wrap = ta.closest('.notewrap'), status = wrap.querySelector('.notestatus'), show = wrap.querySelector('.noteshow');
+    ta.addEventListener('input', function(){
+      sizeNote(ta); status.textContent = 'Saving';
+      clearTimeout(ta._save); ta._save = setTimeout(function(){ status.textContent = 'Saved'; }, 900);
+    });
+    ta.addEventListener('focus', function(){ sizeNote(ta); });
+    ta.addEventListener('blur', function(){ if(status.textContent === 'Saving'){ clearTimeout(ta._save); status.textContent = 'Saved'; } sizeNote(ta); });
+    show.addEventListener('click', function(e){ e.preventDefault(); wrap.classList.toggle('expanded'); sizeNote(ta); });
+    sizeNote(ta);
+    if(document.fonts) document.fonts.ready.then(function(){ sizeNote(ta); });
   });
 
   var mixer = document.getElementById('mixer');
