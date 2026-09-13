@@ -57,7 +57,7 @@ ul.plain li{margin:3px 0}
   <div class="doc-head-inner">
     <b>5e Companion</b>
     <h1>Character sheet mockups, review</h1>
-    <p>13 September 2026, against <code>mockups/character-sheet.html</code> at commit 1b3cedd, with <code>mockups/character-list.html</code>, <code>docs/design-system.html</code> v0.3 and <code>docs/character-sheet-plan.md</code> as the references. Frame numbers are the gallery's own. Findings are numbered 1 to 45 in reading order, and each number is an anchor. Findings 1 to 23 and 25 were fixed on 13 September 2026; the decisions behind them are in the plan under Decided.</p>
+    <p>13 September 2026, against <code>mockups/character-sheet.html</code> at commit 1b3cedd, with <code>mockups/character-list.html</code>, <code>docs/design-system.html</code> v0.3 and <code>docs/character-sheet-plan.md</code> as the references. Frame numbers are the gallery's own. Findings are numbered 1 to 45 in reading order, and each number is an anchor. Findings 1 to 25 were fixed on 13 September 2026; the decisions behind them are in the plan under Decided.</p>
     <p>The visual system holds. The problems are rules numbers, frames that disagree with each other, promised interactions no frame draws, and some system, markup and copy drift.</p>
   </div>
 </header>
@@ -178,8 +178,8 @@ ul.plain li{margin:3px 0}
   <div class="finding mid" id="f23"><b><a class="num" href="#f23">23</a>The compact header loses the two most frequent controls (frame 2)<span class="tag">Fixed</span></b>
     The hit point number is a plain span and Rest is gone, so both stop being "zero taps away" once the player scrolls. The purple "+5" for temporary hit points also carries its meaning by colour alone, which is the fault the concentration dot was fixed for.<small>Resolved. The compact header shows the first name, one status mark by priority, a tappable hit point number with temporary hit points spelled out, and armour class. The pad opens as a bottom sheet from either header, drawn on frames 5, 50 and 52 to 55. Rest stays out: this finding overstated it, since rests happen between fights, when scrolling back up costs nothing.</small></div>
 
-  <div class="finding low" id="f24"><b><a class="num" href="#f24">24</a>"I rolled" has no entry pad (frames 12, 21)</b>
-    Both screens offer it as an outlined button. Nothing shows where the number goes.</div>
+  <div class="finding low" id="f24"><b><a class="num" href="#f24">24</a>"I rolled" has no entry pad (frames 12, 21)<span class="tag">Fixed</span></b>
+    Both screens offer it as an outlined button. Nothing shows where the number goes.<small>Resolved by frames 56 to 58. Roll and I rolled open one roll sheet: the player taps the face each die showed, the app adds the modifier, and a note says what confirming will do. Rolling in the app plays a stepped, skippable dice animation, and re-roll appears only where a rule grants one.</small></div>
 
   <div class="finding low" id="f25"><b><a class="num" href="#f25">25</a>The damage pad is not "in the header" (frame 5)<span class="tag">Fixed</span></b>
     The plan's working rule says tapping the meter opens the pad in the header. The mockup puts it in the body under the tabs, and the header drops the armour class rail while the pad is open.<small>Resolved by the same change. The pad now opens as the static bottom sheet from either header, and the plan&rsquo;s working rule says so.</small></div>

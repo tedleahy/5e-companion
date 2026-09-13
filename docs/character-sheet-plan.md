@@ -143,8 +143,8 @@ All dated 12 September 2026.
 - In-play values are always live. Persistent facts sit behind a per-section edit
   affordance, which this pass does not draw.
 - The header shrinks from tall to a one-line bar on scroll, and it **animates**
-  between the two continuously rather than snapping. This is the one exception
-  to the system's no-motion rule. The mockup draws the two end states only.
+  between the two continuously rather than snapping. This is one of two exceptions to the system's no-motion rule; the other is
+  the dice roll. The mockup draws the two end states only.
 - A form swap shows the form's numbers as the live ones, with the character's
   own on a line underneath.
 
@@ -275,6 +275,26 @@ All dated 12 September 2026.
   spell. 13 September 2026.
 - Rest stays out of the compact header. Rests happen between fights, when
   scrolling back to the tall header costs nothing. 13 September 2026.
+- Roll and I rolled open one roll sheet. Each die is a big value square with
+  its die size under the number. For I rolled, the player taps the face each
+  die showed, and the app adds the modifier, so nothing is typed and no
+  keyboard covers the sheet. The dice stay editable after an app roll. Up to
+  four dice show separately; five or more collapse into one total entered on a
+  number pad. 13 September 2026.
+- The dice roll is the second motion exception. Each die jumps between fixed
+  poses while its number flicks, stepped rather than smooth, with its rose
+  shadow held still, then sinks onto the shadow to land. It takes about half a
+  second, a tap skips it, reduced motion shows the result at once, and screen
+  readers hear only the result. No other animation follows from this.
+  13 September 2026.
+- The roll's note says what confirming will do before it happens, allowing for
+  caps, and for saves it names the outcome. The confirm button names the result
+  and turns destructive when the result kills. 13 September 2026.
+- There is no free re-roll. Re-roll appears only where a rule grants one, such
+  as the halfling Lucky trait on a 1. 13 September 2026.
+- Where a roll starts inside the hit point pad, as for death and concentration
+  saves, the roll replaces the pad's content in place rather than opening a
+  sheet over a sheet. 13 September 2026.
 - The conditions sheet is the menu's static sheet: a three-column grid of
   names with Custom in the last cell, the chosen condition's end under it, then
   exhaustion and Close. It stops below the header marks. A taller scrolling
@@ -324,7 +344,7 @@ repair screen.
 
 ## Mockup deliverable
 
-`mockups/character-sheet.html`, fifty-five phone frames in eleven sections, built on
+`mockups/character-sheet.html`, fifty-eight phone frames in twelve sections, built on
 the same ink mixer as the character list so a theme change still costs five
 values. Frame numbers count automatically in the gallery.
 
@@ -415,6 +435,12 @@ Death saves:
 Compact header:
 
 55. Hit point pad from the compact header, Mudge
+
+Rolling dice:
+
+56. I rolled: entering the dice from the table
+57. Roll in the app: spending hit dice
+58. A death save rolled inside the pad, with Lucky
 
 A Magic Initiate feat gives Brenna a second casting stat block, and Cure wounds
 reaches her twice, once through the feat and once through an attuned Ring of
@@ -852,6 +878,6 @@ bottom sheet menu, the token colour picker, the dashed Condition control on
 the plate, the condition grid with its end selector, the scrim token, the
 concentration card, the concentration save, and the death save tab with its
 outcome buttons, the hit point pad as a bottom sheet, and the compact status
-slot. They are written in the mockup with the
+slot, and the roll sheet with its dice boxes and face buttons. They are written in the mockup with the
 structural and skin rules split, as v0.3 requires, so they can move across
 without being rewritten.

@@ -52,7 +52,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .resetbtn:hover{border-color:#6f7681;color:#fff}
 .resetbtn[aria-pressed=true]{border-color:#fff;color:#fff}
 /* Debug paint for hit areas. Gallery only, so it may use a colour outside the inks. */
-.show-hits .riso :is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp)::after,.show-hits .riso .pips i::after{background:rgba(255,196,0,.3);box-shadow:inset 0 0 0 1px rgba(255,170,0,.95)}
+.show-hits .riso :is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button)::after,.show-hits .riso .pips i::after{background:rgba(255,196,0,.3);box-shadow:inset 0 0 0 1px rgba(255,170,0,.95)}
 .studio{padding:26px 22px 56px}
 .frames{max-width:1600px;margin:0 auto;display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start}
 .framewrap{width:414px}
@@ -662,14 +662,57 @@ button.mark{font-family:inherit;cursor:pointer}
 .minihp{border:0;font-family:inherit;cursor:pointer}
 .riso .minihp:active,.riso .minihp[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a)}
 
+/* ---- the roll sheet: dice boxes, face buttons and the roll ----
+   One sheet serves Roll and I rolled. Each die is the big value square. While
+   rolling it jumps between fixed poses, stepped rather than smooth, and its rose
+   shadow stays where it is, like a print slipping out of register. It lands by
+   sinking onto the shadow for a beat. Tapping skips to the result, and reduced
+   motion shows the result at once. This and the header shrink are the only
+   motion in the system. */
+.roll{padding:0 8px}
+.dicerow{display:flex;align-items:center;justify-content:center;gap:16px;margin:8px 0 2px;min-height:84px}
+.diewrap{position:relative;width:72px;height:72px;flex:none}
+.dieshadow{position:absolute;inset:0;transform:translate(3px,3px)}
+/* A button sizes to its content even when absolutely positioned, so fill the square explicitly. */
+.die{position:absolute;inset:0;width:100%;height:100%;display:grid;place-content:center;padding:0;font-family:inherit;cursor:pointer}
+.die b{display:block;font-size:30px;font-weight:700;line-height:1}
+.die em{display:block;font-style:normal;font-size:10px;font-weight:700;margin-top:3px}
+.die.p1{transform:translate(-4px,2px) rotate(-8deg)}
+.die.p2{transform:translate(3px,-3px) rotate(6deg)}
+.die.p3{transform:translate(-2px,-4px) rotate(4deg)}
+.die.p4{transform:translate(4px,3px) rotate(-5deg)}
+.die.p5{transform:translate(1px,4px) rotate(8deg)}
+.die.stamp,.die:active{transform:translate(3px,3px)}
+.dieplus{font-size:24px;font-weight:700}
+.dicemath{margin:10px 0 0;text-align:center;font-size:13.5px;font-weight:600}
+.dicemath b{font-size:16px}
+.facegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.facegrid button{min-height:44px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer}
+.roll[data-mode=app]:not([data-editing]) .facegrid{display:none}
+.roll[data-mode=table] .rollhint{display:none}
+.roll.rolling .rollafter,.roll.rolling .dicemath{visibility:hidden}
+.luckyrow[hidden]{display:none}
+.rollconfirm{margin-top:12px}
+.riso .dieshadow{background:var(--b)}
+.riso .die{background:var(--sheet);border:2px solid var(--a);color:var(--a)}
+.riso .die em{color:var(--dim)}
+.riso .die[data-empty] b{color:var(--dim)}
+.riso .die[aria-pressed=true]{background:var(--a);color:var(--on-a)}
+.riso .die[aria-pressed=true] b,.riso .die[aria-pressed=true] em{color:var(--on-a)}
+.riso .dieplus,.riso .dicemath b{color:var(--a)}
+.riso .dicemath{color:var(--dim)}
+.riso .facegrid button{background:var(--sheet);border:1.5px solid var(--a);color:var(--a)}
+.riso .facegrid button:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .castbtn:disabled{background:transparent;color:var(--dim);box-shadow:inset 0 0 0 2px var(--rule);transform:none;cursor:not-allowed}
+
 /* ---- hit areas, web ----
    Every control answers taps across at least 44 by 44. The extension is an
    invisible ::after centred on the control, so nothing moves and nothing looks
    bigger. Where two controls sit closer than that, their areas meet at the
    midpoint of the gap instead of overlapping, and 24 is the floor in that
    direction. Native uses hitSlop with the same numbers. */
-:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp){position:relative}
-:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp)::after{content:"";position:absolute;
+:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button){position:relative}
+:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button)::after{content:"";position:absolute;
   top:min(0px,calc((100% - 44px) / 2));bottom:min(0px,calc((100% - 44px) / 2));
   left:min(0px,calc((100% - 44px) / 2));right:min(0px,calc((100% - 44px) / 2))}
 /* Pips sit 4px apart: 44 tall, and 26 or 24 wide, meeting mid-gap. Rows are
@@ -3697,6 +3740,191 @@ button.mark{font-family:inherit;cursor:pointer}
 </div>
 </template>
 
+<!-- ============================================================
+     ROLLING DICE
+     ============================================================ -->
+<template id="tpl-roll-table">
+<div class="sheet">
+  <div class="shead">
+    <div class="sheadtop">
+      <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+      <div class="who">
+        <h2 class="sname" style="font-size:19px">Rest</h2>
+        <p class="ssub">Brenna Duskhollow</p>
+      </div>
+    </div>
+    <div class="seg"><button class="tab" data-on>Short rest</button><button class="tab">Long rest</button></div>
+    <div class="vitals">
+      <div class="hprow"><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><div class="temp" aria-label="5 temporary hit points"></div></div>
+      <p class="hpline"><b>31</b>/44 hit points, <b>5</b> temporary</p>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Spend hit dice <span>4 of 6 left</span></h3>
+      <div class="padnum" style="margin-top:0">
+        <button class="step" aria-label="One less">&minus;</button>
+        <b>2</b>
+        <button class="step" aria-label="One more">+</button>
+      </div>
+      <p class="padnote">2d8 + 4, because each die adds her Constitution modifier. The average, 13, would take her to 44.</p>
+      <div class="pair"><button class="gobtn">Roll 2d8 + 4</button><button class="gobtn">I rolled</button></div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">What changes</h3>
+      <div class="change"><div><b>Pact magic</b><span>The 3rd-level slot she spent</span></div><strong><em class="was">1</em> &rarr; 2</strong></div>
+      <div class="change"><div><b>Hit points</b><span>Whatever the hit dice roll</span></div><strong><em class="was">31</em> &rarr; 44</strong></div>
+      <div class="change"><div><b>Hit dice</b><span>The 2 she spends</span></div><strong><em class="was">4</em> &rarr; 2</strong></div>
+      <p class="grp" style="margin-top:12px">Not on a short rest</p>
+      <div class="change"><div><b>Hex</b><span>Concentration, 8 hours at 3rd level. An hour&rsquo;s rest doesn&rsquo;t reach it.</span></div><span class="mark" data-t="conc">Active</span></div>
+      <div class="change"><div><b>Dark One&rsquo;s Own Luck</b><span>Long rest only, and still unspent</span></div><strong>1</strong></div>
+      <div class="change"><div><b>Ring of spell storing</b><span>Refilled by casting into it, never by resting</span></div><strong>3 of 5</strong></div>
+    </section>
+  </div>
+
+  <div class="footbar"><button class="castbtn">Take a short rest</button></div>
+  <div class="bscrim" aria-hidden="true"></div>
+  <div class="bsheet" role="dialog" aria-modal="true" aria-label="Spend hit dice">
+    <p class="bsheet-title">Spend 2 hit dice, rolled at the table</p>
+    <div class="roll" data-mode="table" data-kind="heal" data-sides="8" data-mod="4" data-current="31" data-max="44" data-name="Brenna" data-poss="her">
+      <div class="dicerow"><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="First d8, 5"><b>5</b><em>d8</em></button></div><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" data-empty aria-pressed="true" aria-label="Second d8, not entered"><b>?</b><em>d8</em></button></div><span class="dieplus">+4</span></div>
+      <p class="dicemath" aria-live="polite">5 + ? + 4</p>
+      <div class="rollafter">
+        <div class="facegrid" role="group" aria-label="What the die shows"><button>1</button><button>2</button><button>3</button><button>4</button><button>5</button><button>6</button><button>7</button><button>8</button></div>
+        <p class="padnote rollnote">Tap what the second die shows. The +4 is added for you.</p>
+        <p class="padnote rollhint">Tap a die to change it.</p>
+        <button class="castbtn rollconfirm" disabled>Enter both dice</button>
+      </div>
+    </div>
+    <button class="menuitem close">Close</button>
+  </div>
+</div>
+</template>
+
+<template id="tpl-roll-app">
+<div class="sheet">
+  <div class="shead">
+    <div class="sheadtop">
+      <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+      <div class="who">
+        <h2 class="sname" style="font-size:19px">Rest</h2>
+        <p class="ssub">Brenna Duskhollow</p>
+      </div>
+    </div>
+    <div class="seg"><button class="tab" data-on>Short rest</button><button class="tab">Long rest</button></div>
+    <div class="vitals">
+      <div class="hprow"><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><div class="temp" aria-label="5 temporary hit points"></div></div>
+      <p class="hpline"><b>31</b>/44 hit points, <b>5</b> temporary</p>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Spend hit dice <span>4 of 6 left</span></h3>
+      <div class="padnum" style="margin-top:0">
+        <button class="step" aria-label="One less">&minus;</button>
+        <b>2</b>
+        <button class="step" aria-label="One more">+</button>
+      </div>
+      <p class="padnote">2d8 + 4, because each die adds her Constitution modifier. The average, 13, would take her to 44.</p>
+      <div class="pair"><button class="gobtn">Roll 2d8 + 4</button><button class="gobtn">I rolled</button></div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">What changes</h3>
+      <div class="change"><div><b>Pact magic</b><span>The 3rd-level slot she spent</span></div><strong><em class="was">1</em> &rarr; 2</strong></div>
+      <div class="change"><div><b>Hit points</b><span>Whatever the hit dice roll</span></div><strong><em class="was">31</em> &rarr; 44</strong></div>
+      <div class="change"><div><b>Hit dice</b><span>The 2 she spends</span></div><strong><em class="was">4</em> &rarr; 2</strong></div>
+      <p class="grp" style="margin-top:12px">Not on a short rest</p>
+      <div class="change"><div><b>Hex</b><span>Concentration, 8 hours at 3rd level. An hour&rsquo;s rest doesn&rsquo;t reach it.</span></div><span class="mark" data-t="conc">Active</span></div>
+      <div class="change"><div><b>Dark One&rsquo;s Own Luck</b><span>Long rest only, and still unspent</span></div><strong>1</strong></div>
+      <div class="change"><div><b>Ring of spell storing</b><span>Refilled by casting into it, never by resting</span></div><strong>3 of 5</strong></div>
+    </section>
+  </div>
+
+  <div class="footbar"><button class="castbtn">Take a short rest</button></div>
+  <div class="bscrim" aria-hidden="true"></div>
+  <div class="bsheet" role="dialog" aria-modal="true" aria-label="Spend hit dice">
+    <p class="bsheet-title">Spend 2 hit dice, rolled in the app</p>
+    <div class="roll" data-mode="app" data-kind="heal" data-sides="8" data-mod="4" data-final="6,5" data-current="31" data-max="44" data-name="Brenna" data-poss="her">
+      <div class="dicerow"><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="First d8, 6"><b>6</b><em>d8</em></button></div><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="Second d8, 5"><b>5</b><em>d8</em></button></div><span class="dieplus">+4</span></div>
+      <p class="dicemath" aria-live="polite">6 + 5 + 4 = <b>15</b></p>
+      <div class="rollafter">
+        <div class="facegrid" role="group" aria-label="What the die shows"><button>1</button><button>2</button><button>3</button><button>4</button><button>5</button><button>6</button><button>7</button><button>8</button></div>
+        <p class="padnote rollnote"><b>13 hit points restored.</b> Brenna reaches her maximum of 44, so 2 are lost.</p>
+        <p class="padnote rollhint">Tap a die to change it.</p>
+        <button class="castbtn rollconfirm">Restore 13 hit points</button>
+      </div>
+    </div>
+    <button class="menuitem close">Close</button>
+  </div>
+</div>
+</template>
+
+<template id="tpl-roll-death">
+<div class="sheet">
+  <div class="shead attached">
+    <div class="sheadtop">
+      <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+      <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+      <div class="who">
+        <h2 class="sname">Mudge Tealeaf</h2>
+        <p class="ssub">Lightfoot halfling rogue 4, Arcane Trickster</p>
+      </div>
+      <button class="icnbtn" aria-label="Sheet menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+    </div>
+    <div class="vitals" role="button" tabindex="0" aria-expanded="true" aria-label="Hit points 0 of 27, dying, open the pad">
+      <div class="hprow"><div class="meter" data-hurt><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div></div>
+      <p class="hpline"><b>0</b>/27 hit points, dying</p>
+    </div>
+    <div class="dyingbox" role="button" tabindex="0" aria-label="Death saves, 1 success and 2 failures, open the death save pad">
+      <p>Death saves</p>
+      <div class="saves" aria-hidden="true"><span data-k="ok"><i data-on></i><i></i><i></i></span><span data-k="bad"><i data-on></i><i data-on></i><i></i></span></div>
+      <p style="margin-left:auto">1 success, 2 failures</p>
+    </div>
+    <div class="hmarks">
+      <button class="mark" data-t="bad" aria-label="Unconscious, open status">Unconscious</button>
+      <button class="mark" data-t="bad" aria-label="Poisoned, open status">Poisoned</button>
+      <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="tab" data-on><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg><span>Play</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"/><path d="M8 4.8l3 5.2H5z"/></svg><span>Stats</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg><span>Spells</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 6.5h9l-.8 7h-7.4z"/><path d="M6 6.5V5a2 2 0 0 1 4 0v1.5"/></svg><span>Gear</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="5.3" r="2.6"/><path d="M3 14c.6-3 2.5-4.6 5-4.6s4.4 1.6 5 4.6"/></svg><span>Character</span></button>
+  </nav>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips"><i data-on></i><i></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Spell slots</b><span>1st level, long rest</span></div><div class="pips"><i data-on></i><i data-on></i><i data-on></i></div></div>
+    </section>
+  </div>
+  <div class="bscrim" aria-hidden="true"></div>
+  <div class="bsheet" role="dialog" aria-modal="true" aria-label="Death save">
+    <p class="bsheet-title">Mudge Tealeaf</p>
+    <div class="pad">
+      <div class="padtabs"><button data-on>Death save</button><button>Damage</button><button>Heal</button></div>
+      <div class="roll" data-mode="app" data-kind="deathsave" data-sides="20" data-final="1" data-successes="1" data-failures="2" data-lucky="true" data-name="Mudge" style="padding:0">
+        <div class="dicerow"><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="d20, 1"><b>1</b><em>d20</em></button></div></div>
+        <p class="dicemath" aria-live="polite">Natural 1</p>
+        <div class="rollafter">
+          <p class="padnote rollnote"><b>A 1 counts as two failures.</b> That is past three, and Mudge dies.</p>
+          <div class="res luckyrow" style="margin-top:10px"><div class="resl"><b>Lucky</b><span>Halfling trait: re-roll a 1 on a saving throw</span></div><button class="gobtn luckybtn">Re-roll</button></div>
+          <button class="dangerbtn rollconfirm">Confirm, Mudge dies</button>
+        </div>
+      </div>
+    </div>
+    <button class="menuitem close">Close</button>
+  </div>
+</div>
+</template>
+
 <script>
 (function(){
   var BASE = {paper:'#eae6de', sheet:'#f0ece4', a:'#2560b0', b:'#e0689c', mix:'#5c3d88'};
@@ -3825,7 +4053,7 @@ button.mark{font-family:inherit;cursor:pointer}
     {section:'Death saves',
      text:'Finding 22. At 0 hit points the hit point pad gains a Death save tab beside Damage and Heal, so everything that changes a dying character happens in one place. Mudge Tealeaf, later in the fight, continues frame 6.'},
     {id:'death-save', label:'Death save tab, Mudge dying',
-     note:'The vitals block and the death saves both open the pad on this tab. Roll records a save in the app. The four buttons are for a roll made at the table: only the band matters, so there is nothing to type, and the app applies the rules either way. The pips correct a mistake with the usual pip rule. Mark stable covers Spare the dying or a Medicine check by someone else, and fills the successes. Unconscious was added automatically at 0 and leaves when Mudge regains hit points.'},
+     note:'The vitals block and the death saves both open the pad on this tab. Roll turns the tab into the roll in place, as in frame 58. The four buttons are for a roll made at the table: only the band matters, so there is nothing to type, and the app applies the rules either way. The pips correct a mistake with the usual pip rule. Mark stable covers Spare the dying or a Medicine check by someone else, and fills the successes. Unconscious was added automatically at 0 and leaves when Mudge regains hit points.'},
     {id:'death-damage', label:'Damage at 0 hit points',
      note:'At 0, damage is a death save failure, and a critical hit counts as two. Mudge already has two, so the line says this one kills before anything happens, and the button turns destructive and names the outcome. Damage of the maximum or more kills outright, which the app records as three failures.'},
     {id:'bring-back', label:'Bringing back a dead character',
@@ -3833,7 +4061,15 @@ button.mark{font-family:inherit;cursor:pointer}
     {section:'Compact header',
      text:'Finding 23. Once the header shrinks, the hit points still open the pad and the most urgent status still shows.'},
     {id:'hp-compact', label:'Hit point pad from the compact header, Mudge',
-     note:'Scrolled down to the attacks, Mudge taps the hit points and the pad opens over the page, which stays where it was. The status slot holds one mark in the design system&rsquo;s priority order: a condition before concentration. With two conditions it would read Poisoned +1, and tapping it opens the status sheet. The first name leaves room for all of it.'}
+     note:'Scrolled down to the attacks, Mudge taps the hit points and the pad opens over the page, which stays where it was. The status slot holds one mark in the design system&rsquo;s priority order: a condition before concentration. With two conditions it would read Poisoned +1, and tapping it opens the status sheet. The first name leaves room for all of it.'},
+    {section:'Rolling dice',
+     text:'Finding 24. Roll and I rolled open the same roll sheet. The dice are live here: tap face buttons in frame 56, tap a die in frame 57 to change it, and use Replay the roll under frames 57 and 58 to watch the animation again.'},
+    {id:'roll-table', label:'I rolled: entering the dice from the table',
+     note:'The dice are the entry. Tap the face each die showed, from 1 to 8 for a d8, and the app adds the +4, so nothing is typed and no keyboard covers the sheet. The die being entered is inverted. Confirm stays disabled and names what is missing until every die has a value, then the note says what will happen. Try it: tap 7.'},
+    {id:'roll-app', label:'Roll in the app: spending hit dice',
+     note:'Each die jumps between a few fixed poses while its number flicks, then sinks onto its shadow to land, in about half a second. The rose shadow stays still, so the box looks out of register while it rolls. A tap skips to the result, and with reduced motion the result appears at once. The note allows for the cap: 15 rolled, but Brenna only has room for 13. The dice stay editable, and there is no free re-roll.'},
+    {id:'roll-death', label:'A death save rolled inside the pad, with Lucky',
+     note:'Inside the pad the roll replaces the tab&rsquo;s content in place, so no sheet opens over a sheet. A natural 1 would kill Mudge, so the confirm button turns destructive. Re-roll appears only because a rule grants it: the halfling Lucky trait re-rolls a 1 on a saving throw. Press Re-roll to see it land on something else.'}
   ];
 
   function hexToRgb(hex){
@@ -4070,6 +4306,120 @@ button.mark{font-family:inherit;cursor:pointer}
       g.querySelectorAll('button').forEach(function(x){ x.removeAttribute('data-on'); });
       b.setAttribute('data-on','');
     });
+  });
+
+  // The roll sheet. Dice roll with a stepped jiggle, land with a stamp, and a tap
+  // skips ahead. Frames 57 and 58 play once when they come into view, landing on
+  // their drawn values; Replay and Re-roll roll for real.
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var POSES = ['p1','p2','p3','p4','p5'];
+  function d(n){ return 1 + Math.floor(Math.random() * n); }
+  function diceOf(roll){ return Array.prototype.slice.call(roll.querySelectorAll('.die')); }
+  function updateRoll(roll){
+    var dice = diceOf(roll), ds = roll.dataset, name = ds.name;
+    var vals = dice.map(function(el){ return el.hasAttribute('data-empty') ? null : +el.querySelector('b').textContent; });
+    var math = roll.querySelector('.dicemath'), note = roll.querySelector('.rollnote'), btn = roll.querySelector('.rollconfirm');
+    if(ds.kind === 'heal'){
+      var mod = +ds.mod, cur = +ds.current, max = +ds.max, missing = vals.indexOf(null);
+      var parts = vals.map(function(v){ return v === null ? '?' : v; }).join(' + ') + ' + ' + mod;
+      if(missing >= 0){
+        math.innerHTML = parts;
+        note.innerHTML = 'Tap what the ' + ['first','second','third','fourth'][missing] + ' die shows. The +' + mod + ' is added for you.';
+        btn.disabled = true; btn.textContent = dice.length === 2 ? 'Enter both dice' : 'Enter every die';
+        return;
+      }
+      var total = vals.reduce(function(a, b){ return a + b; }, 0) + mod, room = max - cur, restored = Math.min(total, room);
+      math.innerHTML = parts + ' = <b>' + total + '</b>';
+      note.innerHTML = total > room
+        ? '<b>' + restored + ' hit points restored.</b> ' + name + ' reaches ' + ds.poss + ' maximum of ' + max + ', so ' + (total - room) + ' ' + (total - room === 1 ? 'is' : 'are') + ' lost.'
+        : '<b>' + restored + ' hit points restored.</b> ' + name + ' goes from ' + cur + ' to ' + (cur + restored) + '.';
+      btn.disabled = false; btn.textContent = 'Restore ' + restored + ' hit points';
+    } else if(ds.kind === 'deathsave'){
+      var v = vals[0], s = +ds.successes, f = +ds.failures, dies = false;
+      math.textContent = (v === 1 || v === 20) ? 'Natural ' + v : 'Rolled ' + v;
+      if(v === 1){ dies = f + 2 >= 3; note.innerHTML = '<b>A 1 counts as two failures.</b> ' + (dies ? 'That is past three, and ' + name + ' dies.' : 'That makes ' + (f + 2) + '.'); }
+      else if(v < 10){ dies = f + 1 >= 3; note.innerHTML = '<b>A failure.</b> ' + (dies ? 'That makes three, and ' + name + ' dies.' : 'That makes ' + (f + 1) + '.'); }
+      else if(v < 20){ note.innerHTML = '<b>A success.</b> ' + (s + 1 >= 3 ? 'That makes three, and ' + name + ' is stable.' : 'That makes ' + (s + 1) + ' of 3.'); }
+      else { note.innerHTML = '<b>A natural 20.</b> ' + name + ' is back up with 1 hit point.'; }
+      btn.className = (dies ? 'dangerbtn' : 'castbtn') + ' rollconfirm';
+      btn.textContent = dies ? 'Confirm, ' + name + ' dies' : 'Confirm';
+      var lucky = roll.querySelector('.luckyrow');
+      if(lucky) lucky.hidden = !(v === 1 && ds.lucky === 'true');
+    }
+  }
+  function rollDice(roll, finals){
+    var dice = diceOf(roll), sides = +roll.dataset.sides, step = 0;
+    var values = dice.map(function(el, i){ return finals ? finals[i] : d(sides); });
+    if(roll._timer) clearInterval(roll._timer);
+    function settle(){
+      clearInterval(roll._timer); roll._timer = null; roll._skip = null;
+      dice.forEach(function(el, i){
+        POSES.forEach(function(p){ el.classList.remove(p); });
+        el.querySelector('b').textContent = values[i];
+        el.removeAttribute('data-empty'); el.setAttribute('aria-pressed', 'false');
+        el.setAttribute('aria-label', 'd' + sides + ', ' + values[i]);
+        if(!reduceMotion) el.classList.add('stamp');
+      });
+      roll.classList.remove('rolling'); roll.removeAttribute('data-editing');
+      updateRoll(roll);
+      setTimeout(function(){ dice.forEach(function(el){ el.classList.remove('stamp'); }); }, 140);
+    }
+    if(reduceMotion){ settle(); return; }
+    roll.classList.add('rolling');
+    roll._skip = settle;
+    roll._timer = setInterval(function(){
+      step++;
+      dice.forEach(function(el){
+        POSES.forEach(function(p){ el.classList.remove(p); });
+        el.classList.add(POSES[Math.floor(Math.random() * POSES.length)]);
+        el.querySelector('b').textContent = d(sides);
+      });
+      if(step >= 6) settle();
+    }, 80);
+  }
+  document.querySelectorAll('.roll').forEach(function(roll){
+    updateRoll(roll);
+    var sheet = roll.closest('.bsheet');
+    sheet.addEventListener('click', function(e){
+      if(roll._skip){ e.stopPropagation(); e.preventDefault(); roll._skip(); }
+    }, true);
+    roll.addEventListener('click', function(e){
+      var face = e.target.closest('.facegrid button'), dieBtn = e.target.closest('.die'), lucky = e.target.closest('.luckybtn');
+      var dice = diceOf(roll);
+      if(dieBtn){
+        dice.forEach(function(el){ el.setAttribute('aria-pressed', 'false'); });
+        dieBtn.setAttribute('aria-pressed', 'true');
+        roll.setAttribute('data-editing', '');
+      } else if(face){
+        var target = roll.querySelector('.die[aria-pressed=true]') || dice.filter(function(el){ return el.hasAttribute('data-empty'); })[0];
+        if(!target) return;
+        target.querySelector('b').textContent = face.textContent;
+        target.removeAttribute('data-empty'); target.setAttribute('aria-pressed', 'false');
+        var next = dice.filter(function(el){ return el.hasAttribute('data-empty'); })[0];
+        if(next) next.setAttribute('aria-pressed', 'true');
+        else if(roll.dataset.mode === 'app') roll.removeAttribute('data-editing');
+        updateRoll(roll);
+      } else if(lucky){
+        rollDice(roll);
+      }
+    });
+    if(roll.dataset.mode === 'app'){
+      var finals = (roll.dataset.final || '').split(',').map(Number);
+      var played = false;
+      function playOnce(){ if(!played && !/[?&]still\b/.test(location.search)){ played = true; rollDice(roll, finals); } }
+      if('IntersectionObserver' in window){
+        var io = new IntersectionObserver(function(entries){ entries.forEach(function(en){ if(en.isIntersecting){ playOnce(); io.disconnect(); } }); }, {threshold: 0.4});
+        io.observe(roll);
+      } else { playOnce(); }
+      var note = roll.closest('.framewrap') && roll.closest('.framewrap').querySelector('.frame-note');
+      if(note){
+        var replay = document.createElement('button');
+        replay.type = 'button'; replay.className = 'resetbtn'; replay.style.margin = '8px 0 0'; replay.style.display = 'block';
+        replay.textContent = 'Replay the roll';
+        replay.addEventListener('click', function(){ rollDice(roll); });
+        note.appendChild(replay);
+      }
+    }
   });
 
   var mixer = document.getElementById('mixer');
