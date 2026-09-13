@@ -174,14 +174,16 @@ All dated 12 September 2026.
 - The sheet menu holds Add a spell, shown only for a character without a
   Spells tab, Edit basic details and Delete character. It opens as a static bottom sheet that
   appears instantly, with no drag, and closes on a tap outside or its Close row.
-  It is the system's one overlay. 13 September 2026.
+  It is the system's one overlay shape; the conditions picker reuses it.
+  13 September 2026.
 - Adding a feature from the catalog searches class and subclass features and
   racial traits, the only feature catalogs the data model has. Feats and
   background features come through the custom form. 13 September 2026.
 - The app does not use experience points in the MVP. Levelling up is manual:
   the player starts it whenever their table levels, and nothing prompts it.
 - Detail screens offer Roll only where the app stores the result: hit dice, hit
-  points and death saves, and so drinking a healing potion. Skills, saving
+  points and death saves, drinking a healing potion, and concentration saves,
+  because a lost save ends the concentration anchor. Skills, saving
   throws and attacks show their numbers and the table rolls.
 - Item details carry full item management: equip, attune, quantity, move
   between places and containers, and remove.
@@ -190,6 +192,90 @@ All dated 12 September 2026.
 - Unticking a prepared spell, and the reason behind an override, stay as the
   data model has them for now. The model does not change, and the sheet shows an
   override without a reason.
+
+- Saving throws are proficient or not. Their detail offers None and Proficient
+  only; half and expertise stay with skills and tools. 13 September 2026.
+- Every value on the header plate opens its detail, whether or not it carries
+  an override: the armour class ring and the initiative, speed and spell save
+  tiles are all buttons. 13 September 2026.
+- A character with a level-up draft keeps a normal row in the character list,
+  with a Levelling up mark, and also appears in the draft tray with Resume.
+  Only creation drafts are tray only, because they have no character yet.
+  13 September 2026.
+- Where the imported data differs from the printed SRD, the data is corrected
+  in `srd-json-files` and the correction recorded in ATTRIBUTION.md, so the
+  mockups and the app both follow the book. Two corrections so far: the
+  warlock's invocations at level 6, and the disguise kit's tool category.
+  13 September 2026.
+- The two example characters are drawn mid-session so the rest screens have
+  something to show: Brenna has spent one pact slot, and Alarra is at 38 of 52
+  with one Channel Divinity and two hit dice spent. The character list agrees.
+  13 September 2026.
+
+- Conditions change from a bottom sheet. A dashed Condition control sits with
+  the header marks, and tapping any condition mark opens the same sheet. It
+  toggles live: a tap adds a condition with no end, and a second tap removes
+  it. 13 September 2026.
+- The condition just added offers an optional end: by hand, rounds counted down
+  by hand, any rest, or a long rest. These are the data model's empty
+  `expiry_triggers`, `remaining_rounds` ticking at the end of the character's
+  own turn, `short_rest` with `long_rest`, and `long_rest`. A save that ends a
+  condition stays by hand, because the model has no save trigger. Exhaustion is
+  a level stepper in the same sheet, and a custom condition opens its own
+  screen, as every Add does. 13 September 2026.
+- Inspiration and concentration stay out of the conditions sheet; they are
+  review finding 21. 13 September 2026.
+- A character's concentration is a CharacterEffects anchor row with
+  `is_concentration` set, one per character, written when a concentration spell
+  is cast. The header's concentration mark, the compact header and the spell
+  detail's concentration card all read the anchor. Ending it removes the anchor
+  and every effect that shares its instance key. See Concentration under
+  CharacterEffects in data-model.md. 13 September 2026.
+- The conditions sheet is the status sheet. Inspiration sits at the top as a
+  toggle, then the conditions grid, then exhaustion. Every mark on the plate
+  opens it except concentration, and so does the Condition control. Unticking
+  inspiration spends it. 13 September 2026.
+- The concentration mark, on the tall and the compact header, opens the spell's
+  detail. A concentration card in overprint ink leads it: duration at the level
+  cast, what ends it, the target from the anchor's notes, and End
+  concentration. Ending acts at once, because opening the detail is the
+  deliberate step. 13 September 2026.
+- Concentration prompts sit where it breaks. After damage, the hit point pad
+  becomes a concentration save with its DC, Roll, Kept and Lost. While
+  concentrating, the status sheet names the conditions that would end it.
+  Casting another concentration spell warns on its detail, and its Cast button
+  names what it ends. None of these block. 13 September 2026.
+- At 0 hit points the hit point pad gains a Death save tab beside Damage and
+  Heal. The vitals block and the header's death saves both open it.
+  13 September 2026.
+- A death save is recorded by Roll, or by one of four buttons for a roll made at
+  the table: 1, 2 to 9, 10 to 19, and 20. Only the band matters, so nothing is
+  typed, and the app applies the rules either way. The success and failure pips
+  correct mistakes with the pip rule. Mark stable covers stabilising by someone
+  else and fills the successes. 13 September 2026.
+- Damage at 0 hit points is a death save failure, with a critical hit toggle for
+  two. When the damage would kill, the pad says so and its button turns
+  destructive and names the outcome. Damage of the maximum or more kills
+  outright and is stored as three failures. 13 September 2026.
+- Dropping to 0 adds Unconscious automatically, and it ends when hit points
+  come back. A dead character's pad offers Bring back in place of Heal,
+  defaulting to 1 hit point, which clears both counts. 13 September 2026.
+- The conditions sheet is the menu's static sheet: a three-column grid of
+  names with Custom in the last cell, the chosen condition's end under it, then
+  exhaustion and Close. It stops below the header marks. A taller scrolling
+  sheet with a summary per condition was drawn and dropped, because half its
+  list sat below the fold and its handle bar read as draggable. 13 September
+  2026.
+- The one-overlay rule widens to one overlay shape. The static bottom sheet
+  may hold a quick in-play picker as well as the sheet menu. Detail screens
+  stay full-screen pushes, and anything that commits from a footer stays a
+  pushed screen. 13 September 2026.
+- The static bottom sheet is modal. A scrim dims the whole screen behind it,
+  so the page reads as inert, and a tap on the scrim closes the sheet. The
+  scrim is a derived token, `--scrim`, ink at 40%, so it follows the inks and a
+  future dark set can derive its own. It appears instantly like the sheet. The
+  sheet has no handle bar, because nothing drags. On web the sheet is a dialog
+  with `aria-modal` and traps focus. 13 September 2026.
 
 ## Working rules for the drawing
 
@@ -221,7 +307,7 @@ repair screen.
 
 ## Mockup deliverable
 
-`mockups/character-sheet.html`, forty-six phone frames in seven sections, built on
+`mockups/character-sheet.html`, fifty-four phone frames in ten sections, built on
 the same ink mixer as the character list so a theme change still costs five
 values. Frame numbers count automatically in the gallery.
 
@@ -291,6 +377,23 @@ The catalog search and the sheet menu:
 44. Sheet menu, for a character without spells
 45. Editing basic details
 46. Deleting a character
+
+Conditions:
+
+47. Status sheet, Mudge
+
+Inspiration and concentration:
+
+48. Status sheet with inspiration, Brenna
+49. Concentration on the spell detail, Hex
+50. Concentration save after damage
+51. Casting a second concentration spell
+
+Death saves:
+
+52. Death save tab, Mudge dying
+53. Damage at 0 hit points
+54. Bringing back a dead character
 
 A Magic Initiate feat gives Brenna a second casting stat block, and Cure wounds
 reaches her twice, once through the feat and once through an attuned Ring of
@@ -662,8 +765,9 @@ Drawn 13 September 2026 against the SRD data and the data model.
   a sheet-coloured panel with a structural top border and the rose rule above
   it, a small title naming the character, and one 56-tall row per action with
   an outline icon and a dim second line. It appears instantly, with no drag and
-  no slide, and closes on a tap outside or an outlined Close row. It is the only
-  overlay in the system, and its rows sit within thumb reach.
+  no slide, over a scrim that dims the page, and closes on a tap on the scrim or
+  an outlined Close row. It is the only overlay shape in the system, shared with
+  the conditions picker, and its rows sit within thumb reach.
 - While the sheet is open, the menu button shows the pressed ring.
 - Rows: Add a spell, only for a character with no Spells tab; Edit basic
   details; and Delete character, separated and in rose text ink.
@@ -723,6 +827,9 @@ proficiency rank selector, the money pad, drag handles and staged removal in
 list editing, the add search with its custom row, the removal choice screens,
 the known forms row, the access path summary card, three and six option
 selectors, the small destructive button, disabled rows marked Known, the static
-bottom sheet menu, and the token colour picker. They are written in the mockup with the
+bottom sheet menu, the token colour picker, the dashed Condition control on
+the plate, the condition grid with its end selector, the scrim token, the
+concentration card, the concentration save, and the death save tab with its
+outcome buttons. They are written in the mockup with the
 structural and skin rules split, as v0.3 requires, so they can move across
 without being rewritten.
