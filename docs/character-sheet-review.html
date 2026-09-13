@@ -57,7 +57,7 @@ ul.plain li{margin:3px 0}
   <div class="doc-head-inner">
     <b>5e Companion</b>
     <h1>Character sheet mockups, review</h1>
-    <p>13 September 2026, against <code>mockups/character-sheet.html</code> at commit 1b3cedd, with <code>mockups/character-list.html</code>, <code>docs/design-system.html</code> v0.3 and <code>docs/character-sheet-plan.md</code> as the references. Frame numbers are the gallery's own. Findings are numbered 1 to 45 in reading order, and each number is an anchor. Findings 1 to 29 were fixed on 13 September 2026; the decisions behind them are in the plan under Decided.</p>
+    <p>13 September 2026, against <code>mockups/character-sheet.html</code> at commit 1b3cedd, with <code>mockups/character-list.html</code>, <code>docs/design-system.html</code> v0.3 and <code>docs/character-sheet-plan.md</code> as the references. Frame numbers are the gallery's own. Findings are numbered 1 to 45 in reading order, and each number is an anchor. Findings 1 to 29 were fixed on 13 September 2026, and finding 30 on 14 September 2026; the decisions behind them are in the plan under Decided.</p>
     <p>The visual system holds. The problems are rules numbers, frames that disagree with each other, promised interactions no frame draws, and some system, markup and copy drift.</p>
   </div>
 </header>
@@ -201,8 +201,8 @@ ul.plain li{margin:3px 0}
   <div class="finding low" id="f29"><b><a class="num" href="#f29">29</a>The origin line floats on bare paper (frames 23, 35)<span class="tag">Fixed</span></b>
     On every other detail screen it sits inside the rules card. Here it is dim text on the grid, below the disclosure.<small>Resolved. On frames 23 and 35 the folded rules text and the origin line now share one bordered fold, so the origin sits inside a card as it does on every other detail screen.</small></div>
 
-  <div class="finding low" id="f30"><b><a class="num" href="#f30">30</a>Redundant labels (frames 17, 19, 20)</b>
-    Frame 17 says "Belt" three times: the toggle's subtitle, its mark and the Move row. Frames 19 and 20 pair an Equipped or Attuned toggle with a mark that repeats the same word.</div>
+  <div class="finding low" id="f30"><b><a class="num" href="#f30">30</a>Redundant labels (frames 17, 19, 20)<span class="tag">Fixed</span></b>
+    Frame 17 says "Belt" three times: the toggle's subtitle, its mark and the Move row. Frames 19 and 20 pair an Equipped or Attuned toggle with a mark that repeats the same word.<small>Resolved by dropping the echoing marks. A toggle mark stays only when it names something the title does not. The slot lives on the Move row. Frame 19's Equipped subtitle is now "On her body".</small></div>
 
   <div class="finding low" id="f31"><b><a class="num" href="#f31">31</a>The structure and skin split leaks</b>
     Structural rules carry ink tokens: the row borders on <code>.res</code>, <code>.atk</code>, <code>.act</code>, <code>.prep</code>, <code>.calc</code>, <code>.change</code>, <code>.editrow</code>, <code>.erow</code>, <code>.form</code>, <code>.origin</code> and <code>.para</code>, and the fills on <code>.temp</code>, <code>.pips i</code> and <code>.over</code>. Two <code>.bhead</code> and two <code>.tabs</code> declarations override each other. Every detail title sets 19px inline. <code>.tok</code> keeps raw hex fallbacks in both mockups, and the list mockup's structural layer sets text opacity that the skin then cancels, though the system says opacity on text is banned.</div>

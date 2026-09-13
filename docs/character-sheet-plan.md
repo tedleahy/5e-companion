@@ -332,6 +332,9 @@ All dated 12 September 2026.
   future dark set can derive its own. It appears instantly like the sheet. The
   sheet has no handle bar, because nothing drags. On web the sheet is a dialog
   with `aria-modal` and traps focus. 13 September 2026.
+- A mark on an item-detail toggle stays only when it names something the title
+  does not. Equipped and Attuned do not repeat themselves as marks. The slot
+  lives on the Move row. 14 September 2026.
 
 ## Working rules for the drawing
 
@@ -668,8 +671,9 @@ Drawn 12 September 2026 against the SRD data and the data model.
 
 - Weapons lead with to hit, damage and range for this character, and name the
   ability used. Armour leads with what it does to armour class.
-- Controls: an Equipped toggle with its slot as a mark, a quantity stepper for
-  stacks, where the item is with a Move button, and Remove at the foot.
+- Controls: an Equipped toggle, a quantity stepper for stacks, where the item
+  is with a Move button, and Remove at the foot. A mark on a toggle stays only
+  when it names something the title does not. The slot lives on the Move row.
 - Toggles reuse the preparation row. Remove is a new destructive button, outlined
   in rose text ink with no shadow, so it never looks like the primary action.
 - Move is a pushed screen that asks how many before where. Moving part of a stack
