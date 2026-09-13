@@ -440,6 +440,7 @@ languages be browsed as catalog content like any other source material.
 - `description`: text, nullable
 - `origins`: JSONB array, default `[]`
 - `state`: JSONB, default `{}`
+- `position`: non-negative integer, default 0
 
 ```sql
 CHECK (num_nonnulls(feature_id, trait_id) <= 1)
@@ -461,6 +462,13 @@ The name follows the broader of the two rulebook terms. The character sheet
 presents this list as "Features & Traits" and the API should use that label;
 the table keeps the shorter name because `character_features_and_traits` buys
 nothing at the storage layer.
+
+`position` is the player's order for the character's features and traits. The
+sheet sorts by it inside each origin group. It is not unique; ties sort by `id`.
+A new row takes one more than the character's current maximum, so features
+granted during creation and level-up keep the order advancement produced them
+in. Reordering rewrites the positions of that character's features in one
+transaction.
 
 ## CharacterSpells
 
@@ -600,9 +608,17 @@ Rage, Ki, Wild Shape uses, and Arcane Recovery all use this table.
 - `origins`: JSONB array, default `[]`
 - `state`: JSONB, default `{}`
 - `notes`: text, nullable
+- `position`: non-negative integer, default 0
 
 The nullable self-reference represents backpacks and other containers. The app
 prevents container cycles. Manual items leave `equipment_id` null.
+
+`position` is the player's order for the character's items. The sheet sorts by
+it inside whichever group shows an item: equipped, attuned, carried, or one
+container's contents. It is not unique; ties sort by `id`. A new row, manual or
+granted, takes one more than the character's current maximum. A row split from a
+stack takes the original row's position, so the copies stay together. Reordering
+rewrites the positions of that character's items in one transaction.
 
 Stack only copies that are interchangeable: the same catalog or manual
 identity, and the same equipped flag, slot, attunement, container, `state`,
@@ -901,7 +917,8 @@ remains.
 
 Reconciliation preserves player-owned and in-play fields on a surviving row:
 spell preparation and overrides, resource `current` and overrides, feature and
-resource state, and item quantity, equipment state, container, and notes. A new
+resource state, item quantity, equipment state, container, and notes, and
+the `position` of features and items. A new
 item row receives its granted quantity once. Later reconciliation does not
 restore consumed or sold quantities. If an old choice removes an entire row
 that still has player state, the draft review shows that pending deletion before
