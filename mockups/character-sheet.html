@@ -728,6 +728,15 @@ button.mark{font-family:inherit;cursor:pointer}
 .pathnote > span{display:block;font-size:11.5px;font-weight:700;margin-bottom:5px}
 .riso .pathnote > span{color:var(--dim)}
 
+/* ---- folded rules text with its origin ----
+   Where the rules text folds away, the origin line sits inside the fold, so it
+   never floats on bare paper. The fold keeps the disclosure bar's look. */
+.rulesfold{padding:0 12px 11px}
+.riso .rulesfold{background:var(--sheet);border:2px solid var(--a)}
+.rulesfold > .disclose{padding:11px 0}
+.riso .rulesfold > .disclose{border:0;background:none}
+.rulesfold > .origin{margin-top:0}
+
 /* ---- hit areas, web ----
    Every control answers taps across at least 44 by 44. The extension is an
    invisible ::after centred on the control, so nothing moves and nothing looks
@@ -2283,8 +2292,10 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <button class="castbtn small" style="margin-top:11px">Use, spends 1</button>
     </div>
 
-    <button class="disclose">Rules text<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
-    <p class="origin" style="border:0;margin-top:0">From Cleric 2, with a second use at cleric 6. Preserve Life from the Life domain.</p>
+    <div class="rulesfold">
+      <button class="disclose">Rules text<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
+      <p class="origin">From Cleric 2, with a second use at cleric 6. Preserve Life from the Life domain.</p>
+    </div>
   </div>
 </div>
 </template>
@@ -2768,8 +2779,10 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a beast form</button>
     </section>
 
-    <button class="disclose">Rules text<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
-    <p class="origin" style="border:0;margin-top:0">From Druid 2. The limit rose at druid 4 and 8.</p>
+    <div class="rulesfold">
+      <button class="disclose">Rules text<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
+      <p class="origin">From Druid 2. The limit rose at druid 4 and 8.</p>
+    </div>
   </div>
 </div>
 </template>

@@ -57,7 +57,7 @@ ul.plain li{margin:3px 0}
   <div class="doc-head-inner">
     <b>5e Companion</b>
     <h1>Character sheet mockups, review</h1>
-    <p>13 September 2026, against <code>mockups/character-sheet.html</code> at commit 1b3cedd, with <code>mockups/character-list.html</code>, <code>docs/design-system.html</code> v0.3 and <code>docs/character-sheet-plan.md</code> as the references. Frame numbers are the gallery's own. Findings are numbered 1 to 45 in reading order, and each number is an anchor. Findings 1 to 28 were fixed on 13 September 2026; the decisions behind them are in the plan under Decided.</p>
+    <p>13 September 2026, against <code>mockups/character-sheet.html</code> at commit 1b3cedd, with <code>mockups/character-list.html</code>, <code>docs/design-system.html</code> v0.3 and <code>docs/character-sheet-plan.md</code> as the references. Frame numbers are the gallery's own. Findings are numbered 1 to 45 in reading order, and each number is an anchor. Findings 1 to 29 were fixed on 13 September 2026; the decisions behind them are in the plan under Decided.</p>
     <p>The visual system holds. The problems are rules numbers, frames that disagree with each other, promised interactions no frame draws, and some system, markup and copy drift.</p>
   </div>
 </header>
@@ -198,8 +198,8 @@ ul.plain li{margin:3px 0}
   <div class="finding mid" id="f28"><b><a class="num" href="#f28">28</a>Read-only text looks editable (frames 4, 15)<span class="tag">Fixed</span></b>
     The Notes block and "Your note" use the same wash and inset rule as the real inputs on frames 30, 33 and 45. In view mode they invite a tap that does nothing until Edit.<small>Resolved by making the look honest. Notes on frames 4 and 15 are now fields you type straight into, saved as you go, with a six-line clamp and Show all for long notes. The spell note moved onto each way-to-cast card, matching the data model, which also gives frame 4 a way to edit it.</small></div>
 
-  <div class="finding low" id="f29"><b><a class="num" href="#f29">29</a>The origin line floats on bare paper (frames 23, 35)</b>
-    On every other detail screen it sits inside the rules card. Here it is dim text on the grid, below the disclosure.</div>
+  <div class="finding low" id="f29"><b><a class="num" href="#f29">29</a>The origin line floats on bare paper (frames 23, 35)<span class="tag">Fixed</span></b>
+    On every other detail screen it sits inside the rules card. Here it is dim text on the grid, below the disclosure.<small>Resolved. On frames 23 and 35 the folded rules text and the origin line now share one bordered fold, so the origin sits inside a card as it does on every other detail screen.</small></div>
 
   <div class="finding low" id="f30"><b><a class="num" href="#f30">30</a>Redundant labels (frames 17, 19, 20)</b>
     Frame 17 says "Belt" three times: the toggle's subtitle, its mark and the Move row. Frames 19 and 20 pair an Equipped or Attuned toggle with a mark that repeats the same word.</div>

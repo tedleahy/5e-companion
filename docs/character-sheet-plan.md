@@ -312,6 +312,9 @@ All dated 12 September 2026.
 - A spell note belongs to one way to cast, because CharacterSpells stores notes
   per access path. Each path card on the spell detail carries its own note
   field, and there is no spell-wide note. 13 September 2026.
+- The origin line always sits inside a card. Where the rules text folds away
+  behind a disclosure, the disclosure and the origin line share one bordered
+  fold, so the origin never floats on bare paper. 13 September 2026.
 - The conditions sheet is the menu's static sheet: a three-column grid of
   names with Custom in the last cell, the chosen condition's end under it, then
   exhaustion and Close. It stops below the header marks. A taller scrolling
