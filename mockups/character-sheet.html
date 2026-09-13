@@ -52,7 +52,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .resetbtn:hover{border-color:#6f7681;color:#fff}
 .resetbtn[aria-pressed=true]{border-color:#fff;color:#fff}
 /* Debug paint for hit areas. Gallery only, so it may use a colour outside the inks. */
-.show-hits .riso :is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem)::after,.show-hits .riso .pips i::after{background:rgba(255,196,0,.3);box-shadow:inset 0 0 0 1px rgba(255,170,0,.95)}
+.show-hits .riso :is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button)::after,.show-hits .riso .pips i::after{background:rgba(255,196,0,.3);box-shadow:inset 0 0 0 1px rgba(255,170,0,.95)}
 .studio{padding:26px 22px 56px}
 .frames{max-width:1600px;margin:0 auto;display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start}
 .framewrap{width:414px}
@@ -141,7 +141,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .hpline{margin:6px 0 0;font-size:12px;font-weight:500}
 .shead > .hpline{margin-top:11px}
 .rail{display:flex;gap:8px;align-items:center;margin-top:12px}
-.tile{flex:1;padding:5px 6px 6px;text-align:center;min-width:0}
+.tile{flex:1;padding:5px 6px 6px;text-align:center;min-width:0;border:0;font-family:inherit;cursor:pointer}
 .tile b{display:block;font-size:17px;font-weight:700;line-height:1.1}
 .tile em{display:block;font-style:normal;font-size:10px;font-weight:600;margin-top:2px;white-space:nowrap}
 .hmarks{display:flex;gap:6px;align-items:center;margin-top:12px;flex-wrap:wrap}
@@ -161,6 +161,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .riso .shead .tok{box-shadow:0 0 0 2px var(--sheet),4px 4px 0 var(--b)}
 .riso .tile{background:var(--sheet);color:var(--a)}
 .riso .tile em{color:var(--dim)}
+.riso .tile:active{box-shadow:inset 0 0 0 2px var(--a)}
 .riso .restbtn{background:var(--b);color:var(--on-b)}
 .riso .restbtn:active{box-shadow:inset 0 0 0 2px currentColor}
 .riso .dyingbox{background:var(--sheet);color:var(--ink)}
@@ -566,6 +567,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .dangerbtn.small{width:auto;padding:8px 12px;font-size:13px;margin-top:10px}
 
 /* ---- selector widths for three and six options ---- */
+.rankseg.two{grid-template-columns:repeat(2,1fr)}
 .rankseg.three{grid-template-columns:repeat(3,1fr)}
 .rankseg.six{grid-template-columns:repeat(6,1fr);gap:5px}
 .rankseg.six button{min-height:48px}
@@ -580,9 +582,13 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .riso .tokpick button[aria-pressed=true]{background:var(--sheet);box-shadow:inset 0 0 0 2px var(--a)}
 
 /* ---- static bottom sheet: the sheet menu ----
-   The system's one overlay. It appears instantly, with no drag and no slide,
-   and closes on a tap outside or its Close row. It borrows the rose rule the
+   The one overlay shape. The sheet menu and the conditions picker use it; it
+   appears instantly, with no drag and no slide, and closes on a tap outside or
+   its Close row. It is modal: a scrim in ink at 40% dims everything behind it,
+   so the page reads as inert and a tap on the scrim closes the sheet. It borrows the rose rule the
    bottom tab bar once had, so it reads as laid over the page. */
+.bscrim{position:absolute;inset:0;z-index:5}
+.riso .bscrim,.bscrim{background:var(--scrim)}
 .bsheet{position:sticky;bottom:0;z-index:6;margin-top:auto;padding:10px 12px 18px}
 .riso .bsheet{background:var(--sheet);border-top:2px solid var(--a);box-shadow:0 -5px 0 var(--b)}
 .bsheet-title{margin:4px 8px 4px;font-size:11.5px;font-weight:700}
@@ -602,14 +608,23 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .riso .menuitem.close{box-shadow:inset 0 0 0 2px var(--a)}
 .riso .shead .icnbtn[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--on-a)}
 
+/* ---- conditions: the entry on the plate, and the picker inside a bottom sheet ----
+   The entry is dashed like every Add. A condition mark is a button that opens
+   the same sheet. The sheet toggles live: tapping adds, tapping again removes. */
+.addmark{display:inline-flex;align-items:center;gap:5px;font-family:inherit;font-size:11px;font-weight:700;padding:3px 8px 3px 6px;line-height:1.35;cursor:pointer;white-space:nowrap}
+.addmark svg{width:11px;height:11px;flex:none}
+button.mark{font-family:inherit;cursor:pointer}
+.riso .addmark{background:transparent;color:var(--on-a);border:1.5px dashed var(--on-a)}
+.riso .addmark:active,.riso .addmark[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--on-a)}
+.riso button.mark:active{box-shadow:inset 0 0 0 2px currentColor}
 /* ---- hit areas, web ----
    Every control answers taps across at least 44 by 44. The extension is an
    invisible ::after centred on the control, so nothing moves and nothing looks
    bigger. Where two controls sit closer than that, their areas meet at the
    midpoint of the gap instead of overlapping, and 24 is the floor in that
    direction. Native uses hitSlop with the same numbers. */
-:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem){position:relative}
-:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem)::after{content:"";position:absolute;
+:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark){position:relative}
+:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button])::after{content:"";position:absolute;
   top:min(0px,calc((100% - 44px) / 2));bottom:min(0px,calc((100% - 44px) / 2));
   left:min(0px,calc((100% - 44px) / 2));right:min(0px,calc((100% - 44px) / 2))}
 /* Pips sit 4px apart: 44 tall, and 26 or 24 wide, meeting mid-gap. Rows are
@@ -701,14 +716,15 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
     <p class="hpline"><b>31</b>/44 hit points, <b>5</b> temporary. Tap to heal or damage.</p>
     </div>
     <div class="rail">
-      <div class="ac"><span>13<em>AC</em></span></div>
-      <div class="tile"><b>+2</b><em>Initiative</em></div>
-      <div class="tile"><b>30</b><em>Speed</em></div>
-      <div class="tile"><b>15</b><em>Spell save</em></div>
+      <div class="ac" role="button" tabindex="0" aria-label="Armour class 13"><span>13<em>AC</em></span></div>
+      <button class="tile"><b>+2</b><em>Initiative</em></button>
+      <button class="tile"><b>30</b><em>Speed</em></button>
+      <button class="tile"><b>15</b><em>Spell save</em></button>
     </div>
     <div class="hmarks">
-      <span class="mark" data-t="conc">Concentrating: Hex</span>
-      <span class="mark">Inspired</span>
+      <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Concentrating: Hex</button>
+      <button class="mark" aria-label="Inspired, open status">Inspired</button>
+      <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
       <button class="restbtn">Rest</button>
     </div>
   </div>
@@ -726,7 +742,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
       <div class="res">
         <div class="resl"><b>Pact magic</b><span>Two 3rd-level slots, short rest</span></div>
-        <div class="pips"><i data-on></i><i data-on></i></div>
+        <div class="pips"><i data-on></i><i></i></div>
       </div>
       <div class="res">
         <div class="resl"><b>Dark One's Own Luck</b><span>Add 1d10, long rest</span></div>
@@ -760,13 +776,18 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
         <div class="hit">+7</div>
         <div class="dmg">2d8<em>necrotic</em></div>
       </div>
+      <div class="atk">
+        <div><b>Sacred flame</b><small>60 ft, ignores cover, from the feat</small></div>
+        <div class="hit">12<small>Dex save</small></div>
+        <div class="dmg">2d8<em>radiant</em></div>
+      </div>
     </section>
 
     <section class="block">
       <h3 class="bhead">Actions</h3>
       <p class="grp">Action</p>
       <button class="act"><div class="actl"><b>Cure wounds</b><span>Touch, heals 1d8+1. Two ways to cast.</span></div><span class="mark">2 paths</span><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Cast a spell</b><span>Nine known, two slots left</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Cast a spell</b><span>Eight known, one slot left</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Common actions</b><span>Dash, Disengage, Dodge, Help, Hide, Ready, Search</span></div><i class="chev"></i></button>
       <p class="grp">Bonus action</p>
       <button class="act"><div class="actl"><b>Hex</b><span>Move the curse to a new target</span></div><span class="mark" data-t="conc">Active</span><i class="chev"></i></button>
@@ -790,9 +811,9 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
   <div class="shead mini attached">
     <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
     <h2 class="sname">Brenna Duskhollow</h2>
-    <span class="mark" data-t="conc">Hex</span>
+    <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Hex</button>
     <span class="minihp"><b>31</b>/44<em>+5</em></span>
-    <div class="ac"><span>13<em>AC</em></span></div>
+    <div class="ac" role="button" tabindex="0" aria-label="Armour class 13"><span>13<em>AC</em></span></div>
   </div>
 
   <nav class="tabs">
@@ -808,7 +829,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
       <div class="res">
         <div class="resl"><b>Pact magic</b><span>Two 3rd-level slots, short rest</span></div>
-        <div class="pips"><i data-on></i><i data-on></i></div>
+        <div class="pips"><i data-on></i><i></i></div>
       </div>
       <div class="res">
         <div class="resl"><b>Dark One's Own Luck</b><span>Add 1d10, long rest</span></div>
@@ -842,13 +863,18 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
         <div class="hit">+7</div>
         <div class="dmg">2d8<em>necrotic</em></div>
       </div>
+      <div class="atk">
+        <div><b>Sacred flame</b><small>60 ft, ignores cover, from the feat</small></div>
+        <div class="hit">12<small>Dex save</small></div>
+        <div class="dmg">2d8<em>radiant</em></div>
+      </div>
     </section>
 
     <section class="block">
       <h3 class="bhead">Actions</h3>
       <p class="grp">Action</p>
       <button class="act"><div class="actl"><b>Cure wounds</b><span>Touch, heals 1d8+1. Two ways to cast.</span></div><span class="mark">2 paths</span><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Cast a spell</b><span>Nine known, two slots left</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Cast a spell</b><span>Eight known, one slot left</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Common actions</b><span>Dash, Disengage, Dodge, Help, Hide, Ready, Search</span></div><i class="chev"></i></button>
       <p class="grp">Bonus action</p>
       <button class="act"><div class="actl"><b>Hex</b><span>Move the curse to a new target</span></div><span class="mark" data-t="conc">Active</span><i class="chev"></i></button>
@@ -870,9 +896,9 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
   <div class="shead mini attached">
     <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
     <h2 class="sname">Brenna Duskhollow</h2>
-    <span class="mark" data-t="conc">Hex</span>
+    <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Hex</button>
     <span class="minihp"><b>31</b>/44<em>+5</em></span>
-    <div class="ac"><span>13<em>AC</em></span></div>
+    <div class="ac" role="button" tabindex="0" aria-label="Armour class 13"><span>13<em>AC</em></span></div>
   </div>
 
   <nav class="tabs">
@@ -893,7 +919,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       </div>
       <div class="res" style="margin-top:10px;border-top:1.5px solid var(--rule);padding-top:11px">
         <div class="resl"><b>Two slots</b><span>Always cast at 3rd level, short rest</span></div>
-        <div class="pips"><i data-on></i><i data-on></i></div>
+        <div class="pips"><i data-on></i><i></i></div>
       </div>
     </div>
 
@@ -927,7 +953,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       <button class="act"><div class="actl"><b>Armor of Agathys</b><span>Action, self, 1 hour. 15 temporary hit points.</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Hex</b><span>Bonus action, 90 ft, concentration</span></div><span class="mark" data-t="conc">Active</span><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Charm person</b><span>Action, 30 ft, Wis save 15</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Cure wounds</b><span>Action, touch, heals 1d8+1</span></div><span class="mark">2 paths</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Cure wounds</b><span>Action, touch. Cast at 1st by the feat, at 2nd from the ring.</span></div><span class="mark">2 paths</span><i class="chev"></i></button>
     </section>
 
     <section class="block">
@@ -940,7 +966,6 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
     <section class="block">
       <h3 class="bhead">3rd level</h3>
       <button class="act"><div class="actl"><b>Fireball</b><span>Action, 150 ft, Dex save 15</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Hunger of Hadar</b><span>Action, 150 ft, concentration</span></div><i class="chev"></i></button>
     </section>
 
     <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a spell</button>
@@ -983,7 +1008,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
     <div class="pathcard">
       <div class="pathtop"><b>Ring of spell storing</b><span>Attuned item</span></div>
       <div class="pathstats">
-        <span>Stored by Alarra Vane</span><span>2nd level</span><span>Heals <b>2d8+3</b></span>
+        <span>Stored by Alarra Vane</span><span>2nd level</span><span>Heals <b>2d8+4</b></span>
       </div>
       <div class="res">
         <div class="resl"><b>3 of 5 levels</b><span>Refilled by whoever casts into it</span></div>
@@ -1060,7 +1085,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
       <div class="res">
         <div class="resl"><b>Pact magic</b><span>Two 3rd-level slots, short rest</span></div>
-        <div class="pips"><i data-on></i><i data-on></i></div>
+        <div class="pips"><i data-on></i><i></i></div>
       </div>
       <div class="res">
         <div class="resl"><b>Dark One's Own Luck</b><span>Add 1d10, long rest</span></div>
@@ -1090,15 +1115,15 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       </div>
       <div class="vitals">
         <div class="hprow">
-        <div class="meter" data-hurt><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+        <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
       </div>
         <p class="hpline"><b>21</b>/34 hit points as the bear</p>
       </div>
       <div class="rail">
-        <div class="ac"><span>12<em>AC</em></span></div>
-        <div class="tile"><b>+1</b><em>Initiative</em></div>
-        <div class="tile"><b>40</b><em>Speed</em></div>
-        <div class="tile"><b>1</b><em>Uses left</em></div>
+        <div class="ac" role="button" tabindex="0" aria-label="Armour class 11"><span>11<em>AC</em></span></div>
+        <button class="tile"><b>+0</b><em>Initiative</em></button>
+        <button class="tile"><b>40</b><em>Speed</em></button>
+        <button class="tile"><b>1</b><em>Uses left</em></button>
       </div>
       <p class="hpline" style="margin-top:11px">Fenn underneath: <b>47</b>/61 hit points, AC 13, speed 30, spell save 15.</p>
     </div>
@@ -1118,7 +1143,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       </div>
         <p class="hpline"><b>0</b>/27 hit points, dying</p>
       </div>
-      <div class="dyingbox">
+      <div class="dyingbox" role="button" tabindex="0" aria-label="Death saves, 1 success and 2 failures, open the death save pad">
         <p>Death saves</p>
         <div class="saves">
           <span data-k="ok"><i data-on></i><i></i><i></i></span>
@@ -1145,10 +1170,10 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
         <p class="hpline"><b>12</b>/26 hit points</p>
       </div>
       <div class="rail">
-        <div class="ac"><span>12<em>AC</em></span></div>
-        <div class="tile"><b>+3</b><em>Initiative</em></div>
-        <div class="tile"><b>25</b><em>Speed</em></div>
-        <div class="tile"><b>14</b><em>Spell save</em></div>
+        <div class="ac" role="button" tabindex="0" aria-label="Armour class 12"><span>12<em>AC</em></span></div>
+        <button class="tile"><b>+3</b><em>Initiative</em></button>
+        <button class="tile"><b>25</b><em>Speed</em></button>
+        <button class="tile"><b>14</b><em>Spell save</em></button>
       </div>
     </div>
 
@@ -1182,18 +1207,19 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
     </div>
     <div class="vitals" role="button" tabindex="0" aria-label="Heal or damage">
       <div class="hprow">
-        <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
       </div>
-      <p class="hpline"><b>52</b>/52 hit points</p>
+      <p class="hpline"><b>38</b>/52 hit points. Tap to heal or damage.</p>
     </div>
     <div class="rail">
       <div class="ac has-ovr" role="button" tabindex="0" aria-label="Armour class 19, set by you"><span>19<em>AC</em></span><span class="ovr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg></span></div>
-      <div class="tile"><b>+0</b><em>Initiative</em></div>
-      <div class="tile"><b>30</b><em>Speed</em></div>
-      <div class="tile"><b>15</b><em>Spell save</em></div>
+      <button class="tile"><b>+0</b><em>Initiative</em></button>
+      <button class="tile"><b>30</b><em>Speed</em></button>
+      <button class="tile"><b>15</b><em>Spell save</em></button>
     </div>
     <div class="hmarks">
-      <span class="mark">Channel divinity 2 of 2</span>
+      <span class="mark">Channel divinity 1 of 2</span>
+      <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
       <button class="restbtn">Rest</button>
     </div>
   </div>
@@ -1215,8 +1241,8 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
         <div class="slotg"><em>3rd</em><div class="pips"><i data-on></i><i data-on></i><i></i></div></div>
         <div class="slotg"><em>4th</em><div class="pips"><i data-on></i></div></div>
       </div>
-      <div class="res"><div class="resl"><b>Channel divinity</b><span>Two uses, short rest</span></div><div class="pips"><i data-on></i><i data-on></i></div></div>
-      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips wide"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i></div></div>
+      <div class="res"><div class="resl"><b>Channel divinity</b><span>Two uses, short rest</span></div><div class="pips"><i data-on></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips wide"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div></div>
     </section>
 
     <section class="block">
@@ -1266,7 +1292,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
   <div class="shead mini attached">
     <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
     <h2 class="sname">Alarra Vane</h2>
-    <span class="minihp"><b>52</b>/52</span>
+    <span class="minihp"><b>38</b>/52</span>
     <div class="ac has-ovr" role="button" tabindex="0" aria-label="Armour class 19, set by you"><span>19<em>AC</em></span><span class="ovr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg></span></div>
   </div>
   <nav class="tabs">
@@ -1380,25 +1406,43 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       <input placeholder="Find a cleric spell" aria-label="Find a cleric spell"></label>
 
     <section class="block">
-      <h3 class="bhead">1st level <span>4 of 9 chosen</span></h3>
+      <h3 class="bhead">1st level <span>4 chosen</span></h3>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Bane</b><span>Action, 30 ft, concentration</span></div><button class="infobtn" aria-label="Bane details"><i class="chev"></i></button></label>
       <label class="prep"><input type="checkbox" checked disabled><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Bless</b><span>Action, 30 ft, concentration</span></div><span class="mark">Domain</span><button class="infobtn" aria-label="Bless details"><i class="chev"></i></button></label>
       <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Command</b><span>Action, 60 ft, 1 round</span></div><span class="mark">New</span><button class="infobtn" aria-label="Command details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Create or destroy water</b><span>Action, 30 ft</span></div><button class="infobtn" aria-label="Create or destroy water details"><i class="chev"></i></button></label>
       <label class="prep"><input type="checkbox" checked disabled><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Cure wounds</b><span>Action, touch</span></div><span class="mark">Domain</span><button class="infobtn" aria-label="Cure wounds details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Detect evil and good</b><span>Action, self, concentration</span></div><button class="infobtn" aria-label="Detect evil and good details"><i class="chev"></i></button></label>
       <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Detect magic</b><span>Action, self, concentration</span></div><span class="mark">Ritual</span><button class="infobtn" aria-label="Detect magic details"><i class="chev"></i></button></label>
-      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Guiding bolt</b><span>Action, 120 ft</span></div><button class="infobtn" aria-label="Guiding bolt details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Detect poison and disease</b><span>Action, self, concentration</span></div><span class="mark">Ritual</span><button class="infobtn" aria-label="Detect poison and disease details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Guiding bolt</b><span>Action, 120 ft, 1 round</span></div><button class="infobtn" aria-label="Guiding bolt details"><i class="chev"></i></button></label>
       <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Healing word</b><span>Bonus action, 60 ft</span></div><button class="infobtn" aria-label="Healing word details"><i class="chev"></i></button></label>
       <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Inflict wounds</b><span>Action, touch</span></div><button class="infobtn" aria-label="Inflict wounds details"><i class="chev"></i></button></label>
-      <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Sanctuary</b><span>Bonus action, 30 ft</span></div><button class="infobtn" aria-label="Sanctuary details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Protection from evil and good</b><span>Action, touch, concentration</span></div><button class="infobtn" aria-label="Protection from evil and good details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Purify food and drink</b><span>Action, 10 ft</span></div><span class="mark">Ritual</span><button class="infobtn" aria-label="Purify food and drink details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Sanctuary</b><span>Bonus action, 30 ft, 1 minute</span></div><button class="infobtn" aria-label="Sanctuary details"><i class="chev"></i></button></label>
       <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Shield of faith</b><span>Bonus action, 60 ft, concentration</span></div><button class="infobtn" aria-label="Shield of faith details"><i class="chev"></i></button></label>
     </section>
 
     <section class="block">
-      <h3 class="bhead">2nd level <span>3 of 5 chosen</span></h3>
+      <h3 class="bhead">2nd level <span>3 chosen</span></h3>
       <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Aid</b><span>Action, 30 ft, 8 hours</span></div><button class="infobtn" aria-label="Aid details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Augury</b><span>1 minute, self</span></div><span class="mark">Ritual</span><button class="infobtn" aria-label="Augury details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Blindness/deafness</b><span>Action, 30 ft, 1 minute</span></div><button class="infobtn" aria-label="Blindness/deafness details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Calm emotions</b><span>Action, 60 ft, concentration</span></div><button class="infobtn" aria-label="Calm emotions details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Continual flame</b><span>Action, touch, until dispelled</span></div><button class="infobtn" aria-label="Continual flame details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Enhance ability</b><span>Action, touch, concentration</span></div><button class="infobtn" aria-label="Enhance ability details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Find traps</b><span>Action, 120 ft</span></div><button class="infobtn" aria-label="Find traps details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Gentle repose</b><span>Action, touch, 10 days</span></div><span class="mark">Ritual</span><button class="infobtn" aria-label="Gentle repose details"><i class="chev"></i></button></label>
       <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Hold person</b><span>Action, 60 ft, concentration</span></div><button class="infobtn" aria-label="Hold person details"><i class="chev"></i></button></label>
       <label class="prep"><input type="checkbox" checked disabled><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Lesser restoration</b><span>Action, touch</span></div><span class="mark">Domain</span><button class="infobtn" aria-label="Lesser restoration details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Locate object</b><span>Action, self, concentration</span></div><button class="infobtn" aria-label="Locate object details"><i class="chev"></i></button></label>
       <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Prayer of healing</b><span>10 minutes, 30 ft</span></div><button class="infobtn" aria-label="Prayer of healing details"><i class="chev"></i></button></label>
-      <label class="prep"><input type="checkbox" checked disabled><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Spiritual weapon</b><span>Bonus action, 60 ft</span></div><span class="mark">Domain</span><button class="infobtn" aria-label="Spiritual weapon details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Protection from poison</b><span>Action, touch, 1 hour</span></div><button class="infobtn" aria-label="Protection from poison details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Silence</b><span>Action, 120 ft, concentration</span></div><span class="mark">Ritual</span><button class="infobtn" aria-label="Silence details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox" checked disabled><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Spiritual weapon</b><span>Bonus action, 60 ft, 1 minute</span></div><span class="mark">Domain</span><button class="infobtn" aria-label="Spiritual weapon details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Warding bond</b><span>Action, touch, 1 hour</span></div><button class="infobtn" aria-label="Warding bond details"><i class="chev"></i></button></label>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Zone of truth</b><span>Action, 60 ft, 10 minutes</span></div><button class="infobtn" aria-label="Zone of truth details"><i class="chev"></i></button></label>
     </section>
   </div>
 
@@ -1423,18 +1467,19 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
     </div>
     <div class="vitals" role="button" tabindex="0" aria-label="Heal or damage">
       <div class="hprow">
-        <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
       </div>
-      <p class="hpline"><b>52</b>/52 hit points</p>
+      <p class="hpline"><b>38</b>/52 hit points. Tap to heal or damage.</p>
     </div>
     <div class="rail">
       <div class="ac has-ovr" role="button" tabindex="0" aria-label="Armour class 19, set by you"><span>19<em>AC</em></span><span class="ovr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg></span></div>
-      <div class="tile"><b>+0</b><em>Initiative</em></div>
-      <div class="tile"><b>30</b><em>Speed</em></div>
-      <div class="tile"><b>15</b><em>Spell save</em></div>
+      <button class="tile"><b>+0</b><em>Initiative</em></button>
+      <button class="tile"><b>30</b><em>Speed</em></button>
+      <button class="tile"><b>15</b><em>Spell save</em></button>
     </div>
     <div class="hmarks">
-      <span class="mark">Channel divinity 2 of 2</span>
+      <span class="mark">Channel divinity 1 of 2</span>
+      <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
       <button class="restbtn">Rest</button>
     </div>
   </div>
@@ -1597,13 +1642,12 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 
     <section class="block">
       <h3 class="bhead">What changes</h3>
-      <div class="change"><div><b>Pact magic</b><span>Both 3rd-level slots</span></div><strong><em class="was">0</em> &rarr; 2</strong></div>
+      <div class="change"><div><b>Pact magic</b><span>The 3rd-level slot she spent</span></div><strong><em class="was">1</em> &rarr; 2</strong></div>
       <div class="change"><div><b>Hit points</b><span>Whatever the hit dice roll</span></div><strong><em class="was">31</em> &rarr; 44</strong></div>
       <div class="change"><div><b>Hit dice</b><span>The 2 she spends</span></div><strong><em class="was">4</em> &rarr; 2</strong></div>
-      <p class="grp" style="margin-top:12px">Ends</p>
-      <div class="change"><div><b>Hex</b><span>Concentration, 1 hour. A short rest takes that long.</span></div><span class="mark" data-t="bad">Ends</span></div>
       <p class="grp" style="margin-top:12px">Not on a short rest</p>
-      <div class="change"><div><b>Dark One&rsquo;s Own Luck</b><span>Long rest only</span></div><strong>0</strong></div>
+      <div class="change"><div><b>Hex</b><span>Concentration, 8 hours at 3rd level. An hour&rsquo;s rest doesn&rsquo;t reach it.</span></div><span class="mark" data-t="conc">Active</span></div>
+      <div class="change"><div><b>Dark One&rsquo;s Own Luck</b><span>Long rest only, and still unspent</span></div><strong>1</strong></div>
       <div class="change"><div><b>Ring of spell storing</b><span>Refilled by casting into it, never by resting</span></div><strong>3 of 5</strong></div>
     </section>
   </div>
@@ -1638,7 +1682,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       <div class="change"><div><b>Hit points</b><span>All of them</span></div><strong><em class="was">38</em> &rarr; 52</strong></div>
       <div class="change"><div><b>Spell slots</b><span>1st and 3rd level. 2nd and 4th are full.</span></div><strong><em class="was">9</em> &rarr; 11</strong></div>
       <div class="change"><div><b>Channel divinity</b><span>Also back after a short rest</span></div><strong><em class="was">1</em> &rarr; 2</strong></div>
-      <div class="change"><div><b>Hit dice</b><span>Up to half of 7, rounded up</span></div><strong><em class="was">5</em> &rarr; 7</strong></div>
+      <div class="change"><div><b>Hit dice</b><span>Up to half of 7, rounded down, so 3</span></div><strong><em class="was">5</em> &rarr; 7</strong></div>
     </section>
 
     <section class="block">
@@ -1659,9 +1703,9 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
   <div class="shead mini attached">
     <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
     <h2 class="sname">Brenna Duskhollow</h2>
-    <span class="mark" data-t="conc">Hex</span>
+    <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Hex</button>
     <span class="minihp"><b>31</b>/44<em>+5</em></span>
-    <div class="ac"><span>13<em>AC</em></span></div>
+    <div class="ac" role="button" tabindex="0" aria-label="Armour class 13"><span>13<em>AC</em></span></div>
   </div>
   <nav class="tabs">
     <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg><span>Play</span></button>
@@ -1723,9 +1767,9 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
   <div class="shead mini attached">
     <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
     <h2 class="sname">Brenna Duskhollow</h2>
-    <span class="mark" data-t="conc">Hex</span>
+    <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Hex</button>
     <span class="minihp"><b>31</b>/44<em>+5</em></span>
-    <div class="ac"><span>13<em>AC</em></span></div>
+    <div class="ac" role="button" tabindex="0" aria-label="Armour class 13"><span>13<em>AC</em></span></div>
   </div>
   <nav class="tabs">
     <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg><span>Play</span></button>
@@ -1743,7 +1787,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
     </div>
 
     <section class="block">
-      <h3 class="bhead">Features and traits</h3>
+      <h3 class="bhead">Features and traits <button class="editbtn">Edit</button></h3>
       <p class="grp">Warlock 6</p>
       <button class="act"><div class="actl"><b>Pact magic</b><span>Two 3rd-level slots, short rest</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Eldritch invocations</b><span>Agonizing Blast, Devil&rsquo;s Sight, Repelling Blast</span></div><i class="chev"></i></button>
@@ -1792,7 +1836,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
   <div class="shead mini attached">
     <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
     <h2 class="sname">Alarra Vane</h2>
-    <span class="minihp"><b>52</b>/52</span>
+    <span class="minihp"><b>38</b>/52</span>
     <div class="ac has-ovr" role="button" tabindex="0" aria-label="Armour class 19, set by you"><span>19<em>AC</em></span><span class="ovr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg></span></div>
   </div>
   <nav class="tabs">
@@ -1816,7 +1860,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
     </section>
 
     <section class="block">
-      <h3 class="bhead">Saving throws <button class="editbtn" disabled>Edit</button></h3>
+      <h3 class="bhead">Saving throws</h3>
       <div class="skills">
         <button class="skill"><i class="rank"></i><span class="lbl">Strength</span><b>+2</b></button>
         <button class="skill"><i class="rank"></i><span class="lbl">Dexterity</span><b>+0</b></button>
@@ -2101,7 +2145,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 
   <div class="body pad-bottom">
     <section class="block">
-      <div class="res"><div class="resl"><b>2 of 2 uses</b><span>Both back after a short or long rest</span></div><div class="pips"><i data-on></i><i data-on></i></div></div>
+      <div class="res"><div class="resl"><b>1 of 2 uses</b><span>Both back after a short or long rest</span></div><div class="pips"><i data-on></i><i></i></div></div>
     </section>
 
     <div class="pathcard">
@@ -2301,9 +2345,9 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
   <div class="shead mini attached">
     <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
     <h2 class="sname">Brenna Duskhollow</h2>
-    <span class="mark" data-t="conc">Hex</span>
+    <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Hex</button>
     <span class="minihp"><b>31</b>/44<em>+5</em></span>
-    <div class="ac"><span>13<em>AC</em></span></div>
+    <div class="ac" role="button" tabindex="0" aria-label="Armour class 13"><span>13<em>AC</em></span></div>
   </div>
   <nav class="tabs">
     <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg><span>Play</span></button>
@@ -2548,12 +2592,11 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 
     <section class="block">
       <h3 class="bhead">Proficiency <span>Cleric gives proficient</span></h3>
-      <div class="rankseg">
+      <div class="rankseg two">
         <button aria-pressed="false"><i class="rank"></i>None</button>
-        <button aria-pressed="false"><i class="rank" data-r="half"></i>Half</button>
         <button aria-pressed="true"><i class="rank" data-r="prof"></i>Proficient</button>
-        <button aria-pressed="false"><i class="rank" data-r="exp"></i>Expertise</button>
       </div>
+      <p class="padnote">Saving throws are proficient or not. Half and expertise are for skills and tools.</p>
     </section>
 
     <section class="block">
@@ -2781,7 +2824,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
   <div class="shead mini attached">
     <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
     <h2 class="sname">Alarra Vane</h2>
-    <span class="minihp"><b>52</b>/52</span>
+    <span class="minihp"><b>38</b>/52</span>
     <div class="ac has-ovr" role="button" tabindex="0" aria-label="Armour class 19, set by you"><span>19<em>AC</em></span><span class="ovr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg></span></div>
   </div>
   <nav class="tabs">
@@ -2850,7 +2893,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       <h3 class="bhead">Results <span>3 in your sources</span></h3>
       <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add &ldquo;kit&rdquo; as a custom proficiency</button>
       <label class="prep"><input type="radio" name="prof" checked><span class="box round"></span><div class="actl"><b>Herbalism kit</b><span>Other</span></div></label>
-      <label class="prep"><input type="radio" name="prof"><span class="box round"></span><div class="actl"><b>Disguise kit</b><span>Artisan&rsquo;s tools</span></div></label>
+      <label class="prep"><input type="radio" name="prof"><span class="box round"></span><div class="actl"><b>Disguise kit</b><span>Other</span></div></label>
       <label class="prep"><input type="radio" name="prof"><span class="box round"></span><div class="actl"><b>Poisoner&rsquo;s kit</b><span>Other</span></div></label>
     </section>
 
@@ -2894,15 +2937,20 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       <label class="prep"><input type="radio" name="lang" disabled><span class="box round"></span><div class="actl"><b>Dwarvish</b><span>Dwarvish script, dwarves</span></div><span class="mark">Known</span></label>
       <label class="prep"><input type="radio" name="lang"><span class="box round"></span><div class="actl"><b>Elvish</b><span>Elvish script, elves</span></div></label>
       <label class="prep"><input type="radio" name="lang"><span class="box round"></span><div class="actl"><b>Giant</b><span>Dwarvish script, ogres and giants</span></div></label>
+      <label class="prep"><input type="radio" name="lang"><span class="box round"></span><div class="actl"><b>Gnomish</b><span>Dwarvish script, gnomes</span></div></label>
+      <label class="prep"><input type="radio" name="lang"><span class="box round"></span><div class="actl"><b>Goblin</b><span>Dwarvish script, goblinoids</span></div></label>
       <label class="prep"><input type="radio" name="lang"><span class="box round"></span><div class="actl"><b>Halfling</b><span>Common script, halflings</span></div></label>
+      <label class="prep"><input type="radio" name="lang"><span class="box round"></span><div class="actl"><b>Orc</b><span>Dwarvish script, orcs</span></div></label>
     </section>
 
     <section class="block">
       <h3 class="bhead">Exotic</h3>
       <label class="prep"><input type="radio" name="lang"><span class="box round"></span><div class="actl"><b>Abyssal</b><span>Infernal script, demons</span></div></label>
       <label class="prep"><input type="radio" name="lang" disabled><span class="box round"></span><div class="actl"><b>Celestial</b><span>Celestial script, celestials</span></div><span class="mark">Known</span></label>
+      <label class="prep"><input type="radio" name="lang"><span class="box round"></span><div class="actl"><b>Deep Speech</b><span>No script, aboleths and cloakers</span></div></label>
       <label class="prep"><input type="radio" name="lang"><span class="box round"></span><div class="actl"><b>Draconic</b><span>Draconic script, dragons and dragonborn</span></div></label>
       <label class="prep"><input type="radio" name="lang" disabled><span class="box round"></span><div class="actl"><b>Infernal</b><span>Infernal script, devils</span></div><span class="mark">Known</span></label>
+      <label class="prep"><input type="radio" name="lang"><span class="box round"></span><div class="actl"><b>Primordial</b><span>Dwarvish script, elementals</span></div></label>
       <label class="prep"><input type="radio" name="lang" checked><span class="box round"></span><div class="actl"><b>Sylvan</b><span>Elvish script, fey creatures</span></div></label>
       <label class="prep"><input type="radio" name="lang"><span class="box round"></span><div class="actl"><b>Undercommon</b><span>Elvish script, Underdark traders</span></div></label>
     </section>
@@ -3044,16 +3092,17 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       <div class="hprow">
         <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div>
       </div>
-      <p class="hpline"><b>68</b>/72 hit points</p>
+      <p class="hpline"><b>68</b>/72 hit points. Tap to heal or damage.</p>
     </div>
     <div class="rail">
-      <div class="ac"><span>18<em>AC</em></span></div>
-      <div class="tile"><b>+1</b><em>Initiative</em></div>
-      <div class="tile"><b>25</b><em>Speed</em></div>
-      <div class="tile"><b>+3</b><em>Proficiency</em></div>
+      <div class="ac" role="button" tabindex="0" aria-label="Armour class 18"><span>18<em>AC</em></span></div>
+      <button class="tile"><b>+1</b><em>Initiative</em></button>
+      <button class="tile"><b>25</b><em>Speed</em></button>
+      <button class="tile"><b>+3</b><em>Proficiency</em></button>
     </div>
     <div class="hmarks">
       <span class="mark">Second wind ready</span>
+      <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
       <button class="restbtn">Rest</button>
     </div>
   </div>
@@ -3073,7 +3122,8 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
     </section>
   </div>
 
-  <div class="bsheet" role="dialog" aria-label="Sheet menu">
+  <div class="bscrim" aria-hidden="true"></div>
+  <div class="bsheet" role="dialog" aria-modal="true" aria-label="Sheet menu">
     <p class="bsheet-title">Thorn Grimsby</p>
     <button class="menuitem"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg><span class="mi">Add a spell<small>No spells yet, so there&rsquo;s no Spells tab</small></span></button>
     <button class="menuitem"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg><span class="mi">Edit basic details<small>Name, token colour and alignment</small></span></button>
@@ -3083,6 +3133,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
   </div>
 </div>
 </template>
+
 
 <script>
 (function(){
@@ -3102,7 +3153,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
     {id:'hp', label:'Hit point pad, opened from the meter',
      note:'The most frequent interaction in the app. Damage, heal or temporary, a stepper with quick amounts, and a line that says what will happen before you commit. No keyboard.'},
     {id:'variants', label:'Header variants and warnings',
-     note:'Annotations in dim text are mockup notes, not product UI. Wild shape puts the form on top and the druid underneath. At zero hit points the death saves replace the vitals rail. Warnings sit under the header and never block.'},
+     note:'Annotations in dim text are mockup notes, not product UI. Wild shape puts the form on top and the druid underneath. At zero hit points the death saves replace the vitals rail, and tapping them opens the pad&rsquo;s Death save tab. Warnings sit under the header and never block.'},
     {section:'Alarra Vane, cleric',
      text:'A caster who prepares spells, and two values replaced by the player. The character list shows her armour class as 19; the sheet calculates 18.'},
     {id:'cleric-play', label:'Play tab, preparing caster',
@@ -3190,7 +3241,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
     {id:'add-feature-catalog', label:'Adding a feature from the catalog',
      note:'The catalog side of Add a feature searches class and subclass features and racial traits. Brenna&rsquo;s own class and race list first; the rest follow with a mark saying why they don&rsquo;t fit. Fiendish resilience is a warlock 10 feature, so picking it raises a warning and still allows it. Feats have no catalog, so a hint points to Custom.'},
     {id:'sheet-menu', label:'Sheet menu, Thorn',
-     note:'The header&rsquo;s menu button opens a static bottom sheet: it appears instantly, with no drag and no slide, and a tap outside or Close dismisses it. Its rows sit within thumb reach. Thorn has no spell access, so the tabs skip Spells and the menu offers Add a spell. Delete sits apart, in rose text ink.'},
+     note:'The header&rsquo;s menu button opens a static bottom sheet: it appears instantly, with no drag and no slide, over a scrim that dims the page, and a tap on the scrim or Close dismisses it. Its rows sit within thumb reach. Thorn has no spell access, so the tabs skip Spells and the menu offers Add a spell. Delete sits apart, in rose text ink.'},
     {id:'basic-details', label:'Editing basic details, Thorn',
      note:'Opened from the sheet menu. The name, the token colour as swatches that follow the app&rsquo;s inks, and alignment as a grid with None. It saves from the footer, like Add. Class, race and background stay with creation and level-up.'},
     {id:'delete-character', label:'Deleting a character, Thorn',
@@ -3277,7 +3328,8 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       draftBg: rgba(b, 0.11),
       rule: rgba(a, 0.28),
       chip: rgba(onA, chipAlpha),
-      chip2: rgba(ink, 0.08)
+      chip2: rgba(ink, 0.08),
+      scrim: rgba(ink, 0.4)
     };
   }
 
@@ -3339,6 +3391,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       el.style.setProperty('--rule', t.rule);
       el.style.setProperty('--chip', t.chip);
       el.style.setProperty('--chip2', t.chip2);
+      el.style.setProperty('--scrim', t.scrim);
       el.style.setProperty('--wash', t.wash);
     });
   }
