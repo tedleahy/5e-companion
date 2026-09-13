@@ -15,5 +15,13 @@ structures the 2014 SRD 5.1 content as JSON. They are used under 5e-database's
 MIT License, whose copyright and permission notice is in
 `srd-json-files/LICENSE.md`.
 
-The files in this repository are unmodified. The app's importer reshapes them
-into its own tables, as described in `docs/data-model.md`.
+The files carry two corrections against the SRD 5.1 text, both made on
+13 September 2026:
+
+- `5e-SRD-Levels.json`: the warlock's `invocations_known` at level 6 is 3,
+  not 4. The SRD table gives 3 at levels 5 and 6 and 4 at levels 7 and 8.
+- `5e-SRD-Proficiencies.json`: the disguise kit's `type` is `Other`, not
+  `Artisan's Tools`. The SRD lists it on its own, outside the artisan's tools.
+
+Everything else is unmodified. The app's importer reshapes the files into its
+own tables, as described in `docs/data-model.md`.
