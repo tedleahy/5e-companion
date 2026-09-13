@@ -260,6 +260,21 @@ All dated 12 September 2026.
 - Dropping to 0 adds Unconscious automatically, and it ends when hit points
   come back. A dead character's pad offers Bring back in place of Heal,
   defaulting to 1 hit point, which clears both counts. 13 September 2026.
+- The hit point pad is the static bottom sheet, opened from the vitals on the
+  tall header or the hit points on the compact one, so the player keeps their
+  place. Its tabs, the concentration save and Bring back all live inside it.
+  This replaces the earlier rule that the pad opens in the header.
+  13 September 2026.
+- The compact header shows the first name, one status mark, the hit points and
+  armour class. The full name stays in the tall header. The hit points are a
+  button, and temporary hit points are spelled out as "+5 temp", so colour no
+  longer carries them alone. 13 September 2026.
+- The compact status slot holds one mark in the design system's priority
+  order: a condition before concentration. More than one condition reads
+  "Poisoned +1". A condition opens the status sheet and concentration opens the
+  spell. 13 September 2026.
+- Rest stays out of the compact header. Rests happen between fights, when
+  scrolling back to the tall header costs nothing. 13 September 2026.
 - The conditions sheet is the menu's static sheet: a three-column grid of
   names with Custom in the last cell, the chosen condition's end under it, then
   exhaustion and Close. It stops below the header marks. A taller scrolling
@@ -267,7 +282,8 @@ All dated 12 September 2026.
   list sat below the fold and its handle bar read as draggable. 13 September
   2026.
 - The one-overlay rule widens to one overlay shape. The static bottom sheet
-  may hold a quick in-play picker as well as the sheet menu. Detail screens
+  may hold a quick in-play picker, such as the status sheet or the hit point
+  pad, as well as the sheet menu. Detail screens
   stay full-screen pushes, and anything that commits from a footer stays a
   pushed screen. 13 September 2026.
 - The static bottom sheet is modal. A scrim dims the whole screen behind it,
@@ -279,7 +295,8 @@ All dated 12 September 2026.
 
 ## Working rules for the drawing
 
-- Tapping the hit point meter opens a heal and damage pad in the header.
+- Tapping the hit point meter, or the hit points on the compact header, opens the
+  heal and damage pad as the static bottom sheet.
 - Spending a resource is a tap on a pip. A filled pip spends the last filled
   one, an empty pip restores the first empty one. Explicit plus and minus only
   for pools larger than about six.
@@ -307,7 +324,7 @@ repair screen.
 
 ## Mockup deliverable
 
-`mockups/character-sheet.html`, fifty-four phone frames in ten sections, built on
+`mockups/character-sheet.html`, fifty-five phone frames in eleven sections, built on
 the same ink mixer as the character list so a theme change still costs five
 values. Frame numbers count automatically in the gallery.
 
@@ -394,6 +411,10 @@ Death saves:
 52. Death save tab, Mudge dying
 53. Damage at 0 hit points
 54. Bringing back a dead character
+
+Compact header:
+
+55. Hit point pad from the compact header, Mudge
 
 A Magic Initiate feat gives Brenna a second casting stat block, and Cure wounds
 reaches her twice, once through the feat and once through an attuned Ring of
@@ -830,6 +851,7 @@ selectors, the small destructive button, disabled rows marked Known, the static
 bottom sheet menu, the token colour picker, the dashed Condition control on
 the plate, the condition grid with its end selector, the scrim token, the
 concentration card, the concentration save, and the death save tab with its
-outcome buttons. They are written in the mockup with the
+outcome buttons, the hit point pad as a bottom sheet, and the compact status
+slot. They are written in the mockup with the
 structural and skin rules split, as v0.3 requires, so they can move across
 without being rewritten.

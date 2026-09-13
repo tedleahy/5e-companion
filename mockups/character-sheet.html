@@ -52,7 +52,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .resetbtn:hover{border-color:#6f7681;color:#fff}
 .resetbtn[aria-pressed=true]{border-color:#fff;color:#fff}
 /* Debug paint for hit areas. Gallery only, so it may use a colour outside the inks. */
-.show-hits .riso :is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button])::after,.show-hits .riso .pips i::after{background:rgba(255,196,0,.3);box-shadow:inset 0 0 0 1px rgba(255,170,0,.95)}
+.show-hits .riso :is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp)::after,.show-hits .riso .pips i::after{background:rgba(255,196,0,.3);box-shadow:inset 0 0 0 1px rgba(255,170,0,.95)}
 .studio{padding:26px 22px 56px}
 .frames{max-width:1600px;margin:0 auto;display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start}
 .framewrap{width:414px}
@@ -653,14 +653,23 @@ button.mark{font-family:inherit;cursor:pointer}
 .riso .shead .tok[data-state=dead]{background:var(--sheet);color:var(--dim);box-shadow:inset 0 0 0 2px var(--rule)}
 .pad > .prep{margin-top:8px}
 
+/* ---- the hit point pad as a bottom sheet ----
+   It opens from the vitals on the tall header or the hit points on the compact
+   one, so the player keeps their place. Inside the sheet the pad and the
+   concentration save lose their card chrome. */
+.riso .bsheet .pad,.riso .bsheet .cast{background:transparent;border:0;box-shadow:none;margin:0;padding:6px 8px 0}
+.riso .vitals[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a)}
+.minihp{border:0;font-family:inherit;cursor:pointer}
+.riso .minihp:active,.riso .minihp[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a)}
+
 /* ---- hit areas, web ----
    Every control answers taps across at least 44 by 44. The extension is an
    invisible ::after centred on the control, so nothing moves and nothing looks
    bigger. Where two controls sit closer than that, their areas meet at the
    midpoint of the gap instead of overlapping, and 24 is the floor in that
    direction. Native uses hitSlop with the same numbers. */
-:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button]){position:relative}
-:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button])::after{content:"";position:absolute;
+:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp){position:relative}
+:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp)::after{content:"";position:absolute;
   top:min(0px,calc((100% - 44px) / 2));bottom:min(0px,calc((100% - 44px) / 2));
   left:min(0px,calc((100% - 44px) / 2));right:min(0px,calc((100% - 44px) / 2))}
 /* Pips sit 4px apart: 44 tall, and 26 or 24 wide, meeting mid-gap. Rows are
@@ -846,9 +855,9 @@ button.mark{font-family:inherit;cursor:pointer}
 <div class="sheet">
   <div class="shead mini attached">
     <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-    <h2 class="sname">Brenna Duskhollow</h2>
+    <h2 class="sname">Brenna</h2>
     <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Hex</button>
-    <span class="minihp"><b>31</b>/44<em>+5</em></span>
+    <button class="minihp" aria-label="Hit points 31 of 44, 5 temporary, open the pad"><b>31</b>/44<em>+5 temp</em></button>
     <div class="ac" role="button" tabindex="0" aria-label="Armour class 13"><span>13<em>AC</em></span></div>
   </div>
 
@@ -931,9 +940,9 @@ button.mark{font-family:inherit;cursor:pointer}
 <div class="sheet">
   <div class="shead mini attached">
     <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-    <h2 class="sname">Brenna Duskhollow</h2>
+    <h2 class="sname">Brenna</h2>
     <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Hex</button>
-    <span class="minihp"><b>31</b>/44<em>+5</em></span>
+    <button class="minihp" aria-label="Hit points 31 of 44, 5 temporary, open the pad"><b>31</b>/44<em>+5 temp</em></button>
     <div class="ac" role="button" tabindex="0" aria-label="Armour class 13"><span>13<em>AC</em></span></div>
   </div>
 
@@ -1081,7 +1090,7 @@ button.mark{font-family:inherit;cursor:pointer}
       </div>
       <button class="icnbtn" aria-label="Sheet menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
     </div>
-    <div class="vitals" role="button" tabindex="0" aria-label="Heal or damage">
+    <div class="vitals" role="button" tabindex="0" aria-expanded="true" aria-label="Heal or damage">
     <div class="hprow">
       <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
       <div class="temp" aria-label="5 temporary hit points"></div>
@@ -1099,24 +1108,6 @@ button.mark{font-family:inherit;cursor:pointer}
   </nav>
 
   <div class="body pad-bottom">
-    <div class="pad">
-      <div class="padtabs">
-        <button data-on>Damage</button>
-        <button>Heal</button>
-        <button>Temporary</button>
-      </div>
-      <div class="padnum">
-        <button class="step" aria-label="One less">&minus;</button>
-        <b>7</b>
-        <button class="step" aria-label="One more">+</button>
-      </div>
-      <div class="quick">
-        <button>1</button><button>2</button><button>5</button><button>10</button>
-      </div>
-      <p class="padnote">The 5 temporary hit points take the first 5. Brenna ends on <b>29</b>/44 with none temporary, then makes a concentration save for Hex.</p>
-      <button class="castbtn" style="margin-top:11px">Apply 7 damage</button>
-    </div>
-
     <section class="block">
       <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
       <div class="res">
@@ -1130,6 +1121,28 @@ button.mark{font-family:inherit;cursor:pointer}
     </section>
   </div>
 
+  <div class="bscrim" aria-hidden="true"></div>
+  <div class="bsheet" role="dialog" aria-modal="true" aria-label="Hit points">
+    <p class="bsheet-title">Brenna Duskhollow</p>
+    <div class="pad">
+        <div class="padtabs">
+          <button data-on>Damage</button>
+          <button>Heal</button>
+          <button>Temporary</button>
+        </div>
+        <div class="padnum">
+          <button class="step" aria-label="One less">&minus;</button>
+          <b>7</b>
+          <button class="step" aria-label="One more">+</button>
+        </div>
+        <div class="quick">
+          <button>1</button><button>2</button><button>5</button><button>10</button>
+        </div>
+        <p class="padnote">The 5 temporary hit points take the first 5. Brenna ends on <b>29</b>/44 with none temporary, then makes a concentration save for Hex.</p>
+        <button class="castbtn" style="margin-top:11px">Apply 7 damage</button>
+      </div>
+    <button class="menuitem close">Close</button>
+  </div>
 </div>
 </template>
 
@@ -1327,8 +1340,8 @@ button.mark{font-family:inherit;cursor:pointer}
 <div class="sheet">
   <div class="shead mini attached">
     <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-    <h2 class="sname">Alarra Vane</h2>
-    <span class="minihp"><b>38</b>/52</span>
+    <h2 class="sname">Alarra</h2>
+    <button class="minihp" aria-label="Hit points 38 of 52, open the pad"><b>38</b>/52</button>
     <div class="ac has-ovr" role="button" tabindex="0" aria-label="Armour class 19, set by you"><span>19<em>AC</em></span><span class="ovr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg></span></div>
   </div>
   <nav class="tabs">
@@ -1738,9 +1751,9 @@ button.mark{font-family:inherit;cursor:pointer}
 <div class="sheet">
   <div class="shead mini attached">
     <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-    <h2 class="sname">Brenna Duskhollow</h2>
+    <h2 class="sname">Brenna</h2>
     <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Hex</button>
-    <span class="minihp"><b>31</b>/44<em>+5</em></span>
+    <button class="minihp" aria-label="Hit points 31 of 44, 5 temporary, open the pad"><b>31</b>/44<em>+5 temp</em></button>
     <div class="ac" role="button" tabindex="0" aria-label="Armour class 13"><span>13<em>AC</em></span></div>
   </div>
   <nav class="tabs">
@@ -1802,9 +1815,9 @@ button.mark{font-family:inherit;cursor:pointer}
 <div class="sheet">
   <div class="shead mini attached">
     <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-    <h2 class="sname">Brenna Duskhollow</h2>
+    <h2 class="sname">Brenna</h2>
     <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Hex</button>
-    <span class="minihp"><b>31</b>/44<em>+5</em></span>
+    <button class="minihp" aria-label="Hit points 31 of 44, 5 temporary, open the pad"><b>31</b>/44<em>+5 temp</em></button>
     <div class="ac" role="button" tabindex="0" aria-label="Armour class 13"><span>13<em>AC</em></span></div>
   </div>
   <nav class="tabs">
@@ -1871,8 +1884,8 @@ button.mark{font-family:inherit;cursor:pointer}
 <div class="sheet">
   <div class="shead mini attached">
     <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-    <h2 class="sname">Alarra Vane</h2>
-    <span class="minihp"><b>38</b>/52</span>
+    <h2 class="sname">Alarra</h2>
+    <button class="minihp" aria-label="Hit points 38 of 52, open the pad"><b>38</b>/52</button>
     <div class="ac has-ovr" role="button" tabindex="0" aria-label="Armour class 19, set by you"><span>19<em>AC</em></span><span class="ovr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg></span></div>
   </div>
   <nav class="tabs">
@@ -2380,9 +2393,9 @@ button.mark{font-family:inherit;cursor:pointer}
 <div class="sheet">
   <div class="shead mini attached">
     <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-    <h2 class="sname">Brenna Duskhollow</h2>
+    <h2 class="sname">Brenna</h2>
     <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Hex</button>
-    <span class="minihp"><b>31</b>/44<em>+5</em></span>
+    <button class="minihp" aria-label="Hit points 31 of 44, 5 temporary, open the pad"><b>31</b>/44<em>+5 temp</em></button>
     <div class="ac" role="button" tabindex="0" aria-label="Armour class 13"><span>13<em>AC</em></span></div>
   </div>
   <nav class="tabs">
@@ -2859,8 +2872,8 @@ button.mark{font-family:inherit;cursor:pointer}
 <div class="sheet">
   <div class="shead mini attached">
     <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-    <h2 class="sname">Alarra Vane</h2>
-    <span class="minihp"><b>38</b>/52</span>
+    <h2 class="sname">Alarra</h2>
+    <button class="minihp" aria-label="Hit points 38 of 52, open the pad"><b>38</b>/52</button>
     <div class="ac has-ovr" role="button" tabindex="0" aria-label="Armour class 19, set by you"><span>19<em>AC</em></span><span class="ovr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg></span></div>
   </div>
   <nav class="tabs">
@@ -3362,7 +3375,7 @@ button.mark{font-family:inherit;cursor:pointer}
       </div>
       <button class="icnbtn" aria-label="Sheet menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
     </div>
-    <div class="vitals" role="button" tabindex="0" aria-label="Heal or damage">
+    <div class="vitals" role="button" tabindex="0" aria-expanded="true" aria-label="Heal or damage">
     <div class="hprow">
       <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
     </div>
@@ -3379,17 +3392,6 @@ button.mark{font-family:inherit;cursor:pointer}
   </nav>
 
   <div class="body pad-bottom">
-    <div class="cast conc">
-      <div class="casttop"><b>Concentration save</b><span>Hex</span></div>
-      <div class="bigval">
-        <div class="bignum">10</div>
-        <p><b>DC 10.</b> She took 7 damage, and half of it is under 10. Her Constitution save is +2.</p>
-      </div>
-      <button class="gobtn" style="width:100%;margin-top:14px">Roll d20 + 2</button>
-      <div class="pair"><button class="gobtn">She kept it</button><button class="dangerbtn">She lost it</button></div>
-      <p class="padnote">Losing it ends Hex on the ogre chieftain.</p>
-    </div>
-
     <section class="block">
       <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
       <div class="res">
@@ -3401,6 +3403,21 @@ button.mark{font-family:inherit;cursor:pointer}
         <div class="pips"><i data-on></i></div>
       </div>
     </section>
+  </div>
+  <div class="bscrim" aria-hidden="true"></div>
+  <div class="bsheet" role="dialog" aria-modal="true" aria-label="Concentration save">
+    <p class="bsheet-title">Brenna Duskhollow</p>
+    <div class="cast conc">
+        <div class="casttop"><b>Concentration save</b><span>Hex</span></div>
+        <div class="bigval">
+          <div class="bignum">10</div>
+          <p><b>DC 10.</b> She took 7 damage, and half of it is under 10. Her Constitution save is +2.</p>
+        </div>
+        <button class="gobtn" style="width:100%;margin-top:14px">Roll d20 + 2</button>
+        <div class="pair"><button class="gobtn">She kept it</button><button class="dangerbtn">She lost it</button></div>
+        <p class="padnote">Losing it ends Hex on the ogre chieftain.</p>
+      </div>
+    <button class="menuitem close">Close</button>
   </div>
 </div>
 </template>
@@ -3454,7 +3471,7 @@ button.mark{font-family:inherit;cursor:pointer}
       </div>
       <button class="icnbtn" aria-label="Sheet menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
     </div>
-    <div class="vitals" role="button" tabindex="0" aria-label="Hit points 0 of 27, dying, open the pad">
+    <div class="vitals" role="button" tabindex="0" aria-expanded="true" aria-label="Hit points 0 of 27, dying, open the pad">
       <div class="hprow"><div class="meter" data-hurt><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div></div>
       <p class="hpline"><b>0</b>/27 hit points, dying</p>
     </div>
@@ -3478,18 +3495,28 @@ button.mark{font-family:inherit;cursor:pointer}
   </nav>
 
   <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips"><i data-on></i><i></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Spell slots</b><span>1st level, long rest</span></div><div class="pips"><i data-on></i><i data-on></i><i data-on></i></div></div>
+    </section>
+  </div>
+  <div class="bscrim" aria-hidden="true"></div>
+  <div class="bsheet" role="dialog" aria-modal="true" aria-label="Hit points and death saves">
+    <p class="bsheet-title">Mudge Tealeaf</p>
     <div class="pad" style="margin-top:0">
-      <div class="padtabs"><button data-on>Death save</button><button>Damage</button><button>Heal</button></div>
-      <div class="dsrows">
-        <div class="res"><div class="resl"><b>Successes</b><span>Three and Mudge is stable</span></div><div class="pips ds-ok" role="group" aria-label="Death save successes, 1 of 3"><i data-on></i><i></i><i></i></div></div>
-        <div class="res"><div class="resl"><b>Failures</b><span>Three and Mudge dies</span></div><div class="pips ds-bad" role="group" aria-label="Death save failures, 2 of 3"><i data-on></i><i data-on></i><i></i></div></div>
+        <div class="padtabs"><button data-on>Death save</button><button>Damage</button><button>Heal</button></div>
+        <div class="dsrows">
+          <div class="res"><div class="resl"><b>Successes</b><span>Three and Mudge is stable</span></div><div class="pips ds-ok" role="group" aria-label="Death save successes, 1 of 3"><i data-on></i><i></i><i></i></div></div>
+          <div class="res"><div class="resl"><b>Failures</b><span>Three and Mudge dies</span></div><div class="pips ds-bad" role="group" aria-label="Death save failures, 2 of 3"><i data-on></i><i data-on></i><i></i></div></div>
+        </div>
+        <button class="castbtn" style="margin-top:12px">Roll d20</button>
+        <p class="grp" style="margin:14px 0 0">Rolled at the table</p>
+        <div class="quick" role="group" aria-label="Death save rolled at the table"><button>1</button><button>2 to 9</button><button>10 to 19</button><button>20</button></div>
+        <p class="padnote"><b>One more failure and Mudge dies.</b> A 1 counts as two failures. A 20 brings Mudge back with 1 hit point.</p>
+        <div class="res" style="margin-top:10px"><div class="resl"><b>Stabilised by someone</b><span>Spare the dying, or a DC 10 Medicine check</span></div><button class="gobtn">Mark stable</button></div>
       </div>
-      <button class="castbtn" style="margin-top:12px">Roll d20</button>
-      <p class="grp" style="margin:14px 0 0">Rolled at the table</p>
-      <div class="quick" role="group" aria-label="Death save rolled at the table"><button>1</button><button>2 to 9</button><button>10 to 19</button><button>20</button></div>
-      <p class="padnote"><b>One more failure and Mudge dies.</b> A 1 counts as two failures. A 20 brings Mudge back with 1 hit point.</p>
-      <div class="res" style="margin-top:10px"><div class="resl"><b>Stabilised by someone</b><span>Spare the dying, or a DC 10 Medicine check</span></div><button class="gobtn">Mark stable</button></div>
-    </div>
+    <button class="menuitem close">Close</button>
   </div>
 </div>
 </template>
@@ -3506,7 +3533,7 @@ button.mark{font-family:inherit;cursor:pointer}
       </div>
       <button class="icnbtn" aria-label="Sheet menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
     </div>
-    <div class="vitals" role="button" tabindex="0" aria-label="Hit points 0 of 27, dying, open the pad">
+    <div class="vitals" role="button" tabindex="0" aria-expanded="true" aria-label="Hit points 0 of 27, dying, open the pad">
       <div class="hprow"><div class="meter" data-hurt><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div></div>
       <p class="hpline"><b>0</b>/27 hit points, dying</p>
     </div>
@@ -3530,18 +3557,28 @@ button.mark{font-family:inherit;cursor:pointer}
   </nav>
 
   <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips"><i data-on></i><i></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Spell slots</b><span>1st level, long rest</span></div><div class="pips"><i data-on></i><i data-on></i><i data-on></i></div></div>
+    </section>
+  </div>
+  <div class="bscrim" aria-hidden="true"></div>
+  <div class="bsheet" role="dialog" aria-modal="true" aria-label="Hit points and death saves">
+    <p class="bsheet-title">Mudge Tealeaf</p>
     <div class="pad" style="margin-top:0">
-      <div class="padtabs"><button>Death save</button><button data-on>Damage</button><button>Heal</button></div>
-      <div class="padnum">
-        <button class="step" aria-label="One less">&minus;</button>
-        <b>4</b>
-        <button class="step" aria-label="One more">+</button>
+        <div class="padtabs"><button>Death save</button><button data-on>Damage</button><button>Heal</button></div>
+        <div class="padnum">
+          <button class="step" aria-label="One less">&minus;</button>
+          <b>4</b>
+          <button class="step" aria-label="One more">+</button>
+        </div>
+        <div class="quick"><button>1</button><button>2</button><button>5</button><button>10</button></div>
+        <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Critical hit</b><span>Counts as two failures</span></div></label>
+        <p class="padnote"><b>Mudge is at 0, so damage is a death save failure.</b> This is the third, and Mudge dies. Damage of 27 or more kills outright.</p>
+        <button class="dangerbtn" style="margin-top:11px">Apply 4 damage, Mudge dies</button>
       </div>
-      <div class="quick"><button>1</button><button>2</button><button>5</button><button>10</button></div>
-      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Critical hit</b><span>Counts as two failures</span></div></label>
-      <p class="padnote"><b>Mudge is at 0, so damage is a death save failure.</b> This is the third, and Mudge dies. Damage of 27 or more kills outright.</p>
-      <button class="dangerbtn" style="margin-top:11px">Apply 4 damage, Mudge dies</button>
-    </div>
+    <button class="menuitem close">Close</button>
   </div>
 </div>
 </template>
@@ -3558,7 +3595,7 @@ button.mark{font-family:inherit;cursor:pointer}
       </div>
       <button class="icnbtn" aria-label="Sheet menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
     </div>
-    <div class="vitals" role="button" tabindex="0" aria-label="Hit points 0 of 27, dead, open the pad">
+    <div class="vitals" role="button" tabindex="0" aria-expanded="true" aria-label="Hit points 0 of 27, dead, open the pad">
       <p class="hpline" style="margin-top:0"><b>0</b>/27 hit points, 3 death save failures</p>
     </div>
     <div class="hmarks">
@@ -3574,17 +3611,88 @@ button.mark{font-family:inherit;cursor:pointer}
   </nav>
 
   <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips"><i data-on></i><i></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Spell slots</b><span>1st level, long rest</span></div><div class="pips"><i data-on></i><i data-on></i><i data-on></i></div></div>
+    </section>
+  </div>
+  <div class="bscrim" aria-hidden="true"></div>
+  <div class="bsheet" role="dialog" aria-modal="true" aria-label="Bring back">
+    <p class="bsheet-title">Mudge Tealeaf</p>
     <div class="pad" style="margin-top:0">
-      <h3 class="bhead">Bring back <span>Revivify, raise dead</span></h3>
-      <div class="padnum" style="margin-top:0">
+        <h3 class="bhead">Bring back <span>Revivify, raise dead</span></h3>
+        <div class="padnum" style="margin-top:0">
+          <button class="step" aria-label="One less">&minus;</button>
+          <b>1</b>
+          <button class="step" aria-label="One more">+</button>
+        </div>
+        <div class="quick"><button>1</button><button>Full, 27</button></div>
+        <p class="padnote">Most magic that returns the dead leaves the creature at 1 hit point. Bringing Mudge back clears both death save counts, and Unconscious ends because hit points came back.</p>
+        <button class="castbtn" style="margin-top:11px">Bring Mudge back at 1 hit point</button>
+      </div>
+    <button class="menuitem close">Close</button>
+  </div>
+</div>
+</template>
+
+<!-- ============================================================
+     COMPACT HEADER
+     ============================================================ -->
+<template id="tpl-hp-compact">
+<div class="sheet">
+  <div class="shead mini attached">
+    <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+    <h2 class="sname">Mudge</h2>
+    <button class="mark" data-t="bad" aria-label="Poisoned, open status">Poisoned</button>
+    <button class="minihp" aria-label="Hit points 9 of 27, open the pad" aria-expanded="true"><b>9</b>/27</button>
+    <div class="ac" role="button" tabindex="0" aria-label="Armour class 15"><span>15<em>AC</em></span></div>
+  </div>
+  <nav class="tabs">
+    <button class="tab" data-on><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg><span>Play</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"/><path d="M8 4.8l3 5.2H5z"/></svg><span>Stats</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg><span>Spells</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 6.5h9l-.8 7h-7.4z"/><path d="M6 6.5V5a2 2 0 0 1 4 0v1.5"/></svg><span>Gear</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="5.3" r="2.6"/><path d="M3 14c.6-3 2.5-4.6 5-4.6s4.4 1.6 5 4.6"/></svg><span>Character</span></button>
+  </nav>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Attacks</h3>
+      <div class="atkh"><span>Attack</span><span style="text-align:center">Hit</span><span style="text-align:right">Damage</span></div>
+      <div class="atk">
+        <div><b>Shortsword</b><small>Melee, 5 ft, finesse</small></div>
+        <div class="hit">+6</div>
+        <div class="dmg">1d6+4<em>piercing, plus 2d6 sneak</em></div>
+      </div>
+      <div class="atk">
+        <div><b>Shortbow</b><small>80/320 ft</small></div>
+        <div class="hit">+6</div>
+        <div class="dmg">1d6+4<em>piercing, plus 2d6 sneak</em></div>
+      </div>
+    </section>
+    <section class="block">
+      <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips"><i data-on></i><i></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Spell slots</b><span>1st level, long rest</span></div><div class="pips"><i data-on></i><i data-on></i><i data-on></i></div></div>
+    </section>
+  </div>
+
+  <div class="bscrim" aria-hidden="true"></div>
+  <div class="bsheet" role="dialog" aria-modal="true" aria-label="Hit points">
+    <p class="bsheet-title">Mudge Tealeaf</p>
+    <div class="pad">
+      <div class="padtabs"><button data-on>Damage</button><button>Heal</button><button>Temporary</button></div>
+      <div class="padnum">
         <button class="step" aria-label="One less">&minus;</button>
-        <b>1</b>
+        <b>5</b>
         <button class="step" aria-label="One more">+</button>
       </div>
-      <div class="quick"><button>1</button><button>Full, 27</button></div>
-      <p class="padnote">Most magic that returns the dead leaves the creature at 1 hit point. Bringing Mudge back clears both death save counts, and Unconscious ends because hit points came back.</p>
-      <button class="castbtn" style="margin-top:11px">Bring Mudge back at 1 hit point</button>
+      <div class="quick"><button>1</button><button>2</button><button>5</button><button>10</button></div>
+      <p class="padnote">Mudge ends on <b>4</b>/27, well below half.</p>
+      <button class="castbtn" style="margin-top:11px">Apply 5 damage</button>
     </div>
+    <button class="menuitem close">Close</button>
   </div>
 </div>
 </template>
@@ -3599,13 +3707,13 @@ button.mark{font-family:inherit;cursor:pointer}
     {id:'play', label:'Play tab',
      note:'The default screen. The tabs hang off the bottom of the header plate and stick to the top as you scroll, so they never leave the screen. Below them are resources, attacks and actions.'},
     {id:'play-scrolled', label:'Play tab, scrolled',
-     note:'The header has shrunk to one line: name, the spell being concentrated on, hit points and armour class. In the product it animates down as you scroll. The tabs stay attached underneath.'},
+     note:'The header has shrunk to one line: first name, one status mark, hit points with temporary hit points spelled out, and armour class. The full name stays in the tall header. The status slot shows a condition first and concentration otherwise, so here it is Hex. Tapping the hit points opens the pad as a bottom sheet without losing the scroll. In the product the header animates down as you scroll, and the tabs stay attached underneath.'},
     {id:'spells', label:'Spells tab',
      note:'Two casting stat blocks, because a Magic Initiate feat brings its own ability, save DC and use. Spells group by level. Cure wounds carries a 2 paths mark. A warlock prepares nothing, so there are no preparation toggles; the cleric section has them. Add a spell sits at the foot of the list.'},
     {id:'detail', label:'Spell detail',
      note:'One card per way to cast, each with its own numbers, uses and Cast button. The rules text sits under a disclosure. A spell with a single path gets a single card. Each card has its own Remove, because each path is a separate row.'},
     {id:'hp', label:'Hit point pad, opened from the meter',
-     note:'The most frequent interaction in the app. Damage, heal or temporary, a stepper with quick amounts, and a line that says what will happen before you commit. No keyboard.'},
+     note:'The most frequent interaction in the app. It opens as the static bottom sheet from the vitals here or the hit points on the compact header, so the player keeps their place, and the vitals stay visible through the scrim. Damage, heal or temporary, a stepper with quick amounts, and a line that says what will happen before you commit. No keyboard.'},
     {id:'variants', label:'Header variants and warnings',
      note:'Annotations in dim text are mockup notes, not product UI. Wild shape puts the form on top and the druid underneath. At zero hit points the death saves replace the vitals rail, and tapping them opens the pad&rsquo;s Death save tab. Warnings sit under the header and never block.'},
     {section:'Alarra Vane, cleric',
@@ -3721,7 +3829,11 @@ button.mark{font-family:inherit;cursor:pointer}
     {id:'death-damage', label:'Damage at 0 hit points',
      note:'At 0, damage is a death save failure, and a critical hit counts as two. Mudge already has two, so the line says this one kills before anything happens, and the button turns destructive and names the outcome. Damage of the maximum or more kills outright, which the app records as three failures.'},
     {id:'bring-back', label:'Bringing back a dead character',
-     note:'Three failures, so the token loses its ink and the pad offers Bring back in place of Heal, the only thing left to do. Revivify and raise dead return a creature at 1 hit point, so that is the default. It clears both counts, and Unconscious ends because hit points came back.'}
+     note:'Three failures, so the token loses its ink and the pad offers Bring back in place of Heal, the only thing left to do. Revivify and raise dead return a creature at 1 hit point, so that is the default. It clears both counts, and Unconscious ends because hit points came back.'},
+    {section:'Compact header',
+     text:'Finding 23. Once the header shrinks, the hit points still open the pad and the most urgent status still shows.'},
+    {id:'hp-compact', label:'Hit point pad from the compact header, Mudge',
+     note:'Scrolled down to the attacks, Mudge taps the hit points and the pad opens over the page, which stays where it was. The status slot holds one mark in the design system&rsquo;s priority order: a condition before concentration. With two conditions it would read Poisoned +1, and tapping it opens the status sheet. The first name leaves room for all of it.'}
   ];
 
   function hexToRgb(hex){
