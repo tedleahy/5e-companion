@@ -52,7 +52,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .resetbtn:hover{border-color:#6f7681;color:#fff}
 .resetbtn[aria-pressed=true]{border-color:#fff;color:#fff}
 /* Debug paint for hit areas. Gallery only, so it may use a colour outside the inks. */
-.show-hits .riso :is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button)::after,.show-hits .riso .pips i::after{background:rgba(255,196,0,.3);box-shadow:inset 0 0 0 1px rgba(255,170,0,.95)}
+.show-hits .riso :is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button])::after,.show-hits .riso .pips i::after{background:rgba(255,196,0,.3);box-shadow:inset 0 0 0 1px rgba(255,170,0,.95)}
 .studio{padding:26px 22px 56px}
 .frames{max-width:1600px;margin:0 auto;display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start}
 .framewrap{width:414px}
@@ -639,6 +639,18 @@ button.mark{font-family:inherit;cursor:pointer}
 .riso button.mark[aria-expanded=true]{box-shadow:inset 0 0 0 2px currentColor}
 .bsheet > .prep{padding:3px 8px;min-height:48px}
 .bsheet > .padnote{margin:10px 8px 0}
+
+/* ---- death saves: the pad's third tab ----
+   Successes are structural circles and failures rose-text squares, as in v0.2,
+   drawn at pip size so they correct a mistake with the pip rule. */
+.dyingbox[role=button]{cursor:pointer}
+.riso .dyingbox[role=button]:active{box-shadow:inset 0 0 0 2px var(--a)}
+.dsrows{margin-top:10px}
+.riso .pips.ds-ok i{border-radius:50%;background:transparent;box-shadow:inset 0 0 0 2px var(--a)}
+.riso .pips.ds-ok i[data-on]{background:var(--a)}
+.riso .pips.ds-bad i{background:transparent;box-shadow:inset 0 0 0 2px var(--b-text)}
+.riso .pips.ds-bad i[data-on]{background:var(--b-text)}
+.pad > .prep{margin-top:8px}
 
 /* ---- hit areas, web ----
    Every control answers taps across at least 44 by 44. The extension is an
@@ -3426,6 +3438,60 @@ button.mark{font-family:inherit;cursor:pointer}
 </div>
 </template>
 
+<!-- ============================================================
+     DEATH SAVES
+     ============================================================ -->
+<template id="tpl-death-save">
+<div class="sheet">
+  <div class="shead attached">
+    <div class="sheadtop">
+      <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+      <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+      <div class="who">
+        <h2 class="sname">Mudge Tealeaf</h2>
+        <p class="ssub">Lightfoot halfling rogue 4, Arcane Trickster</p>
+      </div>
+      <button class="icnbtn" aria-label="Sheet menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+    </div>
+    <div class="vitals" role="button" tabindex="0" aria-label="Hit points 0 of 27, dying, open the pad">
+      <div class="hprow"><div class="meter" data-hurt><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div></div>
+      <p class="hpline"><b>0</b>/27 hit points, dying</p>
+    </div>
+    <div class="dyingbox" role="button" tabindex="0" aria-label="Death saves, 1 success and 2 failures, open the death save pad">
+      <p>Death saves</p>
+      <div class="saves" aria-hidden="true"><span data-k="ok"><i data-on></i><i></i><i></i></span><span data-k="bad"><i data-on></i><i data-on></i><i></i></span></div>
+      <p style="margin-left:auto">1 success, 2 failures</p>
+    </div>
+    <div class="hmarks">
+      <button class="mark" data-t="bad" aria-label="Unconscious, open status">Unconscious</button>
+      <button class="mark" data-t="bad" aria-label="Poisoned, open status">Poisoned</button>
+      <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="tab" data-on><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg><span>Play</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"/><path d="M8 4.8l3 5.2H5z"/></svg><span>Stats</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg><span>Spells</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 6.5h9l-.8 7h-7.4z"/><path d="M6 6.5V5a2 2 0 0 1 4 0v1.5"/></svg><span>Gear</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="5.3" r="2.6"/><path d="M3 14c.6-3 2.5-4.6 5-4.6s4.4 1.6 5 4.6"/></svg><span>Character</span></button>
+  </nav>
+
+  <div class="body pad-bottom">
+    <div class="pad" style="margin-top:0">
+      <div class="padtabs"><button data-on>Death save</button><button>Damage</button><button>Heal</button></div>
+      <div class="dsrows">
+        <div class="res"><div class="resl"><b>Successes</b><span>Three and Mudge is stable</span></div><div class="pips ds-ok" role="group" aria-label="Death save successes, 1 of 3"><i data-on></i><i></i><i></i></div></div>
+        <div class="res"><div class="resl"><b>Failures</b><span>Three and Mudge dies</span></div><div class="pips ds-bad" role="group" aria-label="Death save failures, 2 of 3"><i data-on></i><i data-on></i><i></i></div></div>
+      </div>
+      <button class="castbtn" style="margin-top:12px">Roll d20</button>
+      <p class="grp" style="margin:14px 0 0">Rolled at the table</p>
+      <div class="quick" role="group" aria-label="Death save rolled at the table"><button>1</button><button>2 to 9</button><button>10 to 19</button><button>20</button></div>
+      <p class="padnote"><b>One more failure and Mudge dies.</b> A 1 counts as two failures. A 20 brings Mudge back with 1 hit point.</p>
+      <div class="res" style="margin-top:10px"><div class="resl"><b>Stabilised by someone</b><span>Spare the dying, or a DC 10 Medicine check</span></div><button class="gobtn">Mark stable</button></div>
+    </div>
+  </div>
+</div>
+</template>
 
 <script>
 (function(){
@@ -3551,7 +3617,11 @@ button.mark{font-family:inherit;cursor:pointer}
     {id:'conc-save', label:'Concentration save after damage',
      note:'Frame 5 applied 7 damage while Brenna concentrates on Hex, so the pad turns into the save. The DC works itself out, higher of 10 or half the damage. Roll is offered because the app stores the result: a lost save ends the anchor. Kept and Lost are for a roll made at the table, and Lost is outlined in rose because it ends the spell.'},
     {id:'cast-replace', label:'Casting a second concentration spell',
-     note:'Invisibility needs concentration too, so its detail warns before anything happens and the Cast button names what it ends. Casting still goes ahead in one tap; the warning is the check, as the flows doc asks for warnings rather than blocks.'}
+     note:'Invisibility needs concentration too, so its detail warns before anything happens and the Cast button names what it ends. Casting still goes ahead in one tap; the warning is the check, as the flows doc asks for warnings rather than blocks.'},
+    {section:'Death saves',
+     text:'Finding 22. At 0 hit points the hit point pad gains a Death save tab beside Damage and Heal, so everything that changes a dying character happens in one place. Mudge Tealeaf, later in the fight, continues frame 6.'},
+    {id:'death-save', label:'Death save tab, Mudge dying',
+     note:'The vitals block and the death saves both open the pad on this tab. Roll records a save in the app. The four buttons are for a roll made at the table: only the band matters, so there is nothing to type, and the app applies the rules either way. The pips correct a mistake with the usual pip rule. Mark stable covers Spare the dying or a Medicine check by someone else, and fills the successes. Unconscious was added automatically at 0 and leaves when Mudge regains hit points.'}
   ];
 
   function hexToRgb(hex){
