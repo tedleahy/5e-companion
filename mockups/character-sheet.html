@@ -628,6 +628,12 @@ button.mark{font-family:inherit;cursor:pointer}
 .bsheet .editrow{padding:0 8px;margin-top:6px}
 .bsheet .dur{margin:8px 0 0;padding:0 0 2px}
 
+/* ---- concentration: the card that reads the anchor row ----
+   Overprint ink, because concentration marks already use it. The shadow stays
+   rose like every other card. */
+.riso .cast.conc{border-color:var(--mix)}
+.riso .cast.conc .casttop b{color:var(--mix)}
+.cast.conc > .dangerbtn{margin-top:12px}
 .riso button.mark[aria-expanded=true]{box-shadow:inset 0 0 0 2px currentColor}
 .bsheet > .prep{padding:3px 8px;min-height:48px}
 .bsheet > .padnote{margin:10px 8px 0}
@@ -3284,6 +3290,52 @@ button.mark{font-family:inherit;cursor:pointer}
 </div>
 </template>
 
+<template id="tpl-hex-detail">
+<div class="sheet">
+  <div class="shead">
+    <div class="sheadtop">
+      <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+      <div class="who"><h2 class="sname" style="font-size:19px">Hex</h2>
+        <p class="ssub">1st-level enchantment, bonus action, 90 ft</p></div>
+      <button class="icnbtn" aria-label="Spell menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <div class="cast conc">
+      <div class="casttop"><b>Concentrating</b><span>Cast at 3rd level</span></div>
+      <div class="caststats">
+        <div><b>8 hours</b><em>Lasts up to</em></div>
+        <div><b>Long rest</b><em>Ends on</em></div>
+        <div><b>1d6</b><em>Extra necrotic</em></div>
+      </div>
+      <div class="res" style="margin-top:10px;border-top:1.5px solid var(--rule);padding-top:11px">
+        <div class="resl"><b>The ogre chieftain</b><span>Target, with disadvantage on Strength checks</span></div>
+        <button class="gobtn">Move</button>
+      </div>
+      <p class="padnote">A short rest doesn&rsquo;t end it. Taking damage asks for a Constitution save.</p>
+      <button class="dangerbtn">End concentration</button>
+    </div>
+
+    <div class="pathcard">
+      <div class="pathtop"><b>Pact magic</b><span>Known</span></div>
+      <div class="pathstats"><span>Charisma</span><span>Save DC <b>15</b></span><span>Spends a pact slot</span></div>
+      <div class="res">
+        <div class="resl"><b>1 of 2 pact slots</b><span>Back after a short rest</span></div>
+        <div class="pips"><i data-on></i><i></i></div>
+      </div>
+      <button class="castbtn small" style="margin-top:11px">Cast again, ends this one</button>
+      <p class="origin">From the Warlock class, chosen at level 1.</p>
+      <button class="dangerbtn small">Remove this way to cast</button>
+    </div>
+
+    <button class="disclose" aria-expanded="false">Rules text<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
+    <div style="height:4px"></div>
+  </div>
+</div>
+</template>
+
+
 <script>
 (function(){
   var BASE = {paper:'#eae6de', sheet:'#f0ece4', a:'#2560b0', b:'#e0689c', mix:'#5c3d88'};
@@ -3402,7 +3454,9 @@ button.mark{font-family:inherit;cursor:pointer}
     {section:'Inspiration and concentration',
      text:'Finding 21. Inspiration lives in the status sheet, and the concentration mark opens the spell behind it. Concentration is the data model&rsquo;s anchor row, so every screen here reads or ends that one row.'},
     {id:'status-brenna', label:'Status sheet with inspiration, Brenna',
-     note:'Opened from the Inspired mark, which shows the pressed ring. Inspiration is ticked; untick it to spend it, and the mark leaves the plate. Every mark opens this sheet except concentration. While she concentrates, a line names the conditions that would end it, so nobody adds Stunned without knowing Hex goes too.'}
+     note:'Opened from the Inspired mark, which shows the pressed ring. Inspiration is ticked; untick it to spend it, and the mark leaves the plate. Every mark opens this sheet except concentration. While she concentrates, a line names the conditions that would end it, so nobody adds Stunned without knowing Hex goes too.'},
+    {id:'hex-detail', label:'Concentration on the spell detail, Hex',
+     note:'Opened from the concentration mark on either header. A card in overprint ink leads, reading the anchor row: how long it lasts at the level cast, what ends it, and the target from its notes, with Move for when the target drops. End concentration is destructive and acts at once; the push to this screen is the deliberate step. Casting Hex again says it replaces this one.'}
   ];
 
   function hexToRgb(hex){
