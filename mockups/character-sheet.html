@@ -634,6 +634,8 @@ button.mark{font-family:inherit;cursor:pointer}
 .riso .cast.conc{border-color:var(--mix)}
 .riso .cast.conc .casttop b{color:var(--mix)}
 .cast.conc > .dangerbtn{margin-top:12px}
+.cast .bigval{margin-top:10px}
+.pair .dangerbtn{flex:1;width:auto;padding:9px 14px;font-size:13px}
 .riso button.mark[aria-expanded=true]{box-shadow:inset 0 0 0 2px currentColor}
 .bsheet > .prep{padding:3px 8px;min-height:48px}
 .bsheet > .padnote{margin:10px 8px 0}
@@ -1098,7 +1100,7 @@ button.mark{font-family:inherit;cursor:pointer}
       <div class="quick">
         <button>1</button><button>2</button><button>5</button><button>10</button>
       </div>
-      <p class="padnote">The 5 temporary hit points take the first 5. Brenna ends on <b>29</b>/44 with none temporary.</p>
+      <p class="padnote">The 5 temporary hit points take the first 5. Brenna ends on <b>29</b>/44 with none temporary, then makes a concentration save for Hex.</p>
       <button class="castbtn" style="margin-top:11px">Apply 7 damage</button>
     </div>
 
@@ -3335,6 +3337,60 @@ button.mark{font-family:inherit;cursor:pointer}
 </div>
 </template>
 
+<template id="tpl-conc-save">
+<div class="sheet">
+  <div class="shead attached">
+    <div class="sheadtop">
+      <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+      <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">B<b>6</b></div>
+      <div class="who">
+        <h2 class="sname">Brenna Duskhollow</h2>
+        <p class="ssub">Half-elf warlock 6, the Fiend</p>
+      </div>
+      <button class="icnbtn" aria-label="Sheet menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+    </div>
+    <div class="vitals" role="button" tabindex="0" aria-label="Heal or damage">
+    <div class="hprow">
+      <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+    </div>
+    <p class="hpline"><b>29</b>/44 hit points</p>
+    </div>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab" data-on><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg><span>Play</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"/><path d="M8 4.8l3 5.2H5z"/></svg><span>Stats</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg><span>Spells</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 6.5h9l-.8 7h-7.4z"/><path d="M6 6.5V5a2 2 0 0 1 4 0v1.5"/></svg><span>Gear</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="5.3" r="2.6"/><path d="M3 14c.6-3 2.5-4.6 5-4.6s4.4 1.6 5 4.6"/></svg><span>Character</span></button>
+  </nav>
+
+  <div class="body pad-bottom">
+    <div class="cast conc">
+      <div class="casttop"><b>Concentration save</b><span>Hex</span></div>
+      <div class="bigval">
+        <div class="bignum">10</div>
+        <p><b>DC 10.</b> She took 7 damage, and half of it is under 10. Her Constitution save is +2.</p>
+      </div>
+      <button class="gobtn" style="width:100%;margin-top:14px">Roll d20 + 2</button>
+      <div class="pair"><button class="gobtn">She kept it</button><button class="dangerbtn">She lost it</button></div>
+      <p class="padnote">Losing it ends Hex on the ogre chieftain.</p>
+    </div>
+
+    <section class="block">
+      <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
+      <div class="res">
+        <div class="resl"><b>Pact magic</b><span>Two 3rd-level slots, short rest</span></div>
+        <div class="pips"><i data-on></i><i></i></div>
+      </div>
+      <div class="res">
+        <div class="resl"><b>Dark One's Own Luck</b><span>Add 1d10, long rest</span></div>
+        <div class="pips"><i data-on></i></div>
+      </div>
+    </section>
+  </div>
+</div>
+</template>
 
 <script>
 (function(){
@@ -3456,7 +3512,9 @@ button.mark{font-family:inherit;cursor:pointer}
     {id:'status-brenna', label:'Status sheet with inspiration, Brenna',
      note:'Opened from the Inspired mark, which shows the pressed ring. Inspiration is ticked; untick it to spend it, and the mark leaves the plate. Every mark opens this sheet except concentration. While she concentrates, a line names the conditions that would end it, so nobody adds Stunned without knowing Hex goes too.'},
     {id:'hex-detail', label:'Concentration on the spell detail, Hex',
-     note:'Opened from the concentration mark on either header. A card in overprint ink leads, reading the anchor row: how long it lasts at the level cast, what ends it, and the target from its notes, with Move for when the target drops. End concentration is destructive and acts at once; the push to this screen is the deliberate step. Casting Hex again says it replaces this one.'}
+     note:'Opened from the concentration mark on either header. A card in overprint ink leads, reading the anchor row: how long it lasts at the level cast, what ends it, and the target from its notes, with Move for when the target drops. End concentration is destructive and acts at once; the push to this screen is the deliberate step. Casting Hex again says it replaces this one.'},
+    {id:'conc-save', label:'Concentration save after damage',
+     note:'Frame 5 applied 7 damage while Brenna concentrates on Hex, so the pad turns into the save. The DC works itself out, higher of 10 or half the damage. Roll is offered because the app stores the result: a lost save ends the anchor. Kept and Lost are for a roll made at the table, and Lost is outlined in rose because it ends the spell.'}
   ];
 
   function hexToRgb(hex){
