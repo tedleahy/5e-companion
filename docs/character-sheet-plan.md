@@ -295,6 +295,12 @@ All dated 12 September 2026.
 - Where a roll starts inside the hit point pad, as for death and concentration
   saves, the roll replaces the pad's content in place rather than opening a
   sheet over a sheet. 13 September 2026.
+- A warning strip is a margin note: card colour with no tint, a solid 4px rule
+  down its left edge in rose text colour, an outline warning icon, and a bold
+  lead. Dashed borders mean adding or not real yet, the rose tint means a draft
+  and nothing else, and a solid rose edge means a warning, so a warning can sit
+  inside a block being edited without reading as part of the draft.
+  13 September 2026.
 - The conditions sheet is the menu's static sheet: a three-column grid of
   names with Custom in the last cell, the chosen condition's end under it, then
   exhaustion and Close. It stops below the header marks. A taller scrolling
@@ -861,7 +867,7 @@ Decided 12 September 2026 and added to the design system under accessibility.
 
 Sheet header in two sizes, tab bar in two positions, stat tile, resource pip
 row, block card, attack table, action row that pushes, casting statistics card,
-full-screen detail bar, access path card, hit point pad, warning strip, vitals cutout,
+full-screen detail bar, access path card, hit point pad, warning strip as a margin note, vitals cutout,
 the temporary hit point block, the hit area extension, the override
 badge, the preparation toggle row, the over-limit counter, proficiency rank
 marks, ability tiles, two-column skill rows, the value detail with its

@@ -57,7 +57,7 @@ ul.plain li{margin:3px 0}
   <div class="doc-head-inner">
     <b>5e Companion</b>
     <h1>Character sheet mockups, review</h1>
-    <p>13 September 2026, against <code>mockups/character-sheet.html</code> at commit 1b3cedd, with <code>mockups/character-list.html</code>, <code>docs/design-system.html</code> v0.3 and <code>docs/character-sheet-plan.md</code> as the references. Frame numbers are the gallery's own. Findings are numbered 1 to 45 in reading order, and each number is an anchor. Findings 1 to 26 were fixed on 13 September 2026; the decisions behind them are in the plan under Decided.</p>
+    <p>13 September 2026, against <code>mockups/character-sheet.html</code> at commit 1b3cedd, with <code>mockups/character-list.html</code>, <code>docs/design-system.html</code> v0.3 and <code>docs/character-sheet-plan.md</code> as the references. Frame numbers are the gallery's own. Findings are numbered 1 to 45 in reading order, and each number is an anchor. Findings 1 to 27 were fixed on 13 September 2026; the decisions behind them are in the plan under Decided.</p>
     <p>The visual system holds. The problems are rules numbers, frames that disagree with each other, promised interactions no frame draws, and some system, markup and copy drift.</p>
   </div>
 </header>
@@ -192,8 +192,8 @@ ul.plain li{margin:3px 0}
   <div class="finding mid" id="f26"><b><a class="num" href="#f26">26</a>"Only one primary per screen" is broken (frames 4, 23, 35)<span class="tag">Fixed</span></b>
     Frame 4 has two rose Cast buttons, frame 23 two Use buttons, frame 35 four Transform buttons. Either the rule gains an exception for repeated row actions or the row actions become the outlined secondary.<small>Resolved by changing the rule to match the designs. The design system now allows at most one full-width primary per screen or sheet, and lets repeated cards and rows carry one small primary each for their own action, so frames 4, 23 and 35 follow it.</small></div>
 
-  <div class="finding mid" id="f27"><b><a class="num" href="#f27">27</a>Dashed borders carry three meanings</b>
-    Editing drafts are blue dashed with the rose tint, warning strips are rose dashed with the same tint, and add rows are blue dashed on sheet. The tint was defined as "not real yet"; a rules warning is not a draft.</div>
+  <div class="finding mid" id="f27"><b><a class="num" href="#f27">27</a>Dashed borders carry three meanings<span class="tag">Fixed</span></b>
+    Editing drafts are blue dashed with the rose tint, warning strips are rose dashed with the same tint, and add rows are blue dashed on sheet. The tint was defined as "not real yet"; a rules warning is not a draft.<small>Resolved by moving warnings off the draft look. A warning strip is now a margin note: card colour with no tint, a solid rose-text rule down the left edge, and a warning icon. The rose tint means a draft and nothing else, and add rows keep their dashed border.</small></div>
 
   <div class="finding mid" id="f28"><b><a class="num" href="#f28">28</a>Read-only text looks editable (frames 4, 15)</b>
     The Notes block and "Your note" use the same wash and inset rule as the real inputs on frames 30, 33 and 45. In view mode they invite a tap that does nothing until Edit.</div>

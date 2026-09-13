@@ -265,11 +265,16 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .riso .findp input{color:var(--ink)}
 .riso .findp input::placeholder{color:var(--dim)}
 
-/* ---- warning strip ---- */
-.warn{display:flex;gap:9px;align-items:flex-start;padding:9px 11px;font-size:12px;line-height:1.45}
+/* ---- warning strip: a margin note ----
+   Solid, untinted, with a rose-text rule down the left edge and an icon, so it
+   never reads as a draft. Dashed borders and the rose tint stay with drafts and
+   adding. The rule is a left border, which maps straight onto native. */
+.warn{display:flex;gap:9px;align-items:flex-start;padding:9px 11px 9px 12px;font-size:12px;line-height:1.45}
 .warn b{font-weight:700}
+.warn > svg{width:16px;height:16px;flex:none;margin-top:1px}
 .warn button{all:unset;cursor:pointer;font-size:11px;font-weight:700;margin-left:auto;white-space:nowrap}
-.riso .warn{background:var(--draft-bg);border:1.5px dashed var(--b);color:var(--ink)}
+.riso .warn{background:var(--sheet);border-left:4px solid var(--b-text);color:var(--ink)}
+.riso .warn > svg{color:var(--b-text)}
 .riso .warn button{color:var(--b-text)}
 
 /* ---- full screen detail push ---- */
@@ -1270,11 +1275,13 @@ button.mark{font-family:inherit;cursor:pointer}
     </div>
 
     <p class="anno">A rules warning. It sits under the header, it never blocks anything.</p>
-    <div class="warn">
+    <div class="warn" role="note">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg>
       <div><b>Three slots marked spent, two exist.</b> Pact magic went from three slots to two when you rebuilt level 6.</div>
       <button>Fix</button>
     </div>
-    <div class="warn" style="margin-top:10px">
+    <div class="warn" role="note" style="margin-top:10px">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg>
       <div><b>Hunger of Hadar is no longer in your sources.</b> The saved spell stays on the sheet. Open it to enter the details by hand.</div>
       <button>Open</button>
     </div>
@@ -1490,7 +1497,8 @@ button.mark{font-family:inherit;cursor:pointer}
   </div>
 
   <div class="body pad-bottom">
-    <div class="warn">
+    <div class="warn" role="note">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg>
       <div><b>One over the usual limit.</b> A cleric prepares Wisdom modifier plus cleric level, 11 for Alarra. Keeping 12 is allowed.</div>
     </div>
 
@@ -2847,7 +2855,8 @@ button.mark{font-family:inherit;cursor:pointer}
       <label class="prep"><input type="radio" name="spell" checked><span class="box round"></span><div class="actl"><b>Identify</b><span>1st-level divination, ritual, 1 minute</span></div></label>
     </section>
 
-    <div class="warn">
+    <div class="warn" role="note">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg>
       <div><b>Identify isn&rsquo;t on the cleric list.</b> It can still be added, and it uses her cleric numbers.</div>
     </div>
 
@@ -3082,7 +3091,8 @@ button.mark{font-family:inherit;cursor:pointer}
       <p class="padnote">Feats and background features aren&rsquo;t in the catalog. Add those as custom features.</p>
     </section>
 
-    <div class="warn">
+    <div class="warn" role="note">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg>
       <div><b>Fiendish resilience is a warlock 10 feature.</b> Brenna is warlock 6. It can still be added.</div>
     </div>
 
@@ -3477,7 +3487,8 @@ button.mark{font-family:inherit;cursor:pointer}
   </div>
 
   <div class="body pad-bottom">
-    <div class="warn">
+    <div class="warn" role="note">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg>
       <div><b>Brenna is concentrating on Hex.</b> Casting Invisibility ends it, and the curse on the ogre chieftain with it.</div>
     </div>
 
