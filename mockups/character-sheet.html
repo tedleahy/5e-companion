@@ -3493,6 +3493,59 @@ button.mark{font-family:inherit;cursor:pointer}
 </div>
 </template>
 
+<template id="tpl-death-damage">
+<div class="sheet">
+  <div class="shead attached">
+    <div class="sheadtop">
+      <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+      <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+      <div class="who">
+        <h2 class="sname">Mudge Tealeaf</h2>
+        <p class="ssub">Lightfoot halfling rogue 4, Arcane Trickster</p>
+      </div>
+      <button class="icnbtn" aria-label="Sheet menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+    </div>
+    <div class="vitals" role="button" tabindex="0" aria-label="Hit points 0 of 27, dying, open the pad">
+      <div class="hprow"><div class="meter" data-hurt><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div></div>
+      <p class="hpline"><b>0</b>/27 hit points, dying</p>
+    </div>
+    <div class="dyingbox" role="button" tabindex="0" aria-label="Death saves, 1 success and 2 failures, open the death save pad">
+      <p>Death saves</p>
+      <div class="saves" aria-hidden="true"><span data-k="ok"><i data-on></i><i></i><i></i></span><span data-k="bad"><i data-on></i><i data-on></i><i></i></span></div>
+      <p style="margin-left:auto">1 success, 2 failures</p>
+    </div>
+    <div class="hmarks">
+      <button class="mark" data-t="bad" aria-label="Unconscious, open status">Unconscious</button>
+      <button class="mark" data-t="bad" aria-label="Poisoned, open status">Poisoned</button>
+      <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="tab" data-on><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg><span>Play</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"/><path d="M8 4.8l3 5.2H5z"/></svg><span>Stats</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg><span>Spells</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 6.5h9l-.8 7h-7.4z"/><path d="M6 6.5V5a2 2 0 0 1 4 0v1.5"/></svg><span>Gear</span></button>
+    <button class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="5.3" r="2.6"/><path d="M3 14c.6-3 2.5-4.6 5-4.6s4.4 1.6 5 4.6"/></svg><span>Character</span></button>
+  </nav>
+
+  <div class="body pad-bottom">
+    <div class="pad" style="margin-top:0">
+      <div class="padtabs"><button>Death save</button><button data-on>Damage</button><button>Heal</button></div>
+      <div class="padnum">
+        <button class="step" aria-label="One less">&minus;</button>
+        <b>4</b>
+        <button class="step" aria-label="One more">+</button>
+      </div>
+      <div class="quick"><button>1</button><button>2</button><button>5</button><button>10</button></div>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Critical hit</b><span>Counts as two failures</span></div></label>
+      <p class="padnote"><b>Mudge is at 0, so damage is a death save failure.</b> This is the third, and Mudge dies. Damage of 27 or more kills outright.</p>
+      <button class="dangerbtn" style="margin-top:11px">Apply 4 damage, Mudge dies</button>
+    </div>
+  </div>
+</div>
+</template>
+
+
 <script>
 (function(){
   var BASE = {paper:'#eae6de', sheet:'#f0ece4', a:'#2560b0', b:'#e0689c', mix:'#5c3d88'};
@@ -3621,7 +3674,9 @@ button.mark{font-family:inherit;cursor:pointer}
     {section:'Death saves',
      text:'Finding 22. At 0 hit points the hit point pad gains a Death save tab beside Damage and Heal, so everything that changes a dying character happens in one place. Mudge Tealeaf, later in the fight, continues frame 6.'},
     {id:'death-save', label:'Death save tab, Mudge dying',
-     note:'The vitals block and the death saves both open the pad on this tab. Roll records a save in the app. The four buttons are for a roll made at the table: only the band matters, so there is nothing to type, and the app applies the rules either way. The pips correct a mistake with the usual pip rule. Mark stable covers Spare the dying or a Medicine check by someone else, and fills the successes. Unconscious was added automatically at 0 and leaves when Mudge regains hit points.'}
+     note:'The vitals block and the death saves both open the pad on this tab. Roll records a save in the app. The four buttons are for a roll made at the table: only the band matters, so there is nothing to type, and the app applies the rules either way. The pips correct a mistake with the usual pip rule. Mark stable covers Spare the dying or a Medicine check by someone else, and fills the successes. Unconscious was added automatically at 0 and leaves when Mudge regains hit points.'},
+    {id:'death-damage', label:'Damage at 0 hit points',
+     note:'At 0, damage is a death save failure, and a critical hit counts as two. Mudge already has two, so the line says this one kills before anything happens, and the button turns destructive and names the outcome. Damage of the maximum or more kills outright, which the app records as three failures.'}
   ];
 
   function hexToRgb(hex){
