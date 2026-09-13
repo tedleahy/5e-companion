@@ -1042,7 +1042,7 @@ td code{white-space:nowrap}
       <tr><td>Superscript count</td><td>A separate text node aligned to the top. There is no vertical alignment.</td></tr>
       <tr><td>Reduced motion query</td><td>The accessibility info module. The system has no animation, so this only matters if one is added.</td></tr>
       <tr><td>Semantic elements and accessibility attributes</td><td>Roles and accessibility props: a header role on titles, labels on icon-only buttons, hidden meters and pips, and selected or disabled state on chips and buttons.</td></tr>
-      <tr><td>Chip hit area</td><td>Hit slop, which settles the deferred touch target question on native. The web build still needs real padding.</td></tr>
+      <tr><td>Hit areas</td><td>Hit slop, with the same numbers as the web rule under accessibility.</td></tr>
     </tbody>
   </table>
 
@@ -1087,7 +1087,7 @@ td code{white-space:nowrap}
       <tr><td>Text opacity</td><td>Banned. The mockup used opacity on the tray heading, column headers, title count and ring label, which pushed them below contrast. All four are now solid.</td></tr>
       <tr><td>Colour alone</td><td>Hurt is shown by meter colour, a "Below half" mark and the number. Death saves differ in shape as well as colour and are spelled out in the line. Token colour carries no meaning.</td></tr>
       <tr><td>Semantics</td><td>Cards are <code>article</code>, names are <code>h3</code>, search has a label. Meters and pips are decorative; the adjacent text carries the value.</td></tr>
-      <tr><td>Touch targets</td><td>Chips are 22px tall. Hit slop covers native; the web build still needs padding. See deferred.</td></tr>
+      <tr><td>Hit areas</td><td>Every control answers taps across at least 44 by 44. On web the extension is an invisible <code>::after</code> centred on the control, so layout and appearance do not change. Where two controls sit closer than that, their areas meet at the midpoint of the gap instead of overlapping, and 24 is the floor in that direction, the WCAG 2.2 AA minimum. Chips extend to 44 tall and keep their own width. Text fields get a real 44 minimum height instead, because an overlay would cover the caret.</td></tr>
       <tr><td>Native semantics</td><td>HTML elements and accessibility attributes map onto React Native roles and props. See React Native.</td></tr>
     </tbody>
   </table>
@@ -1107,6 +1107,7 @@ td code{white-space:nowrap}
     <li><b>Font weights.</b> Capped at 700, the heaviest face Space Grotesk has. 12 September 2026.</li>
     <li><b>Font scaling.</b> Body text scales with the operating system setting; fixed circles cap at 1.3 times. First proposal, 12 September 2026.</li>
     <li><b>Safe areas and press feedback.</b> The plate paints under the status bar, the Create button clears the home indicator, and Android's ripple is off. 12 September 2026.</li>
+    <li><b>Hit areas.</b> At least 44 by 44 for every control: an invisible extension on web, hit slop on native. Neighbours meet mid-gap, with a floor of 24. 12 September 2026.</li>
   </ul>
 </section>
 
@@ -1119,7 +1120,6 @@ td code{white-space:nowrap}
     <li><b>Empty states.</b> Design each one with its screen: no characters, no search results, no drafts.</li>
     <li><b>Tablet.</b> Nothing exists between 390 and 1440 wide. Decide once two or three screens show what needs to reflow.</li>
     <li><b>Dark mode.</b> The token rule keeps this cheap. The derivation should handle a dark paper, but no dark pairing has been tried.</li>
-    <li><b>Chip touch targets.</b> Hit slop solves this on native. The web build still needs a larger hit area than 22px.</li>
     <li><b>Sheet and form controls.</b> Steppers, toggles, other inputs and dialogs will come out of designing the character sheet.</li>
   </ul>
 </section>
