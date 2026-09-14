@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>5e Companion design system, v0.3</title>
+<title>5e Companion design system, v0.4</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -33,7 +33,7 @@ pre code{background:none;border:0;padding:0;font:inherit}
 .doc-nav li{margin:0}
 .doc-nav a{display:block;padding:4px 0;color:#c3c9d1;text-decoration:none}
 .doc-nav a:hover{color:#fff}
-section{margin:0 0 56px}
+main > section{margin:0 0 56px}
 section>h2{font-size:21px;font-weight:700;margin:0 0 6px;letter-spacing:-.015em;padding-top:8px}
 section>p.lead{margin:0 0 22px;color:#a9b0b9;max-width:70ch}
 h3{font-size:15px;font-weight:700;margin:32px 0 6px}
@@ -85,18 +85,20 @@ td code{white-space:nowrap}
 
   /* derived. Text tokens are contrast-targeted to 4.5:1, see derive() */
   --ink:#1f4477;     /* body text, a darkened */
-  --dim:#48648c;     /* secondary text, ink mixed 20% toward paper */
+  --dim:#44618a;     /* secondary text, ink mixed 18% toward paper */
   --on-a:#f2f0eb;    /* text on structural */
   --on-b:#412029;    /* text on accent: dark, light text fails on rose */
   --on-mix:#f2f0eb;  /* text on overprint */
-  --b-text:#9b4768;  /* accent as text or small graphics on sheet */
+  --b-text:#914261;  /* accent as text or small graphics on sheet */
   --dot:rgba(37,96,176,.13);     /* grid dots */
   --line:rgba(224,104,156,.18);  /* grid lines */
   --empty:rgba(224,104,156,.26); /* empty meter segments */
   --draft-bg:rgba(224,104,156,.11); /* draft card fill */
   --rule:rgba(37,96,176,.28);    /* hairline rules, disabled outline, dead token */
-  --chip:rgba(242,240,235,.10);  /* inactive chip on a plate */
-  --wash:rgba(255,255,255,.5);   /* even table rows */
+  --chip:rgba(242,240,235,.10);  /* inactive chip or tab on a plate */
+  --chip2:rgba(31,68,119,.08);   /* idle pad tab fill on paper */
+  --wash:rgba(255,255,255,.5);   /* even table rows, stat tiles, fields */
+  --scrim:rgba(31,68,119,.4);    /* dim layer behind a modal bottom sheet */
 
   /* semantic aliases used by components */
   --full:var(--a);   /* filled meter, same for every character */
@@ -125,34 +127,30 @@ td code{white-space:nowrap}
 .mat{height:100%;display:flex;flex-direction:column;position:relative}
 .top{padding:20px 18px 14px}
 .title{margin:0;font-size:21px;font-weight:700;letter-spacing:-.015em}
-.title sup{font-size:12px;font-weight:600;margin-left:8px;top:-.55em;opacity:.66}
+.title sup{font-size:12px;font-weight:600;margin-left:8px;top:-.55em}
 .find{display:flex;gap:8px;margin-top:13px}
-.find label{flex:1;display:flex;align-items:center;gap:8px;padding:9px 12px;min-width:0}
+.find label{flex:1;display:flex;align-items:center;gap:8px;padding:9px 12px;min-width:0;min-height:44px}
 .find input{all:unset;flex:1;font-size:14px;font-family:inherit;min-width:0}
 .sortbtn{padding:0 13px;font-size:13px;cursor:pointer;font-family:inherit}
 .chips{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
-.chip{font-size:12px;padding:4px 10px;cursor:default;white-space:nowrap}
+.chip{font-size:12px;padding:4px 10px;cursor:pointer;white-space:nowrap;border:0;font-family:inherit}
 .rows{flex:1;padding:12px 12px 0;display:flex;flex-direction:column;gap:9px}
 .row{display:grid;grid-template-columns:56px 1fr auto;gap:13px;align-items:center;padding:11px 12px}
-.tok{width:56px;height:56px;display:grid;place-items:center;position:relative;font-weight:700;font-size:20px;
-  color:#fff;background:var(--tok,#555);flex:none}
+.tok{width:56px;height:56px;display:grid;place-items:center;position:relative;font-weight:700;font-size:20px;flex:none}
 .tok b{position:absolute;bottom:-7px;right:-7px;width:23px;height:23px;display:grid;place-items:center;
   font-size:11.5px;font-weight:700;line-height:1}
 .name{margin:0;font-size:16.5px;font-weight:700;letter-spacing:-.01em}
 .sub{margin:2px 0 8px;font-size:12.5px}
 .meter{display:flex;gap:2px}
-.meter i{flex:1;height:14px;background:var(--full)}
-.meter i[data-e]{background:var(--empty)}
-.meter[data-hurt] i{background:var(--low)}
-.meter[data-hurt] i[data-e]{background:var(--empty)}
+.meter i{flex:1;height:14px}
 .hp{margin:5px 0 0;font-size:12px;font-weight:600}
 .stat{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:54px}
 .ac{width:44px;height:44px;display:grid;place-items:center;font-weight:700;font-size:17px;line-height:1;flex:none}
-.ac em{display:block;font-style:normal;font-size:8px;font-weight:700;opacity:.75;margin-top:1px}
+.ac em{display:block;font-style:normal;font-size:8px;font-weight:700;margin-top:1px}
 .mark{font-size:11px;padding:3px 7px;white-space:nowrap;line-height:1.35}
 .marks{display:flex;gap:6px;flex-wrap:wrap}
 .tray{margin-top:14px;padding-top:13px}
-.trayhead{margin:0 0 9px;font-size:12px;font-weight:700;opacity:.75}
+.trayhead{margin:0 0 9px;font-size:12px;font-weight:700}
 .draft{display:grid;grid-template-columns:56px 1fr auto;gap:13px;align-items:center;padding:11px 12px}
 .resume{padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
 .newwrap{position:sticky;bottom:0;padding:14px 12px 18px;margin-top:8px}
@@ -164,7 +162,7 @@ td code{white-space:nowrap}
 .d .chips{margin:0}
 .dnew{width:auto;margin-left:auto;padding:12px 20px;font-size:14px}
 .cols{display:grid;grid-template-columns:74px 1fr 200px 104px 224px 132px;gap:16px;padding:10px 34px;
-  font-size:11.5px;font-weight:700;opacity:.75}
+  font-size:11.5px;font-weight:700}
 .drow{display:grid;grid-template-columns:74px 1fr 200px 104px 224px 132px;gap:16px;align-items:center;padding:14px 34px}
 .d .tok{width:64px;height:64px;font-size:23px}
 .d .name{font-size:19px}
@@ -177,37 +175,38 @@ td code{white-space:nowrap}
 /* riso skin */
 .riso .top{background:var(--a);color:var(--on-a);padding-bottom:16px;box-shadow:5px 5px 0 var(--b)}
 .riso .title{font-weight:700;letter-spacing:-.03em}
-.riso .title sup{opacity:1}
 .riso .find label{background:var(--sheet);color:var(--dim);box-shadow:4px 4px 0 var(--b)}
 .riso .find input{color:var(--ink)}
 .riso .find input::placeholder{color:var(--dim)}
 .riso .sortbtn{background:var(--b);color:var(--on-b);border:0;font-weight:700}
 .riso .chip{background:var(--chip);color:var(--on-a);font-weight:600}
-.riso .chip:is([data-on],[aria-pressed=true]){background:var(--sheet);color:var(--a);font-weight:700}
+.riso .chip:is([aria-checked=true],[aria-pressed=true]){background:var(--sheet);color:var(--a);font-weight:700}
 .riso .row,.riso .draft{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
-.riso .tok{border-radius:50%;font-weight:700;color:var(--on-tok,var(--on-a));box-shadow:4px 4px 0 var(--b)}
+.riso .tok{border-radius:50%;font-weight:700;color:var(--on-tok,var(--on-a));background:var(--tok);box-shadow:4px 4px 0 var(--b)}
 .riso .tok b{background:var(--sheet);color:var(--ink);border-radius:50%;box-shadow:0 0 0 2px var(--a)}
 .riso .name{font-weight:700;letter-spacing:-.02em}
 .riso .sub{color:var(--dim)}
 .riso .meter{gap:2px}
-.riso .meter i{height:13px}
+.riso .meter i{height:13px;background:var(--full)}
+.riso .meter i[data-e]{background:var(--empty)}
+.riso .meter[data-hurt] i{background:var(--low)}
+.riso .meter[data-hurt] i[data-e]{background:var(--empty)}
 .riso .hp{color:var(--dim);font-weight:500}
 .riso .hp b{color:var(--a);font-weight:700}
 .riso .ac{border-radius:50%;border:2px solid var(--a);color:var(--a);background:var(--sheet);
   box-shadow:3px 3px 0 var(--b);width:46px;height:46px}
-.riso .ac em{opacity:1}
 .riso .mark{border:1.5px solid var(--a);color:var(--a);background:var(--sheet);font-weight:600}
 .riso .mark[data-t=bad]{border-color:var(--b);color:var(--b-text)}
 .riso .mark[data-t=conc]{border-color:var(--mix);color:var(--mix)}
 .riso .tray{border-top:2px dashed var(--b)}
-.riso .trayhead{color:var(--dim);opacity:1}
+.riso .trayhead{color:var(--dim)}
 .riso .draft{border-style:dashed;box-shadow:none;background:var(--draft-bg)}
 .riso .draft .tok{background:var(--sheet);color:var(--a);box-shadow:4px 4px 0 var(--rule),inset 0 0 0 2px var(--a)}
 .riso .resume{background:var(--a);color:var(--on-a);border:0}
 .riso .newbtn{background:var(--b);color:var(--on-b);border:0;box-shadow:5px 5px 0 var(--a)}
 .riso .newwrap{background:linear-gradient(180deg,transparent,var(--paper) 45%);padding-bottom:24px}
 .riso .d .dtop{background:var(--a);color:var(--on-a);box-shadow:0 5px 0 var(--b);margin-bottom:5px}
-.riso .cols{color:var(--dim);opacity:1;border-bottom:2px solid var(--a)}
+.riso .cols{color:var(--dim);border-bottom:2px solid var(--a)}
 .riso .drow{border-bottom:1.5px solid var(--rule)}
 .riso .drow:nth-child(even){background:var(--wash)}
 .riso .go{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
@@ -225,6 +224,20 @@ td code{white-space:nowrap}
 .riso :is(.newbtn,.resume,.go,.sortbtn):is(:disabled,[aria-disabled=true]){background:transparent;color:var(--dim);
   box-shadow:inset 0 0 0 2px var(--rule);transform:none;cursor:not-allowed}
 .riso .go:is(:disabled,[aria-disabled=true]){border-color:var(--rule);box-shadow:none}
+
+/* the card is one control: its name is a link stretched over it */
+.row{position:relative}
+.rowlink{color:inherit;text-decoration:none}
+.rowlink::after{content:"";position:absolute;inset:0}
+.riso .rowlink:focus-visible{outline:none}
+.riso .row:has(.rowlink:focus-visible){outline:2px solid var(--a);outline-offset:3px}
+a.go{display:inline-block;text-decoration:none;text-align:center}
+
+/* hit areas: every control answers taps across at least 44 by 44 */
+:is(.chip,.sortbtn,.resume,.go){position:relative}
+:is(.chip,.sortbtn,.resume,.go)::after{content:"";position:absolute;
+  top:min(0px,calc((100% - 44px) / 2));bottom:min(0px,calc((100% - 44px) / 2));
+  left:min(0px,calc((100% - 44px) / 2));right:min(0px,calc((100% - 44px) / 2))}
 
 /* zero hit points (new in v0.2, not in the mockup yet) */
 .saves{display:flex;gap:14px;align-items:center}
@@ -262,6 +275,581 @@ td code{white-space:nowrap}
 .riso .contrast{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;font-size:12px}
 .riso .contrast div{padding:12px;font-weight:600}
 .riso .contrast small{display:block;font-weight:500;opacity:.8;margin-top:2px;font-size:10.5px}
+
+/* =========================================================
+   DESIGN SYSTEM: SHEET COMPONENTS (new in v0.4)
+   Copied from the character sheet mockup, keeping the
+   structural and skin split. Anything a specimen needs
+   that the mockup also has is verbatim.
+   ========================================================= */
+
+/* screen skeleton */
+.sheet{min-height:100%;display:flex;flex-direction:column}
+.body{flex:1;padding:17px 12px 0;display:flex;flex-direction:column;gap:13px}
+.body.pad-bottom{padding-bottom:16px}
+
+/* sheet header, tall */
+.shead{padding:13px 14px;position:relative;z-index:3}
+.sheadtop{display:flex;align-items:center;gap:11px}
+.icnbtn{all:unset;cursor:pointer;width:32px;height:32px;display:grid;place-items:center;flex:none}
+.who{flex:1;min-width:0}
+.sname{margin:0;font-size:17px;font-weight:700;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheadtop > .icnbtn + .who .sname{font-size:19px}
+.ssub{margin:2px 0 0;font-size:12px;font-weight:500}
+.vitals{margin-top:13px;padding:9px 10px}
+.vitals[role=button]{cursor:pointer}
+.riso .vitals[role=button]:active{box-shadow:inset 0 0 0 2px var(--a)}
+.hprow{display:flex;gap:13px;align-items:center}
+.hprow .meter{flex:1}
+.temp{width:40px;height:13px;flex:none}
+.hpline{margin:6px 0 0;font-size:12px;font-weight:500}
+.shead > .hpline{margin-top:11px}
+.rail{display:flex;gap:8px;align-items:center;margin-top:12px}
+.tile{flex:1;padding:5px 6px 6px;text-align:center;min-width:0;border:0;font-family:inherit;cursor:pointer}
+.tile b{display:block;font-size:17px;font-weight:700;line-height:1.1}
+.tile em{display:block;font-style:normal;font-size:10px;font-weight:600;margin-top:2px;white-space:nowrap}
+.hmarks{display:flex;gap:6px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.restbtn{margin-left:auto;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;border:0}
+.dyingbox{margin-top:12px;padding:9px 11px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.dyingbox p{margin:0;font-size:11.5px;font-weight:600}
+.dyingbox[role=button]{cursor:pointer}
+
+.riso .shead{background:var(--a);color:var(--on-a);box-shadow:0 5px 0 var(--b)}
+.riso .ssub{color:var(--on-a)}
+.riso .vitals{background:var(--sheet);color:var(--ink)}
+.riso .vitals .hpline{color:var(--dim)}
+.riso .vitals .hpline b{color:var(--a)}
+.riso .shead > .hpline{color:var(--on-a)}
+.riso .hpline b{font-weight:700}
+.riso .temp{background:var(--mix)}
+.riso .shead .tok{box-shadow:0 0 0 2px var(--sheet),4px 4px 0 var(--b)}
+.riso .tile{background:var(--sheet);color:var(--a)}
+.riso .tile em{color:var(--dim)}
+.riso .tile:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .restbtn{background:var(--b);color:var(--on-b)}
+.riso .restbtn:active{box-shadow:inset 0 0 0 2px currentColor}
+.riso .dyingbox{background:var(--sheet);color:var(--ink)}
+.riso .dyingbox[role=button]:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .shead :focus-visible,.riso .tabs :focus-visible{outline-color:var(--on-a)}
+
+/* sheet header, compact */
+.shead.mini{display:flex;align-items:center;gap:9px;padding:9px 12px;position:sticky;top:0}
+.shead.mini .icnbtn{width:28px}
+.shead.mini .sname{font-size:14.5px;flex:1}
+.minihp{flex:none;padding:4px 8px;font-size:12.5px;font-weight:500;white-space:nowrap;border:0;font-family:inherit;cursor:pointer}
+.minihp b{font-weight:700}
+.minihp em{font-style:normal;margin-left:5px}
+.riso .minihp{background:var(--sheet);color:var(--dim)}
+.riso .minihp b{color:var(--a)}
+.riso .minihp em{color:var(--mix)}
+.riso .shead.mini .ac{width:36px;height:36px;font-size:13px;box-shadow:2px 2px 0 var(--b)}
+.riso .shead.mini .ac em{font-size:8px;margin-top:0}
+.riso .minihp:active,.riso .minihp[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a)}
+
+/* tabs */
+.tabs{display:flex;gap:5px;padding:2px 12px 9px;position:sticky;top:54px;z-index:3}
+.tab{flex:1;padding:8px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;font-size:11.5px;font-weight:600;line-height:1.15;cursor:pointer;border:0;text-align:center}
+.tab svg{width:16px;height:16px;flex:none}
+.shead:not(.mini) + .tabs{top:0}
+.riso .tabs{background:var(--a);box-shadow:0 5px 0 var(--b)}
+.riso .tab{background:var(--chip);color:var(--on-a)}
+.riso .tab:is([aria-selected=true],[aria-checked=true]){background:var(--sheet);color:var(--a);font-weight:700}
+.riso .tab:active{box-shadow:inset 0 0 0 2px currentColor}
+
+/* header and tabs as one attached unit */
+.riso .shead.attached{box-shadow:none}
+
+/* content block */
+.block{padding:11px 12px}
+.bhead{margin:0 0 9px;font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:8px}
+.bhead span{font-size:11px;font-weight:500;margin-left:auto}
+.riso .block{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
+.riso .bhead{color:var(--a)}
+.riso .bhead span{color:var(--dim)}
+.riso :is(.res,.atk,.act,.prep,.skill,.calc,.change,.editrow,.erow,.form,.origin,.para){border-top-color:var(--rule)}
+.riso .calc.total{border-top-color:var(--a)}
+.block > :is(.prep,.editrow,.res,.padnote,.act) + :is(.prep,.editrow,.res,.act){border-top:1.5px solid transparent}
+.block > :is(.prep,.editrow,.padnote,.act) + .res{padding-top:11px}
+.block > .padnote + :is(.res,.prep,.editrow,.act){margin-top:10px}
+
+/* resource line with tappable pips */
+.res{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1.5px solid transparent}
+.res:first-of-type{border-top:0;padding-top:0}
+.resl{flex:1;min-width:0}
+.resl b{font-size:13.5px;font-weight:700;display:block}
+.resl span{display:block;font-size:11px;margin-top:1px}
+.pips{display:flex;gap:4px;flex:none}
+.pips i{width:22px;height:22px;display:block;cursor:pointer}
+.pips.wide i{width:20px;height:22px}
+.riso .resl span{color:var(--dim)}
+.riso .pips i{background:var(--empty)}
+.riso .pips i[data-on]{background:var(--a)}
+.riso .pips i:active{box-shadow:inset 0 0 0 2px var(--a)}
+
+/* attack table */
+.atkh,.atk{display:grid;grid-template-columns:1fr 44px 104px;gap:8px;align-items:center}
+.atkh{font-size:10.5px;font-weight:700;padding-bottom:6px}
+.atk{padding:8px 0;border-top:1.5px solid transparent;cursor:pointer}
+.atk b{font-size:13.5px;font-weight:700;display:block}
+.atk small{font-size:11px;display:block;margin-top:1px}
+.atk .hit{font-size:15px;font-weight:700;text-align:center}
+.atk .hit small{display:block;font-size:10px;font-weight:600;margin-top:1px;white-space:nowrap}
+.atk .dmg{font-size:12.5px;font-weight:600;text-align:right}
+.atk .dmg em{display:block;font-style:normal;font-size:10.5px;font-weight:500;margin-top:1px}
+.riso .atkh{color:var(--dim)}
+.riso .atk small,.riso .atk .dmg em,.riso .atk .hit small{color:var(--dim)}
+.riso .atk .hit{color:var(--a)}
+
+/* list row that pushes a detail screen */
+.grp{margin:11px 0 0;font-size:10.5px;font-weight:700}
+.grp:first-child{margin-top:0}
+.act{display:flex;width:100%;align-items:center;gap:10px;padding:9px 0;border:0;border-top:1.5px solid transparent;background:none;color:inherit;font-family:inherit;cursor:pointer;text-align:left}
+.act:first-of-type{border-top:0}
+.actl{flex:1;min-width:0}
+.actl b{font-size:13.5px;font-weight:700;display:block}
+.actl span{display:block;font-size:11px;margin-top:2px}
+.chev{width:7px;height:7px;border-right:1.8px solid currentColor;border-top:1.8px solid currentColor;transform:rotate(45deg);flex:none;margin-right:3px}
+.chev.down{transform:rotate(135deg);margin-top:-5px}
+.riso .grp{color:var(--dim)}
+.riso .actl span{color:var(--dim)}
+.riso .chev{color:var(--a)}
+.riso .act:active{box-shadow:inset 0 0 0 2px var(--a)}
+
+/* spellcasting statistics card */
+.cast{padding:10px 11px}
+.casttop{display:flex;align-items:baseline;gap:8px}
+.casttop b{font-size:13.5px;font-weight:700}
+.casttop span{font-size:11px;margin-left:auto}
+.caststats{display:flex;gap:7px;margin-top:9px}
+.caststats div{flex:1;text-align:center;padding:5px 4px 6px}
+.caststats b{display:block;font-size:15px;font-weight:700;line-height:1.1}
+.caststats em{display:block;font-style:normal;font-size:10px;font-weight:600;margin-top:2px}
+.riso .cast{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
+.riso .casttop span{color:var(--dim)}
+.riso .caststats div{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule)}
+.riso .caststats b{color:var(--a)}
+.riso .caststats em{color:var(--dim)}
+
+/* find field on paper */
+.findp{display:flex;align-items:center;gap:8px;padding:9px 12px;min-height:44px}
+.findp input{all:unset;flex:1;font-size:14px;font-family:inherit;min-width:0}
+.riso .findp{background:var(--sheet);color:var(--dim);box-shadow:4px 4px 0 var(--b)}
+.riso .findp input{color:var(--ink)}
+.riso .findp input::placeholder{color:var(--dim)}
+
+/* warning strip: a margin note */
+.warn{display:flex;gap:9px;align-items:flex-start;padding:9px 11px 9px 12px;font-size:12px;line-height:1.45}
+.warn b{font-weight:700}
+.warn > svg{width:16px;height:16px;flex:none;margin-top:1px}
+.warn button{all:unset;cursor:pointer;font-size:11px;font-weight:700;margin-left:auto;white-space:nowrap}
+.riso .warn{background:var(--sheet);border-left:4px solid var(--b-text);color:var(--ink)}
+.riso .warn > svg{color:var(--b-text)}
+.riso .warn button{color:var(--b-text)}
+
+/* full screen detail push */
+.origin{margin:9px 0 0;font-size:11px;font-weight:500;padding-top:8px;border-top:1.5px solid transparent}
+.castbtn{width:100%;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;border:0}
+.pathcard{padding:11px 12px}
+.pathtop{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.pathtop b{font-size:13.5px;font-weight:700}
+.pathtop span{font-size:11px;margin-left:auto;font-weight:600}
+.pathstats{display:flex;gap:14px;font-size:12px;font-weight:500;margin-bottom:10px;flex-wrap:wrap}
+.pathstats b{font-weight:700}
+.disclose{display:flex;align-items:center;gap:9px;padding:11px 12px;cursor:pointer;font-size:13px;font-weight:700;width:100%;text-align:left;font-family:inherit}
+.riso .origin{color:var(--dim)}
+.riso .castbtn{background:var(--b);color:var(--on-b);box-shadow:5px 5px 0 var(--a)}
+.riso .castbtn:active{transform:translate(5px,5px);box-shadow:none}
+.riso .pathcard{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
+.riso .pathtop span{color:var(--dim)}
+.riso .disclose{background:var(--sheet);border:2px solid var(--a);color:var(--a)}
+.riso .pathstats b{color:var(--a)}
+.riso .castbtn.small{width:auto;padding:9px 16px;font-size:13px;box-shadow:3px 3px 0 var(--a)}
+.riso .castbtn:disabled{background:transparent;color:var(--dim);box-shadow:inset 0 0 0 2px var(--rule);transform:none;cursor:not-allowed}
+
+/* hit point pad */
+.pad{padding:12px;margin-top:12px}
+.padtabs{display:flex;gap:5px}
+.padtabs button{flex:1;padding:9px 0;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;border:0}
+.padnum{display:flex;align-items:center;gap:12px;margin-top:11px}
+.padnum b{flex:1;text-align:center;font-size:36px;font-weight:700;line-height:1}
+.step{width:52px;height:52px;font-size:24px;font-weight:700;cursor:pointer;font-family:inherit;flex:none}
+.quick{display:flex;gap:6px;margin-top:11px}
+.quick button{flex:1;padding:9px 0;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.padnote{margin:10px 0 0;font-size:11.5px;font-weight:500;line-height:1.45}
+.riso .pad{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
+.riso .padtabs button{background:var(--chip2);color:var(--dim)}
+.riso .padtabs button:is([aria-selected=true],[aria-checked=true]){background:var(--a);color:var(--on-a)}
+.riso .padnum b{color:var(--a)}
+.riso .step{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
+.riso .step:active{transform:translate(3px,3px);box-shadow:none}
+.riso .quick button{background:var(--sheet);border:1.5px solid var(--a);color:var(--a)}
+.riso .padnote{color:var(--dim)}
+
+/* override badge: a value the player replaced */
+.ovr{width:18px;height:18px;display:inline-grid;place-items:center;flex:none;vertical-align:middle}
+.ovr svg{width:11px;height:11px}
+.has-ovr{position:relative}
+.has-ovr > .ovr{position:absolute;top:-7px;right:-7px}
+.riso .ovr{background:var(--sheet);color:var(--b-text);border-radius:50%;box-shadow:0 0 0 1.5px var(--b-text)}
+
+/* outlined secondary button, the sheet's form of Open sheet */
+.gobtn{padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex:none}
+.riso .gobtn{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
+.riso .gobtn:active{transform:translate(3px,3px);box-shadow:none}
+
+/* preparation toggle row */
+.prep{display:flex;align-items:center;gap:12px;min-height:44px;padding:5px 0;border-top:1.5px solid transparent;cursor:pointer}
+.prep:first-of-type{border-top:0}
+.prep input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.box{width:22px;height:22px;flex:none;display:grid;place-items:center}
+.box svg{width:16px;height:16px;visibility:hidden}
+.prep input:checked + .box svg{visibility:visible}
+.prep:has(input:disabled){cursor:default}
+.infobtn{all:unset;width:32px;height:32px;display:grid;place-items:center;cursor:pointer;flex:none}
+.riso .box{box-shadow:inset 0 0 0 2px var(--a);color:var(--on-a)}
+.riso .prep input:checked + .box{background:var(--a)}
+.riso .prep input:disabled + .box{background:transparent;box-shadow:inset 0 0 0 2px var(--rule);color:var(--dim)}
+.riso .prep input:focus-visible + .box{outline:2px solid var(--a);outline-offset:3px}
+.riso .prep:not(:has(input:disabled)):active .box{box-shadow:inset 0 0 0 2px var(--a),inset 0 0 0 4px var(--sheet)}
+.riso .infobtn{color:var(--a)}
+.prep > .prepmain{display:flex;align-items:center;gap:12px;flex:1;min-width:0;align-self:stretch;cursor:pointer;min-height:44px}
+.prep:has(> .prepmain){cursor:default;padding:0}
+.riso .prep:not(:has(input:disabled)):has(.infobtn:active) .box{box-shadow:inset 0 0 0 2px var(--a)}
+
+/* a single choice: the toggle row with a round marker */
+.box.round{border-radius:50%}
+.riso .prep input:checked + .box.round{background:var(--sheet);box-shadow:inset 0 0 0 2px var(--a),inset 0 0 0 6px var(--sheet),inset 0 0 0 11px var(--a)}
+
+/* counter that can go over: the excess spills rose */
+.over{width:22px;height:13px;flex:none}
+.riso .over{background:var(--b)}
+
+/* sticky footer for a pushed screen's primary action */
+.footbar{position:sticky;bottom:0;margin-top:auto;padding:16px 12px 18px;z-index:4}
+.riso .footbar{background:linear-gradient(180deg,transparent,var(--paper) 38%)}
+
+/* ability scores */
+.abil{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.abil div{padding:7px 6px 8px;text-align:center}
+.abil em{display:block;font-style:normal;font-size:10.5px;font-weight:600}
+.abil b{display:block;font-size:22px;font-weight:700;line-height:1.1;margin-top:2px}
+.abil span{display:block;font-size:11px;font-weight:500;margin-top:1px}
+.riso .abil div{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule)}
+.riso .abil em,.riso .abil span{color:var(--dim)}
+.riso .abil b{color:var(--a)}
+
+/* proficiency rank: a shape, never colour alone */
+.rank{width:12px;height:12px;flex:none;display:inline-block}
+.riso .rank{box-shadow:inset 0 0 0 1.5px var(--a)}
+.riso .rank[data-r=half]{background:linear-gradient(90deg,var(--a) 50%,transparent 50%)}
+.riso .rank[data-r=prof]{background:var(--a)}
+.riso .rank[data-r=exp]{background:var(--a);box-shadow:inset 0 0 0 1.5px var(--a),inset 0 0 0 3px var(--sheet)}
+.legend{display:flex;flex-wrap:wrap;gap:5px 13px;margin:-2px 0 6px;font-size:11px;font-weight:500}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.riso .legend{color:var(--dim)}
+
+/* skill and saving throw rows, two columns */
+.skills{display:grid;grid-template-columns:1fr 1fr;column-gap:14px}
+.skill{display:flex;align-items:center;gap:8px;min-height:44px;width:100%;padding:0;border:0;border-top:1.5px solid transparent;background:none;color:inherit;font-family:inherit;cursor:pointer;text-align:left}
+.skill:nth-child(-n+2){border-top:0}
+.skill .lbl{flex:1;min-width:0;font-size:13px;font-weight:500;white-space:nowrap}
+.skill b{font-size:14px;font-weight:700}
+.riso .skill b{color:var(--a)}
+.riso .skill:active{box-shadow:inset 0 0 0 2px var(--a)}
+
+/* value detail: a big ring and the calculation behind it */
+.bigval{display:flex;align-items:center;gap:18px}
+.bigval .ac{width:72px;height:72px;font-size:28px}
+.bigval .ac em{font-size:10px}
+.bigval p{margin:0;font-size:13px;font-weight:500;line-height:1.45}
+.calc{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1.5px solid transparent}
+.calc:first-of-type{border-top:0;padding-top:0}
+.calc div{flex:1;min-width:0}
+.calc b{font-size:13.5px;font-weight:700;display:block}
+.calc span{display:block;font-size:11px;margin-top:1px}
+.calc strong{font-size:16px;font-weight:700}
+.calc.total{border-top:2px solid transparent;margin-top:2px}
+.riso .bigval p{color:var(--dim)}
+.riso .bigval p b{color:var(--ink)}
+.riso .calc span{color:var(--dim)}
+.riso .calc strong{color:var(--a)}
+
+/* slot grid: several spell slot levels inside one resource row */
+.slotgrid{display:grid;grid-template-columns:1fr 1fr;column-gap:14px;margin-top:-4px}
+.slotg{display:flex;align-items:center;gap:10px;min-height:44px}
+.slotg em{font-style:normal;font-size:12px;font-weight:700;width:28px;flex:none}
+.riso .slotg em{color:var(--dim)}
+
+/* two-way switch on the plate, and a pair of equal buttons */
+.seg{display:flex;gap:5px;margin-top:12px}
+.seg .tab{padding:11px 2px;font-size:12.5px}
+.pair{display:flex;gap:12px;margin-top:12px}
+.pair .gobtn{flex:1}
+
+/* money pad: switch coin on the plate */
+.coinseg{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:12px}
+.coinseg .tab{padding:10px 2px;font-size:12px}
+
+/* before and after */
+.change{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1.5px solid transparent}
+.change:first-of-type{border-top:0;padding-top:0}
+.change > div{flex:1;min-width:0}
+.change > div b{font-size:13.5px;font-weight:700;display:block}
+.change > div span{display:block;font-size:11px;margin-top:1px}
+.change strong{font-size:14px;font-weight:700;white-space:nowrap}
+.change .was{font-style:normal;font-weight:500}
+.riso .change > div span{color:var(--dim)}
+.riso .change strong{color:var(--a)}
+.riso .change .was{color:var(--dim)}
+
+/* money */
+.coins{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.coin{min-height:52px;padding:6px 2px;text-align:center;border:0;font-family:inherit;cursor:pointer}
+.coin b{display:block;font-size:16px;font-weight:700;line-height:1.1}
+.coin em{display:block;font-style:normal;font-size:10px;font-weight:600;margin-top:2px}
+.riso .coin{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--a)}
+.riso .coin em{color:var(--dim)}
+.riso .coin:active{box-shadow:inset 0 0 0 2px var(--a)}
+
+/* quantities, and a container open in place */
+.qty{font-size:12.5px;font-weight:700}
+.riso .qty{color:var(--dim)}
+.nest{margin:0 0 2px 10px;padding-left:12px}
+.riso .nest{border-left:2px solid var(--rule)}
+
+/* profile: labelled values and short paragraphs */
+.kv{display:grid;grid-template-columns:88px 1fr;gap:7px 12px;margin:0;font-size:12.5px;line-height:1.45}
+.kv dt{font-weight:600}
+.kv dd{margin:0;font-weight:500}
+.riso .kv dt{color:var(--dim)}
+.riso .kv dd{color:var(--ink)}
+.para{margin:12px 0 0;padding-top:10px;border-top:1.5px solid transparent}
+.para h4{margin:0 0 3px;font-size:11.5px;font-weight:700}
+.para p{margin:0;font-size:12.5px;line-height:1.5;font-weight:500}
+.riso .para h4{color:var(--a)}
+
+/* per-section edit */
+.editbtn{font-family:inherit;font-size:12px;font-weight:700;padding:5px 11px;cursor:pointer;flex:none}
+.bhead .editbtn{margin-left:auto}
+.bhead span + .editbtn{margin-left:10px}
+.bhead .castbtn.small{padding:6px 12px;font-size:12px;margin-left:8px}
+.riso .editbtn{background:var(--sheet);border:1.5px solid var(--a);color:var(--a)}
+.riso .editbtn:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .editbtn:disabled{border-color:var(--rule);color:var(--dim);cursor:not-allowed;box-shadow:none}
+.riso .block.editing{border-style:dashed;box-shadow:none;background:var(--draft-bg)}
+.editrow{display:flex;align-items:center;gap:10px;min-height:52px;border-top:1.5px solid transparent}
+.editrow:first-of-type{border-top:0}
+.editrow .lbl{flex:1;min-width:0;font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:8px}
+.editrow .step{width:40px;height:40px;font-size:20px}
+.editrow .num{width:30px;text-align:center;font-size:18px;font-weight:700}
+.editrow .mod{width:32px;text-align:right;font-size:13px;font-weight:600}
+.riso .editrow .num{color:var(--a)}
+.riso .editrow .mod{color:var(--dim)}
+
+/* detail screens */
+.rules p{margin:0 0 9px;font-size:13px;line-height:1.5;font-weight:500}
+.rules p:last-child{margin-bottom:0}
+.riso .rules p{color:var(--ink)}
+
+/* destructive: outlined in rose text ink, no shadow, never the primary look */
+.dangerbtn{width:100%;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.riso .dangerbtn{background:var(--sheet);border:2px solid var(--b-text);color:var(--b-text)}
+.riso .dangerbtn:active{box-shadow:inset 0 0 0 2px var(--b-text)}
+
+/* a big rectangular value, the square cousin of the armour ring */
+.bignum{width:72px;height:72px;display:grid;place-items:center;font-size:26px;font-weight:700;flex:none}
+.riso .bignum{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
+
+/* proficiency rank as a four-way choice */
+.rankseg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.rankseg button{min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;border:0}
+.riso .rankseg button{background:var(--sheet);box-shadow:inset 0 0 0 1.5px var(--a);color:var(--a)}
+.riso .rankseg button[aria-checked=true]{background:var(--a);color:var(--on-a);font-weight:700}
+.riso .rankseg button[aria-checked=true] .rank{box-shadow:inset 0 0 0 1.5px var(--on-a)}
+.riso .rankseg button[aria-checked=true] .rank[data-r=half]{background:linear-gradient(90deg,var(--on-a) 50%,transparent 50%)}
+.riso .rankseg button[aria-checked=true] .rank[data-r=prof]{background:var(--on-a)}
+.riso .rankseg button[aria-checked=true] .rank[data-r=exp]{background:var(--on-a);box-shadow:inset 0 0 0 1.5px var(--on-a),inset 0 0 0 3px var(--a)}
+
+/* selector widths for two, three and six options */
+.rankseg.two{grid-template-columns:repeat(2,1fr)}
+.rankseg.three{grid-template-columns:repeat(3,1fr)}
+.rankseg.six{grid-template-columns:repeat(6,1fr);gap:5px}
+.rankseg.six button{min-height:48px}
+
+/* a small destructive button inside a card */
+.dangerbtn.small{width:auto;padding:8px 12px;font-size:13px;margin-top:10px}
+.pair .dangerbtn{flex:1;width:auto;padding:9px 14px;font-size:13px}
+
+/* list editing: drag handle, row removal, staged removal, add */
+.erow{display:flex;align-items:center;gap:10px;min-height:52px;border-top:1.5px solid transparent}
+.erow:first-of-type{border-top:0}
+.erow .actl{flex:1;min-width:0}
+.grip,.rmbtn{all:unset;display:grid;place-items:center;flex:none}
+.grip{width:28px;height:36px;cursor:grab}
+.rmbtn{width:32px;height:32px;cursor:pointer}
+.grip svg,.rmbtn svg{width:16px;height:16px}
+.erow.removing .actl b{text-decoration:line-through}
+.riso .grip{color:var(--dim)}
+.riso .rmbtn{color:var(--b-text)}
+.riso .erow.removing .actl b{color:var(--dim)}
+.addrow{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;margin-top:8px;padding:0 12px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;text-align:left}
+.addrow svg{width:16px;height:16px;flex:none}
+.riso .addrow{background:var(--sheet);border:1.5px dashed var(--a);color:var(--a)}
+.riso .addrow:active{box-shadow:inset 0 0 0 2px var(--a)}
+
+/* text fields */
+.field{display:block;margin-top:12px}
+.field:first-child{margin-top:0}
+.field > span{display:block;font-size:11.5px;font-weight:700;margin-bottom:5px}
+.field input,.field textarea{all:unset;box-sizing:border-box;display:block;width:100%;min-height:44px;padding:10px 11px;font-family:inherit;font-size:14px;line-height:1.45;white-space:pre-wrap}
+.field textarea{min-height:92px}
+.riso .field > span{color:var(--dim)}
+.riso .field input,.riso .field textarea{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--ink)}
+.riso .field :is(input,textarea):focus-visible{box-shadow:inset 0 0 0 2px var(--a);outline:none}
+
+/* a known form: its numbers and a button to become it */
+.form{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1.5px solid transparent}
+.form:first-of-type{border-top:0;padding-top:0}
+.form .actl{flex:1;min-width:0}
+.form .castbtn.small{flex:none;padding:9px 13px;font-size:13px}
+
+/* token colour picker */
+.tokpick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tokpick button{min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border:0;font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer}
+.tokpick .tok{width:48px;height:48px;font-size:18px}
+.tokpick button span{min-height:14px}
+.tokpick button small{display:block;font-size:10.5px;font-weight:600;margin-top:-6px}
+.tokpick button:not([aria-checked=true]) small{visibility:hidden}
+.riso .tokpick button{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--a)}
+.riso .tokpick button[aria-checked=true]{background:var(--sheet);box-shadow:inset 0 0 0 2px var(--a)}
+.riso .tokpick button small{color:var(--dim)}
+
+/* static bottom sheet: the sheet menu, the conditions picker, the pads */
+.bscrim{position:absolute;inset:0;z-index:5}
+.riso .bscrim{background:var(--scrim)}
+.bsheet{position:sticky;bottom:0;z-index:6;margin-top:auto;padding:10px 12px 18px}
+.riso .bsheet{background:var(--sheet);border-top:2px solid var(--a);box-shadow:0 -5px 0 var(--b)}
+.bsheet-title{margin:4px 8px 4px;font-size:11.5px;font-weight:700}
+.riso .bsheet-title{color:var(--dim)}
+.menuitem{display:flex;align-items:center;gap:14px;width:100%;min-height:56px;padding:0 8px;border:0;background:none;font-family:inherit;font-size:15px;font-weight:700;text-align:left;cursor:pointer}
+.menuitem svg{width:16px;height:16px;flex:none}
+.menuitem .mi{flex:1;min-width:0}
+.menuitem .mi small{display:block;font-size:11.5px;font-weight:500;margin-top:2px}
+.riso .menuitem{color:var(--a)}
+.riso .menuitem .mi small{color:var(--dim)}
+.riso .menuitem.danger{color:var(--b-text)}
+.riso .menuitem:active{box-shadow:inset 0 0 0 2px currentColor}
+.menusep{height:1.5px;margin:4px 8px}
+.riso .menusep{background:var(--rule)}
+.menuitem.close{justify-content:center;min-height:48px;margin-top:8px}
+.riso .menuitem.close{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .shead .icnbtn[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--on-a)}
+.riso .vitals[aria-expanded=true],.riso .dyingbox[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a)}
+
+/* conditions: the entry on the plate, and the picker inside a bottom sheet */
+.addmark{display:inline-flex;align-items:center;gap:5px;font-family:inherit;font-size:11px;font-weight:700;padding:3px 8px 3px 6px;line-height:1.35;cursor:pointer;white-space:nowrap}
+.addmark svg{width:11px;height:11px;flex:none}
+button.mark{font-family:inherit;cursor:pointer}
+.riso .addmark{background:transparent;color:var(--on-a);border:1.5px dashed var(--on-a)}
+.riso .addmark:active,.riso .addmark[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--on-a)}
+.riso button.mark:active,.riso button.mark[aria-expanded=true]{box-shadow:inset 0 0 0 2px currentColor}
+.condgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0 0}
+.condgrid button{min-height:44px;padding:0 4px;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;border:0}
+.riso .condgrid button{background:var(--sheet);box-shadow:inset 0 0 0 1.5px var(--a);color:var(--a)}
+.riso .condgrid button[aria-pressed=true]{background:var(--a);color:var(--on-a);font-weight:700}
+.riso .condgrid button.condcustom{display:flex;align-items:center;justify-content:center;gap:6px;background:transparent;box-shadow:none;border:1.5px dashed var(--a);font-weight:700}
+.condcustom svg{width:12px;height:12px;flex:none}
+.bsheet .grp{margin:12px 8px 6px}
+.bsheet .rankseg button{min-height:44px}
+.bsheet .editrow{padding:0 8px;margin-top:6px}
+.bsheet .dur{margin:8px 0 0;padding:0 0 2px}
+.bsheet > .prep{padding:3px 8px;min-height:48px}
+.bsheet > .padnote{margin:10px 8px 0}
+
+/* concentration: the card that reads the anchor row */
+.riso .cast.conc{border-color:var(--mix)}
+.riso .cast.conc .casttop b{color:var(--mix)}
+.cast.conc > .dangerbtn{margin-top:12px}
+.cast .bigval{margin-top:10px}
+
+/* death saves: the pad's third tab */
+.dsrows{margin-top:10px}
+.riso .pips.ds-ok i{border-radius:50%;background:transparent;box-shadow:inset 0 0 0 2px var(--a)}
+.riso .pips.ds-ok i[data-on]{background:var(--a)}
+.riso .pips.ds-bad i{background:transparent;box-shadow:inset 0 0 0 2px var(--b-text)}
+.riso .pips.ds-bad i[data-on]{background:var(--b-text)}
+.riso .shead .tok[data-state=dead]{background:var(--sheet);color:var(--dim);box-shadow:inset 0 0 0 2px var(--rule)}
+.pad > .prep{margin-top:8px}
+
+/* the hit point pad as a bottom sheet: the pad loses its card chrome */
+.riso .bsheet .pad,.riso .bsheet .cast{background:transparent;border:0;box-shadow:none;margin:0;padding:6px 8px 0}
+
+/* the roll sheet: dice boxes, face buttons and the roll */
+.roll{padding:0 8px}
+.dicerow{display:flex;align-items:center;justify-content:center;gap:16px;margin:8px 0 2px;min-height:84px}
+.diewrap{position:relative;width:72px;height:72px;flex:none}
+.dieshadow{position:absolute;inset:0;transform:translate(3px,3px)}
+.die{position:absolute;inset:0;width:100%;height:100%;display:grid;place-content:center;padding:0;font-family:inherit;cursor:pointer}
+.die b{display:block;font-size:30px;font-weight:700;line-height:1}
+.die em{display:block;font-style:normal;font-size:10px;font-weight:700;margin-top:3px}
+.dieplus{font-size:24px;font-weight:700}
+.dicemath{margin:10px 0 0;text-align:center;font-size:13.5px;font-weight:600}
+.dicemath b{font-size:16px}
+.facegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.facegrid button{min-height:44px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer}
+.roll[data-mode=app]:not([data-editing]) .facegrid{display:none}
+.riso .dieshadow{background:var(--b)}
+.riso .die{background:var(--sheet);border:2px solid var(--a);color:var(--a)}
+.riso .die em{color:var(--dim)}
+.riso .die[data-empty] b{color:var(--dim)}
+.riso .die[aria-pressed=true]{background:var(--a);color:var(--on-a)}
+.riso .die[aria-pressed=true] b,.riso .die[aria-pressed=true] em{color:var(--on-a)}
+.riso .dieplus,.riso .dicemath b{color:var(--a)}
+.riso .dicemath{color:var(--dim)}
+.riso .facegrid button{background:var(--sheet);border:1.5px solid var(--a);color:var(--a)}
+.riso .facegrid button:active{box-shadow:inset 0 0 0 2px var(--a)}
+
+/* notes: typed straight into, saved as you go */
+.notearea{all:unset;box-sizing:border-box;display:block;width:100%;min-height:44px;padding:10px 11px;font-family:inherit;font-size:13px;line-height:1.45;white-space:pre-wrap;overflow:hidden;resize:none}
+.riso .notearea{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--ink)}
+.riso .notearea::placeholder{color:var(--dim)}
+.riso .notearea:focus{box-shadow:inset 0 0 0 2px var(--a);outline:none}
+/* Clamped, the bottom padding goes so no part of a seventh line shows through it. */
+.notearea.clamped{padding-bottom:0}
+.notefoot{display:flex;align-items:center;gap:10px;min-height:20px;margin-top:6px}
+.notestatus{margin:0;font-size:11px;font-weight:500}
+.riso .notestatus{color:var(--dim)}
+.noteshow{all:unset;cursor:pointer;margin-left:auto;font-size:12px;font-weight:700}
+.riso .noteshow{color:var(--a)}
+.pathnote{display:block;margin-top:11px}
+.pathnote > span{display:block;font-size:11.5px;font-weight:700;margin-bottom:5px}
+.riso .pathnote > span{color:var(--dim)}
+
+/* folded rules text with its origin */
+.rulesfold{padding:0 12px 11px}
+.riso .rulesfold{background:var(--sheet);border:2px solid var(--a)}
+.rulesfold > .disclose{padding:11px 0}
+.riso .rulesfold > .disclose{border:0;background:none}
+.rulesfold > .origin{margin-top:0}
+
+/* selection and adjustable controls */
+.riso .pips[role=spinbutton]:focus-visible{outline:2px solid var(--a);outline-offset:4px}
+
+/* hit areas, sheet components: same rule as the list's, longer list */
+:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button,.noteshow){position:relative}
+:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button,.noteshow)::after{content:"";position:absolute;
+  top:min(0px,calc((100% - 44px) / 2));bottom:min(0px,calc((100% - 44px) / 2));
+  left:min(0px,calc((100% - 44px) / 2));right:min(0px,calc((100% - 44px) / 2))}
+.prep:has(> .prepmain)::after{content:none}
+/* Pips sit 4px apart: 44 tall, and 26 or 24 wide, meeting mid-gap. */
+.pips i{position:relative}
+.pips i::after{content:"";position:absolute;top:-11px;bottom:-11px;left:-2px;right:-2px}
+
+/* doc-only helpers inside specimens */
+.riso .sheetdemo{position:relative;display:flex;flex-direction:column;width:390px;max-width:100%;overflow:hidden}
+.riso .anno{margin:20px 0 10px;padding-top:11px;font-size:11.5px;font-weight:700;line-height:1.45}
+.riso .anno:first-child{margin-top:0;padding-top:0;border-top:0}
+.riso .anno{border-top:2px dashed var(--b);color:var(--dim)}
 </style>
 </head>
 <body>
@@ -269,9 +857,11 @@ td code{white-space:nowrap}
 <header class="doc-head">
   <div class="doc-head-inner">
     <b>5e Companion</b>
-    <h1>Design system, v0.3</h1>
-    <p>Distilled from <code>character-list-final.html</code>. It records the "riso" direction: two-ink risograph printing on toned paper, with a third overprint colour where the inks would overlap. Everything on this page is rendered with the same CSS as the mockup, so the specimens are the source of truth, not the prose.</p>
-    <p style="margin-top:8px">v0.3, 12 September 2026: a <a href="#native">React Native</a> mapping, font weights capped at 700, and decisions on font scaling, safe areas and press feedback.<br>
+    <h1>Design system, v0.4</h1>
+    <p>Distilled from <code>character-list.html</code> and <code>character-sheet.html</code>. It records the "riso" direction: two-ink risograph printing on toned paper, with a third overprint colour where the inks would overlap. Everything on this page is rendered with the same CSS as the mockups, so the specimens are the source of truth, not the prose.</p>
+    <p style="margin-top:8px">v0.4, 14 September 2026: the character sheet joins the document. New sections for the sheet's structure (header, tabs, blocks, detail screens, bottom sheets, editing), its controls, the pads and the roll sheet, and its value displays, plus two destructive buttons and the condition marks. The scrim and paper chip tokens, and corrections to the motion and semantics rules. See <a href="#decisions">decisions</a>.<br>
+    Updated 13 and 14 September 2026: the hit area rule, repeated small primaries, selection and semantics, sentence case and person, American spelling in the app, and text colours checked against the draft tint over paper. See <a href="#decisions">decisions</a>.<br>
+    v0.3, 12 September 2026: a <a href="#native">React Native</a> mapping, font weights capped at 700, and decisions on font scaling, safe areas and press feedback.<br>
     v0.2, 11 September 2026: contrast-targeted colours, interaction states, a stored token colour, zero hit point states and an icon rule. See <a href="#decisions">decisions</a>.</p>
   </div>
 </header>
@@ -303,6 +893,15 @@ td code{white-space:nowrap}
     <li><a href="#draft">Draft tray</a></li>
     <li><a href="#buttons">Buttons</a></li>
     <li><a href="#table">Desktop table</a></li>
+    <li><a href="#sheet-header">Sheet header</a></li>
+    <li><a href="#tabs">Tabs</a></li>
+    <li><a href="#block">Content block</a></li>
+    <li><a href="#detail">Detail screens</a></li>
+    <li><a href="#sheets">Bottom sheets</a></li>
+    <li><a href="#editing">Per-section edit</a></li>
+    <li><a href="#controls">Sheet controls</a></li>
+    <li><a href="#pads">Pads and rolling</a></li>
+    <li><a href="#displays">Value displays</a></li>
   </ul>
   <h2>Patterns</h2>
   <ul>
@@ -319,12 +918,12 @@ td code{white-space:nowrap}
 <!-- ============================================================ -->
 <section id="principles">
   <h2>Principles</h2>
-  <p class="lead">What the character list mockup is doing, stated so later screens can do the same thing.</p>
+  <p class="lead">What the character list and character sheet mockups are doing, stated so later screens can do the same thing.</p>
   <div class="dodont">
     <div class="do"><b>Two inks, one paper</b>
       <ul>
         <li>Structural blue does the work: plates, borders, primary numbers, text.</li>
-        <li>Accent rose is the second pass: offset shadows, the hurt state, the one primary call to action.</li>
+        <li>Accent rose is the second pass: offset shadows, the hurt state, and the primary call to action on each screen or sheet.</li>
         <li>Purple is the overprint. Use it sparingly as a third token colour and for concentration-type marks.</li>
       </ul>
     </div>
@@ -377,18 +976,20 @@ td code{white-space:nowrap}
     <thead><tr><th>Token</th><th>Value</th><th>Derivation</th><th>Used for</th></tr></thead>
     <tbody>
       <tr><td><i class="sw" style="background:#1f4477"></i><code>--ink</code></td><td><code>#1f4477</code></td><td>structural mixed 72% toward <code>#14110e</code></td><td>Body text, level badge digit</td></tr>
-      <tr><td><i class="sw" style="background:#48648c"></i><code>--dim</code></td><td><code>#48648c</code></td><td>ink mixed toward paper. Lightest step from 42% that reaches 4.5:1 on paper, sheet and draft fill; currently 20%</td><td>Subtitles, hit point line, column headers, tray heading, placeholder, disabled text</td></tr>
+      <tr><td><i class="sw" style="background:#44618a"></i><code>--dim</code></td><td><code>#44618a</code></td><td>ink mixed toward paper. Lightest step from 42% that reaches 4.5:1 on paper, sheet, and the draft fill over both sheet and paper; currently 18%</td><td>Subtitles, hit point line, column headers, tray heading, placeholder, disabled text</td></tr>
       <tr><td><i class="sw" style="background:#f2f0eb"></i><code>--on-a</code></td><td><code>#f2f0eb</code></td><td>paper mixed 40% toward white, kept because it reaches 4.5:1 on structural</td><td>Text on the header plate and blue tokens</td></tr>
       <tr><td><i class="sw" style="background:#412029"></i><code>--on-b</code></td><td><code>#412029</code></td><td>light text only reaches 2.78:1 on rose, so accent is darkened toward <code>#140c08</code> until it reaches 4.5:1; currently 78%</td><td>Text on rose buttons and tokens</td></tr>
       <tr><td><i class="sw" style="background:#f2f0eb"></i><code>--on-mix</code></td><td><code>#f2f0eb</code></td><td>same rule</td><td>Text on purple tokens</td></tr>
-      <tr><td><i class="sw" style="background:#9b4768"></i><code>--b-text</code></td><td><code>#9b4768</code></td><td>accent mixed toward <code>#1a0a08</code>. First step from 15% that reaches 4.5:1 on sheet and draft fill; currently 35%</td><td>Accent as text, and small accent graphics such as failed death saves</td></tr>
+      <tr><td><i class="sw" style="background:#914261"></i><code>--b-text</code></td><td><code>#914261</code></td><td>accent mixed toward <code>#1a0a08</code>. First step from 15% that reaches 4.5:1 on sheet and on the draft fill over both sheet and paper; currently 40%</td><td>Accent as text, and small accent graphics such as failed death saves</td></tr>
       <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(37,96,176,.13),rgba(37,96,176,.13))"></i><code>--dot</code></td><td><code>rgba(37,96,176,.13)</code></td><td>structural at 13%</td><td>Paper grid dots</td></tr>
       <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(224,104,156,.18),rgba(224,104,156,.18))"></i><code>--line</code></td><td><code>rgba(224,104,156,.18)</code></td><td>accent at 18%</td><td>Paper grid lines</td></tr>
       <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(224,104,156,.26),rgba(224,104,156,.26))"></i><code>--empty</code></td><td><code>rgba(224,104,156,.26)</code></td><td>accent at 26%</td><td>Empty meter segments</td></tr>
       <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(224,104,156,.11),rgba(224,104,156,.11))"></i><code>--draft-bg</code></td><td><code>rgba(224,104,156,.11)</code></td><td>accent at 11%</td><td>Draft card fill</td></tr>
       <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(37,96,176,.28),rgba(37,96,176,.28))"></i><code>--rule</code></td><td><code>rgba(37,96,176,.28)</code></td><td>structural at 28%</td><td>Table row rules, draft token shadow, disabled outline, dead token</td></tr>
-      <tr><td><i class="sw" style="background:#2560b0;background-image:linear-gradient(rgba(242,240,235,.10),rgba(242,240,235,.10))"></i><code>--chip</code></td><td><code>rgba(242,240,235,.10)</code></td><td>on-a at the highest alpha from 16% that keeps chip text at 4.5:1; currently 10%</td><td>Inactive filter chip on the plate</td></tr>
-      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,.5))"></i><code>--wash</code></td><td><code>rgba(255,255,255,.5)</code></td><td>white at 50%</td><td>Even rows in the desktop table</td></tr>
+      <tr><td><i class="sw" style="background:#2560b0;background-image:linear-gradient(rgba(242,240,235,.10),rgba(242,240,235,.10))"></i><code>--chip</code></td><td><code>rgba(242,240,235,.10)</code></td><td>on-a at the highest alpha from 16% that keeps chip text at 4.5:1; currently 10%</td><td>Inactive filter chip and tab on the plate</td></tr>
+      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(31,68,119,.08),rgba(31,68,119,.08))"></i><code>--chip2</code></td><td><code>rgba(31,68,119,.08)</code></td><td>ink at 8%</td><td>Idle pad tab fill on paper, with dim text</td></tr>
+      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,.5))"></i><code>--wash</code></td><td><code>rgba(255,255,255,.5)</code></td><td>white at 50%</td><td>Even rows in the desktop table, stat tiles and fields</td></tr>
+      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(31,68,119,.4),rgba(31,68,119,.4))"></i><code>--scrim</code></td><td><code>rgba(31,68,119,.4)</code></td><td>ink at 40%</td><td>The dim layer behind a modal bottom sheet</td></tr>
     </tbody>
   </table>
 
@@ -397,11 +998,11 @@ td code{white-space:nowrap}
   <div class="riso flat specimen tight">
     <div class="contrast">
       <div style="background:var(--paper);color:var(--ink)">ink on paper<small>body text, 7.84:1</small></div>
-      <div style="background:var(--sheet);color:var(--dim)">dim on sheet<small>secondary, 5.13:1</small></div>
+      <div style="background:var(--sheet);color:var(--dim)">dim on sheet<small>secondary, 5.36:1</small></div>
       <div style="background:var(--a);color:var(--on-a)">on-a on structural<small>plate, blue token, 5.46:1</small></div>
       <div style="background:var(--b);color:var(--on-b)">on-b on accent<small>CTA, rose token, 4.53:1</small></div>
       <div style="background:var(--mix);color:var(--on-mix)">on-mix on overprint<small>purple token, 7.44:1</small></div>
-      <div style="background:var(--sheet);color:var(--b-text)">b-text on sheet<small>bad marks, 5.10:1</small></div>
+      <div style="background:var(--sheet);color:var(--b-text)">b-text on sheet<small>bad marks, 5.65:1</small></div>
     </div>
   </div>
 </section>
@@ -442,7 +1043,9 @@ td code{white-space:nowrap}
     <tbody>
       <tr><td>Tracking</td><td>Titles and names are tracked tight (-.02em to -.03em). Nothing else is tracked.</td></tr>
       <tr><td>Weights</td><td>700 for titles, names, numbers, buttons. 600 for chips and marks. 500 for the hit point line. 400 for input text and subtitles. 700 is the cap: Space Grotesk has no heavier face, and React Native will not fake one.</td></tr>
-      <tr><td>Case</td><td>Sentence case everywhere, including buttons and column headers. Only the "AC" ring label is caps.</td></tr>
+      <tr><td>Case</td><td>Sentence case everywhere, including buttons, column headers and the names of features, feats, subclasses, invocations, spells and items: Dark One&rsquo;s own luck, Pact of the blade, Ring of spell storing. Proper nouns keep their capitals, as in Hunger of Hadar or the Dark One. Only the "AC" ring label is caps.</td></tr>
+      <tr><td>Person</td><td>Second person for the player and third person for the character: &ldquo;until you confirm&rdquo;, &ldquo;set by you&rdquo;, &ldquo;when she drops a foe&rdquo;. Quoted rules text stays as printed, even where it says &ldquo;you&rdquo;.</td></tr>
+      <tr><td>Spelling</td><td>American spelling in the app, so labels match the catalog&rsquo;s names: armor class, color, gray. This document and the plan stay in British English, because players never see them.</td></tr>
       <tr><td>Numbers</td><td>The current value is the bold one. Maximums and units stay in dim at regular weight.</td></tr>
       <tr><td>Counts</td><td>Superscript count next to the title on phone only ("6 saved"). Desktop has the room to skip it.</td></tr>
       <tr><td>Opacity</td><td>Never lower the opacity of text. Hierarchy comes from size, weight and the dim token, which is contrast-checked. Opacity on top of it is not.</td></tr>
@@ -505,7 +1108,7 @@ td code{white-space:nowrap}
       <tr><td>Level badge</td><td>23, offset -7 -7</td><td>same</td></tr>
       <tr><td>Armour ring</td><td>46</td><td>46</td></tr>
       <tr><td>Meter height</td><td>13</td><td>13</td></tr>
-      <tr><td>Search field</td><td>9 12 padding</td><td>same, max 420 wide</td></tr>
+      <tr><td>Search field</td><td>9 12 padding, at least 44 tall</td><td>same, max 420 wide</td></tr>
       <tr><td>Primary button</td><td>14 all round, full width</td><td>12 20, auto width, right aligned</td></tr>
     </tbody>
   </table>
@@ -514,7 +1117,7 @@ td code{white-space:nowrap}
 <!-- ============================================================ -->
 <section id="states">
   <h2>Interaction states</h2>
-  <p class="lead">States follow the print metaphor. Pressed things sink onto the paper, selected things invert, disabled things lose their ink. Nothing fades, glows or animates. Every change is instant, so reduced motion needs no special case.</p>
+  <p class="lead">States follow the print metaphor. Pressed things sink onto the paper, selected things invert, disabled things lose their ink. Nothing fades or glows, and every state change is instant. The only motion is the sheet header shrinking as the page scrolls and the dice roll; see <a href="#a11y">accessibility</a>.</p>
   <div class="riso specimen">
     <div class="state-grid">
       <span></span><b>Rest</b><b>Pressed</b><b>Focus</b><b>Selected</b><b>Disabled</b>
@@ -537,10 +1140,10 @@ td code{white-space:nowrap}
       <div><button class="go" aria-pressed="true">Open sheet</button></div>
       <div><button class="go" disabled>Open sheet</button></div>
       <b>Chip, on plate</b>
-      <div class="plate"><span class="chip">Conditions</span></div>
-      <div class="plate"><span class="chip is-pressed">Conditions</span></div>
-      <div class="plate"><span class="chip is-focus">Conditions</span></div>
-      <div class="plate"><span class="chip" data-on>Conditions</span></div>
+      <div class="plate" role="radiogroup" aria-label="Chip state specimen"><button class="chip" role="radio" aria-checked="false">Conditions</button></div>
+      <div class="plate" role="radiogroup" aria-label="Chip state specimen"><button class="chip is-pressed" role="radio" aria-checked="false">Conditions</button></div>
+      <div class="plate" role="radiogroup" aria-label="Chip state specimen"><button class="chip is-focus" role="radio" aria-checked="false">Conditions</button></div>
+      <div class="plate" role="radiogroup" aria-label="Chip state specimen"><button class="chip" role="radio" aria-checked="true">Conditions</button></div>
       <span>hidden instead</span>
     </div>
   </div>
@@ -549,7 +1152,7 @@ td code{white-space:nowrap}
     <tbody>
       <tr><td>Pressed</td><td>Anything with an offset shadow moves by the shadow's offset and the shadow disappears. That means 5px for cards and the primary button, 3px for outlined buttons. Anything without a shadow gets a 2px inset ring in its own text colour. On phone the whole character card presses.</td><td><code>:active</code></td></tr>
       <tr><td>Focus</td><td>2px structural outline, 3px offset. Inside the plate the outline is on-a, because structural on structural is invisible. The search field outlines the whole field, not the bare input.</td><td><code>:focus-visible</code>, <code>:focus-within</code> on the field</td></tr>
-      <tr><td>Selected</td><td>Inversion. On paper, the control fills with structural and its text turns on-a. On the plate, it becomes a sheet cutout with structural text, as the active chip already does.</td><td><code>[aria-pressed=true]</code>, or <code>[data-on]</code> on chips</td></tr>
+      <tr><td>Selected</td><td>Inversion. On paper, the control fills with structural and its text turns on-a. On the plate, it becomes a sheet cutout with structural text, as the active chip already does.</td><td><code>[aria-pressed=true]</code> for toggles, <code>[aria-checked=true]</code> for single choices such as chips, <code>[aria-selected=true]</code> for tabs</td></tr>
       <tr><td>Disabled</td><td>No fill, no shadow, dim text and a 2px rule-coloured outline. Controls on the plate are hidden rather than disabled, because dim text cannot reach contrast on structural.</td><td><code>:disabled</code>, <code>[aria-disabled=true]</code></td></tr>
       <tr><td>Hover</td><td>Not defined yet. See deferred.</td><td></td></tr>
     </tbody>
@@ -591,11 +1194,11 @@ td code{white-space:nowrap}
             <input placeholder="Find a character" aria-label="Find a character"></label>
           <button class="sortbtn">Sort: level</button>
         </div>
-        <div class="chips">
-          <span class="chip" data-on>All</span>
-          <span class="chip">Below half</span>
-          <span class="chip">Conditions</span>
-          <span class="chip">Sunless Crown</span>
+        <div class="chips" role="radiogroup" aria-label="Filter characters">
+          <button class="chip" role="radio" aria-checked="true" tabindex="0">All</button>
+          <button class="chip" role="radio" aria-checked="false" tabindex="-1">Below half</button>
+          <button class="chip" role="radio" aria-checked="false" tabindex="-1">Conditions</button>
+          <button class="chip" role="radio" aria-checked="false" tabindex="-1">Sunless Crown</button>
         </div>
       </div>
     </div>
@@ -626,7 +1229,7 @@ td code{white-space:nowrap}
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Field</td><td>Sheet fill, no border, 4px accent shadow, 9 12 padding. Icon is 15px, 1.8 stroke, in dim. Text in ink, placeholder in dim.</td></tr>
+      <tr><td>Field</td><td>Sheet fill, no border, 4px accent shadow, 9 12 padding and a 44 minimum height, the text field rule. Icon is 15px, 1.8 stroke, in dim. Text in ink, placeholder in dim.</td></tr>
       <tr><td>Sort</td><td>Accent fill, on-b text, 13px 700, 0 13 padding, no border, no shadow. Label pattern is "Sort: {key}".</td></tr>
       <tr><td>Behaviour</td><td>Not specified in the mockup. Sort button presumably opens a menu; document when designed.</td></tr>
     </tbody>
@@ -639,11 +1242,11 @@ td code{white-space:nowrap}
   <p class="lead">Chips live on the plate only. The active chip is a sheet-coloured cutout with structural text. Inactive chips are a translucent tint of the plate text.</p>
   <div class="riso specimen">
     <div class="plate" style="max-width:420px">
-      <div class="chips" style="margin:0">
-        <span class="chip" data-on>All</span>
-        <span class="chip">Below half</span>
-        <span class="chip">Conditions</span>
-        <span class="chip">Sunless Crown</span>
+      <div class="chips" style="margin:0" role="radiogroup" aria-label="Filter characters">
+        <button class="chip" role="radio" aria-checked="true" tabindex="0">All</button>
+        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Below half</button>
+        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Conditions</button>
+        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Sunless Crown</button>
       </div>
     </div>
   </div>
@@ -651,10 +1254,10 @@ td code{white-space:nowrap}
     <thead><tr><th>State</th><th>Fill</th><th>Text</th><th>Weight</th></tr></thead>
     <tbody>
       <tr><td>Inactive</td><td><code>--chip</code> (on-a at 10%)</td><td><code>--on-a</code></td><td>600</td></tr>
-      <tr><td>Active <code>[data-on]</code></td><td><code>--sheet</code></td><td><code>--a</code></td><td>700</td></tr>
+      <tr><td>Active <code>[aria-checked=true]</code></td><td><code>--sheet</code></td><td><code>--a</code></td><td>700</td></tr>
     </tbody>
   </table>
-  <p class="why" style="margin-top:12px">Filters seen so far: All, Below half, Conditions, and a campaign name. Single select is implied by "All" being present. Pressed, focus and selected follow the interaction states. Hover is deferred.</p>
+  <p class="why" style="margin-top:12px">Filters seen so far: All, Below half, Conditions, and a campaign name. Single select is implied by "All" being present, so the chips are one radio group: arrow keys move the choice, and each chip extends to a 44 tall tap area. Pressed, focus and selected follow the interaction states. Hover is deferred.</p>
 </section>
 
 <!-- ============================================================ -->
@@ -665,7 +1268,7 @@ td code{white-space:nowrap}
     <div class="tok-set">
       <figure style="--tok:var(--a);--on-tok:var(--on-a)"><div class="tok">B<b>6</b></div>structural</figure>
       <figure style="--tok:var(--b);--on-tok:var(--on-b)"><div class="tok">T<b>8</b></div>accent</figure>
-      <figure style="--tok:var(--mix);--on-tok:var(--on-mix)"><div class="tok">V<b>5</b></div>overprint</figure>
+      <figure style="--tok:var(--mix);--on-tok:var(--on-mix)"><div class="tok">V<b>7</b></div>overprint</figure>
       <figure><div class="d" style="display:contents"><div class="tok" style="--tok:var(--a);--on-tok:var(--on-a);width:64px;height:64px;font-size:23px">A<b>7</b></div></div>desktop, 64</figure>
       <figure><div class="draft" style="display:contents"><div class="tok">K<b>3</b></div></div>draft</figure>
     </div>
@@ -677,8 +1280,8 @@ td code{white-space:nowrap}
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
       <tr><td>Circle</td><td>56px phone, 64px desktop. Initial at 20 / 23px, 700. 4px accent shadow, always accent regardless of token colour.</td></tr>
-      <tr><td>Level badge</td><td>23px circle, sheet fill, ink digit at 11.5 / 700, 2px structural ring. Offset -7 -7 so it overlaps the token edge.</td></tr>
-      <tr><td>Colour assignment</td><td>Stored on the character as an ink role: structural, accent or overprint. The player picks it in the first creation step. The default is the ink they use least across their other characters. Sorting and filtering never change it.</td></tr>
+      <tr><td>Level badge</td><td>23px circle, sheet fill, ink digit at 11.5 / 700, 2px structural ring. Offset -7 -7 so it overlaps the token edge. It shows total level, so wizard 5 / rogue 2 reads 7.</td></tr>
+      <tr><td>Colour assignment</td><td>Stored on the character as an ink role: structural, accent or overprint. The player picks it in the first creation step. The default is the ink they use least across their other characters. Sorting and filtering never change it. Players never see the role names. Each theme names its three inks, and the default theme calls them Blue, Rose and Purple, in the colour picker and anywhere else a token colour is named.</td></tr>
       <tr><td>Draft variant</td><td>Sheet fill, structural initial, 2px inset structural ring, shadow in <code>--rule</code> instead of accent. Reads as an outline of a token.</td></tr>
       <tr><td>Text colour</td><td>Rose tokens carry dark text because light text fails on rose. Blue and purple tokens carry light text.</td></tr>
     </tbody>
@@ -691,11 +1294,11 @@ td code{white-space:nowrap}
   <p class="lead">Ten segments, 13px tall, 2px apart. Filled segments are structural ink. Below half, the filled segments switch to accent. Empty segments are always a rose tint. The meter colour does not depend on the row's token colour.</p>
   <div class="riso specimen">
     <div class="meter-set">
-      <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p>Full</p></div>
-      <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p>Above half</p></div>
-      <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p>Nearly full</p></div>
-      <div><div class="meter" data-hurt><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p>Below half <code>[data-hurt]</code>. Fill flips to accent.</p></div>
-      <div><div class="meter" data-hurt><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p>Well below half. Same state, no further escalation.</p></div>
+      <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p>Full</p></div>
+      <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p>Above half</p></div>
+      <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p>Nearly full</p></div>
+      <div><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p>Below half <code>[data-hurt]</code>. Fill flips to accent.</p></div>
+      <div><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p>Well below half. Same state, no further escalation.</p></div>
     </div>
   </div>
   <pre><code>&lt;div class="meter" data-hurt&gt;
@@ -707,7 +1310,7 @@ td code{white-space:nowrap}
     <tbody>
       <tr><td>Resolution</td><td>Ten segments, so each is 10% of max. Rounding rule not set. Suggest round up so one hit point still shows one segment.</td></tr>
       <tr><td>Hurt threshold</td><td>Strictly below half sets <code>data-hurt</code>. This matches the "Below half" filter chip and mark.</td></tr>
-      <tr><td>Temporary hit points</td><td>Shown in the line only ("5 temporary"), not on the meter.</td></tr>
+      <tr><td>Temporary hit points</td><td>On the character list, shown in the line only ("5 temporary"), not on the meter. On the character sheet&rsquo;s tall header, a solid overprint block follows the meter after a gap, and the line still states the amount. It is one block with no empty segments, because temporary hit points have no maximum. The compact header spells it out as "+5 temp", so colour never carries it alone.</td></tr>
       <tr><td>Hit point line</td><td>Bold current value in structural, the rest in dim at 500. A comma then one short resource note, chosen per class.</td></tr>
       <tr><td>Zero</td><td>At 0 hit points the meter is replaced or emptied. See zero hit points.</td></tr>
       <tr><td>Contrast</td><td>Rose segments reach only 2.5:1 on paper, below the 3:1 target for graphics. That is acceptable only because the hit point line always states the value. Never show a meter without its line.</td></tr>
@@ -718,15 +1321,15 @@ td code{white-space:nowrap}
 <!-- ============================================================ -->
 <section id="zero">
   <h2>Zero hit points</h2>
-  <p class="lead">At 0 hit points a character is dying, stable or dead. Each state changes what sits in the meter slot and adds a bad mark, so it reads without relying on colour. Death save counts are already stored on the character, so these states need no new data. This is a first proposal, and the character sheet may refine it.</p>
+  <p class="lead">At 0 hit points a character is dying, stable or dead. Each state changes what sits in the meter slot and adds a bad mark, so it reads without relying on colour. Death save counts are already stored on the character, so these states need no new data. The character sheet builds on these states with its death save tab and hit point pad.</p>
   <div class="riso specimen">
     <div class="phone-frame">
       <div class="rows" style="padding:14px 12px 20px">
         <article class="row" style="--tok:var(--b);--on-tok:var(--on-b)">
           <div class="tok">M<b>4</b></div>
           <div>
-            <h3 class="name">Mudge Tealeaf</h3>
-            <p class="sub">Lightfoot halfling rogue, Arcane Trickster</p>
+            <h3 class="name"><a class="rowlink" href="#sheet">Mudge Tealeaf</a></h3>
+            <p class="sub">Lightfoot halfling rogue, Arcane trickster</p>
             <div class="saves" aria-hidden="true"><span data-k="ok"><i data-on></i><i></i><i></i></span><span data-k="bad"><i data-on></i><i data-on></i><i></i></span></div>
             <p class="hp"><b>0</b>/27 hit points, 1 success, 2 failures</p>
           </div>
@@ -736,11 +1339,11 @@ td code{white-space:nowrap}
           </div>
         </article>
         <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
-          <div class="tok">V<b>5</b></div>
+          <div class="tok">V<b>7</b></div>
           <div>
-            <h3 class="name">Vesper Quill</h3>
-            <p class="sub">Rock gnome wizard, Divination</p>
-            <div class="meter" data-hurt><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+            <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
+            <p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p>
+            <div class="meter" data-hurt aria-hidden="true"><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
             <p class="hp"><b>0</b>/26 hit points, stable</p>
           </div>
           <div class="stat">
@@ -751,7 +1354,7 @@ td code{white-space:nowrap}
         <article class="row" data-state="dead" style="--tok:var(--a);--on-tok:var(--on-a)">
           <div class="tok">T<b>8</b></div>
           <div>
-            <h3 class="name">Thorn Grimsby</h3>
+            <h3 class="name"><a class="rowlink" href="#sheet">Thorn Grimsby</a></h3>
             <p class="sub">Mountain dwarf fighter, Champion</p>
             <p class="hp"><b>0</b>/72 hit points, 3 failures</p>
           </div>
@@ -799,7 +1402,7 @@ td code{white-space:nowrap}
       <div class="ac"><span>19<em>AC</em></span></div>
     </div>
   </div>
-  <p class="why" style="margin-top:12px">The ring is the pattern for a single labelled stat. Reuse it for passive perception, spell save DC, or speed where a number needs a tiny caption. Keep it circular and keep the label under, not beside.</p>
+  <p class="why" style="margin-top:12px">The ring is the pattern for a single labelled stat. Reuse it for passive perception, spell save DC, or speed where a number needs a tiny caption. Keep it circular and keep the label under, not beside. On the sheet it is a button that opens the value's detail, where it appears at 72px beside its calculation; see <a href="#displays">value detail</a>.</p>
 </section>
 
 <!-- ============================================================ -->
@@ -809,7 +1412,7 @@ td code{white-space:nowrap}
   <div class="riso specimen">
     <div class="marks">
       <span class="mark" data-t="ok">Second wind</span>
-      <span class="mark" data-t="ok">Channel 2 of 2</span>
+      <span class="mark" data-t="ok">Channel 1 of 2</span>
       <span class="mark" data-t="ok">Sneak 2d6</span>
       <span class="mark" data-t="bad">Below half</span>
       <span class="mark" data-t="bad">Poisoned</span>
@@ -820,27 +1423,47 @@ td code{white-space:nowrap}
   <table>
     <thead><tr><th><code>data-t</code></th><th>Border and text</th><th>Meaning</th><th>Examples in mockup</th></tr></thead>
     <tbody>
-      <tr><td><code>ok</code> (or unset)</td><td>structural, <code>--a</code></td><td>Resource available, feature ready</td><td>Second wind, Action surge, Channel 2 of 2, 1 pact slot, Sneak 2d6</td></tr>
+      <tr><td><code>ok</code> (or unset)</td><td>structural, <code>--a</code></td><td>Resource available, feature ready</td><td>Second wind, Action surge, Channel 1 of 2, 1 pact slot, Sneak 2d6, Leveling up</td></tr>
       <tr><td><code>bad</code></td><td>accent, text in <code>--b-text</code></td><td>Condition or danger</td><td>Below half, Poisoned, and the zero hit point marks Dying, Unconscious and Dead</td></tr>
       <tr><td><code>conc</code></td><td>overprint, <code>--mix</code></td><td>Concentration or an active effect the player must track</td><td>Hex, Portent 1</td></tr>
     </tbody>
   </table>
   <p class="why" style="margin-top:12px">Phone shows one mark per row, under the armour ring. Desktop shows up to two in a wrapping row. The priority order when truncating is bad, then conc, then ok.</p>
+
+  <h3>Marks on the sheet plate</h3>
+  <p class="why">On the character sheet's header plate, a mark that opens something is a button. A condition mark opens the status sheet, and the concentration mark opens the spell behind it. The dashed Condition control is the plate's Add: dashed like every Add, in the plate's own text colour. While its sheet is open the control and the mark show the pressed ring. The compact header holds one mark in the same priority order; more than one condition reads "Poisoned +1".</p>
+  <div class="riso specimen tight">
+    <div class="plate" style="max-width:460px">
+      <div class="hmarks" style="margin:0">
+        <button class="mark" data-t="bad" aria-label="Poisoned, change conditions">Poisoned</button>
+        <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Concentrating: Hex</button>
+        <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Button mark</td><td>A <code>button.mark</code> with an aria-label that says what it opens. Pressed and open states are the 2px inset ring in the mark's own colour. Concentration is not a condition: its mark opens the spell's detail, not the status sheet.</td></tr>
+      <tr><td>Condition control</td><td><code>.addmark</code>: 1.5px dashed border and text in on-a, a plus icon and the word Condition. Opens the status sheet, so it carries <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>, and the pressed ring is on-a. Dashed always means adding or not real yet, here and in <a href="#controls">list editing</a>.</td></tr>
+      <tr><td>The picker</td><td>The status sheet is a <a href="#sheets">bottom sheet</a>: a three-column grid of condition names toggled with <code>aria-pressed</code>, Custom in the last cell, the chosen condition's end under the grid, then an exhaustion stepper. It toggles live: a tap adds with no end, a second tap removes. See the specimen under <a href="#sheets">bottom sheets</a>.</td></tr>
+    </tbody>
+  </table>
 </section>
 
 <!-- ============================================================ -->
 <section id="card">
   <h2>Character card</h2>
-  <p class="lead">The phone list row. Three columns: token, identity plus meter, then a stat stack. Whole card is the tap target.</p>
+  <p class="lead">The phone list row. Three columns: token, identity plus meter, then a stat stack. Whole card is the tap target: the name is a link stretched over the card, so the card is one focusable control named by the character.</p>
   <div class="riso specimen">
     <div class="phone-frame">
       <div class="rows" style="padding:14px 12px 20px">
         <article class="row" style="--tok:var(--a);--on-tok:var(--on-a)">
           <div class="tok">B<b>6</b></div>
           <div>
-            <h3 class="name">Brenna Duskhollow</h3>
+            <h3 class="name"><a class="rowlink" href="#sheet">Brenna Duskhollow</a></h3>
             <p class="sub">Half-elf warlock, the Fiend</p>
-            <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
             <p class="hp"><b>31</b>/44 hit points, 5 temporary</p>
           </div>
           <div class="stat">
@@ -849,11 +1472,11 @@ td code{white-space:nowrap}
           </div>
         </article>
         <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
-          <div class="tok">V<b>5</b></div>
+          <div class="tok">V<b>7</b></div>
           <div>
-            <h3 class="name">Vesper Quill</h3>
-            <p class="sub">Rock gnome wizard, Divination</p>
-            <div class="meter" data-hurt><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+            <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
+            <p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p>
+            <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
             <p class="hp"><b>12</b>/26 hit points, 2 slots left</p>
           </div>
           <div class="stat">
@@ -867,7 +1490,7 @@ td code{white-space:nowrap}
   <pre><code>&lt;article class="row" style="--tok:var(--a);--on-tok:var(--on-a)"&gt;
   &lt;div class="tok"&gt;B&lt;b&gt;6&lt;/b&gt;&lt;/div&gt;
   &lt;div&gt;
-    &lt;h3 class="name"&gt;Brenna Duskhollow&lt;/h3&gt;
+    &lt;h3 class="name"&gt;&lt;a class="rowlink" href="#sheet"&gt;Brenna Duskhollow&lt;/a&gt;&lt;/h3&gt;
     &lt;p class="sub"&gt;Half-elf warlock, the Fiend&lt;/p&gt;
     &lt;div class="meter"&gt;...&lt;/div&gt;
     &lt;p class="hp"&gt;&lt;b&gt;31&lt;/b&gt;/44 hit points, 5 temporary&lt;/p&gt;
@@ -881,7 +1504,7 @@ td code{white-space:nowrap}
     <thead><tr><th>Content</th><th>Format</th></tr></thead>
     <tbody>
       <tr><td>Name</td><td>Full character name, one line. Truncation behaviour not designed.</td></tr>
-      <tr><td>Subtitle</td><td>"{Subrace or race} {class}, {subclass}". Subclass uses its in-game name ("the Fiend", "Champion", "Life domain").</td></tr>
+      <tr><td>Subtitle</td><td>"{Subrace or race} {class}, {subclass}" for a single class, as in "Half-elf warlock, the Fiend". With more than one class, each class carries its level: "Rock gnome wizard 5 / rogue 2, Divination". Subclass names are sentence case, keeping proper nouns ("the Fiend", "Champion", "Life domain", "Arcane trickster").</td></tr>
       <tr><td>Hit point line</td><td>Current, max, then one resource note relevant to the class.</td></tr>
       <tr><td>Stat stack</td><td>Armour ring above one mark. Minimum width 54 so rings align across rows.</td></tr>
     </tbody>
@@ -891,10 +1514,23 @@ td code{white-space:nowrap}
 <!-- ============================================================ -->
 <section id="draft">
   <h2>Draft tray</h2>
-  <p class="lead">Unfinished creations and level-ups sit below the list under a dashed accent rule. Draft cards are dashed, unshadowed and tinted, so they read as not-yet-real. Nothing in a draft touches the saved sheet until confirmed.</p>
+  <p class="lead">Unfinished creations and level-ups sit below the list under a dashed accent rule. Draft cards are dashed, unshadowed and tinted, so they read as not-yet-real. Nothing in a draft touches the saved sheet until confirmed. A character with a level-up in progress also keeps its normal card in the list, with a Leveling up mark, so its sheet stays one tap away. A creation draft has no character yet, so it appears only in the tray.</p>
   <div class="riso specimen">
     <div class="phone-frame">
-      <div class="rows" style="padding:0 12px 20px">
+      <div class="rows" style="padding:14px 12px 20px">
+        <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
+          <div class="tok">K<b>3</b></div>
+          <div>
+            <h3 class="name"><a class="rowlink" href="#sheet">Kethra Ironsong</a></h3>
+            <p class="sub">Hill dwarf paladin, Oath of devotion</p>
+            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <p class="hp"><b>28</b>/28 hit points, lay on hands 15</p>
+          </div>
+          <div class="stat">
+            <div class="ac"><span>18<em>AC</em></span></div>
+            <span class="mark" data-t="ok">Leveling up</span>
+          </div>
+        </article>
         <div class="tray">
           <h3 class="trayhead">Waiting to be finished</h3>
           <article class="draft">
@@ -912,6 +1548,7 @@ td code{white-space:nowrap}
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
+      <tr><td>Level-up row</td><td>The character&rsquo;s normal card stays in the list, sorted with the rest, and carries an ok mark reading Leveling up. The tray card below is the draft itself.</td></tr>
       <tr><td>Tray rule</td><td>2px dashed accent, 13 padding above the heading.</td></tr>
       <tr><td>Heading</td><td>"Waiting to be finished", 12 / 700 in dim.</td></tr>
       <tr><td>Card</td><td>Same grid as a character card. 2px dashed structural border, <code>--draft-bg</code> fill, no shadow.</td></tr>
@@ -925,25 +1562,41 @@ td code{white-space:nowrap}
 <!-- ============================================================ -->
 <section id="buttons">
   <h2>Buttons</h2>
-  <p class="lead">Four button styles appear. Fill and shadow ink tell you which is which. Only one primary per screen.</p>
+  <p class="lead">Seven button styles appear. Fill and shadow ink tell you which is which. Each screen or sheet has at most one full-width primary; repeated cards and rows may instead each carry one small primary for their own action.</p>
   <div class="riso specimen">
     <div class="inline" style="gap:26px;align-items:flex-start">
       <div style="width:220px"><button class="newbtn">Create character</button></div>
+      <button class="newbtn" style="width:auto;padding:9px 16px;font-size:13px;box-shadow:3px 3px 0 var(--a)">Cast</button>
       <button class="resume">Resume level-up</button>
       <button class="go">Open sheet</button>
       <div class="plate" style="padding:10px 12px"><button class="sortbtn" style="padding:9px 13px">Sort: level</button></div>
+      <div style="width:220px"><button class="dangerbtn" style="margin:0">Remove daggers</button></div>
+      <button class="dangerbtn small" style="margin-top:0">Remove this way to cast</button>
     </div>
   </div>
   <table>
     <thead><tr><th>Style</th><th>Class</th><th>Fill</th><th>Text</th><th>Shadow</th><th>Where</th></tr></thead>
     <tbody>
       <tr><td>Primary</td><td><code>.newbtn</code></td><td>accent</td><td>on-b, 15 / 700 (14 desktop)</td><td>5px structural</td><td>Create character. Sticky footer on phone, plate right on desktop.</td></tr>
+      <tr><td>Small primary</td><td><code>.castbtn.small</code> in the sheet mockup</td><td>accent</td><td>on-b, 13 / 700</td><td>3px structural</td><td>One per card or row, for that card&rsquo;s own action: Cast, Use, Transform. Also Save on a block being edited.</td></tr>
       <tr><td>Structural</td><td><code>.resume</code></td><td>structural</td><td>on-a, 12.5 / 700</td><td>none</td><td>Resume a draft. Inside a draft card.</td></tr>
-      <tr><td>Outlined</td><td><code>.go</code></td><td>sheet, 2px structural border</td><td>structural, 13 / 700</td><td>3px accent</td><td>Open sheet. Desktop rows only; on phone the card itself is the target.</td></tr>
+      <tr><td>Outlined</td><td><code>.go</code></td><td>sheet, 2px structural border</td><td>structural, 13 / 700</td><td>3px accent</td><td>Open sheet, a link rather than a button, named for the character. Desktop rows only; on phone the card is one link stretched over it.</td></tr>
       <tr><td>On-plate</td><td><code>.sortbtn</code></td><td>accent</td><td>on-b, 13 / 700</td><td>none</td><td>Sort. Only inside the plate.</td></tr>
+      <tr><td>Destructive</td><td><code>.dangerbtn</code></td><td>sheet, 2px <code>--b-text</code> border</td><td><code>--b-text</code>, 14 / 700</td><td>none</td><td>Remove an item, End concentration, Delete Thorn Grimsby. Anything that removes something or ends in death, including a footer action that kills. Never the primary look.</td></tr>
+      <tr><td>Small destructive</td><td><code>.dangerbtn.small</code></td><td>sheet, 2px <code>--b-text</code> border</td><td><code>--b-text</code>, 13 / 700</td><td>none</td><td>One per card, at its foot: Remove this way to cast on an access path card. The card rule applies: never two primaries or destructives on one card.</td></tr>
     </tbody>
   </table>
   <p class="why" style="margin-top:12px">The primary button on phone sits in a sticky footer with a gradient from transparent to paper, so the list scrolls under it. Pressed, focus, selected and disabled follow the interaction states.</p>
+  <table>
+    <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td>One full-width primary</td><td>A screen or a sheet has at most one full-width primary, the action that commits it: Take a short rest, Add Identify, Apply 7 damage.</td></tr>
+      <tr><td>Repeated small primaries</td><td>When a screen&rsquo;s actions belong to repeated cards or rows, each card or row may carry one small primary for its own action instead: a Cast on each way to cast a spell, a Use on each Channel Divinity effect, a Transform on each known form. A card never has two.</td></tr>
+      <tr><td>Never both</td><td>A layer uses one pattern or the other. A screen with small primaries has no full-width primary, and the reverse.</td></tr>
+      <tr><td>Layers</td><td>An open sheet is its own layer. The page&rsquo;s primary under the scrim does not count against the sheet&rsquo;s.</td></tr>
+      <tr><td>Destructive results</td><td>When an action removes something or ends in death, it uses the destructive button, never the rose primary, even where it is the screen&rsquo;s main action.</td></tr>
+    </tbody>
+  </table>
 </section>
 
 <!-- ============================================================ -->
@@ -953,30 +1606,30 @@ td code{white-space:nowrap}
   <div class="riso specimen scroll-x" style="padding:0">
     <div class="desk-frame" style="min-width:1100px">
       <div class="mat d">
-        <div class="cols"><span></span><span>Character</span><span>Hit points</span><span>Armour</span><span>Conditions and resources</span><span></span></div>
-        <div class="drow" style="--tok:var(--a);--on-tok:var(--on-a)">
-          <div class="tok">B<b>6</b></div>
-          <div><h3 class="name">Brenna Duskhollow</h3><p class="sub" style="margin-bottom:0">Half-elf warlock, the Fiend</p></div>
-          <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>31</b>/44 hit points, 5 temporary</p></div>
-          <div class="ac"><span>13<em>AC</em></span></div>
-          <div class="marks"><span class="mark" data-t="conc">Hex</span><span class="mark" data-t="ok">1 pact slot</span></div>
-          <button class="go">Open sheet</button>
-        </div>
+        <div class="cols"><span></span><span>Character</span><span>Hit points</span><span>Armor</span><span>Conditions and resources</span><span></span></div>
         <div class="drow" style="--tok:var(--b);--on-tok:var(--on-b)">
           <div class="tok">T<b>8</b></div>
           <div><h3 class="name">Thorn Grimsby</h3><p class="sub" style="margin-bottom:0">Mountain dwarf fighter, Champion</p></div>
-          <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>68</b>/72 hit points, second wind ready</p></div>
+          <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>68</b>/72 hit points, second wind ready</p></div>
           <div class="ac"><span>18<em>AC</em></span></div>
           <div class="marks"><span class="mark" data-t="ok">Second wind</span><span class="mark" data-t="ok">Action surge</span></div>
-          <button class="go">Open sheet</button>
+          <a class="go" href="#sheet" aria-label="Open Thorn Grimsby&rsquo;s sheet">Open sheet</a>
         </div>
         <div class="drow" style="--tok:var(--mix);--on-tok:var(--on-mix)">
-          <div class="tok">V<b>5</b></div>
-          <div><h3 class="name">Vesper Quill</h3><p class="sub" style="margin-bottom:0">Rock gnome wizard, Divination</p></div>
-          <div><div class="meter" data-hurt><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points, 2 slots left</p></div>
+          <div class="tok">V<b>7</b></div>
+          <div><h3 class="name">Vesper Quill</h3><p class="sub" style="margin-bottom:0">Rock gnome wizard 5 / rogue 2, Divination</p></div>
+          <div><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points, 2 slots left</p></div>
           <div class="ac"><span>12<em>AC</em></span></div>
           <div class="marks"><span class="mark" data-t="bad">Below half</span><span class="mark" data-t="conc">Portent 1</span></div>
-          <button class="go">Open sheet</button>
+          <a class="go" href="#sheet" aria-label="Open Vesper Quill&rsquo;s sheet">Open sheet</a>
+        </div>
+        <div class="drow" style="--tok:var(--a);--on-tok:var(--on-a)">
+          <div class="tok">B<b>6</b></div>
+          <div><h3 class="name">Brenna Duskhollow</h3><p class="sub" style="margin-bottom:0">Half-elf warlock, the Fiend</p></div>
+          <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>31</b>/44 hit points, 5 temporary</p></div>
+          <div class="ac"><span>13<em>AC</em></span></div>
+          <div class="marks"><span class="mark" data-t="conc">Hex</span><span class="mark" data-t="ok">1 pact slot</span></div>
+          <a class="go" href="#sheet" aria-label="Open Brenna Duskhollow&rsquo;s sheet">Open sheet</a>
         </div>
       </div>
     </div>
@@ -987,12 +1640,970 @@ td code{white-space:nowrap}
       <tr><td>Token</td><td>74</td><td>64px token</td></tr>
       <tr><td>Character</td><td>1fr</td><td>Name 19px, subtitle 13px</td></tr>
       <tr><td>Hit points</td><td>200</td><td>Meter then hit point line</td></tr>
-      <tr><td>Armour</td><td>104</td><td>Ring</td></tr>
+      <tr><td>Armor</td><td>104</td><td>Ring</td></tr>
       <tr><td>Conditions and resources</td><td>224</td><td>Up to two marks, wrapping</td></tr>
-      <tr><td>Action</td><td>132</td><td>Open sheet button</td></tr>
+      <tr><td>Action</td><td>132</td><td>Open sheet link, named for the character</td></tr>
     </tbody>
   </table>
   <p class="why" style="margin-top:12px">Column header row is 11.5 / 700 in dim with a 2px structural bottom border. Rows have a 1.5px <code>--rule</code> bottom border and even rows get <code>--wash</code>. Column widths are fixed pixels in the mockup and will need a breakpoint below about 1100px, which has not been designed. The draft tray on desktop sits in a 34px padded wrapper below the table.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="sheet-header">
+  <h2>Sheet header</h2>
+  <p class="lead">The character sheet's persistent plate, in two sizes. Tall at the top of the screen: token, name, the vitals cutout, the stat rail and the marks row. Compact once scrolled: first name, one status mark, the hit points and the armour ring. In the product it shrinks continuously between the two as the page scrolls; the mockup draws the ends. That shrink is one of the system's two <a href="#a11y">motion exceptions</a>.</p>
+  <div class="riso specimen">
+    <div class="stack">
+      <div class="sheetdemo">
+        <div class="shead attached">
+          <div class="sheadtop">
+            <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+            <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">B<b>6</b></div>
+            <div class="who">
+              <h2 class="sname">Brenna Duskhollow</h2>
+              <p class="ssub">Half-elf warlock 6, the Fiend</p>
+            </div>
+            <button class="icnbtn" aria-label="Sheet menu" aria-haspopup="dialog" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+          </div>
+          <div class="vitals" role="button" tabindex="0" aria-label="31 of 44 hit points, 5 temporary. Open the hit point pad" aria-haspopup="dialog" aria-expanded="false">
+            <div class="hprow">
+              <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+              <div class="temp" aria-hidden="true"></div>
+            </div>
+            <p class="hpline"><b>31</b>/44 hit points, <b>5</b> temporary. Tap to heal or damage.</p>
+          </div>
+          <div class="rail">
+            <div class="ac" role="button" tabindex="0" aria-label="Armor class 13"><span>13<em>AC</em></span></div>
+            <button class="tile"><b>+2</b><em>Initiative</em></button>
+            <button class="tile"><b>30</b><em>Speed</em></button>
+            <button class="tile"><b>15</b><em>Spell save</em></button>
+          </div>
+          <div class="hmarks">
+            <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Concentrating: Hex</button>
+            <button class="mark" aria-label="Inspired, open status" aria-haspopup="dialog" aria-expanded="false">Inspired</button>
+            <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
+            <button class="restbtn">Rest</button>
+          </div>
+        </div>
+      </div>
+      <div class="sheetdemo">
+        <div class="shead mini attached">
+          <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+          <h2 class="sname">Brenna</h2>
+          <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Hex</button>
+          <button class="minihp" aria-label="Hit points 31 of 44, 5 temporary, open the pad" aria-haspopup="dialog" aria-expanded="false"><b>31</b>/44<em>+5 temp</em></button>
+          <div class="ac" role="button" tabindex="0" aria-label="Armor class 13"><span>13<em>AC</em></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Token</td><td>56px, but with a 2px sheet ring around it: a structural token on the structural plate is invisible without it. Level badge as in the list, showing total level; two classes show the split in the subtitle instead.</td></tr>
+      <tr><td>Name and subtitle</td><td>17 / 700 and 12 / 500, both in on-a. Dim text cannot reach 4.5:1 on structural, so hierarchy on the plate comes from size and weight only. The name truncates with an ellipsis.</td></tr>
+      <tr><td>Vitals</td><td>A sheet cutout on the plate, because a full meter's structural segments vanish on the plate. It holds the meter, the temporary hit point block and the line. The whole block is one button, named by its numbers ("31 of 44 hit points, 5 temporary. Open the hit point pad"), and it opens the <a href="#pads">hit point pad</a>. The temporary block is one solid overprint block after a gap; see <a href="#meter">the meter</a>.</td></tr>
+      <tr><td>Stat rail</td><td>The armour ring, then one tile per value: Initiative, Speed, Spell save. Sheet cutouts, number 17 / 700 in structural, caption 10 / 600 in dim. Every value on the plate opens its detail: the ring and the tiles are all buttons.</td></tr>
+      <tr><td>Marks row</td><td>Status marks as buttons, the dashed Condition control, and Rest in accent, pushed right. See <a href="#marks">marks</a>. Rest stays out of the compact header; rests happen between fights, when scrolling back costs nothing.</td></tr>
+      <tr><td>Dying</td><td>At 0 hit points a <code>.dyingbox</code> joins the header under the vitals: sheet cutout, the death save pips, the counts spelled out. It is one button and opens the pad's <a href="#pads">Death save tab</a>. See <a href="#zero">zero hit points</a>.</td></tr>
+      <tr><td>Form swap</td><td>A wild shape puts the form on top: its token, name and numbers are the live ones, and the character's own sit on a line underneath ("Fenn underneath: 47/61 hit points, AC 13…"). The Rest slot holds Revert.</td></tr>
+      <tr><td>Compact</td><td>54px: back button, first name, one status mark in the <a href="#marks">priority order</a> (a condition before concentration; two conditions read "Poisoned +1"), the hit points as a button, and the ring at 36px. Temporary hit points are spelled out as "+5 temp", so colour never carries them alone. No token and no meter: six things did not fit, and identity is carried by the name inside the sheet.</td></tr>
+      <tr><td>Warnings</td><td>Rules warnings sit under the header as <a href="#displays">warning strips</a>. They never block anything.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="tabs">
+  <h2>Tabs</h2>
+  <p class="lead">Five tabs hang off the bottom of the header plate and pin to the top as the page scrolls, so they never leave the screen. Header and tabs are one attached unit: the header drops its own shadow and the bar keeps the 5px accent drop. It is a <code>tablist</code>.</p>
+  <div class="riso specimen">
+    <div class="stack">
+      <div class="sheetdemo">
+        <div class="shead attached">
+          <div class="sheadtop">
+            <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">B<b>6</b></div>
+            <div class="who">
+              <h2 class="sname">Brenna Duskhollow</h2>
+              <p class="ssub">Half-elf warlock 6, the Fiend</p>
+            </div>
+          </div>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Sheet sections">
+          <button class="tab" role="tab" aria-selected="true" tabindex="0"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg><span>Play</span></button>
+          <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"/><path d="M8 4.8l3 5.2H5z"/></svg><span>Stats</span></button>
+          <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg><span>Spells</span></button>
+          <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 6.5h9l-.8 7h-7.4z"/><path d="M6 6.5V5a2 2 0 0 1 4 0v1.5"/></svg><span>Gear</span></button>
+          <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="5.3" r="2.6"/><path d="M3 14c.6-3 2.5-4.6 5-4.6s4.4 1.6 5 4.6"/></svg><span>Character</span></button>
+        </div>
+      </div>
+      <div class="sheetdemo">
+        <div class="shead mini attached">
+          <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+          <h2 class="sname">Mudge</h2>
+          <button class="mark" data-t="bad" aria-label="Poisoned, open status" aria-haspopup="dialog" aria-expanded="false">Poisoned</button>
+          <button class="minihp" aria-label="Hit points 9 of 27, open the pad" aria-haspopup="dialog" aria-expanded="false"><b>9</b>/27</button>
+          <div class="ac" role="button" tabindex="0" aria-label="Armor class 15"><span>15<em>AC</em></span></div>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Sheet sections">
+          <button class="tab" role="tab" aria-selected="true" tabindex="0"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg><span>Play</span></button>
+          <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"/><path d="M8 4.8l3 5.2H5z"/></svg><span>Stats</span></button>
+          <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg><span>Spells</span></button>
+          <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 6.5h9l-.8 7h-7.4z"/><path d="M6 6.5V5a2 2 0 0 1 4 0v1.5"/></svg><span>Gear</span></button>
+          <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="5.3" r="2.6"/><path d="M3 14c.6-3 2.5-4.6 5-4.6s4.4 1.6 5 4.6"/></svg><span>Character</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Idle tab</td><td><code>--chip</code> fill, on-a text at 11.5 / 600, icon above the label. The filter chip rule on the plate, applied to navigation.</td></tr>
+      <tr><td>Selected tab</td><td>The sheet cutout: <code>--sheet</code> fill, structural text at 700, <code>aria-selected="true"</code> and the roving <code>tabindex="0"</code>. Arrow keys move the choice.</td></tr>
+      <tr><td>Icons</td><td>Five outline icons on the 16 grid at stroke 1.8, in <code>currentColor</code>: a sword for Play, a d20 for Stats, a four-point spark for Spells, a pack for Gear and a figure for Character. The <a href="#icons">icon rule</a> unchanged.</td></tr>
+      <tr><td>Pinning</td><td>The bar is sticky. Under the compact header it pins at 54px; under the tall header it has already reached the top. The tabs keep the unit's accent drop shadow.</td></tr>
+      <tr><td>Missing tabs</td><td>A character with no spell access has four tabs: Spells is absent, not disabled, and the remaining tabs widen to fill. Adding a first spell makes the tab appear.</td></tr>
+      <tr><td>Hit area</td><td>Each tab is primary navigation, so the whole cell is the target, well over 44 tall.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="block">
+  <h2>Content block</h2>
+  <p class="lead">Every group of content on a tab is a block: the same bordered, shadowed card as the character card, with a structural heading, an optional dim note at the heading's right, and rows separated by hairline rules.</p>
+  <div class="riso specimen">
+    <div class="phone-frame">
+      <div class="body pad-bottom">
+        <section class="block">
+          <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
+          <div class="res">
+            <div class="resl"><b>Pact magic</b><span>Two 3rd-level slots, short rest</span></div>
+            <div class="pips" role="spinbutton" tabindex="0" aria-label="Pact magic" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="1 of 2 left"><i data-on></i><i></i></div>
+          </div>
+          <div class="res">
+            <div class="resl"><b>Dark One's own luck</b><span>Add 1d10, long rest</span></div>
+            <div class="pips" role="spinbutton" tabindex="0" aria-label="Dark One&#x27;s own luck" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div>
+          </div>
+          <div class="res">
+            <div class="resl"><b>Hit dice</b><span>d8, half recovered on a long rest</span></div>
+            <div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="6" aria-valuenow="4" aria-valuetext="4 of 6 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Card</td><td>Sheet fill, 2px structural border, 5px accent shadow, 11 12 padding. Blocks on a tab are 13px apart, the tab's 12px side padding as the list's.</td></tr>
+      <tr><td>Heading</td><td><code>.bhead</code>, 11.5 / 700 in structural. A <code>span</code> at the right carries the note in dim at 11 / 500, and a block that edits gets its <a href="#editing">Edit button</a> there too.</td></tr>
+      <tr><td>Row rules</td><td>1.5px <code>--rule</code> between rows, none above the first. Because mixed row types follow each other, the pairing is ruled explicitly rather than by class.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="detail">
+  <h2>Detail screens</h2>
+  <p class="lead">A list row with a chevron pushes a full-screen detail; nothing expands in place. One layout throughout: the plate names the thing and its kind, then this character's numbers and controls, then the rules text, then a dim line saying where it came from.</p>
+  <div class="riso specimen">
+    <div class="phone-frame">
+      <div class="body pad-bottom">
+        <section class="block">
+          <h3 class="bhead">Actions</h3>
+          <p class="grp">Action</p>
+          <button class="act"><div class="actl"><b>Cure wounds</b><span>Touch, heals 1d8+1. Two ways to cast.</span></div><span class="mark">2 paths</span><i class="chev"></i></button>
+          <button class="act"><div class="actl"><b>Cast a spell</b><span>Eight known, one slot left</span></div><i class="chev"></i></button>
+          <p class="grp">Bonus action</p>
+          <button class="act"><div class="actl"><b>Hex</b><span>Move the curse to a new target</span></div><span class="mark" data-t="conc">Active</span><i class="chev"></i></button>
+        </section>
+      </div>
+    </div>
+  </div>
+  <div class="riso specimen">
+    <div class="sheetdemo">
+      <div class="shead">
+        <div class="sheadtop">
+          <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+          <div class="who">
+            <h2 class="sname">Channel divinity</h2>
+            <p class="ssub">Cleric feature</p>
+          </div>
+        </div>
+      </div>
+      <div class="body pad-bottom">
+        <section class="block">
+          <div class="res"><div class="resl"><b>1 of 2 uses</b><span>Both back after a short or long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Channel divinity uses" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="1 of 2 left"><i data-on></i><i></i></div></div>
+        </section>
+        <div class="pathcard">
+          <div class="pathtop"><b>Turn undead</b><span>Cleric</span></div>
+          <div class="pathstats"><span>Action</span><span>30 ft</span><span>Wis save <b>15</b></span></div>
+          <p class="padnote" style="margin-top:0">Undead that fail flee for a minute. Those of CR 1/2 or below are destroyed.</p>
+          <button class="castbtn small" style="margin-top:11px">Use, spends 1</button>
+        </div>
+        <div class="rulesfold">
+          <button class="disclose" aria-expanded="false">Rules text<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
+          <p class="origin">From Cleric 2, with a second use at cleric 6. Preserve life from the Life domain.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>List row</td><td><code>.act</code>: the full block width, name at 13.5 / 700, a dim one-line summary, an optional mark, then a structural chevron. The whole row is one button, at least 44 tall. A group label (<code>.grp</code>, 10.5 / 700 in dim) starts each cluster: Action, Bonus action, Reaction and so on.</td></tr>
+      <tr><td>Header</td><td>The plain plate with a back chevron, the thing's name at 19px and its kind as the subtitle: "Dagger, simple melee weapon", "Hex, 1st-level enchantment".</td></tr>
+      <tr><td>Order</td><td>This character's numbers first, as a <a href="#displays">statistics card</a> or a uses row, then controls, then rules text, then the origin. Actions open the detail of their source: Mace opens the item, Healing word the spell, Preserve life the feature.</td></tr>
+      <tr><td>Path card</td><td><code>.pathcard</code>, one per way to cast or use a thing: its own numbers, uses, note, Cast button and Remove. The name and a dim origin ("Feat", "Attuned item") head it.</td></tr>
+      <tr><td>Rules text</td><td>Expanded where the text is the content (items, traits, skills), folded behind a disclosure where cards carry the detail (spells, features with effects). The disclosure reports <code>aria-expanded</code>. See <a href="#displays">folded rules text</a>.</td></tr>
+      <tr><td>Origin</td><td>11 / 500 in dim over a hairline, naming the class, race, feat or hand that put it there. It always sits inside a card or the fold, never on bare paper.</td></tr>
+      <tr><td>Footer</td><td>A pushed screen that commits gets a sticky <code>.footbar</code> with its <a href="#buttons">primary</a>, fading from transparent to paper so the content scrolls under it: Take a short rest, Add Identify, Move 1 dagger to the backpack.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="sheets">
+  <h2>Bottom sheets</h2>
+  <p class="lead">The system's one overlay shape, for the sheet menu, the status picker and the in-play pads. It is static: it appears instantly along the bottom edge, with no drag, no slide and no grab handle, over a scrim that dims the page. It is modal: the page behind is inert and focus cycles inside until it closes.</p>
+  <div class="riso specimen">
+    <div class="sheetdemo" style="height:560px">
+      <div class="shead mini attached">
+        <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+        <h2 class="sname">Thorn</h2>
+        <button class="icnbtn" aria-label="Sheet menu" aria-haspopup="dialog" aria-expanded="true" style="margin-left:auto"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+      </div>
+      <div class="body pad-bottom">
+        <section class="block">
+          <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
+          <div class="res"><div class="resl"><b>Second wind</b><span>Heal 1d10+8, short rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Second wind" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div></div>
+          <div class="res"><div class="resl"><b>Action surge</b><span>One extra action, short rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Action surge" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div></div>
+          <div class="res"><div class="resl"><b>Hit dice</b><span>d10, half back on a long rest</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="8" aria-valuenow="8" aria-valuetext="8 of 8 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i></div></div>
+        </section>
+      </div>
+      <div class="bscrim" aria-hidden="true"></div>
+      <div class="bsheet" role="dialog" aria-modal="true" aria-label="Sheet menu">
+        <p class="bsheet-title">Thorn Grimsby</p>
+        <button class="menuitem"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg><span class="mi">Add a spell<small>No spells yet, so there's no Spells tab</small></span></button>
+        <button class="menuitem"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg><span class="mi">Edit basic details<small>Name, token color and alignment</small></span></button>
+        <div class="menusep"></div>
+        <button class="menuitem danger"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.7 9h5.6l.7-9"/></svg><span class="mi">Delete character</span></button>
+        <button class="menuitem close">Close</button>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Scrim</td><td><code>--scrim</code>, ink at 40%, painted over the whole screen so the page reads as inert. It appears instantly like the sheet, and a tap on it closes the sheet. A token, so a dark set derives its own.</td></tr>
+      <tr><td>Sheet</td><td>Sheet fill, a 2px structural top border with the 5px accent rule above it, so it reads as laid over the page. No handle bar, because nothing drags. 10 12 18 padding, rows within thumb reach.</td></tr>
+      <tr><td>Title</td><td>The character's name, 11.5 / 700 in dim, so the sheet is named when the dialog is announced.</td></tr>
+      <tr><td>Rows</td><td><code>.menuitem</code>, 56 tall: a 16px outline icon, the label at 15 / 700 in structural, a dim second line. A destructive row is separated by a <code>--rule</code> hairline and drawn in <code>--b-text</code>.</td></tr>
+      <tr><td>Close</td><td>An outlined row, centred, 48 tall. Escape and the scrim do the same. Closing returns focus to the opener.</td></tr>
+      <tr><td>Modality</td><td><code>role="dialog"</code> with <code>aria-modal="true"</code> and an <code>aria-label</code>. The page behind is <code>inert</code> and focus is trapped. The opener carries <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>, and shows the pressed ring while its sheet is open.</td></tr>
+      <tr><td>Layering</td><td>The sheet is its own layer: the page's primary under the scrim does not count against the sheet's. See the Layers rule under <a href="#buttons">buttons</a>. A roll that starts inside a pad replaces the pad's content in place, so no sheet opens over a sheet.</td></tr>
+      <tr><td>What uses it</td><td>The sheet menu, the <a href="#marks">status picker</a>, and the <a href="#pads">hit point pad</a>. Detail screens stay full-screen pushes, and anything that commits from a footer stays a pushed screen.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="editing">
+  <h2>Per-section edit</h2>
+  <p class="lead">In-play values are always live. Persistent facts sit behind an Edit in their block's header, and only one block edits at a time. An open block takes the draft skin from the <a href="#draft">draft tray</a> — dashed border, <code>--draft-bg</code>, no shadow — because nothing is real until Save. The skin is shared with the list on purpose: the same ink, the same meaning.</p>
+  <div class="riso specimen">
+    <div class="phone-frame">
+      <div class="body pad-bottom">
+        <section class="block editing">
+          <h3 class="bhead">Abilities <button class="editbtn">Cancel</button><button class="castbtn small">Save</button></h3>
+          <div class="editrow"><span class="lbl">Strength</span><button class="step" aria-label="Lower Strength">&minus;</button><span class="num">14</span><button class="step" aria-label="Raise Strength">+</button><span class="mod">+2</span></div>
+          <div class="editrow"><span class="lbl">Dexterity</span><button class="step" aria-label="Lower Dexterity">&minus;</button><span class="num">10</span><button class="step" aria-label="Raise Dexterity">+</button><span class="mod">+0</span></div>
+          <div class="editrow"><span class="lbl">Constitution<span class="mark">Was 14</span></span><button class="step" aria-label="Lower Constitution">&minus;</button><span class="num">16</span><button class="step" aria-label="Raise Constitution">+</button><span class="mod">+3</span></div>
+          <div class="editrow"><span class="lbl">Intelligence</span><button class="step" aria-label="Lower Intelligence">&minus;</button><span class="num">10</span><button class="step" aria-label="Raise Intelligence">+</button><span class="mod">+0</span></div>
+          <div class="editrow"><span class="lbl">Wisdom</span><button class="step" aria-label="Lower Wisdom">&minus;</button><span class="num">18</span><button class="step" aria-label="Raise Wisdom">+</button><span class="mod">+4</span></div>
+          <div class="editrow"><span class="lbl">Charisma</span><button class="step" aria-label="Lower Charisma">&minus;</button><span class="num">12</span><button class="step" aria-label="Raise Charisma">+</button><span class="mod">+1</span></div>
+          <p class="padnote"><b>Constitution 16</b> raises her maximum hit points from 52 to 59, and her Constitution saves and concentration checks by 1.</p>
+        </section>
+        <section class="block">
+          <h3 class="bhead">Saving throws <button class="editbtn" disabled>Edit</button></h3>
+          <div class="skills">
+            <button class="skill"><i class="rank"></i><span class="lbl">Strength</span><b>+2</b></button>
+            <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Wisdom</span><b>+7</b></button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Edit button</td><td><code>.editbtn</code>: sheet fill, 1.5px structural border, 12 / 700, at the block heading's right. While another block is open it is disabled: rule-coloured border and dim text, no shadow.</td></tr>
+      <tr><td>Editing skin</td><td><code>.block.editing</code>: dashed border, <code>--draft-bg</code>, no shadow. Cancel and Save replace Edit in the header; Save is the block's <a href="#buttons">small primary</a>.</td></tr>
+      <tr><td>Steppers</td><td>One row per value: label, −, the number, +, and what the number derives (the modifier) following live. See <a href="#controls">steppers</a>.</td></tr>
+      <tr><td>Was marker</td><td>A plain <a href="#marks">mark</a> after the label naming the saved value ("Was 14"), so the change shows before it is committed. On a list, "New" marks an addition and a struck-through "Removing" row a staged removal; see <a href="#controls">list editing</a>.</td></tr>
+      <tr><td>Knock-on effects</td><td>A note at the foot of the block spells out what follows the change before saving.</td></tr>
+      <tr><td>Override badge</td><td>A value the player has replaced carries the pencil badge wherever it shows, on the plate and inside blocks. See <a href="#displays">value detail</a>.</td></tr>
+      <tr><td>Exclusivity</td><td>One block at a time. The others show a disabled Edit, and the header stays live.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="controls">
+  <h2>Sheet controls</h2>
+  <p class="lead">The controls the character sheet adds to the system. Selected state lives in ARIA attributes, and every one of these answers taps across at least 44 by 44.</p>
+
+  <h3>Resource pips and the slot grid</h3>
+  <p class="why">Spending a resource is a tap on a pip. A filled pip spends the last filled one, an empty pip restores the first empty one, so landing on a neighbour in the same state does the same thing and only the boundary can be missed. Several slot levels sit in one two-column grid instead of one row per level.</p>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <section class="block">
+        <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
+        <div class="res"><div class="resl"><b>Spell slots</b><span>Long rest</span></div></div>
+        <div class="slotgrid">
+          <div class="slotg"><em>1st</em><div class="pips" role="spinbutton" tabindex="0" aria-label="1st level slots" aria-valuemin="0" aria-valuemax="4" aria-valuenow="3" aria-valuetext="3 of 4 left"><i data-on></i><i data-on></i><i data-on></i><i></i></div></div>
+          <div class="slotg"><em>2nd</em><div class="pips" role="spinbutton" tabindex="0" aria-label="2nd level slots" aria-valuemin="0" aria-valuemax="3" aria-valuenow="3" aria-valuetext="3 of 3 left"><i data-on></i><i data-on></i><i data-on></i></div></div>
+          <div class="slotg"><em>3rd</em><div class="pips" role="spinbutton" tabindex="0" aria-label="3rd level slots" aria-valuemin="0" aria-valuemax="3" aria-valuenow="2" aria-valuetext="2 of 3 left"><i data-on></i><i data-on></i><i></i></div></div>
+          <div class="slotg"><em>4th</em><div class="pips" role="spinbutton" tabindex="0" aria-label="4th level slots" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div></div>
+        </div>
+        <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="7" aria-valuenow="5" aria-valuetext="5 of 7 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div></div>
+      </section>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Pip</td><td>22px square, or 20 wide in a wide row of five or more. Filled is structural, empty is the rose tint <code>--empty</code>. Pressed is the 2px inset ring.</td></tr>
+      <tr><td>Hit area</td><td>44 tall and 24 or 26 wide, meeting at the midpoint of the 4px gap. Resource rows are 44 tall so stacked rows meet instead of overlapping.</td></tr>
+      <tr><td>Semantics</td><td>The row is one <code>spinbutton</code>, named by the resource, with <code>aria-valuemin</code>, <code>aria-valuemax</code> and <code>aria-valuetext</code> such as "1 of 2 left". Arrow keys step it, Home spends every use, End restores them. The pips stay touch targets but are not announced one by one. Pools larger than about six get explicit plus and minus instead.</td></tr>
+      <tr><td>Slot grid</td><td><code>.slotgrid</code>, two columns: a level label in dim ("1st") and its pip row, each cell 44 tall.</td></tr>
+      <tr><td>Death saves</td><td>Successes are structural circles, failures <code>--b-text</code> squares, drawn at pip size so they correct a mistake with the same rule. See <a href="#pads">the hit point pad</a>.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Steppers</h3>
+  <p class="why">A − and + around the number. Outlined structural buttons with the 3px accent shadow, so they sink 3px when pressed. 52px inside a pad, 40px in an edit row; both carry aria-labels naming what they change.</p>
+  <div class="riso specimen tight">
+    <div class="inline" style="gap:34px;align-items:flex-start">
+      <div class="padnum" style="margin-top:0">
+        <button class="step" aria-label="One less">&minus;</button>
+        <b>7</b>
+        <button class="step" aria-label="One more">+</button>
+      </div>
+      <div class="editrow" style="border-top:0;min-height:52px">
+        <span class="lbl">Strength</span><button class="step" aria-label="Lower Strength">&minus;</button><span class="num">14</span><button class="step" aria-label="Raise Strength">+</button><span class="mod">+2</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>Toggle row and single-choice row</h3>
+  <p class="why">The whole row toggles. The 22px box takes a tick for multi-select, a round marker for a single choice. A row with details splits into the toggle's label and a sibling button at the end, so opening details never toggles the row.</p>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <section class="block">
+        <h3 class="bhead">1st level <span>4 chosen</span></h3>
+        <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Bane</b><span>Action, 30 ft, concentration</span></div></label><button class="infobtn" aria-label="Bane details"><i class="chev"></i></button></div>
+        <div class="prep"><label class="prepmain"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Command</b><span>Action, 60 ft, 1 round</span></div><span class="mark">New</span></label><button class="infobtn" aria-label="Command details"><i class="chev"></i></button></div>
+        <div class="prep"><label class="prepmain"><input type="checkbox" checked disabled><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Cure wounds</b><span>Action, touch</span></div><span class="mark">Domain</span></label><button class="infobtn" aria-label="Cure wounds details"><i class="chev"></i></button></div>
+      </section>
+      <section class="block" style="margin-top:13px">
+        <h3 class="bhead">To</h3>
+        <label class="prep"><input type="radio" name="dest" disabled><span class="box round"></span><div class="actl"><b>Belt</b><span>Equipped</span></div><span class="mark">Here now</span></label>
+        <label class="prep"><input type="radio" name="dest"><span class="box round"></span><div class="actl"><b>Carried</b><span>Loose, not in a container</span></div></label>
+        <label class="prep"><input type="radio" name="dest" checked><span class="box round"></span><div class="actl"><b>Backpack</b><span>5 things inside</span></div></label>
+      </section>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Box</td><td>22px, 2px structural inset ring. Ticked fills structural with the on-a tick. Focus outlines the box. Pressed draws a second ring inside, so the sheet shows through between rings.</td></tr>
+      <tr><td>Single choice</td><td><code>.box.round</code>: the chosen marker is a structural dot ringed twice, the sheet showing between. The group is a <code>radiogroup</code> of real radio inputs.</td></tr>
+      <tr><td>Disabled</td><td>Ticked with no ink: the <code>--rule</code> ring, dim tick, and a mark saying why ("Domain", "Here now", "Known").</td></tr>
+      <tr><td>Marks</td><td>"New" marks a choice made since the last save, so the change shows before it is committed.</td></tr>
+      <tr><td>Details</td><td>The chevron is its own 32px button with an aria-label, a sibling of the toggle's label, not part of it.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Proficiency rank</h3>
+  <p class="why">Rank is a 12px shape, never colour alone: empty square for none, left half filled for half, filled for proficient, filled with an inner ring for expertise. The Skills block carries a legend. As a choice, the four shapes become a row of buttons; the selected one inverts, as the selected state requires.</p>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <section class="block">
+        <h3 class="bhead">Skills</h3>
+        <p class="legend">
+          <span><i class="rank"></i>None</span><span><i class="rank" data-r="half"></i>Half</span>
+          <span><i class="rank" data-r="prof"></i>Proficient</span><span><i class="rank" data-r="exp"></i>Expertise</span>
+        </p>
+        <div class="rankseg" role="radiogroup" aria-label="Proficiency rank">
+          <button role="radio" aria-checked="false" tabindex="-1"><i class="rank"></i>None</button>
+          <button role="radio" aria-checked="false" tabindex="-1"><i class="rank" data-r="half"></i>Half</button>
+          <button role="radio" aria-checked="true" tabindex="0"><i class="rank" data-r="prof"></i>Proficient</button>
+          <button role="radio" aria-checked="false" tabindex="-1"><i class="rank" data-r="exp"></i>Expertise</button>
+        </div>
+      </section>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Shape</td><td><code>.rank</code>, 12px. The shapes are drawn in structural ink with <code>data-r</code> of half, prof or exp. On an inverted button the same shapes draw in on-a.</td></tr>
+      <tr><td>Selector</td><td><code>.rankseg</code>: outlined buttons at 56 tall, shape above label, the checked one filled structural with on-a text. A <code>radiogroup</code> with arrow keys. Picking a rank other than the one advancement gave writes the rank override.</td></tr>
+      <tr><td>Saving throws</td><td>Proficient or not, so the selector is two wide without Half or Expertise, which stay with skills and tools.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Two-way switch and equal buttons</h3>
+  <p class="why">A choice that swaps the content below is a pair of tab-style buttons on the plate — rest length, catalog or custom, the coin — while two equal actions sit side by side as a pair of outlined buttons.</p>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <div class="shead">
+        <div class="seg" role="tablist" aria-label="Rest length"><button class="tab" role="tab" aria-selected="true" tabindex="0">Short rest</button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Long rest</button></div>
+      </div>
+      <div class="body" style="padding-top:13px">
+        <section class="block">
+          <h3 class="bhead">Spend hit dice <span>4 of 6 left</span></h3>
+          <div class="pair"><button class="gobtn" aria-haspopup="dialog" aria-expanded="false">Roll 2d8 + 4</button><button class="gobtn" aria-haspopup="dialog" aria-expanded="false">I rolled</button></div>
+        </section>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Switch</td><td><code>.seg</code> on the plate: the same buttons as the sheet tabs at 12.5px, a <code>tablist</code> with <code>aria-selected</code>. Used for Short or Long rest, From the catalog or Custom, and the money pad's coin row.</td></tr>
+      <tr><td>Pair</td><td><code>.pair</code>: two equal outlined buttons (<code>.gobtn</code>), 12px apart, both 44 tall. Roll and I rolled open the same <a href="#pads">roll sheet</a>. Neither is the primary; the screen's commit stays in the footer.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Selector widths</h3>
+  <p class="why">The one outlined selector grid takes its width from the number of options: two columns for a pair, three for a short list, four by default, and six for the abilities.</p>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <div class="rankseg three" role="radiogroup" aria-label="Proficiency rank">
+        <button role="radio" aria-checked="false" tabindex="-1"><i class="rank" data-r="half"></i>Half</button>
+        <button role="radio" aria-checked="true" tabindex="0"><i class="rank" data-r="prof"></i>Proficient</button>
+        <button role="radio" aria-checked="false" tabindex="-1"><i class="rank" data-r="exp"></i>Expertise</button>
+      </div>
+      <div class="rankseg six" style="margin-top:13px" role="radiogroup" aria-label="Spellcasting ability"><button role="radio" aria-checked="false" tabindex="-1">Str</button><button role="radio" aria-checked="false" tabindex="-1">Dex</button><button role="radio" aria-checked="false" tabindex="-1">Con</button><button role="radio" aria-checked="false" tabindex="-1">Int</button><button role="radio" aria-checked="false" tabindex="-1">Wis</button><button role="radio" aria-checked="true" tabindex="0">Cha</button></div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Width</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td><code>.rankseg.two</code></td><td>Two columns: None and Proficient on a saving throw.</td></tr>
+      <tr><td><code>.rankseg.three</code></td><td>Three columns: a tool's ranks. Buttons stay 56 tall.</td></tr>
+      <tr><td><code>.rankseg</code> (four)</td><td>The default: proficiency rank, uses coming back (Short rest, Long rest, Dawn, By hand), a condition's end.</td></tr>
+      <tr><td><code>.rankseg.six</code></td><td>Six columns at 48 tall, 5px gaps: the six abilities, labelled with their abbreviations.</td></tr>
+      <tr><td>Alignment</td><td>Nine alignments use the three-wide grid, with None as a full-width tenth button in the same group. One <code>radiogroup</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Text fields and notes</h3>
+  <p class="why">Fields are 44 tall at least, the wash fill with the inset rule ring, focusing into the structural ring. Notes are the exception to the Edit rule: they look like fields because they are fields, typed straight into, saved as you go.</p>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <section class="block">
+        <label class="field"><span>Name</span><input value="Thorn Grimsby"></label>
+      </section>
+      <section class="block" style="margin-top:13px">
+        <h3 class="bhead">Notes <span>Saves as you type</span></h3>
+        <div class="notewrap"><textarea class="notearea clamped" aria-label="Notes about Brenna" placeholder="Tap to add a note" rows="6">Owes the Fiend one favor, unspecified.
+Sunless Crown: the third door on the left is a mimic.
+Session 11: the ferryman takes silver, not gold.
+Brother Tamsin keeps a ledger of everyone who visits the shrine.
+Session 12: borrowed Alarra's ring of spell storing.
+Session 13: the map in the chapel is upside down on purpose.</textarea><div class="notefoot"><p class="notestatus" aria-live="polite">Saved</p><button class="noteshow">Show all</button></div></div>
+      </section>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Field</td><td>Label 11.5 / 700 in dim, the box 14 / 400 in ink on <code>--wash</code> with a 1.5px <code>--rule</code> inset ring, 10 11 padding. A real 44 minimum height, because a hit-area overlay would cover the caret. Multiline boxes start at 92.</td></tr>
+      <tr><td>Note</td><td>The same box at 13px, <code>overflow:hidden</code> and no resize handle. It saves after typing pauses and on blur; a dim status line reads Saving, then Saved, in a live region. Only a deliberate tap opens the keyboard, not a touch that starts a scroll.</td></tr>
+      <tr><td>Folding</td><td>A long note shows its first six lines with Show all, and opens fully while it has focus, so it never pushes the rest of a tab away. Clamped, the bottom padding goes, so no part of a seventh line shows through it.</td></tr>
+      <tr><td>Per path</td><td>A spell note belongs to one way to cast, as the data model stores it; each path card carries its own note field and there is no spell-wide note.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Token colour picker</h3>
+  <p class="why">The stored token ink as three swatches, named by the theme — Blue, Rose and Purple in the default — because token colour is identity, not status.</p>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <section class="block">
+        <h3 class="bhead">Token color</h3>
+        <div class="tokpick" role="radiogroup" aria-label="Token color"><button role="radio" aria-checked="false" tabindex="-1" aria-label="Blue"><div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">T</div><span>Blue</span><small>Chosen</small></button><button role="radio" aria-checked="true" tabindex="0" aria-label="Rose"><div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">T</div><span>Rose</span><small>Chosen</small></button><button role="radio" aria-checked="false" tabindex="-1" aria-label="Purple"><div class="tok" style="--tok:var(--mix);--on-tok:var(--on-mix)">T</div><span>Purple</span><small>Chosen</small></button></div>
+      </section>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Swatch</td><td>96 tall at least: the 48px token with the character's initial, the theme's name for the ink under it, then "Chosen" in dim under the selected one. Idle is the wash tile; selected keeps the tile and takes the 2px structural ring. A <code>radiogroup</code>.</td></tr>
+      <tr><td>Stored</td><td>The character stores the ink role, not a colour, so a theme change updates every token. Players never see the role names, only the theme's names.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>List editing</h3>
+  <p class="why">Edit on a list block opens the draft skin. Each row gains a drag handle at the start and a remove button at the end. Removals are staged: the row stays in place, struck through and marked, until Save. Cancel restores everything.</p>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <section class="block editing">
+        <h3 class="bhead">Carried <button class="editbtn">Cancel</button><button class="castbtn small">Save</button></h3>
+        <div class="erow"><button class="grip" aria-label="Drag to reorder"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h10M3 8h10M3 11h10"/></svg></button><div class="actl"><b>Potion of healing <small class="qty">&times;2</small></b><span>Action, heals 2d4+2</span></div><button class="rmbtn" aria-label="Remove Potion of healing"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
+        <div class="erow removing"><button class="grip" aria-label="Drag to reorder"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h10M3 8h10M3 11h10"/></svg></button><div class="actl"><b>Rations <small class="qty">&times;5</small></b><span>Days of food</span></div><span class="mark" data-t="bad">Removing</span><button class="rmbtn" aria-label="Keep Rations"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5.5 4 2.5 7l3 3"/><path d="M2.5 7H10a3.5 3.5 0 0 1 0 7H7"/></svg></button></div>
+        <div class="erow"><button class="grip" aria-label="Drag to reorder"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h10M3 8h10M3 11h10"/></svg></button><div class="actl"><b>Prayer book</b><span>From the Acolyte background</span></div><button class="rmbtn" aria-label="Remove Prayer book"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
+        <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add an item</button>
+        <p class="padnote">Drag a row by its handle to move it. Moves and removals wait for Save; adding saves straight away.</p>
+      </section>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Drag handle</td><td><code>.grip</code>, three horizontal lines in dim, 28 by 36, <code>cursor:grab</code>. Only on rows with a stored order; proficiencies and languages sort by kind and name, so they get none.</td></tr>
+      <tr><td>Remove</td><td><code>.rmbtn</code>, a minus in a circle in <code>--b-text</code>, 32px. Once staged, the same spot holds the undo arrow, labelled "Keep Rations".</td></tr>
+      <tr><td>Staged removal</td><td><code>.erow.removing</code>: the name struck through in dim and a bad mark reading "Removing". The row keeps its place until Save; granted things are confirmed as suppressions at Save, with a note that a level-up review can restore them.</td></tr>
+      <tr><td>Add rows</td><td><code>.addrow</code>: dashed structural border, 13.5 / 700, a plus. They group at the foot of the list, in view mode and inside Edit, so neither looks tied to one group. Every Add opens its own screen and commits from that screen's footer, so the draft holds only reordering and removal.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Quantities and containers</h3>
+  <p class="why">The quantity follows the name. A container opens in place, its contents indented behind a rule, and its chevron turns down; the container's own detail lists the contents with an Add to it action. There is no capacity and no weight, because the catalog has no data for either.</p>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <section class="block">
+        <h3 class="bhead">Carried <button class="editbtn">Edit</button></h3>
+        <button class="act"><div class="actl"><b>Potion of healing <small class="qty">&times;2</small></b><span>Action, heals 2d4+2</span></div><i class="chev"></i></button>
+        <button class="act"><div class="actl"><b>Backpack</b><span>5 things inside</span></div><i class="chev down"></i></button>
+        <div class="nest">
+          <button class="act"><div class="actl"><b>Bedroll</b><span>Sleeps one</span></div><i class="chev"></i></button>
+          <button class="act"><div class="actl"><b>Rations <small class="qty">&times;5</small></b><span>Days of food</span></div><i class="chev"></i></button>
+          <button class="act"><div class="actl"><b>Hempen rope</b><span>50 ft</span></div><i class="chev"></i></button>
+        </div>
+      </section>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Quantity</td><td><code>.qty</code>: "×2" at 12.5 / 700 in dim, inside the row's name.</td></tr>
+      <tr><td>Open container</td><td><code>.nest</code>: contents indented 10px behind a 2px <code>--rule</code> left border, with 12px between the rule and the contents, the parent's chevron turned down. The summary names the count inside ("5 things inside").</td></tr>
+      <tr><td>Removing a container</td><td>A pushed screen asks what happens to the contents: into another container, loose into carried, or discarded with it. An answer that cannot apply is disabled with the reason, and the destructive footer names the outcome.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="pads">
+  <h2>Pads and rolling</h2>
+  <p class="lead">The in-play pads. The hit point pad opens as a <a href="#sheets">bottom sheet</a> so the player keeps their place; the money pad is a pushed screen; one roll sheet serves both Roll and I rolled. No keyboards anywhere here: numbers change with steppers, quick amounts and face buttons.</p>
+
+  <h3>Hit point pad</h3>
+  <p class="why">The most frequent interaction in the app. It opens from the vitals on the tall header or the hit points on the compact one, and the vitals stay visible through the scrim. Inside the sheet the pad loses its card chrome. Damage, heal or temporary on tabs, a stepper with quick amounts, and a line that says what will happen before it does.</p>
+  <div class="riso specimen">
+    <div class="sheetdemo" style="height:620px">
+      <div class="shead mini attached">
+        <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+        <h2 class="sname">Brenna</h2>
+        <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Hex</button>
+        <button class="minihp" aria-label="Hit points 31 of 44, 5 temporary, open the pad" aria-haspopup="dialog" aria-expanded="true"><b>31</b>/44<em>+5 temp</em></button>
+        <div class="ac" role="button" tabindex="0" aria-label="Armor class 13"><span>13<em>AC</em></span></div>
+      </div>
+      <div class="body pad-bottom">
+        <section class="block">
+          <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
+          <div class="res"><div class="resl"><b>Pact magic</b><span>Two 3rd-level slots, short rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Pact magic" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="1 of 2 left"><i data-on></i><i></i></div></div>
+          <div class="res"><div class="resl"><b>Dark One's own luck</b><span>Add 1d10, long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Dark One&#x27;s own luck" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div></div>
+        </section>
+      </div>
+      <div class="bscrim" aria-hidden="true"></div>
+      <div class="bsheet" role="dialog" aria-modal="true" aria-label="Hit points">
+        <p class="bsheet-title">Brenna Duskhollow</p>
+        <div class="pad">
+          <div class="padtabs" role="tablist" aria-label="Hit point pad">
+            <button role="tab" aria-selected="true" tabindex="0">Damage</button>
+            <button role="tab" aria-selected="false" tabindex="-1">Heal</button>
+            <button role="tab" aria-selected="false" tabindex="-1">Temporary</button>
+          </div>
+          <div class="padnum">
+            <button class="step" aria-label="One less">&minus;</button>
+            <b>7</b>
+            <button class="step" aria-label="One more">+</button>
+          </div>
+          <div class="quick">
+            <button>1</button><button>2</button><button>5</button><button>10</button>
+          </div>
+          <p class="padnote">The 5 temporary hit points take the first 5. Brenna ends on <b>29</b>/44 with none temporary, then makes a concentration save for Hex.</p>
+          <button class="castbtn" style="margin-top:11px">Apply 7 damage</button>
+        </div>
+        <button class="menuitem close">Close</button>
+      </div>
+    </div>
+  </div>
+  <p class="why">At 0 hit points the pad gains a Death save tab beside Damage and Heal, and both the vitals and the header's death saves open it. Success and failure <a href="#controls">pips</a> correct mistakes. The roll is recorded in place, and a roll made at the table is one of four band buttons: 1, 2 to 9, 10 to 19, 20 — only the band matters, so nothing is typed. Damage at 0 is a failure, with a critical hit toggle for two; when the damage would kill, the note says so and the button turns destructive and names the outcome. A dead character's pad offers Bring back in place of Heal, defaulting to 1 hit point, which clears both counts. Concentration damage turns the pad into the save: the DC, Roll, Kept and Lost.</p>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Tabs</td><td><code>.padtabs</code>, a <code>tablist</code>: idle fills <code>--chip2</code> with dim text, the selected tab fills structural with on-a. The idle fill is the paper version of the chip rule, which is why the token exists.</td></tr>
+      <tr><td>Number</td><td>36 / 700 in structural between the <a href="#controls">steppers</a>.</td></tr>
+      <tr><td>Quick amounts</td><td>Four equal outlined buttons, 44 tall: 1, 2, 5, 10.</td></tr>
+      <tr><td>Note</td><td><code>.padnote</code>, 11.5 / 500 in dim, allowing for caps and naming knock-on effects: temporary hit points first, then the concentration save.</td></tr>
+      <tr><td>Commit</td><td>The full-width <a href="#buttons">primary</a>, naming the action and the amount. When the outcome kills, it is the destructive button instead.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Money pad</h3>
+  <p class="why">Each coin opens a pad for that denomination. The row of five coins on the plate switches denomination without leaving the pad, and the app never converts between coins.</p>
+  <div class="riso specimen">
+    <div class="sheetdemo">
+      <div class="shead">
+        <div class="sheadtop">
+          <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+          <div class="who">
+            <h2 class="sname">Gold</h2>
+            <p class="ssub">Brenna Duskhollow</p>
+          </div>
+        </div>
+        <div class="coinseg" role="tablist" aria-label="Coin"><button class="tab" role="tab" aria-selected="false" tabindex="-1">Copper</button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Silver</button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Electrum</button><button class="tab" role="tab" aria-selected="true" tabindex="0">Gold</button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Platinum</button></div>
+      </div>
+      <div class="body">
+        <div class="pad" style="margin-top:0">
+          <div class="padtabs" role="radiogroup" aria-label="Gain or spend"><button role="radio" aria-checked="false" tabindex="-1">Gain</button><button role="radio" aria-checked="true" tabindex="0">Spend</button></div>
+          <div class="padnum">
+            <button class="step" aria-label="One less">&minus;</button>
+            <b>15</b>
+            <button class="step" aria-label="One more">+</button>
+          </div>
+          <div class="quick"><button>1</button><button>5</button><button>10</button><button>50</button></div>
+          <p class="padnote"><b>112</b> gold becomes <b>97</b>. Her other coins stay as they are.</p>
+          <button class="castbtn" style="margin-top:11px">Spend 15 gold</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Coin switch</td><td><code>.coinseg</code> on the plate, a <code>tablist</code> of the five denominations.</td></tr>
+      <tr><td>Gain or spend</td><td>The pad's two tabs are a <code>radiogroup</code>, because the choice changes what the commit does rather than what shows.</td></tr>
+      <tr><td>Coin tiles</td><td><code>.coin</code> on the Gear tab: a wash tile with the count at 16 / 700 in structural and the denomination in dim, 52 tall at least. Each opens its pad.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Roll sheet</h3>
+  <p class="why">One sheet serves Roll and I rolled. Each die is a big value square with its die size under the number. Entering a number by hand and rolling in the app are separate paths: I rolled taps the face each die showed and the app adds the modifier, so nothing is typed; Roll animates the dice and reads the result. The dice stay editable either way.</p>
+  <div class="riso specimen">
+    <div class="sheetdemo" style="height:480px">
+      <div class="bscrim" aria-hidden="true"></div>
+      <div class="bsheet" role="dialog" aria-modal="true" aria-label="Spend hit dice" style="margin-top:auto">
+        <p class="bsheet-title">Spend 2 hit dice, rolled in the app</p>
+        <div class="roll" data-mode="app" style="padding:6px 8px 0">
+          <div class="dicerow"><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="First d8, 6"><b>6</b><em>d8</em></button></div><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="Second d8, 5"><b>5</b><em>d8</em></button></div><span class="dieplus">+4</span></div>
+          <p class="dicemath" aria-live="polite">6 + 5 + 4 = <b>15</b></p>
+          <div class="rollafter">
+            <p class="padnote rollnote"><b>13 hit points restored.</b> Brenna reaches her maximum of 44, so 2 are lost.</p>
+            <p class="padnote rollhint">Tap a die to change it.</p>
+            <button class="castbtn rollconfirm">Restore 13 hit points</button>
+          </div>
+        </div>
+        <button class="menuitem close">Close</button>
+      </div>
+    </div>
+  </div>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <div class="roll" data-mode="table" style="padding:0">
+        <div class="dicerow"><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="First d8, 5"><b>5</b><em>d8</em></button></div><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" data-empty aria-pressed="true" aria-label="Second d8, not entered"><b>?</b><em>d8</em></button></div><span class="dieplus">+4</span></div>
+        <p class="dicemath" aria-live="polite">5 + ? + 4</p>
+        <div class="facegrid" role="group" aria-label="What the die shows"><button>1</button><button>2</button><button>3</button><button>4</button><button>5</button><button>6</button><button>7</button><button>8</button></div>
+        <p class="padnote rollnote">Tap what the second die shows. The +4 is added for you.</p>
+        <button class="castbtn rollconfirm" disabled>Enter both dice</button>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Die box</td><td>72px, the square cousin of the big value square, on a rose shadow that sits 3px off. The number at 30 / 700, the die size at 10 / 700 in dim. The die being entered is inverted. Up to four dice show separately; five or more collapse into one total entered on a number pad.</td></tr>
+      <tr><td>The roll</td><td>The system's other motion exception: each die jumps between fixed poses while its number flicks, stepped rather than smooth, with its rose shadow held still, then sinks onto the shadow to land. About half a second. A tap skips to the result, <code>prefers-reduced-motion</code> shows the result at once, and screen readers hear only the result, in the total's live region.</td></tr>
+      <tr><td>Face buttons</td><td>For I rolled: a four-column grid of the die's faces, 44 tall. Confirm stays disabled and names what is missing ("Enter both dice") until every die has a value.</td></tr>
+      <tr><td>Note and confirm</td><td>The note says what confirming will do before it happens, allowing for caps ("15 rolled, room for 13"), and for saves it names the outcome. The confirm button names the result and turns destructive when the result kills. There is no free re-roll; Re-roll appears only where a rule grants one, such as the halfling Lucky trait on a 1.</td></tr>
+      <tr><td>Inside a pad</td><td>A roll that starts inside the hit point pad replaces the pad's content in place, so no sheet opens over a sheet.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="displays">
+  <h2>Value displays</h2>
+  <p class="lead">The ways the sheet shows numbers: tables, cards, tiles and detail blocks. None of these is a control in itself, though rows and values around them may open details.</p>
+
+  <h3>Attack table</h3>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <section class="block">
+        <h3 class="bhead">Attacks</h3>
+        <div class="atkh"><span>Attack</span><span style="text-align:center">Hit</span><span style="text-align:right">Damage</span></div>
+        <div class="atk">
+          <div><b>Pact blade</b><small>Melee, 5 ft, finesse</small></div>
+          <div class="hit">+5</div>
+          <div class="dmg">1d6+2<em>slashing</em></div>
+        </div>
+        <div class="atk">
+          <div><b>Eldritch blast</b><small>120 ft, two beams, pushes 10 ft</small></div>
+          <div class="hit">+7</div>
+          <div class="dmg">1d10+4<em>force, each beam</em></div>
+        </div>
+        <div class="atk">
+          <div><b>Sacred flame</b><small>60 ft, ignores cover, from the feat</small></div>
+          <div class="hit">12<small>Dex save</small></div>
+          <div class="dmg">2d8<em>radiant</em></div>
+        </div>
+      </section>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Columns</td><td><code>1fr 44px 104px</code>, 8px gaps: the attack's name and a dim summary, the hit, the damage.</td></tr>
+      <tr><td>Header</td><td>10.5 / 700 in dim, the hit and damage labels centred and right to match their columns.</td></tr>
+      <tr><td>Hit</td><td>15 / 700 in structural. An attack that forces a save shows the DC with the save's ability under it in dim, because there is no attack roll.</td></tr>
+      <tr><td>Damage</td><td>12.5 / 600 in ink, right aligned, with the type and any rider in dim under it.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Spellcasting statistics card</h3>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <div class="cast">
+        <div class="casttop"><b>Pact magic</b><span>Warlock 6</span></div>
+        <div class="caststats">
+          <div><b>Cha</b><em>Ability</em></div>
+          <div><b>15</b><em>Save DC</em></div>
+          <div><b>+7</b><em>Attack</em></div>
+        </div>
+        <div class="res" style="margin-top:10px;border-top:1.5px solid transparent;padding-top:11px">
+          <div class="resl"><b>Two slots</b><span>Always cast at 3rd level, short rest</span></div>
+          <div class="pips" role="spinbutton" tabindex="0" aria-label="Two slots" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="1 of 2 left"><i data-on></i><i></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Card</td><td><code>.cast</code>, the block's card chrome. One per way to cast: a feat or an item brings its own ability, save DC and uses.</td></tr>
+      <tr><td>Head</td><td>The path's name at 13.5 / 700, its origin in dim at the right.</td></tr>
+      <tr><td>Tiles</td><td><code>.caststats</code>: three wash tiles with the inset rule ring, number at 15 / 700 in structural, caption at 10 / 600 in dim. The same tile serves passive scores, an item's numbers and a trait's ranges.</td></tr>
+      <tr><td>Body</td><td>May hold a uses row with pips, a note, or a Change button for a preparing caster.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Ability scores, and skill and saving throw rows</h3>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <section class="block">
+        <h3 class="bhead">Abilities <span>Proficiency +3</span><button class="editbtn">Edit</button></h3>
+        <div class="abil">
+          <div><em>Strength</em><b>+2</b><span>14</span></div>
+          <div><em>Dexterity</em><b>+0</b><span>10</span></div>
+          <div><em>Constitution</em><b>+2</b><span>14</span></div>
+          <div><em>Intelligence</em><b>+0</b><span>10</span></div>
+          <div><em>Wisdom</em><b>+4</b><span>18</span></div>
+          <div><em>Charisma</em><b>+1</b><span>12</span></div>
+        </div>
+      </section>
+      <section class="block" style="margin-top:13px">
+        <h3 class="bhead">Saving throws</h3>
+        <div class="skills">
+          <button class="skill"><i class="rank"></i><span class="lbl">Strength</span><b>+2</b></button>
+          <button class="skill"><i class="rank"></i><span class="lbl">Dexterity</span><b>+0</b></button>
+          <button class="skill"><i class="rank"></i><span class="lbl">Constitution</span><b>+2</b></button>
+          <button class="skill"><i class="rank"></i><span class="lbl">Intelligence</span><b>+0</b></button>
+          <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Wisdom</span><b>+7</b></button>
+          <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Charisma</span><b>+4</b></button>
+        </div>
+      </section>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Ability tiles</td><td><code>.abil</code>, three columns of wash tiles: the name in dim, the modifier at 22 / 700 in structural, the score under it in dim. The modifier is the number that matters, so it is the bold one.</td></tr>
+      <tr><td>Skill rows</td><td><code>.skills</code>, two columns. Each row is 44 tall because it opens its own detail: the <a href="#controls">rank shape</a>, the name, the bonus in structural. All 18 skills and all six saving throws are always visible; proficiency is marked by shape, never filtered.</td></tr>
+      <tr><td>Overrides</td><td>A replaced value carries the override badge inline after its bonus, and the block's legend names it "Set by you".</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Value detail</h3>
+  <p class="why">Tapping a value on the plate or in a row pushes its detail: a big ring or square with the live number, a stepper for the replacement, a way back to the calculated value, and the calculation with every contributor. The big ring is the <a href="#ac">armour class ring</a> at 72; the square cousin is for bonuses.</p>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <section class="block">
+        <div class="bigval">
+          <div class="ac has-ovr"><span>19<em>AC</em></span><span class="ovr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg></span></div>
+          <p><b>Set by you.</b> The sheet calculates 18. Everything that reads armor class uses 19 until you change it back.</p>
+        </div>
+        <div class="padnum" style="margin-top:16px">
+          <button class="step" aria-label="One less">&minus;</button>
+          <b>19</b>
+          <button class="step" aria-label="One more">+</button>
+        </div>
+        <button class="gobtn" style="width:100%;margin-top:14px">Use the calculated 18</button>
+      </section>
+      <section class="block" style="margin-top:13px">
+        <h3 class="bhead">How 18 is calculated</h3>
+        <div class="calc"><div><b>Chain mail</b><span>Equipped. Heavy armor, so Dexterity adds nothing.</span></div><strong>16</strong></div>
+        <div class="calc"><div><b>Shield</b><span>Equipped</span></div><strong>+2</strong></div>
+        <div class="calc total"><div><b>Calculated</b><span>Follows her gear if it changes</span></div><strong>18</strong></div>
+      </section>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Big value</td><td>The 72 ring, or <code>.bignum</code>, a 72 square with the ring's border and shadow, for bonuses like "+9". The explanation beside it says what uses the value. Without an override the explanation says Calculated, and an outlined button offers "Replace the bonus" where the stepper would be.</td></tr>
+      <tr><td>Override badge</td><td><code>.ovr</code>: an 18px sheet circle with a pencil in a <code>--b-text</code> ring, pinned to the value's corner the way the level badge is pinned to a token. The pencil shape carries the meaning, so it never depends on colour; it reads "set by you".</td></tr>
+      <tr><td>Calculation</td><td><code>.calc</code> rows: the contributor's name, a dim line saying where it comes from, and its number in structural. The total row takes a 2px structural top rule.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Counter that can go over its limit</h3>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <div class="shead">
+        <div class="vitals" style="margin-top:0">
+          <div class="hprow">
+            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="over" aria-hidden="true"></div>
+          </div>
+          <p class="hpline"><b>12</b> of 11 prepared. Domain spells don't count.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td>Spill</td><td>Going over is allowed: the limit fills like a meter and the excess is one solid accent block after it, 22px, never segmented. A <a href="#displays">warning strip</a> explains the rule; the line spells out the count, so the block never works alone.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Warning strip</h3>
+  <p class="why">A margin note, never a block: the card colour with no tint, a solid 4px rule down its left edge in rose text ink, an outline icon and a bold lead. Dashed borders mean adding or not real yet, the rose tint means a draft, and a solid rose edge means a warning, so a warning can sit inside a block being edited without reading as part of the draft.</p>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <div class="warn" role="note">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg>
+        <div><b>Three slots marked spent, two exist.</b> Pact magic went from three slots to two when you rebuilt level 6.</div>
+        <button>Fix</button>
+      </div>
+      <div class="warn" role="note" style="margin-top:10px">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg>
+        <div><b>Brenna is concentrating on Hex.</b> Casting Invisibility ends it, and the curse on the ogre chieftain with it.</div>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Layout</td><td>16px outline icon in <code>--b-text</code>, the text at 12 / 1.45 with the lead in bold, and an optional action at the right in <code>--b-text</code>. <code>role="note"</code>.</td></tr>
+      <tr><td>Behaviour</td><td>Warnings are never blocking. They sit under the header for rules warnings and unresolved catalog references, or inline where the problem acts, such as casting a second concentration spell. The left border maps straight onto native.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Folded rules text with its origin</h3>
+  <p class="why">Where the rules text folds away behind a disclosure, the disclosure and the origin line share one bordered fold, so the origin never floats on bare paper.</p>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <div class="rulesfold">
+        <button class="disclose" aria-expanded="false">Rules text<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
+        <p class="origin">From Cleric 2, with a second use at cleric 6. Preserve life from the Life domain.</p>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Disclosure</td><td><code>.disclose</code>: sheet fill, 2px structural border, structural text at 13 / 700, the chevron turned down. Reports <code>aria-expanded</code>.</td></tr>
+      <tr><td>When folded</td><td>Expanded where the text is the content — items, traits, skills. Folded where cards carry the detail — spells, features with effects, forms.</td></tr>
+      <tr><td>Expanded text</td><td><code>.rules</code>, 13 / 500 in ink, quoting the source as printed, second person and all. Headed "Rules text" with the edition ("SRD 5.1") in the dim slot.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Profile values</h3>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <section class="block">
+        <h3 class="bhead">About Brenna <button class="editbtn">Edit</button></h3>
+        <dl class="kv">
+          <dt>Alignment</dt><dd>Chaotic neutral</dd>
+          <dt>Age</dt><dd>27</dd>
+          <dt>Height</dt><dd>5 ft 7 in</dd>
+          <dt>Appearance</dt><dd>Ash-gray hair, and a brand on her left palm that warms near fiends</dd>
+        </dl>
+        <div class="para"><h4>Ideals</h4><p>Knowledge is owed to whoever will use it.</p></div>
+        <div class="para"><h4>Bonds</h4><p>The temple that raised her, and the thing that answered when the temple didn't.</p></div>
+      </section>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Labelled values</td><td><code>.kv</code>, a definition list on an 88px label column: labels in dim at 600, values in ink at 500. For short fields: alignment, age, height, item properties, costs.</td></tr>
+      <tr><td>Paragraphs</td><td><code>.para</code>: a structural heading at 11.5 / 700, then 12.5 / 500 in ink. For personality traits, ideals, bonds, flaws, and allies and enemies.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Known form</h3>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <section class="block">
+        <h3 class="bhead">Known forms <span>4</span></h3>
+        <div class="form"><div class="actl"><b>Brown bear</b><span>CR 1, AC 11, 34 hit points, climbs 30 ft</span></div><button class="castbtn small">Transform</button></div>
+        <div class="form"><div class="actl"><b>Wolf</b><span>CR 1/4, AC 13, 11 hit points, 40 ft</span></div><button class="castbtn small">Transform</button></div>
+        <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a beast form</button>
+      </section>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Row</td><td><code>.form</code>: the form's name and the numbers that matter in dim, then a small primary that spends a use and swaps the header to the form. Each known form is one row; adding searches the monster catalog and warns outside the limit.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Concentration card</h3>
+  <p class="why">One anchor row in the data, read everywhere: the header mark, the compact header and this card on the spell's detail. Overprint ink, because concentration marks already use it; the shadow stays rose like every other card.</p>
+  <div class="riso specimen tight">
+    <div class="phone-frame">
+      <div class="cast conc">
+        <div class="casttop"><b>Concentrating</b><span>Cast at 3rd level</span></div>
+        <div class="caststats">
+          <div><b>8 hours</b><em>Lasts up to</em></div>
+          <div><b>Long rest</b><em>Ends on</em></div>
+          <div><b>1d6</b><em>Extra necrotic</em></div>
+        </div>
+        <div class="res" style="margin-top:10px;border-top:1.5px solid transparent;padding-top:11px">
+          <div class="resl"><b>The ogre chieftain</b><span>Target, with disadvantage on Strength checks</span></div>
+          <button class="gobtn">Move</button>
+        </div>
+        <p class="padnote">A short rest doesn't end it. Taking damage asks for a Constitution save.</p>
+        <button class="dangerbtn">End concentration</button>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Card</td><td><code>.cast.conc</code>: the statistics card with its border and heading in overprint. It leads the spell's detail: duration at the level cast, what ends it, the target from the anchor's notes, with Move for when the target drops.</td></tr>
+      <tr><td>Ending it</td><td>End concentration is the destructive button and acts at once, because pushing to the detail was the deliberate step.</td></tr>
+      <tr><td>Prompts where it breaks</td><td>After damage the <a href="#pads">pad</a> becomes the save, with its DC and Roll, Kept, Lost. While concentrating, the status sheet names the conditions that would end it. Casting another concentration spell warns on its detail, and its Cast button names what it ends. None of these block.</td></tr>
+    </tbody>
+  </table>
 </section>
 
 <!-- ============================================================ -->
@@ -1005,7 +2616,7 @@ td code{white-space:nowrap}
       <tr><td>List</td><td>Stack of bordered, shadowed cards, 9px apart</td><td>Ruled table rows, no card chrome</td></tr>
       <tr><td>Plate</td><td>Stacked controls, offset shadow</td><td>Single row, drop shadow below only</td></tr>
       <tr><td>Primary action</td><td>Sticky footer, full width</td><td>In the plate, right aligned</td></tr>
-      <tr><td>Row action</td><td>Whole card</td><td>Open sheet button, plus row presumably clickable</td></tr>
+      <tr><td>Row action</td><td>Whole card, one link stretched over it</td><td>Open sheet link. The rest of the row is not a target until hover is designed.</td></tr>
       <tr><td>Marks</td><td>One, under the ring</td><td>Two, own column</td></tr>
       <tr><td>Draft copy</td><td>Short</td><td>Longer, names the next choice</td></tr>
       <tr><td>Title count</td><td>Superscript</td><td>Omitted</td></tr>
@@ -1040,9 +2651,9 @@ td code{white-space:nowrap}
       <tr><td>Even-row wash</td><td>Row index parity.</td></tr>
       <tr><td>Letter spacing in em</td><td>Points, so the values must be multiplied out: -0.03em at 30px is -0.9, and -0.02em at 16.5px is -0.33.</td></tr>
       <tr><td>Superscript count</td><td>A separate text node aligned to the top. There is no vertical alignment.</td></tr>
-      <tr><td>Reduced motion query</td><td>The accessibility info module. The system has no animation, so this only matters if one is added.</td></tr>
+      <tr><td>Reduced motion query</td><td>The accessibility info module. The dice roll reads it and shows its result at once. The header shrink stays, because it tracks the scroll rather than playing on its own.</td></tr>
       <tr><td>Semantic elements and accessibility attributes</td><td>Roles and accessibility props: a header role on titles, labels on icon-only buttons, hidden meters and pips, and selected or disabled state on chips and buttons.</td></tr>
-      <tr><td>Chip hit area</td><td>Hit slop, which settles the deferred touch target question on native. The web build still needs real padding.</td></tr>
+      <tr><td>Hit areas</td><td>Hit slop, with the same numbers as the web rule under accessibility.</td></tr>
     </tbody>
   </table>
 
@@ -1066,15 +2677,19 @@ td code{white-space:nowrap}
     <thead><tr><th>Pairing</th><th>Ratio</th><th>Target</th></tr></thead>
     <tbody>
       <tr><td>Ink on paper</td><td>7.84</td><td>4.5</td></tr>
-      <tr><td>Dim on sheet</td><td>5.13</td><td>4.5</td></tr>
-      <tr><td>Dim on draft fill, the worst case</td><td>4.60</td><td>4.5</td></tr>
+      <tr><td>Dim on paper</td><td>5.08</td><td>4.5</td></tr>
+      <tr><td>Dim on sheet</td><td>5.36</td><td>4.5</td></tr>
+      <tr><td>Dim on draft fill over sheet</td><td>4.84</td><td>4.5</td></tr>
+      <tr><td>Dim on draft fill over paper, the worst case</td><td>4.60</td><td>4.5</td></tr>
       <tr><td>Structural on sheet</td><td>5.28</td><td>4.5</td></tr>
+      <tr><td>Structural on draft fill over paper</td><td>4.52</td><td>4.5</td></tr>
       <tr><td>On-a on structural</td><td>5.46</td><td>4.5</td></tr>
       <tr><td>Inactive chip text</td><td>4.51</td><td>4.5</td></tr>
       <tr><td>On-b on accent</td><td>4.53</td><td>4.5</td></tr>
       <tr><td>On-mix on overprint</td><td>7.44</td><td>4.5</td></tr>
-      <tr><td>Rose text on sheet</td><td>5.10</td><td>4.5</td></tr>
-      <tr><td>Rose text on draft fill</td><td>4.58</td><td>4.5</td></tr>
+      <tr><td>Rose text on sheet</td><td>5.65</td><td>4.5</td></tr>
+      <tr><td>Rose text on draft fill over sheet</td><td>5.09</td><td>4.5</td></tr>
+      <tr><td>Rose text on draft fill over paper</td><td>4.84</td><td>4.5</td></tr>
       <tr><td>Focus outline on paper</td><td>4.99</td><td>3</td></tr>
       <tr><td>Rose meter segments on paper</td><td>2.54</td><td>3, accepted, see meter</td></tr>
     </tbody>
@@ -1083,11 +2698,11 @@ td code{white-space:nowrap}
     <thead><tr><th>Topic</th><th>Status</th></tr></thead>
     <tbody>
       <tr><td>Focus</td><td>Defined in interaction states. Every interactive element shows a 2px outline on keyboard focus.</td></tr>
-      <tr><td>Motion</td><td>The system has no animation or transitions. Keep the reduced motion override anyway.</td></tr>
+      <tr><td>Motion</td><td>The system has two animations, both on the sheet: the header shrinks continuously as the page scrolls, and the dice roll animates while it rolls, about half a second, stepped between fixed poses with its shadow held still. Nothing else moves: state changes are instant. <code>prefers-reduced-motion</code> shows the roll&rsquo;s result at once, and a tap skips it. Screen readers hear only the result.</td></tr>
       <tr><td>Text opacity</td><td>Banned. The mockup used opacity on the tray heading, column headers, title count and ring label, which pushed them below contrast. All four are now solid.</td></tr>
       <tr><td>Colour alone</td><td>Hurt is shown by meter colour, a "Below half" mark and the number. Death saves differ in shape as well as colour and are spelled out in the line. Token colour carries no meaning.</td></tr>
-      <tr><td>Semantics</td><td>Cards are <code>article</code>, names are <code>h3</code>, search has a label. Meters and pips are decorative; the adjacent text carries the value.</td></tr>
-      <tr><td>Touch targets</td><td>Chips are 22px tall. Hit slop covers native; the web build still needs padding. See deferred.</td></tr>
+      <tr><td>Semantics</td><td>Cards are <code>article</code> with the name as a link stretched over the card, names are <code>h3</code>, search has a label, and filter chips are a radio group. Meters and pips are decorative or collapsed into one control; the adjacent text carries the value. On the character sheet: switches that swap the content below are <code>tablist</code> with <code>aria-selected</code> (sheet tabs, rest length, catalog or custom, the pad's tabs, the coin switch), single choices are <code>radiogroup</code> with <code>aria-checked</code> (ranks, alignment, token colour, ability, uses, ends, gain or spend), multi-select toggles keep <code>aria-pressed</code> (conditions, inspiration), and a pip row is one <code>spinbutton</code> with <code>aria-valuetext</code> such as "1 of 2 left", stepped with arrow keys, Home and End. Arrow keys move a choice with roving focus. A toggle row with a details chevron is two siblings, a label and a button, so opening details never toggles the row. Bottom sheets are <code>dialog</code> with <code>aria-modal</code>: the page behind is inert, focus cycles inside, and the opener carries <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>. Disclosures report <code>aria-expanded</code>. The header's vitals block is one button named by its numbers, and live regions carry the notes' save status and the roll's running total.</td></tr>
+      <tr><td>Hit areas</td><td>Every control answers taps across at least 44 by 44. On web the extension is an invisible <code>::after</code> centred on the control, so layout and appearance do not change. Where two controls sit closer than that, their areas meet at the midpoint of the gap instead of overlapping, and 24 is the floor in that direction, the WCAG 2.2 AA minimum. Chips extend to 44 tall and keep their own width. Text fields get a real 44 minimum height instead, because an overlay would cover the caret.</td></tr>
       <tr><td>Native semantics</td><td>HTML elements and accessibility attributes map onto React Native roles and props. See React Native.</td></tr>
     </tbody>
   </table>
@@ -1096,17 +2711,28 @@ td code{white-space:nowrap}
 <!-- ============================================================ -->
 <section id="decisions">
   <h2>Decisions</h2>
-  <p class="lead">Settled on 11 September 2026, before designing the next screen.</p>
+  <p class="lead">Settled from 11 September 2026 onwards. Each entry carries its date; those without one are from 11 September.</p>
   <ul style="max-width:70ch;color:#c3c9d1">
     <li><b>Contrast.</b> Text tokens are contrast-targeted in the derivation. Dim and rose text are darker, rose surfaces carry dark text, the inactive chip tint is lighter, and text never uses opacity.</li>
     <li><b>Interaction states.</b> Pressed sinks, focus outlines, selected inverts and disabled loses its ink. Hover is deferred.</li>
     <li><b>Meter colour.</b> Meters are structural for every character and turn rose below half. The unused alias that suggested token-coloured meters is gone.</li>
     <li><b>Token colour.</b> Stored per character as an ink role and picked at creation. The data model and creation flow now include it.</li>
-    <li><b>Zero hit points.</b> Dying shows death save pips, stable shows an empty meter, and dead drops the token's ink. First proposal.</li>
+    <li><b>Zero hit points.</b> Dying shows death save pips, stable shows an empty meter, and dead drops the token's ink.</li>
     <li><b>Icons.</b> Outline only, 1.8 stroke on a 16 grid, colour from context.</li>
     <li><b>Font weights.</b> Capped at 700, the heaviest face Space Grotesk has. 12 September 2026.</li>
     <li><b>Font scaling.</b> Body text scales with the operating system setting; fixed circles cap at 1.3 times. First proposal, 12 September 2026.</li>
     <li><b>Safe areas and press feedback.</b> The plate paints under the status bar, the Create button clears the home indicator, and Android's ripple is off. 12 September 2026.</li>
+    <li><b>Hit areas.</b> At least 44 by 44 for every control: an invisible extension on web, hit slop on native. Neighbours meet mid-gap, with a floor of 24. 12 September 2026.</li>
+    <li><b>Primary buttons.</b> "Only one primary per screen" becomes at most one full-width primary per screen or sheet, with repeated cards and rows allowed one small primary each for their own action. The character sheet designs settled it. 13 September 2026.</li>
+    <li><b>Selection and semantics.</b> Selected state lives in ARIA attributes, not a data attribute: <code>aria-selected</code> for tabs, <code>aria-checked</code> for single choices including filter chips, and <code>aria-pressed</code> for multi-select toggles. Arrow keys move a choice with roving focus. A list card is one link stretched over the card. Token colours are named by the theme. 14 September 2026.</li>
+    <li><b>Case and person.</b> Names of features, feats, subclasses, invocations, spells and items are sentence case, keeping proper nouns. UI copy addresses the player as &ldquo;you&rdquo; and refers to the character in the third person; quoted rules text is left as printed. 14 September 2026.</li>
+    <li><b>Spelling.</b> The app&rsquo;s UI copy uses American spelling to match the catalog. Internal documents stay British. 14 September 2026.</li>
+    <li><b>Draft contrast.</b> Dim and rose text are checked against the draft tint over paper as well as over the card colour, because a draft sits on paper and its tint is see-through. Both come out a step darker than before. 14 September 2026.</li>
+    <li><b>Sheet navigation.</b> A persistent header, tall and compact, with the tabs attached underneath. Detail screens are full-screen pushes, never bottom sheets or in-place expansions; the static bottom sheet is the system's one overlay shape, for the sheet menu, the status picker and the in-play pads. 12 and 13 September 2026.</li>
+    <li><b>Motion.</b> Two exceptions to instant state changes: the header shrinks continuously as the page scrolls, and the dice roll animates for about half a second, stepped between fixed poses with its shadow held still. Reduced motion shows the result at once. 13 September 2026.</li>
+    <li><b>Bottom sheets are modal.</b> A scrim in <code>--scrim</code> dims the page, which is inert; focus cycles inside the sheet; Escape, Close or a tap on the scrim closes it and returns focus to the opener, which carries <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>. No drag, no slide, no grab handle. 13 and 14 September 2026.</li>
+    <li><b>Editing.</b> Persistent facts sit behind a per-section Edit; an open block takes the draft skin (dashed border, <code>--draft-bg</code>, no shadow) with Cancel and Save, "Was" marks on changed values, and knock-on effects spelled out. List removals are staged until Save; every Add opens its own screen and commits from its footer. 13 September 2026.</li>
+    <li><b>Destructive button.</b> Outlined in <code>--b-text</code>, no shadow, never the primary look, used for anything that removes something or ends in death. 13 September 2026.</li>
   </ul>
 </section>
 
@@ -1119,8 +2745,9 @@ td code{white-space:nowrap}
     <li><b>Empty states.</b> Design each one with its screen: no characters, no search results, no drafts.</li>
     <li><b>Tablet.</b> Nothing exists between 390 and 1440 wide. Decide once two or three screens show what needs to reflow.</li>
     <li><b>Dark mode.</b> The token rule keeps this cheap. The derivation should handle a dark paper, but no dark pairing has been tried.</li>
-    <li><b>Chip touch targets.</b> Hit slop solves this on native. The web build still needs a larger hit area than 22px.</li>
-    <li><b>Sheet and form controls.</b> Steppers, toggles, other inputs and dialogs will come out of designing the character sheet.</li>
+    <li><b>Level-up wizard.</b> The Character tab has its entry and the draft card; the flow itself is its own screen set.</li>
+    <li><b>Edit conflicts.</b> <code>lock_version</code> catches a change made from another device while a section is open. Nothing shows what happens then.</li>
+    <li><b>Desktop and tablet sheets.</b> The character sheet is designed at 390 only. The desktop and tablet layouts, and how its pushed screens and bottom sheets behave there, are not drawn.</li>
   </ul>
 </section>
 
