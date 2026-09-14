@@ -71,7 +71,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .frames-break{flex-basis:100%;height:0}
 .deskwrap{flex:1 1 640px;min-width:0}
 .stagebox{overflow:hidden}
-.stage{width:1440px;height:900px;transform-origin:0 0;overflow:hidden;position:relative;border-radius:8px;
+.stage{transform-origin:0 0;overflow:hidden;position:relative;border-radius:8px;
   box-shadow:0 24px 60px -24px rgba(0,0,0,.75)}
 @media (max-width:720px){
   .gal-intro{padding:8px 16px 12px}
@@ -788,7 +788,7 @@ button.mark{font-family:inherit;cursor:pointer}
    DESKTOP, 1440 by 900.
    The plate runs the full width and never shrinks. A structural strip hangs
    off it with a head per column, and three columns scroll on their own: Play
-   and Spells always, Stats, Gear or Character by tab. Detail screens and the
+   and Stats always, Spells, Gear or Character by tab. Detail screens and the
    hit point pad open in a side panel over the third column, so the first two
    stay live beside it.
    ========================================================= */
@@ -827,7 +827,7 @@ button.mark{font-family:inherit;cursor:pointer}
 /* ---- side panel ----
    The desktop form of both the full-screen push and the bottom sheet. It lies
    over the third column from the strip down, casting its rose shadow left, the
-   way the bottom sheet casts it up. It is not modal: Play and Spells stay live,
+   way the bottom sheet casts it up. It is not modal: Play and Stats stay live,
    the control that opened it keeps the pressed ring, and opening another detail
    replaces its content. Close or Escape returns focus to that control. */
 .spanel{position:absolute;top:0;right:0;bottom:0;width:484px;z-index:4;display:flex;flex-direction:column;border-left:2px solid transparent}
@@ -854,6 +854,33 @@ button.mark{font-family:inherit;cursor:pointer}
 .dvar .dplate{padding-left:34px}
 .dvar .warn{margin-top:10px}
 .dvar .anno:first-child{margin-top:0}
+
+/* =========================================================
+   TABLET, a first check at 1180 by 820 and 820 by 1180.
+   Two columns: Play, and Stats, Spells, Gear and Character as tabs. The plate
+   wraps into two rows, and the side panel takes the right column's width.
+   ========================================================= */
+.desk.tablet .dplate{flex-wrap:wrap;row-gap:0;padding:14px 28px 16px 16px}
+/* An empty full-width item ends row one, so the vitals, rail and death saves
+   start row two whatever else the plate carries. It sits on a line of its own,
+   so the rows are spaced by margin rather than row-gap, which would count twice. */
+.desk.tablet .dplate::after{content:"";flex-basis:100%;order:1}
+.desk.tablet .dplate .who{flex:1 1 0}
+.desk.tablet .dplate :is(.vitals,.rail,.dyingbox){order:2;margin-top:12px}
+.desk.tablet .dplate .vitals{flex:1 1 0}
+/* Landscape has room for the rail on row one, so the vitals take row two alone. */
+.desk.tablet:not(.portrait) .dplate .rail{order:0;margin-top:0}
+.desk.tablet .dvar{padding:20px 16px}
+.desk.tablet .dvar .dplate{padding-left:24px}
+.desk.tablet .dstrip{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:40px;padding:2px 28px 9px}
+.desk.tablet .dcols{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:16px;padding:0 16px}
+/* The panel starts below the strip so the tabs stay in reach, and choosing one
+   closes it. Tabs are held at 44 so the strip is 55 either way up, 60 with its shadow. */
+.desk.tablet .dtabs .tab{min-height:44px}
+.desk.tablet .spanel{width:50%;top:60px}
+/* Portrait columns are phone width, so casting cards stack and tabs put icons above labels. */
+.desk.portrait .dcasts{grid-template-columns:1fr}
+.desk.portrait .dtabs .tab{flex-direction:column;gap:3px;padding:6px 2px 5px;font-size:11.5px}
 </style>
 </head>
 <body>
@@ -871,8 +898,9 @@ button.mark{font-family:inherit;cursor:pointer}
     continuously rather than snapping. That is the one place the system allows motion, and it is not implemented here.
     Frames 2 and 3 show the shrunk state.</p>
     <p>The first section also has <b>desktop frames at 1440 by 900</b>, each after its phone frame. The plate stays tall,
-    Play and Spells sit side by side with Stats, Gear and Character tabbed in a third column, and details open in a
-    <b>side panel</b> over that column. The scrolled frame has no desktop version, because the plate never shrinks.</p>
+    Play and Stats sit side by side with Spells, Gear and Character tabbed in a third column, and details open in a
+    <b>side panel</b> over that column. The scrolled frame has no desktop version, because the plate never shrinks.
+    <b>Tablet frames</b> follow each desktop frame, trying the sheet in two columns.</p>
     <p>The second section is <b>Alarra Vane, a Life cleric</b>. She prepares spells, which a warlock cannot show, and two of
     her values are replaced by the player, which introduces the override badge.</p>
     <p>The third section covers <b>resting, gear, the character tab and editing a section</b>, across both characters.
@@ -1448,9 +1476,9 @@ button.mark{font-family:inherit;cursor:pointer}
 
 <template id="tpl-part-brenna-strip">
   <div class="dhead" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg>Play</div>
-  <div class="dhead" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg>Spells</div>
+  <div class="dhead" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"/><path d="M8 4.8l3 5.2H5z"/></svg>Stats</div>
   <div class="dtabs" role="tablist" aria-label="Third column">
-    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"/><path d="M8 4.8l3 5.2H5z"/></svg><span>Stats</span></button>
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg><span>Spells</span></button>
     <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 6.5h9l-.8 7h-7.4z"/><path d="M6 6.5V5a2 2 0 0 1 4 0v1.5"/></svg><span>Gear</span></button>
     <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="5.3" r="2.6"/><path d="M3 14c.6-3 2.5-4.6 5-4.6s4.4 1.6 5 4.6"/></svg><span>Character</span></button>
   </div>
@@ -1607,7 +1635,7 @@ button.mark{font-family:inherit;cursor:pointer}
       </div>
     </section>
 
-    <section class="block">
+    <section class="block" data-k="skills">
       <h3 class="bhead">Skills <button class="editbtn">Edit</button></h3>
       <p class="legend">
         <span><i class="rank"></i>None</span><span><i class="rank" data-r="half"></i>Half</span>
@@ -1770,9 +1798,60 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="dstrip" data-part="brenna-strip" data-tab="0"></div>
     <div class="dcols">
       <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
-      <section class="dcol" aria-label="Spells" data-part="brenna-spells"></section>
-      <section class="dcol" aria-label="Stats, gear and character">
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</template>
+
+<!-- ============================================================
+     TABLET FRAMES, BRENNA
+     Two columns. data-size sets the stage. The rest of the tablet
+     frames sit after the desktop frame they follow.
+     ============================================================ -->
+<template id="tpl-part-brenna-strip-tablet">
+  <div class="dhead" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg>Play</div>
+  <div class="dtabs" role="tablist" aria-label="Second column">
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"/><path d="M8 4.8l3 5.2H5z"/></svg><span>Stats</span></button>
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg><span>Spells</span></button>
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 6.5h9l-.8 7h-7.4z"/><path d="M6 6.5V5a2 2 0 0 1 4 0v1.5"/></svg><span>Gear</span></button>
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="5.3" r="2.6"/><path d="M3 14c.6-3 2.5-4.6 5-4.6s4.4 1.6 5 4.6"/></svg><span>Character</span></button>
+  </div>
+</template>
+
+<template id="tpl-t-landscape" data-size="1180x820">
+<div class="desk tablet">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
         <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-portrait" data-size="820x1180">
+<div class="desk tablet portrait">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
         <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
         <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
       </section>
@@ -1788,9 +1867,27 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="dstrip" data-part="brenna-strip" data-tab="1"></div>
     <div class="dcols">
       <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
-      <section class="dcol" aria-label="Spells" data-part="brenna-spells" data-scroll-to="[data-k=lvl1]"></section>
-      <section class="dcol" aria-label="Stats, gear and character">
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats" data-scroll-to="[data-k=skills]"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-spells" data-size="1180x820">
+<div class="desk tablet">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character" data-scroll-to="[data-k=skills]">
         <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
         <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
         <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
       </section>
@@ -1806,9 +1903,73 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="dstrip" data-part="brenna-strip" data-tab="0"></div>
     <div class="dcols">
       <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
-      <section class="dcol" aria-label="Spells" data-part="brenna-spells" data-scroll-to="[data-k=lvl1]"></section>
-      <section class="dcol" aria-label="Stats, gear and character">
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+
+    <div class="spanel riso" role="dialog" aria-label="Cure wounds">
+      <div class="shead" style="padding-bottom:13px">
+        <div class="sheadtop">
+          <button class="icnbtn dclose" aria-label="Close cure wounds"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+          <div class="who"><h2 class="sname">Cure wounds</h2>
+            <p class="ssub">1st-level evocation, 1 action, touch</p></div>
+          <button class="icnbtn" aria-label="Spell menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+        </div>
+        <p class="hpline">Two ways to cast it. They heal different amounts.</p>
+      </div>
+
+      <div class="body pad-bottom">
+        <div class="pathcard">
+          <div class="pathtop"><b>Magic initiate</b><span>Feat</span></div>
+          <div class="pathstats">
+            <span>Wisdom</span><span>Save DC <b>12</b></span><span>Heals <b>1d8+1</b></span>
+          </div>
+          <div class="res">
+            <div class="resl"><b>1 of 1 use</b><span>Recovers on a long rest</span></div>
+            <div class="pips" role="spinbutton" tabindex="0" aria-label="Magic initiate use" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div>
+          </div>
+          <button class="castbtn small" style="margin-top:11px">Cast</button>
+          <div class="pathnote notewrap"><span>Note on this way to cast</span><textarea class="notearea" aria-label="Note on casting cure wounds through Magic initiate" placeholder="Click to add a note"></textarea><div class="notefoot"><p class="notestatus" aria-live="polite"></p><button class="noteshow" hidden>Show all</button></div></div>
+          <p class="origin">From the Magic initiate feat, taken at level 4.</p>
+          <button class="dangerbtn small">Remove this way to cast</button>
+        </div>
+
+        <div class="pathcard">
+          <div class="pathtop"><b>Ring of spell storing</b><span>Attuned item</span></div>
+          <div class="pathstats">
+            <span>Stored by Alarra Vane</span><span>2nd level</span><span>Heals <b>2d8+4</b></span>
+          </div>
+          <div class="res">
+            <div class="resl"><b>3 of 5 levels</b><span>Refilled by whoever casts into it</span></div>
+            <div class="pips wide" role="spinbutton" tabindex="0" aria-label="Ring of spell storing levels" aria-valuemin="0" aria-valuemax="5" aria-valuenow="3" aria-valuetext="3 of 5 left"><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div>
+          </div>
+          <button class="castbtn small" style="margin-top:11px">Cast, spends 2 levels</button>
+          <div class="pathnote notewrap"><span>Note on this way to cast</span><textarea class="notearea" aria-label="Note on casting cure wounds from the ring" placeholder="Click to add a note">Ring is Alarra's. Give it back after Sunless Crown.</textarea><div class="notefoot"><p class="notestatus" aria-live="polite">Saved</p><button class="noteshow" hidden>Show all</button></div></div>
+          <p class="origin">From Ring of spell storing, one of her attuned items.</p>
+          <button class="dangerbtn small">Remove this way to cast</button>
+        </div>
+
+        <button class="disclose" aria-expanded="false">Rules text<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-detail" data-size="1180x820">
+<div class="desk tablet" data-opener=".act[data-k=cure]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
         <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
         <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
         <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
       </section>
@@ -1870,9 +2031,9 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="dstrip" data-part="brenna-strip" data-tab="0"></div>
     <div class="dcols">
       <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
-      <section class="dcol" aria-label="Spells" data-part="brenna-spells"></section>
-      <section class="dcol" aria-label="Stats, gear and character">
-        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
         <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
         <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
       </section>
@@ -1905,6 +2066,55 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
           </div>
           <p class="padnote">The 5 temporary hit points take the first 5. Brenna ends on <b>29</b>/44 with none temporary, then makes a concentration save for Hex.</p>
           <p class="keyhint">Type an amount. <kbd>Enter</kbd> applies it and <kbd>Esc</kbd> closes the panel.</p>
+          <button class="castbtn" style="margin-top:11px">Apply 7 damage</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-hp" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".vitals">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+
+    <div class="spanel riso" role="dialog" aria-label="Hit points">
+      <div class="shead" style="padding-bottom:13px">
+        <div class="sheadtop">
+          <button class="icnbtn dclose" aria-label="Close hit points"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+          <div class="who"><h2 class="sname">Hit points</h2>
+            <p class="ssub">Brenna Duskhollow</p></div>
+        </div>
+        <p class="hpline"><b>31</b>/44 hit points, <b>5</b> temporary</p>
+      </div>
+
+      <div class="body pad-bottom">
+        <div class="pad" style="margin-top:0">
+          <div class="padtabs" role="tablist" aria-label="Hit point pad">
+            <button role="tab" aria-selected="true" tabindex="0">Damage</button>
+            <button role="tab" aria-selected="false" tabindex="-1">Heal</button>
+            <button role="tab" aria-selected="false" tabindex="-1">Temporary</button>
+          </div>
+          <div class="padnum">
+            <button class="step" aria-label="One less">&minus;</button>
+            <input value="7" inputmode="numeric" aria-label="Damage amount">
+            <button class="step" aria-label="One more">+</button>
+          </div>
+          <div class="quick">
+            <button>1</button><button>2</button><button>5</button><button>10</button>
+          </div>
+          <p class="padnote">The 5 temporary hit points take the first 5. Brenna ends on <b>29</b>/44 with none temporary, then makes a concentration save for Hex.</p>
           <button class="castbtn" style="margin-top:11px">Apply 7 damage</button>
         </div>
       </div>
@@ -1984,6 +2194,91 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     </div>
 
     <p class="anno">Rules warnings. On desktop they sit between the strip and the columns at full width, one line each, and never block.</p>
+    <div class="warn" role="note">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg>
+      <div><b>Three slots marked spent, two exist.</b> Pact magic went from three slots to two when you rebuilt level 6.</div>
+      <button>Fix</button>
+    </div>
+    <div class="warn" role="note">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg>
+      <div><b>Hunger of Hadar is no longer in your sources.</b> The saved spell stays on the sheet. Open it to enter the details by hand.</div>
+      <button>Open</button>
+    </div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-variants" data-size="820x1180">
+<div class="desk tablet portrait">
+  <div class="body dvar">
+    <p class="anno">A form swap. The bear's numbers are the live ones, and the druid's sit under the name.</p>
+    <div class="shead dplate">
+      <div class="tok" style="--tok:var(--mix);--on-tok:var(--on-mix)">F<b>8</b></div>
+      <div class="who">
+        <h2 class="sname">Brown bear</h2>
+        <p class="ssub">Fenn Mosswright, wild shaped. Underneath: <b>47</b>/61 hit points, AC 13, speed 30, spell save 15.</p>
+      </div>
+      <div class="vitals">
+        <div class="hprow">
+          <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+        </div>
+        <p class="hpline"><b>21</b>/34 hit points as the bear</p>
+      </div>
+      <div class="rail">
+        <div class="ac" role="button" tabindex="0" aria-label="Armor class 11"><span>11<em>AC</em></span></div>
+        <button class="tile"><b>+0</b><em>Initiative</em></button>
+        <button class="tile"><b>40</b><em>Speed</em></button>
+        <button class="tile"><b>1</b><em>Uses left</em></button>
+      </div>
+      <button class="restbtn">Revert</button>
+    </div>
+
+    <p class="anno">At zero hit points. Death saves take the rail's place beside the vitals, and open the pad's Death save tab.</p>
+    <div class="shead dplate">
+      <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+      <div class="who">
+        <h2 class="sname">Mudge Tealeaf</h2>
+        <p class="ssub">Lightfoot halfling rogue 4, Arcane trickster</p>
+      </div>
+      <div class="vitals">
+        <div class="hprow">
+          <div class="meter" data-hurt aria-hidden="true"><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+        </div>
+        <p class="hpline"><b>0</b>/27 hit points, dying</p>
+      </div>
+      <div class="dyingbox" role="button" tabindex="0" aria-label="Death saves, 1 success and 2 failures, open the death save pad" aria-haspopup="dialog" aria-expanded="false">
+        <p>Death saves</p>
+        <div class="saves">
+          <span data-k="ok"><i data-on></i><i></i><i></i></span>
+          <span data-k="bad"><i data-on></i><i data-on></i><i></i></span>
+        </div>
+        <p style="margin-left:auto">1 success, 2 failures</p>
+      </div>
+    </div>
+
+    <p class="anno">Two classes. The badge shows total level, the line shows the split.</p>
+    <div class="shead dplate">
+      <div class="tok" style="--tok:var(--mix);--on-tok:var(--on-mix)">V<b>7</b></div>
+      <div class="who">
+        <h2 class="sname">Vesper Quill</h2>
+        <p class="ssub">Rock gnome wizard 5 / rogue 2, Divination</p>
+      </div>
+      <div class="vitals">
+        <div class="hprow">
+          <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+        </div>
+        <p class="hpline"><b>12</b>/26 hit points</p>
+      </div>
+      <div class="rail">
+        <div class="ac" role="button" tabindex="0" aria-label="Armor class 12"><span>12<em>AC</em></span></div>
+        <button class="tile"><b>+3</b><em>Initiative</em></button>
+        <button class="tile"><b>25</b><em>Speed</em></button>
+        <button class="tile"><b>14</b><em>Spell save</em></button>
+      </div>
+      <button class="restbtn">Rest</button>
+    </div>
+
+    <p class="anno">Rules warnings. On a tablet they sit between the strip and the columns at full width, and never block.</p>
     <div class="warn" role="note">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg>
       <div><b>Three slots marked spent, two exist.</b> Pact magic went from three slots to two when you rebuilt level 6.</div>
@@ -4665,25 +4960,37 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     {id:'play', label:'Play tab',
      note:'The default screen. The tabs hang off the bottom of the header plate and stick to the top as you scroll, so they never leave the screen. Below them are resources, attacks and actions.'},
     {id:'d-play', desktop:true, label:'Play, spells and stats side by side',
-     note:'The plate runs the full width in one row and stays tall, so there is no compact header on desktop. The strip hanging off it heads each column. Play and Spells are always on screen, and Stats, Gear and Character share the third column as tabs. Each column scrolls on its own. Because Play and Spells are both in view, each counter appears once: the casting cards drop their slot rows, and Magic initiate&rsquo;s use moves into Resources.'},
+     note:'The plate runs the full width in one row and stays tall, so there is no compact header on desktop. The strip hanging off it heads each column. Play and Stats are always on screen, and Spells, Gear and Character share the third column as tabs, with Spells first for a caster. Each column scrolls on its own. Because Play and Spells are usually both in view, each counter appears once: the casting cards drop their slot rows, and Magic initiate&rsquo;s use moves into Resources.'},
+    {id:'t-landscape', tablet:true, label:'Two columns, landscape at 1180 by 820',
+     note:'Three columns would leave cards narrower than on phone, so a tablet gets two. Play stays on the left, and Stats, Spells, Gear and Character share the right column as tabs in the phone&rsquo;s order, with Spells open by default for a caster. The plate wraps into two rows: name and marks with the rail, Rest and the menu, then the vitals across the full width. Hints say tap, because a tablet is a touch screen. Cards are about 540 wide here, so the casting cards still share a row.'},
+    {id:'t-portrait', tablet:true, label:'Two columns, portrait at 820 by 1180',
+     note:'Each column is about 360 wide, close to the phone&rsquo;s 366, so every component fits as drawn. The name needs all of row one, so the rail drops to row two beside the vitals. The casting cards stack again, and the tabs put icons above labels to fit four across.'},
     {id:'play-scrolled', label:'Play tab, scrolled',
      note:'The header has shrunk to one line: first name, one status mark, hit points with temporary hit points spelled out, and armour class. The full name stays in the tall header. The status slot shows a condition first and concentration otherwise, so here it is Hex. Tapping the hit points opens the pad as a bottom sheet without losing the scroll. In the product the header animates down as you scroll, and the tabs stay attached underneath.'},
     {id:'spells', label:'Spells tab',
      note:'Two casting stat blocks, because a Magic initiate feat brings its own ability, save DC and use. Spells group by level. Cure wounds carries a 2 paths mark. A warlock prepares nothing, so there are no preparation toggles; the cleric section has them. Add a spell sits at the foot of the list.'},
-    {id:'d-spells', desktop:true, label:'Spells scrolled, Gear in the third column',
-     note:'Spells has scrolled to 1st level while Play stays at the top, and the third column has switched to Gear. The plate and the strip never move. The two casting stat blocks share a row, because a column is 425 wide.'},
+    {id:'d-spells', desktop:true, label:'Stats scrolled, Gear in the third column',
+     note:'Stats has scrolled to Skills while Play stays at the top, and the third column has switched to Gear. The plate and the strip never move. A character without spells gets the same layout with only Gear and Character as tabs, so no column sits empty.'},
+    {id:'t-spells', tablet:true, label:'Stats tab, scrolled to Skills',
+     note:'Stats is a tab on a tablet, so checking a save means leaving Spells for a moment. The right column has scrolled to Skills on its own while Play stays at the top.'},
     {id:'detail', label:'Spell detail',
      note:'One card per way to cast, each with its own numbers, uses, Cast button and note. A note belongs to one way to cast, as the data model stores it, and is typed straight in: the ring&rsquo;s note has just saved. The rules text sits under a disclosure. A spell with a single path gets a single card. Each card has its own Remove, because each path is a separate row.'},
     {id:'d-detail', desktop:true, label:'Spell detail in the side panel',
-     note:'A spell opens in a side panel over the third column instead of a push. Play and Spells stay live beside it, so a pact slot can be spent without closing Cure wounds, and the row that opened it keeps the pressed ring. Choosing another spell swaps the panel&rsquo;s content. Close or Escape returns focus to the row. The panel casts its rose shadow left, the way the bottom sheet casts it up.'},
+     note:'A spell opens in a side panel over the column it came from, like a push inside that column. Play and Stats stay live beside it, so a pact slot can be spent or a save checked without closing Cure wounds. The spell list sits under the panel, so choosing another spell means closing it first, and Close or Escape returns focus to the row. The panel casts its rose shadow left, the way the bottom sheet casts it up.'},
+    {id:'t-detail', tablet:true, label:'Spell detail in the side panel, landscape',
+     note:'The panel covers the right column from below the strip, so the tabs stay in reach. Play stays beside the spell for hit points and slots, and tapping Stats closes the panel and shows Stats in one tap. At 590 wide the path cards have room to spare.'},
     {id:'hp', label:'Hit point pad, opened from the meter',
      note:'The most frequent interaction in the app. It opens as the static bottom sheet from the vitals here or the hit points on the compact header, so the player keeps their place, and the vitals stay visible through the scrim. Damage, heal or temporary, a stepper with quick amounts, and a line that says what will happen before you commit. No keyboard.'},
     {id:'d-hp', desktop:true, label:'Hit point pad in the side panel',
      note:'The pad opens in the same side panel. There is no scrim, because the vitals it changes stay in view on the plate, ringed as the opener. Desktop has a keyboard, so the amount is a field: type a number and Enter applies it. The stepper and quick amounts stay for the mouse.'},
+    {id:'t-hp', tablet:true, label:'Hit point pad in the side panel, portrait',
+     note:'The pad opens in the side panel, which takes exactly the right column rather than 484, and starts below the strip. The vitals it changes stay in view on the plate. The keyboard hint is gone, but the amount stays a field for a tablet with a keyboard.'},
     {id:'variants', label:'Header variants and warnings',
      note:'Annotations in dim text are mockup notes, not product UI. Wild shape puts the form on top and the druid underneath. At zero hit points the death saves replace the vitals rail, and tapping them opens the pad&rsquo;s Death save tab. Warnings sit under the header and never block.'},
     {id:'d-variants', desktop:true, label:'Header variants and warnings',
      note:'The same states on the one-row plate. The druid underneath moves onto the line under the bear&rsquo;s name, and death saves take the rail&rsquo;s place beside the vitals.'},
+    {id:'t-variants', tablet:true, label:'Header variants, portrait',
+     note:'The same states on the two-row plate at 820. Row one keeps the token and name, with Revert or Rest at its end. Row two carries the vitals with the rail or, at zero hit points, the death saves.'},
     {section:'Alarra Vane, cleric',
      text:'A caster who prepares spells, and two values replaced by the player. The character list shows her armour class as 19; the sheet calculates 18.'},
     {id:'cleric-play', label:'Play tab, preparing caster',
@@ -4900,15 +5207,19 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   }
 
   var wrap = document.getElementById('frames');
-  var frameNo = 0, deskNo = 0;
-  // Desktop frames are assembled from parts on a 1440 by 900 stage, which is
-  // scaled to the width its frame gets.
-  function buildDesk(f, tpl){
+  var frameNo = 0, deskNo = 0, tabNo = 0;
+  // Desktop and tablet frames are assembled from parts on a stage, 1440 by 900
+  // unless the template sets data-size, which is scaled to the width its frame
+  // gets. Tablet frames share a row, sized so both scale alike.
+  function buildDesk(f, tpl, next){
+    var size = (tpl.getAttribute('data-size') || '1440x900').split('x');
     var col = document.createElement('div');
     col.className = 'deskwrap';
+    col.dataset.kind = f.tablet ? 'tablet' : 'desk';
+    if(f.tablet){ col.style.flex = size[0] + ' 1 0'; col.style.maxWidth = size[0] + 'px'; }
     var label = document.createElement('p');
     label.className = 'frame-label';
-    label.innerHTML = 'Desktop ' + (++deskNo) + '. ' + f.label;
+    label.innerHTML = (f.tablet ? 'Tablet ' + (++tabNo) : 'Desktop ' + (++deskNo)) + '. ' + f.label;
     var note = document.createElement('p');
     note.className = 'frame-note';
     note.innerHTML = f.note;
@@ -4916,6 +5227,10 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     box.className = 'stagebox';
     var stage = document.createElement('div');
     stage.className = 'stage riso live';
+    stage.dataset.w = size[0];
+    stage.dataset.h = size[1];
+    stage.style.width = size[0] + 'px';
+    stage.style.height = size[1] + 'px';
     stage.appendChild(tpl.content.cloneNode(true));
     stage.querySelectorAll('[data-part]').forEach(function(slot){
       slot.appendChild(document.getElementById('tpl-part-' + slot.dataset.part).content.cloneNode(true));
@@ -4927,6 +5242,12 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       });
     });
     var desk = stage.querySelector('.desk');
+    // A tablet is a touch screen, so the parts' hints say tap.
+    if(f.tablet){
+      var walk = document.createTreeWalker(stage, NodeFilter.SHOW_TEXT), node;
+      while((node = walk.nextNode())) node.nodeValue = node.nodeValue.replace(/\bClick\b/g, 'Tap');
+      stage.querySelectorAll('[placeholder]').forEach(function(el){ el.placeholder = el.placeholder.replace(/\bClick\b/g, 'Tap'); });
+    }
     if(desk.dataset.opener){
       var opener = desk.querySelector(desk.dataset.opener);
       opener.setAttribute('aria-haspopup', 'dialog');
@@ -4937,6 +5258,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     col.appendChild(note);
     col.appendChild(box);
     wrap.appendChild(col);
+    if(f.tablet && next && next.tablet) return;
     var br = document.createElement('div');
     br.className = 'frames-break';
     wrap.appendChild(br);
@@ -4951,7 +5273,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     }
     var tpl = document.getElementById('tpl-' + f.id);
     if(!tpl) return;
-    if(f.desktop){ buildDesk(f, tpl); return; }
+    if(f.desktop || f.tablet){ buildDesk(f, tpl, FRAMES[n + 1]); return; }
     // A phone frame with a desktop partner starts a row, so the pair sits together.
     var next = FRAMES[n + 1];
     if(next && next.desktop){
@@ -5314,7 +5636,16 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     function sync(){
       list.querySelectorAll('[role=tab]').forEach(function(t, i){ panels[i].hidden = t.getAttribute('aria-selected') !== 'true'; });
     }
-    list.addEventListener('click', sync);
+    list.addEventListener('click', function(e){
+      sync();
+      // Where the tabs sit above an open side panel, choosing one closes it.
+      var desk = list.closest('.desk'), panel = desk.querySelector('.spanel');
+      if(e.target.closest('[role=tab]') && panel && !panel.hidden){
+        panel.hidden = true;
+        var opener = desk.querySelector(desk.dataset.opener);
+        if(opener) opener.setAttribute('aria-expanded', 'false');
+      }
+    });
     list.addEventListener('keydown', sync);
     sync();
   });
@@ -5342,9 +5673,9 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   var stages = document.querySelectorAll('.stage');
   function fitStages(){
     stages.forEach(function(stage){
-      var box = stage.parentElement, scale = Math.min(1, box.clientWidth / 1440);
+      var box = stage.parentElement, scale = Math.min(1, box.clientWidth / +stage.dataset.w);
       stage.style.transform = 'scale(' + scale + ')';
-      box.style.height = (900 * scale) + 'px';
+      box.style.height = (+stage.dataset.h * scale) + 'px';
     });
   }
   function scrollColumns(){

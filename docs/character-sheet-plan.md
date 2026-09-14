@@ -928,8 +928,12 @@ frame sits after its phone frame. Play scrolled has none.
 
 All dated 14 September 2026.
 
-- **Columns, not tabs.** Play and Spells are always on screen. Stats, Gear and
-  Character share a third column as tabs. Each column scrolls on its own.
+- **Columns, not tabs.** Play and Stats are always on screen. Spells, Gear and
+  Character share a third column as tabs, Spells first for a caster. Each
+  column scrolls on its own. A first draw the same day put Spells in the middle
+  and Stats in the tabs; they swapped so a spell open in the side panel covers
+  the list it came from instead of Stats, and so a character without spells
+  needs no layout of its own.
 - **The plate stays tall.** It never shrinks on desktop, so there is no compact
   header. It is one row: token, name with marks under it, vitals, rail, Rest
   and the menu.
@@ -953,10 +957,36 @@ Wisdom 12 for the feat's DC 12. Skills are Arcana and Deception from warlock,
 Insight and Religion from Acolyte, and Perception and Persuasion from Skill
 versatility.
 
+### Tablet, a first check
+
+Drawn 14 September 2026 for Brenna's Play screen at 1180 by 820 and 820 by
+1180, and on 15 September for the rest of her section, each after its desktop
+frame. Not decided yet.
+
+- Three columns fit from about 1280 wide. At 1180 a card would be about 340
+  wide, under the phone's 366, and the one-row plate leaves the name no room.
+- Tablets get two columns: Play, and Stats, Spells, Gear and Character as tabs
+  in the right column, in the phone's order. Spells is open by default for a
+  caster. Cards come out about 540 wide
+  in landscape and 360 in portrait.
+- The plate wraps into two rows. In landscape the rail joins the name, Rest
+  and the menu on row one and the vitals take row two alone. In portrait the
+  name needs all of row one, so the rail sits beside the vitals on row two.
+- The side panel takes the right column's width instead of 484, and starts
+  below the strip so the tabs stay in reach. Tapping a tab closes it.
+- Two columns cannot show a spell, Play and Stats at once. With a spell open,
+  Play stays beside it for hit points and slots, and Stats is one tap away.
+- In portrait the casting cards stack and the tabs put icons above labels.
+- Hints say tap. The pad drops its keyboard hint but keeps the amount field.
+- The plate's row break holds whatever it carries, so the header variants
+  wrap the same way: vitals with the rail or death saves on row two.
+- Proposed breakpoints: phone below about 700, two columns to 1279, three
+  from 1280. A narrow laptop window takes the two-column layout.
+
 ### Still open
 
 - Hover, still deferred in the design system.
-- Tablet, and whether a narrower desktop drops to two columns.
+- The tablet breakpoints above, and tablet past Brenna's section.
 - Whether every push becomes a side panel on desktop, including list editing,
   rest and Prepare spells.
 - The one-row plate, the strip and the side panel are candidates for the

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Screenshot a mockup's phone and desktop frames with headless Chromium.
+# Screenshot a mockup's phone, desktop and tablet frames with headless Chromium.
 #
 #   ./mockups/shoot.sh character-sheet 1 2 3      # phone frames 1, 2 and 3
 #   ./mockups/shoot.sh character-sheet d1 d2      # desktop frames 1 and 2, at 1440 by 900
+#   ./mockups/shoot.sh character-sheet t1         # tablet frame 1, at its template's data-size
 #   ./mockups/shoot.sh character-sheet            # every frame
 #   QUERY=hits ./mockups/shoot.sh character-sheet  # extra query string, here painting hit areas
 #
@@ -28,20 +29,21 @@ src, dst = sys.argv[1], sys.argv[2]
 helper = """
 <script>
 (function(){
-  var m = location.search.match(/frame=(\\d+)/), dm = location.search.match(/desk=(\\d+)/);
+  var m = location.search.match(/frame=(\\d+)/), dm = location.search.match(/(desk|tab)=(\\d+)/);
   if(!m && !dm) return;
   ['.gal-top','#mixer'].forEach(function(s){ var e=document.querySelector(s); if(e) e.remove(); });
   document.querySelectorAll('.frames-head,.frames-break').forEach(function(h){ h.remove(); });
   document.querySelector('.studio').style.padding = '0';
   if(dm){
-    var k = +dm[1] - 1;
+    var kind = dm[1] === 'tab' ? 'tablet' : 'desk', k = +dm[2] - 1;
     document.querySelectorAll('.framewrap').forEach(function(w){ w.remove(); });
+    document.querySelectorAll('.deskwrap').forEach(function(w){ if(w.dataset.kind !== kind) w.remove(); });
     document.querySelectorAll('.deskwrap').forEach(function(w,j){ if(j!==k) w.remove(); });
     var dw = document.querySelector('.deskwrap');
     if(dw){
       var da = dw.querySelector('.frame-label'), db = dw.querySelector('.frame-note');
       if(da) da.remove(); if(db) db.remove();
-      dw.style.cssText += ';flex:none;width:1440px';
+      dw.style.cssText += ';flex:none;width:' + dw.querySelector('.stage').dataset.w + 'px';
     }
     var st = document.querySelector('.stage');
     if(st){ st.style.borderRadius = '0'; st.style.boxShadow = 'none'; }
@@ -72,20 +74,26 @@ python3 -m http.server 8932 --directory "$WORK" >/dev/null 2>&1 &
 SERVER=$!
 sleep 1
 
-# Phone frames are numbered, desktop frames are d1, d2 and on. Parts are not frames.
+# Phone frames are numbered, desktop frames are d1, d2 and on, tablet frames t1 and on.
+# Parts are not frames.
 if [ "$#" -eq 0 ]; then
   set -- $(python3 -c "
 import re
 ids = re.findall(r'id=\"tpl-([\w-]+)\"', open('$SRC').read())
-phone = [i for i in ids if not i.startswith(('d-', 'part-'))]
+phone = [i for i in ids if not i.startswith(('d-', 't-', 'part-'))]
 desk = [i for i in ids if i.startswith('d-')]
-print(' '.join([str(n + 1) for n in range(len(phone))] + ['d%d' % (n + 1) for n in range(len(desk))]))")
+tab = [i for i in ids if i.startswith('t-')]
+print(' '.join([str(n + 1) for n in range(len(phone))] + ['d%d' % (n + 1) for n in range(len(desk))] + ['t%d' % (n + 1) for n in range(len(tab))]))")
 fi
 
 for i in "$@"; do
   out="mockups/shots/$NAME-$i.png"
   case "$i" in
     d*) size=1440,900; q="desk=${i#d}" ;;
+    t*) size=$(python3 -c "
+import re
+w, h = re.findall(r'id=\"tpl-t-[\w-]+\" data-size=\"(\d+)x(\d+)\"', open('$SRC').read())[${i#t} - 1]
+print(w + ',' + h)"); q="tab=${i#t}" ;;
     *)  size=390,812;  q="frame=$i" ;;
   esac
   chromium --headless=new --disable-gpu --hide-scrollbars \
