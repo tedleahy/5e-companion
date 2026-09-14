@@ -453,7 +453,9 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     <tbody>
       <tr><td>Tracking</td><td>Titles and names are tracked tight (-.02em to -.03em). Nothing else is tracked.</td></tr>
       <tr><td>Weights</td><td>700 for titles, names, numbers, buttons. 600 for chips and marks. 500 for the hit point line. 400 for input text and subtitles. 700 is the cap: Space Grotesk has no heavier face, and React Native will not fake one.</td></tr>
-      <tr><td>Case</td><td>Sentence case everywhere, including buttons and column headers. Only the "AC" ring label is caps.</td></tr>
+      <tr><td>Case</td><td>Sentence case everywhere, including buttons, column headers and the names of features, feats, subclasses, invocations, spells and items: Dark One&rsquo;s own luck, Pact of the blade, Ring of spell storing. Proper nouns keep their capitals, as in Hunger of Hadar or the Dark One. Only the "AC" ring label is caps.</td></tr>
+      <tr><td>Person</td><td>Second person for the player and third person for the character: &ldquo;until you confirm&rdquo;, &ldquo;set by you&rdquo;, &ldquo;when she drops a foe&rdquo;. Quoted rules text stays as printed, even where it says &ldquo;you&rdquo;.</td></tr>
+      <tr><td>Spelling</td><td>American spelling in the app, so labels match the catalog&rsquo;s names: armor class, color, gray. This document and the plan stay in British English, because players never see them.</td></tr>
       <tr><td>Numbers</td><td>The current value is the bold one. Maximums and units stay in dim at regular weight.</td></tr>
       <tr><td>Counts</td><td>Superscript count next to the title on phone only ("6 saved"). Desktop has the room to skip it.</td></tr>
       <tr><td>Opacity</td><td>Never lower the opacity of text. Hierarchy comes from size, weight and the dim token, which is contrast-checked. Opacity on top of it is not.</td></tr>
@@ -976,7 +978,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   <div class="riso specimen scroll-x" style="padding:0">
     <div class="desk-frame" style="min-width:1100px">
       <div class="mat d">
-        <div class="cols"><span></span><span>Character</span><span>Hit points</span><span>Armour</span><span>Conditions and resources</span><span></span></div>
+        <div class="cols"><span></span><span>Character</span><span>Hit points</span><span>Armor</span><span>Conditions and resources</span><span></span></div>
         <div class="drow" style="--tok:var(--a);--on-tok:var(--on-a)">
           <div class="tok">B<b>6</b></div>
           <div><h3 class="name">Brenna Duskhollow</h3><p class="sub" style="margin-bottom:0">Half-elf warlock, the Fiend</p></div>
@@ -1133,6 +1135,8 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     <li><b>Hit areas.</b> At least 44 by 44 for every control: an invisible extension on web, hit slop on native. Neighbours meet mid-gap, with a floor of 24. 12 September 2026.</li>
     <li><b>Primary buttons.</b> "Only one primary per screen" becomes at most one full-width primary per screen or sheet, with repeated cards and rows allowed one small primary each for their own action. The character sheet designs settled it. 13 September 2026.</li>
     <li><b>Selection and semantics.</b> Selected state lives in ARIA attributes, not a data attribute: <code>aria-selected</code> for tabs, <code>aria-checked</code> for single choices including filter chips, and <code>aria-pressed</code> for multi-select toggles. Arrow keys move a choice with roving focus. A list card is one link stretched over the card. Token colours are named by the theme. 14 September 2026.</li>
+    <li><b>Case and person.</b> Names of features, feats, subclasses, invocations, spells and items are sentence case, keeping proper nouns. UI copy addresses the player as &ldquo;you&rdquo; and refers to the character in the third person; quoted rules text is left as printed. 14 September 2026.</li>
+    <li><b>Spelling.</b> The app&rsquo;s UI copy uses American spelling to match the catalog. Internal documents stay British. 14 September 2026.</li>
   </ul>
 </section>
 

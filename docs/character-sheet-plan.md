@@ -346,6 +346,24 @@ All dated 12 September 2026.
 - On the character list, a card's name is a link stretched over the card, and
   the desktop Open sheet is a link. Filter chips, buttons and links meet the 44
   tap area rule, and the search field is a real 44 tall. 14 September 2026.
+- Names of features, feats, subclasses, invocations, spells and items are
+  sentence case, keeping proper nouns: Dark One's own luck, Pact of the blade,
+  Hunger of Hadar. 14 September 2026.
+- UI copy uses second person for the player and third person for the
+  character: "until you confirm", "when she drops a foe". Quoted rules text is
+  left as printed. Short action summaries stay as verb phrases, such as "Move
+  the curse to a new target". 14 September 2026.
+- Open: the imported catalog names things in title case, as the SRD prints
+  them, and automatic sentence casing cannot tell a proper noun like Hadar from
+  an ordinary word. Either catalog rows gain a stored display name, or the
+  importer applies a maintained list of proper nouns. Not decided.
+- UI copy uses American spelling to match the catalog: armor class, color,
+  gray, leveling. The plan, the review and the design system's prose stay in
+  British English, because players never see them. The table is "the DM",
+  never "the GM", and abbreviations drop their full stops. 14 September 2026.
+- In the proficiencies and languages block, both add rows sit together at the
+  foot, in view mode and in Edit, so neither looks tied to one group.
+  14 September 2026.
 - The conditions sheet is the menu's static sheet: a three-column grid of
   names with Custom in the last cell, the chosen condition's end under it, then
   exhaustion and Close. It stops below the header marks. A taller scrolling

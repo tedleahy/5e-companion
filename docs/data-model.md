@@ -94,7 +94,7 @@ constrain it.
 Identifiers use US spelling, matching the source data: `armor_class`, the
 `armor` proficiency category, and so on. This keeps column names, JSON keys,
 and imported values consistent and avoids a translation layer in the importer.
-British spelling belongs in UI copy only.
+UI copy uses US spelling too, so labels match the catalog; only internal documents use British spelling.
 
 A nullable column named `*_override` means "null derives normally". Never store
 a second copy of a value the API can derive; store only the player's

@@ -57,7 +57,7 @@ ul.plain li{margin:3px 0}
   <div class="doc-head-inner">
     <b>5e Companion</b>
     <h1>Character sheet mockups, review</h1>
-    <p>13 September 2026, against <code>mockups/character-sheet.html</code> at commit 1b3cedd, with <code>mockups/character-list.html</code>, <code>docs/design-system.html</code> v0.3 and <code>docs/character-sheet-plan.md</code> as the references. Frame numbers are the gallery's own. Findings are numbered 1 to 45 in reading order, and each number is an anchor. Findings 1 to 29 were fixed on 13 September 2026, and findings 30 to 38 on 14 September 2026; the decisions behind them are in the plan under Decided.</p>
+    <p>13 September 2026, against <code>mockups/character-sheet.html</code> at commit 1b3cedd, with <code>mockups/character-list.html</code>, <code>docs/design-system.html</code> v0.3 and <code>docs/character-sheet-plan.md</code> as the references. Frame numbers are the gallery's own. Findings are numbered 1 to 45 in reading order, and each number is an anchor. Findings 1 to 29 were fixed on 13 September 2026, and findings 30 to 42 on 14 September 2026; the decisions behind them are in the plan under Decided.</p>
     <p>The visual system holds. The problems are rules numbers, frames that disagree with each other, promised interactions no frame draws, and some system, markup and copy drift.</p>
   </div>
 </header>
@@ -237,17 +237,17 @@ ul.plain li{margin:3px 0}
 <section id="copy">
   <h2>Copy</h2>
 
-  <div class="finding low" id="f39"><b><a class="num" href="#f39">39</a>Feature names are cased two ways</b>
-    "Pact magic" on frame 1 and "Pact Magic" on frame 39. "Channel divinity" in the resource row and "Channel Divinity" as a screen title. "Fey ancestry" and "Skill versatility" next to "Dark One's Own Luck" and "Pact of the Blade". Pick one rule: SRD names as printed, or sentence case for all.</div>
+  <div class="finding low" id="f39"><b><a class="num" href="#f39">39</a>Feature names are cased two ways<span class="tag">Fixed</span></b>
+    "Pact magic" on frame 1 and "Pact Magic" on frame 39. "Channel divinity" in the resource row and "Channel Divinity" as a screen title. "Fey ancestry" and "Skill versatility" next to "Dark One's Own Luck" and "Pact of the Blade". Pick one rule: SRD names as printed, or sentence case for all.<small>Resolved with sentence case for every name, keeping proper nouns: Dark One&rsquo;s own luck, Pact of the blade, Channel divinity, Wild shape, Arcane trickster. The design system&rsquo;s case rule now covers names.</small></div>
 
-  <div class="finding low" id="f40"><b><a class="num" href="#f40">40</a>Spelling and abbreviations</b>
-    "Armor of Agathys" sits beside "armour class"; the catalog is American and the interface is British, so decide whether catalog names stay as imported. "GM" on frame 26 and "DM" on frame 37 and in the product doc. "Disadv." is the only abbreviation with a full stop.</div>
+  <div class="finding low" id="f40"><b><a class="num" href="#f40">40</a>Spelling and abbreviations<span class="tag">Fixed</span></b>
+    "Armor of Agathys" sits beside "armour class"; the catalog is American and the interface is British, so decide whether catalog names stay as imported. "GM" on frame 26 and "DM" on frame 37 and in the product doc. "Disadv." is the only abbreviation with a full stop.<small>Resolved. UI copy uses American spelling to match the catalog, including armor class and color. The DM is always &ldquo;the DM&rdquo;, and the Stealth box on frame 19 reads &ldquo;Stealth&rdquo; over &ldquo;Disadvantage&rdquo;, with no abbreviation.</small></div>
 
-  <div class="finding low" id="f41"><b><a class="num" href="#f41">41</a>"You" changes referent</b>
-    Sometimes it is the player: "Nothing on her sheet changes until you confirm." Sometimes it is the character: "10 temporary hit points when you drop a foe", beside "magic can't sleep her". "From Ring of spell storing, in your attuned items" is second person on a screen that says "Brenna" everywhere else.</div>
+  <div class="finding low" id="f41"><b><a class="num" href="#f41">41</a>"You" changes referent<span class="tag">Fixed</span></b>
+    Sometimes it is the player: "Nothing on her sheet changes until you confirm." Sometimes it is the character: "10 temporary hit points when you drop a foe", beside "magic can't sleep her". "From Ring of spell storing, in your attuned items" is second person on a screen that says "Brenna" everywhere else.<small>Resolved. The player is &ldquo;you&rdquo; and the character is third person, so Dark One&rsquo;s blessing reads &ldquo;when she drops a foe&rdquo; and the ring&rsquo;s origin is &ldquo;one of her attuned items&rdquo;. Quoted rules text is left as printed.</small></div>
 
-  <div class="finding low" id="f42"><b><a class="num" href="#f42">42</a>Add a proficiency sits under Tools (frame 40)</b>
-    The row covers weapons and armour too, but its position implies tools only.</div>
+  <div class="finding low" id="f42"><b><a class="num" href="#f42">42</a>Add a proficiency sits under Tools (frame 40)<span class="tag">Fixed</span></b>
+    The row covers weapons and armour too, but its position implies tools only.<small>Resolved. On frame 40, Add a proficiency now sits with Add a language at the foot of the block, matching view mode.</small></div>
 </section>
 
 <section id="docs">
