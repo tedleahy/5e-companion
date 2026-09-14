@@ -87,17 +87,17 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
     linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 27px,
     linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/27px 100%,
     var(--paper)}
-.tok{width:56px;height:56px;display:grid;place-items:center;position:relative;font-weight:700;font-size:20px;
-  background:var(--tok,#555);flex:none}
+.tok{width:56px;height:56px;display:grid;place-items:center;position:relative;font-weight:700;font-size:20px;flex:none}
 .tok b{position:absolute;bottom:-7px;right:-7px;width:23px;height:23px;display:grid;place-items:center;
   font-size:11.5px;font-weight:700;line-height:1}
-.riso .tok{border-radius:50%;color:var(--on-tok,var(--on-a));box-shadow:4px 4px 0 var(--b)}
+.riso .tok{border-radius:50%;color:var(--on-tok,var(--on-a));background:var(--tok);box-shadow:4px 4px 0 var(--b)}
 .riso .tok b{background:var(--sheet);color:var(--ink);border-radius:50%;box-shadow:0 0 0 2px var(--a)}
 .meter{display:flex;gap:2px}
-.meter i{flex:1;height:13px;background:var(--full)}
-.meter i[data-e]{background:var(--empty)}
-.meter[data-hurt] i{background:var(--low)}
-.meter[data-hurt] i[data-e]{background:var(--empty)}
+.meter i{flex:1;height:13px}
+.riso .meter i{background:var(--full)}
+.riso .meter i[data-e]{background:var(--empty)}
+.riso .meter[data-hurt] i{background:var(--low)}
+.riso .meter[data-hurt] i[data-e]{background:var(--empty)}
 .ac{width:46px;height:46px;display:grid;place-items:center;font-weight:700;font-size:17px;line-height:1;flex:none}
 .ac em{display:block;font-style:normal;font-size:8px;font-weight:700;margin-top:1px}
 .riso .ac{border-radius:50%;border:2px solid var(--a);color:var(--a);background:var(--sheet);box-shadow:3px 3px 0 var(--b)}
@@ -131,13 +131,15 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .icnbtn{all:unset;cursor:pointer;width:32px;height:32px;display:grid;place-items:center;flex:none}
 .who{flex:1;min-width:0}
 .sname{margin:0;font-size:17px;font-weight:700;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheadtop > .icnbtn + .who .sname{font-size:19px}
 .ssub{margin:2px 0 0;font-size:12px;font-weight:500}
 .vitals{margin-top:13px;padding:9px 10px}
 .vitals[role=button]{cursor:pointer}
 .riso .vitals[role=button]:active{box-shadow:inset 0 0 0 2px var(--a)}
 .hprow{display:flex;gap:13px;align-items:center}
 .hprow .meter{flex:1}
-.temp{width:40px;height:13px;flex:none;background:var(--mix)}
+.temp{width:40px;height:13px;flex:none}
+.riso .temp{background:var(--mix)}
 .hpline{margin:6px 0 0;font-size:12px;font-weight:500}
 .shead > .hpline{margin-top:11px}
 .rail{display:flex;gap:8px;align-items:center;margin-top:12px}
@@ -180,44 +182,46 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .riso .shead.mini .ac em{font-size:8px;margin-top:0}
 
 /* ---- tabs ---- */
-.tabs{display:flex;gap:5px;padding:9px 12px}
+.tabs{display:flex;gap:5px;padding:2px 12px 9px;position:sticky;top:54px;z-index:3}
 .tab{flex:1;padding:8px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;font-size:11.5px;font-weight:600;line-height:1.15;
   cursor:pointer;border:0;text-align:center}
-.tabs{position:sticky;top:54px;z-index:3;padding-top:2px}
 /* Under a tall header the bar pins to the very top. In the product the header
    shrinks to 54px as it scrolls, so this is the start of that animation. */
 .shead:not(.mini) + .tabs{top:0}
-.riso .tabs{background:var(--a)}
-.riso .tabs{box-shadow:0 5px 0 var(--b)}
+.riso .tabs{background:var(--a);box-shadow:0 5px 0 var(--b)}
 .riso .tab{background:var(--chip);color:var(--on-a)}
 .riso .tab[data-on]{background:var(--sheet);color:var(--a);font-weight:700}
 .riso .tab:active{box-shadow:inset 0 0 0 2px currentColor}
 
 /* ---- content block ---- */
 .block{padding:11px 12px}
-.bhead{margin:0 0 9px;font-size:11.5px;font-weight:700;display:flex;align-items:baseline;gap:8px}
+.bhead{margin:0 0 9px;font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:8px}
 .bhead span{font-size:11px;font-weight:500;margin-left:auto}
 .riso .block{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
 .riso .bhead{color:var(--a)}
 .riso .bhead span{color:var(--dim)}
+.riso :is(.res,.atk,.act,.prep,.skill,.calc,.change,.editrow,.erow,.form,.origin,.para){border-top-color:var(--rule)}
+.riso .calc.total{border-top-color:var(--a)}
+.riso .block > :is(.prep,.editrow,.res,.padnote,.act) + :is(.prep,.editrow,.res,.act){border-top-color:var(--rule)}
 
 /* ---- resource line with tappable pips ---- */
-.res{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1.5px solid var(--rule)}
+.res{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1.5px solid transparent}
 .res:first-of-type{border-top:0;padding-top:0}
 .resl{flex:1;min-width:0}
 .resl b{font-size:13.5px;font-weight:700;display:block}
 .resl span{display:block;font-size:11px;margin-top:1px}
 .pips{display:flex;gap:4px;flex:none}
-.pips i{width:22px;height:22px;display:block;background:var(--empty);cursor:pointer}
-.pips i[data-on]{background:var(--a)}
+.pips i{width:22px;height:22px;display:block;cursor:pointer}
 .pips.wide i{width:20px;height:22px}
 .riso .resl span{color:var(--dim)}
+.riso .pips i{background:var(--empty)}
+.riso .pips i[data-on]{background:var(--a)}
 .riso .pips i:active{box-shadow:inset 0 0 0 2px var(--a)}
 
 /* ---- attack table ---- */
 .atkh,.atk{display:grid;grid-template-columns:1fr 44px 104px;gap:8px;align-items:center}
 .atkh{font-size:10.5px;font-weight:700;padding-bottom:6px}
-.atk{padding:8px 0;border-top:1.5px solid var(--rule);cursor:pointer}
+.atk{padding:8px 0;border-top:1.5px solid transparent;cursor:pointer}
 .atk b{font-size:13.5px;font-weight:700;display:block}
 .atk small{font-size:11px;display:block;margin-top:1px}
 .atk .hit{font-size:15px;font-weight:700;text-align:center}
@@ -230,7 +234,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 /* ---- list row that pushes a detail screen ---- */
 .grp{margin:11px 0 0;font-size:10.5px;font-weight:700}
 .grp:first-child{margin-top:0}
-.act{display:flex;width:100%;align-items:center;gap:10px;padding:9px 0;border:0;border-top:1.5px solid var(--rule);
+.act{display:flex;width:100%;align-items:center;gap:10px;padding:9px 0;border:0;border-top:1.5px solid transparent;
   background:none;color:inherit;font-family:inherit;cursor:pointer;text-align:left}
 .act:first-of-type{border-top:0}
 .actl{flex:1;min-width:0}
@@ -282,7 +286,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .pushbar h2{margin:0;font-size:19px;font-weight:700;letter-spacing:-.02em;flex:1;min-width:0}
 .backchev{width:9px;height:9px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;
   transform:rotate(45deg);margin-left:4px}
-.origin{margin:9px 0 0;font-size:11px;font-weight:500;padding-top:8px;border-top:1.5px solid var(--rule)}
+.origin{margin:9px 0 0;font-size:11px;font-weight:500;padding-top:8px;border-top:1.5px solid transparent}
 .castbtn{width:100%;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;border:0}
 .pathcard{padding:11px 12px}
 .pathtop{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
@@ -341,7 +345,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 /* ---- preparation toggle row ----
    The whole row toggles. Info is a separate control at the end. Always
    prepared spells use the disabled state: ticked, no ink, and a mark saying why. */
-.prep{display:flex;align-items:center;gap:12px;min-height:44px;padding:5px 0;border-top:1.5px solid var(--rule);cursor:pointer}
+.prep{display:flex;align-items:center;gap:12px;min-height:44px;padding:5px 0;border-top:1.5px solid transparent;cursor:pointer}
 .prep:first-of-type{border-top:0}
 .prep input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
 .box{width:22px;height:22px;flex:none;display:grid;place-items:center}
@@ -357,7 +361,8 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .riso .infobtn{color:var(--a)}
 
 /* ---- counter that can go over: the limit fills, the excess spills rose ---- */
-.over{width:22px;height:13px;flex:none;background:var(--b)}
+.over{width:22px;height:13px;flex:none}
+.riso .over{background:var(--b)}
 
 /* ---- sticky footer for a pushed screen's primary action ---- */
 .footbar{position:sticky;bottom:0;margin-top:auto;padding:16px 12px 18px;z-index:4}
@@ -385,7 +390,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 
 /* ---- skill and saving throw rows, two columns ---- */
 .skills{display:grid;grid-template-columns:1fr 1fr;column-gap:14px}
-.skill{display:flex;align-items:center;gap:8px;min-height:44px;width:100%;padding:0;border:0;border-top:1.5px solid var(--rule);
+.skill{display:flex;align-items:center;gap:8px;min-height:44px;width:100%;padding:0;border:0;border-top:1.5px solid transparent;
   background:none;color:inherit;font-family:inherit;cursor:pointer;text-align:left}
 .skill:nth-child(-n+2){border-top:0}
 .skill .lbl{flex:1;min-width:0;font-size:13px;font-weight:500;white-space:nowrap}
@@ -398,13 +403,13 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .bigval .ac{width:72px;height:72px;font-size:28px}
 .bigval .ac em{font-size:10px}
 .bigval p{margin:0;font-size:13px;font-weight:500;line-height:1.45}
-.calc{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1.5px solid var(--rule)}
+.calc{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1.5px solid transparent}
 .calc:first-of-type{border-top:0;padding-top:0}
 .calc div{flex:1;min-width:0}
 .calc b{font-size:13.5px;font-weight:700;display:block}
 .calc span{display:block;font-size:11px;margin-top:1px}
 .calc strong{font-size:16px;font-weight:700}
-.calc.total{border-top:2px solid var(--a);margin-top:2px}
+.calc.total{border-top:2px solid transparent;margin-top:2px}
 .riso .bigval p{color:var(--dim)}
 .riso .bigval p b{color:var(--ink)}
 .riso .calc span{color:var(--dim)}
@@ -431,7 +436,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .pair .gobtn{flex:1}
 
 /* ---- before and after ---- */
-.change{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1.5px solid var(--rule)}
+.change{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1.5px solid transparent}
 .change:first-of-type{border-top:0;padding-top:0}
 .change > div{flex:1;min-width:0}
 .change > div b{font-size:13.5px;font-weight:700;display:block}
@@ -464,7 +469,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .kv dd{margin:0;font-weight:500}
 .riso .kv dt{color:var(--dim)}
 .riso .kv dd{color:var(--ink)}
-.para{margin:12px 0 0;padding-top:10px;border-top:1.5px solid var(--rule)}
+.para{margin:12px 0 0;padding-top:10px;border-top:1.5px solid transparent}
 .para h4{margin:0 0 3px;font-size:11.5px;font-weight:700}
 .para p{margin:0;font-size:12.5px;line-height:1.5;font-weight:500}
 .riso .para h4{color:var(--a)}
@@ -473,16 +478,15 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
    Persistent facts sit behind an Edit in their block header. A block being
    edited takes the draft skin from the character list, because the change is
    not real until Save. */
-.bhead{align-items:center}
 .editbtn{font-family:inherit;font-size:12px;font-weight:700;padding:5px 11px;cursor:pointer;flex:none}
 .bhead .editbtn{margin-left:auto}
 .bhead span + .editbtn{margin-left:10px}
-.bhead .castbtn.small{padding:6px 12px;font-size:12px;margin-left:8px;box-shadow:3px 3px 0 var(--a)}
+.bhead .castbtn.small{padding:6px 12px;font-size:12px;margin-left:8px}
 .riso .editbtn{background:var(--sheet);border:1.5px solid var(--a);color:var(--a)}
 .riso .editbtn:active{box-shadow:inset 0 0 0 2px var(--a)}
 .riso .editbtn:disabled{border-color:var(--rule);color:var(--dim);cursor:not-allowed;box-shadow:none}
 .riso .block.editing{border-style:dashed;box-shadow:none;background:var(--draft-bg)}
-.editrow{display:flex;align-items:center;gap:10px;min-height:52px;border-top:1.5px solid var(--rule)}
+.editrow{display:flex;align-items:center;gap:10px;min-height:52px;border-top:1.5px solid transparent}
 .editrow:first-of-type{border-top:0}
 .editrow .lbl{flex:1;min-width:0;font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:8px}
 .editrow .step{width:40px;height:40px;font-size:20px}
@@ -523,7 +527,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 /* Mixed rows in one block. :first-of-type counts tags, not classes, so a row
    that follows a toggle, a note or a different row type loses its rule unless
    the pairing is ruled explicitly. */
-.block > :is(.prep,.editrow,.res,.padnote,.act) + :is(.prep,.editrow,.res,.act){border-top:1.5px solid var(--rule)}
+.block > :is(.prep,.editrow,.res,.padnote,.act) + :is(.prep,.editrow,.res,.act){border-top:1.5px solid transparent}
 .block > :is(.prep,.editrow,.padnote,.act) + .res{padding-top:11px}
 .block > .padnote + :is(.res,.prep,.editrow,.act){margin-top:10px}
 
@@ -532,7 +536,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .coinseg .tab{padding:10px 2px;font-size:12px}
 
 /* ---- list editing: drag handle, row removal, staged removal, add ---- */
-.erow{display:flex;align-items:center;gap:10px;min-height:52px;border-top:1.5px solid var(--rule)}
+.erow{display:flex;align-items:center;gap:10px;min-height:52px;border-top:1.5px solid transparent}
 .erow:first-of-type{border-top:0}
 .erow .actl{flex:1;min-width:0}
 .grip,.rmbtn{all:unset;display:grid;place-items:center;flex:none}
@@ -561,7 +565,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .riso .field :is(input,textarea):focus-visible{box-shadow:inset 0 0 0 2px var(--a);outline:none}
 
 /* ---- a known form: its numbers and a button to become it ---- */
-.form{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1.5px solid var(--rule)}
+.form{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1.5px solid transparent}
 .form:first-of-type{border-top:0;padding-top:0}
 .form .actl{flex:1;min-width:0}
 .form .castbtn.small{flex:none;padding:9px 13px;font-size:13px}
@@ -591,7 +595,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
    so the page reads as inert and a tap on the scrim closes the sheet. It borrows the rose rule the
    bottom tab bar once had, so it reads as laid over the page. */
 .bscrim{position:absolute;inset:0;z-index:5}
-.riso .bscrim,.bscrim{background:var(--scrim)}
+.riso .bscrim{background:var(--scrim)}
 .bsheet{position:sticky;bottom:0;z-index:6;margin-top:auto;padding:10px 12px 18px}
 .riso .bsheet{background:var(--sheet);border-top:2px solid var(--a);box-shadow:0 -5px 0 var(--b)}
 .bsheet-title{margin:4px 8px 4px;font-size:11.5px;font-weight:700}
@@ -1037,7 +1041,7 @@ button.mark{font-family:inherit;cursor:pointer}
         <div><b>15</b><em>Save DC</em></div>
         <div><b>+7</b><em>Attack</em></div>
       </div>
-      <div class="res" style="margin-top:10px;border-top:1.5px solid var(--rule);padding-top:11px">
+      <div class="res" style="margin-top:10px;border-top:1.5px solid transparent;padding-top:11px">
         <div class="resl"><b>Two slots</b><span>Always cast at 3rd level, short rest</span></div>
         <div class="pips"><i data-on></i><i></i></div>
       </div>
@@ -1050,7 +1054,7 @@ button.mark{font-family:inherit;cursor:pointer}
         <div><b>12</b><em>Save DC</em></div>
         <div><b>+4</b><em>Attack</em></div>
       </div>
-      <div class="res" style="margin-top:10px;border-top:1.5px solid var(--rule);padding-top:11px">
+      <div class="res" style="margin-top:10px;border-top:1.5px solid transparent;padding-top:11px">
         <div class="resl"><b>One casting</b><span>Cure wounds, once per long rest</span></div>
         <div class="pips"><i data-on></i></div>
       </div>
@@ -1103,7 +1107,7 @@ button.mark{font-family:inherit;cursor:pointer}
   <div class="shead" style="padding-bottom:13px">
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back to the spell list"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-      <div class="who"><h2 class="sname" style="font-size:19px">Cure wounds</h2>
+      <div class="who"><h2 class="sname">Cure wounds</h2>
         <p class="ssub">1st-level evocation, 1 action, touch</p></div>
       <button class="icnbtn" aria-label="Spell menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
     </div>
@@ -1434,7 +1438,7 @@ button.mark{font-family:inherit;cursor:pointer}
         <div><b>15</b><em>Save DC</em></div>
         <div><b>+7</b><em>Attack</em></div>
       </div>
-      <div class="res" style="margin-top:10px;border-top:1.5px solid var(--rule);padding-top:11px">
+      <div class="res" style="margin-top:10px;border-top:1.5px solid transparent;padding-top:11px">
         <div class="resl"><b>11 of 11 prepared</b><span>Plus 7 Life domain spells, which don't count</span></div>
         <button class="gobtn">Change</button>
       </div>
@@ -1507,7 +1511,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Prepare spells</h2>
+        <h2 class="sname">Prepare spells</h2>
         <p class="ssub">Alarra Vane, cleric 7</p>
       </div>
     </div>
@@ -1702,7 +1706,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Armour class</h2>
+        <h2 class="sname">Armour class</h2>
         <p class="ssub">Alarra Vane</p>
       </div>
     </div>
@@ -1741,7 +1745,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Rest</h2>
+        <h2 class="sname">Rest</h2>
         <p class="ssub">Brenna Duskhollow</p>
       </div>
     </div>
@@ -1789,7 +1793,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Rest</h2>
+        <h2 class="sname">Rest</h2>
         <p class="ssub">Alarra Vane</p>
       </div>
     </div>
@@ -2013,7 +2017,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Dagger</h2>
+        <h2 class="sname">Dagger</h2>
         <p class="ssub">Simple melee weapon, 2 carried</p>
       </div>
     </div>
@@ -2062,7 +2066,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Move daggers</h2>
+        <h2 class="sname">Move daggers</h2>
         <p class="ssub">Brenna Duskhollow</p>
       </div>
     </div>
@@ -2095,7 +2099,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Chain mail</h2>
+        <h2 class="sname">Chain mail</h2>
         <p class="ssub">Heavy armour</p>
       </div>
     </div>
@@ -2143,7 +2147,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Ring of spell storing</h2>
+        <h2 class="sname">Ring of spell storing</h2>
         <p class="ssub">Rare magic item</p>
       </div>
     </div>
@@ -2188,7 +2192,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Potion of healing</h2>
+        <h2 class="sname">Potion of healing</h2>
         <p class="ssub">Common magic item, 2 carried</p>
       </div>
     </div>
@@ -2230,7 +2234,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Darkvision</h2>
+        <h2 class="sname">Darkvision</h2>
         <p class="ssub">Half-elf trait</p>
       </div>
     </div>
@@ -2267,7 +2271,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Channel Divinity</h2>
+        <h2 class="sname">Channel Divinity</h2>
         <p class="ssub">Cleric feature</p>
       </div>
     </div>
@@ -2309,7 +2313,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Eldritch invocations</h2>
+        <h2 class="sname">Eldritch invocations</h2>
         <p class="ssub">Warlock feature</p>
       </div>
     </div>
@@ -2345,7 +2349,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Medicine</h2>
+        <h2 class="sname">Medicine</h2>
         <p class="ssub">Wisdom skill</p>
       </div>
     </div>
@@ -2402,7 +2406,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Common actions</h2>
+        <h2 class="sname">Common actions</h2>
         <p class="ssub">Anyone can take these</p>
       </div>
     </div>
@@ -2435,7 +2439,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Gold</h2>
+        <h2 class="sname">Gold</h2>
         <p class="ssub">Brenna Duskhollow</p>
       </div>
     </div>
@@ -2524,7 +2528,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Add an item</h2>
+        <h2 class="sname">Add an item</h2>
         <p class="ssub">Brenna Duskhollow</p>
       </div>
     </div>
@@ -2563,7 +2567,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Add a feature</h2>
+        <h2 class="sname">Add a feature</h2>
         <p class="ssub">Brenna Duskhollow</p>
       </div>
     </div>
@@ -2601,7 +2605,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Backpack</h2>
+        <h2 class="sname">Backpack</h2>
         <p class="ssub">Container, carried</p>
       </div>
     </div>
@@ -2645,7 +2649,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Remove backpack</h2>
+        <h2 class="sname">Remove backpack</h2>
         <p class="ssub">Brenna Duskhollow</p>
       </div>
     </div>
@@ -2677,7 +2681,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Remove prayer book</h2>
+        <h2 class="sname">Remove prayer book</h2>
         <p class="ssub">Brenna Duskhollow</p>
       </div>
     </div>
@@ -2707,7 +2711,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Wisdom saving throw</h2>
+        <h2 class="sname">Wisdom saving throw</h2>
         <p class="ssub">Alarra Vane</p>
       </div>
     </div>
@@ -2758,7 +2762,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Wild Shape</h2>
+        <h2 class="sname">Wild Shape</h2>
         <p class="ssub">Druid feature, Fenn Mosswright</p>
       </div>
     </div>
@@ -2796,7 +2800,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Skill versatility</h2>
+        <h2 class="sname">Skill versatility</h2>
         <p class="ssub">Half-elf trait</p>
       </div>
     </div>
@@ -2835,7 +2839,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Hellfire rebuke</h2>
+        <h2 class="sname">Hellfire rebuke</h2>
         <p class="ssub">Reaction, added by hand</p>
       </div>
     </div>
@@ -2872,7 +2876,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Add a spell</h2>
+        <h2 class="sname">Add a spell</h2>
         <p class="ssub">Alarra Vane</p>
       </div>
     </div>
@@ -2914,7 +2918,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Add a spell</h2>
+        <h2 class="sname">Add a spell</h2>
         <p class="ssub">Brenna Duskhollow</p>
       </div>
     </div>
@@ -3013,7 +3017,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Add a proficiency</h2>
+        <h2 class="sname">Add a proficiency</h2>
         <p class="ssub">Alarra Vane</p>
       </div>
     </div>
@@ -3055,7 +3059,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Add a language</h2>
+        <h2 class="sname">Add a language</h2>
         <p class="ssub">Alarra Vane</p>
       </div>
     </div>
@@ -3103,7 +3107,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Add a feature</h2>
+        <h2 class="sname">Add a feature</h2>
         <p class="ssub">Brenna Duskhollow</p>
       </div>
     </div>
@@ -3149,7 +3153,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Basic details</h2>
+        <h2 class="sname">Basic details</h2>
         <p class="ssub">Thorn Grimsby</p>
       </div>
     </div>
@@ -3186,7 +3190,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Delete character</h2>
+        <h2 class="sname">Delete character</h2>
         <p class="ssub">Thorn Grimsby</p>
       </div>
     </div>
@@ -3410,7 +3414,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="shead">
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-      <div class="who"><h2 class="sname" style="font-size:19px">Hex</h2>
+      <div class="who"><h2 class="sname">Hex</h2>
         <p class="ssub">1st-level enchantment, bonus action, 90 ft</p></div>
       <button class="icnbtn" aria-label="Spell menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
     </div>
@@ -3424,7 +3428,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <div><b>Long rest</b><em>Ends on</em></div>
         <div><b>1d6</b><em>Extra necrotic</em></div>
       </div>
-      <div class="res" style="margin-top:10px;border-top:1.5px solid var(--rule);padding-top:11px">
+      <div class="res" style="margin-top:10px;border-top:1.5px solid transparent;padding-top:11px">
         <div class="resl"><b>The ogre chieftain</b><span>Target, with disadvantage on Strength checks</span></div>
         <button class="gobtn">Move</button>
       </div>
@@ -3514,7 +3518,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="shead">
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-      <div class="who"><h2 class="sname" style="font-size:19px">Invisibility</h2>
+      <div class="who"><h2 class="sname">Invisibility</h2>
         <p class="ssub">2nd-level illusion, 1 action, touch</p></div>
       <button class="icnbtn" aria-label="Spell menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
     </div>
@@ -3794,7 +3798,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Rest</h2>
+        <h2 class="sname">Rest</h2>
         <p class="ssub">Brenna Duskhollow</p>
       </div>
     </div>
@@ -3854,7 +3858,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
       <div class="who">
-        <h2 class="sname" style="font-size:19px">Rest</h2>
+        <h2 class="sname">Rest</h2>
         <p class="ssub">Brenna Duskhollow</p>
       </div>
     </div>

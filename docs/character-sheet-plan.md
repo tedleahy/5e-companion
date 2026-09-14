@@ -335,6 +335,10 @@ All dated 12 September 2026.
 - A mark on an item-detail toggle stays only when it names something the title
   does not. Equipped and Attuned do not repeat themselves as marks. The slot
   lives on the Move row. 14 September 2026.
+- Structural CSS holds size, gap and grid. Colour, fill and shadow stay under
+  `.riso`, including row rules, pip and meter fills, and token backgrounds.
+  Detail titles are 19px in CSS when they sit beside the back button. Text
+  hierarchy uses the dim token, never opacity. 14 September 2026.
 
 ## Working rules for the drawing
 
