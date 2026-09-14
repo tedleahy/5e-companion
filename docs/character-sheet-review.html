@@ -57,7 +57,7 @@ ul.plain li{margin:3px 0}
   <div class="doc-head-inner">
     <b>5e Companion</b>
     <h1>Character sheet mockups, review</h1>
-    <p>13 September 2026, against <code>mockups/character-sheet.html</code> at commit 1b3cedd, with <code>mockups/character-list.html</code>, <code>docs/design-system.html</code> v0.3 and <code>docs/character-sheet-plan.md</code> as the references. Frame numbers are the gallery's own. Findings are numbered 1 to 45 in reading order, and each number is an anchor. Findings 1 to 29 were fixed on 13 September 2026, and findings 30 and 31 on 14 September 2026; the decisions behind them are in the plan under Decided.</p>
+    <p>13 September 2026, against <code>mockups/character-sheet.html</code> at commit 1b3cedd, with <code>mockups/character-list.html</code>, <code>docs/design-system.html</code> v0.3 and <code>docs/character-sheet-plan.md</code> as the references. Frame numbers are the gallery's own. Findings are numbered 1 to 45 in reading order, and each number is an anchor. Findings 1 to 29 were fixed on 13 September 2026, and findings 30 to 38 on 14 September 2026; the decisions behind them are in the plan under Decided.</p>
     <p>The visual system holds. The problems are rules numbers, frames that disagree with each other, promised interactions no frame draws, and some system, markup and copy drift.</p>
   </div>
 </header>
@@ -212,26 +212,26 @@ ul.plain li{margin:3px 0}
   <h2>Markup and accessibility</h2>
   <p class="lead">Things that will carry into the web build if the markup is copied.</p>
 
-  <div class="finding high" id="f32"><b><a class="num" href="#f32">32</a>Pips are not controls</b>
-    Resource pips are <code>&lt;i&gt;</code> elements with a click handler: no role, no label, not focusable. Keyboard and screen reader users cannot spend a slot. The design system's note that pips are decorative was written for the list, where they are.</div>
+  <div class="finding high" id="f32"><b><a class="num" href="#f32">32</a>Pips are not controls<span class="tag">Fixed</span></b>
+    Resource pips are <code>&lt;i&gt;</code> elements with a click handler: no role, no label, not focusable. Keyboard and screen reader users cannot spend a slot. The design system's note that pips are decorative was written for the list, where they are.<small>Resolved. Each pip row is one adjustable control, named by its resource with a value such as &ldquo;1 of 2 left&rdquo;, and stepped with arrow keys or a screen reader swipe. The pips stay tap targets.</small></div>
 
-  <div class="finding high" id="f33"><b><a class="num" href="#f33">33</a>A button inside a toggle label (frame 9)</b>
-    The chevron on each preparation row is a <code>&lt;button&gt;</code> inside <code>&lt;label class="prep"&gt;</code>. That is invalid HTML, and activating it also toggles the checkbox.</div>
+  <div class="finding high" id="f33"><b><a class="num" href="#f33">33</a>A button inside a toggle label (frame 9)<span class="tag">Fixed</span></b>
+    The chevron on each preparation row is a <code>&lt;button&gt;</code> inside <code>&lt;label class="prep"&gt;</code>. That is invalid HTML, and activating it also toggles the checkbox.<small>Resolved. On frame 9, and on every row with a details chevron, the toggle label and the details button are now siblings, so opening details never toggles the row.</small></div>
 
-  <div class="finding mid" id="f34"><b><a class="num" href="#f34">34</a>The vitals label hides the numbers</b>
-    <code>aria-label="Heal or damage"</code> on the vitals block replaces "31/44 hit points, 5 temporary" for assistive technology. Use <code>aria-describedby</code> or fold the values into the label.</div>
+  <div class="finding mid" id="f34"><b><a class="num" href="#f34">34</a>The vitals label hides the numbers<span class="tag">Fixed</span></b>
+    <code>aria-label="Heal or damage"</code> on the vitals block replaces "31/44 hit points, 5 temporary" for assistive technology. Use <code>aria-describedby</code> or fold the values into the label.<small>Resolved. Every vitals block is named by its numbers, such as &ldquo;31 of 44 hit points, 5 temporary. Open the hit point pad&rdquo;.</small></div>
 
-  <div class="finding mid" id="f35"><b><a class="num" href="#f35">35</a>Selection state is a data attribute</b>
-    Tabs, pad tabs, the rest and coin switches and the catalog switch mark selection with <code>data-on</code> only. Rank selectors use <code>aria-pressed</code>. Disclosures have no <code>aria-expanded</code>. The bottom sheet is a dialog without <code>aria-modal</code> or a focus trap.</div>
+  <div class="finding mid" id="f35"><b><a class="num" href="#f35">35</a>Selection state is a data attribute<span class="tag">Fixed</span></b>
+    Tabs, pad tabs, the rest and coin switches and the catalog switch mark selection with <code>data-on</code> only. Rank selectors use <code>aria-pressed</code>. Disclosures have no <code>aria-expanded</code>. The bottom sheet is a dialog without <code>aria-modal</code> or a focus trap.<small>Resolved. Switches that swap content are tabs with aria-selected, single choices are radio groups with aria-checked, and conditions keep aria-pressed, all with arrow keys. Every disclosure reports aria-expanded. Sheets make the page behind inert, keep focus inside, and close on Escape, returning focus to their opener.</small></div>
 
-  <div class="finding low" id="f36"><b><a class="num" href="#f36">36</a>Jargon in labels (frame 45)</b>
-    The token swatches are labelled "Structural token", "Accent token" and "Overprint token". Screen readers announce the ink names.</div>
+  <div class="finding low" id="f36"><b><a class="num" href="#f36">36</a>Jargon in labels (frame 45)<span class="tag">Fixed</span></b>
+    The token swatches are labelled "Structural token", "Accent token" and "Overprint token". Screen readers announce the ink names.<small>Resolved. The token colours are named by the theme, Blue, Rose and Purple, in their labels and under each swatch.</small></div>
 
-  <div class="finding low" id="f37"><b><a class="num" href="#f37">37</a>aria-label on a plain div</b>
-    The temporary hit point block is a <code>div</code> with an aria-label and no role, which is ignored.</div>
+  <div class="finding low" id="f37"><b><a class="num" href="#f37">37</a>aria-label on a plain div<span class="tag">Fixed</span></b>
+    The temporary hit point block is a <code>div</code> with an aria-label and no role, which is ignored.<small>Resolved. The temporary hit point block and the meters are hidden from screen readers, and the text line carries the values.</small></div>
 
-  <div class="finding low" id="f38"><b><a class="num" href="#f38">38</a>The character list card is not a control</b>
-    On phone the whole card is the target, but <code>article.row</code> has no role or tabindex. The list also predates the hit-area rule: chips are about 23px tall with no extension.</div>
+  <div class="finding low" id="f38"><b><a class="num" href="#f38">38</a>The character list card is not a control<span class="tag">Fixed</span></b>
+    On phone the whole card is the target, but <code>article.row</code> has no role or tabindex. The list also predates the hit-area rule: chips are about 23px tall with no extension.<small>Resolved. Each card&rsquo;s name is a link stretched over the card, the desktop Open sheet is a link, the filter chips are a radio group, and chips, buttons and the search field meet the 44 tap area rule.</small></div>
 </section>
 
 <section id="copy">

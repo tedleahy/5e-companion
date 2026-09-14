@@ -127,11 +127,11 @@ td code{white-space:nowrap}
 .title{margin:0;font-size:21px;font-weight:700;letter-spacing:-.015em}
 .title sup{font-size:12px;font-weight:600;margin-left:8px;top:-.55em}
 .find{display:flex;gap:8px;margin-top:13px}
-.find label{flex:1;display:flex;align-items:center;gap:8px;padding:9px 12px;min-width:0}
+.find label{flex:1;display:flex;align-items:center;gap:8px;padding:9px 12px;min-width:0;min-height:44px}
 .find input{all:unset;flex:1;font-size:14px;font-family:inherit;min-width:0}
 .sortbtn{padding:0 13px;font-size:13px;cursor:pointer;font-family:inherit}
 .chips{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
-.chip{font-size:12px;padding:4px 10px;cursor:default;white-space:nowrap}
+.chip{font-size:12px;padding:4px 10px;cursor:pointer;white-space:nowrap;border:0;font-family:inherit}
 .rows{flex:1;padding:12px 12px 0;display:flex;flex-direction:column;gap:9px}
 .row{display:grid;grid-template-columns:56px 1fr auto;gap:13px;align-items:center;padding:11px 12px}
 .tok{width:56px;height:56px;display:grid;place-items:center;position:relative;font-weight:700;font-size:20px;flex:none}
@@ -178,7 +178,7 @@ td code{white-space:nowrap}
 .riso .find input::placeholder{color:var(--dim)}
 .riso .sortbtn{background:var(--b);color:var(--on-b);border:0;font-weight:700}
 .riso .chip{background:var(--chip);color:var(--on-a);font-weight:600}
-.riso .chip:is([data-on],[aria-pressed=true]){background:var(--sheet);color:var(--a);font-weight:700}
+.riso .chip:is([aria-checked=true],[aria-pressed=true]){background:var(--sheet);color:var(--a);font-weight:700}
 .riso .row,.riso .draft{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
 .riso .tok{border-radius:50%;font-weight:700;color:var(--on-tok,var(--on-a));background:var(--tok);box-shadow:4px 4px 0 var(--b)}
 .riso .tok b{background:var(--sheet);color:var(--ink);border-radius:50%;box-shadow:0 0 0 2px var(--a)}
@@ -222,6 +222,20 @@ td code{white-space:nowrap}
 .riso :is(.newbtn,.resume,.go,.sortbtn):is(:disabled,[aria-disabled=true]){background:transparent;color:var(--dim);
   box-shadow:inset 0 0 0 2px var(--rule);transform:none;cursor:not-allowed}
 .riso .go:is(:disabled,[aria-disabled=true]){border-color:var(--rule);box-shadow:none}
+
+/* the card is one control: its name is a link stretched over it */
+.row{position:relative}
+.rowlink{color:inherit;text-decoration:none}
+.rowlink::after{content:"";position:absolute;inset:0}
+.riso .rowlink:focus-visible{outline:none}
+.riso .row:has(.rowlink:focus-visible){outline:2px solid var(--a);outline-offset:3px}
+a.go{display:inline-block;text-decoration:none;text-align:center}
+
+/* hit areas: every control answers taps across at least 44 by 44 */
+:is(.chip,.sortbtn,.resume,.go){position:relative}
+:is(.chip,.sortbtn,.resume,.go)::after{content:"";position:absolute;
+  top:min(0px,calc((100% - 44px) / 2));bottom:min(0px,calc((100% - 44px) / 2));
+  left:min(0px,calc((100% - 44px) / 2));right:min(0px,calc((100% - 44px) / 2))}
 
 /* zero hit points (new in v0.2, not in the mockup yet) */
 .saves{display:flex;gap:14px;align-items:center}
@@ -534,10 +548,10 @@ td code{white-space:nowrap}
       <div><button class="go" aria-pressed="true">Open sheet</button></div>
       <div><button class="go" disabled>Open sheet</button></div>
       <b>Chip, on plate</b>
-      <div class="plate"><span class="chip">Conditions</span></div>
-      <div class="plate"><span class="chip is-pressed">Conditions</span></div>
-      <div class="plate"><span class="chip is-focus">Conditions</span></div>
-      <div class="plate"><span class="chip" data-on>Conditions</span></div>
+      <div class="plate" role="radiogroup" aria-label="Chip state specimen"><button class="chip" role="radio" aria-checked="false">Conditions</button></div>
+      <div class="plate" role="radiogroup" aria-label="Chip state specimen"><button class="chip is-pressed" role="radio" aria-checked="false">Conditions</button></div>
+      <div class="plate" role="radiogroup" aria-label="Chip state specimen"><button class="chip is-focus" role="radio" aria-checked="false">Conditions</button></div>
+      <div class="plate" role="radiogroup" aria-label="Chip state specimen"><button class="chip" role="radio" aria-checked="true">Conditions</button></div>
       <span>hidden instead</span>
     </div>
   </div>
@@ -546,7 +560,7 @@ td code{white-space:nowrap}
     <tbody>
       <tr><td>Pressed</td><td>Anything with an offset shadow moves by the shadow's offset and the shadow disappears. That means 5px for cards and the primary button, 3px for outlined buttons. Anything without a shadow gets a 2px inset ring in its own text colour. On phone the whole character card presses.</td><td><code>:active</code></td></tr>
       <tr><td>Focus</td><td>2px structural outline, 3px offset. Inside the plate the outline is on-a, because structural on structural is invisible. The search field outlines the whole field, not the bare input.</td><td><code>:focus-visible</code>, <code>:focus-within</code> on the field</td></tr>
-      <tr><td>Selected</td><td>Inversion. On paper, the control fills with structural and its text turns on-a. On the plate, it becomes a sheet cutout with structural text, as the active chip already does.</td><td><code>[aria-pressed=true]</code>, or <code>[data-on]</code> on chips</td></tr>
+      <tr><td>Selected</td><td>Inversion. On paper, the control fills with structural and its text turns on-a. On the plate, it becomes a sheet cutout with structural text, as the active chip already does.</td><td><code>[aria-pressed=true]</code> for toggles, <code>[aria-checked=true]</code> for single choices such as chips, <code>[aria-selected=true]</code> for tabs</td></tr>
       <tr><td>Disabled</td><td>No fill, no shadow, dim text and a 2px rule-coloured outline. Controls on the plate are hidden rather than disabled, because dim text cannot reach contrast on structural.</td><td><code>:disabled</code>, <code>[aria-disabled=true]</code></td></tr>
       <tr><td>Hover</td><td>Not defined yet. See deferred.</td><td></td></tr>
     </tbody>
@@ -588,11 +602,11 @@ td code{white-space:nowrap}
             <input placeholder="Find a character" aria-label="Find a character"></label>
           <button class="sortbtn">Sort: level</button>
         </div>
-        <div class="chips">
-          <span class="chip" data-on>All</span>
-          <span class="chip">Below half</span>
-          <span class="chip">Conditions</span>
-          <span class="chip">Sunless Crown</span>
+        <div class="chips" role="radiogroup" aria-label="Filter characters">
+          <button class="chip" role="radio" aria-checked="true" tabindex="0">All</button>
+          <button class="chip" role="radio" aria-checked="false" tabindex="-1">Below half</button>
+          <button class="chip" role="radio" aria-checked="false" tabindex="-1">Conditions</button>
+          <button class="chip" role="radio" aria-checked="false" tabindex="-1">Sunless Crown</button>
         </div>
       </div>
     </div>
@@ -636,11 +650,11 @@ td code{white-space:nowrap}
   <p class="lead">Chips live on the plate only. The active chip is a sheet-coloured cutout with structural text. Inactive chips are a translucent tint of the plate text.</p>
   <div class="riso specimen">
     <div class="plate" style="max-width:420px">
-      <div class="chips" style="margin:0">
-        <span class="chip" data-on>All</span>
-        <span class="chip">Below half</span>
-        <span class="chip">Conditions</span>
-        <span class="chip">Sunless Crown</span>
+      <div class="chips" style="margin:0" role="radiogroup" aria-label="Filter characters">
+        <button class="chip" role="radio" aria-checked="true" tabindex="0">All</button>
+        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Below half</button>
+        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Conditions</button>
+        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Sunless Crown</button>
       </div>
     </div>
   </div>
@@ -648,10 +662,10 @@ td code{white-space:nowrap}
     <thead><tr><th>State</th><th>Fill</th><th>Text</th><th>Weight</th></tr></thead>
     <tbody>
       <tr><td>Inactive</td><td><code>--chip</code> (on-a at 10%)</td><td><code>--on-a</code></td><td>600</td></tr>
-      <tr><td>Active <code>[data-on]</code></td><td><code>--sheet</code></td><td><code>--a</code></td><td>700</td></tr>
+      <tr><td>Active <code>[aria-checked=true]</code></td><td><code>--sheet</code></td><td><code>--a</code></td><td>700</td></tr>
     </tbody>
   </table>
-  <p class="why" style="margin-top:12px">Filters seen so far: All, Below half, Conditions, and a campaign name. Single select is implied by "All" being present. Pressed, focus and selected follow the interaction states. Hover is deferred.</p>
+  <p class="why" style="margin-top:12px">Filters seen so far: All, Below half, Conditions, and a campaign name. Single select is implied by "All" being present, so the chips are one radio group: arrow keys move the choice, and each chip extends to a 44 tall tap area. Pressed, focus and selected follow the interaction states. Hover is deferred.</p>
 </section>
 
 <!-- ============================================================ -->
@@ -675,7 +689,7 @@ td code{white-space:nowrap}
     <tbody>
       <tr><td>Circle</td><td>56px phone, 64px desktop. Initial at 20 / 23px, 700. 4px accent shadow, always accent regardless of token colour.</td></tr>
       <tr><td>Level badge</td><td>23px circle, sheet fill, ink digit at 11.5 / 700, 2px structural ring. Offset -7 -7 so it overlaps the token edge.</td></tr>
-      <tr><td>Colour assignment</td><td>Stored on the character as an ink role: structural, accent or overprint. The player picks it in the first creation step. The default is the ink they use least across their other characters. Sorting and filtering never change it.</td></tr>
+      <tr><td>Colour assignment</td><td>Stored on the character as an ink role: structural, accent or overprint. The player picks it in the first creation step. The default is the ink they use least across their other characters. Sorting and filtering never change it. Players never see the role names. Each theme names its three inks, and the default theme calls them Blue, Rose and Purple, in the colour picker and anywhere else a token colour is named.</td></tr>
       <tr><td>Draft variant</td><td>Sheet fill, structural initial, 2px inset structural ring, shadow in <code>--rule</code> instead of accent. Reads as an outline of a token.</td></tr>
       <tr><td>Text colour</td><td>Rose tokens carry dark text because light text fails on rose. Blue and purple tokens carry light text.</td></tr>
     </tbody>
@@ -688,11 +702,11 @@ td code{white-space:nowrap}
   <p class="lead">Ten segments, 13px tall, 2px apart. Filled segments are structural ink. Below half, the filled segments switch to accent. Empty segments are always a rose tint. The meter colour does not depend on the row's token colour.</p>
   <div class="riso specimen">
     <div class="meter-set">
-      <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p>Full</p></div>
-      <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p>Above half</p></div>
-      <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p>Nearly full</p></div>
-      <div><div class="meter" data-hurt><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p>Below half <code>[data-hurt]</code>. Fill flips to accent.</p></div>
-      <div><div class="meter" data-hurt><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p>Well below half. Same state, no further escalation.</p></div>
+      <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p>Full</p></div>
+      <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p>Above half</p></div>
+      <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p>Nearly full</p></div>
+      <div><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p>Below half <code>[data-hurt]</code>. Fill flips to accent.</p></div>
+      <div><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p>Well below half. Same state, no further escalation.</p></div>
     </div>
   </div>
   <pre><code>&lt;div class="meter" data-hurt&gt;
@@ -722,7 +736,7 @@ td code{white-space:nowrap}
         <article class="row" style="--tok:var(--b);--on-tok:var(--on-b)">
           <div class="tok">M<b>4</b></div>
           <div>
-            <h3 class="name">Mudge Tealeaf</h3>
+            <h3 class="name"><a class="rowlink" href="#sheet">Mudge Tealeaf</a></h3>
             <p class="sub">Lightfoot halfling rogue, Arcane Trickster</p>
             <div class="saves" aria-hidden="true"><span data-k="ok"><i data-on></i><i></i><i></i></span><span data-k="bad"><i data-on></i><i data-on></i><i></i></span></div>
             <p class="hp"><b>0</b>/27 hit points, 1 success, 2 failures</p>
@@ -735,9 +749,9 @@ td code{white-space:nowrap}
         <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
           <div class="tok">V<b>5</b></div>
           <div>
-            <h3 class="name">Vesper Quill</h3>
+            <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
             <p class="sub">Rock gnome wizard, Divination</p>
-            <div class="meter" data-hurt><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+            <div class="meter" data-hurt aria-hidden="true"><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
             <p class="hp"><b>0</b>/26 hit points, stable</p>
           </div>
           <div class="stat">
@@ -748,7 +762,7 @@ td code{white-space:nowrap}
         <article class="row" data-state="dead" style="--tok:var(--a);--on-tok:var(--on-a)">
           <div class="tok">T<b>8</b></div>
           <div>
-            <h3 class="name">Thorn Grimsby</h3>
+            <h3 class="name"><a class="rowlink" href="#sheet">Thorn Grimsby</a></h3>
             <p class="sub">Mountain dwarf fighter, Champion</p>
             <p class="hp"><b>0</b>/72 hit points, 3 failures</p>
           </div>
@@ -828,16 +842,16 @@ td code{white-space:nowrap}
 <!-- ============================================================ -->
 <section id="card">
   <h2>Character card</h2>
-  <p class="lead">The phone list row. Three columns: token, identity plus meter, then a stat stack. Whole card is the tap target.</p>
+  <p class="lead">The phone list row. Three columns: token, identity plus meter, then a stat stack. Whole card is the tap target: the name is a link stretched over the card, so the card is one focusable control named by the character.</p>
   <div class="riso specimen">
     <div class="phone-frame">
       <div class="rows" style="padding:14px 12px 20px">
         <article class="row" style="--tok:var(--a);--on-tok:var(--on-a)">
           <div class="tok">B<b>6</b></div>
           <div>
-            <h3 class="name">Brenna Duskhollow</h3>
+            <h3 class="name"><a class="rowlink" href="#sheet">Brenna Duskhollow</a></h3>
             <p class="sub">Half-elf warlock, the Fiend</p>
-            <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
             <p class="hp"><b>31</b>/44 hit points, 5 temporary</p>
           </div>
           <div class="stat">
@@ -848,9 +862,9 @@ td code{white-space:nowrap}
         <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
           <div class="tok">V<b>5</b></div>
           <div>
-            <h3 class="name">Vesper Quill</h3>
+            <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
             <p class="sub">Rock gnome wizard, Divination</p>
-            <div class="meter" data-hurt><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+            <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
             <p class="hp"><b>12</b>/26 hit points, 2 slots left</p>
           </div>
           <div class="stat">
@@ -864,7 +878,7 @@ td code{white-space:nowrap}
   <pre><code>&lt;article class="row" style="--tok:var(--a);--on-tok:var(--on-a)"&gt;
   &lt;div class="tok"&gt;B&lt;b&gt;6&lt;/b&gt;&lt;/div&gt;
   &lt;div&gt;
-    &lt;h3 class="name"&gt;Brenna Duskhollow&lt;/h3&gt;
+    &lt;h3 class="name"&gt;&lt;a class="rowlink" href="#sheet"&gt;Brenna Duskhollow&lt;/a&gt;&lt;/h3&gt;
     &lt;p class="sub"&gt;Half-elf warlock, the Fiend&lt;/p&gt;
     &lt;div class="meter"&gt;...&lt;/div&gt;
     &lt;p class="hp"&gt;&lt;b&gt;31&lt;/b&gt;/44 hit points, 5 temporary&lt;/p&gt;
@@ -966,26 +980,26 @@ td code{white-space:nowrap}
         <div class="drow" style="--tok:var(--a);--on-tok:var(--on-a)">
           <div class="tok">B<b>6</b></div>
           <div><h3 class="name">Brenna Duskhollow</h3><p class="sub" style="margin-bottom:0">Half-elf warlock, the Fiend</p></div>
-          <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>31</b>/44 hit points, 5 temporary</p></div>
+          <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>31</b>/44 hit points, 5 temporary</p></div>
           <div class="ac"><span>13<em>AC</em></span></div>
           <div class="marks"><span class="mark" data-t="conc">Hex</span><span class="mark" data-t="ok">1 pact slot</span></div>
-          <button class="go">Open sheet</button>
+          <a class="go" href="#sheet" aria-label="Open Brenna Duskhollow&rsquo;s sheet">Open sheet</a>
         </div>
         <div class="drow" style="--tok:var(--b);--on-tok:var(--on-b)">
           <div class="tok">T<b>8</b></div>
           <div><h3 class="name">Thorn Grimsby</h3><p class="sub" style="margin-bottom:0">Mountain dwarf fighter, Champion</p></div>
-          <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>68</b>/72 hit points, second wind ready</p></div>
+          <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>68</b>/72 hit points, second wind ready</p></div>
           <div class="ac"><span>18<em>AC</em></span></div>
           <div class="marks"><span class="mark" data-t="ok">Second wind</span><span class="mark" data-t="ok">Action surge</span></div>
-          <button class="go">Open sheet</button>
+          <a class="go" href="#sheet" aria-label="Open Thorn Grimsby&rsquo;s sheet">Open sheet</a>
         </div>
         <div class="drow" style="--tok:var(--mix);--on-tok:var(--on-mix)">
           <div class="tok">V<b>5</b></div>
           <div><h3 class="name">Vesper Quill</h3><p class="sub" style="margin-bottom:0">Rock gnome wizard, Divination</p></div>
-          <div><div class="meter" data-hurt><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points, 2 slots left</p></div>
+          <div><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points, 2 slots left</p></div>
           <div class="ac"><span>12<em>AC</em></span></div>
           <div class="marks"><span class="mark" data-t="bad">Below half</span><span class="mark" data-t="conc">Portent 1</span></div>
-          <button class="go">Open sheet</button>
+          <a class="go" href="#sheet" aria-label="Open Vesper Quill&rsquo;s sheet">Open sheet</a>
         </div>
       </div>
     </div>
@@ -1095,7 +1109,7 @@ td code{white-space:nowrap}
       <tr><td>Motion</td><td>The system has no animation or transitions. Keep the reduced motion override anyway.</td></tr>
       <tr><td>Text opacity</td><td>Banned. The mockup used opacity on the tray heading, column headers, title count and ring label, which pushed them below contrast. All four are now solid.</td></tr>
       <tr><td>Colour alone</td><td>Hurt is shown by meter colour, a "Below half" mark and the number. Death saves differ in shape as well as colour and are spelled out in the line. Token colour carries no meaning.</td></tr>
-      <tr><td>Semantics</td><td>Cards are <code>article</code>, names are <code>h3</code>, search has a label. Meters and pips are decorative; the adjacent text carries the value.</td></tr>
+      <tr><td>Semantics</td><td>Cards are <code>article</code> with the name as a link stretched over the card, names are <code>h3</code>, search has a label, and filter chips are a radio group. Meters are decorative; the adjacent text carries the value. On the character sheet a pip row is one adjustable control, switches that swap content are tabs, single choices are radio groups, and bottom sheets are modal with focus kept inside.</td></tr>
       <tr><td>Hit areas</td><td>Every control answers taps across at least 44 by 44. On web the extension is an invisible <code>::after</code> centred on the control, so layout and appearance do not change. Where two controls sit closer than that, their areas meet at the midpoint of the gap instead of overlapping, and 24 is the floor in that direction, the WCAG 2.2 AA minimum. Chips extend to 44 tall and keep their own width. Text fields get a real 44 minimum height instead, because an overlay would cover the caret.</td></tr>
       <tr><td>Native semantics</td><td>HTML elements and accessibility attributes map onto React Native roles and props. See React Native.</td></tr>
     </tbody>
@@ -1118,6 +1132,7 @@ td code{white-space:nowrap}
     <li><b>Safe areas and press feedback.</b> The plate paints under the status bar, the Create button clears the home indicator, and Android's ripple is off. 12 September 2026.</li>
     <li><b>Hit areas.</b> At least 44 by 44 for every control: an invisible extension on web, hit slop on native. Neighbours meet mid-gap, with a floor of 24. 12 September 2026.</li>
     <li><b>Primary buttons.</b> "Only one primary per screen" becomes at most one full-width primary per screen or sheet, with repeated cards and rows allowed one small primary each for their own action. The character sheet designs settled it. 13 September 2026.</li>
+    <li><b>Selection and semantics.</b> Selected state lives in ARIA attributes, not a data attribute: <code>aria-selected</code> for tabs, <code>aria-checked</code> for single choices including filter chips, and <code>aria-pressed</code> for multi-select toggles. Arrow keys move a choice with roving focus. A list card is one link stretched over the card. Token colours are named by the theme. 14 September 2026.</li>
   </ul>
 </section>
 

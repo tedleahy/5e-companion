@@ -315,6 +315,37 @@ All dated 12 September 2026.
 - The origin line always sits inside a card. Where the rules text folds away
   behind a disclosure, the disclosure and the origin line share one bordered
   fold, so the origin never floats on bare paper. 13 September 2026.
+- A pip row is one adjustable control: a spinbutton on web and an adjustable
+  element on native. It is named by the resource and announces its value, such
+  as "Pact magic, 1 of 2 left". Arrow keys or a screen reader swipe step it,
+  Home spends every use and End restores them. The pips stay tap targets for
+  touch, following the pip rule, but are not announced one by one.
+  14 September 2026.
+- Selected state lives in ARIA attributes. Switches that swap the content below
+  are tabs with aria-selected: the sheet tabs, rest length, catalog or custom,
+  the hit point pad's tabs and the coin switch. Single choices are radio groups
+  with aria-checked: ranks, alignment, token colour, ability, uses and ends,
+  gain or spend, and the list's filter chips. Multi-select toggles such as
+  conditions keep aria-pressed. Arrow keys move a choice, with focus roving so
+  Tab lands on the chosen item. Disclosures report aria-expanded.
+  14 September 2026.
+- A bottom sheet is modal. While it is open the screen behind is inert and focus
+  cycles inside it. Escape, Close or a tap on the scrim closes it and returns
+  focus to the control that opened it, which carries aria-haspopup and
+  aria-expanded. 14 September 2026.
+- A toggle row with a details chevron is two siblings, the toggle's label and
+  the details button, so opening details never toggles the row.
+  14 September 2026.
+- The vitals block is named by its numbers, such as "31 of 44 hit points, 5
+  temporary. Open the hit point pad". Meters and the temporary block are hidden
+  from screen readers, because the text line carries the values.
+  14 September 2026.
+- Token colours are named by the theme: Blue, Rose and Purple in the default
+  theme, shown under each swatch and used as its label. The character still
+  stores the ink role. 14 September 2026.
+- On the character list, a card's name is a link stretched over the card, and
+  the desktop Open sheet is a link. Filter chips, buttons and links meet the 44
+  tap area rule, and the search field is a real 44 tall. 14 September 2026.
 - The conditions sheet is the menu's static sheet: a three-column grid of
   names with Custom in the last cell, the chosen condition's end under it, then
   exhaustion and Close. It stops below the header marks. A taller scrolling

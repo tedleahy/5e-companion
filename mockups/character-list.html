@@ -79,11 +79,11 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .title{margin:0;font-size:21px;font-weight:700;letter-spacing:-.015em}
 .title sup{font-size:12px;font-weight:600;margin-left:8px;top:-.55em}
 .find{display:flex;gap:8px;margin-top:13px}
-.find label{flex:1;display:flex;align-items:center;gap:8px;padding:9px 12px;min-width:0}
+.find label{flex:1;display:flex;align-items:center;gap:8px;padding:9px 12px;min-width:0;min-height:44px}
 .find input{all:unset;flex:1;font-size:14px;font-family:inherit;min-width:0}
 .sortbtn{padding:0 13px;font-size:13px;cursor:pointer;font-family:inherit}
 .chips{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
-.chip{font-size:12px;padding:4px 10px;cursor:default;white-space:nowrap}
+.chip{font-size:12px;padding:4px 10px;cursor:pointer;white-space:nowrap;border:0;font-family:inherit}
 .rows{flex:1;padding:12px 12px 0;display:flex;flex-direction:column;gap:9px}
 .row{display:grid;grid-template-columns:56px 1fr auto;gap:13px;align-items:center;padding:11px 12px}
 .tok{width:56px;height:56px;display:grid;place-items:center;position:relative;font-weight:700;font-size:20px;flex:none}
@@ -136,7 +136,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .riso .find input::placeholder{color:var(--dim)}
 .riso .sortbtn{background:var(--b);color:var(--on-b);border:0;font-weight:700}
 .riso .chip{background:var(--chip);color:var(--on-a);font-weight:600}
-.riso .chip:is([data-on],[aria-pressed=true]){background:var(--sheet);color:var(--a);font-weight:700}
+.riso .chip:is([aria-checked=true],[aria-pressed=true]){background:var(--sheet);color:var(--a);font-weight:700}
 .riso .row,.riso .draft{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
 .riso .tok{border-radius:50%;font-weight:700;color:var(--on-tok,var(--on-a));background:var(--tok);box-shadow:4px 4px 0 var(--b)}
 .riso .tok b{background:var(--sheet);color:var(--ink);border-radius:50%;box-shadow:0 0 0 2px var(--a)}
@@ -180,6 +180,20 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .riso :is(.newbtn,.resume,.go,.sortbtn):is(:disabled,[aria-disabled=true]){background:transparent;color:var(--dim);
   box-shadow:inset 0 0 0 2px var(--rule);transform:none;cursor:not-allowed}
 .riso .go:is(:disabled,[aria-disabled=true]){border-color:var(--rule);box-shadow:none}
+
+/* ---- the card is one control: its name is a link stretched over it ---- */
+.row{position:relative}
+.rowlink{color:inherit;text-decoration:none}
+.rowlink::after{content:"";position:absolute;inset:0}
+.riso .rowlink:focus-visible{outline:none}
+.riso .row:has(.rowlink:focus-visible){outline:2px solid var(--a);outline-offset:3px}
+a.go{display:inline-block;text-decoration:none;text-align:center}
+
+/* ---- hit areas: every control answers taps across at least 44 by 44 ---- */
+:is(.chip,.sortbtn,.resume,.go){position:relative}
+:is(.chip,.sortbtn,.resume,.go)::after{content:"";position:absolute;
+  top:min(0px,calc((100% - 44px) / 2));bottom:min(0px,calc((100% - 44px) / 2));
+  left:min(0px,calc((100% - 44px) / 2));right:min(0px,calc((100% - 44px) / 2))}
 </style>
 </head>
 <body>
@@ -232,20 +246,20 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
           <input placeholder="Find a character" aria-label="Find a character"></label>
         <button class="sortbtn">Sort: level</button>
       </div>
-      <div class="chips">
-        <span class="chip" data-on>All</span>
-        <span class="chip">Below half</span>
-        <span class="chip">Conditions</span>
-        <span class="chip">Sunless Crown</span>
+      <div class="chips" role="radiogroup" aria-label="Filter characters">
+        <button class="chip" role="radio" aria-checked="true" tabindex="0">All</button>
+        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Below half</button>
+        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Conditions</button>
+        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Sunless Crown</button>
       </div>
     </div>
     <div class="rows">
       <article class="row" style="--tok:var(--a);--on-tok:var(--on-a)">
         <div class="tok">B<b>6</b></div>
         <div>
-          <h3 class="name">Brenna Duskhollow</h3>
+          <h3 class="name"><a class="rowlink" href="#sheet">Brenna Duskhollow</a></h3>
           <p class="sub">Half-elf warlock, the Fiend</p>
-          <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+          <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
           <p class="hp"><b>31</b>/44 hit points, 5 temporary</p>
         </div>
         <div class="stat">
@@ -256,9 +270,9 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       <article class="row" style="--tok:var(--b);--on-tok:var(--on-b)">
         <div class="tok">T<b>8</b></div>
         <div>
-          <h3 class="name">Thorn Grimsby</h3>
+          <h3 class="name"><a class="rowlink" href="#sheet">Thorn Grimsby</a></h3>
           <p class="sub">Mountain dwarf fighter, Champion</p>
-          <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div>
+          <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div>
           <p class="hp"><b>68</b>/72 hit points, second wind ready</p>
         </div>
         <div class="stat">
@@ -269,9 +283,9 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
         <div class="tok">V<b>7</b></div>
         <div>
-          <h3 class="name">Vesper Quill</h3>
+          <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
           <p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p>
-          <div class="meter" data-hurt><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+          <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
           <p class="hp"><b>12</b>/26 hit points, 2 slots left</p>
         </div>
         <div class="stat">
@@ -282,9 +296,9 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       <article class="row" style="--tok:var(--a);--on-tok:var(--on-a)">
         <div class="tok">A<b>7</b></div>
         <div>
-          <h3 class="name">Alarra Vane</h3>
+          <h3 class="name"><a class="rowlink" href="#sheet">Alarra Vane</a></h3>
           <p class="sub">Human cleric, Life domain</p>
-          <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+          <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
           <p class="hp"><b>38</b>/52 hit points, channel divinity 1</p>
         </div>
         <div class="stat">
@@ -295,9 +309,9 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       <article class="row" style="--tok:var(--b);--on-tok:var(--on-b)">
         <div class="tok">M<b>4</b></div>
         <div>
-          <h3 class="name">Mudge Tealeaf</h3>
+          <h3 class="name"><a class="rowlink" href="#sheet">Mudge Tealeaf</a></h3>
           <p class="sub">Lightfoot halfling rogue, Arcane Trickster</p>
-          <div class="meter" data-hurt><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+          <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
           <p class="hp"><b>9</b>/27 hit points, 1 hit die</p>
         </div>
         <div class="stat">
@@ -308,9 +322,9 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
       <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
         <div class="tok">K<b>3</b></div>
         <div>
-          <h3 class="name">Kethra Ironsong</h3>
+          <h3 class="name"><a class="rowlink" href="#sheet">Kethra Ironsong</a></h3>
           <p class="sub">Hill dwarf paladin, Oath of Devotion</p>
-          <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
           <p class="hp"><b>28</b>/28 hit points, lay on hands 15</p>
         </div>
         <div class="stat">
@@ -343,11 +357,11 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
           <input placeholder="Find a character" aria-label="Find a character"></label>
         <button class="sortbtn">Sort: level</button>
       </div>
-      <div class="chips">
-        <span class="chip" data-on>All</span>
-        <span class="chip">Below half</span>
-        <span class="chip">Conditions</span>
-        <span class="chip">Sunless Crown</span>
+      <div class="chips" role="radiogroup" aria-label="Filter characters">
+        <button class="chip" role="radio" aria-checked="true" tabindex="0">All</button>
+        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Below half</button>
+        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Conditions</button>
+        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Sunless Crown</button>
       </div>
       <button class="newbtn dnew">Create character</button>
     </div>
@@ -355,50 +369,50 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
     <div class="drow" style="--tok:var(--a);--on-tok:var(--on-a)">
       <div class="tok">B<b>6</b></div>
       <div><h3 class="name">Brenna Duskhollow</h3><p class="sub" style="margin-bottom:0">Half-elf warlock, the Fiend</p></div>
-      <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>31</b>/44 hit points, 5 temporary</p></div>
+      <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>31</b>/44 hit points, 5 temporary</p></div>
       <div class="ac"><span>13<em>AC</em></span></div>
       <div class="marks"><span class="mark" data-t="conc">Hex</span><span class="mark" data-t="ok">1 pact slot</span></div>
-      <button class="go">Open sheet</button>
+      <a class="go" href="#sheet" aria-label="Open Brenna Duskhollow&rsquo;s sheet">Open sheet</a>
     </div>
     <div class="drow" style="--tok:var(--b);--on-tok:var(--on-b)">
       <div class="tok">T<b>8</b></div>
       <div><h3 class="name">Thorn Grimsby</h3><p class="sub" style="margin-bottom:0">Mountain dwarf fighter, Champion</p></div>
-      <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>68</b>/72 hit points, second wind ready</p></div>
+      <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>68</b>/72 hit points, second wind ready</p></div>
       <div class="ac"><span>18<em>AC</em></span></div>
       <div class="marks"><span class="mark" data-t="ok">Second wind</span><span class="mark" data-t="ok">Action surge</span></div>
-      <button class="go">Open sheet</button>
+      <a class="go" href="#sheet" aria-label="Open Thorn Grimsby&rsquo;s sheet">Open sheet</a>
     </div>
     <div class="drow" style="--tok:var(--mix);--on-tok:var(--on-mix)">
       <div class="tok">V<b>7</b></div>
       <div><h3 class="name">Vesper Quill</h3><p class="sub" style="margin-bottom:0">Rock gnome wizard 5 / rogue 2, Divination</p></div>
-      <div><div class="meter" data-hurt><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points, 2 slots left</p></div>
+      <div><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points, 2 slots left</p></div>
       <div class="ac"><span>12<em>AC</em></span></div>
       <div class="marks"><span class="mark" data-t="bad">Below half</span><span class="mark" data-t="conc">Portent 1</span></div>
-      <button class="go">Open sheet</button>
+      <a class="go" href="#sheet" aria-label="Open Vesper Quill&rsquo;s sheet">Open sheet</a>
     </div>
     <div class="drow" style="--tok:var(--a);--on-tok:var(--on-a)">
       <div class="tok">A<b>7</b></div>
       <div><h3 class="name">Alarra Vane</h3><p class="sub" style="margin-bottom:0">Human cleric, Life domain</p></div>
-      <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>38</b>/52 hit points, channel divinity 1</p></div>
+      <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>38</b>/52 hit points, channel divinity 1</p></div>
       <div class="ac"><span>19<em>AC</em></span></div>
       <div class="marks"><span class="mark" data-t="ok">Channel 1 of 2</span></div>
-      <button class="go">Open sheet</button>
+      <a class="go" href="#sheet" aria-label="Open Alarra Vane&rsquo;s sheet">Open sheet</a>
     </div>
     <div class="drow" style="--tok:var(--b);--on-tok:var(--on-b)">
       <div class="tok">M<b>4</b></div>
       <div><h3 class="name">Mudge Tealeaf</h3><p class="sub" style="margin-bottom:0">Lightfoot halfling rogue, Arcane Trickster</p></div>
-      <div><div class="meter" data-hurt><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>9</b>/27 hit points, 1 hit die</p></div>
+      <div><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>9</b>/27 hit points, 1 hit die</p></div>
       <div class="ac"><span>15<em>AC</em></span></div>
       <div class="marks"><span class="mark" data-t="bad">Poisoned</span><span class="mark" data-t="ok">Sneak 2d6</span></div>
-      <button class="go">Open sheet</button>
+      <a class="go" href="#sheet" aria-label="Open Mudge Tealeaf&rsquo;s sheet">Open sheet</a>
     </div>
     <div class="drow" style="--tok:var(--mix);--on-tok:var(--on-mix)">
       <div class="tok">K<b>3</b></div>
       <div><h3 class="name">Kethra Ironsong</h3><p class="sub" style="margin-bottom:0">Hill dwarf paladin, Oath of Devotion</p></div>
-      <div><div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p class="hp"><b>28</b>/28 hit points, lay on hands 15</p></div>
+      <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p class="hp"><b>28</b>/28 hit points, lay on hands 15</p></div>
       <div class="ac"><span>18<em>AC</em></span></div>
       <div class="marks"><span class="mark" data-t="ok">Levelling up</span><span class="mark" data-t="ok">Lay on hands 15</span></div>
-      <button class="go">Open sheet</button>
+      <a class="go" href="#sheet" aria-label="Open Kethra Ironsong&rsquo;s sheet">Open sheet</a>
     </div>
     <div class="traywrap">
       <div class="tray">
@@ -666,6 +680,25 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
     setMixerOpen(mixer.classList.contains('is-closed'));
   });
   setMixerOpen(!window.matchMedia('(max-width: 720px)').matches);
+
+  // Filter chips are one radio group: a click or the arrow keys move the choice.
+  document.querySelectorAll('[role=radiogroup]').forEach(function(group){
+    var items = function(){ return Array.prototype.slice.call(group.querySelectorAll('[role=radio]')); };
+    function choose(item, focus){
+      items().forEach(function(el){ el.setAttribute('aria-checked', el === item ? 'true' : 'false'); el.tabIndex = el === item ? 0 : -1; });
+      if(focus) item.focus();
+    }
+    group.addEventListener('click', function(e){ var item = e.target.closest('[role=radio]'); if(item) choose(item, false); });
+    group.addEventListener('keydown', function(e){
+      var list = items(), i = list.indexOf(document.activeElement), next = null;
+      if(i < 0) return;
+      if(e.key === 'ArrowRight' || e.key === 'ArrowDown') next = list[(i + 1) % list.length];
+      else if(e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = list[(i - 1 + list.length) % list.length];
+      else if(e.key === 'Home') next = list[0];
+      else if(e.key === 'End') next = list[list.length - 1];
+      if(next){ e.preventDefault(); choose(next, true); }
+    });
+  });
 
   loadPreset(PRESETS[0].id);
   fit();
