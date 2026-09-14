@@ -85,11 +85,11 @@ td code{white-space:nowrap}
 
   /* derived. Text tokens are contrast-targeted to 4.5:1, see derive() */
   --ink:#1f4477;     /* body text, a darkened */
-  --dim:#48648c;     /* secondary text, ink mixed 20% toward paper */
+  --dim:#44618a;     /* secondary text, ink mixed 18% toward paper */
   --on-a:#f2f0eb;    /* text on structural */
   --on-b:#412029;    /* text on accent: dark, light text fails on rose */
   --on-mix:#f2f0eb;  /* text on overprint */
-  --b-text:#9b4768;  /* accent as text or small graphics on sheet */
+  --b-text:#914261;  /* accent as text or small graphics on sheet */
   --dot:rgba(37,96,176,.13);     /* grid dots */
   --line:rgba(224,104,156,.18);  /* grid lines */
   --empty:rgba(224,104,156,.26); /* empty meter segments */
@@ -281,8 +281,9 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   <div class="doc-head-inner">
     <b>5e Companion</b>
     <h1>Design system, v0.3</h1>
-    <p>Distilled from <code>character-list-final.html</code>. It records the "riso" direction: two-ink risograph printing on toned paper, with a third overprint colour where the inks would overlap. Everything on this page is rendered with the same CSS as the mockup, so the specimens are the source of truth, not the prose.</p>
-    <p style="margin-top:8px">v0.3, 12 September 2026: a <a href="#native">React Native</a> mapping, font weights capped at 700, and decisions on font scaling, safe areas and press feedback.<br>
+    <p>Distilled from <code>character-list.html</code>. It records the "riso" direction: two-ink risograph printing on toned paper, with a third overprint colour where the inks would overlap. Everything on this page is rendered with the same CSS as the mockup, so the specimens are the source of truth, not the prose.</p>
+    <p style="margin-top:8px">Updated 13 and 14 September 2026: the hit area rule, repeated small primaries, selection and semantics, sentence case and person, American spelling in the app, and text colours checked against the draft tint over paper. See <a href="#decisions">decisions</a>.<br>
+    v0.3, 12 September 2026: a <a href="#native">React Native</a> mapping, font weights capped at 700, and decisions on font scaling, safe areas and press feedback.<br>
     v0.2, 11 September 2026: contrast-targeted colours, interaction states, a stored token colour, zero hit point states and an icon rule. See <a href="#decisions">decisions</a>.</p>
   </div>
 </header>
@@ -388,11 +389,11 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     <thead><tr><th>Token</th><th>Value</th><th>Derivation</th><th>Used for</th></tr></thead>
     <tbody>
       <tr><td><i class="sw" style="background:#1f4477"></i><code>--ink</code></td><td><code>#1f4477</code></td><td>structural mixed 72% toward <code>#14110e</code></td><td>Body text, level badge digit</td></tr>
-      <tr><td><i class="sw" style="background:#48648c"></i><code>--dim</code></td><td><code>#48648c</code></td><td>ink mixed toward paper. Lightest step from 42% that reaches 4.5:1 on paper, sheet and draft fill; currently 20%</td><td>Subtitles, hit point line, column headers, tray heading, placeholder, disabled text</td></tr>
+      <tr><td><i class="sw" style="background:#44618a"></i><code>--dim</code></td><td><code>#44618a</code></td><td>ink mixed toward paper. Lightest step from 42% that reaches 4.5:1 on paper, sheet, and the draft fill over both sheet and paper; currently 18%</td><td>Subtitles, hit point line, column headers, tray heading, placeholder, disabled text</td></tr>
       <tr><td><i class="sw" style="background:#f2f0eb"></i><code>--on-a</code></td><td><code>#f2f0eb</code></td><td>paper mixed 40% toward white, kept because it reaches 4.5:1 on structural</td><td>Text on the header plate and blue tokens</td></tr>
       <tr><td><i class="sw" style="background:#412029"></i><code>--on-b</code></td><td><code>#412029</code></td><td>light text only reaches 2.78:1 on rose, so accent is darkened toward <code>#140c08</code> until it reaches 4.5:1; currently 78%</td><td>Text on rose buttons and tokens</td></tr>
       <tr><td><i class="sw" style="background:#f2f0eb"></i><code>--on-mix</code></td><td><code>#f2f0eb</code></td><td>same rule</td><td>Text on purple tokens</td></tr>
-      <tr><td><i class="sw" style="background:#9b4768"></i><code>--b-text</code></td><td><code>#9b4768</code></td><td>accent mixed toward <code>#1a0a08</code>. First step from 15% that reaches 4.5:1 on sheet and draft fill; currently 35%</td><td>Accent as text, and small accent graphics such as failed death saves</td></tr>
+      <tr><td><i class="sw" style="background:#914261"></i><code>--b-text</code></td><td><code>#914261</code></td><td>accent mixed toward <code>#1a0a08</code>. First step from 15% that reaches 4.5:1 on sheet and on the draft fill over both sheet and paper; currently 40%</td><td>Accent as text, and small accent graphics such as failed death saves</td></tr>
       <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(37,96,176,.13),rgba(37,96,176,.13))"></i><code>--dot</code></td><td><code>rgba(37,96,176,.13)</code></td><td>structural at 13%</td><td>Paper grid dots</td></tr>
       <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(224,104,156,.18),rgba(224,104,156,.18))"></i><code>--line</code></td><td><code>rgba(224,104,156,.18)</code></td><td>accent at 18%</td><td>Paper grid lines</td></tr>
       <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(224,104,156,.26),rgba(224,104,156,.26))"></i><code>--empty</code></td><td><code>rgba(224,104,156,.26)</code></td><td>accent at 26%</td><td>Empty meter segments</td></tr>
@@ -408,11 +409,11 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   <div class="riso flat specimen tight">
     <div class="contrast">
       <div style="background:var(--paper);color:var(--ink)">ink on paper<small>body text, 7.84:1</small></div>
-      <div style="background:var(--sheet);color:var(--dim)">dim on sheet<small>secondary, 5.13:1</small></div>
+      <div style="background:var(--sheet);color:var(--dim)">dim on sheet<small>secondary, 5.36:1</small></div>
       <div style="background:var(--a);color:var(--on-a)">on-a on structural<small>plate, blue token, 5.46:1</small></div>
       <div style="background:var(--b);color:var(--on-b)">on-b on accent<small>CTA, rose token, 4.53:1</small></div>
       <div style="background:var(--mix);color:var(--on-mix)">on-mix on overprint<small>purple token, 7.44:1</small></div>
-      <div style="background:var(--sheet);color:var(--b-text)">b-text on sheet<small>bad marks, 5.10:1</small></div>
+      <div style="background:var(--sheet);color:var(--b-text)">b-text on sheet<small>bad marks, 5.65:1</small></div>
     </div>
   </div>
 </section>
@@ -518,7 +519,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
       <tr><td>Level badge</td><td>23, offset -7 -7</td><td>same</td></tr>
       <tr><td>Armour ring</td><td>46</td><td>46</td></tr>
       <tr><td>Meter height</td><td>13</td><td>13</td></tr>
-      <tr><td>Search field</td><td>9 12 padding</td><td>same, max 420 wide</td></tr>
+      <tr><td>Search field</td><td>9 12 padding, at least 44 tall</td><td>same, max 420 wide</td></tr>
       <tr><td>Primary button</td><td>14 all round, full width</td><td>12 20, auto width, right aligned</td></tr>
     </tbody>
   </table>
@@ -639,7 +640,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Field</td><td>Sheet fill, no border, 4px accent shadow, 9 12 padding. Icon is 15px, 1.8 stroke, in dim. Text in ink, placeholder in dim.</td></tr>
+      <tr><td>Field</td><td>Sheet fill, no border, 4px accent shadow, 9 12 padding and a 44 minimum height, the text field rule. Icon is 15px, 1.8 stroke, in dim. Text in ink, placeholder in dim.</td></tr>
       <tr><td>Sort</td><td>Accent fill, on-b text, 13px 700, 0 13 padding, no border, no shadow. Label pattern is "Sort: {key}".</td></tr>
       <tr><td>Behaviour</td><td>Not specified in the mockup. Sort button presumably opens a menu; document when designed.</td></tr>
     </tbody>
@@ -678,7 +679,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     <div class="tok-set">
       <figure style="--tok:var(--a);--on-tok:var(--on-a)"><div class="tok">B<b>6</b></div>structural</figure>
       <figure style="--tok:var(--b);--on-tok:var(--on-b)"><div class="tok">T<b>8</b></div>accent</figure>
-      <figure style="--tok:var(--mix);--on-tok:var(--on-mix)"><div class="tok">V<b>5</b></div>overprint</figure>
+      <figure style="--tok:var(--mix);--on-tok:var(--on-mix)"><div class="tok">V<b>7</b></div>overprint</figure>
       <figure><div class="d" style="display:contents"><div class="tok" style="--tok:var(--a);--on-tok:var(--on-a);width:64px;height:64px;font-size:23px">A<b>7</b></div></div>desktop, 64</figure>
       <figure><div class="draft" style="display:contents"><div class="tok">K<b>3</b></div></div>draft</figure>
     </div>
@@ -690,7 +691,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
       <tr><td>Circle</td><td>56px phone, 64px desktop. Initial at 20 / 23px, 700. 4px accent shadow, always accent regardless of token colour.</td></tr>
-      <tr><td>Level badge</td><td>23px circle, sheet fill, ink digit at 11.5 / 700, 2px structural ring. Offset -7 -7 so it overlaps the token edge.</td></tr>
+      <tr><td>Level badge</td><td>23px circle, sheet fill, ink digit at 11.5 / 700, 2px structural ring. Offset -7 -7 so it overlaps the token edge. It shows total level, so wizard 5 / rogue 2 reads 7.</td></tr>
       <tr><td>Colour assignment</td><td>Stored on the character as an ink role: structural, accent or overprint. The player picks it in the first creation step. The default is the ink they use least across their other characters. Sorting and filtering never change it. Players never see the role names. Each theme names its three inks, and the default theme calls them Blue, Rose and Purple, in the colour picker and anywhere else a token colour is named.</td></tr>
       <tr><td>Draft variant</td><td>Sheet fill, structural initial, 2px inset structural ring, shadow in <code>--rule</code> instead of accent. Reads as an outline of a token.</td></tr>
       <tr><td>Text colour</td><td>Rose tokens carry dark text because light text fails on rose. Blue and purple tokens carry light text.</td></tr>
@@ -720,7 +721,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     <tbody>
       <tr><td>Resolution</td><td>Ten segments, so each is 10% of max. Rounding rule not set. Suggest round up so one hit point still shows one segment.</td></tr>
       <tr><td>Hurt threshold</td><td>Strictly below half sets <code>data-hurt</code>. This matches the "Below half" filter chip and mark.</td></tr>
-      <tr><td>Temporary hit points</td><td>Shown in the line only ("5 temporary"), not on the meter.</td></tr>
+      <tr><td>Temporary hit points</td><td>On the character list, shown in the line only ("5 temporary"), not on the meter. On the character sheet&rsquo;s tall header, a solid overprint block follows the meter after a gap, and the line still states the amount. It is one block with no empty segments, because temporary hit points have no maximum. The compact header spells it out as "+5 temp", so colour never carries it alone.</td></tr>
       <tr><td>Hit point line</td><td>Bold current value in structural, the rest in dim at 500. A comma then one short resource note, chosen per class.</td></tr>
       <tr><td>Zero</td><td>At 0 hit points the meter is replaced or emptied. See zero hit points.</td></tr>
       <tr><td>Contrast</td><td>Rose segments reach only 2.5:1 on paper, below the 3:1 target for graphics. That is acceptable only because the hit point line always states the value. Never show a meter without its line.</td></tr>
@@ -731,7 +732,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 <!-- ============================================================ -->
 <section id="zero">
   <h2>Zero hit points</h2>
-  <p class="lead">At 0 hit points a character is dying, stable or dead. Each state changes what sits in the meter slot and adds a bad mark, so it reads without relying on colour. Death save counts are already stored on the character, so these states need no new data. This is a first proposal, and the character sheet may refine it.</p>
+  <p class="lead">At 0 hit points a character is dying, stable or dead. Each state changes what sits in the meter slot and adds a bad mark, so it reads without relying on colour. Death save counts are already stored on the character, so these states need no new data. The character sheet builds on these states with its death save tab and hit point pad.</p>
   <div class="riso specimen">
     <div class="phone-frame">
       <div class="rows" style="padding:14px 12px 20px">
@@ -739,7 +740,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
           <div class="tok">M<b>4</b></div>
           <div>
             <h3 class="name"><a class="rowlink" href="#sheet">Mudge Tealeaf</a></h3>
-            <p class="sub">Lightfoot halfling rogue, Arcane Trickster</p>
+            <p class="sub">Lightfoot halfling rogue, Arcane trickster</p>
             <div class="saves" aria-hidden="true"><span data-k="ok"><i data-on></i><i></i><i></i></span><span data-k="bad"><i data-on></i><i data-on></i><i></i></span></div>
             <p class="hp"><b>0</b>/27 hit points, 1 success, 2 failures</p>
           </div>
@@ -749,10 +750,10 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
           </div>
         </article>
         <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
-          <div class="tok">V<b>5</b></div>
+          <div class="tok">V<b>7</b></div>
           <div>
             <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
-            <p class="sub">Rock gnome wizard, Divination</p>
+            <p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p>
             <div class="meter" data-hurt aria-hidden="true"><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
             <p class="hp"><b>0</b>/26 hit points, stable</p>
           </div>
@@ -822,7 +823,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   <div class="riso specimen">
     <div class="marks">
       <span class="mark" data-t="ok">Second wind</span>
-      <span class="mark" data-t="ok">Channel 2 of 2</span>
+      <span class="mark" data-t="ok">Channel 1 of 2</span>
       <span class="mark" data-t="ok">Sneak 2d6</span>
       <span class="mark" data-t="bad">Below half</span>
       <span class="mark" data-t="bad">Poisoned</span>
@@ -833,7 +834,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   <table>
     <thead><tr><th><code>data-t</code></th><th>Border and text</th><th>Meaning</th><th>Examples in mockup</th></tr></thead>
     <tbody>
-      <tr><td><code>ok</code> (or unset)</td><td>structural, <code>--a</code></td><td>Resource available, feature ready</td><td>Second wind, Action surge, Channel 2 of 2, 1 pact slot, Sneak 2d6</td></tr>
+      <tr><td><code>ok</code> (or unset)</td><td>structural, <code>--a</code></td><td>Resource available, feature ready</td><td>Second wind, Action surge, Channel 1 of 2, 1 pact slot, Sneak 2d6, Leveling up</td></tr>
       <tr><td><code>bad</code></td><td>accent, text in <code>--b-text</code></td><td>Condition or danger</td><td>Below half, Poisoned, and the zero hit point marks Dying, Unconscious and Dead</td></tr>
       <tr><td><code>conc</code></td><td>overprint, <code>--mix</code></td><td>Concentration or an active effect the player must track</td><td>Hex, Portent 1</td></tr>
     </tbody>
@@ -862,10 +863,10 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
           </div>
         </article>
         <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
-          <div class="tok">V<b>5</b></div>
+          <div class="tok">V<b>7</b></div>
           <div>
             <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
-            <p class="sub">Rock gnome wizard, Divination</p>
+            <p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p>
             <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
             <p class="hp"><b>12</b>/26 hit points, 2 slots left</p>
           </div>
@@ -894,7 +895,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     <thead><tr><th>Content</th><th>Format</th></tr></thead>
     <tbody>
       <tr><td>Name</td><td>Full character name, one line. Truncation behaviour not designed.</td></tr>
-      <tr><td>Subtitle</td><td>"{Subrace or race} {class}, {subclass}". Subclass uses its in-game name ("the Fiend", "Champion", "Life domain").</td></tr>
+      <tr><td>Subtitle</td><td>"{Subrace or race} {class}, {subclass}" for a single class, as in "Half-elf warlock, the Fiend". With more than one class, each class carries its level: "Rock gnome wizard 5 / rogue 2, Divination". Subclass names are sentence case, keeping proper nouns ("the Fiend", "Champion", "Life domain", "Arcane trickster").</td></tr>
       <tr><td>Hit point line</td><td>Current, max, then one resource note relevant to the class.</td></tr>
       <tr><td>Stat stack</td><td>Armour ring above one mark. Minimum width 54 so rings align across rows.</td></tr>
     </tbody>
@@ -904,10 +905,23 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 <!-- ============================================================ -->
 <section id="draft">
   <h2>Draft tray</h2>
-  <p class="lead">Unfinished creations and level-ups sit below the list under a dashed accent rule. Draft cards are dashed, unshadowed and tinted, so they read as not-yet-real. Nothing in a draft touches the saved sheet until confirmed.</p>
+  <p class="lead">Unfinished creations and level-ups sit below the list under a dashed accent rule. Draft cards are dashed, unshadowed and tinted, so they read as not-yet-real. Nothing in a draft touches the saved sheet until confirmed. A character with a level-up in progress also keeps its normal card in the list, with a Leveling up mark, so its sheet stays one tap away. A creation draft has no character yet, so it appears only in the tray.</p>
   <div class="riso specimen">
     <div class="phone-frame">
-      <div class="rows" style="padding:0 12px 20px">
+      <div class="rows" style="padding:14px 12px 20px">
+        <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
+          <div class="tok">K<b>3</b></div>
+          <div>
+            <h3 class="name"><a class="rowlink" href="#sheet">Kethra Ironsong</a></h3>
+            <p class="sub">Hill dwarf paladin, Oath of devotion</p>
+            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <p class="hp"><b>28</b>/28 hit points, lay on hands 15</p>
+          </div>
+          <div class="stat">
+            <div class="ac"><span>18<em>AC</em></span></div>
+            <span class="mark" data-t="ok">Leveling up</span>
+          </div>
+        </article>
         <div class="tray">
           <h3 class="trayhead">Waiting to be finished</h3>
           <article class="draft">
@@ -925,6 +939,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
+      <tr><td>Level-up row</td><td>The character&rsquo;s normal card stays in the list, sorted with the rest, and carries an ok mark reading Leveling up. The tray card below is the draft itself.</td></tr>
       <tr><td>Tray rule</td><td>2px dashed accent, 13 padding above the heading.</td></tr>
       <tr><td>Heading</td><td>"Waiting to be finished", 12 / 700 in dim.</td></tr>
       <tr><td>Card</td><td>Same grid as a character card. 2px dashed structural border, <code>--draft-bg</code> fill, no shadow.</td></tr>
@@ -954,7 +969,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
       <tr><td>Primary</td><td><code>.newbtn</code></td><td>accent</td><td>on-b, 15 / 700 (14 desktop)</td><td>5px structural</td><td>Create character. Sticky footer on phone, plate right on desktop.</td></tr>
       <tr><td>Small primary</td><td><code>.castbtn.small</code> in the sheet mockup</td><td>accent</td><td>on-b, 13 / 700</td><td>3px structural</td><td>One per card or row, for that card&rsquo;s own action: Cast, Use, Transform. Also Save on a block being edited.</td></tr>
       <tr><td>Structural</td><td><code>.resume</code></td><td>structural</td><td>on-a, 12.5 / 700</td><td>none</td><td>Resume a draft. Inside a draft card.</td></tr>
-      <tr><td>Outlined</td><td><code>.go</code></td><td>sheet, 2px structural border</td><td>structural, 13 / 700</td><td>3px accent</td><td>Open sheet. Desktop rows only; on phone the card itself is the target.</td></tr>
+      <tr><td>Outlined</td><td><code>.go</code></td><td>sheet, 2px structural border</td><td>structural, 13 / 700</td><td>3px accent</td><td>Open sheet, a link rather than a button, named for the character. Desktop rows only; on phone the card is one link stretched over it.</td></tr>
       <tr><td>On-plate</td><td><code>.sortbtn</code></td><td>accent</td><td>on-b, 13 / 700</td><td>none</td><td>Sort. Only inside the plate.</td></tr>
     </tbody>
   </table>
@@ -979,14 +994,6 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     <div class="desk-frame" style="min-width:1100px">
       <div class="mat d">
         <div class="cols"><span></span><span>Character</span><span>Hit points</span><span>Armor</span><span>Conditions and resources</span><span></span></div>
-        <div class="drow" style="--tok:var(--a);--on-tok:var(--on-a)">
-          <div class="tok">B<b>6</b></div>
-          <div><h3 class="name">Brenna Duskhollow</h3><p class="sub" style="margin-bottom:0">Half-elf warlock, the Fiend</p></div>
-          <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>31</b>/44 hit points, 5 temporary</p></div>
-          <div class="ac"><span>13<em>AC</em></span></div>
-          <div class="marks"><span class="mark" data-t="conc">Hex</span><span class="mark" data-t="ok">1 pact slot</span></div>
-          <a class="go" href="#sheet" aria-label="Open Brenna Duskhollow&rsquo;s sheet">Open sheet</a>
-        </div>
         <div class="drow" style="--tok:var(--b);--on-tok:var(--on-b)">
           <div class="tok">T<b>8</b></div>
           <div><h3 class="name">Thorn Grimsby</h3><p class="sub" style="margin-bottom:0">Mountain dwarf fighter, Champion</p></div>
@@ -996,12 +1003,20 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
           <a class="go" href="#sheet" aria-label="Open Thorn Grimsby&rsquo;s sheet">Open sheet</a>
         </div>
         <div class="drow" style="--tok:var(--mix);--on-tok:var(--on-mix)">
-          <div class="tok">V<b>5</b></div>
-          <div><h3 class="name">Vesper Quill</h3><p class="sub" style="margin-bottom:0">Rock gnome wizard, Divination</p></div>
+          <div class="tok">V<b>7</b></div>
+          <div><h3 class="name">Vesper Quill</h3><p class="sub" style="margin-bottom:0">Rock gnome wizard 5 / rogue 2, Divination</p></div>
           <div><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points, 2 slots left</p></div>
           <div class="ac"><span>12<em>AC</em></span></div>
           <div class="marks"><span class="mark" data-t="bad">Below half</span><span class="mark" data-t="conc">Portent 1</span></div>
           <a class="go" href="#sheet" aria-label="Open Vesper Quill&rsquo;s sheet">Open sheet</a>
+        </div>
+        <div class="drow" style="--tok:var(--a);--on-tok:var(--on-a)">
+          <div class="tok">B<b>6</b></div>
+          <div><h3 class="name">Brenna Duskhollow</h3><p class="sub" style="margin-bottom:0">Half-elf warlock, the Fiend</p></div>
+          <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>31</b>/44 hit points, 5 temporary</p></div>
+          <div class="ac"><span>13<em>AC</em></span></div>
+          <div class="marks"><span class="mark" data-t="conc">Hex</span><span class="mark" data-t="ok">1 pact slot</span></div>
+          <a class="go" href="#sheet" aria-label="Open Brenna Duskhollow&rsquo;s sheet">Open sheet</a>
         </div>
       </div>
     </div>
@@ -1012,9 +1027,9 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
       <tr><td>Token</td><td>74</td><td>64px token</td></tr>
       <tr><td>Character</td><td>1fr</td><td>Name 19px, subtitle 13px</td></tr>
       <tr><td>Hit points</td><td>200</td><td>Meter then hit point line</td></tr>
-      <tr><td>Armour</td><td>104</td><td>Ring</td></tr>
+      <tr><td>Armor</td><td>104</td><td>Ring</td></tr>
       <tr><td>Conditions and resources</td><td>224</td><td>Up to two marks, wrapping</td></tr>
-      <tr><td>Action</td><td>132</td><td>Open sheet button</td></tr>
+      <tr><td>Action</td><td>132</td><td>Open sheet link, named for the character</td></tr>
     </tbody>
   </table>
   <p class="why" style="margin-top:12px">Column header row is 11.5 / 700 in dim with a 2px structural bottom border. Rows have a 1.5px <code>--rule</code> bottom border and even rows get <code>--wash</code>. Column widths are fixed pixels in the mockup and will need a breakpoint below about 1100px, which has not been designed. The draft tray on desktop sits in a 34px padded wrapper below the table.</p>
@@ -1030,7 +1045,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
       <tr><td>List</td><td>Stack of bordered, shadowed cards, 9px apart</td><td>Ruled table rows, no card chrome</td></tr>
       <tr><td>Plate</td><td>Stacked controls, offset shadow</td><td>Single row, drop shadow below only</td></tr>
       <tr><td>Primary action</td><td>Sticky footer, full width</td><td>In the plate, right aligned</td></tr>
-      <tr><td>Row action</td><td>Whole card</td><td>Open sheet button, plus row presumably clickable</td></tr>
+      <tr><td>Row action</td><td>Whole card, one link stretched over it</td><td>Open sheet link. The rest of the row is not a target until hover is designed.</td></tr>
       <tr><td>Marks</td><td>One, under the ring</td><td>Two, own column</td></tr>
       <tr><td>Draft copy</td><td>Short</td><td>Longer, names the next choice</td></tr>
       <tr><td>Title count</td><td>Superscript</td><td>Omitted</td></tr>
@@ -1091,15 +1106,19 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     <thead><tr><th>Pairing</th><th>Ratio</th><th>Target</th></tr></thead>
     <tbody>
       <tr><td>Ink on paper</td><td>7.84</td><td>4.5</td></tr>
-      <tr><td>Dim on sheet</td><td>5.13</td><td>4.5</td></tr>
-      <tr><td>Dim on draft fill, the worst case</td><td>4.60</td><td>4.5</td></tr>
+      <tr><td>Dim on paper</td><td>5.08</td><td>4.5</td></tr>
+      <tr><td>Dim on sheet</td><td>5.36</td><td>4.5</td></tr>
+      <tr><td>Dim on draft fill over sheet</td><td>4.84</td><td>4.5</td></tr>
+      <tr><td>Dim on draft fill over paper, the worst case</td><td>4.60</td><td>4.5</td></tr>
       <tr><td>Structural on sheet</td><td>5.28</td><td>4.5</td></tr>
+      <tr><td>Structural on draft fill over paper</td><td>4.52</td><td>4.5</td></tr>
       <tr><td>On-a on structural</td><td>5.46</td><td>4.5</td></tr>
       <tr><td>Inactive chip text</td><td>4.51</td><td>4.5</td></tr>
       <tr><td>On-b on accent</td><td>4.53</td><td>4.5</td></tr>
       <tr><td>On-mix on overprint</td><td>7.44</td><td>4.5</td></tr>
-      <tr><td>Rose text on sheet</td><td>5.10</td><td>4.5</td></tr>
-      <tr><td>Rose text on draft fill</td><td>4.58</td><td>4.5</td></tr>
+      <tr><td>Rose text on sheet</td><td>5.65</td><td>4.5</td></tr>
+      <tr><td>Rose text on draft fill over sheet</td><td>5.09</td><td>4.5</td></tr>
+      <tr><td>Rose text on draft fill over paper</td><td>4.84</td><td>4.5</td></tr>
       <tr><td>Focus outline on paper</td><td>4.99</td><td>3</td></tr>
       <tr><td>Rose meter segments on paper</td><td>2.54</td><td>3, accepted, see meter</td></tr>
     </tbody>
@@ -1121,13 +1140,13 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 <!-- ============================================================ -->
 <section id="decisions">
   <h2>Decisions</h2>
-  <p class="lead">Settled on 11 September 2026, before designing the next screen.</p>
+  <p class="lead">Settled from 11 September 2026 onwards. Each entry carries its date; those without one are from 11 September.</p>
   <ul style="max-width:70ch;color:#c3c9d1">
     <li><b>Contrast.</b> Text tokens are contrast-targeted in the derivation. Dim and rose text are darker, rose surfaces carry dark text, the inactive chip tint is lighter, and text never uses opacity.</li>
     <li><b>Interaction states.</b> Pressed sinks, focus outlines, selected inverts and disabled loses its ink. Hover is deferred.</li>
     <li><b>Meter colour.</b> Meters are structural for every character and turn rose below half. The unused alias that suggested token-coloured meters is gone.</li>
     <li><b>Token colour.</b> Stored per character as an ink role and picked at creation. The data model and creation flow now include it.</li>
-    <li><b>Zero hit points.</b> Dying shows death save pips, stable shows an empty meter, and dead drops the token's ink. First proposal.</li>
+    <li><b>Zero hit points.</b> Dying shows death save pips, stable shows an empty meter, and dead drops the token's ink.</li>
     <li><b>Icons.</b> Outline only, 1.8 stroke on a 16 grid, colour from context.</li>
     <li><b>Font weights.</b> Capped at 700, the heaviest face Space Grotesk has. 12 September 2026.</li>
     <li><b>Font scaling.</b> Body text scales with the operating system setting; fixed circles cap at 1.3 times. First proposal, 12 September 2026.</li>
@@ -1137,6 +1156,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     <li><b>Selection and semantics.</b> Selected state lives in ARIA attributes, not a data attribute: <code>aria-selected</code> for tabs, <code>aria-checked</code> for single choices including filter chips, and <code>aria-pressed</code> for multi-select toggles. Arrow keys move a choice with roving focus. A list card is one link stretched over the card. Token colours are named by the theme. 14 September 2026.</li>
     <li><b>Case and person.</b> Names of features, feats, subclasses, invocations, spells and items are sentence case, keeping proper nouns. UI copy addresses the player as &ldquo;you&rdquo; and refers to the character in the third person; quoted rules text is left as printed. 14 September 2026.</li>
     <li><b>Spelling.</b> The app&rsquo;s UI copy uses American spelling to match the catalog. Internal documents stay British. 14 September 2026.</li>
+    <li><b>Draft contrast.</b> Dim and rose text are checked against the draft tint over paper as well as over the card colour, because a draft sits on paper and its tint is see-through. Both come out a step darker than before. 14 September 2026.</li>
   </ul>
 </section>
 
@@ -1149,7 +1169,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     <li><b>Empty states.</b> Design each one with its screen: no characters, no search results, no drafts.</li>
     <li><b>Tablet.</b> Nothing exists between 390 and 1440 wide. Decide once two or three screens show what needs to reflow.</li>
     <li><b>Dark mode.</b> The token rule keeps this cheap. The derivation should handle a dark paper, but no dark pairing has been tried.</li>
-    <li><b>Sheet and form controls.</b> Steppers, toggles, other inputs and dialogs will come out of designing the character sheet.</li>
+    <li><b>Sheet and form controls.</b> The character sheet mockup designs steppers, toggles, radio groups, text fields and the bottom sheet. They move into this document in v0.4.</li>
   </ul>
 </section>
 

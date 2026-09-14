@@ -4200,15 +4200,17 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     var ink = mix(a, '#14110e', lum(a) > 0.2 ? 0.72 : 0.35);
     if(lum(ink) > 0.22) ink = mix(ink, '#14110e', 0.55);
     var onA = onInk(a, paper);
-    var draftSolid = mix(sheet, b, 0.11);
+    // A draft's tint is see-through and sits on paper, so text is checked
+    // against the tint over paper as well as over the card colour.
+    var draftSolid = mix(sheet, b, 0.11), draftOnPaper = mix(paper, b, 0.11);
     var chipAlpha = steps(0.16, 0, -0.02).filter(function(al){
       return contrast(onA, mix(a, onA, al)) >= AA;
     })[0] || 0;
     return {
       paper: paper, sheet: sheet, a: a, b: b, mix: mx, ink: ink,
-      dim: ensure(function(t){ return mix(ink, paper, t); }, steps(0.42, 0, -0.02), [paper, sheet, draftSolid]),
+      dim: ensure(function(t){ return mix(ink, paper, t); }, steps(0.42, 0, -0.02), [paper, sheet, draftSolid, draftOnPaper]),
       onA: onA, onB: onInk(b, paper), onMix: onInk(mx, paper),
-      bText: ensure(function(t){ return mix(b, '#1a0a08', t); }, steps(0.15, 0.9, 0.05), [sheet, draftSolid]),
+      bText: ensure(function(t){ return mix(b, '#1a0a08', t); }, steps(0.15, 0.9, 0.05), [sheet, draftSolid, draftOnPaper]),
       wash: rgba('#ffffff', 0.5),
       dot: rgba(a, 0.13),
       line: rgba(b, lum(b) > 0.6 ? 0.28 : 0.18),

@@ -364,6 +364,11 @@ All dated 12 September 2026.
 - In the proficiencies and languages block, both add rows sit together at the
   foot, in view mode and in Edit, so neither looks tied to one group.
   14 September 2026.
+- Dim and rose text are derived against the draft tint over paper as well as
+  over the card colour, because a draft sits on paper and its tint is
+  see-through. Both come out a step darker everywhere. 14 September 2026.
+- The character list is sorted by level, highest first, with names breaking
+  ties, to match its Sort: level button. 14 September 2026.
 - The conditions sheet is the menu's static sheet: a three-column grid of
   names with Custom in the last cell, the chosen condition's end under it, then
   exhaustion and Close. It stops below the header marks. A taller scrolling
@@ -571,15 +576,18 @@ screenshot code. Shots are generated and gitignored.
 
 ## Measurements
 
-- Tall header: 228px of 812, or 28% of the screen. Shrunk: 54px.
-- Compact header plus attached tabs: 112px, up from 108 once the tabs carried
-  icons.
-- Every text and surface pairing passes 4.5:1. The tightest are the inactive tab
-  and the idle pad tab at 4.51 and 4.52, both inherited from the chip
-  derivation.
-- Structural text on the editing draft skin is the new tightest pairing, about
-  4.51 over paper. It is the same translucent fill the character list's draft
-  card uses, and the paper grid shows through it.
+Remeasured on 14 September 2026 in the rendered mockup.
+
+- Tall header: 246px of 812, or 30% of the screen, and 304px or 37% with the
+  attached tabs. Compact header: 54px, and 112px with the tabs.
+- Text contrast: 97 distinct text and background pairings, each measured
+  against its composited background. All pass 4.5:1. Dim and rose text are now
+  derived against the draft tint over paper as well as over sheet, which
+  darkened dim from `#48648c` to `#44618a` and rose text from `#9b4768` to
+  `#914261`. Dim on the editing draft skin, 4.39 before, now measures 4.60.
+  The character list's 150 text elements also all pass.
+- The tightest pairings: the inactive tab at 4.51, structural text on the
+  draft skin at 4.52, and dark text on rose at 4.53.
 - No horizontal overflow and no truncated text in any frame.
 
 ## Still open after this pass

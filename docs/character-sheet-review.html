@@ -57,7 +57,7 @@ ul.plain li{margin:3px 0}
   <div class="doc-head-inner">
     <b>5e Companion</b>
     <h1>Character sheet mockups, review</h1>
-    <p>13 September 2026, against <code>mockups/character-sheet.html</code> at commit 1b3cedd, with <code>mockups/character-list.html</code>, <code>docs/design-system.html</code> v0.3 and <code>docs/character-sheet-plan.md</code> as the references. Frame numbers are the gallery's own. Findings are numbered 1 to 45 in reading order, and each number is an anchor. Findings 1 to 29 were fixed on 13 September 2026, and findings 30 to 42 on 14 September 2026; the decisions behind them are in the plan under Decided.</p>
+    <p>13 September 2026, against <code>mockups/character-sheet.html</code> at commit 1b3cedd, with <code>mockups/character-list.html</code>, <code>docs/design-system.html</code> v0.3 and <code>docs/character-sheet-plan.md</code> as the references. Frame numbers are the gallery's own. Findings are numbered 1 to 45 in reading order, and each number is an anchor. Findings 1 to 29 were fixed on 13 September 2026, and findings 30 to 45 on 14 September 2026; the decisions behind them are in the plan under Decided.</p>
     <p>The visual system holds. The problems are rules numbers, frames that disagree with each other, promised interactions no frame draws, and some system, markup and copy drift.</p>
   </div>
 </header>
@@ -158,8 +158,8 @@ ul.plain li{margin:3px 0}
 
   <div class="finding low" id="f19"><b><a class="num" href="#f19">19</a>"Tap to heal or damage." appears only on Brenna's header (frame 1)<span class="tag">Fixed</span></b>
     Alarra's and Thorn's headers show the bare hit point line, and Brenna's own line drops the hint on frame 5.</div>
-  <div class="finding low" id="f45"><b><a class="num" href="#f45">45</a>The character list is not in the order its sort button claims</b>
-    The plate says "Sort: level", but the rows run Brenna 6, Thorn 8, Vesper 7, Alarra 7, Mudge 4, Kethra 3. Found while adding Kethra's row for finding 15.</div>
+  <div class="finding low" id="f45"><b><a class="num" href="#f45">45</a>The character list is not in the order its sort button claims<span class="tag">Fixed</span></b>
+    The plate says "Sort: level", but the rows run Brenna 6, Thorn 8, Vesper 7, Alarra 7, Mudge 4, Kethra 3. Found while adding Kethra's row for finding 15.<small>Resolved. The list is sorted by level, highest first, with names breaking ties: Thorn 8, Alarra 7, Vesper 7, Brenna 6, Mudge 4, Kethra 3, on phone and desktop.</small></div>
 </section>
 
 <section id="gaps">
@@ -253,11 +253,11 @@ ul.plain li{margin:3px 0}
 <section id="docs">
   <h2>Document drift</h2>
 
-  <div class="finding mid" id="f43"><b><a class="num" href="#f43">43</a>The plan's header measurements are stale</b>
-    <code>docs/character-sheet-plan.md</code> records the tall header as 228px, 28 percent of the screen. The render measures 248px plus a 58px tab bar, 306px in all, which is 38 percent. The compact figure of 112px still holds.</div>
+  <div class="finding mid" id="f43"><b><a class="num" href="#f43">43</a>The plan's header measurements are stale<span class="tag">Fixed</span></b>
+    <code>docs/character-sheet-plan.md</code> records the tall header as 228px, 28 percent of the screen. The render measures 248px plus a 58px tab bar, 306px in all, which is 38 percent. The compact figure of 112px still holds.<small>Resolved. The plan&rsquo;s measurements were retaken on 14 September 2026: the tall header is 246px, or 304px with its tabs. The recheck also found that dim text on the editing draft skin reached only 4.39:1. Dim and rose text are now derived against the draft tint over paper, and that text measures 4.60:1.</small></div>
 
-  <div class="finding low" id="f44"><b><a class="num" href="#f44">44</a>The v0.3 design system still says temporary hit points show in the line only</b>
-    The sheet draws them as an overprint block. Expected while v0.4 is pending, but the meter section will need rewriting.</div>
+  <div class="finding low" id="f44"><b><a class="num" href="#f44">44</a>The v0.3 design system still says temporary hit points show in the line only<span class="tag">Fixed</span></b>
+    The sheet draws them as an overprint block. Expected while v0.4 is pending, but the meter section will need rewriting.<small>Resolved. The design system&rsquo;s meter rule now describes both: the list shows temporary hit points in the line only, and the sheet&rsquo;s tall header adds a solid overprint block, with &ldquo;+5 temp&rdquo; on the compact header.</small></div>
 </section>
 
 <section id="ok">
