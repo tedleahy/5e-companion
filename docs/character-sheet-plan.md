@@ -598,7 +598,8 @@ Every phone screen in scope is drawn at least once. What remains is deferred:
   flow from character-flows.md is its own screen set.
 - **Edit conflicts.** `lock_version` catches a change made from another device
   while a section is open. Nothing shows what happens then.
-- **Desktop and tablet.**
+- **Tablet, and desktop past the first section.** Desktop is drawn for
+  Brenna's screens only; see the desktop pass.
 
 ## Cleric pass
 
@@ -917,6 +918,49 @@ None option. Class, race and background stay with creation and level-up.
 A pushed confirmation that names the character and says everything on the sheet
 goes, including any level-up draft. The footer's destructive button repeats the
 name. Nothing needs typing.
+
+## Desktop pass
+
+Drawn 14 September 2026 at 1440 by 900, for Brenna's section. Each desktop
+frame sits after its phone frame. Play scrolled has none.
+
+### Decided
+
+All dated 14 September 2026.
+
+- **Columns, not tabs.** Play and Spells are always on screen. Stats, Gear and
+  Character share a third column as tabs. Each column scrolls on its own.
+- **The plate stays tall.** It never shrinks on desktop, so there is no compact
+  header. It is one row: token, name with marks under it, vitals, rail, Rest
+  and the menu.
+- **A strip replaces the tab bar.** It hangs off the plate like the attached
+  tabs and heads each column, with the tabs over the third.
+- **Details open in a side panel** over the third column, from the strip down.
+  Spell detail and the hit point pad both use it. It is not modal and has no
+  scrim: the control that opened it keeps its pressed ring, opening another
+  detail replaces the content, and Close or Escape returns focus to the opener.
+  Its rose shadow falls left, as the bottom sheet's falls up.
+- **One counter per screen.** With Play and Spells both visible, the casting
+  cards drop their slot rows and sit side by side, and Magic initiate's use
+  moves into Resources.
+- **The pad takes typing.** The amount is a field and Enter applies it. The
+  stepper and quick amounts stay.
+- Hints say click where the phone says tap.
+
+Brenna had no Stats frame, so her abilities come from numbers already on the
+sheet: Charisma 18 for save DC 15, Dexterity 14 for initiative +2 and AC 13,
+Wisdom 12 for the feat's DC 12. Skills are Arcana and Deception from warlock,
+Insight and Religion from Acolyte, and Perception and Persuasion from Skill
+versatility.
+
+### Still open
+
+- Hover, still deferred in the design system.
+- Tablet, and whether a narrower desktop drops to two columns.
+- Whether every push becomes a side panel on desktop, including list editing,
+  rest and Prepare spells.
+- The one-row plate, the strip and the side panel are candidates for the
+  design system. None is in v0.4.
 
 ## Hit areas
 
