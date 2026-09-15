@@ -172,7 +172,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .riso .tile em{color:var(--dim)}
 .riso .tile:active{box-shadow:inset 0 0 0 2px var(--a)}
 .riso .restbtn{background:var(--b);color:var(--on-b)}
-.riso .restbtn:active{box-shadow:inset 0 0 0 2px currentColor}
+.riso .restbtn:active,.riso .restbtn[aria-expanded=true]{box-shadow:inset 0 0 0 2px currentColor}
 .riso .dyingbox{background:var(--sheet);color:var(--ink)}
 
 /* ---- sheet header, compact ---- */
@@ -909,7 +909,9 @@ button.mark{font-family:inherit;cursor:pointer}
     frames. Prepare spells opens in the side panel, with Save on its bottom edge. The Spells tab has no desktop
     pair, because the prepared list already sits in the first desktop frame.</p>
     <p>The third section covers <b>resting, gear, the character tab and editing a section</b>, across both characters.
-    Tabs carry icons above their labels.</p>
+    Tabs carry icons above their labels. Rest opens in the side panel, with Take a rest on its bottom
+    edge. Change on a long rest replaces that panel with prepare. Gear has no new desktop pair: it
+    already sits selected in Brenna&rsquo;s Stats scrolled frame.</p>
     <p>The fourth section holds the <b>detail screens</b> behind the chevrons: items, features, a skill and the common actions.</p>
     <p>The fifth section covers <b>list editing, adding and removing, the money pad</b>, and the remaining detail shapes.</p>
     <p>The sixth section covers <b>adding spells, proficiencies and languages</b>.</p>
@@ -3597,6 +3599,324 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 </template>
 
 <!-- ============================================================
+     DESKTOP PARTS, REST, GEAR, CHARACTER AND EDITING
+     Rest drops the hit-point meter the plate already shows. Gear
+     reuses Brenna's part. Character reuses hers. Editing is Stats
+     with Abilities open as a draft and the other Edits disabled.
+     ============================================================ -->
+<template id="tpl-part-brenna-rest-short">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close rest"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Rest</h2>
+        <p class="ssub">Brenna Duskhollow</p>
+      </div>
+    </div>
+    <div class="seg" role="tablist" aria-label="Rest length"><button class="tab" role="tab" aria-selected="true" tabindex="0">Short rest</button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Long rest</button></div>
+  </div>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Spend hit dice <span>4 of 6 left</span></h3>
+      <div class="padnum" style="margin-top:0">
+        <button class="step" aria-label="One less">&minus;</button>
+        <b>2</b>
+        <button class="step" aria-label="One more">+</button>
+      </div>
+      <p class="padnote">2d8 + 4, because each die adds her Constitution modifier. The average, 13, would take her to 44.</p>
+      <div class="pair"><button class="gobtn" aria-haspopup="dialog" aria-expanded="false">Roll 2d8 + 4</button><button class="gobtn" aria-haspopup="dialog" aria-expanded="false">I rolled</button></div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">What changes</h3>
+      <div class="change"><div><b>Pact magic</b><span>The 3rd-level slot she spent</span></div><strong><em class="was">1</em> &rarr; 2</strong></div>
+      <div class="change"><div><b>Hit points</b><span>Whatever the hit dice roll</span></div><strong><em class="was">31</em> &rarr; 44</strong></div>
+      <div class="change"><div><b>Hit dice</b><span>The 2 she spends</span></div><strong><em class="was">4</em> &rarr; 2</strong></div>
+      <p class="grp" style="margin-top:12px">Not on a short rest</p>
+      <div class="change"><div><b>Hex</b><span>Concentration, 8 hours at 3rd level. An hour&rsquo;s rest doesn&rsquo;t reach it.</span></div><span class="mark" data-t="conc">Active</span></div>
+      <div class="change"><div><b>Dark One&rsquo;s own luck</b><span>Long rest only, and still unspent</span></div><strong>1</strong></div>
+      <div class="change"><div><b>Ring of spell storing</b><span>Refilled by casting into it, never by resting</span></div><strong>3 of 5</strong></div>
+    </section>
+  </div>
+
+  <div class="footbar"><button class="castbtn">Take a short rest</button></div>
+</template>
+
+<template id="tpl-part-alarra-rest-long">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close rest"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Rest</h2>
+        <p class="ssub">Alarra Vane</p>
+      </div>
+    </div>
+    <div class="seg" role="tablist" aria-label="Rest length"><button class="tab" role="tab" aria-selected="false" tabindex="-1">Short rest</button><button class="tab" role="tab" aria-selected="true" tabindex="0">Long rest</button></div>
+  </div>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">What changes <span>8 hours</span></h3>
+      <div class="change"><div><b>Hit points</b><span>All of them</span></div><strong><em class="was">38</em> &rarr; 52</strong></div>
+      <div class="change"><div><b>Spell slots</b><span>1st and 3rd level. 2nd and 4th are full.</span></div><strong><em class="was">9</em> &rarr; 11</strong></div>
+      <div class="change"><div><b>Channel divinity</b><span>Also back after a short rest</span></div><strong><em class="was">1</em> &rarr; 2</strong></div>
+      <div class="change"><div><b>Hit dice</b><span>Up to half of 7, rounded down, so 3</span></div><strong><em class="was">5</em> &rarr; 7</strong></div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">After she wakes</h3>
+      <div class="res"><div class="resl"><b>Prepared spells</b><span>A cleric can change them after a long rest. 11 of 11 now.</span></div><button class="gobtn" data-k="prep">Change</button></div>
+    </section>
+  </div>
+
+  <div class="footbar"><button class="castbtn">Take a long rest</button></div>
+</template>
+
+<template id="tpl-part-alarra-stats-edit">
+  <div class="body pad-bottom">
+    <section class="block editing">
+      <h3 class="bhead">Abilities <button class="editbtn">Cancel</button><button class="castbtn small">Save</button></h3>
+      <div class="editrow"><span class="lbl">Strength</span><button class="step" aria-label="Lower Strength">&minus;</button><span class="num">14</span><button class="step" aria-label="Raise Strength">+</button><span class="mod">+2</span></div>
+      <div class="editrow"><span class="lbl">Dexterity</span><button class="step" aria-label="Lower Dexterity">&minus;</button><span class="num">10</span><button class="step" aria-label="Raise Dexterity">+</button><span class="mod">+0</span></div>
+      <div class="editrow"><span class="lbl">Constitution<span class="mark">Was 14</span></span><button class="step" aria-label="Lower Constitution">&minus;</button><span class="num">16</span><button class="step" aria-label="Raise Constitution">+</button><span class="mod">+3</span></div>
+      <div class="editrow"><span class="lbl">Intelligence</span><button class="step" aria-label="Lower Intelligence">&minus;</button><span class="num">10</span><button class="step" aria-label="Raise Intelligence">+</button><span class="mod">+0</span></div>
+      <div class="editrow"><span class="lbl">Wisdom</span><button class="step" aria-label="Lower Wisdom">&minus;</button><span class="num">18</span><button class="step" aria-label="Raise Wisdom">+</button><span class="mod">+4</span></div>
+      <div class="editrow"><span class="lbl">Charisma</span><button class="step" aria-label="Lower Charisma">&minus;</button><span class="num">12</span><button class="step" aria-label="Raise Charisma">+</button><span class="mod">+1</span></div>
+      <p class="padnote"><b>Constitution 16</b> raises her maximum hit points from 52 to 59, and her Constitution saves and concentration checks by 1.</p>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Saving throws</h3>
+      <div class="skills">
+        <button class="skill"><i class="rank"></i><span class="lbl">Strength</span><b>+2</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Dexterity</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Constitution</span><b>+2</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Intelligence</span><b>+0</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Wisdom</span><b>+7</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Charisma</span><b>+4</b></button>
+      </div>
+    </section>
+
+    <section class="block" data-k="skills">
+      <h3 class="bhead">Skills <button class="editbtn" disabled>Edit</button></h3>
+      <p class="legend">
+        <span><i class="rank"></i>None</span><span><i class="rank" data-r="half"></i>Half</span>
+        <span><i class="rank" data-r="prof"></i>Proficient</span><span><i class="rank" data-r="exp"></i>Expertise</span>
+        <span><span class="ovr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg></span>Set by you</span>
+      </p>
+      <div class="skills">
+        <button class="skill"><i class="rank"></i><span class="lbl">Acrobatics</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Animal handling</span><b>+4</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Arcana</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Athletics</span><b>+2</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Deception</span><b>+1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">History</span><b>+0</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Insight</span><b>+7</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Intimidation</span><b>+1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Investigation</span><b>+0</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Medicine</span><b>+9</b><span class="ovr" role="img" aria-label="set by you"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg></span></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Nature</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Perception</span><b>+4</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Performance</span><b>+1</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Persuasion</span><b>+4</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Religion</span><b>+3</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Sleight of hand</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Stealth</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Survival</span><b>+4</b></button>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Passive scores</h3>
+      <div class="caststats" style="margin-top:0">
+        <div><b>14</b><em>Perception</em></div>
+        <div><b>10</b><em>Investigation</em></div>
+        <div><b>17</b><em>Insight</em></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Proficiencies and languages <button class="editbtn" disabled>Edit</button></h3>
+      <dl class="kv">
+        <dt>Armor</dt><dd>Light, medium and heavy armor, shields</dd>
+        <dt>Weapons</dt><dd>Simple weapons</dd>
+        <dt>Tools</dt><dd>None</dd>
+        <dt>Languages</dt><dd>Common, Celestial, Dwarvish, Infernal</dd>
+      </dl>
+      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a proficiency</button>
+      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a language</button>
+    </section>
+  </div>
+</template>
+
+<template id="tpl-d-rest-short">
+<div class="desk" data-opener=".dplate .restbtn">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Rest" data-part="brenna-rest-short"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-rest-short" data-size="1180x820">
+<div class="desk tablet" data-opener=".dplate .restbtn">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Rest" data-part="brenna-rest-short"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-d-rest-long">
+<div class="desk" data-opener=".dplate .restbtn">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="alarra-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Rest" data-part="alarra-rest-long"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-rest-long" data-size="1180x820">
+<div class="desk tablet" data-opener=".dplate .restbtn">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="alarra-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Rest" data-part="alarra-rest-long"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-gear" data-size="1180x820">
+<div class="desk tablet">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="2"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-d-character">
+<div class="desk">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="2"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-character" data-size="820x1180">
+<div class="desk tablet portrait">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="3"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-d-edit">
+<div class="desk">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="alarra-stats-edit"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-edit" data-size="820x1180">
+<div class="desk tablet portrait">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip-tablet" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="alarra-stats-edit"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</template>
+
+<!-- ============================================================
      DETAIL, DAGGER
      ============================================================ -->
 <template id="tpl-item-dagger">
@@ -5637,14 +5957,32 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
      text:'Both characters. Rest reads reset_on from the data model, so it can say exactly what comes back before anyone commits to it.'},
     {id:'rest-short', label:'Short rest, Brenna',
      note:'Rest opens a full-screen push with a short and long switch. A short rest is mostly spending hit dice: pick how many, then roll in the app or enter what was rolled at the table. Below, every change shows before and after, then what ends and what a short rest leaves alone. Pact magic coming back is why a warlock rests at all.'},
+    {id:'d-rest-short', desktop:true, label:'Short rest in the side panel',
+     note:'Rest opens in the side panel over the third column, the same as prepare. The plate keeps Rest pressed, and Play and Stats stay live. The panel drops the hit-point meter the plate already shows, keeps the short and long switch, and puts Take a short rest on its bottom edge. Close or Escape returns to Rest.'},
+    {id:'t-rest-short', tablet:true, label:'Short rest in the side panel, landscape',
+     note:'The panel takes the right column from below the strip, so the tabs stay in reach. Play stays beside it for slots and hit dice. Tapping a tab closes the panel.'},
     {id:'rest-long', label:'Long rest, Alarra',
      note:'The same screen switched to long. Hit points, slots, Channel divinity and hit dice all show before and after. A preparing caster gets a prompt to change prepared spells, which opens frame 9, because a long rest is when the rule allows it.'},
+    {id:'d-rest-long', desktop:true, label:'Long rest in the side panel',
+     note:'The same panel switched to long. Change replaces it with prepare, the same as opening another detail, and Close from prepare returns to Rest. Take a long rest sits on the panel&rsquo;s bottom edge. Play and Stats stay live.'},
+    {id:'t-rest-long', tablet:true, label:'Long rest in the side panel, landscape',
+     note:'The panel takes the right column from below the strip. Play stays beside it. Change still replaces the panel with prepare; see Prepare spells in the side panel.'},
     {id:'gear', label:'Gear tab, Brenna',
-     note:'Money first, because it changes most at the table, and each coin opens a pad. Items group by what they are doing: equipped, attuned against the limit of three, and carried. A container opens in place with its contents indented. Each group has its own Edit. No weight, because the data model has no column for it.'},
+     note:'Money first, because it changes most at the table, and each coin opens a pad. Items group by what they are doing: equipped, attuned against the limit of three, and carried. A container opens in place with its contents indented. Each group has its own Edit. No weight, because the data model has no column for it. No desktop pair: Gear is already selected in Stats scrolled, Gear in the third column.'},
+    {id:'t-gear', tablet:true, label:'Gear tab, landscape',
+     note:'Gear is a tab on a tablet, so seeing the pack means leaving Spells. Play stays on the left. The backpack is open in place, as on the phone.'},
     {id:'character', label:'Character tab, Brenna',
      note:'Level-up is manual: the app does not track experience, so the entry is always here and the player starts it when their table levels. The button is the outlined secondary, because a permanent rose button would shout and tapping it only opens a draft. While a level-up is in progress, this card becomes the dashed draft card from the character list. Features and traits group by where they came from, then the profile with its Edit. Notes are the exception to Edit: tap and type, and they save as you go. A long note shows six lines with Show all, and opens fully while you type.'},
+    {id:'d-character', desktop:true, label:'Character in the third column',
+     note:'The third column has switched to Character. Play and Stats stay at the top. The level-up card, features and notes are the same as the phone, with hints that say click.'},
+    {id:'t-character', tablet:true, label:'Character tab, portrait',
+     note:'Character is a tab, so seeing level-up means leaving Spells. The right column has opened Character. Play stays at the top. At 360 wide the features and notes fit as drawn.'},
     {id:'edit', label:'Editing a section, Alarra',
      note:'Edit turns one block into a draft: dashed border, rose fill and no shadow, the draft skin from the character list, because nothing is real until Save. Steppers change scores, the modifier follows, and a line spells out the knock-on effects first. Other blocks lose their Edit while one is open. The header stays live.'},
+    {id:'d-edit', desktop:true, label:'Editing abilities in the Stats column',
+     note:'Edit stays in place. Stats is always on screen, so the Abilities block takes the draft skin there. Cancel and Save replace Edit in its header. Skills and proficiencies show a disabled Edit. Play stays at the top, and the plate stays live.'},
+    {id:'t-edit', tablet:true, label:'Editing abilities, Stats tab, portrait',
+     note:'Stats is a tab, so editing abilities means leaving Spells. The right column has opened Stats with Abilities in the draft skin. Play stays at the top.'},
     {section:'Detail screens',
      text:'What the chevrons open. One layout throughout: the plate names the thing and its kind, then this character&rsquo;s numbers and controls, then the rules text and where it came from. Actions open the detail of the item, spell or feature behind them.'},
     {id:'item-dagger', label:'Weapon, Brenna&rsquo;s daggers',
