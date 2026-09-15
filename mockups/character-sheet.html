@@ -107,6 +107,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .ac{width:46px;height:46px;display:grid;place-items:center;font-weight:700;font-size:17px;line-height:1;flex:none}
 .ac em{display:block;font-style:normal;font-size:8px;font-weight:700;margin-top:1px}
 .riso .ac{border-radius:50%;border:2px solid var(--a);color:var(--a);background:var(--sheet);box-shadow:3px 3px 0 var(--b)}
+.riso .ac[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a),3px 3px 0 var(--b)}
 .mark{font-size:11px;padding:3px 7px;white-space:nowrap;line-height:1.35;display:inline-block}
 .riso .mark{border:1.5px solid var(--a);color:var(--a);background:var(--sheet);font-weight:600}
 .riso .mark[data-t=bad]{border-color:var(--b);color:var(--b-text)}
@@ -347,6 +348,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .gobtn{padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex:none}
 .riso .gobtn{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
 .riso .gobtn:active{transform:translate(3px,3px);box-shadow:none}
+.riso .gobtn[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a),3px 3px 0 var(--b)}
 
 /* ---- preparation toggle row ----
    The whole row toggles. Info is a separate control at the end. Always
@@ -835,6 +837,7 @@ button.mark{font-family:inherit;cursor:pointer}
 .spanel > .shead{flex:none}
 .spanel > .body{min-height:0;overflow-y:auto;scrollbar-width:none}
 .spanel > .body::-webkit-scrollbar{display:none}
+.spanel > .footbar{flex:none;position:static;margin:0;padding:14px 16px 16px}
 .riso .spanel{border-left-color:var(--a);box-shadow:-5px 0 0 var(--b)}
 /* The opener row keeps its ring, pulled 8px into the card's padding so it clears the text. */
 .act[aria-expanded=true]{width:calc(100% + 16px);margin:0 -8px;padding-left:8px;padding-right:8px}
@@ -902,7 +905,9 @@ button.mark{font-family:inherit;cursor:pointer}
     <b>side panel</b> over that column. The scrolled frame has no desktop version, because the plate never shrinks.
     <b>Tablet frames</b> follow each desktop frame, trying the sheet in two columns.</p>
     <p>The second section is <b>Alarra Vane, a Life cleric</b>. She prepares spells, which a warlock cannot show, and two of
-    her values are replaced by the player, which introduces the override badge.</p>
+    her values are replaced by the player, which introduces the override badge. She has the same desktop and tablet
+    frames. Prepare spells opens in the side panel, with Save on its bottom edge. The Spells tab has no desktop
+    pair, because the prepared list already sits in the first desktop frame.</p>
     <p>The third section covers <b>resting, gear, the character tab and editing a section</b>, across both characters.
     Tabs carry icons above their labels.</p>
     <p>The fourth section holds the <b>detail screens</b> behind the chevrons: items, features, a skill and the common actions.</p>
@@ -2708,6 +2713,613 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <div class="calc"><div><b>Shield</b><span>Equipped</span></div><strong>+2</strong></div>
       <div class="calc total"><div><b>Calculated</b><span>Follows her gear if it changes</span></div><strong>18</strong></div>
     </section>
+  </div>
+</div>
+</template>
+
+<!-- ============================================================
+     DESKTOP PARTS, ALARRA
+     Same assembly as Brenna. Gear and Character are written from
+     facts already on her sheet, so the third-column tabs are not empty.
+     ============================================================ -->
+<template id="tpl-part-alarra-plate">
+  <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+  <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">A<b>7</b></div>
+  <div class="who">
+    <h2 class="sname">Alarra Vane</h2>
+    <p class="ssub">Human cleric 7, Life domain</p>
+    <div class="hmarks">
+      <span class="mark">Channel divinity 1 of 2</span>
+      <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
+    </div>
+  </div>
+  <div class="vitals" role="button" tabindex="0" aria-label="38 of 52 hit points. Open the hit point pad" aria-haspopup="dialog" aria-expanded="false">
+    <div class="hprow">
+      <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+    </div>
+    <p class="hpline"><b>38</b>/52 hit points. Click to heal or damage.</p>
+  </div>
+  <div class="rail">
+    <div class="ac has-ovr" role="button" tabindex="0" aria-label="Armor class 19, set by you"><span>19<em>AC</em></span><span class="ovr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg></span></div>
+    <button class="tile"><b>+0</b><em>Initiative</em></button>
+    <button class="tile"><b>30</b><em>Speed</em></button>
+    <button class="tile"><b>15</b><em>Spell save</em></button>
+  </div>
+  <button class="restbtn">Rest</button>
+  <button class="icnbtn" aria-label="Sheet menu" aria-haspopup="dialog" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+</template>
+
+<template id="tpl-part-alarra-strip">
+  <div class="dhead" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg>Play</div>
+  <div class="dhead" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"/><path d="M8 4.8l3 5.2H5z"/></svg>Stats</div>
+  <div class="dtabs" role="tablist" aria-label="Third column">
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg><span>Spells</span></button>
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 6.5h9l-.8 7h-7.4z"/><path d="M6 6.5V5a2 2 0 0 1 4 0v1.5"/></svg><span>Gear</span></button>
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="5.3" r="2.6"/><path d="M3 14c.6-3 2.5-4.6 5-4.6s4.4 1.6 5 4.6"/></svg><span>Character</span></button>
+  </div>
+</template>
+
+<template id="tpl-part-alarra-strip-tablet">
+  <div class="dhead" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg>Play</div>
+  <div class="dtabs" role="tablist" aria-label="Second column">
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"/><path d="M8 4.8l3 5.2H5z"/></svg><span>Stats</span></button>
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg><span>Spells</span></button>
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 6.5h9l-.8 7h-7.4z"/><path d="M6 6.5V5a2 2 0 0 1 4 0v1.5"/></svg><span>Gear</span></button>
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="5.3" r="2.6"/><path d="M3 14c.6-3 2.5-4.6 5-4.6s4.4 1.6 5 4.6"/></svg><span>Character</span></button>
+  </div>
+</template>
+
+<template id="tpl-part-alarra-play">
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Resources <span>Click a box to spend</span></h3>
+      <div class="res"><div class="resl"><b>Spell slots</b><span>Long rest</span></div></div>
+      <div class="slotgrid">
+        <div class="slotg"><em>1st</em><div class="pips" role="spinbutton" tabindex="0" aria-label="1st level slots" aria-valuemin="0" aria-valuemax="4" aria-valuenow="3" aria-valuetext="3 of 4 left"><i data-on></i><i data-on></i><i data-on></i><i></i></div></div>
+        <div class="slotg"><em>2nd</em><div class="pips" role="spinbutton" tabindex="0" aria-label="2nd level slots" aria-valuemin="0" aria-valuemax="3" aria-valuenow="3" aria-valuetext="3 of 3 left"><i data-on></i><i data-on></i><i data-on></i></div></div>
+        <div class="slotg"><em>3rd</em><div class="pips" role="spinbutton" tabindex="0" aria-label="3rd level slots" aria-valuemin="0" aria-valuemax="3" aria-valuenow="2" aria-valuetext="2 of 3 left"><i data-on></i><i data-on></i><i></i></div></div>
+        <div class="slotg"><em>4th</em><div class="pips" role="spinbutton" tabindex="0" aria-label="4th level slots" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div></div>
+      </div>
+      <div class="res"><div class="resl"><b>Channel divinity</b><span>Two uses, short rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Channel divinity" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="1 of 2 left"><i data-on></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="7" aria-valuenow="5" aria-valuetext="5 of 7 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div></div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Attacks</h3>
+      <div class="atkh"><span>Attack</span><span style="text-align:center">Hit</span><span style="text-align:right">Damage</span></div>
+      <div class="atk">
+        <div><b>Mace</b><small>Melee, 5 ft</small></div>
+        <div class="hit">+5</div>
+        <div class="dmg">1d6+2<em>bludgeoning</em></div>
+      </div>
+      <div class="atk">
+        <div><b>Sacred flame</b><small>60 ft, ignores cover</small></div>
+        <div class="hit">15<small>Dex save</small></div>
+        <div class="dmg">2d8<em>radiant</em></div>
+      </div>
+      <div class="atk">
+        <div><b>Spiritual weapon</b><small>Bonus action, 60 ft</small></div>
+        <div class="hit">+7</div>
+        <div class="dmg">1d8+4<em>force</em></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Actions</h3>
+      <p class="grp">Action</p>
+      <button class="act"><div class="actl"><b>Cast a spell</b><span>18 prepared, 9 slots left</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Preserve life</b><span>Heal 35 hit points, split within 30 ft</span></div><span class="mark">Channel</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Turn undead</b><span>Wis save 15, destroys CR 1/2 and below</span></div><span class="mark">Channel</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Common actions</b><span>Dash, Disengage, Dodge, Help, Hide, Ready, Search</span></div><i class="chev"></i></button>
+      <p class="grp">Bonus action</p>
+      <button class="act"><div class="actl"><b>Healing word</b><span>60 ft, heals 1d4+7</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Spiritual weapon</b><span>Move it 20 ft and attack, +7</span></div><i class="chev"></i></button>
+      <p class="grp">Reaction</p>
+      <button class="act"><div class="actl"><b>Opportunity attack</b><span>Mace, +5 to hit</span></div><i class="chev"></i></button>
+      <p class="grp">No action needed</p>
+      <button class="act"><div class="actl"><b>Disciple of life</b><span>Healing spells restore 2 + the spell&rsquo;s level more</span></div><i class="chev"></i></button>
+    </section>
+  </div>
+</template>
+
+<template id="tpl-part-alarra-spells">
+  <div class="body pad-bottom">
+    <div class="cast">
+      <div class="casttop"><b>Cleric</b><span>Level 7</span></div>
+      <div class="caststats">
+        <div><b>Wis</b><em>Ability</em></div>
+        <div><b>15</b><em>Save DC</em></div>
+        <div><b>+7</b><em>Attack</em></div>
+      </div>
+      <div class="res" style="margin-top:10px;border-top:1.5px solid transparent;padding-top:11px">
+        <div class="resl"><b>11 of 11 prepared</b><span>Plus 7 Life domain spells, which don't count</span></div>
+        <button class="gobtn" data-k="prep">Change</button>
+      </div>
+    </div>
+
+    <label class="findp"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+      <input placeholder="Find a prepared spell" aria-label="Find a prepared spell"></label>
+
+    <section class="block">
+      <h3 class="bhead">Cantrips <span>At will</span></h3>
+      <button class="act"><div class="actl"><b>Sacred flame</b><span>Action, 60 ft, Dex save 15</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Guidance</b><span>Action, touch, concentration</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Spare the dying</b><span>Action, touch</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Thaumaturgy</b><span>Action, 30 ft, 1 minute</span></div><i class="chev"></i></button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">1st level <span>3 slots left</span></h3>
+      <button class="act"><div class="actl"><b>Bless</b><span>Action, 30 ft, concentration</span></div><span class="mark">Domain</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Cure wounds</b><span>Action, touch, heals 1d8+7</span></div><span class="mark">Domain</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Healing word</b><span>Bonus action, 60 ft, heals 1d4+7</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Sanctuary</b><span>Bonus action, 30 ft, 1 minute</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Shield of faith</b><span>Bonus action, 60 ft, concentration</span></div><i class="chev"></i></button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">2nd level <span>3 slots left</span></h3>
+      <button class="act"><div class="actl"><b>Lesser restoration</b><span>Action, touch</span></div><span class="mark">Domain</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Spiritual weapon</b><span>Bonus action, 60 ft, 1d8+4 force</span></div><span class="mark">Domain</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Aid</b><span>Action, 30 ft, 8 hours</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Hold person</b><span>Action, 60 ft, concentration</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Prayer of healing</b><span>10 minutes, 30 ft, heals 2d8+8</span></div><i class="chev"></i></button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">3rd level <span>2 slots left</span></h3>
+      <button class="act"><div class="actl"><b>Beacon of hope</b><span>Action, 30 ft, concentration</span></div><span class="mark">Domain</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Revivify</b><span>Action, touch, 300 gp diamond</span></div><span class="mark">Domain</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Dispel magic</b><span>Action, 120 ft</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Mass healing word</b><span>Bonus action, 60 ft, heals 1d4+9</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Spirit guardians</b><span>Action, self, concentration</span></div><i class="chev"></i></button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">4th level <span>1 slot left</span></h3>
+      <button class="act"><div class="actl"><b>Death ward</b><span>Action, touch, 8 hours</span></div><span class="mark">Domain</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Banishment</b><span>Action, 60 ft, concentration</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Freedom of movement</b><span>Action, touch, 1 hour</span></div><i class="chev"></i></button>
+    </section>
+
+    <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a spell</button>
+  </div>
+</template>
+
+<template id="tpl-part-alarra-stats">
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Abilities <span>Proficiency +3</span><button class="editbtn">Edit</button></h3>
+      <div class="abil">
+        <div><em>Strength</em><b>+2</b><span>14</span></div>
+        <div><em>Dexterity</em><b>+0</b><span>10</span></div>
+        <div><em>Constitution</em><b>+2</b><span>14</span></div>
+        <div><em>Intelligence</em><b>+0</b><span>10</span></div>
+        <div><em>Wisdom</em><b>+4</b><span>18</span></div>
+        <div><em>Charisma</em><b>+1</b><span>12</span></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Saving throws</h3>
+      <div class="skills">
+        <button class="skill"><i class="rank"></i><span class="lbl">Strength</span><b>+2</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Dexterity</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Constitution</span><b>+2</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Intelligence</span><b>+0</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Wisdom</span><b>+7</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Charisma</span><b>+4</b></button>
+      </div>
+    </section>
+
+    <section class="block" data-k="skills">
+      <h3 class="bhead">Skills <button class="editbtn">Edit</button></h3>
+      <p class="legend">
+        <span><i class="rank"></i>None</span><span><i class="rank" data-r="half"></i>Half</span>
+        <span><i class="rank" data-r="prof"></i>Proficient</span><span><i class="rank" data-r="exp"></i>Expertise</span>
+        <span><span class="ovr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg></span>Set by you</span>
+      </p>
+      <div class="skills">
+        <button class="skill"><i class="rank"></i><span class="lbl">Acrobatics</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Animal handling</span><b>+4</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Arcana</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Athletics</span><b>+2</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Deception</span><b>+1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">History</span><b>+0</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Insight</span><b>+7</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Intimidation</span><b>+1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Investigation</span><b>+0</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Medicine</span><b>+9</b><span class="ovr" role="img" aria-label="set by you"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg></span></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Nature</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Perception</span><b>+4</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Performance</span><b>+1</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Persuasion</span><b>+4</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Religion</span><b>+3</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Sleight of hand</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Stealth</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Survival</span><b>+4</b></button>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Passive scores</h3>
+      <div class="caststats" style="margin-top:0">
+        <div><b>14</b><em>Perception</em></div>
+        <div><b>10</b><em>Investigation</em></div>
+        <div><b>17</b><em>Insight</em></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Proficiencies and languages <button class="editbtn">Edit</button></h3>
+      <dl class="kv">
+        <dt>Armor</dt><dd>Light, medium and heavy armor, shields</dd>
+        <dt>Weapons</dt><dd>Simple weapons</dd>
+        <dt>Tools</dt><dd>None</dd>
+        <dt>Languages</dt><dd>Common, Celestial, Dwarvish, Infernal</dd>
+      </dl>
+      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a proficiency</button>
+      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a language</button>
+    </section>
+  </div>
+</template>
+
+<template id="tpl-part-alarra-gear">
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Money <span>Click to change</span></h3>
+      <div class="coins">
+        <button class="coin"><b>8</b><em>Copper</em></button>
+        <button class="coin"><b>14</b><em>Silver</em></button>
+        <button class="coin"><b>0</b><em>Electrum</em></button>
+        <button class="coin"><b>73</b><em>Gold</em></button>
+        <button class="coin"><b>0</b><em>Platinum</em></button>
+      </div>
+    </section>
+
+    <label class="findp"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+      <input placeholder="Find an item" aria-label="Find an item"></label>
+
+    <section class="block">
+      <h3 class="bhead">Equipped <button class="editbtn">Edit</button></h3>
+      <button class="act"><div class="actl"><b>Chain mail</b><span>Heavy armor, AC 16. Strength 13.</span></div><span class="mark">Worn</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Shield</b><span>+2 AC while worn</span></div><span class="mark">In hand</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Mace</b><span>Melee, 1d6 bludgeoning</span></div><span class="mark">Belt</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Amulet</b><span>Holy symbol</span></div><span class="mark">Worn</span><i class="chev"></i></button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Carried <button class="editbtn">Edit</button></h3>
+      <button class="act"><div class="actl"><b>Potion of healing</b><span>Action, heals 2d4+2</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Healer&rsquo;s kit</b><span>10 uses. Stabilize without a check.</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Backpack</b><span>4 things inside</span></div><i class="chev down"></i></button>
+      <div class="nest">
+      <button class="act"><div class="actl"><b>Blanket</b><span>Sleeps one</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Rations <small class="qty">&times;4</small></b><span>Days of food</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Waterskin</b><span>Full</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Tinderbox</b><span>Lights a torch as an action</span></div><i class="chev"></i></button>
+      </div>
+      <button class="act"><div class="actl"><b>300 gp diamond</b><span>Material for Revivify</span></div><i class="chev"></i></button>
+    </section>
+  </div>
+</template>
+
+<template id="tpl-part-alarra-character">
+  <div class="body pad-bottom">
+    <div class="cast">
+      <div class="casttop"><b>Cleric 7</b><span>Level up when your table does</span></div>
+      <p class="padnote" style="margin-top:6px">Nothing on her sheet changes until you confirm the level-up.</p>
+      <button class="gobtn" style="width:100%;margin-top:12px">Level up to 8</button>
+    </div>
+
+    <section class="block">
+      <h3 class="bhead">Features and traits <button class="editbtn">Edit</button></h3>
+      <p class="grp">Cleric 7</p>
+      <button class="act"><div class="actl"><b>Spellcasting</b><span>Wisdom, prepare after a long rest</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Channel divinity</b><span>Two uses, short rest</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Destroy undead</b><span>Turn destroys CR 1/2 and below</span></div><i class="chev"></i></button>
+      <p class="grp">Life domain</p>
+      <button class="act"><div class="actl"><b>Disciple of life</b><span>Healing spells restore 2 + the spell&rsquo;s level more</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Preserve life</b><span>Heal 35 hit points, split within 30 ft</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Blessed healer</b><span>When she heals another, she heals 2 + the spell&rsquo;s level</span></div><i class="chev"></i></button>
+      <p class="grp">Human</p>
+      <button class="act"><div class="actl"><b>Languages</b><span>Common and one extra, Celestial here</span></div><i class="chev"></i></button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">About Alarra <button class="editbtn">Edit</button></h3>
+      <dl class="kv">
+        <dt>Alignment</dt><dd>Lawful good</dd>
+        <dt>Age</dt><dd>31</dd>
+        <dt>Height</dt><dd>5 ft 5 in</dd>
+        <dt>Appearance</dt><dd>Dark hair in a knot, and a sunburst inked on her wrist</dd>
+      </dl>
+      <div class="para"><h4>Personality traits</h4><p>Counts the cost of a slot out loud before she spends it.</p></div>
+      <div class="para"><h4>Ideals</h4><p>The wounded come first.</p></div>
+      <div class="para"><h4>Bonds</h4><p>The shrine that sent her after Brenna, and Brenna anyway.</p></div>
+      <div class="para"><h4>Flaws</h4><p>Will spend a slot on a stranger before she spends one on herself.</p></div>
+      <div class="para"><h4>Allies and enemies</h4><p>Brenna Duskhollow, who has the ring. Brother Tamsin, who still writes.</p></div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Notes <span>Saves as you type</span></h3>
+      <div class="notewrap"><textarea class="notearea" aria-label="Notes about Alarra" placeholder="Click to add a note">Lent Brenna the ring of spell storing in session 12. Get it back after Sunless Crown.
+Brother Tamsin wants a report she has not written.
+The diamond is for Revivify. Do not spend it.</textarea><div class="notefoot"><p class="notestatus" aria-live="polite"></p><button class="noteshow" hidden>Show all</button></div></div>
+    </section>
+  </div>
+</template>
+
+<template id="tpl-part-alarra-prepare">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close prepare spells"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Prepare spells</h2>
+        <p class="ssub">Alarra Vane, cleric 7</p>
+      </div>
+    </div>
+    <div class="vitals">
+      <div class="hprow">
+        <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="over" aria-hidden="true"></div>
+      </div>
+      <p class="hpline"><b>12</b> of 11 prepared. Domain spells don't count.</p>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <div class="warn" role="note">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg>
+      <div><b>One over the usual limit.</b> A cleric prepares Wisdom modifier plus cleric level, 11 for Alarra. Keeping 12 is allowed.</div>
+    </div>
+
+    <label class="findp"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+      <input placeholder="Find a cleric spell" aria-label="Find a cleric spell"></label>
+
+    <section class="block">
+      <h3 class="bhead">1st level <span>4 chosen</span></h3>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Bane</b><span>Action, 30 ft, concentration</span></div></label><button class="infobtn" aria-label="Bane details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox" checked disabled><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Bless</b><span>Action, 30 ft, concentration</span></div><span class="mark">Domain</span></label><button class="infobtn" aria-label="Bless details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Command</b><span>Action, 60 ft, 1 round</span></div><span class="mark">New</span></label><button class="infobtn" aria-label="Command details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Create or destroy water</b><span>Action, 30 ft</span></div></label><button class="infobtn" aria-label="Create or destroy water details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox" checked disabled><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Cure wounds</b><span>Action, touch</span></div><span class="mark">Domain</span></label><button class="infobtn" aria-label="Cure wounds details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Detect evil and good</b><span>Action, self, concentration</span></div></label><button class="infobtn" aria-label="Detect evil and good details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Detect magic</b><span>Action, self, concentration</span></div><span class="mark">Ritual</span></label><button class="infobtn" aria-label="Detect magic details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Detect poison and disease</b><span>Action, self, concentration</span></div><span class="mark">Ritual</span></label><button class="infobtn" aria-label="Detect poison and disease details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Guiding bolt</b><span>Action, 120 ft, 1 round</span></div></label><button class="infobtn" aria-label="Guiding bolt details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Healing word</b><span>Bonus action, 60 ft</span></div></label><button class="infobtn" aria-label="Healing word details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Inflict wounds</b><span>Action, touch</span></div></label><button class="infobtn" aria-label="Inflict wounds details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Protection from evil and good</b><span>Action, touch, concentration</span></div></label><button class="infobtn" aria-label="Protection from evil and good details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Purify food and drink</b><span>Action, 10 ft</span></div><span class="mark">Ritual</span></label><button class="infobtn" aria-label="Purify food and drink details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Sanctuary</b><span>Bonus action, 30 ft, 1 minute</span></div></label><button class="infobtn" aria-label="Sanctuary details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Shield of faith</b><span>Bonus action, 60 ft, concentration</span></div></label><button class="infobtn" aria-label="Shield of faith details"><i class="chev"></i></button></div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">2nd level <span>3 chosen</span></h3>
+      <div class="prep"><label class="prepmain"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Aid</b><span>Action, 30 ft, 8 hours</span></div></label><button class="infobtn" aria-label="Aid details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Augury</b><span>1 minute, self</span></div><span class="mark">Ritual</span></label><button class="infobtn" aria-label="Augury details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Blindness/deafness</b><span>Action, 30 ft, 1 minute</span></div></label><button class="infobtn" aria-label="Blindness/deafness details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Calm emotions</b><span>Action, 60 ft, concentration</span></div></label><button class="infobtn" aria-label="Calm emotions details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Continual flame</b><span>Action, touch, until dispelled</span></div></label><button class="infobtn" aria-label="Continual flame details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Enhance ability</b><span>Action, touch, concentration</span></div></label><button class="infobtn" aria-label="Enhance ability details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Find traps</b><span>Action, 120 ft</span></div></label><button class="infobtn" aria-label="Find traps details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Gentle repose</b><span>Action, touch, 10 days</span></div><span class="mark">Ritual</span></label><button class="infobtn" aria-label="Gentle repose details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Hold person</b><span>Action, 60 ft, concentration</span></div></label><button class="infobtn" aria-label="Hold person details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox" checked disabled><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Lesser restoration</b><span>Action, touch</span></div><span class="mark">Domain</span></label><button class="infobtn" aria-label="Lesser restoration details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Locate object</b><span>Action, self, concentration</span></div></label><button class="infobtn" aria-label="Locate object details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Prayer of healing</b><span>10 minutes, 30 ft</span></div></label><button class="infobtn" aria-label="Prayer of healing details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Protection from poison</b><span>Action, touch, 1 hour</span></div></label><button class="infobtn" aria-label="Protection from poison details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Silence</b><span>Action, 120 ft, concentration</span></div><span class="mark">Ritual</span></label><button class="infobtn" aria-label="Silence details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox" checked disabled><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Spiritual weapon</b><span>Bonus action, 60 ft, 1 minute</span></div><span class="mark">Domain</span></label><button class="infobtn" aria-label="Spiritual weapon details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Warding bond</b><span>Action, touch, 1 hour</span></div></label><button class="infobtn" aria-label="Warding bond details"><i class="chev"></i></button></div>
+      <div class="prep"><label class="prepmain"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Zone of truth</b><span>Action, 60 ft, 10 minutes</span></div></label><button class="infobtn" aria-label="Zone of truth details"><i class="chev"></i></button></div>
+    </section>
+  </div>
+
+  <div class="footbar"><button class="castbtn">Save 12 prepared</button></div>
+</template>
+
+<template id="tpl-part-alarra-ac">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close armor class"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Armor class</h2>
+        <p class="ssub">Alarra Vane</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <div class="bigval">
+        <div class="ac has-ovr"><span>19<em>AC</em></span><span class="ovr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg></span></div>
+        <p><b>Set by you.</b> The sheet calculates 18. Everything that reads armor class uses 19 until you change it back.</p>
+      </div>
+      <div class="padnum" style="margin-top:16px">
+        <button class="step" aria-label="One less">&minus;</button>
+        <b>19</b>
+        <button class="step" aria-label="One more">+</button>
+      </div>
+      <button class="gobtn" style="width:100%;margin-top:14px">Use the calculated 18</button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">How 18 is calculated</h3>
+      <div class="calc"><div><b>Chain mail</b><span>Equipped. Heavy armor, so Dexterity adds nothing.</span></div><strong>16</strong></div>
+      <div class="calc"><div><b>Shield</b><span>Equipped</span></div><strong>+2</strong></div>
+      <div class="calc total"><div><b>Calculated</b><span>Follows her gear if it changes</span></div><strong>18</strong></div>
+    </section>
+  </div>
+</template>
+
+<!-- ============================================================
+     DESKTOP FRAMES, ALARRA
+     ============================================================ -->
+<template id="tpl-d-cleric-play">
+<div class="desk">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="alarra-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-cleric-landscape" data-size="1180x820">
+<div class="desk tablet">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="alarra-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-cleric-portrait" data-size="820x1180">
+<div class="desk tablet portrait">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="alarra-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-d-cleric-prepare">
+<div class="desk" data-opener=".gobtn[data-k=prep]">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="alarra-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Prepare spells" data-part="alarra-prepare"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-cleric-prepare" data-size="1180x820">
+<div class="desk tablet" data-opener=".gobtn[data-k=prep]">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="alarra-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Prepare spells" data-part="alarra-prepare"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-d-cleric-stats">
+<div class="desk">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="alarra-stats" data-scroll-to="[data-k=skills]"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-cleric-stats" data-size="820x1180">
+<div class="desk tablet portrait">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip-tablet" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character" data-scroll-to="[data-k=skills]">
+        <div role="tabpanel" aria-label="Stats" data-part="alarra-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-d-cleric-ac">
+<div class="desk" data-opener=".dplate .ac">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="alarra-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Armor class" data-part="alarra-ac"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-cleric-ac" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".dplate .ac">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="alarra-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Armor class" data-part="alarra-ac"></div>
   </div>
 </div>
 </template>
@@ -4995,14 +5607,32 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
      text:'A caster who prepares spells, and two values replaced by the player. The character list shows her armour class as 19; the sheet calculates 18.'},
     {id:'cleric-play', label:'Play tab, preparing caster',
      note:'Her slots span four levels, so they sit in one grid inside Resources instead of four rows. Channel divinity has two uses and two actions to spend them on, each marked Channel. Sacred flame shows a save DC in the Hit column, because it has no attack roll.'},
+    {id:'d-cleric-play', desktop:true, label:'Play, spells and stats side by side',
+     note:'The same three columns as Brenna, with her slot grid in Resources. The Cleric card drops its slot rows because they already sit in Play, and keeps the prepared count and Change. The armour class ring carries the override badge.'},
+    {id:'t-cleric-landscape', tablet:true, label:'Two columns, landscape at 1180 by 820',
+     note:'Play stays on the left. Stats, Spells, Gear and Character share the right column, with Spells open. The plate wraps into two rows, the Channel divinity mark under her name, and the override badge on the ring. Hints say tap.'},
+    {id:'t-cleric-portrait', tablet:true, label:'Two columns, portrait at 820 by 1180',
+     note:'Each column is about 360 wide, close to the phone. The name needs all of row one, so the rail drops to row two beside the vitals, override badge included. She has one casting card, so nothing stacks. The tabs put icons above labels to fit four across.'},
     {id:'cleric-spells', label:'Spells tab, preparing caster',
-     note:'In play the list holds only what Alarra has prepared, and domain spells carry a mark. Preparation changes behind the Change button rather than on this list, because it happens after a long rest, not mid-fight. The armour class ring carries the override badge.'},
+     note:'In play the list holds only what Alarra has prepared, and domain spells carry a mark. Preparation changes behind the Change button rather than on this list, because it happens after a long rest, not mid-fight. The armour class ring carries the override badge. No desktop pair: the prepared list already sits in the first desktop frame.'},
     {id:'cleric-prepare', label:'Prepare spells',
      note:'A full-screen push over the whole cleric list up to her highest slot. The whole row toggles, and details sit behind the chevron. Domain spells are ticked and locked, drawn in the disabled state with a mark saying why. New marks a spell chosen since the last save, so the change is visible before it is committed. Going over the limit is allowed: the counter spills into a rose block and a warning explains the rule. Save sits on the bottom edge the attached tabs left free.'},
+    {id:'d-cleric-prepare', desktop:true, label:'Prepare spells in the side panel',
+     note:'Prepare opens in the side panel over the spell list it came from, the same as a spell detail. Play and Stats stay live. The over-limit counter and the warning stay with the list, and Save sits on the panel&rsquo;s bottom edge. Close or Escape returns to Change.'},
+    {id:'t-cleric-prepare', tablet:true, label:'Prepare spells in the side panel, landscape',
+     note:'The panel takes the right column from below the strip, so the tabs stay in reach. Play stays beside it for slots. Tapping Stats closes the panel and shows Stats in one tap.'},
     {id:'cleric-stats', label:'Stats tab, with overrides',
      note:'Medicine and armour class carry the override badge, a pencil in a rose ring pinned to the value like the level badge. Proficiency rank is a shape: empty, half, filled or double, with a legend. Every row is 44 tall because each opens its own detail. Blocks holding persistent facts carry their own Edit, and proficiencies and languages close the tab.'},
+    {id:'d-cleric-stats', desktop:true, label:'Stats scrolled to Skills',
+     note:'Stats is always on screen, scrolled to Skills so the Medicine override sits in view. The armour class badge stays on the plate. Play stays at the top, and the third column is still Spells.'},
+    {id:'t-cleric-stats', tablet:true, label:'Stats tab, scrolled to Skills, portrait',
+     note:'Stats is a tab, so seeing the override means leaving Spells. The right column has opened Stats and scrolled to Skills. Play stays at the top. At 360 wide the skill rows fit as drawn.'},
     {id:'cleric-ac', label:'Armour class detail',
      note:'Tapping an overridden value explains it. The stepper edits the replacement, one button returns to the calculated value, and the calculation lists what contributes and where it comes from.'},
+    {id:'d-cleric-ac', desktop:true, label:'Armour class in the side panel',
+     note:'The ring opens the same side panel. The plate keeps it in view, pressed, so the 19 and the pencil stay while you edit. Play and Stats stay live. There is no keyboard here: the stepper is the control, as on the phone.'},
+    {id:'t-cleric-ac', tablet:true, label:'Armour class in the side panel, portrait',
+     note:'The panel takes the right column from below the strip. The overridden ring stays on the plate. Play stays beside it.'},
     {section:'Resting, gear, the character tab and editing',
      text:'Both characters. Rest reads reset_on from the data model, so it can say exactly what comes back before anyone commits to it.'},
     {id:'rest-short', label:'Short rest, Brenna',

@@ -598,8 +598,8 @@ Every phone screen in scope is drawn at least once. What remains is deferred:
   flow from character-flows.md is its own screen set.
 - **Edit conflicts.** `lock_version` catches a change made from another device
   while a section is open. Nothing shows what happens then.
-- **Tablet, and desktop past the first section.** Desktop is drawn for
-  Brenna's screens only; see the desktop pass.
+- **Tablet, and desktop past Alarra's section.** Desktop and tablet are
+  drawn for Brenna and Alarra; later sections are still phone only.
 
 ## Cleric pass
 
@@ -983,12 +983,20 @@ frame. Not decided yet.
 - Proposed breakpoints: phone below about 700, two columns to 1279, three
   from 1280. A narrow laptop window takes the two-column layout.
 
+### Alarra, 15 September 2026
+
+Drawn the same way as Brenna, each desktop frame after its phone frame.
+Prepare spells is a side panel, with Save on the panel's bottom edge. The
+Spells tab has no desktop pair, because the prepared list already sits in
+the first desktop frame. Gear and Character parts are written from facts
+already on her sheet so the third-column tabs are not empty.
+
 ### Still open
 
 - Hover, still deferred in the design system.
-- The tablet breakpoints above, and tablet past Brenna's section.
-- Whether every push becomes a side panel on desktop, including list editing,
-  rest and Prepare spells.
+- The tablet breakpoints above, and tablet past Alarra's section.
+- Whether every remaining push becomes a side panel on desktop, including
+  list editing and rest.
 - The one-row plate, the strip and the side panel are candidates for the
   design system. None is in v0.4.
 
