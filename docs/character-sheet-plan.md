@@ -1026,6 +1026,18 @@ has a column to open from. Transform still swaps the header; that state
 is in Header variants. Hellfire rebuke uses a Play variant with the
 extra reaction.
 
+### Adding spells, proficiencies and languages, 15 September 2026
+
+Drawn the same way as the lists section, each desktop frame after its
+phone frame. Add a spell, a proficiency or a language opens in the side
+panel, with the commit on the panel's bottom edge. Add a spell covers
+Spells, the column it opened from. Add a proficiency or language opens
+from view-mode Stats, so those rows stay visible on desktop; they also
+open from the draft, and that pair is not drawn again. Casts it
+differently is a second Add-a-spell panel on Brenna's sheet, not a
+nested replacement of Identify. Editing proficiencies stays in place in
+the Stats column, the same as abilities and carried items.
+
 ### Still open
 
 - Hover, still deferred in the design system.

@@ -962,7 +962,11 @@ button.mark{font-family:inherit;cursor:pointer}
     editing stays in place in Gear. Nested Remove replaces the container or item panel. Wild shape sits on a small
     Fenn sheet so the panel has a column to open from. The backpack open in place on Gear is already drawn; that
     frame is the container&rsquo;s own detail.</p>
-    <p>The sixth section covers <b>adding spells, proficiencies and languages</b>.</p>
+    <p>The sixth section covers <b>adding spells, proficiencies and languages</b>.
+    Add a spell, a proficiency or a language opens in the side panel, with the commit on the
+    panel&rsquo;s bottom edge. Add a spell covers Spells. Add a proficiency or language opens
+    from Stats, so those rows stay visible on desktop. Editing proficiencies stays in place
+    in the Stats column.</p>
     <p>The seventh section covers <b>adding a feature from the catalog</b> and the screens the sheet menu opens.</p>
     <p>Contents lists each section and the sets inside it, and jumps to a frame.</p>
     <p>Every control answers taps across at least 44 by 44, with an invisible extension where it looks smaller.
@@ -1278,7 +1282,7 @@ button.mark{font-family:inherit;cursor:pointer}
       <button class="act"><div class="actl"><b>Fireball</b><span>Action, 150 ft, Dex save 15</span></div><i class="chev"></i></button>
     </section>
 
-    <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a spell</button>
+    <button class="addrow" data-k="add-spell"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a spell</button>
 
   </div>
 
@@ -1668,7 +1672,7 @@ button.mark{font-family:inherit;cursor:pointer}
       <button class="act"><div class="actl"><b>Fireball</b><span>Action, 150 ft, Dex save 15</span></div><i class="chev"></i></button>
     </section>
 
-    <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a spell</button>
+    <button class="addrow" data-k="add-spell"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a spell</button>
   </div>
 </template>
 
@@ -1743,8 +1747,8 @@ button.mark{font-family:inherit;cursor:pointer}
         <dt>Tools</dt><dd>None</dd>
         <dt>Languages</dt><dd>Common, Elvish, Celestial, Infernal</dd>
       </dl>
-      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a proficiency</button>
-      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a language</button>
+      <button class="addrow" data-k="add-proficiency"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a proficiency</button>
+      <button class="addrow" data-k="add-language"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a language</button>
     </section>
   </div>
 </template>
@@ -2537,7 +2541,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <button class="act"><div class="actl"><b>Freedom of movement</b><span>Action, touch, 1 hour</span></div><i class="chev"></i></button>
     </section>
 
-    <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a spell</button>
+    <button class="addrow" data-k="add-spell"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a spell</button>
   </div>
 </div>
 </template>
@@ -2730,8 +2734,8 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <dt>Tools</dt><dd>None</dd>
         <dt>Languages</dt><dd>Common, Celestial, Dwarvish, Infernal</dd>
       </dl>
-      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a proficiency</button>
-      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a language</button>
+      <button class="addrow" data-k="add-proficiency"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a proficiency</button>
+      <button class="addrow" data-k="add-language"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a language</button>
     </section>
   </div>
 </div>
@@ -2941,7 +2945,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <button class="act"><div class="actl"><b>Freedom of movement</b><span>Action, touch, 1 hour</span></div><i class="chev"></i></button>
     </section>
 
-    <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a spell</button>
+    <button class="addrow" data-k="add-spell"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a spell</button>
   </div>
 </template>
 
@@ -3017,8 +3021,8 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <dt>Tools</dt><dd>None</dd>
         <dt>Languages</dt><dd>Common, Celestial, Dwarvish, Infernal</dd>
       </dl>
-      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a proficiency</button>
-      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a language</button>
+      <button class="addrow" data-k="add-proficiency"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a proficiency</button>
+      <button class="addrow" data-k="add-language"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a language</button>
     </section>
   </div>
 </template>
@@ -3802,8 +3806,8 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <dt>Tools</dt><dd>None</dd>
         <dt>Languages</dt><dd>Common, Celestial, Dwarvish, Infernal</dd>
       </dl>
-      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a proficiency</button>
-      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a language</button>
+      <button class="addrow" data-k="add-proficiency"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a proficiency</button>
+      <button class="addrow" data-k="add-language"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a language</button>
     </section>
   </div>
 </template>
@@ -6670,6 +6674,439 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 </div>
 </template>
 
+
+<!-- ============================================================
+     DESKTOP AND TABLET FRAMES, ADDING SPELLS, PROFICIENCIES AND LANGUAGES
+     Add opens in the side panel. Editing proficiencies stays in Stats.
+     ============================================================ -->
+<template id="tpl-part-add-spell">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close add a spell"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Add a spell</h2>
+        <p class="ssub">Alarra Vane</p>
+      </div>
+    </div>
+    <div class="seg" role="tablist" aria-label="Catalog or custom"><button class="tab" role="tab" aria-selected="true" tabindex="0">From the catalog</button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Custom</button></div>
+  </div>
+
+  <div class="body pad-bottom">
+    <label class="findp"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+      <input value="identify" aria-label="Find a spell"></label>
+
+    <section class="block">
+      <h3 class="bhead">Results <span>1 in your sources</span></h3>
+      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add &ldquo;identify&rdquo; as a custom spell</button>
+      <label class="prep"><input type="radio" name="add-spell-pick" checked><span class="box round"></span><div class="actl"><b>Identify</b><span>1st-level divination, ritual, 1 minute</span></div></label>
+    </section>
+
+    <div class="warn" role="note">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg>
+      <div><b>Identify isn&rsquo;t on the cleric list.</b> It can still be added, and it uses her cleric numbers.</div>
+    </div>
+
+    <div class="pathcard">
+      <div class="pathtop"><b>How she casts it</b><span>Suggested</span></div>
+      <div class="pathstats"><span>Cleric casting</span><span>Wisdom, DC <b>15</b></span><span>Prepared</span></div>
+      <p class="padnote" style="margin-top:0">Prepared, she can also cast it as a ritual without a slot. It lists under 1st level with an Added by hand mark.</p>
+      <button class="disclose" style="margin-top:12px" aria-expanded="false">Casts it differently<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
+    </div>
+  </div>
+  <div class="footbar"><button class="castbtn">Add Identify</button></div>
+</template>
+<template id="tpl-part-add-spell-path">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close add a spell"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Add a spell</h2>
+        <p class="ssub">Brenna Duskhollow</p>
+      </div>
+    </div>
+    <div class="seg" role="tablist" aria-label="Catalog or custom"><button class="tab" role="tab" aria-selected="true" tabindex="0">From the catalog</button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Custom</button></div>
+  </div>
+
+  <div class="body pad-bottom">
+    <label class="findp"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+      <input value="misty" aria-label="Find a spell"></label>
+
+    <section class="block">
+      <h3 class="bhead">Results <span>1 in your sources</span></h3>
+      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add &ldquo;misty&rdquo; as a custom spell</button>
+      <label class="prep"><input type="radio" name="add-spell-path-pick" checked><span class="box round"></span><div class="actl"><b>Misty step</b><span>2nd-level conjuration, bonus action</span></div></label>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">How she casts it <span>Changed from the suggestion</span></h3>
+      <label class="prep"><input type="radio" name="add-spell-path-kind"><span class="box round"></span><div class="actl"><b>Her warlock casting</b><span>Known, spends a Pact magic slot</span></div><span class="mark">Suggested</span></label>
+      <label class="prep"><input type="radio" name="add-spell-path-kind" checked><span class="box round"></span><div class="actl"><b>Its own ability</b><span>For a boon, an item or a trait</span></div></label>
+      <label class="prep"><input type="radio" name="add-spell-path-kind"><span class="box round"></span><div class="actl"><b>Fixed numbers</b><span>A save DC and attack set by the source</span></div></label>
+      <p class="grp" style="margin-top:12px">Ability</p>
+      <div class="rankseg six" role="radiogroup" aria-label="Spellcasting ability"><button role="radio" aria-checked="false" tabindex="-1">Str</button><button role="radio" aria-checked="false" tabindex="-1">Dex</button><button role="radio" aria-checked="false" tabindex="-1">Con</button><button role="radio" aria-checked="false" tabindex="-1">Int</button><button role="radio" aria-checked="false" tabindex="-1">Wis</button><button role="radio" aria-checked="true" tabindex="0">Cha</button></div>
+      <p class="padnote">Charisma gives a save DC of 15 and +7 to hit.</p>
+    </section>
+
+    <section class="block">
+      <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>It has uses</b><span>Tracked in Resources on the Play tab</span></div></label>
+      <div class="editrow"><span class="lbl">Uses</span><button class="step" aria-label="One less">&minus;</button><span class="num">1</span><button class="step" aria-label="One more">+</button><span class="mod"></span></div>
+      <div class="rankseg" role="radiogroup" aria-label="Uses come back on"><button role="radio" aria-checked="false" tabindex="-1">Short rest</button><button role="radio" aria-checked="true" tabindex="0">Long rest</button><button role="radio" aria-checked="false" tabindex="-1">Dawn</button><button role="radio" aria-checked="false" tabindex="-1">By hand</button></div>
+    </section>
+  </div>
+  <div class="footbar"><button class="castbtn">Add Misty step, once per long rest</button></div>
+</template>
+<template id="tpl-part-alarra-stats-prof-edit">
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Abilities <span>Proficiency +3</span><button class="editbtn" disabled>Edit</button></h3>
+      <div class="abil">
+        <div><em>Strength</em><b>+2</b><span>14</span></div>
+        <div><em>Dexterity</em><b>+0</b><span>10</span></div>
+        <div><em>Constitution</em><b>+2</b><span>14</span></div>
+        <div><em>Intelligence</em><b>+0</b><span>10</span></div>
+        <div><em>Wisdom</em><b>+4</b><span>18</span></div>
+        <div><em>Charisma</em><b>+1</b><span>12</span></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Saving throws</h3>
+      <div class="skills">
+        <button class="skill"><i class="rank"></i><span class="lbl">Strength</span><b>+2</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Dexterity</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Constitution</span><b>+2</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Intelligence</span><b>+0</b></button>
+        <button class="skill" data-k="wisdom"><i class="rank" data-r="prof"></i><span class="lbl">Wisdom</span><b>+7</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Charisma</span><b>+4</b></button>
+      </div>
+    </section>
+
+    <section class="block" data-k="skills">
+      <h3 class="bhead">Skills <button class="editbtn" disabled>Edit</button></h3>
+      <p class="legend">
+        <span><i class="rank"></i>None</span><span><i class="rank" data-r="half"></i>Half</span>
+        <span><i class="rank" data-r="prof"></i>Proficient</span><span><i class="rank" data-r="exp"></i>Expertise</span>
+        <span><span class="ovr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg></span>Set by you</span>
+      </p>
+      <div class="skills">
+        <button class="skill"><i class="rank"></i><span class="lbl">Acrobatics</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Animal handling</span><b>+4</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Arcana</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Athletics</span><b>+2</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Deception</span><b>+1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">History</span><b>+0</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Insight</span><b>+7</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Intimidation</span><b>+1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Investigation</span><b>+0</b></button>
+        <button class="skill" data-k="medicine"><i class="rank" data-r="prof"></i><span class="lbl">Medicine</span><b>+9</b><span class="ovr" role="img" aria-label="set by you"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg></span></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Nature</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Perception</span><b>+4</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Performance</span><b>+1</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Persuasion</span><b>+4</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Religion</span><b>+3</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Sleight of hand</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Stealth</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Survival</span><b>+4</b></button>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Passive scores</h3>
+      <div class="caststats" style="margin-top:0">
+        <div><b>14</b><em>Perception</em></div>
+        <div><b>10</b><em>Investigation</em></div>
+        <div><b>17</b><em>Insight</em></div>
+      </div>
+    </section>
+
+    <section class="block editing" data-k="profs">
+      <h3 class="bhead">Proficiencies and languages <button class="editbtn">Cancel</button><button class="castbtn small">Save</button></h3>
+      <p class="grp">Armor</p>
+      <div class="erow"><div class="actl"><b>Light armor</b><span>Cleric</span></div><button class="rmbtn" aria-label="Remove Light armor"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
+      <div class="erow"><div class="actl"><b>Medium armor</b><span>Cleric</span></div><button class="rmbtn" aria-label="Remove Medium armor"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
+      <div class="erow"><div class="actl"><b>Heavy armor</b><span>Life domain</span></div><button class="rmbtn" aria-label="Remove Heavy armor"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
+      <div class="erow"><div class="actl"><b>Shields</b><span>Cleric</span></div><button class="rmbtn" aria-label="Remove Shields"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
+      <p class="grp">Weapons</p>
+      <div class="erow"><div class="actl"><b>Simple weapons</b><span>Cleric</span></div><button class="rmbtn" aria-label="Remove Simple weapons"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
+      <p class="grp">Tools</p>
+      <p class="padnote" style="margin-top:4px">None yet.</p>
+      <p class="grp">Languages</p>
+      <div class="erow"><div class="actl"><b>Common</b><span>Human</span></div><button class="rmbtn" aria-label="Remove Common"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
+      <div class="erow"><div class="actl"><b>Celestial</b><span>Acolyte background</span></div><button class="rmbtn" aria-label="Remove Celestial"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
+      <div class="erow removing"><div class="actl"><b>Dwarvish</b><span>Human</span></div><span class="mark" data-t="bad">Removing</span><button class="rmbtn" aria-label="Keep Dwarvish"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5.5 4 2.5 7l3 3"/><path d="M2.5 7H10a3.5 3.5 0 0 1 0 7H7"/></svg></button></div>
+      <div class="erow"><div class="actl"><b>Infernal</b><span>Acolyte background</span></div><button class="rmbtn" aria-label="Remove Infernal"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
+      <button class="addrow" data-k="add-proficiency"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a proficiency</button>
+      <button class="addrow" data-k="add-language"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a language</button>
+      <p class="padnote">No handles: these sort by kind and name. Removals wait for Save; adding saves straight away.</p>
+    </section>
+  </div>
+</template>
+<template id="tpl-part-add-proficiency">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close add a proficiency"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Add a proficiency</h2>
+        <p class="ssub">Alarra Vane</p>
+      </div>
+    </div>
+    <div class="seg" role="tablist" aria-label="Catalog or custom"><button class="tab" role="tab" aria-selected="true" tabindex="0">From the catalog</button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Custom</button></div>
+  </div>
+
+  <div class="body pad-bottom">
+    <label class="findp"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+      <input value="kit" aria-label="Find a proficiency"></label>
+
+    <section class="block">
+      <h3 class="bhead">Results <span>3 in your sources</span></h3>
+      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add &ldquo;kit&rdquo; as a custom proficiency</button>
+      <label class="prep"><input type="radio" name="add-prof-pick" checked><span class="box round"></span><div class="actl"><b>Herbalism kit</b><span>Other</span></div></label>
+      <label class="prep"><input type="radio" name="add-prof-pick"><span class="box round"></span><div class="actl"><b>Disguise kit</b><span>Other</span></div></label>
+      <label class="prep"><input type="radio" name="add-prof-pick"><span class="box round"></span><div class="actl"><b>Poisoner&rsquo;s kit</b><span>Other</span></div></label>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Herbalism kit <span>Rank</span></h3>
+      <div class="rankseg three" role="radiogroup" aria-label="Proficiency rank">
+        <button role="radio" aria-checked="false" tabindex="-1"><i class="rank" data-r="half"></i>Half</button>
+        <button role="radio" aria-checked="true" tabindex="0"><i class="rank" data-r="prof"></i>Proficient</button>
+        <button role="radio" aria-checked="false" tabindex="-1"><i class="rank" data-r="exp"></i>Expertise</button>
+      </div>
+      <p class="padnote">A tool has no ability of its own. The check it helps with decides which ability applies.</p>
+    </section>
+  </div>
+  <div class="footbar"><button class="castbtn">Add herbalism kit</button></div>
+</template>
+<template id="tpl-part-add-language">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close add a language"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Add a language</h2>
+        <p class="ssub">Alarra Vane</p>
+      </div>
+    </div>
+    <div class="seg" role="tablist" aria-label="Catalog or custom"><button class="tab" role="tab" aria-selected="true" tabindex="0">From the catalog</button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Custom</button></div>
+  </div>
+
+  <div class="body pad-bottom">
+    <label class="findp"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+      <input placeholder="Find a language" aria-label="Find a language"></label>
+
+    <section class="block">
+      <h3 class="bhead">Standard</h3>
+      <label class="prep"><input type="radio" name="add-lang-pick" disabled><span class="box round"></span><div class="actl"><b>Common</b><span>Common script, humans</span></div><span class="mark">Known</span></label>
+      <label class="prep"><input type="radio" name="add-lang-pick" disabled><span class="box round"></span><div class="actl"><b>Dwarvish</b><span>Dwarvish script, dwarves</span></div><span class="mark">Known</span></label>
+      <label class="prep"><input type="radio" name="add-lang-pick"><span class="box round"></span><div class="actl"><b>Elvish</b><span>Elvish script, elves</span></div></label>
+      <label class="prep"><input type="radio" name="add-lang-pick"><span class="box round"></span><div class="actl"><b>Giant</b><span>Dwarvish script, ogres and giants</span></div></label>
+      <label class="prep"><input type="radio" name="add-lang-pick"><span class="box round"></span><div class="actl"><b>Gnomish</b><span>Dwarvish script, gnomes</span></div></label>
+      <label class="prep"><input type="radio" name="add-lang-pick"><span class="box round"></span><div class="actl"><b>Goblin</b><span>Dwarvish script, goblinoids</span></div></label>
+      <label class="prep"><input type="radio" name="add-lang-pick"><span class="box round"></span><div class="actl"><b>Halfling</b><span>Common script, halflings</span></div></label>
+      <label class="prep"><input type="radio" name="add-lang-pick"><span class="box round"></span><div class="actl"><b>Orc</b><span>Dwarvish script, orcs</span></div></label>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Exotic</h3>
+      <label class="prep"><input type="radio" name="add-lang-pick"><span class="box round"></span><div class="actl"><b>Abyssal</b><span>Infernal script, demons</span></div></label>
+      <label class="prep"><input type="radio" name="add-lang-pick" disabled><span class="box round"></span><div class="actl"><b>Celestial</b><span>Celestial script, celestials</span></div><span class="mark">Known</span></label>
+      <label class="prep"><input type="radio" name="add-lang-pick"><span class="box round"></span><div class="actl"><b>Deep Speech</b><span>No script, aboleths and cloakers</span></div></label>
+      <label class="prep"><input type="radio" name="add-lang-pick"><span class="box round"></span><div class="actl"><b>Draconic</b><span>Draconic script, dragons and dragonborn</span></div></label>
+      <label class="prep"><input type="radio" name="add-lang-pick" disabled><span class="box round"></span><div class="actl"><b>Infernal</b><span>Infernal script, devils</span></div><span class="mark">Known</span></label>
+      <label class="prep"><input type="radio" name="add-lang-pick"><span class="box round"></span><div class="actl"><b>Primordial</b><span>Dwarvish script, elementals</span></div></label>
+      <label class="prep"><input type="radio" name="add-lang-pick" checked><span class="box round"></span><div class="actl"><b>Sylvan</b><span>Elvish script, fey creatures</span></div></label>
+      <label class="prep"><input type="radio" name="add-lang-pick"><span class="box round"></span><div class="actl"><b>Undercommon</b><span>Elvish script, Underdark traders</span></div></label>
+    </section>
+  </div>
+  <div class="footbar"><button class="castbtn">Add Sylvan</button></div>
+</template>
+<template id="tpl-d-add-spell">
+<div class="desk" data-opener=".addrow[data-k=add-spell]">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="alarra-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character" data-scroll-to="[data-k=add-spell]">
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Add a spell" data-part="add-spell"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-add-spell" data-size="1180x820">
+<div class="desk tablet" data-opener=".addrow[data-k=add-spell]">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character" data-scroll-to="[data-k=add-spell]">
+        <div role="tabpanel" aria-label="Stats" data-part="alarra-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Add a spell" data-part="add-spell"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-d-add-spell-path">
+<div class="desk" data-opener=".addrow[data-k=add-spell]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character" data-scroll-to="[data-k=add-spell]">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Add a spell" data-part="add-spell-path"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-add-spell-path" data-size="1180x820">
+<div class="desk tablet" data-opener=".addrow[data-k=add-spell]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character" data-scroll-to="[data-k=add-spell]">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Add a spell" data-part="add-spell-path"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-d-prof-edit">
+<div class="desk">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="alarra-stats-prof-edit" data-scroll-to="[data-k=profs]"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-prof-edit" data-size="820x1180">
+<div class="desk tablet portrait">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip-tablet" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character" data-scroll-to="[data-k=profs]">
+        <div role="tabpanel" aria-label="Stats" data-part="alarra-stats-prof-edit"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-d-add-proficiency">
+<div class="desk" data-opener=".addrow[data-k=add-proficiency]">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="alarra-stats" data-scroll-to="[data-k=add-proficiency]"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Add a proficiency" data-part="add-proficiency"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-add-proficiency" data-size="1180x820">
+<div class="desk tablet" data-opener=".addrow[data-k=add-proficiency]">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip-tablet" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character" data-scroll-to="[data-k=add-proficiency]">
+        <div role="tabpanel" aria-label="Stats" data-part="alarra-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Add a proficiency" data-part="add-proficiency"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-d-add-language">
+<div class="desk" data-opener=".addrow[data-k=add-language]">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="alarra-stats" data-scroll-to="[data-k=add-language]"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Add a language" data-part="add-language"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-add-language" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".addrow[data-k=add-language]">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip-tablet" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character" data-scroll-to="[data-k=add-language]">
+        <div role="tabpanel" aria-label="Stats" data-part="alarra-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Add a language" data-part="add-language"></div>
+  </div>
+</div>
+</template>
+
 <!-- ============================================================
      ADDING, A SPELL, SUGGESTED PATH
      ============================================================ -->
@@ -6794,8 +7231,8 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <div class="erow"><div class="actl"><b>Celestial</b><span>Acolyte background</span></div><button class="rmbtn" aria-label="Remove Celestial"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
       <div class="erow removing"><div class="actl"><b>Dwarvish</b><span>Human</span></div><span class="mark" data-t="bad">Removing</span><button class="rmbtn" aria-label="Keep Dwarvish"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5.5 4 2.5 7l3 3"/><path d="M2.5 7H10a3.5 3.5 0 0 1 0 7H7"/></svg></button></div>
       <div class="erow"><div class="actl"><b>Infernal</b><span>Acolyte background</span></div><button class="rmbtn" aria-label="Remove Infernal"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
-      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a proficiency</button>
-      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a language</button>
+      <button class="addrow" data-k="add-proficiency"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a proficiency</button>
+      <button class="addrow" data-k="add-language"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a language</button>
       <p class="padnote">No handles: these sort by kind and name. Removals wait for Save; adding saves straight away.</p>
     </section>
 
@@ -8009,17 +8446,37 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     {id:'t-manual-action', tablet:true, label:'Hellfire rebuke in the side panel, landscape',
      note:'The panel takes the right column from below the strip. Play stays beside it, with Hellfire rebuke pressed. Tapping a tab closes the panel.'},
     {section:'Adding spells, proficiencies and languages',
-     text:'Every Add opens its own screen and saves when its footer button is pressed, whether or not a section is being edited. Edit drafts hold only reordering and removal.'},
+     text:'Every Add opens its own screen and saves when its footer button is pressed, whether or not a section is being edited. Edit drafts hold only reordering and removal. Desktop and tablet open Add in the side panel. Proficiency editing stays in place.'},
     {id:'add-spell', label:'Adding a spell, suggested path',
      note:'Picking Identify proposes the obvious way to cast it, prepared through Alarra&rsquo;s cleric casting, as one summary with her numbers. It is not on the cleric list, so a warning says so and allows it. Casts it differently opens the details. Most additions are a search, one tap and Add.'},
+    {id:'d-add-spell', desktop:true, label:'Adding a spell in the side panel',
+     note:'Add a spell on Spells opens over the third column, so the list it will join sits underneath. Play and Stats stay live. The suggested path is one card with her cleric numbers. Save sits on the panel&rsquo;s bottom edge.'},
+    {id:'t-add-spell', tablet:true, label:'Adding a spell in the side panel, landscape',
+     note:'Spells is a tab, so adding a spell means leaving Stats. The panel takes the right column from below the strip. Play stays beside it. The Add a spell row stays pressed on Spells underneath.'},
     {id:'add-spell-path', label:'Adding a spell that casts differently',
      note:'Brenna&rsquo;s Misty step comes from a boon, not her pact, so the suggestion is changed: its own ability, Charisma, and one use per long rest, which becomes a manual resource. A class path would offer the roles that class allows instead.'},
+    {id:'d-add-spell-path', desktop:true, label:'Adding a spell that casts differently, in the side panel',
+     note:'A second Add-a-spell panel, not a nested replacement of Identify. Brenna&rsquo;s Spells list sits underneath. Play and Stats stay live. The path, ability and uses all save from the panel&rsquo;s bottom edge.'},
+    {id:'t-add-spell-path', tablet:true, label:'Adding a spell that casts differently, landscape',
+     note:'The panel takes the right column from below the strip. Play stays beside it. Tapping a tab closes the panel.'},
     {id:'prof-edit', label:'Editing proficiencies and languages',
      note:'The block&rsquo;s Edit lists every proficiency and language by kind, each removable. No drag handles, because these rows have no stored order and sort by kind and name. Dwarvish is staged for removal; her race granted it, so Save asks to confirm the suppression. Add rows open their own screens.'},
+    {id:'d-prof-edit', desktop:true, label:'Editing proficiencies in the Stats column',
+     note:'Edit stays in place, the same as abilities and carried items. Stats takes the draft skin on this block. Abilities and Skills show a disabled Edit. Play stays at the top, and the plate stays live. Add still opens its own panel; see Adding a proficiency.'},
+    {id:'t-prof-edit', tablet:true, label:'Editing proficiencies, Stats tab, portrait',
+     note:'Stats is a tab, so editing proficiencies means leaving Spells. The right column has opened Stats with the block in the draft skin. Play stays at the top.'},
     {id:'add-proficiency', label:'Adding a proficiency',
      note:'The search covers weapons, armour, tools and other proficiencies. Skills and saving throws are not here, because they always exist and change through their rank. A tool gets the rank choice without None, and no bonus of its own.'},
+    {id:'d-add-proficiency', desktop:true, label:'Adding a proficiency in the side panel',
+     note:'Opened from view-mode Stats, so the Add a proficiency row stays visible and pressed. The panel covers the third column. Play stays live beside it. It also opens from the draft; that pair is not drawn again.'},
+    {id:'t-add-proficiency', tablet:true, label:'Adding a proficiency in the side panel, landscape',
+     note:'Stats is a tab, so seeing the add means leaving Spells. The panel takes the right column from below the strip. Play stays beside it. The Add a proficiency row stays pressed on Stats underneath.'},
     {id:'add-language', label:'Adding a language',
      note:'Languages list in the catalog&rsquo;s Standard and Exotic groups with their script and typical speakers. The ones Alarra already speaks are disabled with a Known mark.'},
+    {id:'d-add-language', desktop:true, label:'Adding a language in the side panel',
+     note:'Opened from view-mode Stats, so the Add a language row stays visible and pressed. Known languages stay in the list, marked and disabled. Save sits on the panel&rsquo;s bottom edge. Play stays live beside it.'},
+    {id:'t-add-language', tablet:true, label:'Adding a language in the side panel, portrait',
+     note:'Stats is a tab, so seeing the add means leaving Spells. The panel takes the right column from below the strip. Play stays at the top, and the Add a language row stays pressed.'},
     {section:'The catalog search and the sheet menu',
      text:'Adding a feature from the catalog, and the screens behind the header&rsquo;s menu button. The menu opens as a static bottom sheet.'},
     {id:'add-feature-catalog', label:'Adding a feature from the catalog',
