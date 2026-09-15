@@ -1011,12 +1011,25 @@ to the item. Destinations already drawn, armour class and Cure wounds,
 are notes, not new frames. Medicine stays visible in Stats. Common
 actions stays visible in Play.
 
+### Lists, money and last details, 15 September 2026
+
+Drawn the same way as the detail screens, each desktop frame after its
+phone frame. The money pad, Add and Remove open in the side panel, with
+the commit on the panel's bottom edge. The money pad drops the coin grid
+Gear already shows, and takes a typed amount like the hit-point pad.
+List editing stays in place in the Gear column. Add from an editing list
+opens over the draft. Remove backpack and Remove prayer book replace the
+container or item panel. The backpack open in place on Gear is already
+drawn, so the container frame is the backpack's own detail. Wild shape
+sits on a small Fenn sheet, plate and Play and Character, so the panel
+has a column to open from. Transform still swaps the header; that state
+is in Header variants. Hellfire rebuke uses a Play variant with the
+extra reaction.
+
 ### Still open
 
 - Hover, still deferred in the design system.
 - The tablet breakpoints above, and tablet past this section.
-- Whether every remaining push becomes a side panel on desktop,
-  including list editing.
 - The one-row plate, the strip and the side panel are candidates for the
   design system. None is in v0.4.
 

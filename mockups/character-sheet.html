@@ -501,7 +501,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .coin em{display:block;font-style:normal;font-size:10px;font-weight:600;margin-top:2px}
 .riso .coin{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--a)}
 .riso .coin em{color:var(--dim)}
-.riso .coin:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .coin:active,.riso .coin[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a)}
 
 /* ---- quantities, and a container open in place ---- */
 .qty{font-size:12.5px;font-weight:700}
@@ -598,7 +598,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
   font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;text-align:left}
 .addrow svg{width:16px;height:16px;flex:none}
 .riso .addrow{background:var(--sheet);border:1.5px dashed var(--a);color:var(--a)}
-.riso .addrow:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .addrow:active,.riso .addrow[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a)}
 
 /* ---- text fields ---- */
 .field{display:block;margin-top:12px}
@@ -957,7 +957,11 @@ button.mark{font-family:inherit;cursor:pointer}
     <p>The fourth section holds the <b>detail screens</b> behind the chevrons: items, features, a skill and the common actions.
     They open in the side panel, over the list they came from. Move replaces the item panel, with the commit on its
     bottom edge. Chain mail&rsquo;s armour class and the ring&rsquo;s stored spell point at frames already drawn.</p>
-    <p>The fifth section covers <b>list editing, adding and removing, the money pad</b>, and the remaining detail shapes.</p>
+    <p>The fifth section covers <b>list editing, adding and removing, the money pad</b>, and the remaining detail shapes.
+    The money pad, Add and Remove open in the side panel, with the commit on the panel&rsquo;s bottom edge. List
+    editing stays in place in Gear. Nested Remove replaces the container or item panel. Wild shape sits on a small
+    Fenn sheet so the panel has a column to open from. The backpack open in place on Gear is already drawn; that
+    frame is the container&rsquo;s own detail.</p>
     <p>The sixth section covers <b>adding spells, proficiencies and languages</b>.</p>
     <p>The seventh section covers <b>adding a feature from the catalog</b> and the screens the sheet menu opens.</p>
     <p>Contents lists each section and the sets inside it, and jumps to a frame.</p>
@@ -1750,11 +1754,11 @@ button.mark{font-family:inherit;cursor:pointer}
     <section class="block">
       <h3 class="bhead">Money <span>Click to change</span></h3>
       <div class="coins">
-        <button class="coin"><b>5</b><em>Copper</em></button>
-        <button class="coin"><b>30</b><em>Silver</em></button>
-        <button class="coin"><b>0</b><em>Electrum</em></button>
-        <button class="coin"><b>112</b><em>Gold</em></button>
-        <button class="coin"><b>2</b><em>Platinum</em></button>
+        <button class="coin" data-k="copper"><b>5</b><em>Copper</em></button>
+        <button class="coin" data-k="silver"><b>30</b><em>Silver</em></button>
+        <button class="coin" data-k="electrum"><b>0</b><em>Electrum</em></button>
+        <button class="coin" data-k="gold"><b>112</b><em>Gold</em></button>
+        <button class="coin" data-k="platinum"><b>2</b><em>Platinum</em></button>
       </div>
     </section>
 
@@ -1776,7 +1780,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <section class="block">
       <h3 class="bhead">Carried <button class="editbtn">Edit</button></h3>
       <button class="act" data-k="potion"><div class="actl"><b>Potion of healing <small class="qty">&times;2</small></b><span>Action, heals 2d4+2</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Backpack</b><span>5 things inside</span></div><i class="chev down"></i></button>
+      <button class="act" data-k="backpack"><div class="actl"><b>Backpack</b><span>5 things inside</span></div><i class="chev down"></i></button>
       <div class="nest">
       <button class="act"><div class="actl"><b>Bedroll</b><span>Sleeps one</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Rations <small class="qty">&times;5</small></b><span>Days of food</span></div><i class="chev"></i></button>
@@ -1784,7 +1788,7 @@ button.mark{font-family:inherit;cursor:pointer}
       <button class="act"><div class="actl"><b>Waterskin</b><span>Full</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Tinderbox</b><span>Lights a torch as an action</span></div><i class="chev"></i></button>
       </div>
-      <button class="act"><div class="actl"><b>Prayer book</b><span>From the Acolyte background</span></div><i class="chev"></i></button>
+      <button class="act" data-k="prayer"><div class="actl"><b>Prayer book</b><span>From the Acolyte background</span></div><i class="chev"></i></button>
     </section>
   </div>
 </template>
@@ -1809,11 +1813,12 @@ button.mark{font-family:inherit;cursor:pointer}
       <p class="grp">Half-elf</p>
       <button class="act" data-k="darkvision"><div class="actl"><b>Darkvision</b><span>60 ft</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Fey ancestry</b><span>Advantage against charm, and magic can&rsquo;t sleep her</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Skill versatility</b><span>Two extra skills</span></div><i class="chev"></i></button>
+      <button class="act" data-k="versatility"><div class="actl"><b>Skill versatility</b><span>Two extra skills</span></div><i class="chev"></i></button>
       <p class="grp">Acolyte background</p>
       <button class="act"><div class="actl"><b>Shelter of the faithful</b><span>Care and healing at temples of her faith</span></div><i class="chev"></i></button>
       <p class="grp">Feat, taken at level 4</p>
       <button class="act"><div class="actl"><b>Magic initiate</b><span>Two cleric cantrips and cure wounds once a day</span></div><i class="chev"></i></button>
+      <button class="addrow" data-k="add-feature"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a feature</button>
     </section>
 
     <section class="block">
@@ -2674,7 +2679,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <button class="skill"><i class="rank"></i><span class="lbl">Dexterity</span><b>+0</b></button>
         <button class="skill"><i class="rank"></i><span class="lbl">Constitution</span><b>+2</b></button>
         <button class="skill"><i class="rank"></i><span class="lbl">Intelligence</span><b>+0</b></button>
-        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Wisdom</span><b>+7</b></button>
+        <button class="skill" data-k="wisdom"><i class="rank" data-r="prof"></i><span class="lbl">Wisdom</span><b>+7</b></button>
         <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Charisma</span><b>+4</b></button>
       </div>
     </section>
@@ -2961,7 +2966,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <button class="skill"><i class="rank"></i><span class="lbl">Dexterity</span><b>+0</b></button>
         <button class="skill"><i class="rank"></i><span class="lbl">Constitution</span><b>+2</b></button>
         <button class="skill"><i class="rank"></i><span class="lbl">Intelligence</span><b>+0</b></button>
-        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Wisdom</span><b>+7</b></button>
+        <button class="skill" data-k="wisdom"><i class="rank" data-r="prof"></i><span class="lbl">Wisdom</span><b>+7</b></button>
         <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Charisma</span><b>+4</b></button>
       </div>
     </section>
@@ -3489,11 +3494,11 @@ The diamond is for Revivify. Do not spend it.</textarea><div class="notefoot"><p
     <section class="block">
       <h3 class="bhead">Money <span>Tap to change</span></h3>
       <div class="coins">
-        <button class="coin"><b>5</b><em>Copper</em></button>
-        <button class="coin"><b>30</b><em>Silver</em></button>
-        <button class="coin"><b>0</b><em>Electrum</em></button>
-        <button class="coin"><b>112</b><em>Gold</em></button>
-        <button class="coin"><b>2</b><em>Platinum</em></button>
+        <button class="coin" data-k="copper"><b>5</b><em>Copper</em></button>
+        <button class="coin" data-k="silver"><b>30</b><em>Silver</em></button>
+        <button class="coin" data-k="electrum"><b>0</b><em>Electrum</em></button>
+        <button class="coin" data-k="gold"><b>112</b><em>Gold</em></button>
+        <button class="coin" data-k="platinum"><b>2</b><em>Platinum</em></button>
       </div>
     </section>
 
@@ -3515,7 +3520,7 @@ The diamond is for Revivify. Do not spend it.</textarea><div class="notefoot"><p
     <section class="block">
       <h3 class="bhead">Carried <button class="editbtn">Edit</button></h3>
       <button class="act" data-k="potion"><div class="actl"><b>Potion of healing <small class="qty">&times;2</small></b><span>Action, heals 2d4+2</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Backpack</b><span>5 things inside</span></div><i class="chev down"></i></button>
+      <button class="act" data-k="backpack"><div class="actl"><b>Backpack</b><span>5 things inside</span></div><i class="chev down"></i></button>
       <div class="nest">
       <button class="act"><div class="actl"><b>Bedroll</b><span>Sleeps one</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Rations <small class="qty">&times;5</small></b><span>Days of food</span></div><i class="chev"></i></button>
@@ -3523,7 +3528,7 @@ The diamond is for Revivify. Do not spend it.</textarea><div class="notefoot"><p
       <button class="act"><div class="actl"><b>Waterskin</b><span>Full</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Tinderbox</b><span>Lights a torch as an action</span></div><i class="chev"></i></button>
       </div>
-      <button class="act"><div class="actl"><b>Prayer book</b><span>From the Acolyte background</span></div><i class="chev"></i></button>
+      <button class="act" data-k="prayer"><div class="actl"><b>Prayer book</b><span>From the Acolyte background</span></div><i class="chev"></i></button>
     </section>
   </div>
 </div>
@@ -3568,11 +3573,12 @@ The diamond is for Revivify. Do not spend it.</textarea><div class="notefoot"><p
       <p class="grp">Half-elf</p>
       <button class="act" data-k="darkvision"><div class="actl"><b>Darkvision</b><span>60 ft</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Fey ancestry</b><span>Advantage against charm, and magic can&rsquo;t sleep her</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Skill versatility</b><span>Two extra skills</span></div><i class="chev"></i></button>
+      <button class="act" data-k="versatility"><div class="actl"><b>Skill versatility</b><span>Two extra skills</span></div><i class="chev"></i></button>
       <p class="grp">Acolyte background</p>
       <button class="act"><div class="actl"><b>Shelter of the faithful</b><span>Care and healing at temples of her faith</span></div><i class="chev"></i></button>
       <p class="grp">Feat, taken at level 4</p>
       <button class="act"><div class="actl"><b>Magic initiate</b><span>Two cleric cantrips and cure wounds once a day</span></div><i class="chev"></i></button>
+      <button class="addrow" data-k="add-feature"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a feature</button>
     </section>
 
     <section class="block">
@@ -3642,7 +3648,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <button class="skill"><i class="rank"></i><span class="lbl">Dexterity</span><b>+0</b></button>
         <button class="skill"><i class="rank"></i><span class="lbl">Constitution</span><b>+2</b></button>
         <button class="skill"><i class="rank"></i><span class="lbl">Intelligence</span><b>+0</b></button>
-        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Wisdom</span><b>+7</b></button>
+        <button class="skill" data-k="wisdom"><i class="rank" data-r="prof"></i><span class="lbl">Wisdom</span><b>+7</b></button>
         <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Charisma</span><b>+4</b></button>
       </div>
     </section>
@@ -3745,7 +3751,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <button class="skill"><i class="rank"></i><span class="lbl">Dexterity</span><b>+0</b></button>
         <button class="skill"><i class="rank"></i><span class="lbl">Constitution</span><b>+2</b></button>
         <button class="skill"><i class="rank"></i><span class="lbl">Intelligence</span><b>+0</b></button>
-        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Wisdom</span><b>+7</b></button>
+        <button class="skill" data-k="wisdom"><i class="rank" data-r="prof"></i><span class="lbl">Wisdom</span><b>+7</b></button>
         <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Charisma</span><b>+4</b></button>
       </div>
     </section>
@@ -5171,11 +5177,11 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <section class="block">
       <h3 class="bhead">All her coins</h3>
       <div class="coins">
-        <button class="coin"><b>5</b><em>Copper</em></button>
-        <button class="coin"><b>30</b><em>Silver</em></button>
-        <button class="coin"><b>0</b><em>Electrum</em></button>
-        <button class="coin"><b>112</b><em>Gold</em></button>
-        <button class="coin"><b>2</b><em>Platinum</em></button>
+        <button class="coin" data-k="copper"><b>5</b><em>Copper</em></button>
+        <button class="coin" data-k="silver"><b>30</b><em>Silver</em></button>
+        <button class="coin" data-k="electrum"><b>0</b><em>Electrum</em></button>
+        <button class="coin" data-k="gold"><b>112</b><em>Gold</em></button>
+        <button class="coin" data-k="platinum"><b>2</b><em>Platinum</em></button>
       </div>
     </section>
   </div>
@@ -5572,6 +5578,1094 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
     <button class="dangerbtn">Remove action</button>
     <div style="height:2px"></div>
+  </div>
+</div>
+</template>
+
+<!-- ============================================================
+     DESKTOP PARTS, LISTS, MONEY AND THE LAST DETAILS
+     Pushes become a side panel. List editing stays in place in Gear.
+     Fenn is a small sheet so Wild shape has a column to open from.
+     ============================================================ -->
+<template id="tpl-part-money-pad">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close gold"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Gold</h2>
+        <p class="ssub">Brenna Duskhollow</p>
+      </div>
+    </div>
+    <div class="coinseg" role="tablist" aria-label="Coin"><button class="tab" role="tab" aria-selected="false" tabindex="-1">Copper</button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Silver</button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Electrum</button><button class="tab" role="tab" aria-selected="true" tabindex="0">Gold</button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Platinum</button></div>
+  </div>
+
+  <div class="body pad-bottom">
+    <div class="pad" style="margin-top:0">
+      <div class="padtabs" role="radiogroup" aria-label="Gain or spend"><button role="radio" aria-checked="false" tabindex="-1">Gain</button><button role="radio" aria-checked="true" tabindex="0">Spend</button></div>
+      <div class="padnum">
+        <button class="step" aria-label="One less">&minus;</button>
+        <input value="15" inputmode="numeric" aria-label="Gold amount">
+        <button class="step" aria-label="One more">+</button>
+      </div>
+      <div class="quick"><button>1</button><button>5</button><button>10</button><button>50</button></div>
+      <p class="padnote"><b>112</b> gold becomes <b>97</b>. Her other coins stay as they are.</p>
+      <p class="keyhint">Type an amount. <kbd>Enter</kbd> applies it and <kbd>Esc</kbd> closes the panel.</p>
+      <button class="castbtn" style="margin-top:11px">Spend 15 gold</button>
+    </div>
+  </div>
+</template>
+<template id="tpl-part-brenna-gear-edit">
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Money <span>Click to change</span></h3>
+      <div class="coins">
+        <button class="coin" data-k="copper"><b>5</b><em>Copper</em></button>
+        <button class="coin" data-k="silver"><b>30</b><em>Silver</em></button>
+        <button class="coin" data-k="electrum"><b>0</b><em>Electrum</em></button>
+        <button class="coin" data-k="gold"><b>112</b><em>Gold</em></button>
+        <button class="coin" data-k="platinum"><b>2</b><em>Platinum</em></button>
+      </div>
+    </section>
+
+    <label class="findp"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+      <input placeholder="Find an item" aria-label="Find an item"></label>
+
+    <section class="block">
+      <h3 class="bhead">Equipped <button class="editbtn" disabled>Edit</button></h3>
+      <button class="act"><div class="actl"><b>Leather armor</b><span>Light armor, AC 11 + Dex</span></div><span class="mark">Worn</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Crystal</b><span>Arcane focus</span></div><span class="mark">In hand</span><i class="chev"></i></button>
+      <button class="act" data-k="dagger"><div class="actl"><b>Dagger <small class="qty">&times;2</small></b><span>Finesse, thrown 20/60 ft, 1d4 piercing</span></div><span class="mark">Belt</span><i class="chev"></i></button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Attuned <span>1 of 3</span><button class="editbtn" disabled>Edit</button></h3>
+      <button class="act" data-k="ring"><div class="actl"><b>Ring of spell storing</b><span>Rare. 3 of 5 levels stored.</span></div><span class="mark">Attuned</span><i class="chev"></i></button>
+    </section>
+
+    <section class="block editing" data-k="carried">
+      <h3 class="bhead">Carried <button class="editbtn">Cancel</button><button class="castbtn small">Save</button></h3>
+      <div class="erow"><button class="grip" aria-label="Drag to reorder"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h10M3 8h10M3 11h10"/></svg></button><div class="actl"><b>Potion of healing <small class="qty">&times;2</small></b><span>Action, heals 2d4+2</span></div><button class="rmbtn" aria-label="Remove Potion of healing"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
+      <div class="erow"><button class="grip" aria-label="Drag to reorder"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h10M3 8h10M3 11h10"/></svg></button><div class="actl"><b>Backpack</b><span>5 things inside</span></div><button class="rmbtn" aria-label="Remove Backpack"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
+      <div class="nest">
+      <div class="erow"><button class="grip" aria-label="Drag to reorder"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h10M3 8h10M3 11h10"/></svg></button><div class="actl"><b>Bedroll</b><span>Sleeps one</span></div><button class="rmbtn" aria-label="Remove Bedroll"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
+      <div class="erow removing"><button class="grip" aria-label="Drag to reorder"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h10M3 8h10M3 11h10"/></svg></button><div class="actl"><b>Rations <small class="qty">&times;5</small></b><span>Days of food</span></div><span class="mark" data-t="bad">Removing</span><button class="rmbtn" aria-label="Keep Rations"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5.5 4 2.5 7l3 3"/><path d="M2.5 7H10a3.5 3.5 0 0 1 0 7H7"/></svg></button></div>
+      <div class="erow"><button class="grip" aria-label="Drag to reorder"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h10M3 8h10M3 11h10"/></svg></button><div class="actl"><b>Hempen rope</b><span>50 ft</span></div><button class="rmbtn" aria-label="Remove Hempen rope"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
+      <div class="erow"><button class="grip" aria-label="Drag to reorder"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h10M3 8h10M3 11h10"/></svg></button><div class="actl"><b>Waterskin</b><span>Full</span></div><button class="rmbtn" aria-label="Remove Waterskin"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
+      <div class="erow"><button class="grip" aria-label="Drag to reorder"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h10M3 8h10M3 11h10"/></svg></button><div class="actl"><b>Tinderbox</b><span>Lights a torch as an action</span></div><button class="rmbtn" aria-label="Remove Tinderbox"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
+      <button class="addrow" data-k="add-pack"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add to the backpack</button>
+      </div>
+      <div class="erow"><button class="grip" aria-label="Drag to reorder"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h10M3 8h10M3 11h10"/></svg></button><div class="actl"><b>Prayer book</b><span>From the Acolyte background</span></div><button class="rmbtn" aria-label="Remove Prayer book"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></button></div>
+      <button class="addrow" data-k="add-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add an item</button>
+      <p class="padnote">Drag a row by its handle to move it. Moves and removals wait for Save; adding saves straight away.</p>
+    </section>
+  </div>
+</template>
+<template id="tpl-part-add-item">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close add an item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Add an item</h2>
+        <p class="ssub">Brenna Duskhollow</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <label class="findp"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+      <input value="lantern" aria-label="Find an item"></label>
+
+    <section class="block">
+      <h3 class="bhead">Results <span>4 in your sources</span></h3>
+      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add &ldquo;lantern&rdquo; as a custom item</button>
+      <label class="prep"><input type="radio" name="add-item-pick" checked><span class="box round"></span><div class="actl"><b>Lantern, hooded</b><span>Standard gear, 5 gp</span></div></label>
+      <label class="prep"><input type="radio" name="add-item-pick"><span class="box round"></span><div class="actl"><b>Lantern, bullseye</b><span>Standard gear, 10 gp</span></div></label>
+      <label class="prep"><input type="radio" name="add-item-pick"><span class="box round"></span><div class="actl"><b>Lantern of revealing</b><span>Uncommon magic item</span></div></label>
+      <label class="prep"><input type="radio" name="add-item-pick"><span class="box round"></span><div class="actl"><b>Lamp</b><span>Standard gear, 5 sp</span></div></label>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Lantern, hooded</h3>
+      <div class="editrow"><span class="lbl">How many</span><button class="step" aria-label="One less">&minus;</button><span class="num">1</span><button class="step" aria-label="One more">+</button><span class="mod"></span></div>
+      <label class="prep"><input type="radio" name="add-item-where" checked><span class="box round"></span><div class="actl"><b>Backpack</b><span>5 things inside</span></div></label>
+      <label class="prep"><input type="radio" name="add-item-where"><span class="box round"></span><div class="actl"><b>Carried</b><span>Loose, not in a container</span></div></label>
+    </section>
+  </div>
+  <div class="footbar"><button class="castbtn">Add a hooded lantern to the backpack</button></div>
+</template>
+<template id="tpl-part-add-feature">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close add a feature"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Add a feature</h2>
+        <p class="ssub">Brenna Duskhollow</p>
+      </div>
+    </div>
+    <div class="seg" role="tablist" aria-label="Catalog or custom"><button class="tab" role="tab" aria-selected="false" tabindex="-1">From the catalog</button><button class="tab" role="tab" aria-selected="true" tabindex="0">Custom</button></div>
+  </div>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <label class="field"><span>Name</span><input value="Mark of the Sunless Crown"></label>
+      <label class="field"><span>What it does</span><textarea>When Brenna fails a saving throw against a fiend, she can succeed instead.</textarea></label>
+      <p class="padnote">It lists under Added by hand, and level-up leaves it alone.</p>
+    </section>
+
+    <section class="block">
+      <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>It has uses</b><span>Tracked in Resources on the Play tab</span></div></label>
+      <div class="editrow"><span class="lbl">Uses</span><button class="step" aria-label="One less">&minus;</button><span class="num">1</span><button class="step" aria-label="One more">+</button><span class="mod"></span></div>
+      <div class="rankseg" style="margin-top:10px" role="radiogroup" aria-label="Uses come back on">
+        <button role="radio" aria-checked="false" tabindex="-1">Short rest</button>
+        <button role="radio" aria-checked="true" tabindex="0">Long rest</button>
+        <button role="radio" aria-checked="false" tabindex="-1">Dawn</button>
+        <button role="radio" aria-checked="false" tabindex="-1">By hand</button>
+      </div>
+    </section>
+  </div>
+  <div class="footbar"><button class="castbtn">Add Mark of the Sunless Crown</button></div>
+</template>
+<template id="tpl-part-item-backpack">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close backpack"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Backpack</h2>
+        <p class="ssub">Container, carried</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Inside <span>5 things</span></h3>
+      <button class="act"><div class="actl"><b>Bedroll</b><span>Sleeps one</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Rations <small class="qty">&times;5</small></b><span>Days of food</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Hempen rope</b><span>50 ft</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Waterskin</b><span>Full</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Tinderbox</b><span>Lights a torch as an action</span></div><i class="chev"></i></button>
+      <button class="addrow" data-k="add-pack"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add to the backpack</button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">On Brenna</h3>
+      <div class="res"><div class="resl"><b>Carried</b><span>Loose, not in a container</span></div><button class="gobtn">Move</button></div>
+    </section>
+
+    <section class="block">
+      <dl class="kv">
+        <dt>Cost</dt><dd>2 gp</dd>
+      </dl>
+      <p class="origin">Added by hand. Bought in Ostwick.</p>
+    </section>
+
+    <button class="dangerbtn">Remove backpack</button>
+  </div>
+</template>
+<template id="tpl-part-remove-container">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close remove backpack"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Remove backpack</h2>
+        <p class="ssub">Brenna Duskhollow</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">It holds 5 things</h3>
+      <p class="padnote" style="margin-top:0">Bedroll, rations &times;5, hempen rope, waterskin and tinderbox.</p>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">What happens to them</h3>
+      <label class="prep"><input type="radio" name="remove-pack" disabled><span class="box round"></span><div class="actl"><b>Move to another container</b><span>Brenna has no other container</span></div></label>
+      <label class="prep"><input type="radio" name="remove-pack" checked><span class="box round"></span><div class="actl"><b>Keep them loose</b><span>In carried items, not in a container</span></div></label>
+      <label class="prep"><input type="radio" name="remove-pack"><span class="box round"></span><div class="actl"><b>Discard them too</b><span>All 5 go with the backpack</span></div><span class="mark" data-t="bad">Removes 5</span></label>
+    </section>
+  </div>
+  <div class="footbar"><button class="dangerbtn">Remove backpack, keep 5 things</button></div>
+</template>
+<template id="tpl-part-remove-granted">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close remove prayer book"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Remove prayer book</h2>
+        <p class="ssub">Brenna Duskhollow</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">It came from her background</h3>
+      <p class="padnote" style="margin-top:0">The Acolyte background gave Brenna this book. Level-ups won&rsquo;t give it back. A level-up review can restore it.</p>
+    </section>
+
+    <section class="block">
+      <label class="field"><span>Reason, if you want one</span><textarea>Sold to Brother Tamsin for passage out of Ostwick.</textarea></label>
+      <p class="padnote">Shown again in any level-up review.</p>
+    </section>
+  </div>
+  <div class="footbar"><button class="dangerbtn">Remove prayer book</button></div>
+</template>
+<template id="tpl-part-save-wisdom">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close Wisdom saving throw"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Wisdom saving throw</h2>
+        <p class="ssub">Alarra Vane</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <div class="bigval">
+        <div class="bignum">+7</div>
+        <p><b>Calculated.</b> Nothing replaces it. Replacing it adds the override badge wherever it shows.</p>
+      </div>
+      <button class="gobtn" style="width:100%;margin-top:16px">Replace the bonus</button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Proficiency <span>Cleric gives proficient</span></h3>
+      <div class="rankseg two" role="radiogroup" aria-label="Proficiency rank">
+        <button role="radio" aria-checked="false" tabindex="-1"><i class="rank"></i>None</button>
+        <button role="radio" aria-checked="true" tabindex="0"><i class="rank" data-r="prof"></i>Proficient</button>
+      </div>
+      <p class="padnote">Saving throws are proficient or not. Half and expertise are for skills and tools.</p>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">How +7 is calculated</h3>
+      <div class="calc"><div><b>Wisdom</b><span>Score 18</span></div><strong>+4</strong></div>
+      <div class="calc"><div><b>Proficiency bonus</b><span>Proficient, from the Cleric class</span></div><strong>+3</strong></div>
+      <div class="calc total"><div><b>Calculated</b><span>Follows her Wisdom and level</span></div><strong>+7</strong></div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Rules text <span>SRD 5.1</span></h3>
+      <div class="rules">
+        <p>A saving throw represents an attempt to resist a spell, a trap, a poison, a disease, or a similar threat. To make a saving throw, roll a d20 and add the appropriate ability modifier. Each class gives proficiency in at least two saving throws.</p>
+      </div>
+      <p class="origin">Proficiency from the Cleric class at level 1.</p>
+    </section>
+  </div>
+</template>
+<template id="tpl-part-feat-wild-shape">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close wild shape"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Wild shape</h2>
+        <p class="ssub">Druid feature, Fenn Mosswright</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <div class="res"><div class="resl"><b>2 of 2 uses</b><span>Back after a short or long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Wild shape uses" aria-valuemin="0" aria-valuemax="2" aria-valuenow="2" aria-valuetext="2 of 2 left"><i data-on></i><i data-on></i></div></div>
+      <div class="res"><div class="resl"><b>Beasts of CR 1 or below</b><span>Flying allowed from druid 8. Lasts up to 4 hours.</span></div></div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Known forms <span>4</span></h3>
+      <div class="form"><div class="actl"><b>Brown bear</b><span>CR 1, AC 11, 34 hit points, climbs 30 ft</span></div><button class="castbtn small">Transform</button></div>
+      <div class="form"><div class="actl"><b>Dire wolf</b><span>CR 1, AC 14, 37 hit points, 50 ft</span></div><button class="castbtn small">Transform</button></div>
+      <div class="form"><div class="actl"><b>Giant eagle</b><span>CR 1, AC 13, 26 hit points, flies 80 ft</span></div><button class="castbtn small">Transform</button></div>
+      <div class="form"><div class="actl"><b>Wolf</b><span>CR 1/4, AC 13, 11 hit points, 40 ft</span></div><button class="castbtn small">Transform</button></div>
+      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a beast form</button>
+    </section>
+
+    <div class="rulesfold">
+      <button class="disclose" aria-expanded="false">Rules text<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
+      <p class="origin">From Druid 2. The limit rose at druid 4 and 8.</p>
+    </div>
+  </div>
+</template>
+<template id="tpl-part-feat-versatility">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close skill versatility"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Skill versatility</h2>
+        <p class="ssub">Half-elf trait</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Chosen <span>2 of 2</span></h3>
+      <div class="skills">
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Perception</span><b>+4</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Persuasion</span><b>+7</b></button>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="res"><div class="resl"><b>Change the skills</b><span>Race choices aren&rsquo;t tied to a level, so this opens the Features draft.</span></div><button class="gobtn">Change</button></div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Rules text <span>SRD 5.1</span></h3>
+      <div class="rules">
+        <p>You gain proficiency in two skills of your choice.</p>
+      </div>
+      <p class="origin">From Half-elf, chosen when Brenna was created.</p>
+    </section>
+  </div>
+</template>
+<template id="tpl-part-item-hellfire">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close Hellfire rebuke"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Hellfire rebuke</h2>
+        <p class="ssub">Reaction, added by hand</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <div class="cast">
+      <div class="casttop"><b>Brenna&rsquo;s numbers</b><span>Set by hand</span></div>
+      <div class="caststats">
+        <div><b>15</b><em>Dex save</em></div>
+        <div><b>2d10</b><em>Fire</em></div>
+        <div><b>60 ft</b><em>Range</em></div>
+      </div>
+    </div>
+
+    <section class="block">
+      <h3 class="bhead">What it does <button class="editbtn">Edit</button></h3>
+      <div class="rules"><p>When a creature she can see within 60 ft damages her, it makes a Dexterity save or takes 2d10 fire damage, half as much on a success. Once per long rest.</p></div>
+      <p class="origin">Added by hand after session 9. The Fiend&rsquo;s gift, ruled by the DM.</p>
+    </section>
+
+    <button class="dangerbtn">Remove action</button>
+  </div>
+</template>
+<template id="tpl-part-brenna-play-hellfire">
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Resources <span>Click a box to spend</span></h3>
+      <div class="res">
+        <div class="resl"><b>Pact magic</b><span>Two 3rd-level slots, short rest</span></div>
+        <div class="pips" role="spinbutton" tabindex="0" aria-label="Pact magic" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="1 of 2 left"><i data-on></i><i></i></div>
+      </div>
+      <div class="res">
+        <div class="resl"><b>Magic initiate</b><span>Cure wounds once, long rest</span></div>
+        <div class="pips" role="spinbutton" tabindex="0" aria-label="Magic initiate" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div>
+      </div>
+      <div class="res">
+        <div class="resl"><b>Dark One's own luck</b><span>Add 1d10, long rest</span></div>
+        <div class="pips" role="spinbutton" tabindex="0" aria-label="Dark One&#x27;s own luck" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div>
+      </div>
+      <div class="res">
+        <div class="resl"><b>Hit dice</b><span>d8, half recovered on a long rest</span></div>
+        <div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="6" aria-valuenow="4" aria-valuetext="4 of 6 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div>
+      </div>
+      <div class="res">
+        <div class="resl"><b>Ring of spell storing</b><span>Stored levels, refilled by hand</span></div>
+        <div class="pips wide" role="spinbutton" tabindex="0" aria-label="Ring of spell storing" aria-valuemin="0" aria-valuemax="5" aria-valuenow="3" aria-valuetext="3 of 5 left"><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Attacks</h3>
+      <div class="atkh"><span>Attack</span><span style="text-align:center">Hit</span><span style="text-align:right">Damage</span></div>
+      <div class="atk">
+        <div><b>Pact blade</b><small>Melee, 5 ft, finesse</small></div>
+        <div class="hit">+5</div>
+        <div class="dmg">1d6+2<em>slashing</em></div>
+      </div>
+      <div class="atk">
+        <div><b>Eldritch blast</b><small>120 ft, two beams, pushes 10 ft</small></div>
+        <div class="hit">+7</div>
+        <div class="dmg">1d10+4<em>force, each beam</em></div>
+      </div>
+      <div class="atk">
+        <div><b>Chill touch</b><small>120 ft, no healing for a turn</small></div>
+        <div class="hit">+7</div>
+        <div class="dmg">2d8<em>necrotic</em></div>
+      </div>
+      <div class="atk">
+        <div><b>Sacred flame</b><small>60 ft, ignores cover, from the feat</small></div>
+        <div class="hit">12<small>Dex save</small></div>
+        <div class="dmg">2d8<em>radiant</em></div>
+      </div>
+    </section>
+
+    <section class="block" data-k="actions">
+      <h3 class="bhead">Actions</h3>
+      <p class="grp">Action</p>
+      <button class="act"><div class="actl"><b>Cure wounds</b><span>Touch, heals 1d8+1. Two ways to cast.</span></div><span class="mark">2 paths</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Cast a spell</b><span>Eight known, one slot left</span></div><i class="chev"></i></button>
+      <button class="act" data-k="common"><div class="actl"><b>Common actions</b><span>Dash, Disengage, Dodge, Help, Hide, Ready, Search</span></div><i class="chev"></i></button>
+      <p class="grp">Bonus action</p>
+      <button class="act"><div class="actl"><b>Hex</b><span>Move the curse to a new target</span></div><span class="mark" data-t="conc">Active</span><i class="chev"></i></button>
+      <p class="grp">Reaction</p>
+      <button class="act"><div class="actl"><b>Opportunity attack</b><span>Pact blade, +5 to hit</span></div><i class="chev"></i></button>
+      <button class="act" data-k="hellfire"><div class="actl"><b>Hellfire rebuke</b><span>Dex save 15, 2d10 fire. Once per long rest.</span></div><span class="mark">Added</span><i class="chev"></i></button>
+      <p class="grp">No action needed</p>
+      <button class="act"><div class="actl"><b>Devil's sight</b><span>See through magical darkness, 120 ft</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Dark One's blessing</b><span>10 temporary hit points when she drops a foe</span></div><i class="chev"></i></button>
+    </section>
+  </div>
+</template>
+<template id="tpl-part-fenn-plate">
+  <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+  <div class="tok" style="--tok:var(--mix);--on-tok:var(--on-mix)">F<b>8</b></div>
+  <div class="who">
+    <h2 class="sname">Fenn Mosswright</h2>
+    <p class="ssub">Human druid 8, Circle of the Land</p>
+    <div class="hmarks">
+      <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
+    </div>
+  </div>
+  <div class="vitals" role="button" tabindex="0" aria-label="47 of 61 hit points. Open the hit point pad" aria-haspopup="dialog" aria-expanded="false">
+    <div class="hprow">
+      <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i></div>
+    </div>
+    <p class="hpline"><b>47</b>/61 hit points. Click to heal or damage.</p>
+  </div>
+  <div class="rail">
+    <div class="ac" role="button" tabindex="0" aria-label="Armor class 13"><span>13<em>AC</em></span></div>
+    <button class="tile"><b>+2</b><em>Initiative</em></button>
+    <button class="tile"><b>30</b><em>Speed</em></button>
+    <button class="tile"><b>15</b><em>Spell save</em></button>
+  </div>
+  <button class="restbtn">Rest</button>
+  <button class="icnbtn" aria-label="Sheet menu" aria-haspopup="dialog" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+</template>
+<template id="tpl-part-fenn-play">
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Resources <span>Click a box to spend</span></h3>
+      <div class="res"><div class="resl"><b>Spell slots</b><span>Long rest</span></div></div>
+      <div class="slotgrid">
+        <div class="slotg"><em>1st</em><div class="pips" role="spinbutton" tabindex="0" aria-label="1st level slots" aria-valuemin="0" aria-valuemax="4" aria-valuenow="3" aria-valuetext="3 of 4 left"><i data-on></i><i data-on></i><i data-on></i><i></i></div></div>
+        <div class="slotg"><em>2nd</em><div class="pips" role="spinbutton" tabindex="0" aria-label="2nd level slots" aria-valuemin="0" aria-valuemax="3" aria-valuenow="3" aria-valuetext="3 of 3 left"><i data-on></i><i data-on></i><i data-on></i></div></div>
+        <div class="slotg"><em>3rd</em><div class="pips" role="spinbutton" tabindex="0" aria-label="3rd level slots" aria-valuemin="0" aria-valuemax="3" aria-valuenow="2" aria-valuetext="2 of 3 left"><i data-on></i><i data-on></i><i></i></div></div>
+        <div class="slotg"><em>4th</em><div class="pips" role="spinbutton" tabindex="0" aria-label="4th level slots" aria-valuemin="0" aria-valuemax="2" aria-valuenow="2" aria-valuetext="2 of 2 left"><i data-on></i><i data-on></i></div></div>
+      </div>
+      <div class="res"><div class="resl"><b>Wild shape</b><span>Two uses, short rest. Beasts of CR 1</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Wild shape" aria-valuemin="0" aria-valuemax="2" aria-valuenow="2" aria-valuetext="2 of 2 left"><i data-on></i><i data-on></i></div></div>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="8" aria-valuenow="5" aria-valuetext="5 of 8 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i></i><i></i><i></i></div></div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Attacks</h3>
+      <div class="atkh"><span>Attack</span><span style="text-align:center">Hit</span><span style="text-align:right">Damage</span></div>
+      <div class="atk">
+        <div><b>Shillelagh</b><small>Melee, 5 ft, Wisdom</small></div>
+        <div class="hit">+7</div>
+        <div class="dmg">1d8+4<em>bludgeoning</em></div>
+      </div>
+      <div class="atk">
+        <div><b>Produce flame</b><small>30 ft thrown, or 10 ft melee</small></div>
+        <div class="hit">+7</div>
+        <div class="dmg">2d8<em>fire</em></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Actions</h3>
+      <p class="grp">Action</p>
+      <button class="act"><div class="actl"><b>Wild shape</b><span>Become a known form, 2 of 2 left</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Cast a spell</b><span>12 prepared, 10 slots left</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Common actions</b><span>Dash, Disengage, Dodge, Help, Hide, Ready, Search</span></div><i class="chev"></i></button>
+      <p class="grp">Bonus action</p>
+      <button class="act"><div class="actl"><b>Healing word</b><span>60 ft, heals 1d4+4</span></div><i class="chev"></i></button>
+      <p class="grp">Reaction</p>
+      <button class="act"><div class="actl"><b>Opportunity attack</b><span>Shillelagh, +7 to hit</span></div><i class="chev"></i></button>
+    </section>
+  </div>
+</template>
+<template id="tpl-part-fenn-stats">
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Abilities <span>Proficiency +3</span><button class="editbtn">Edit</button></h3>
+      <div class="abil">
+        <div><em>Strength</em><b>+0</b><span>10</span></div>
+        <div><em>Dexterity</em><b>+2</b><span>14</span></div>
+        <div><em>Constitution</em><b>+2</b><span>14</span></div>
+        <div><em>Intelligence</em><b>+1</b><span>12</span></div>
+        <div><em>Wisdom</em><b>+4</b><span>18</span></div>
+        <div><em>Charisma</em><b>+0</b><span>10</span></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Saving throws</h3>
+      <div class="skills">
+        <button class="skill"><i class="rank"></i><span class="lbl">Strength</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Dexterity</span><b>+2</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Constitution</span><b>+2</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Intelligence</span><b>+4</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Wisdom</span><b>+7</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Charisma</span><b>+0</b></button>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Skills <button class="editbtn">Edit</button></h3>
+      <p class="legend">
+        <span><i class="rank"></i>None</span><span><i class="rank" data-r="half"></i>Half</span>
+        <span><i class="rank" data-r="prof"></i>Proficient</span><span><i class="rank" data-r="exp"></i>Expertise</span>
+      </p>
+      <div class="skills">
+        <button class="skill"><i class="rank"></i><span class="lbl">Acrobatics</span><b>+2</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Animal handling</span><b>+7</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Arcana</span><b>+1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Athletics</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Deception</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">History</span><b>+1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Insight</span><b>+4</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Intimidation</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Investigation</span><b>+1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Medicine</span><b>+4</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Nature</span><b>+4</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Perception</span><b>+7</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Performance</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Persuasion</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Religion</span><b>+1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Sleight of hand</span><b>+2</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Stealth</span><b>+2</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Survival</span><b>+7</b></button>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Passive scores</h3>
+      <div class="caststats" style="margin-top:0">
+        <div><b>17</b><em>Perception</em></div>
+        <div><b>11</b><em>Investigation</em></div>
+        <div><b>14</b><em>Insight</em></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Proficiencies and languages <button class="editbtn">Edit</button></h3>
+      <dl class="kv">
+        <dt>Armor</dt><dd>Light and medium armor, shields</dd>
+        <dt>Weapons</dt><dd>Clubs, daggers, darts, javelins, maces, quarterstaffs, scimitars, sickles, slings, spears</dd>
+        <dt>Tools</dt><dd>Herbalism kit</dd>
+        <dt>Languages</dt><dd>Common, Druidic, Elvish, Sylvan</dd>
+      </dl>
+    </section>
+  </div>
+</template>
+<template id="tpl-part-fenn-spells">
+  <div class="body pad-bottom">
+    <div class="cast">
+      <div class="casttop"><b>Druid</b><span>Level 8</span></div>
+      <div class="caststats">
+        <div><b>Wis</b><em>Ability</em></div>
+        <div><b>15</b><em>Save DC</em></div>
+        <div><b>+7</b><em>Attack</em></div>
+      </div>
+      <div class="res" style="margin-top:10px;border-top:1.5px solid transparent;padding-top:11px">
+        <div class="resl"><b>12 of 12 prepared</b><span>Plus 4 Circle spells, which don&rsquo;t count</span></div>
+        <button class="gobtn">Change</button>
+      </div>
+    </div>
+
+    <label class="findp"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+      <input placeholder="Find a prepared spell" aria-label="Find a prepared spell"></label>
+
+    <section class="block">
+      <h3 class="bhead">Cantrips <span>At will</span></h3>
+      <button class="act"><div class="actl"><b>Shillelagh</b><span>Bonus action, 1 minute</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Produce flame</b><span>Action, 30 ft thrown</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Guidance</b><span>Action, touch, concentration</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Druidcraft</b><span>Action, 30 ft</span></div><i class="chev"></i></button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">1st level <span>3 slots left</span></h3>
+      <button class="act"><div class="actl"><b>Healing word</b><span>Bonus action, 60 ft, heals 1d4+4</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Entangle</b><span>Action, 90 ft, concentration</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Faerie fire</b><span>Action, 60 ft, concentration</span></div><i class="chev"></i></button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">2nd level <span>3 slots left</span></h3>
+      <button class="act"><div class="actl"><b>Moonbeam</b><span>Action, 120 ft, concentration</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Pass without trace</b><span>Action, self, concentration</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Spike growth</b><span>Action, 150 ft, concentration</span></div><i class="chev"></i></button>
+    </section>
+  </div>
+</template>
+<template id="tpl-part-fenn-gear">
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Money <span>Click to change</span></h3>
+      <div class="coins">
+        <button class="coin"><b>12</b><em>Copper</em></button>
+        <button class="coin"><b>8</b><em>Silver</em></button>
+        <button class="coin"><b>0</b><em>Electrum</em></button>
+        <button class="coin"><b>41</b><em>Gold</em></button>
+        <button class="coin"><b>0</b><em>Platinum</em></button>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Equipped <button class="editbtn">Edit</button></h3>
+      <button class="act"><div class="actl"><b>Leather armor</b><span>Light armor, AC 11 + Dex</span></div><span class="mark">Worn</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Quarterstaff</b><span>Simple melee, versatile 1d8</span></div><span class="mark">In hand</span><i class="chev"></i></button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Carried <button class="editbtn">Edit</button></h3>
+      <button class="act"><div class="actl"><b>Herbalism kit</b><span>Identify plants, make antitoxin</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Yew wand</b><span>Druidic focus</span></div><i class="chev"></i></button>
+    </section>
+  </div>
+</template>
+<template id="tpl-part-fenn-character">
+  <div class="body pad-bottom">
+    <div class="cast">
+      <div class="casttop"><b>Druid 8</b><span>Level up when your table does</span></div>
+      <p class="padnote" style="margin-top:6px">Nothing on the sheet changes until you confirm the level-up.</p>
+      <button class="gobtn" style="width:100%;margin-top:12px">Level up to 9</button>
+    </div>
+
+    <section class="block" data-k="features">
+      <h3 class="bhead">Features and traits <button class="editbtn">Edit</button></h3>
+      <p class="grp">Druid 8</p>
+      <button class="act"><div class="actl"><b>Spellcasting</b><span>Wisdom, prepare after a long rest</span></div><i class="chev"></i></button>
+      <button class="act" data-k="wildshape"><div class="actl"><b>Wild shape</b><span>Two uses, beasts of CR 1</span></div><i class="chev"></i></button>
+      <p class="grp">Circle of the Land</p>
+      <button class="act"><div class="actl"><b>Natural recovery</b><span>Regain slots on a short rest, once a day</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Land&rsquo;s stride</b><span>Nonmagical plants don&rsquo;t slow him</span></div><i class="chev"></i></button>
+      <p class="grp">Human</p>
+      <button class="act"><div class="actl"><b>Languages</b><span>Common and one extra, Elvish here</span></div><i class="chev"></i></button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">About Fenn <button class="editbtn">Edit</button></h3>
+      <dl class="kv">
+        <dt>Alignment</dt><dd>Neutral good</dd>
+        <dt>Age</dt><dd>24</dd>
+        <dt>Height</dt><dd>5 ft 9 in</dd>
+        <dt>Appearance</dt><dd>Mud on the hem, and pollen in the beard he will not shave</dd>
+      </dl>
+    </section>
+  </div>
+</template>
+
+<!-- ============================================================
+     DESKTOP AND TABLET FRAMES, LISTS, MONEY AND THE LAST DETAILS
+     ============================================================ -->
+<template id="tpl-d-money">
+<div class="desk" data-opener=".coin[data-k=gold]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Gold" data-part="money-pad"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-money" data-size="1180x820">
+<div class="desk tablet" data-opener=".coin[data-k=gold]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="2"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Gold" data-part="money-pad"></div>
+  </div>
+</div>
+</template>
+<template id="tpl-d-list-edit">
+<div class="desk">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character" data-scroll-to="[data-k=carried]">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear-edit"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-list-edit" data-size="1180x820">
+<div class="desk tablet">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="2"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character" data-scroll-to="[data-k=carried]">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear-edit"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+  </div>
+</div>
+</template>
+<template id="tpl-d-add-item">
+<div class="desk" data-opener=".addrow[data-k=add-item]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character" data-scroll-to="[data-k=carried]">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear-edit"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Add an item" data-part="add-item"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-add-item" data-size="1180x820">
+<div class="desk tablet" data-opener=".addrow[data-k=add-item]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="2"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character" data-scroll-to="[data-k=carried]">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear-edit"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Add an item" data-part="add-item"></div>
+  </div>
+</div>
+</template>
+<template id="tpl-d-add-feature">
+<div class="desk" data-opener=".addrow[data-k=add-feature]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="2"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character" data-scroll-to="[data-k=add-feature]">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Add a feature" data-part="add-feature"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-add-feature" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".addrow[data-k=add-feature]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="3"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character" data-scroll-to="[data-k=add-feature]">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Add a feature" data-part="add-feature"></div>
+  </div>
+</div>
+</template>
+<template id="tpl-d-container">
+<div class="desk" data-opener=".act[data-k=backpack]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character" data-scroll-to="[data-k=backpack]">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Backpack" data-part="item-backpack"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-container" data-size="1180x820">
+<div class="desk tablet" data-opener=".act[data-k=backpack]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="2"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character" data-scroll-to="[data-k=backpack]">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Backpack" data-part="item-backpack"></div>
+  </div>
+</div>
+</template>
+<template id="tpl-d-remove-container">
+<div class="desk" data-opener=".act[data-k=backpack]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character" data-scroll-to="[data-k=backpack]">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Remove backpack" data-part="remove-container"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-remove-container" data-size="1180x820">
+<div class="desk tablet" data-opener=".act[data-k=backpack]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="2"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character" data-scroll-to="[data-k=backpack]">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Remove backpack" data-part="remove-container"></div>
+  </div>
+</div>
+</template>
+<template id="tpl-d-remove-granted">
+<div class="desk" data-opener=".act[data-k=prayer]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character" data-scroll-to="[data-k=prayer]">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Remove prayer book" data-part="remove-granted"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-remove-granted" data-size="1180x820">
+<div class="desk tablet" data-opener=".act[data-k=prayer]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="2"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character" data-scroll-to="[data-k=prayer]">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Remove prayer book" data-part="remove-granted"></div>
+  </div>
+</div>
+</template>
+<template id="tpl-d-save-wisdom">
+<div class="desk" data-opener=".skill[data-k=wisdom]">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="alarra-stats" data-scroll-to="[data-k=wisdom]"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Wisdom saving throw" data-part="save-wisdom"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-save-wisdom" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".skill[data-k=wisdom]">
+  <div class="shead attached dplate" data-part="alarra-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="alarra-strip-tablet" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="alarra-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character" data-scroll-to="[data-k=wisdom]">
+        <div role="tabpanel" aria-label="Stats" data-part="alarra-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="alarra-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="alarra-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="alarra-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Wisdom saving throw" data-part="save-wisdom"></div>
+  </div>
+</div>
+</template>
+<template id="tpl-d-wild-shape">
+<div class="desk" data-opener=".act[data-k=wildshape]">
+  <div class="shead attached dplate" data-part="fenn-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="2"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="fenn-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="fenn-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character" data-scroll-to="[data-k=wildshape]">
+        <div role="tabpanel" aria-label="Spells" data-part="fenn-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="fenn-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="fenn-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Wild shape" data-part="feat-wild-shape"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-wild-shape" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".act[data-k=wildshape]">
+  <div class="shead attached dplate" data-part="fenn-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="3"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="fenn-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character" data-scroll-to="[data-k=wildshape]">
+        <div role="tabpanel" aria-label="Stats" data-part="fenn-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="fenn-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="fenn-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="fenn-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Wild shape" data-part="feat-wild-shape"></div>
+  </div>
+</div>
+</template>
+<template id="tpl-d-trait-choices">
+<div class="desk" data-opener=".act[data-k=versatility]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="2"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character" data-scroll-to="[data-k=versatility]">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Skill versatility" data-part="feat-versatility"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-trait-choices" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".act[data-k=versatility]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="3"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character" data-scroll-to="[data-k=versatility]">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Skill versatility" data-part="feat-versatility"></div>
+  </div>
+</div>
+</template>
+<template id="tpl-d-manual-action">
+<div class="desk" data-opener=".act[data-k=hellfire]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play-hellfire" data-scroll-to="[data-k=hellfire]"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Hellfire rebuke" data-part="item-hellfire"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-manual-action" data-size="1180x820">
+<div class="desk tablet" data-opener=".act[data-k=hellfire]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play-hellfire" data-scroll-to="[data-k=hellfire]"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Hellfire rebuke" data-part="item-hellfire"></div>
   </div>
 </div>
 </template>
@@ -6847,29 +7941,73 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     {id:'t-common-actions', tablet:true, label:'Common actions in the side panel, landscape',
      note:'The panel takes the right column from below the strip. Play stays beside it, with the Common actions row pressed. Tapping a tab closes the panel.'},
     {section:'Lists, money and the last details',
-     text:'Editing lists, adding and removing, the money pad, and the detail shapes the representative set left out.'},
+     text:'Editing lists, adding and removing, the money pad, and the remaining detail shapes. Desktop and tablet open pushes in the side panel. List editing stays in place. The backpack open in place on Gear is already drawn.'},
     {id:'money', label:'Money pad',
      note:'Tapping a coin opens this pad for that coin: gain or spend, a stepper with quick amounts, and a line saying what changes before it does. The coin row on the plate switches denomination in place. Nothing converts between coins.'},
+    {id:'d-money', desktop:true, label:'Money pad in the side panel',
+     note:'The gold coin on Gear opens the pad over the third column. Play and Stats stay live. The pad drops the coin grid Gear already shows, keeps the denomination switch, and takes a typed amount like the hit-point pad. Close or Escape returns to the gold coin.'},
+    {id:'t-money', tablet:true, label:'Money pad in the side panel, landscape',
+     note:'The panel takes the right column from below the strip, so the tabs stay in reach. Play stays beside it. The gold coin stays pressed on Gear underneath.'},
     {id:'list-edit', label:'Editing a list, Brenna&rsquo;s carried items',
      note:'Edit on a list gives every row a drag handle and a remove button, the backpack&rsquo;s contents included. Removal is staged: the rations stay in place, struck through and marked, with an undo, until Save. Add rows open their own screen and save straight away, so the draft holds only reordering and removal. Features and traits edit the same way.'},
+    {id:'d-list-edit', desktop:true, label:'Editing carried items in the Gear column',
+     note:'Edit stays in place, the same as abilities. Gear takes the draft skin on Carried. Equipped and Attuned show a disabled Edit. Play and Stats stay at the top, and the plate stays live.'},
+    {id:'t-list-edit', tablet:true, label:'Editing carried items, Gear tab, landscape',
+     note:'Gear is a tab, so editing the pack means leaving Spells. The right column has opened Gear with Carried in the draft skin. Play stays on the left.'},
     {id:'add-item', label:'Adding an item',
      note:'A search over the catalog, magic items included, with the typed name offered as a custom item at the top. Picking a result asks how many and where it goes, and the footer spells out the whole action.'},
+    {id:'d-add-item', desktop:true, label:'Adding an item in the side panel',
+     note:'Add on the editing list opens over the draft, and saves from the panel&rsquo;s bottom edge. The Carried draft stays underneath. Play and Stats stay live.'},
+    {id:'t-add-item', tablet:true, label:'Adding an item in the side panel, landscape',
+     note:'The panel takes the right column from below the strip. Play stays beside it. The Add an item row stays pressed on the draft underneath.'},
     {id:'add-feature', label:'Adding a custom feature',
      note:'The switch on the plate chooses catalog or custom; the catalog side is a search like adding an item. A custom feature is a name, a description and, optionally, uses, which become a manual resource with its own maximum and reset. It lists under Added by hand.'},
+    {id:'d-add-feature', desktop:true, label:'Adding a feature in the side panel',
+     note:'Add a feature on Character opens over the list it will join. Save sits on the panel&rsquo;s bottom edge. Play and Stats stay live.'},
+    {id:'t-add-feature', tablet:true, label:'Adding a feature in the side panel, portrait',
+     note:'Character is a tab, so adding a feature means leaving Spells. The panel takes the right column from below the strip. Play stays at the top.'},
     {id:'container', label:'Container, Brenna&rsquo;s backpack',
-     note:'Contents first, each opening its own detail, with Add to the backpack underneath. No capacity: the catalog has no data for it, and the sheet does not track weight.'},
+     note:'Contents first, each opening its own detail, with Add to the backpack underneath. No capacity: the catalog has no data for it, and the sheet does not track weight. The backpack open in place on Gear is already drawn; see Stats scrolled, Gear in the third column.'},
+    {id:'d-container', desktop:true, label:'Backpack in the side panel',
+     note:'The chevron on Gear opens the backpack&rsquo;s own detail over the third column, Move, cost and Remove included. The in-place expansion is the list, already drawn. Play and Stats stay live.'},
+    {id:'t-container', tablet:true, label:'Backpack in the side panel, landscape',
+     note:'The panel takes the right column from below the strip. Play stays beside it. Tapping a tab closes the panel.'},
     {id:'remove-container', label:'Removing a container with contents',
      note:'The data model will not let a container go while items still point at it, so removal asks what happens to them. Another container is disabled here with the reason, because Brenna has none. The footer uses the destructive button and names the outcome.'},
+    {id:'d-remove-container', desktop:true, label:'Removing the backpack in the side panel',
+     note:'Remove replaces the backpack panel, the same as Move on a dagger. The destructive commit sits on the panel&rsquo;s bottom edge. Close returns to the backpack. Play and Stats stay live.'},
+    {id:'t-remove-container', tablet:true, label:'Removing the backpack in the side panel, landscape',
+     note:'The panel takes the right column from below the strip. Play stays beside it. Close still returns to the backpack; see Backpack in the side panel.'},
     {id:'remove-granted', label:'Removing a granted item',
      note:'The prayer book came from her background, so removing it records a suppression. The screen says level-up will not bring it back and a level-up review can restore it, and it takes an optional reason, which that review shows later.'},
+    {id:'d-remove-granted', desktop:true, label:'Removing the prayer book in the side panel',
+     note:'Remove replaces the item panel. The prayer book row stays pressed on Gear. The destructive commit sits on the panel&rsquo;s bottom edge. Play and Stats stay live.'},
+    {id:'t-remove-granted', tablet:true, label:'Removing the prayer book in the side panel, landscape',
+     note:'The panel takes the right column from below the strip. Play stays beside it. Tapping a tab closes the panel.'},
     {id:'save-wisdom', label:'Saving throw, Alarra&rsquo;s Wisdom',
      note:'The skill detail again, this time with no override: the calculation stands, and Replace the bonus sits where the stepper would be. Rank uses the same selector.'},
+    {id:'d-save-wisdom', desktop:true, label:'Wisdom save in the side panel',
+     note:'Opened from Stats, so the Wisdom row stays visible and pressed. The panel covers the third column. Play stays live beside it.'},
+    {id:'t-save-wisdom', tablet:true, label:'Wisdom save in the side panel, portrait',
+     note:'Stats is a tab, so seeing the save means leaving Spells. The panel takes the right column from below the strip. Play stays at the top, and the Wisdom row stays pressed.'},
     {id:'wild-shape', label:'Feature with stored state, Wild shape',
      note:'Fenn&rsquo;s known forms live in the feature&rsquo;s state. Each shows the numbers that matter and a Transform button that spends a use and swaps the header to the form. Adding a form searches beasts in the monster catalog and warns, rather than blocks, outside the limit.'},
+    {id:'d-wild-shape', desktop:true, label:'Wild shape in the side panel',
+     note:'Fenn has a small sheet so the feature has a column to open from. Character is selected. Play keeps the Wild shape pips, so a use can be spent without closing the detail. Transform still swaps the header; see Header variants.'},
+    {id:'t-wild-shape', tablet:true, label:'Wild shape in the side panel, portrait',
+     note:'Character is a tab, so seeing the forms means leaving Spells. The panel takes the right column from below the strip. Play stays at the top, with the Wild shape pips still in Resources.'},
     {id:'trait-choices', label:'Racial trait with choices, Skill versatility',
      note:'What was chosen is the content, each skill opening its own detail. Change opens the Features draft, because race choices are not tied to a level.'},
+    {id:'d-trait-choices', desktop:true, label:'Skill versatility in the side panel',
+     note:'Opened from Character. Change closes the panel and puts Features in the draft skin, the same as Edit staying in place. Perception and Persuasion replace this panel with a skill detail; see Medicine in the side panel for that shape.'},
+    {id:'t-trait-choices', tablet:true, label:'Skill versatility in the side panel, portrait',
+     note:'Character is a tab, so seeing the choices means leaving Spells. The panel takes the right column from below the strip. Play stays at the top.'},
     {id:'manual-action', label:'Manually added action',
      note:'Everything here belongs to the player: the numbers come from the action&rsquo;s state and the text is theirs. So unlike a generated action, it has Edit and Remove.'},
+    {id:'d-manual-action', desktop:true, label:'Hellfire rebuke in the side panel',
+     note:'Opened from Play, so the row stays visible and pressed. This frame uses a Play variant with the extra reaction. The panel covers the third column. Stats stays live beside it.'},
+    {id:'t-manual-action', tablet:true, label:'Hellfire rebuke in the side panel, landscape',
+     note:'The panel takes the right column from below the strip. Play stays beside it, with Hellfire rebuke pressed. Tapping a tab closes the panel.'},
     {section:'Adding spells, proficiencies and languages',
      text:'Every Add opens its own screen and saves when its footer button is pressed, whether or not a section is being edited. Edit drafts hold only reordering and removal.'},
     {id:'add-spell', label:'Adding a spell, suggested path',
