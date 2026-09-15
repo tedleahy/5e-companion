@@ -598,9 +598,9 @@ Every phone screen in scope is drawn at least once. What remains is deferred:
   flow from character-flows.md is its own screen set.
 - **Edit conflicts.** `lock_version` catches a change made from another device
   while a section is open. Nothing shows what happens then.
-- **Tablet, and desktop past the rest section.** Desktop and tablet are
-  drawn through resting, gear, the character tab and editing; later
-  sections are still phone only.
+- **Tablet, and desktop past the detail screens.** Desktop and tablet are
+  drawn through the detail screens behind the chevrons; later sections
+  are still phone only.
 
 ## Cleric pass
 
@@ -1001,6 +1001,15 @@ hit-point meter the plate already shows. Change on a long rest replaces
 that panel with prepare. Gear has no desktop pair: it is already
 selected in Brenna's Stats scrolled frame. Editing a section stays in
 place in the Stats column.
+
+### Detail screens, 15 September 2026
+
+Drawn the same way as the rest section, each desktop frame after its
+phone frame. Details open in the side panel. Move replaces the item
+panel, the same as Change on a long rest, and Close from Move returns
+to the item. Destinations already drawn, armour class and Cure wounds,
+are notes, not new frames. Medicine stays visible in Stats. Common
+actions stays visible in Play.
 
 ### Still open
 
