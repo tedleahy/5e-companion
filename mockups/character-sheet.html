@@ -16,6 +16,8 @@
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,sans-serif}
 .gal-top{padding:14px 22px 0;max-width:1600px;margin:0 auto}
+.gal-brand{display:flex;align-items:center;gap:12px}
+.gal-brand .mixer-navbtn{margin:0}
 .gal-top b{font-weight:600;font-size:13px;color:#fff}
 .gal-intro{max-width:74ch;padding:10px 22px 18px;margin:0}
 .gal-intro h1{font-size:26px;font-weight:700;margin:0 0 8px;letter-spacing:-.015em}
@@ -24,7 +26,12 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .gal-intro b{color:#d4d8de}
 .mixer{position:sticky;top:0;z-index:50;background:rgba(23,25,29,.94);backdrop-filter:blur(8px);
   border-bottom:1px solid #3c4046;padding:10px 22px}
-.mixer-inner{max-width:1600px;margin:0 auto}
+.mixer-inner{display:flex;align-items:flex-start;gap:12px;max-width:1600px;margin:0 auto}
+.mixer-main{flex:1;min-width:0}
+.mixer-navbtn{flex:none;margin:1px 0 0;padding:7px 12px;border:1px solid #3c4046;background:#1c1e22;
+  color:#c3c9d1;font:600 12.5px/1.2 "Manrope",system-ui,sans-serif;cursor:pointer}
+.mixer-navbtn:hover{border-color:#6f7681;color:#fff}
+.mixer-navbtn[aria-expanded=true]{border-color:#fff;color:#fff}
 .mixer-toggle{display:flex;align-items:center;gap:12px;width:100%;margin:0;padding:2px 0;
   border:0;background:none;color:#e7e9ec;font:600 13px/1.2 "Manrope",system-ui,sans-serif;
   cursor:pointer;text-align:left}
@@ -53,8 +60,40 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .resetbtn[aria-pressed=true]{border-color:#fff;color:#fff}
 /* Debug paint for hit areas. Gallery only, so it may use a colour outside the inks. */
 .show-hits .riso :is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button,.noteshow)::after,.show-hits .riso .pips i::after{background:rgba(255,196,0,.3);box-shadow:inset 0 0 0 1px rgba(255,170,0,.95)}
+.gal-nav{position:fixed;inset:0 auto 0 0;width:min(280px,100%);z-index:40;
+  display:flex;flex-direction:column;background:#1c1e22;border-right:1px solid #3c4046;
+  transform:translateX(-100%);visibility:hidden;pointer-events:none;
+  transition:transform .2s ease,visibility .2s}
+.gal-nav.is-open{transform:none;visibility:visible;pointer-events:auto}
+.gal-nav-list{flex:1;min-height:0;overflow-y:auto;padding:var(--gal-pad,16px) 14px 28px;scrollbar-width:thin}
+.gal-sec-row{display:flex;align-items:flex-start;gap:2px;margin:16px 0 4px}
+.gal-nav-list > .gal-sec:first-child .gal-sec-row{margin-top:0}
+.gal-sec-toggle{flex:none;width:28px;height:28px;margin-top:1px;display:grid;place-items:center;
+  border:0;background:none;color:#8a919a;cursor:pointer;padding:0}
+.gal-sec-toggle:hover,.gal-sec-toggle:focus-visible{color:#fff}
+.gal-nav-chevron{width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  transform:rotate(45deg);margin-top:-3px}
+.gal-sec-toggle[aria-expanded=false] .gal-nav-chevron{transform:rotate(-45deg);margin-top:2px}
+.gal-sec-body{display:none;padding:0 0 0 30px}
+.gal-sec.is-open .gal-sec-body{display:block}
+.gal-sec-name,.gal-set-name,.gal-dev{color:#e7e9ec;text-decoration:none;border-left:2px solid transparent}
+.gal-sec-name{flex:1;min-width:0;padding:5px 0 5px 8px;margin-left:-2px;
+  color:#fff;font:600 13px/1.35 "Manrope",system-ui,sans-serif}
+.gal-set{margin:0 0 10px}
+.gal-set-name{display:block;padding:3px 0 3px 8px;margin-left:-8px;
+  font:600 12.5px/1.4 "Manrope",system-ui,sans-serif}
+.gal-devs{margin:2px 0 0;padding:0 0 0 8px;border-left:1px solid #3c4046}
+.gal-dev{display:block;padding:3px 0 3px 10px;color:#8a919a;
+  font:500 12px/1.4 "Manrope",system-ui,sans-serif}
+.gal-sec-name:hover,.gal-set-name:hover,.gal-dev:hover{color:#fff}
+.gal-nav a[aria-current=location]{border-left-color:#fff;color:#fff}
+.gal-nav:focus-visible{outline-offset:-2px}
+@media (min-width:1100px){
+  body.gal-nav-open .gal-top{padding-left:302px}
+}
 .studio{padding:26px 22px 56px}
 .frames{max-width:1600px;margin:0 auto;display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start}
+.frames-head,.framewrap,.deskwrap{scroll-margin-top:var(--gal-jump,64px)}
 .framewrap{width:414px}
 .frame-label{font-size:12.5px;font-weight:600;color:#e7e9ec;margin:0 0 4px 2px}
 .frame-note{font-size:12px;color:#8a919a;line-height:1.5;margin:0 0 10px 2px}
@@ -888,7 +927,10 @@ button.mark{font-family:inherit;cursor:pointer}
 </head>
 <body>
 <header class="gal-top">
-  <b>5e Companion</b>
+  <div class="gal-brand">
+    <b>5e Companion</b>
+    <button class="mixer-navbtn js-gal-nav-toggle" type="button" id="gal-nav-toggle-top" aria-expanded="false" aria-controls="gal-nav">Contents</button>
+  </div>
   <div class="gal-intro">
     <h1>Character sheet, first pass</h1>
     <p>Navigation is a persistent header with the <b>tabs attached underneath it</b>. Spell details are
@@ -918,6 +960,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <p>The fifth section covers <b>list editing, adding and removing, the money pad</b>, and the remaining detail shapes.</p>
     <p>The sixth section covers <b>adding spells, proficiencies and languages</b>.</p>
     <p>The seventh section covers <b>adding a feature from the catalog</b> and the screens the sheet menu opens.</p>
+    <p>Contents lists each section and the sets inside it, and jumps to a frame.</p>
     <p>Every control answers taps across at least 44 by 44, with an invisible extension where it looks smaller.
     <b>Show hit areas</b> in the ink bar paints them.</p>
     <p>The inks still mix. Nothing below uses a raw hex value.</p>
@@ -926,26 +969,33 @@ button.mark{font-family:inherit;cursor:pointer}
 
 <div class="mixer" id="mixer">
   <div class="mixer-inner">
-    <button class="mixer-toggle" type="button" id="mixer-toggle" aria-expanded="true" aria-controls="mixer-body">
-      <span class="mixer-toggle-action" id="mixer-action">Hide inks</span>
-      <span class="mixer-now" id="mixer-now"></span>
-      <span class="mixer-chevron" aria-hidden="true"></span>
-    </button>
-    <div class="mixer-body" id="mixer-body">
-      <h2>Drums</h2>
-      <div class="drums">
-        <label class="drum"><span>Paper</span><span class="swatch" data-swatch="paper"><input type="color" data-key="paper"></span><input type="text" data-hex="paper" spellcheck="false" maxlength="7" aria-label="Paper hex"></label>
-        <label class="drum"><span>Cards</span><span class="swatch" data-swatch="sheet"><input type="color" data-key="sheet"></span><input type="text" data-hex="sheet" spellcheck="false" maxlength="7" aria-label="Cards hex"></label>
-        <label class="drum"><span>Structural</span><span class="swatch" data-swatch="a"><input type="color" data-key="a"></span><input type="text" data-hex="a" spellcheck="false" maxlength="7" aria-label="Structural hex"></label>
-        <label class="drum"><span>Accent</span><span class="swatch" data-swatch="b"><input type="color" data-key="b"></span><input type="text" data-hex="b" spellcheck="false" maxlength="7" aria-label="Accent hex"></label>
-        <label class="drum"><span>Overprint</span><span class="swatch" data-swatch="mix"><input type="color" data-key="mix"></span><input type="text" data-hex="mix" spellcheck="false" maxlength="7" aria-label="Overprint hex"></label>
-        <button class="resetbtn" type="button" id="reset">Reset to dusk blue</button>
-        <button class="resetbtn" type="button" id="hits" aria-pressed="false">Show hit areas</button>
+    <button class="mixer-navbtn js-gal-nav-toggle" type="button" id="gal-nav-toggle" aria-expanded="false" aria-controls="gal-nav">Contents</button>
+    <div class="mixer-main">
+      <button class="mixer-toggle" type="button" id="mixer-toggle" aria-expanded="true" aria-controls="mixer-body">
+        <span class="mixer-toggle-action" id="mixer-action">Hide inks</span>
+        <span class="mixer-now" id="mixer-now"></span>
+        <span class="mixer-chevron" aria-hidden="true"></span>
+      </button>
+      <div class="mixer-body" id="mixer-body">
+        <h2>Drums</h2>
+        <div class="drums">
+          <label class="drum"><span>Paper</span><span class="swatch" data-swatch="paper"><input type="color" data-key="paper"></span><input type="text" data-hex="paper" spellcheck="false" maxlength="7" aria-label="Paper hex"></label>
+          <label class="drum"><span>Cards</span><span class="swatch" data-swatch="sheet"><input type="color" data-key="sheet"></span><input type="text" data-hex="sheet" spellcheck="false" maxlength="7" aria-label="Cards hex"></label>
+          <label class="drum"><span>Structural</span><span class="swatch" data-swatch="a"><input type="color" data-key="a"></span><input type="text" data-hex="a" spellcheck="false" maxlength="7" aria-label="Structural hex"></label>
+          <label class="drum"><span>Accent</span><span class="swatch" data-swatch="b"><input type="color" data-key="b"></span><input type="text" data-hex="b" spellcheck="false" maxlength="7" aria-label="Accent hex"></label>
+          <label class="drum"><span>Overprint</span><span class="swatch" data-swatch="mix"><input type="color" data-key="mix"></span><input type="text" data-hex="mix" spellcheck="false" maxlength="7" aria-label="Overprint hex"></label>
+          <button class="resetbtn" type="button" id="reset">Reset to dusk blue</button>
+          <button class="resetbtn" type="button" id="hits" aria-pressed="false">Show hit areas</button>
+        </div>
+        <p class="hexline" id="hexline" style="margin:10px 0 0;color:#6f7681;font:12px/1.4 ui-monospace,monospace"></p>
       </div>
-      <p class="hexline" id="hexline" style="margin:10px 0 0;color:#6f7681;font:12px/1.4 ui-monospace,monospace"></p>
     </div>
   </div>
 </div>
+
+<aside class="gal-nav" id="gal-nav" aria-label="Gallery contents">
+  <nav class="gal-nav-list" id="gal-nav-list"></nav>
+</aside>
 
 <div class="studio"><div class="frames" id="frames"></div></div>
 
@@ -6967,6 +7017,9 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
   var wrap = document.getElementById('frames');
   var frameNo = 0, deskNo = 0, tabNo = 0;
+  function slug(s){
+    return s.toLowerCase().replace(/&[a-z]+;/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
   // Desktop and tablet frames are assembled from parts on a stage, 1440 by 900
   // unless the template sets data-size, which is scaled to the width its frame
   // gets. Tablet frames share a row, sized so both scale alike.
@@ -6974,6 +7027,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     var size = (tpl.getAttribute('data-size') || '1440x900').split('x');
     var col = document.createElement('div');
     col.className = 'deskwrap';
+    col.id = 'frame-' + f.id;
     col.dataset.kind = f.tablet ? 'tablet' : 'desk';
     if(f.tablet){ col.style.flex = size[0] + ' 1 0'; col.style.maxWidth = size[0] + 'px'; }
     var label = document.createElement('p');
@@ -7026,6 +7080,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     if(f.section){
       var h = document.createElement('div');
       h.className = 'frames-head';
+      h.id = 'sec-' + slug(f.section);
       h.innerHTML = '<h2>' + f.section + '</h2><p>' + f.text + '</p>';
       wrap.appendChild(h);
       return;
@@ -7042,6 +7097,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     }
     var col = document.createElement('div');
     col.className = 'framewrap';
+    col.id = 'frame-' + f.id;
     var label = document.createElement('p');
     label.className = 'frame-label';
     label.innerHTML = (++frameNo) + '. ' + f.label;
@@ -7062,6 +7118,150 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     col.appendChild(phone);
     wrap.appendChild(col);
   });
+
+  function deviceLabel(f){
+    if(f.desktop) return 'Desktop';
+    var tpl = document.getElementById('tpl-' + f.id);
+    var size = (tpl && tpl.getAttribute('data-size') || '1180x820').split('x');
+    return +size[0] >= +size[1] ? 'Landscape' : 'Portrait';
+  }
+  var nav = document.getElementById('gal-nav');
+  var navList = document.getElementById('gal-nav-list');
+  var navToggle = document.getElementById('gal-nav-toggle');
+  var wideNav = window.matchMedia('(min-width: 1100px)');
+  nav.tabIndex = -1;
+  (function buildNav(){
+    var sections = [], cur = null, set = null;
+    FRAMES.forEach(function(f){
+      if(f.section){
+        cur = {title: f.section, id: 'sec-' + slug(f.section), sets: []};
+        sections.push(cur);
+        set = null;
+        return;
+      }
+      if(!document.getElementById('tpl-' + f.id)) return;
+      if(f.desktop || f.tablet){
+        if(set) set.devices.push({id: f.id, label: deviceLabel(f)});
+        return;
+      }
+      set = {id: f.id, label: f.label, devices: []};
+      if(cur) cur.sets.push(set);
+    });
+    sections.forEach(function(sec, i){
+      var box = document.createElement('div');
+      box.className = 'gal-sec is-open';
+      var row = document.createElement('div');
+      row.className = 'gal-sec-row';
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'gal-sec-toggle';
+      btn.setAttribute('aria-expanded', 'true');
+      btn.setAttribute('aria-controls', 'gal-sec-' + i);
+      btn.innerHTML = '<span class="gal-nav-chevron" aria-hidden="true"></span>';
+      var name = document.createElement('a');
+      name.className = 'gal-sec-name';
+      name.href = '#' + sec.id;
+      name.innerHTML = sec.title;
+      function setSecOpen(open){
+        box.classList.toggle('is-open', open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        btn.setAttribute('aria-label', (open ? 'Collapse ' : 'Expand ') + name.textContent);
+      }
+      setSecOpen(true);
+      btn.addEventListener('click', function(){ setSecOpen(!box.classList.contains('is-open')); });
+      name.addEventListener('click', function(){ setSecOpen(true); });
+      row.appendChild(btn);
+      row.appendChild(name);
+      var body = document.createElement('div');
+      body.className = 'gal-sec-body';
+      body.id = 'gal-sec-' + i;
+      sec.sets.forEach(function(st){
+        var block = document.createElement('div');
+        block.className = 'gal-set';
+        var link = document.createElement('a');
+        link.className = 'gal-set-name';
+        link.href = '#frame-' + st.id;
+        link.innerHTML = st.label;
+        block.appendChild(link);
+        if(st.devices.length){
+          var devs = document.createElement('div');
+          devs.className = 'gal-devs';
+          st.devices.forEach(function(d){
+            var a = document.createElement('a');
+            a.className = 'gal-dev';
+            a.href = '#frame-' + d.id;
+            a.textContent = d.label;
+            devs.appendChild(a);
+          });
+          block.appendChild(devs);
+        }
+        body.appendChild(block);
+      });
+      box.appendChild(row);
+      box.appendChild(body);
+      navList.appendChild(box);
+    });
+  })();
+  var navToggles = document.querySelectorAll('.js-gal-nav-toggle');
+  function setNavOpen(open){
+    nav.classList.toggle('is-open', open);
+    document.body.classList.toggle('gal-nav-open', open);
+    navToggles.forEach(function(btn){ btn.setAttribute('aria-expanded', open ? 'true' : 'false'); });
+  }
+  navToggles.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var open = !nav.classList.contains('is-open');
+      setNavOpen(open);
+      if(open) nav.focus();
+    });
+  });
+  nav.addEventListener('keydown', function(e){
+    if(e.key !== 'Escape') return;
+    e.preventDefault();
+    setNavOpen(false);
+    var topBtn = document.getElementById('gal-nav-toggle-top');
+    (topBtn.getBoundingClientRect().bottom > 0 ? topBtn : navToggle).focus();
+  });
+  navList.addEventListener('click', function(e){
+    var a = e.target.closest('a');
+    if(!a || a.classList.contains('gal-sec-name')) return;
+    if(!wideNav.matches) setNavOpen(false);
+  });
+  setNavOpen(wideNav.matches);
+  var spyLinks = Array.prototype.map.call(navList.querySelectorAll('a[href^="#"]'), function(a){
+    return {a: a, el: document.getElementById(a.hash.slice(1))};
+  }).filter(function(t){ return t.el; });
+  var spyTick = false, lastHere = null;
+  function markHere(){
+    if(typeof mixer === 'undefined' || !mixer) return;
+    syncScrollPad();
+    var pad = mixer.getBoundingClientRect().bottom + 8, here = null, hereTop = -Infinity;
+    spyLinks.forEach(function(t){
+      var top = t.el.getBoundingClientRect().top;
+      if(top <= pad && top > hereTop + 40){ here = t.a; hereTop = top; }
+    });
+    spyLinks.forEach(function(t){ t.a.removeAttribute('aria-current'); });
+    if(!here){ lastHere = null; return; }
+    here.setAttribute('aria-current', 'location');
+    if(here === lastHere) return;
+    lastHere = here;
+    var sec = here.closest('.gal-sec');
+    if(sec && !sec.classList.contains('is-open')){
+      var btn = sec.querySelector('.gal-sec-toggle');
+      sec.classList.add('is-open');
+      btn.setAttribute('aria-expanded', 'true');
+      btn.setAttribute('aria-label', 'Collapse ' + sec.querySelector('.gal-sec-name').textContent);
+    }
+    var ar = here.getBoundingClientRect(), lr = navList.getBoundingClientRect();
+    var inset = mixer.getBoundingClientRect().bottom - lr.top + 8;
+    if(inset < 8) inset = 8;
+    if(ar.top < lr.top + inset || ar.bottom > lr.bottom - 8) navList.scrollTop += ar.top - lr.top - inset;
+  }
+  window.addEventListener('scroll', function(){
+    if(spyTick) return;
+    spyTick = true;
+    requestAnimationFrame(function(){ spyTick = false; markHere(); });
+  }, {passive: true});
 
   var lives = document.querySelectorAll('.live');
   var picks = {paper:BASE.paper, sheet:BASE.sheet, a:BASE.a, b:BASE.b, mix:BASE.mix};
@@ -7451,15 +7651,27 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   var mixer = document.getElementById('mixer');
   var mixerToggle = document.getElementById('mixer-toggle');
   var mixerAction = document.getElementById('mixer-action');
+  function syncScrollPad(){
+    var r = mixer.getBoundingClientRect();
+    document.documentElement.style.setProperty('--gal-pad', (r.top <= 1 ? r.bottom : 16) + 'px');
+    document.documentElement.style.setProperty('--gal-jump', (mixer.offsetHeight + 12) + 'px');
+  }
   function setMixerOpen(open){
     mixer.classList.toggle('is-closed', !open);
     mixerToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
     mixerAction.textContent = open ? 'Hide inks' : 'Show inks';
+    syncScrollPad();
   }
   mixerToggle.addEventListener('click', function(){
     setMixerOpen(mixer.classList.contains('is-closed'));
   });
   setMixerOpen(!window.matchMedia('(max-width: 720px)').matches);
+  window.addEventListener('resize', syncScrollPad);
+  if(location.hash){
+    var jump = document.getElementById(location.hash.slice(1));
+    if(jump) jump.scrollIntoView();
+  }
+  markHere();
 
   paint();
 })();
