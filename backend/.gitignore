@@ -1,0 +1,33 @@
+# Ignore bundler config
+/.bundle
+
+# Environment variables / local secrets
+/.env*
+!/.env.example
+
+# Rails credentials key
+/config/master.key
+/config/credentials/*.key
+
+# Runtime files
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+
+# PID files
+/tmp/pids/*
+!/tmp/pids/.keep
+
+# Test coverage
+/coverage
+
+# Ruby/Rails generated artifacts
+*.rbc
+
+# OS/editor junk
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo

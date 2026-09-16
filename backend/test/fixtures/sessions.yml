@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  token_digest: token-digest-one
+  expires_at: 2026-09-15 12:40:41
+
+two:
+  user: two
+  token_digest: token-digest-two
+  expires_at: 2026-09-15 12:40:41

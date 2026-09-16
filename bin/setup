@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# find the repo root regardless of where exactly this script is being run from
+repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+# start the postgres docker container
+docker compose up -d --wait postgres
+(cd backend && bin/setup --skip-server)
