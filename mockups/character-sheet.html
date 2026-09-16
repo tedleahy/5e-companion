@@ -7339,6 +7339,229 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 </template>
 
 <!-- ============================================================
+     DESKTOP AND TABLET PARTS, THORN GRIMSBY
+     A no-spell fighter's small sheet, built once and shared by the
+     catalog and menu desktop and tablet frames. Third column carries
+     Gear and Character as tabs, so no column sits empty without Spells.
+     ============================================================ -->
+<template id="tpl-part-thorn-plate">
+  <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+  <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">T<b>8</b></div>
+  <div class="who">
+    <h2 class="sname">Thorn Grimsby</h2>
+    <p class="ssub">Mountain dwarf fighter 8, Champion</p>
+    <div class="hmarks">
+      <span class="mark">Second wind ready</span>
+      <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
+    </div>
+  </div>
+  <div class="vitals" role="button" tabindex="0" aria-label="68 of 72 hit points. Open the hit point pad" aria-haspopup="dialog" aria-expanded="false">
+    <div class="hprow">
+      <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div>
+    </div>
+    <p class="hpline"><b>68</b>/72 hit points. Click to heal or damage.</p>
+  </div>
+  <div class="rail">
+    <div class="ac" role="button" tabindex="0" aria-label="Armor class 18"><span>18<em>AC</em></span></div>
+    <button class="tile"><b>+1</b><em>Initiative</em></button>
+    <button class="tile"><b>25</b><em>Speed</em></button>
+    <button class="tile"><b>+3</b><em>Proficiency</em></button>
+  </div>
+  <button class="restbtn">Rest</button>
+  <button class="icnbtn" aria-label="Sheet menu" aria-haspopup="dialog" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+</template>
+<template id="tpl-part-thorn-strip">
+  <div class="dhead" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg>Play</div>
+  <div class="dhead" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"/><path d="M8 4.8l3 5.2H5z"/></svg>Stats</div>
+  <div class="dtabs" role="tablist" aria-label="Third column">
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 6.5h9l-.8 7h-7.4z"/><path d="M6 6.5V5a2 2 0 0 1 4 0v1.5"/></svg><span>Gear</span></button>
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="5.3" r="2.6"/><path d="M3 14c.6-3 2.5-4.6 5-4.6s4.4 1.6 5 4.6"/></svg><span>Character</span></button>
+  </div>
+</template>
+<template id="tpl-part-thorn-strip-tablet">
+  <div class="dhead" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg>Play</div>
+  <div class="dtabs" role="tablist" aria-label="Second column">
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"/><path d="M8 4.8l3 5.2H5z"/></svg><span>Stats</span></button>
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 6.5h9l-.8 7h-7.4z"/><path d="M6 6.5V5a2 2 0 0 1 4 0v1.5"/></svg><span>Gear</span></button>
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="5.3" r="2.6"/><path d="M3 14c.6-3 2.5-4.6 5-4.6s4.4 1.6 5 4.6"/></svg><span>Character</span></button>
+  </div>
+</template>
+<template id="tpl-part-thorn-play">
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Resources <span>Click a box to spend</span></h3>
+      <div class="res"><div class="resl"><b>Second wind</b><span>Heal 1d10+8, short rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Second wind" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div></div>
+      <div class="res"><div class="resl"><b>Action surge</b><span>One extra action, short rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Action surge" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div></div>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d10, half back on a long rest</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="8" aria-valuenow="8" aria-valuetext="8 of 8 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i></div></div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Attacks</h3>
+      <div class="atkh"><span>Attack</span><span style="text-align:center">Hit</span><span style="text-align:right">Damage</span></div>
+      <div class="atk">
+        <div><b>Warhammer</b><small>Melee, 5 ft, versatile 1d10</small></div>
+        <div class="hit">+7</div>
+        <div class="dmg">1d8+6<em>bludgeoning</em></div>
+      </div>
+      <div class="atk">
+        <div><b>Handaxe</b><small>20/60 ft thrown</small></div>
+        <div class="hit">+7</div>
+        <div class="dmg">1d6+4<em>slashing</em></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Actions</h3>
+      <p class="grp">Action</p>
+      <button class="act"><div class="actl"><b>Attack</b><span>Two attacks, plus a special attack</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Action surge</b><span>One extra action, 1 of 1 left</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Common actions</b><span>Dash, Disengage, Dodge, Help, Hide, Ready, Search</span></div><i class="chev"></i></button>
+      <p class="grp">Bonus action</p>
+      <button class="act"><div class="actl"><b>Second wind</b><span>Heal 1d10+8, 1 of 1 left</span></div><i class="chev"></i></button>
+      <p class="grp">Reaction</p>
+      <button class="act"><div class="actl"><b>Opportunity attack</b><span>Warhammer, +7 to hit</span></div><i class="chev"></i></button>
+    </section>
+  </div>
+</template>
+<template id="tpl-part-thorn-stats">
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Abilities <span>Proficiency +3</span><button class="editbtn">Edit</button></h3>
+      <div class="abil">
+        <div><em>Strength</em><b>+4</b><span>18</span></div>
+        <div><em>Dexterity</em><b>+1</b><span>12</span></div>
+        <div><em>Constitution</em><b>+3</b><span>16</span></div>
+        <div><em>Intelligence</em><b>+0</b><span>10</span></div>
+        <div><em>Wisdom</em><b>+1</b><span>13</span></div>
+        <div><em>Charisma</em><b>&minus;1</b><span>8</span></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Saving throws</h3>
+      <div class="skills">
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Strength</span><b>+7</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Dexterity</span><b>+1</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Constitution</span><b>+6</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Intelligence</span><b>+0</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Wisdom</span><b>+1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Charisma</span><b>&minus;1</b></button>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Skills <button class="editbtn">Edit</button></h3>
+      <p class="legend">
+        <span><i class="rank"></i>None</span><span><i class="rank" data-r="half"></i>Half</span>
+        <span><i class="rank" data-r="prof"></i>Proficient</span><span><i class="rank" data-r="exp"></i>Expertise</span>
+      </p>
+      <div class="skills">
+        <button class="skill"><i class="rank" data-r="half"></i><span class="lbl">Acrobatics</span><b>+2</b></button>
+        <button class="skill"><i class="rank" data-r="half"></i><span class="lbl">Animal handling</span><b>+2</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Arcana</span><b>+0</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Athletics</span><b>+7</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Deception</span><b>&minus;1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">History</span><b>+0</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Insight</span><b>+4</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Intimidation</span><b>+2</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Investigation</span><b>+0</b></button>
+        <button class="skill"><i class="rank" data-r="half"></i><span class="lbl">Medicine</span><b>+2</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Nature</span><b>+0</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Perception</span><b>+4</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Performance</span><b>&minus;1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Persuasion</span><b>&minus;1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Religion</span><b>+0</b></button>
+        <button class="skill"><i class="rank" data-r="half"></i><span class="lbl">Sleight of hand</span><b>+2</b></button>
+        <button class="skill"><i class="rank" data-r="half"></i><span class="lbl">Stealth</span><b>+2</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Survival</span><b>+1</b></button>
+      </div>
+      <p class="padnote">Remarkable Athlete adds half proficiency to the Strength, Dexterity and Constitution skills he isn&rsquo;t already proficient in.</p>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Passive scores</h3>
+      <div class="caststats" style="margin-top:0">
+        <div><b>14</b><em>Perception</em></div>
+        <div><b>10</b><em>Investigation</em></div>
+        <div><b>14</b><em>Insight</em></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Proficiencies and languages <button class="editbtn">Edit</button></h3>
+      <dl class="kv">
+        <dt>Armor</dt><dd>All armor, shields</dd>
+        <dt>Weapons</dt><dd>Simple and martial weapons</dd>
+        <dt>Tools</dt><dd>Smith&rsquo;s tools, brewer&rsquo;s supplies</dd>
+        <dt>Languages</dt><dd>Common, Dwarvish</dd>
+      </dl>
+    </section>
+  </div>
+</template>
+<template id="tpl-part-thorn-gear">
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Money <span>Click to change</span></h3>
+      <div class="coins">
+        <button class="coin"><b>18</b><em>Copper</em></button>
+        <button class="coin"><b>25</b><em>Silver</em></button>
+        <button class="coin"><b>0</b><em>Electrum</em></button>
+        <button class="coin"><b>63</b><em>Gold</em></button>
+        <button class="coin"><b>2</b><em>Platinum</em></button>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Equipped <button class="editbtn">Edit</button></h3>
+      <button class="act"><div class="actl"><b>Chain mail</b><span>Heavy armor, AC 16</span></div><span class="mark">Worn</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Shield</b><span>+2 AC</span></div><span class="mark">In hand</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Warhammer</b><span>Martial melee, versatile 1d10</span></div><span class="mark">In hand</span><i class="chev"></i></button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Carried <button class="editbtn">Edit</button></h3>
+      <button class="act"><div class="actl"><b>Handaxe</b><span>Two, martial melee, thrown</span></div><span class="mark">2</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Explorer&rsquo;s pack</b><span>Bedroll, rations, rope and the rest</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Smith&rsquo;s tools</b><span>Mend and make metal</span></div><i class="chev"></i></button>
+    </section>
+  </div>
+</template>
+<template id="tpl-part-thorn-character">
+  <div class="body pad-bottom">
+    <div class="cast">
+      <div class="casttop"><b>Fighter 8</b><span>Level up when your table does</span></div>
+      <p class="padnote" style="margin-top:6px">Nothing on the sheet changes until you confirm the level-up.</p>
+      <button class="gobtn" style="width:100%;margin-top:12px">Level up to 9</button>
+    </div>
+
+    <section class="block" data-k="features">
+      <h3 class="bhead">Features and traits <button class="editbtn">Edit</button></h3>
+      <p class="grp">Fighter 8</p>
+      <button class="act"><div class="actl"><b>Fighting style: Dueling</b><span>+2 damage with a one-handed weapon</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Second wind</b><span>Heal 1d10+8, short rest</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Action surge</b><span>One extra action, short rest</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Extra attack</b><span>Attack twice with the Attack action</span></div><i class="chev"></i></button>
+      <p class="grp">Champion</p>
+      <button class="act"><div class="actl"><b>Improved critical</b><span>Critical hit on a 19 or 20</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Remarkable athlete</b><span>Half proficiency to Str, Dex and Con checks</span></div><i class="chev"></i></button>
+      <p class="grp">Mountain dwarf</p>
+      <button class="act"><div class="actl"><b>Darkvision</b><span>See 60 ft in dim light</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Dwarven resilience</b><span>Advantage against poison, resistance to it</span></div><i class="chev"></i></button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">About Thorn <button class="editbtn">Edit</button></h3>
+      <dl class="kv">
+        <dt>Alignment</dt><dd>Lawful neutral</dd>
+        <dt>Age</dt><dd>73</dd>
+        <dt>Height</dt><dd>4 ft 6 in</dd>
+        <dt>Appearance</dt><dd>A beard braided with iron rings, one for each debt repaid</dd>
+      </dl>
+    </section>
+  </div>
+</template>
+
+<!-- ============================================================
      CATALOG AND MENU, ADDING A FEATURE FROM THE CATALOG
      ============================================================ -->
 <template id="tpl-add-feature-catalog">
@@ -7516,6 +7739,308 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <button class="menuitem close">Close</button>
   </div>
 </div>
+</template>
+
+<!-- ============================================================
+     DESKTOP AND TABLET PARTS, MUDGE TEALEAF
+     An arcane trickster rogue, built once and shared by the conditions,
+     death save and rolling dice desktop and tablet frames. Three plate
+     states: the default, dying at zero, and dead. The columns stay the
+     same across all of them. Third column carries Spells, Gear and
+     Character as tabs.
+     ============================================================ -->
+<template id="tpl-part-mudge-plate">
+  <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+  <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+  <div class="who">
+    <h2 class="sname">Mudge Tealeaf</h2>
+    <p class="ssub">Lightfoot halfling rogue 4, Arcane trickster</p>
+    <div class="hmarks">
+      <button class="mark" data-t="bad" aria-label="Poisoned, open status" aria-haspopup="dialog" aria-expanded="false">Poisoned</button>
+      <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
+    </div>
+  </div>
+  <div class="vitals" role="button" tabindex="0" aria-label="9 of 27 hit points. Open the hit point pad" aria-haspopup="dialog" aria-expanded="false">
+    <div class="hprow">
+      <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+    </div>
+    <p class="hpline"><b>9</b>/27 hit points. Click to heal or damage.</p>
+  </div>
+  <div class="rail">
+    <div class="ac" role="button" tabindex="0" aria-label="Armor class 15"><span>15<em>AC</em></span></div>
+    <button class="tile"><b>+4</b><em>Initiative</em></button>
+    <button class="tile"><b>25</b><em>Speed</em></button>
+    <button class="tile"><b>11</b><em>Spell save</em></button>
+  </div>
+  <button class="restbtn">Rest</button>
+  <button class="icnbtn" aria-label="Sheet menu" aria-haspopup="dialog" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+</template>
+<template id="tpl-part-mudge-plate-dying">
+  <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+  <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+  <div class="who">
+    <h2 class="sname">Mudge Tealeaf</h2>
+    <p class="ssub">Lightfoot halfling rogue 4, Arcane trickster</p>
+    <div class="hmarks">
+      <button class="mark" data-t="bad" aria-label="Unconscious, open status" aria-haspopup="dialog" aria-expanded="false">Unconscious</button>
+      <button class="mark" data-t="bad" aria-label="Poisoned, open status" aria-haspopup="dialog" aria-expanded="false">Poisoned</button>
+      <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
+    </div>
+  </div>
+  <div class="vitals" role="button" tabindex="0" aria-label="0 of 27 hit points, dying. Open the hit point pad" aria-haspopup="dialog" aria-expanded="false">
+    <div class="hprow">
+      <div class="meter" data-hurt aria-hidden="true"><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+    </div>
+    <p class="hpline"><b>0</b>/27 hit points, dying</p>
+  </div>
+  <div class="dyingbox" role="button" tabindex="0" aria-label="Death saves, 1 success and 2 failures, open the death save pad" aria-haspopup="dialog" aria-expanded="false">
+    <p>Death saves</p>
+    <div class="saves">
+      <span data-k="ok"><i data-on></i><i></i><i></i></span>
+      <span data-k="bad"><i data-on></i><i data-on></i><i></i></span>
+    </div>
+    <p style="margin-left:auto">1 success, 2 failures</p>
+  </div>
+  <button class="icnbtn" aria-label="Sheet menu" aria-haspopup="dialog" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+</template>
+<template id="tpl-part-mudge-plate-dead">
+  <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+  <div class="tok" data-state="dead" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+  <div class="who">
+    <h2 class="sname">Mudge Tealeaf</h2>
+    <p class="ssub">Lightfoot halfling rogue 4, Arcane trickster</p>
+    <div class="hmarks">
+      <span class="mark" data-t="bad">Dead</span>
+    </div>
+  </div>
+  <div class="vitals" role="button" tabindex="0" aria-label="0 of 27 hit points, 3 death save failures. Open the hit point pad" aria-haspopup="dialog" aria-expanded="false">
+    <p class="hpline" style="margin-top:0"><b>0</b>/27 hit points, 3 death save failures</p>
+  </div>
+  <button class="icnbtn" aria-label="Sheet menu" aria-haspopup="dialog" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+</template>
+<template id="tpl-part-mudge-strip">
+  <div class="dhead" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg>Play</div>
+  <div class="dhead" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"/><path d="M8 4.8l3 5.2H5z"/></svg>Stats</div>
+  <div class="dtabs" role="tablist" aria-label="Third column">
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg><span>Spells</span></button>
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 6.5h9l-.8 7h-7.4z"/><path d="M6 6.5V5a2 2 0 0 1 4 0v1.5"/></svg><span>Gear</span></button>
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="5.3" r="2.6"/><path d="M3 14c.6-3 2.5-4.6 5-4.6s4.4 1.6 5 4.6"/></svg><span>Character</span></button>
+  </div>
+</template>
+<template id="tpl-part-mudge-strip-tablet">
+  <div class="dhead" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 3 5.5 10.5M3.5 8.5l4 4M5 11l-2.5 2.5"/></svg>Play</div>
+  <div class="dtabs" role="tablist" aria-label="Second column">
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"/><path d="M8 4.8l3 5.2H5z"/></svg><span>Stats</span></button>
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg><span>Spells</span></button>
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 6.5h9l-.8 7h-7.4z"/><path d="M6 6.5V5a2 2 0 0 1 4 0v1.5"/></svg><span>Gear</span></button>
+    <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="5.3" r="2.6"/><path d="M3 14c.6-3 2.5-4.6 5-4.6s4.4 1.6 5 4.6"/></svg><span>Character</span></button>
+  </div>
+</template>
+<template id="tpl-part-mudge-play">
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Resources <span>Click a box to spend</span></h3>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" aria-valuetext="1 of 4 left"><i data-on></i><i></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Spell slots</b><span>1st level, long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Spell slots" aria-valuemin="0" aria-valuemax="3" aria-valuenow="3" aria-valuetext="3 of 3 left"><i data-on></i><i data-on></i><i data-on></i></div></div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Attacks</h3>
+      <div class="atkh"><span>Attack</span><span style="text-align:center">Hit</span><span style="text-align:right">Damage</span></div>
+      <div class="atk">
+        <div><b>Shortsword</b><small>Melee, 5 ft, finesse</small></div>
+        <div class="hit">+6</div>
+        <div class="dmg">1d6+4<em>piercing, plus 2d6 sneak</em></div>
+      </div>
+      <div class="atk">
+        <div><b>Shortbow</b><small>80/320 ft</small></div>
+        <div class="hit">+6</div>
+        <div class="dmg">1d6+4<em>piercing, plus 2d6 sneak</em></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Actions</h3>
+      <p class="grp">Action</p>
+      <button class="act"><div class="actl"><b>Attack</b><span>Shortsword or shortbow, plus a special attack</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Cast a spell</b><span>4 known, 3 slots left</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Common actions</b><span>Dash, Disengage, Dodge, Help, Hide, Ready, Search</span></div><i class="chev"></i></button>
+      <p class="grp">Bonus action</p>
+      <button class="act"><div class="actl"><b>Cunning action</b><span>Dash, Disengage or Hide</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Mage hand</b><span>Legerdemain, 30 ft</span></div><i class="chev"></i></button>
+      <p class="grp">Reaction</p>
+      <button class="act"><div class="actl"><b>Opportunity attack</b><span>Shortsword, +6 to hit</span></div><i class="chev"></i></button>
+    </section>
+  </div>
+</template>
+<template id="tpl-part-mudge-stats">
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Abilities <span>Proficiency +2</span><button class="editbtn">Edit</button></h3>
+      <div class="abil">
+        <div><em>Strength</em><b>&minus;1</b><span>8</span></div>
+        <div><em>Dexterity</em><b>+4</b><span>18</span></div>
+        <div><em>Constitution</em><b>+1</b><span>13</span></div>
+        <div><em>Intelligence</em><b>+1</b><span>12</span></div>
+        <div><em>Wisdom</em><b>+1</b><span>12</span></div>
+        <div><em>Charisma</em><b>+1</b><span>13</span></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Saving throws</h3>
+      <div class="skills">
+        <button class="skill"><i class="rank"></i><span class="lbl">Strength</span><b>&minus;1</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Dexterity</span><b>+6</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Constitution</span><b>+1</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Intelligence</span><b>+3</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Wisdom</span><b>+1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Charisma</span><b>+1</b></button>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Skills <button class="editbtn">Edit</button></h3>
+      <p class="legend">
+        <span><i class="rank"></i>None</span><span><i class="rank" data-r="half"></i>Half</span>
+        <span><i class="rank" data-r="prof"></i>Proficient</span><span><i class="rank" data-r="exp"></i>Expertise</span>
+      </p>
+      <div class="skills">
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Acrobatics</span><b>+6</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Animal handling</span><b>+1</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Arcana</span><b>+3</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Athletics</span><b>&minus;1</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Deception</span><b>+3</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">History</span><b>+1</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Insight</span><b>+3</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Intimidation</span><b>+1</b></button>
+        <button class="skill"><i class="rank" data-r="exp"></i><span class="lbl">Investigation</span><b>+5</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Medicine</span><b>+1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Nature</span><b>+1</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Perception</span><b>+3</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Performance</span><b>+1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Persuasion</span><b>+1</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Religion</span><b>+1</b></button>
+        <button class="skill"><i class="rank" data-r="exp"></i><span class="lbl">Sleight of hand</span><b>+8</b></button>
+        <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Stealth</span><b>+6</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Survival</span><b>+1</b></button>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Passive scores</h3>
+      <div class="caststats" style="margin-top:0">
+        <div><b>13</b><em>Perception</em></div>
+        <div><b>15</b><em>Investigation</em></div>
+        <div><b>13</b><em>Insight</em></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Proficiencies and languages <button class="editbtn">Edit</button></h3>
+      <dl class="kv">
+        <dt>Armor</dt><dd>Light armor</dd>
+        <dt>Weapons</dt><dd>Simple weapons, hand crossbows, longswords, rapiers, shortswords</dd>
+        <dt>Tools</dt><dd>Thieves&rsquo; tools, expertise</dd>
+        <dt>Languages</dt><dd>Common, Halfling, Thieves&rsquo; Cant</dd>
+      </dl>
+    </section>
+  </div>
+</template>
+<template id="tpl-part-mudge-spells">
+  <div class="body pad-bottom">
+    <div class="cast">
+      <div class="casttop"><b>Arcane trickster</b><span>Level 4</span></div>
+      <div class="caststats">
+        <div><b>Int</b><em>Ability</em></div>
+        <div><b>11</b><em>Save DC</em></div>
+        <div><b>+3</b><em>Attack</em></div>
+      </div>
+      <div class="res" style="margin-top:10px;border-top:1.5px solid transparent;padding-top:11px">
+        <div class="resl"><b>4 spells known</b><span>Mostly enchantment and illusion</span></div>
+      </div>
+    </div>
+
+    <label class="findp"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+      <input placeholder="Find a known spell" aria-label="Find a known spell"></label>
+
+    <section class="block">
+      <h3 class="bhead">Cantrips <span>At will</span></h3>
+      <button class="act"><div class="actl"><b>Mage hand</b><span>Legerdemain, bonus action, 30 ft</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Minor illusion</b><span>Action, 30 ft</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Prestidigitation</b><span>Action, 10 ft</span></div><i class="chev"></i></button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">1st level <span>3 slots left</span></h3>
+      <button class="act"><div class="actl"><b>Disguise self</b><span>Action, self, 1 hour</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Sleep</b><span>Action, 90 ft, 1 minute</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Charm person</b><span>Action, 30 ft, 1 hour</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Find familiar</b><span>Ritual, 10 minutes</span></div><i class="chev"></i></button>
+    </section>
+  </div>
+</template>
+<template id="tpl-part-mudge-gear">
+  <div class="body pad-bottom">
+    <section class="block">
+      <h3 class="bhead">Money <span>Click to change</span></h3>
+      <div class="coins">
+        <button class="coin"><b>34</b><em>Copper</em></button>
+        <button class="coin"><b>19</b><em>Silver</em></button>
+        <button class="coin"><b>0</b><em>Electrum</em></button>
+        <button class="coin"><b>28</b><em>Gold</em></button>
+        <button class="coin"><b>0</b><em>Platinum</em></button>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Equipped <button class="editbtn">Edit</button></h3>
+      <button class="act"><div class="actl"><b>Leather armor</b><span>Light armor, AC 11 + Dex</span></div><span class="mark">Worn</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Shortsword</b><span>Martial melee, finesse</span></div><span class="mark">In hand</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Shortbow</b><span>Simple ranged, 80/320 ft</span></div><span class="mark">Slung</span><i class="chev"></i></button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Carried <button class="editbtn">Edit</button></h3>
+      <button class="act"><div class="actl"><b>Thieves&rsquo; tools</b><span>Pick locks, disarm traps</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Burglar&rsquo;s pack</b><span>Rope, bell, candles and the rest</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Arrows</b><span>Twenty</span></div><span class="mark">20</span><i class="chev"></i></button>
+    </section>
+  </div>
+</template>
+<template id="tpl-part-mudge-character">
+  <div class="body pad-bottom">
+    <div class="cast">
+      <div class="casttop"><b>Rogue 4</b><span>Level up when your table does</span></div>
+      <p class="padnote" style="margin-top:6px">Nothing on the sheet changes until you confirm the level-up.</p>
+      <button class="gobtn" style="width:100%;margin-top:12px">Level up to 5</button>
+    </div>
+
+    <section class="block" data-k="features">
+      <h3 class="bhead">Features and traits <button class="editbtn">Edit</button></h3>
+      <p class="grp">Rogue 4</p>
+      <button class="act"><div class="actl"><b>Sneak attack</b><span>2d6 extra, once a turn</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Cunning action</b><span>Dash, Disengage or Hide as a bonus action</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Expertise</b><span>Double proficiency on Stealth and Sleight of hand</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Thieves&rsquo; cant</b><span>Secret signs and slang</span></div><i class="chev"></i></button>
+      <p class="grp">Arcane trickster</p>
+      <button class="act"><div class="actl"><b>Spellcasting</b><span>Intelligence, wizard spells</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Mage hand legerdemain</b><span>An invisible, nimble hand</span></div><i class="chev"></i></button>
+      <p class="grp">Lightfoot halfling</p>
+      <button class="act"><div class="actl"><b>Lucky</b><span>Re-roll a 1 on an attack, check or save</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Naturally stealthy</b><span>Hide behind a larger creature</span></div><i class="chev"></i></button>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">About Mudge <button class="editbtn">Edit</button></h3>
+      <dl class="kv">
+        <dt>Alignment</dt><dd>Chaotic good</dd>
+        <dt>Age</dt><dd>31</dd>
+        <dt>Height</dt><dd>3 ft 2 in</dd>
+        <dt>Appearance</dt><dd>Quick hands, quicker grin, and pockets that are never quite empty</dd>
+      </dl>
+    </section>
+  </div>
 </template>
 
 <!-- ============================================================
