@@ -9161,6 +9161,200 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 </template>
 
 <!-- ============================================================
+     DEATH SAVES — desktop and tablet
+     ============================================================ -->
+<template id="tpl-part-death-save">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close hit points"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who"><h2 class="sname">Hit points</h2>
+        <p class="ssub">Mudge Tealeaf</p></div>
+    </div>
+    <p class="hpline"><b>0</b>/27 hit points, dying</p>
+  </div>
+
+  <div class="body pad-bottom">
+    <div class="pad" style="margin-top:0">
+      <div class="padtabs" role="tablist" aria-label="Hit point pad"><button role="tab" aria-selected="true" tabindex="0">Death save</button><button role="tab" aria-selected="false" tabindex="-1">Damage</button><button role="tab" aria-selected="false" tabindex="-1">Heal</button></div>
+      <div class="dsrows">
+        <div class="res"><div class="resl"><b>Successes</b><span>Three and Mudge is stable</span></div><div class="pips ds-ok" role="spinbutton" tabindex="0" aria-label="Death save successes" aria-valuemin="0" aria-valuemax="3" aria-valuenow="1" aria-valuetext="1 of 3"><i data-on></i><i></i><i></i></div></div>
+        <div class="res"><div class="resl"><b>Failures</b><span>Three and Mudge dies</span></div><div class="pips ds-bad" role="spinbutton" tabindex="0" aria-label="Death save failures" aria-valuemin="0" aria-valuemax="3" aria-valuenow="2" aria-valuetext="2 of 3"><i data-on></i><i data-on></i><i></i></div></div>
+      </div>
+      <button class="castbtn" style="margin-top:12px">Roll d20</button>
+      <p class="grp" style="margin:14px 0 0">Rolled at the table</p>
+      <div class="quick" role="group" aria-label="Death save rolled at the table"><button>1</button><button>2 to 9</button><button>10 to 19</button><button>20</button></div>
+      <p class="padnote"><b>One more failure and Mudge dies.</b> A 1 counts as two failures. A 20 brings Mudge back with 1 hit point.</p>
+      <div class="res" style="margin-top:10px"><div class="resl"><b>Stabilized by someone</b><span>Spare the dying, or a DC 10 Medicine check</span></div><button class="gobtn">Mark stable</button></div>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-d-death-save">
+<div class="desk" data-opener=".dyingbox">
+  <div class="shead attached dplate" data-part="mudge-plate-dying"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="mudge-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="mudge-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="mudge-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="mudge-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="mudge-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="mudge-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Hit points and death saves" data-part="death-save"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-death-save" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".dyingbox">
+  <div class="shead attached dplate" data-part="mudge-plate-dying"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="mudge-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="mudge-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="mudge-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="mudge-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="mudge-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="mudge-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Hit points and death saves" data-part="death-save"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-part-death-damage">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close hit points"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who"><h2 class="sname">Hit points</h2>
+        <p class="ssub">Mudge Tealeaf</p></div>
+    </div>
+    <p class="hpline"><b>0</b>/27 hit points, dying</p>
+  </div>
+
+  <div class="body pad-bottom">
+    <div class="pad" style="margin-top:0">
+      <div class="padtabs" role="tablist" aria-label="Hit point pad"><button role="tab" aria-selected="false" tabindex="-1">Death save</button><button role="tab" aria-selected="true" tabindex="0">Damage</button><button role="tab" aria-selected="false" tabindex="-1">Heal</button></div>
+      <div class="padnum">
+        <button class="step" aria-label="One less">&minus;</button>
+        <b>4</b>
+        <button class="step" aria-label="One more">+</button>
+      </div>
+      <div class="quick"><button>1</button><button>2</button><button>5</button><button>10</button></div>
+      <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Critical hit</b><span>Counts as two failures</span></div></label>
+      <p class="padnote"><b>Mudge is at 0, so damage is a death save failure.</b> This is the third, and Mudge dies. Damage of 27 or more kills outright.</p>
+      <button class="dangerbtn" style="margin-top:11px">Apply 4 damage, Mudge dies</button>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-d-death-damage">
+<div class="desk" data-opener=".vitals">
+  <div class="shead attached dplate" data-part="mudge-plate-dying"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="mudge-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="mudge-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="mudge-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="mudge-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="mudge-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="mudge-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Hit points and death saves" data-part="death-damage"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-death-damage" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".vitals">
+  <div class="shead attached dplate" data-part="mudge-plate-dying"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="mudge-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="mudge-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="mudge-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="mudge-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="mudge-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="mudge-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Hit points and death saves" data-part="death-damage"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-part-bring-back">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close bring back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who"><h2 class="sname">Hit points</h2>
+        <p class="ssub">Mudge Tealeaf</p></div>
+    </div>
+    <p class="hpline"><b>0</b>/27 hit points, 3 death save failures</p>
+  </div>
+
+  <div class="body pad-bottom">
+    <div class="pad" style="margin-top:0">
+      <h3 class="bhead">Bring back <span>Revivify, raise dead</span></h3>
+      <div class="padnum" style="margin-top:0">
+        <button class="step" aria-label="One less">&minus;</button>
+        <b>1</b>
+        <button class="step" aria-label="One more">+</button>
+      </div>
+      <div class="quick"><button>1</button><button>Full, 27</button></div>
+      <p class="padnote">Most magic that returns the dead leaves the creature at 1 hit point. Bringing Mudge back clears both death save counts, and Unconscious ends because hit points came back.</p>
+      <button class="castbtn" style="margin-top:11px">Bring Mudge back at 1 hit point</button>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-d-bring-back">
+<div class="desk" data-opener=".vitals">
+  <div class="shead attached dplate" data-part="mudge-plate-dead"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="mudge-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="mudge-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="mudge-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="mudge-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="mudge-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="mudge-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Bring back" data-part="bring-back"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-bring-back" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".vitals">
+  <div class="shead attached dplate" data-part="mudge-plate-dead"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="mudge-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="mudge-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="mudge-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="mudge-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="mudge-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="mudge-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Bring back" data-part="bring-back"></div>
+  </div>
+</div>
+</template>
+
+<!-- ============================================================
      COMPACT HEADER
      ============================================================ -->
 <template id="tpl-hp-compact">
@@ -9733,10 +9927,22 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
      text:'Finding 22. At 0 hit points the hit point pad gains a Death save tab beside Damage and Heal, so everything that changes a dying character happens in one place. Mudge Tealeaf, later in the fight, continues frame 6.'},
     {id:'death-save', label:'Death save tab, Mudge dying',
      note:'The vitals block and the death saves both open the pad on this tab. Roll turns the tab into the roll in place, as in frame 58. The four buttons are for a roll made at the table: only the band matters, so there is nothing to type, and the app applies the rules either way. The pips correct a mistake with the usual pip rule. Mark stable covers Spare the dying or a Medicine check by someone else, and fills the successes. Unconscious was added automatically at 0 and leaves when Mudge regains hit points.'},
+    {id:'d-death-save', desktop:true, label:'Death save tab in the side panel',
+     note:'The Death save tab opens in the same side panel from the death-saves box. There is no scrim, because the box stays in view on the dying plate, ringed as the opener. Play and Stats stay live. Roll is offered because the app stores the result. The four buttons are for a roll made at the table. Mark stable covers Spare the dying or a Medicine check by someone else.'},
+    {id:'t-death-save', tablet:true, label:'Death save tab in the side panel, portrait',
+     note:'The Death save tab takes the right column from below the strip. The death-saves box stays in view on the dying plate, ringed as the opener. Play stays at the top. There is no scrim, because the plate stays visible.'},
     {id:'death-damage', label:'Damage at 0 hit points',
      note:'At 0, damage is a death save failure, and a critical hit counts as two. Mudge already has two, so the line says this one kills before anything happens, and the button turns destructive and names the outcome. Damage of the maximum or more kills outright, which the app records as three failures.'},
+    {id:'d-death-damage', desktop:true, label:'Damage at 0 hit points in the side panel',
+     note:'At 0, damage is a death save failure, so the Damage tab opens in the side panel from the vitals. There is no scrim, because the vitals and the death-saves box stay in view on the dying plate, with the vitals ringed as the opener. Play and Stats stay live. Mudge already has two failures, so the line says this one kills before anything happens, and the button turns destructive and names the outcome.'},
+    {id:'t-death-damage', tablet:true, label:'Damage at 0 hit points in the side panel, portrait',
+     note:'The Damage tab takes the right column from below the strip. The vitals and the death-saves box stay in view on the dying plate, with the vitals ringed as the opener. Play stays at the top. There is no scrim, because the plate stays visible.'},
     {id:'bring-back', label:'Bringing back a dead character',
      note:'Three failures, so the token loses its ink and the pad offers Bring back in place of Heal, the only thing left to do. Revivify and raise dead return a creature at 1 hit point, so that is the default. It clears both counts, and Unconscious ends because hit points came back.'},
+    {id:'d-bring-back', desktop:true, label:'Bringing back a dead character in the side panel',
+     note:'Three failures, so the pad offers Bring back in the side panel. There is no scrim, because the dead token and the Dead mark stay in view on the plate, with the vitals ringed as the opener. Play and Stats stay live. Revivify and raise dead return a creature at 1 hit point, so that is the default.'},
+    {id:'t-bring-back', tablet:true, label:'Bringing back a dead character in the side panel, portrait',
+     note:'Bring back takes the right column from below the strip. The dead token and the Dead mark stay in view on the plate, with the vitals ringed as the opener. Play stays at the top. There is no scrim, because the plate stays visible.'},
     {section:'Compact header',
      text:'Finding 23. Once the header shrinks, the hit points still open the pad and the most urgent status still shows.'},
     {id:'hp-compact', label:'Hit point pad from the compact header, Mudge',
