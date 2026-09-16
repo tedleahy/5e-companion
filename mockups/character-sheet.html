@@ -9601,6 +9601,201 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 </div>
 </template>
 
+<!-- ============================================================
+     DESKTOP AND TABLET FRAMES, ROLLING DICE
+     The roll replaces Rest (Brenna) or the death-save pad (Mudge)
+     in the side panel, the same as Change or Move. Not a nested sheet.
+     ============================================================ -->
+<template id="tpl-part-roll-table">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close spend hit dice"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Spend hit dice</h2>
+        <p class="ssub">Brenna Duskhollow</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <div class="roll" data-mode="table" data-kind="heal" data-sides="8" data-mod="4" data-current="31" data-max="44" data-name="Brenna" data-poss="her">
+      <div class="dicerow"><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="First d8, 5"><b>5</b><em>d8</em></button></div><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" data-empty aria-pressed="true" aria-label="Second d8, not entered"><b>?</b><em>d8</em></button></div><span class="dieplus">+4</span></div>
+      <p class="dicemath" aria-live="polite">5 + ? + 4</p>
+      <div class="rollafter">
+        <div class="facegrid" role="group" aria-label="What the die shows"><button>1</button><button>2</button><button>3</button><button>4</button><button>5</button><button>6</button><button>7</button><button>8</button></div>
+        <p class="padnote rollnote">Tap what the second die shows. The +4 is added for you.</p>
+        <p class="padnote rollhint">Tap a die to change it.</p>
+        <button class="castbtn rollconfirm" disabled>Enter both dice</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-d-roll-table">
+<div class="desk" data-opener=".dplate .restbtn">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Spend hit dice" data-part="roll-table"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-roll-table" data-size="1180x820">
+<div class="desk tablet" data-opener=".dplate .restbtn">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Spend hit dice" data-part="roll-table"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-part-roll-app">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close spend hit dice"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Spend hit dice</h2>
+        <p class="ssub">Brenna Duskhollow</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <div class="roll" data-mode="app" data-kind="heal" data-sides="8" data-mod="4" data-final="6,5" data-current="31" data-max="44" data-name="Brenna" data-poss="her">
+      <div class="dicerow"><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="First d8, 6"><b>6</b><em>d8</em></button></div><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="Second d8, 5"><b>5</b><em>d8</em></button></div><span class="dieplus">+4</span></div>
+      <p class="dicemath" aria-live="polite">6 + 5 + 4 = <b>15</b></p>
+      <div class="rollafter">
+        <div class="facegrid" role="group" aria-label="What the die shows"><button>1</button><button>2</button><button>3</button><button>4</button><button>5</button><button>6</button><button>7</button><button>8</button></div>
+        <p class="padnote rollnote"><b>13 hit points restored.</b> Brenna reaches her maximum of 44, so 2 are lost.</p>
+        <p class="padnote rollhint">Tap a die to change it.</p>
+        <button class="castbtn rollconfirm">Restore 13 hit points</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-d-roll-app">
+<div class="desk" data-opener=".dplate .restbtn">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Spend hit dice" data-part="roll-app"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-roll-app" data-size="1180x820">
+<div class="desk tablet" data-opener=".dplate .restbtn">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Spend hit dice" data-part="roll-app"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-part-roll-death">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close hit points"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who"><h2 class="sname">Hit points</h2>
+        <p class="ssub">Mudge Tealeaf</p></div>
+    </div>
+    <p class="hpline"><b>0</b>/27 hit points, dying</p>
+  </div>
+
+  <div class="body pad-bottom">
+    <div class="pad" style="margin-top:0">
+      <div class="padtabs" role="tablist" aria-label="Hit point pad"><button role="tab" aria-selected="true" tabindex="0">Death save</button><button role="tab" aria-selected="false" tabindex="-1">Damage</button><button role="tab" aria-selected="false" tabindex="-1">Heal</button></div>
+      <div class="roll" data-mode="app" data-kind="deathsave" data-sides="20" data-final="1" data-successes="1" data-failures="2" data-lucky="true" data-name="Mudge" style="padding:0">
+        <div class="dicerow"><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="d20, 1"><b>1</b><em>d20</em></button></div></div>
+        <p class="dicemath" aria-live="polite">Natural 1</p>
+        <div class="rollafter">
+          <p class="padnote rollnote"><b>A 1 counts as two failures.</b> That is past three, and Mudge dies.</p>
+          <div class="res luckyrow" style="margin-top:10px"><div class="resl"><b>Lucky</b><span>Halfling trait: re-roll a 1 on a saving throw</span></div><button class="gobtn luckybtn">Re-roll</button></div>
+          <button class="dangerbtn rollconfirm">Confirm, Mudge dies</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-d-roll-death">
+<div class="desk" data-opener=".dyingbox">
+  <div class="shead attached dplate" data-part="mudge-plate-dying"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="mudge-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="mudge-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="mudge-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="mudge-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="mudge-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="mudge-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Hit points and death saves" data-part="roll-death"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-roll-death" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".dyingbox">
+  <div class="shead attached dplate" data-part="mudge-plate-dying"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="mudge-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="mudge-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="mudge-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="mudge-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="mudge-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="mudge-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Hit points and death saves" data-part="roll-death"></div>
+  </div>
+</div>
+</template>
+
 <script>
 (function(){
   var BASE = {paper:'#eae6de', sheet:'#f0ece4', a:'#2560b0', b:'#e0689c', mix:'#5c3d88'};
@@ -9952,10 +10147,22 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
      text:'Finding 24. Roll and I rolled open the same roll sheet. The dice are live here: tap face buttons in frame 56, tap a die in frame 57 to change it, and use Replay the roll under frames 57 and 58 to watch the animation again.'},
     {id:'roll-table', label:'I rolled: entering the dice from the table',
      note:'The dice are the entry. Tap the face each die showed, from 1 to 8 for a d8, and the app adds the +4, so nothing is typed and no keyboard covers the sheet. The die being entered is inverted. Confirm stays disabled and names what is missing until every die has a value, then the note says what will happen. Try it: tap 7.'},
+    {id:'d-roll-table', desktop:true, label:'Entering the dice from the table, in the side panel',
+     note:'I rolled replaces Rest in the same side panel, the same as Change or Move. The dice are the entry. Confirm stays disabled until both faces are in. Rest stays ringed on the plate. Play and Stats stay live.'},
+    {id:'t-roll-table', tablet:true, label:'Entering the dice from the table, in the side panel, landscape',
+     note:'The roll takes the right column from below the strip, in place of Rest, so the tabs stay in reach. Play stays beside it. Rest stays ringed on the plate.'},
     {id:'roll-app', label:'Roll in the app: spending hit dice',
      note:'Each die jumps between a few fixed poses while its number flicks, then sinks onto its shadow to land, in about half a second. The rose shadow stays still, so the box looks out of register while it rolls. A tap skips to the result, and with reduced motion the result appears at once. The note allows for the cap: 15 rolled, but Brenna only has room for 13. The dice stay editable, and there is no free re-roll.'},
+    {id:'d-roll-app', desktop:true, label:'Rolling in the app, in the side panel',
+     note:'Roll replaces Rest in the same side panel. The dice land on 6 and 5. The note allows for the cap, 15 rolled but Brenna only has room for 13. Rest stays ringed on the plate. Play and Stats stay live.'},
+    {id:'t-roll-app', tablet:true, label:'Rolling in the app, in the side panel, landscape',
+     note:'The roll takes the right column from below the strip, in place of Rest. Play stays beside it. Rest stays ringed on the plate.'},
     {id:'roll-death', label:'A death save rolled inside the pad, with Lucky',
-     note:'Inside the pad the roll replaces the tab&rsquo;s content in place, so no sheet opens over a sheet. A natural 1 would kill Mudge, so the confirm button turns destructive. Re-roll appears only because a rule grants it: the halfling Lucky trait re-rolls a 1 on a saving throw. Press Re-roll to see it land on something else.'}
+     note:'Inside the pad the roll replaces the tab&rsquo;s content in place, so no sheet opens over a sheet. A natural 1 would kill Mudge, so the confirm button turns destructive. Re-roll appears only because a rule grants it: the halfling Lucky trait re-rolls a 1 on a saving throw. Press Re-roll to see it land on something else.'},
+    {id:'d-roll-death', desktop:true, label:'A death save rolled inside the pad, in the side panel',
+     note:'The roll replaces the Death save tab in the same side panel, so no sheet opens over a sheet. A natural 1 would kill Mudge, so Confirm turns destructive. Re-roll appears because Lucky grants it. The death-saves box stays in view on the dying plate, ringed as the opener. Play and Stats stay live.'},
+    {id:'t-roll-death', tablet:true, label:'A death save rolled inside the pad, in the side panel, portrait',
+     note:'The roll takes the right column from below the strip, still inside the pad. The death-saves box stays in view on the dying plate, ringed as the opener. Play stays at the top. There is no scrim, because the plate stays visible.'}
   ];
 
   function hexToRgb(hex){
@@ -10523,8 +10730,8 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   }
   document.querySelectorAll('.roll').forEach(function(roll){
     updateRoll(roll);
-    var sheet = roll.closest('.bsheet');
-    sheet.addEventListener('click', function(e){
+    var sheet = roll.closest('.bsheet, .spanel');
+    if(sheet) sheet.addEventListener('click', function(e){
       if(roll._skip){ e.stopPropagation(); e.preventDefault(); roll._skip(); }
     }, true);
     roll.addEventListener('click', function(e){
