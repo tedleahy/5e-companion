@@ -7742,6 +7742,281 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 </template>
 
 <!-- ============================================================
+     CATALOG AND MENU, DESKTOP AND TABLET
+     Catalog search, the sheet menu, basic details and delete.
+     The menu and the screens it opens sit in the side panel.
+     Thorn has no Spells tab: desktop is Play, Stats, and Gear plus
+     Character; tablet is Play, then Stats, Gear and Character.
+     ============================================================ -->
+<template id="tpl-part-add-feature-catalog">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close add a feature"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Add a feature</h2>
+        <p class="ssub">Brenna Duskhollow</p>
+      </div>
+    </div>
+    <div class="seg" role="tablist" aria-label="Catalog or custom"><button class="tab" role="tab" aria-selected="true" tabindex="0">From the catalog</button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Custom</button></div>
+  </div>
+
+  <div class="body pad-bottom">
+    <label class="findp"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+      <input value="resilience" aria-label="Find a feature"></label>
+
+    <section class="block">
+      <h3 class="bhead">Results <span>3 in your sources</span></h3>
+      <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add &ldquo;resilience&rdquo; as a custom feature</button>
+      <p class="grp" style="margin-top:12px">Her class and race</p>
+      <label class="prep"><input type="radio" name="feat" checked><span class="box round"></span><div class="actl"><b>Fiendish resilience</b><span>The Fiend, warlock 10</span></div><span class="mark">Level 10</span></label>
+      <p class="grp" style="margin-top:12px">Everything else</p>
+      <label class="prep"><input type="radio" name="feat"><span class="box round"></span><div class="actl"><b>Draconic resilience</b><span>Draconic bloodline sorcerer, level 1</span></div><span class="mark">Another class</span></label>
+      <label class="prep"><input type="radio" name="feat"><span class="box round"></span><div class="actl"><b>Dwarven resilience</b><span>Dwarf trait</span></div><span class="mark">Another race</span></label>
+      <p class="padnote">Feats and background features aren&rsquo;t in the catalog. Add those as custom features.</p>
+    </section>
+
+    <div class="warn" role="note">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg>
+      <div><b>Fiendish resilience is a warlock 10 feature.</b> Brenna is warlock 6. It can still be added.</div>
+    </div>
+
+    <section class="block">
+      <h3 class="bhead">Fiendish resilience <span>Lists under The Fiend</span></h3>
+      <div class="rules"><p>Starting at 10th level, you can choose one damage type when you finish a short or long rest. You gain resistance to that damage type until you choose a different one with this feature. Damage from magical weapons or silver weapons ignores this resistance.</p></div>
+      <p class="origin">It lists with an Added by hand mark, and level-up leaves it alone.</p>
+    </section>
+  </div>
+  <div class="footbar"><button class="castbtn">Add Fiendish resilience</button></div>
+</template>
+<template id="tpl-part-sheet-menu">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close sheet menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Sheet menu</h2>
+        <p class="ssub">Thorn Grimsby</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <button class="menuitem"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.5c.5 3 1.5 4.5 5 5-3.5.5-4.5 2-5 5-.5-3-1.5-4.5-5-5 3.5-.5 4.5-2 5-5z"/></svg><span class="mi">Add a spell<small>No spells yet, so there&rsquo;s no Spells tab</small></span></button>
+      <button class="menuitem"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 13l.8-3.2L10.5 3 13 5.5l-6.7 6.7z"/></svg><span class="mi">Edit basic details<small>Name, token color and alignment</small></span></button>
+      <div class="menusep"></div>
+      <button class="menuitem danger"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.7 9h5.6l.7-9"/></svg><span class="mi">Delete character</span></button>
+    </section>
+  </div>
+</template>
+<template id="tpl-part-basic-details">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close basic details"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Basic details</h2>
+        <p class="ssub">Thorn Grimsby</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <label class="field"><span>Name</span><input value="Thorn Grimsby"></label>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Token color</h3>
+      <div class="tokpick">
+        <div class="tok" style="--tok:#e0689c;--on-tok:#412029">T<b>8</b>
+          <input type="color" value="#e0689c" aria-label="Pick token color">
+        </div>
+      </div>
+      <p class="padnote">Click the token to edit its color.</p>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">Alignment</h3>
+      <div role="radiogroup" aria-label="Alignment"><div class="rankseg three"><button role="radio" aria-checked="false" tabindex="-1">Lawful good</button><button role="radio" aria-checked="false" tabindex="-1">Neutral good</button><button role="radio" aria-checked="false" tabindex="-1">Chaotic good</button><button role="radio" aria-checked="true" tabindex="0">Lawful neutral</button><button role="radio" aria-checked="false" tabindex="-1">Neutral</button><button role="radio" aria-checked="false" tabindex="-1">Chaotic neutral</button><button role="radio" aria-checked="false" tabindex="-1">Lawful evil</button><button role="radio" aria-checked="false" tabindex="-1">Neutral evil</button><button role="radio" aria-checked="false" tabindex="-1">Chaotic evil</button></div>
+      <div class="rankseg" style="grid-template-columns:1fr;margin-top:6px"><button role="radio" aria-checked="false" tabindex="-1">None</button></div></div>
+      <p class="padnote">Class, race and background change through creation and level-up.</p>
+    </section>
+  </div>
+  <div class="footbar"><button class="castbtn">Save details</button></div>
+</template>
+<template id="tpl-part-delete-character">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close delete character"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Delete character</h2>
+        <p class="ssub">Thorn Grimsby</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <section class="block">
+      <div class="res" style="padding-top:0">
+        <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b);width:48px;height:48px;font-size:18px">T<b>8</b></div>
+        <div class="resl"><b>Thorn Grimsby</b><span>Mountain dwarf fighter 8, Champion</span></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3 class="bhead">This can&rsquo;t be undone</h3>
+      <p class="padnote" style="margin-top:0">Thorn&rsquo;s whole sheet goes: abilities, gear, spells, features, notes, and any level-up in progress. Other characters are untouched.</p>
+    </section>
+  </div>
+  <div class="footbar"><button class="dangerbtn">Delete Thorn Grimsby</button></div>
+</template>
+
+<template id="tpl-d-add-feature-catalog">
+<div class="desk" data-opener=".addrow[data-k=add-feature]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="2"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character" data-scroll-to="[data-k=add-feature]">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Add a feature" data-part="add-feature-catalog"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-add-feature-catalog" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".addrow[data-k=add-feature]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="3"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character" data-scroll-to="[data-k=add-feature]">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Add a feature" data-part="add-feature-catalog"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-d-sheet-menu">
+<div class="desk" data-opener=".icnbtn[aria-label='Sheet menu']">
+  <div class="shead attached dplate" data-part="thorn-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="thorn-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="thorn-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="thorn-stats"></section>
+      <section class="dcol" aria-label="Gear and character">
+        <div role="tabpanel" aria-label="Gear" data-part="thorn-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="thorn-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Sheet menu" data-part="sheet-menu"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-sheet-menu" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".icnbtn[aria-label='Sheet menu']">
+  <div class="shead attached dplate" data-part="thorn-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="thorn-strip-tablet" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="thorn-play"></section>
+      <section class="dcol" aria-label="Stats, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="thorn-stats"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="thorn-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="thorn-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Sheet menu" data-part="sheet-menu"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-d-basic-details">
+<div class="desk" data-opener=".icnbtn[aria-label='Sheet menu']">
+  <div class="shead attached dplate" data-part="thorn-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="thorn-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="thorn-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="thorn-stats"></section>
+      <section class="dcol" aria-label="Gear and character">
+        <div role="tabpanel" aria-label="Gear" data-part="thorn-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="thorn-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Basic details" data-part="basic-details"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-basic-details" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".icnbtn[aria-label='Sheet menu']">
+  <div class="shead attached dplate" data-part="thorn-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="thorn-strip-tablet" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="thorn-play"></section>
+      <section class="dcol" aria-label="Stats, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="thorn-stats"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="thorn-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="thorn-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Basic details" data-part="basic-details"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-d-delete-character">
+<div class="desk" data-opener=".icnbtn[aria-label='Sheet menu']">
+  <div class="shead attached dplate" data-part="thorn-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="thorn-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="thorn-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="thorn-stats"></section>
+      <section class="dcol" aria-label="Gear and character">
+        <div role="tabpanel" aria-label="Gear" data-part="thorn-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="thorn-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Delete character" data-part="delete-character"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-delete-character" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".icnbtn[aria-label='Sheet menu']">
+  <div class="shead attached dplate" data-part="thorn-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="thorn-strip-tablet" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="thorn-play"></section>
+      <section class="dcol" aria-label="Stats, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="thorn-stats"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="thorn-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="thorn-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Delete character" data-part="delete-character"></div>
+  </div>
+</div>
+</template>
+
+<!-- ============================================================
      DESKTOP AND TABLET PARTS, MUDGE TEALEAF
      An arcane trickster rogue, built once and shared by the conditions,
      death save and rolling dice desktop and tablet frames. Three plate
@@ -9010,12 +9285,28 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
      text:'Adding a feature from the catalog, and the screens behind the header&rsquo;s menu button. The menu opens as a static bottom sheet.'},
     {id:'add-feature-catalog', label:'Adding a feature from the catalog',
      note:'The catalog side of Add a feature searches class and subclass features and racial traits. Brenna&rsquo;s own class and race list first; the rest follow with a mark saying why they don&rsquo;t fit. Fiendish resilience is a warlock 10 feature, so picking it raises a warning and still allows it. Feats have no catalog, so a hint points to Custom.'},
+    {id:'d-add-feature-catalog', desktop:true, label:'Adding a feature from the catalog, in the side panel',
+     note:'The catalog tab of Add a feature, over Character. Search, the warning and the rules sit in the panel, and Add sits on its bottom edge. Play and Stats stay live. Close or Escape returns to Add a feature.'},
+    {id:'t-add-feature-catalog', tablet:true, label:'Adding a feature from the catalog, portrait',
+     note:'Character is a tab, so searching the catalog means leaving Spells. The panel takes the right column from below the strip. Play stays at the top.'},
     {id:'sheet-menu', label:'Sheet menu, Thorn',
      note:'The header&rsquo;s menu button opens a static bottom sheet: it appears instantly, with no drag and no slide, over a scrim that dims the page, and a tap on the scrim or Close dismisses it. Its rows sit within thumb reach. Thorn has no spell access, so the tabs skip Spells and the menu offers Add a spell. Delete sits apart, in rose text ink.'},
+    {id:'d-sheet-menu', desktop:true, label:'Sheet menu in the side panel',
+     note:'The header&rsquo;s menu button opens the same rows in the side panel, not a popover. Thorn has no spell access, so Add a spell is here and the third column is only Gear and Character. Play and Stats stay live. Close or Escape returns to the menu button.'},
+    {id:'t-sheet-menu', tablet:true, label:'Sheet menu in the side panel, portrait',
+     note:'The panel takes the right column from below the strip, so the tabs stay in reach. Play stays at the top. Tapping a tab closes the panel.'},
     {id:'basic-details', label:'Editing basic details, Thorn',
      note:'Opened from the sheet menu. The name, the token as the colour picker, and alignment as one radio group with None. It saves from the footer, like Add. Class, race and background stay with creation and level-up.'},
+    {id:'d-basic-details', desktop:true, label:'Editing basic details in the side panel',
+     note:'Opened from the sheet menu, it replaces the menu in the same panel. The name, the token as the colour picker, and alignment as one radio group with None. Save sits on the panel&rsquo;s bottom edge. Close returns to the menu. Play and Stats stay live.'},
+    {id:'t-basic-details', tablet:true, label:'Editing basic details in the side panel, portrait',
+     note:'The panel takes the right column from below the strip. Play stays at the top. Close still returns to the menu; see Sheet menu in the side panel.'},
     {id:'delete-character', label:'Deleting a character, Thorn',
      note:'Opened from the sheet menu. It names the character, says what goes, including any level-up in progress, and repeats the name on the destructive footer button. Nothing to type.'},
+    {id:'d-delete-character', desktop:true, label:'Deleting a character in the side panel',
+     note:'Opened from the sheet menu, it replaces the menu in the same panel. It names the character, says what goes, including any level-up in progress, and repeats the name on the destructive footer button. Close returns to the menu. Play and Stats stay live.'},
+    {id:'t-delete-character', tablet:true, label:'Deleting a character in the side panel, portrait',
+     note:'The panel takes the right column from below the strip. Play stays at the top. Close still returns to the menu; see Sheet menu in the side panel.'},
     {section:'Conditions',
      text:'Conditions toggle live from a bottom sheet, opened by the Condition control on the plate or by tapping any condition mark. It is the menu&rsquo;s static sheet, picked on 13 September 2026 over a taller scrolling one.'},
     {id:'cond-static', label:'Status sheet, Mudge',
@@ -9351,7 +9642,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     if(!a || a.classList.contains('gal-sec-name')) return;
     if(!wideNav.matches) setNavOpen(false);
   });
-  setNavOpen(wideNav.matches);
+  if(!/[?&](desk|tab|frame)=/.test(location.search)) setNavOpen(wideNav.matches);
   var spyLinks = Array.prototype.map.call(navList.querySelectorAll('a[href^="#"]'), function(a){
     return {a: a, el: document.getElementById(a.hash.slice(1))};
   }).filter(function(t){ return t.el; });
