@@ -8382,6 +8382,69 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 </div>
 </template>
 
+<!-- Desktop and tablet: the status sheet reappears as a side panel,
+     opened from the Condition control. tpl-part-cond-static is the
+     panel body, shared by both frames. -->
+<template id="tpl-part-cond-static">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close status"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Status</h2>
+        <p class="ssub">Mudge Tealeaf</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <label class="prep"><input type="checkbox"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Inspiration</b><span>Spend it for advantage on an attack, save or check</span></div></label>
+    <div class="condgrid" role="group" aria-label="Conditions"><button aria-pressed="false">Blinded</button><button aria-pressed="false">Charmed</button><button aria-pressed="false">Deafened</button><button aria-pressed="false">Frightened</button><button aria-pressed="false">Grappled</button><button aria-pressed="false">Incapacitated</button><button aria-pressed="false">Invisible</button><button aria-pressed="false">Paralyzed</button><button aria-pressed="false">Petrified</button><button aria-pressed="true">Poisoned</button><button aria-pressed="false">Prone</button><button aria-pressed="false">Restrained</button><button aria-pressed="false">Stunned</button><button aria-pressed="false">Unconscious</button><button class="condcustom"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Custom</button></div>
+    <div class="dur">
+      <p class="grp">Poisoned ends</p>
+      <div class="rankseg" role="radiogroup" aria-label="When Poisoned ends"><button role="radio" aria-checked="true" tabindex="0">By hand</button><button role="radio" aria-checked="false" tabindex="-1">Rounds</button><button role="radio" aria-checked="false" tabindex="-1">Any rest</button><button role="radio" aria-checked="false" tabindex="-1">Long rest</button></div>
+    </div>
+    <div class="editrow"><span class="lbl">Exhaustion</span><button class="step" aria-label="Lower exhaustion">&minus;</button><span class="num">0</span><button class="step" aria-label="Raise exhaustion">+</button><span class="mod">of 6</span></div>
+  </div>
+</template>
+
+<template id="tpl-d-cond-static">
+<div class="desk" data-opener=".addmark">
+  <div class="shead attached dplate" data-part="mudge-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="mudge-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="mudge-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="mudge-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="mudge-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="mudge-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="mudge-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Status" data-part="cond-static"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-cond-static" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".addmark">
+  <div class="shead attached dplate" data-part="mudge-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="mudge-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="mudge-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="mudge-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="mudge-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="mudge-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="mudge-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Status" data-part="cond-static"></div>
+  </div>
+</div>
+</template>
+
 
 <!-- ============================================================
      INSPIRATION AND CONCENTRATION
@@ -9311,6 +9374,10 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
      text:'Conditions toggle live from a bottom sheet, opened by the Condition control on the plate or by tapping any condition mark. It is the menu&rsquo;s static sheet, picked on 13 September 2026 over a taller scrolling one.'},
     {id:'cond-static', label:'Status sheet, Mudge',
      note:'The same static sheet as the menu: instant, no drag, thumb height, over the same scrim. Inspiration sits at the top as a toggle, off for Mudge. Fourteen conditions sit in a three-column grid of names, selected ones inverted. Tapping adds with no duration, and tapping again removes. The condition just added gets an end under the grid, mapped to the data model: by hand, rounds counted down by hand, any rest, or a long rest. A save that ends a condition stays by hand, because the model has no save trigger. Exhaustion is a stepper row. Custom fills the grid&rsquo;s empty cell and opens its own screen, as every Add does. The sheet stops below the header marks, so the pressed Condition control and the Poisoned mark stay in view. Names only: the rules sit a tap away on the condition&rsquo;s detail.'},
+    {id:'d-cond-static', desktop:true, label:'Status sheet in the side panel',
+     note:'The Condition control opens the same sheet in the side panel, not a popover. There is no scrim, because the Poisoned mark and the pressed control stay in view on the plate. Conditions toggle live. Play and Stats stay live, with Spells in the third column. Close or Escape returns to the Condition control.'},
+    {id:'t-cond-static', tablet:true, label:'Status sheet in the side panel, portrait',
+     note:'The panel takes the right column from below the strip, so the tabs stay in reach. The plate keeps the Poisoned mark and the pressed Condition control in view. Conditions toggle live. Play stays at the top.'},
     {section:'Inspiration and concentration',
      text:'Finding 21. Inspiration lives in the status sheet, and the concentration mark opens the spell behind it. Concentration is the data model&rsquo;s anchor row, so every screen here reads or ends that one row.'},
     {id:'status-brenna', label:'Status sheet with inspiration, Brenna',
