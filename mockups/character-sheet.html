@@ -8655,6 +8655,331 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 </div>
 </template>
 
+<!-- Desktop and tablet: inspiration and concentration.
+     Shared panel bodies, then a d-/t- pair for each phone frame.
+     conc-save inlines the plate at 29/44 with no temporary, because
+     the shared Brenna plate still shows 31/44 and 5 temporary. -->
+<template id="tpl-part-status-brenna">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close status"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who">
+        <h2 class="sname">Status</h2>
+        <p class="ssub">Brenna Duskhollow</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Inspiration</b><span>Spend it for advantage on an attack, save or check</span></div></label>
+    <div class="condgrid" role="group" aria-label="Conditions"><button aria-pressed="false">Blinded</button><button aria-pressed="false">Charmed</button><button aria-pressed="false">Deafened</button><button aria-pressed="false">Frightened</button><button aria-pressed="false">Grappled</button><button aria-pressed="false">Incapacitated</button><button aria-pressed="false">Invisible</button><button aria-pressed="false">Paralyzed</button><button aria-pressed="false">Petrified</button><button aria-pressed="false">Poisoned</button><button aria-pressed="false">Prone</button><button aria-pressed="false">Restrained</button><button aria-pressed="false">Stunned</button><button aria-pressed="false">Unconscious</button><button class="condcustom"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Custom</button></div>
+    <p class="padnote"><b>Concentrating on Hex.</b> Incapacitated, Paralyzed, Petrified, Stunned or Unconscious would end it.</p>
+    <div class="editrow"><span class="lbl">Exhaustion</span><button class="step" aria-label="Lower exhaustion">&minus;</button><span class="num">0</span><button class="step" aria-label="Raise exhaustion">+</button><span class="mod">of 6</span></div>
+  </div>
+</template>
+
+<template id="tpl-d-status-brenna">
+<div class="desk" data-opener=".mark[aria-label='Inspired, open status']">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Status" data-part="status-brenna"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-status-brenna" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".mark[aria-label='Inspired, open status']">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Status" data-part="status-brenna"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-part-hex-detail">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close Hex"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who"><h2 class="sname">Hex</h2>
+        <p class="ssub">1st-level enchantment, bonus action, 90 ft</p></div>
+      <button class="icnbtn" aria-label="Spell menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <div class="cast conc">
+      <div class="casttop"><b>Concentrating</b><span>Cast at 3rd level</span></div>
+      <div class="caststats">
+        <div><b>8 hours</b><em>Lasts up to</em></div>
+        <div><b>Long rest</b><em>Ends on</em></div>
+        <div><b>1d6</b><em>Extra necrotic</em></div>
+      </div>
+      <div class="res" style="margin-top:10px;border-top:1.5px solid transparent;padding-top:11px">
+        <div class="resl"><b>The ogre chieftain</b><span>Target, with disadvantage on Strength checks</span></div>
+        <button class="gobtn">Move</button>
+      </div>
+      <p class="padnote">A short rest doesn&rsquo;t end it. Taking damage asks for a Constitution save.</p>
+      <button class="dangerbtn">End concentration</button>
+    </div>
+
+    <div class="pathcard">
+      <div class="pathtop"><b>Pact magic</b><span>Known</span></div>
+      <div class="pathstats"><span>Charisma</span><span>Save DC <b>15</b></span><span>Spends a pact slot</span></div>
+      <div class="res">
+        <div class="resl"><b>1 of 2 pact slots</b><span>Back after a short rest</span></div>
+        <div class="pips" role="spinbutton" tabindex="0" aria-label="Pact slots" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="1 of 2 left"><i data-on></i><i></i></div>
+      </div>
+      <button class="castbtn small" style="margin-top:11px">Cast again, ends this one</button>
+      <p class="origin">From the Warlock class, chosen at level 1.</p>
+      <button class="dangerbtn small">Remove this way to cast</button>
+    </div>
+
+    <button class="disclose" aria-expanded="false">Rules text<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
+  </div>
+</template>
+
+<template id="tpl-d-hex-detail">
+<div class="desk" data-opener=".mark[data-t=conc]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Hex" data-part="hex-detail"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-hex-detail" data-size="1180x820">
+<div class="desk tablet" data-opener=".mark[data-t=conc]">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Hex" data-part="hex-detail"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-part-conc-save">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close concentration save"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who"><h2 class="sname">Concentration save</h2>
+        <p class="ssub">Brenna Duskhollow</p></div>
+    </div>
+    <p class="hpline"><b>29</b>/44 hit points</p>
+  </div>
+
+  <div class="body pad-bottom">
+    <div class="cast conc">
+      <div class="casttop"><b>Concentration save</b><span>Hex</span></div>
+      <div class="bigval">
+        <div class="bignum">10</div>
+        <p><b>DC 10.</b> She took 7 damage, and half of it is under 10. Her Constitution save is +2.</p>
+      </div>
+      <button class="gobtn" style="width:100%;margin-top:14px">Roll d20 + 2</button>
+      <div class="pair"><button class="gobtn">She kept it</button><button class="dangerbtn">She lost it</button></div>
+      <p class="padnote">Losing it ends Hex on the ogre chieftain.</p>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-d-conc-save">
+<div class="desk" data-opener=".vitals">
+  <div class="shead attached dplate">
+    <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+    <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">B<b>6</b></div>
+    <div class="who">
+      <h2 class="sname">Brenna Duskhollow</h2>
+      <p class="ssub">Half-elf warlock 6, the Fiend</p>
+      <div class="hmarks">
+        <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Concentrating: Hex</button>
+        <button class="mark" aria-label="Inspired, open status" aria-haspopup="dialog" aria-expanded="false">Inspired</button>
+        <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
+      </div>
+    </div>
+    <div class="vitals" role="button" tabindex="0" aria-label="29 of 44 hit points. Open the hit point pad" aria-haspopup="dialog" aria-expanded="false">
+      <div class="hprow">
+        <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+      </div>
+      <p class="hpline"><b>29</b>/44 hit points. Click to heal or damage.</p>
+    </div>
+    <div class="rail">
+      <div class="ac" role="button" tabindex="0" aria-label="Armor class 13"><span>13<em>AC</em></span></div>
+      <button class="tile"><b>+2</b><em>Initiative</em></button>
+      <button class="tile"><b>30</b><em>Speed</em></button>
+      <button class="tile"><b>15</b><em>Spell save</em></button>
+    </div>
+    <button class="restbtn">Rest</button>
+    <button class="icnbtn" aria-label="Sheet menu" aria-haspopup="dialog" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+  </div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Concentration save" data-part="conc-save"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-conc-save" data-size="820x1180">
+<div class="desk tablet portrait" data-opener=".vitals">
+  <div class="shead attached dplate">
+    <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+    <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">B<b>6</b></div>
+    <div class="who">
+      <h2 class="sname">Brenna Duskhollow</h2>
+      <p class="ssub">Half-elf warlock 6, the Fiend</p>
+      <div class="hmarks">
+        <button class="mark" data-t="conc" aria-label="Concentrating on Hex, open Hex">Concentrating: Hex</button>
+        <button class="mark" aria-label="Inspired, open status" aria-haspopup="dialog" aria-expanded="false">Inspired</button>
+        <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
+      </div>
+    </div>
+    <div class="vitals" role="button" tabindex="0" aria-label="29 of 44 hit points. Open the hit point pad" aria-haspopup="dialog" aria-expanded="false">
+      <div class="hprow">
+        <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+      </div>
+      <p class="hpline"><b>29</b>/44 hit points. Click to heal or damage.</p>
+    </div>
+    <div class="rail">
+      <div class="ac" role="button" tabindex="0" aria-label="Armor class 13"><span>13<em>AC</em></span></div>
+      <button class="tile"><b>+2</b><em>Initiative</em></button>
+      <button class="tile"><b>30</b><em>Speed</em></button>
+      <button class="tile"><b>15</b><em>Spell save</em></button>
+    </div>
+    <button class="restbtn">Rest</button>
+    <button class="icnbtn" aria-label="Sheet menu" aria-haspopup="dialog" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+  </div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Concentration save" data-part="conc-save"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-part-cast-replace">
+  <div class="shead" style="padding-bottom:13px">
+    <div class="sheadtop">
+      <button class="icnbtn dclose" aria-label="Close invisibility"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <div class="who"><h2 class="sname">Invisibility</h2>
+        <p class="ssub">2nd-level illusion, 1 action, touch</p></div>
+      <button class="icnbtn" aria-label="Spell menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3.2" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="8" cy="12.8" r="1.1"/></svg></button>
+    </div>
+  </div>
+
+  <div class="body pad-bottom">
+    <div class="warn" role="note">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg>
+      <div><b>Brenna is concentrating on Hex.</b> Casting Invisibility ends it, and the curse on the ogre chieftain with it.</div>
+    </div>
+
+    <div class="pathcard">
+      <div class="pathtop"><b>Pact magic</b><span>Known</span></div>
+      <div class="pathstats"><span>Concentration</span><span>Up to 1 hour</span><span>Two creatures at 3rd</span></div>
+      <div class="res">
+        <div class="resl"><b>1 of 2 pact slots</b><span>Back after a short rest</span></div>
+        <div class="pips" role="spinbutton" tabindex="0" aria-label="Pact slots" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="1 of 2 left"><i data-on></i><i></i></div>
+      </div>
+      <button class="castbtn small" style="margin-top:11px">Cast, ends Hex</button>
+      <p class="origin">From the Warlock class, chosen at level 3.</p>
+      <button class="dangerbtn small">Remove this way to cast</button>
+    </div>
+
+    <button class="disclose" aria-expanded="false">Rules text<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
+  </div>
+</template>
+
+<template id="tpl-d-cast-replace">
+<div class="desk">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip" data-tab="0"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats" data-part="brenna-stats"></section>
+      <section class="dcol" aria-label="Spells, gear and character">
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Invisibility" data-part="cast-replace"></div>
+  </div>
+</div>
+</template>
+
+<template id="tpl-t-cast-replace" data-size="1180x820">
+<div class="desk tablet">
+  <div class="shead attached dplate" data-part="brenna-plate"></div>
+  <div class="dmain">
+    <div class="dstrip" data-part="brenna-strip-tablet" data-tab="1"></div>
+    <div class="dcols">
+      <section class="dcol" aria-label="Play" data-part="brenna-play"></section>
+      <section class="dcol" aria-label="Stats, spells, gear and character">
+        <div role="tabpanel" aria-label="Stats" data-part="brenna-stats"></div>
+        <div role="tabpanel" aria-label="Spells" data-part="brenna-spells"></div>
+        <div role="tabpanel" aria-label="Gear" data-part="brenna-gear"></div>
+        <div role="tabpanel" aria-label="Character" data-part="brenna-character"></div>
+      </section>
+    </div>
+    <div class="spanel riso" role="dialog" aria-label="Invisibility" data-part="cast-replace"></div>
+  </div>
+</div>
+</template>
+
 <!-- ============================================================
      DEATH SAVES
      ============================================================ -->
@@ -9382,12 +9707,28 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
      text:'Finding 21. Inspiration lives in the status sheet, and the concentration mark opens the spell behind it. Concentration is the data model&rsquo;s anchor row, so every screen here reads or ends that one row.'},
     {id:'status-brenna', label:'Status sheet with inspiration, Brenna',
      note:'Opened from the Inspired mark, which shows the pressed ring. Inspiration is ticked; untick it to spend it, and the mark leaves the plate. Every mark opens this sheet except concentration. While she concentrates, a line names the conditions that would end it, so nobody adds Stunned without knowing Hex goes too.'},
+    {id:'d-status-brenna', desktop:true, label:'Status sheet in the side panel',
+     note:'The Inspired mark opens the same sheet in the side panel, not a popover. There is no scrim, because the mark stays in view on the plate, ringed as the opener. Inspiration is ticked. Play and Stats stay live, with Spells in the third column. Close or Escape returns to the Inspired mark.'},
+    {id:'t-status-brenna', tablet:true, label:'Status sheet in the side panel, portrait',
+     note:'The panel takes the right column from below the strip, so the tabs stay in reach. The plate keeps the Inspired mark in view. Inspiration is ticked. Play stays at the top.'},
     {id:'hex-detail', label:'Concentration on the spell detail, Hex',
      note:'Opened from the concentration mark on either header. A card in overprint ink leads, reading the anchor row: how long it lasts at the level cast, what ends it, and the target from its notes, with Move for when the target drops. End concentration is destructive and acts at once; the push to this screen is the deliberate step. Casting Hex again says it replaces this one.'},
+    {id:'d-hex-detail', desktop:true, label:'Concentration on Hex in the side panel',
+     note:'The concentration mark opens Hex in a side panel over the column it came from. Play and Stats stay live beside it. The concentration card leads, with the target and Move, then End concentration. Close or Escape returns to the mark.'},
+    {id:'t-hex-detail', tablet:true, label:'Concentration on Hex in the side panel, landscape',
+     note:'The panel covers the right column from below the strip, so the tabs stay in reach. Play stays beside Hex for hit points and slots. The concentration mark stays ringed on the plate.'},
     {id:'conc-save', label:'Concentration save after damage',
      note:'Frame 5 applied 7 damage while Brenna concentrates on Hex, so the pad turns into the save. The DC works itself out, higher of 10 or half the damage. Roll is offered because the app stores the result: a lost save ends the anchor. Kept and Lost are for a roll made at the table, and Lost is outlined in rose because it ends the spell.'},
+    {id:'d-conc-save', desktop:true, label:'Concentration save in the side panel',
+     note:'After 7 damage the pad turns into the concentration save in the same side panel. There is no scrim, because the vitals stay in view on the plate at 29/44 with no temporary, ringed as the opener. Play and Stats stay live. Roll is offered because the app stores the result. Kept and Lost are for a roll made at the table, and Lost is outlined in rose because it ends Hex.'},
+    {id:'t-conc-save', tablet:true, label:'Concentration save in the side panel, portrait',
+     note:'The save takes the right column from below the strip. The vitals it follows stay in view on the plate at 29/44. Play stays at the top.'},
     {id:'cast-replace', label:'Casting a second concentration spell',
      note:'Invisibility needs concentration too, so its detail warns before anything happens and the Cast button names what it ends. Casting still goes ahead in one tap; the warning is the check, as the flows doc asks for warnings rather than blocks.'},
+    {id:'d-cast-replace', desktop:true, label:'Casting a second concentration spell in the side panel',
+     note:'Opened from the Invisibility row in Spells. The warning sits at the top, before anything happens, and the Cast button names what it ends. Play and Stats stay live beside it. Casting still goes ahead in one tap.'},
+    {id:'t-cast-replace', tablet:true, label:'Casting a second concentration spell in the side panel, landscape',
+     note:'The panel covers the right column from below the strip. Play stays beside the spell. The warning is there before anything happens.'},
     {section:'Death saves',
      text:'Finding 22. At 0 hit points the hit point pad gains a Death save tab beside Damage and Heal, so everything that changes a dying character happens in one place. Mudge Tealeaf, later in the fight, continues frame 6.'},
     {id:'death-save', label:'Death save tab, Mudge dying',
@@ -10110,15 +10451,15 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   // Side panels are not modal. The opener keeps its pressed ring while one is
   // open, Close or Escape hides it and returns focus, and the opener reopens it.
   document.querySelectorAll('.spanel').forEach(function(panel){
-    var desk = panel.closest('.desk'), opener = desk.querySelector(desk.dataset.opener);
+    var desk = panel.closest('.desk'), opener = desk.dataset.opener && desk.querySelector(desk.dataset.opener);
     function setOpen(open){
       panel.hidden = !open;
-      opener.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if(opener) opener.setAttribute('aria-expanded', open ? 'true' : 'false');
     }
-    function close(){ setOpen(false); opener.focus(); }
+    function close(){ setOpen(false); if(opener) opener.focus(); }
     panel.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ e.preventDefault(); close(); } });
     panel.querySelector('.dclose').addEventListener('click', close);
-    opener.addEventListener('click', function(){
+    if(opener) opener.addEventListener('click', function(){
       if(!panel.hidden) return;
       setOpen(true);
       var list = focusablesIn(panel); if(list.length) list[0].focus();
