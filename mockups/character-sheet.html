@@ -59,7 +59,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .resetbtn:hover{border-color:#6f7681;color:#fff}
 .resetbtn[aria-pressed=true]{border-color:#fff;color:#fff}
 /* Debug paint for hit areas. Gallery only, so it may use a colour outside the inks. */
-.show-hits .riso :is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button,.noteshow)::after,.show-hits .riso .pips i::after{background:rgba(255,196,0,.3);box-shadow:inset 0 0 0 1px rgba(255,170,0,.95)}
+.show-hits .riso :is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button,.noteshow)::after,.show-hits .riso .pips i::after{background:rgba(255,196,0,.3);box-shadow:inset 0 0 0 1px rgba(255,170,0,.95)}
 .gal-nav{position:fixed;inset:0 auto 0 0;width:min(280px,100%);z-index:40;
   display:flex;flex-direction:column;background:#1c1e22;border-right:1px solid #3c4046;
   transform:translateX(-100%);visibility:hidden;pointer-events:none;
@@ -626,14 +626,18 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .rankseg.six{grid-template-columns:repeat(6,1fr);gap:5px}
 .rankseg.six button{min-height:48px}
 
-/* ---- token colour picker ---- */
-.tokpick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.tokpick button{min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
-  border:0;font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer}
-.tokpick .tok{width:48px;height:48px;font-size:18px}
-.tokpick button span{min-height:14px}
-.riso .tokpick button{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--a)}
-.riso .tokpick button[aria-checked=true]{background:var(--sheet);box-shadow:inset 0 0 0 2px var(--a)}
+/* ---- token colour picker ----
+   The token is the control. A native colour input sits on top of it,
+   invisible. The letter and level badge still show, and the fill is the
+   stored hex. */
+.tokpick{display:flex}
+.tokpick .tok{margin:0 7px 7px 0}
+.tokpick .tok input[type=color]{position:absolute;inset:0;z-index:1;width:100%;height:100%;
+  padding:0;border:0;opacity:0;cursor:pointer}
+.tokpick .tok b{pointer-events:none}
+.riso .tokpick .tok input:focus-visible{outline:none}
+.riso .tokpick .tok:focus-within{outline:2px solid var(--a);outline-offset:3px}
+.riso .tokpick .tok:has(:active){box-shadow:inset 0 0 0 2px var(--on-tok),4px 4px 0 var(--b)}
 
 /* ---- static bottom sheet: the sheet menu ----
    The one overlay shape. The sheet menu and the conditions picker use it; it
@@ -799,18 +803,14 @@ button.mark{font-family:inherit;cursor:pointer}
 .prep > .prepmain{min-height:44px}
 .prep:has(> .prepmain)::after{content:none}
 .riso .prep:not(:has(input:disabled)):has(.infobtn:active) .box{box-shadow:inset 0 0 0 2px var(--a)}
-.tokpick button small{display:block;font-size:10.5px;font-weight:600;margin-top:-6px}
-.tokpick button:not([aria-checked=true]) small{visibility:hidden}
-.riso .tokpick button small{color:var(--dim)}
-
 /* ---- hit areas, web ----
    Every control answers taps across at least 44 by 44. The extension is an
    invisible ::after centred on the control, so nothing moves and nothing looks
    bigger. Where two controls sit closer than that, their areas meet at the
    midpoint of the gap instead of overlapping, and 24 is the floor in that
    direction. Native uses hitSlop with the same numbers. */
-:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button,.noteshow){position:relative}
-:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button,.noteshow)::after{content:"";position:absolute;
+:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button,.noteshow){position:relative}
+:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button,.noteshow)::after{content:"";position:absolute;
   top:min(0px,calc((100% - 44px) / 2));bottom:min(0px,calc((100% - 44px) / 2));
   left:min(0px,calc((100% - 44px) / 2));right:min(0px,calc((100% - 44px) / 2))}
 /* Pips sit 4px apart: 44 tall, and 26 or 24 wide, meeting mid-gap. Rows are
@@ -7406,8 +7406,12 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
     <section class="block">
       <h3 class="bhead">Token color</h3>
-      <div class="tokpick" role="radiogroup" aria-label="Token color"><button role="radio" aria-checked="false" tabindex="-1" aria-label="Blue"><div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">T</div><span>Blue</span><small>Chosen</small></button><button role="radio" aria-checked="true" tabindex="0" aria-label="Rose"><div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">T</div><span>Rose</span><small>Chosen</small></button><button role="radio" aria-checked="false" tabindex="-1" aria-label="Purple"><div class="tok" style="--tok:var(--mix);--on-tok:var(--on-mix)">T</div><span>Purple</span><small>Chosen</small></button></div>
-      <p class="padnote">Colors and their names come from the app&rsquo;s theme, so a theme change updates every token.</p>
+      <div class="tokpick">
+        <div class="tok" style="--tok:#e0689c;--on-tok:#412029">T<b>8</b>
+          <input type="color" value="#e0689c" aria-label="Pick token color">
+        </div>
+      </div>
+      <p class="padnote">Tap the token to edit its color.</p>
     </section>
 
     <section class="block">
@@ -8484,7 +8488,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     {id:'sheet-menu', label:'Sheet menu, Thorn',
      note:'The header&rsquo;s menu button opens a static bottom sheet: it appears instantly, with no drag and no slide, over a scrim that dims the page, and a tap on the scrim or Close dismisses it. Its rows sit within thumb reach. Thorn has no spell access, so the tabs skip Spells and the menu offers Add a spell. Delete sits apart, in rose text ink.'},
     {id:'basic-details', label:'Editing basic details, Thorn',
-     note:'Opened from the sheet menu. The name, the token colour as swatches named by the theme, Blue, Rose and Purple here, and alignment as one radio group with None. It saves from the footer, like Add. Class, race and background stay with creation and level-up.'},
+     note:'Opened from the sheet menu. The name, the token as the colour picker, and alignment as one radio group with None. It saves from the footer, like Add. Class, race and background stay with creation and level-up.'},
     {id:'delete-character', label:'Deleting a character, Thorn',
      note:'Opened from the sheet menu. It names the character, says what goes, including any level-up in progress, and repeats the name on the destructive footer button. Nothing to type.'},
     {section:'Conditions',
@@ -8904,7 +8908,18 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     document.getElementById('hexline').textContent =
       'paper '+picks.paper+'   cards '+picks.sheet+'   structural '+picks.a+'   accent '+picks.b+'   overprint '+picks.mix;
   }
-  function paint(){ apply(derive(picks)); syncPickers(); }
+  function paint(){ apply(derive(picks)); syncPickers(); paintTokPicks(); }
+
+  function paintTokPicks(){
+    document.querySelectorAll('.tokpick').forEach(function(pick){
+      var color = pick.querySelector('input[type=color]');
+      var tok = pick.querySelector('.tok');
+      if(!color || !tok) return;
+      var hex = color.value;
+      tok.style.setProperty('--tok', hex);
+      tok.style.setProperty('--on-tok', onInk(hex, picks.paper));
+    });
+  }
 
   document.querySelectorAll('input[data-key]').forEach(function(input){
     input.addEventListener('input', function(){ picks[input.dataset.key] = input.value; paint(); });
@@ -8921,6 +8936,11 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   document.getElementById('reset').addEventListener('click', function(){
     picks = {paper:BASE.paper, sheet:BASE.sheet, a:BASE.a, b:BASE.b, mix:BASE.mix};
     paint();
+  });
+
+  document.querySelectorAll('.tokpick').forEach(function(pick){
+    var color = pick.querySelector('input[type=color]');
+    if(color) color.addEventListener('input', paintTokPicks);
   });
 
   var hitsBtn = document.getElementById('hits');
