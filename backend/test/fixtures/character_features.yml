@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  character: one
+  name: Second Wind
+  description: Regain hit points as a bonus action.
+  state: {}
+  position: 0
+
+two:
+  character: two
+  name: Sneak Attack
+  description: Deal extra damage once per turn.
+  state: {}
+  position: 1

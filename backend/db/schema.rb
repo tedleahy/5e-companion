@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_17_221717) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_17_222002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -25,6 +25,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_221717) do
     t.index ["character_id", "position"], name: "index_character_classes_on_character_id_and_position", unique: true
     t.check_constraint "\"position\" >= 0", name: "character_classes_position_check"
     t.check_constraint "level > 0", name: "character_classes_level_check"
+  end
+
+  create_table "character_effects", force: :cascade do |t|
+    t.bigint "character_id", null: false
+    t.datetime "created_at", null: false
+    t.text "effect_key", null: false
+    t.boolean "is_concentration", default: false, null: false
+    t.text "name", null: false
+    t.jsonb "state", default: {}, null: false
+    t.datetime "updated_at", null: false
+    t.index ["character_id", "effect_key"], name: "index_character_effects_on_character_id_and_effect_key", unique: true
+    t.check_constraint "jsonb_typeof(state) = 'object'::text", name: "character_effects_state_object_check"
+  end
+
+  create_table "character_features", force: :cascade do |t|
+    t.bigint "character_id", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.text "name", null: false
+    t.integer "position", default: 0, null: false
+    t.jsonb "state", default: {}, null: false
+    t.datetime "updated_at", null: false
+    t.index ["character_id"], name: "index_character_features_on_character_id"
+    t.check_constraint "\"position\" >= 0", name: "character_features_position_check"
+    t.check_constraint "jsonb_typeof(state) = 'object'::text", name: "character_features_state_object_check"
   end
 
   create_table "character_resources", force: :cascade do |t|
@@ -88,6 +113,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_221717) do
   end
 
   add_foreign_key "character_classes", "characters", on_delete: :cascade
+  add_foreign_key "character_effects", "characters", on_delete: :cascade
+  add_foreign_key "character_features", "characters", on_delete: :cascade
   add_foreign_key "character_resources", "character_classes", on_delete: :cascade
   add_foreign_key "character_resources", "characters", on_delete: :cascade
   add_foreign_key "characters", "users", on_delete: :cascade
