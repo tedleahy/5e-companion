@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_17_222002) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_17_222705) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -25,6 +25,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_222002) do
     t.index ["character_id", "position"], name: "index_character_classes_on_character_id_and_position", unique: true
     t.check_constraint "\"position\" >= 0", name: "character_classes_position_check"
     t.check_constraint "level > 0", name: "character_classes_level_check"
+  end
+
+  create_table "character_drafts", force: :cascade do |t|
+    t.integer "base_character_lock_version"
+    t.bigint "character_id"
+    t.datetime "created_at", null: false
+    t.text "kind", null: false
+    t.jsonb "state", default: {}, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["character_id"], name: "index_character_drafts_on_character_id", unique: true
+    t.index ["user_id"], name: "index_character_drafts_on_user_id"
+    t.check_constraint "base_character_lock_version IS NULL OR base_character_lock_version >= 0", name: "character_drafts_base_lock_version_check"
+    t.check_constraint "jsonb_typeof(state) = 'object'::text", name: "character_drafts_state_object_check"
+    t.check_constraint "kind = 'creation'::text AND character_id IS NULL AND base_character_lock_version IS NULL OR kind = 'level_up'::text AND character_id IS NOT NULL AND base_character_lock_version IS NOT NULL", name: "character_drafts_kind_requirements_check"
+    t.check_constraint "kind = ANY (ARRAY['creation'::text, 'level_up'::text])", name: "character_drafts_kind_check"
   end
 
   create_table "character_effects", force: :cascade do |t|
@@ -113,6 +129,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_222002) do
   end
 
   add_foreign_key "character_classes", "characters", on_delete: :cascade
+  add_foreign_key "character_drafts", "characters", on_delete: :cascade
+  add_foreign_key "character_drafts", "users", on_delete: :cascade
   add_foreign_key "character_effects", "characters", on_delete: :cascade
   add_foreign_key "character_features", "characters", on_delete: :cascade
   add_foreign_key "character_resources", "character_classes", on_delete: :cascade

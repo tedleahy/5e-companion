@@ -223,8 +223,8 @@ Each catalog table's `data` object is validated by the importer and by the
 code that reads those fields. The kept keys are listed on that table. Homebrew
 edits use the same consumed-field checks.
 
-`AdvancementDrafts.state` is an object of wizard answers. Rails validates it
-on write. There is no schema version; see AdvancementDrafts.
+`CharacterDrafts.state` is an object of wizard answers. Rails validates it
+on write. There is no schema version; see CharacterDrafts.
 
 ## Users
 
@@ -241,7 +241,7 @@ Creating a user also creates one private homebrew ContentSource owned by that
 user. That source is enough for MVP create, edit, and delete of custom
 content. Extra named sources are deferred.
 
-`Characters.user_id` and `AdvancementDrafts.user_id` use `ON DELETE CASCADE`.
+`Characters.user_id` and `CharacterDrafts.user_id` use `ON DELETE CASCADE`.
 Deleting a user therefore deletes their characters, drafts, owned homebrew
 sources, and the catalog rows in those sources. Official and imported
 third-party sources have no owner and are not deleted. Other people's
@@ -331,10 +331,10 @@ the character. CharacterSpells can override one access path when a racial,
 feat, item, or manual grant has its own casting rules.
 
 A Character row always represents a character the player has confirmed.
-Unfinished creation and level-up flows live in AdvancementDrafts.
+Unfinished creation and level-up flows live in CharacterDrafts.
 
 Every transaction that changes a Character or one of its owned rows increments
-`lock_version`. AdvancementDrafts use it to detect character changes made after
+`lock_version`. CharacterDrafts use it to detect character changes made after
 a level-up flow started. This includes in-play changes such as spending a
 resource, not only edits to the Characters row.
 
@@ -1004,7 +1004,7 @@ descriptive metadata for a manual action. CharacterEffects track live source
 instances through their source columns instead of grant origins. A
 concentration anchor is an ordinary effect row and is never reconciled.
 
-## AdvancementDrafts
+## CharacterDrafts
 
 - `user_id`: references Users, `ON DELETE CASCADE`
 - `character_id`: references Characters, nullable

@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  character: one
+  kind: level_up
+  base_character_lock_version: 0
+  state: {}
+
+two:
+  user: two
+  kind: creation
+  state: {}
