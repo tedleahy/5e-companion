@@ -598,7 +598,9 @@ Every phone screen in scope is drawn at least once. What remains is deferred:
   flow from character-flows.md is its own screen set.
 - **Edit conflicts.** `lock_version` catches a change made from another device
   while a section is open. Nothing shows what happens then.
-- **Desktop and tablet.**
+- **Tablet, and desktop past the detail screens.** Desktop and tablet are
+  drawn through the detail screens behind the chevrons; later sections
+  are still phone only.
 
 ## Cleric pass
 
@@ -917,6 +919,131 @@ None option. Class, race and background stay with creation and level-up.
 A pushed confirmation that names the character and says everything on the sheet
 goes, including any level-up draft. The footer's destructive button repeats the
 name. Nothing needs typing.
+
+## Desktop pass
+
+Drawn 14 September 2026 at 1440 by 900, for Brenna's section. Each desktop
+frame sits after its phone frame. Play scrolled has none.
+
+### Decided
+
+All dated 14 September 2026.
+
+- **Columns, not tabs.** Play and Stats are always on screen. Spells, Gear and
+  Character share a third column as tabs, Spells first for a caster. Each
+  column scrolls on its own. A first draw the same day put Spells in the middle
+  and Stats in the tabs; they swapped so a spell open in the side panel covers
+  the list it came from instead of Stats, and so a character without spells
+  needs no layout of its own.
+- **The plate stays tall.** It never shrinks on desktop, so there is no compact
+  header. It is one row: token, name with marks under it, vitals, rail, Rest
+  and the menu.
+- **A strip replaces the tab bar.** It hangs off the plate like the attached
+  tabs and heads each column, with the tabs over the third.
+- **Details open in a side panel** over the third column, from the strip down.
+  Spell detail and the hit point pad both use it. It is not modal and has no
+  scrim: the control that opened it keeps its pressed ring, opening another
+  detail replaces the content, and Close or Escape returns focus to the opener.
+  Its rose shadow falls left, as the bottom sheet's falls up.
+- **One counter per screen.** With Play and Spells both visible, the casting
+  cards drop their slot rows and sit side by side, and Magic initiate's use
+  moves into Resources.
+- **The pad takes typing.** The amount is a field and Enter applies it. The
+  stepper and quick amounts stay.
+- Hints say click where the phone says tap.
+
+Brenna had no Stats frame, so her abilities come from numbers already on the
+sheet: Charisma 18 for save DC 15, Dexterity 14 for initiative +2 and AC 13,
+Wisdom 12 for the feat's DC 12. Skills are Arcana and Deception from warlock,
+Insight and Religion from Acolyte, and Perception and Persuasion from Skill
+versatility.
+
+### Tablet, a first check
+
+Drawn 14 September 2026 for Brenna's Play screen at 1180 by 820 and 820 by
+1180, and on 15 September for the rest of her section, each after its desktop
+frame. Not decided yet.
+
+- Three columns fit from about 1280 wide. At 1180 a card would be about 340
+  wide, under the phone's 366, and the one-row plate leaves the name no room.
+- Tablets get two columns: Play, and Stats, Spells, Gear and Character as tabs
+  in the right column, in the phone's order. Spells is open by default for a
+  caster. Cards come out about 540 wide
+  in landscape and 360 in portrait.
+- The plate wraps into two rows. In landscape the rail joins the name, Rest
+  and the menu on row one and the vitals take row two alone. In portrait the
+  name needs all of row one, so the rail sits beside the vitals on row two.
+- The side panel takes the right column's width instead of 484, and starts
+  below the strip so the tabs stay in reach. Tapping a tab closes it.
+- Two columns cannot show a spell, Play and Stats at once. With a spell open,
+  Play stays beside it for hit points and slots, and Stats is one tap away.
+- In portrait the casting cards stack and the tabs put icons above labels.
+- Hints say tap. The pad drops its keyboard hint but keeps the amount field.
+- The plate's row break holds whatever it carries, so the header variants
+  wrap the same way: vitals with the rail or death saves on row two.
+- Proposed breakpoints: phone below about 700, two columns to 1279, three
+  from 1280. A narrow laptop window takes the two-column layout.
+
+### Alarra, 15 September 2026
+
+Drawn the same way as Brenna, each desktop frame after its phone frame.
+Prepare spells is a side panel, with Save on the panel's bottom edge. The
+Spells tab has no desktop pair, because the prepared list already sits in
+the first desktop frame. Gear and Character parts are written from facts
+already on her sheet so the third-column tabs are not empty.
+
+### Rest, gear, character and editing, 15 September 2026
+
+Drawn the same way as Brenna and Alarra, each desktop frame after its
+phone frame. Rest is a side panel, with Take a rest on the panel's
+bottom edge. The plate keeps Rest pressed, and the panel drops the
+hit-point meter the plate already shows. Change on a long rest replaces
+that panel with prepare. Gear has no desktop pair: it is already
+selected in Brenna's Stats scrolled frame. Editing a section stays in
+place in the Stats column.
+
+### Detail screens, 15 September 2026
+
+Drawn the same way as the rest section, each desktop frame after its
+phone frame. Details open in the side panel. Move replaces the item
+panel, the same as Change on a long rest, and Close from Move returns
+to the item. Destinations already drawn, armour class and Cure wounds,
+are notes, not new frames. Medicine stays visible in Stats. Common
+actions stays visible in Play.
+
+### Lists, money and last details, 15 September 2026
+
+Drawn the same way as the detail screens, each desktop frame after its
+phone frame. The money pad, Add and Remove open in the side panel, with
+the commit on the panel's bottom edge. The money pad drops the coin grid
+Gear already shows, and takes a typed amount like the hit-point pad.
+List editing stays in place in the Gear column. Add from an editing list
+opens over the draft. Remove backpack and Remove prayer book replace the
+container or item panel. The backpack open in place on Gear is already
+drawn, so the container frame is the backpack's own detail. Wild shape
+sits on a small Fenn sheet, plate and Play and Character, so the panel
+has a column to open from. Transform still swaps the header; that state
+is in Header variants. Hellfire rebuke uses a Play variant with the
+extra reaction.
+
+### Adding spells, proficiencies and languages, 15 September 2026
+
+Drawn the same way as the lists section, each desktop frame after its
+phone frame. Add a spell, a proficiency or a language opens in the side
+panel, with the commit on the panel's bottom edge. Add a spell covers
+Spells, the column it opened from. Add a proficiency or language opens
+from view-mode Stats, so those rows stay visible on desktop; they also
+open from the draft, and that pair is not drawn again. Casts it
+differently is a second Add-a-spell panel on Brenna's sheet, not a
+nested replacement of Identify. Editing proficiencies stays in place in
+the Stats column, the same as abilities and carried items.
+
+### Still open
+
+- Hover, still deferred in the design system.
+- The tablet breakpoints above, and tablet past this section.
+- The one-row plate, the strip and the side panel are candidates for the
+  design system. None is in v0.4.
 
 ## Hit areas
 

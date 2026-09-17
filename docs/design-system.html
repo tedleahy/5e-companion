@@ -81,7 +81,7 @@ td code{white-space:nowrap}
   --sheet:#f0ece4;   /* card and field surface, one step lighter than paper */
   --a:#2560b0;       /* structural ink: plates, borders, primary text accents */
   --b:#e0689c;       /* accent ink: offset shadows, hurt state, CTA */
-  --mix:#5c3d88;     /* overprint: where a and b would overlap; concentration, third token colour */
+  --mix:#5c3d88;     /* overprint: where a and b would overlap; concentration marks */
 
   /* derived. Text tokens are contrast-targeted to 4.5:1, see derive() */
   --ink:#1f4477;     /* body text, a darkened */
@@ -713,16 +713,15 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .form .actl{flex:1;min-width:0}
 .form .castbtn.small{flex:none;padding:9px 13px;font-size:13px}
 
-/* token colour picker */
-.tokpick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.tokpick button{min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border:0;font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer}
-.tokpick .tok{width:48px;height:48px;font-size:18px}
-.tokpick button span{min-height:14px}
-.tokpick button small{display:block;font-size:10.5px;font-weight:600;margin-top:-6px}
-.tokpick button:not([aria-checked=true]) small{visibility:hidden}
-.riso .tokpick button{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--a)}
-.riso .tokpick button[aria-checked=true]{background:var(--sheet);box-shadow:inset 0 0 0 2px var(--a)}
-.riso .tokpick button small{color:var(--dim)}
+/* token colour picker: the token is the control */
+.tokpick{display:flex}
+.tokpick .tok{margin:0 7px 7px 0}
+.tokpick .tok input[type=color]{position:absolute;inset:0;z-index:1;width:100%;height:100%;
+  padding:0;border:0;opacity:0;cursor:pointer}
+.tokpick .tok b{pointer-events:none}
+.riso .tokpick .tok input:focus-visible{outline:none}
+.riso .tokpick .tok:focus-within{outline:2px solid var(--a);outline-offset:3px}
+.riso .tokpick .tok:has(:active){box-shadow:inset 0 0 0 2px var(--on-tok),4px 4px 0 var(--b)}
 
 /* static bottom sheet: the sheet menu, the conditions picker, the pads */
 .bscrim{position:absolute;inset:0;z-index:5}
@@ -836,8 +835,8 @@ button.mark{font-family:inherit;cursor:pointer}
 .riso .pips[role=spinbutton]:focus-visible{outline:2px solid var(--a);outline-offset:4px}
 
 /* hit areas, sheet components: same rule as the list's, longer list */
-:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button,.noteshow){position:relative}
-:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.tokpick button,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button,.noteshow)::after{content:"";position:absolute;
+:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button,.noteshow){position:relative}
+:is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button,.noteshow)::after{content:"";position:absolute;
   top:min(0px,calc((100% - 44px) / 2));bottom:min(0px,calc((100% - 44px) / 2));
   left:min(0px,calc((100% - 44px) / 2));right:min(0px,calc((100% - 44px) / 2))}
 .prep:has(> .prepmain)::after{content:none}
@@ -924,7 +923,7 @@ button.mark{font-family:inherit;cursor:pointer}
       <ul>
         <li>Structural blue does the work: plates, borders, primary numbers, text.</li>
         <li>Accent rose is the second pass: offset shadows, the hurt state, and the primary call to action on each screen or sheet.</li>
-        <li>Purple is the overprint. Use it sparingly as a third token colour and for concentration-type marks.</li>
+        <li>Purple is the overprint. Use it sparingly for concentration-type marks.</li>
       </ul>
     </div>
     <div class="do"><b>Print, not glass</b>
@@ -966,7 +965,7 @@ button.mark{font-family:inherit;cursor:pointer}
       <tr><td><i class="sw" style="background:#f0ece4"></i><code>--sheet</code></td><td><code>#f0ece4</code></td><td>Card, field and ring surface. One step lighter than paper.</td></tr>
       <tr><td><i class="sw" style="background:#2560b0"></i><code>--a</code></td><td><code>#2560b0</code></td><td>Structural ink. Header plate, card borders, primary numbers, default token.</td></tr>
       <tr><td><i class="sw" style="background:#e0689c"></i><code>--b</code></td><td><code>#e0689c</code></td><td>Accent ink. Offset shadows, sort button, hurt meter, create button, dashed tray rule.</td></tr>
-      <tr><td><i class="sw" style="background:#5c3d88"></i><code>--mix</code></td><td><code>#5c3d88</code></td><td>Overprint. Third token colour and concentration marks.</td></tr>
+      <tr><td><i class="sw" style="background:#5c3d88"></i><code>--mix</code></td><td><code>#5c3d88</code></td><td>Overprint. Concentration marks.</td></tr>
     </tbody>
   </table>
 
@@ -1263,17 +1262,17 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="token">
   <h2>Character token</h2>
-  <p class="lead">A filled circle with the character's initial, and a level badge pinned to its lower right. The colour comes from the ink stored on the character, applied per row with <code>--tok</code> and <code>--on-tok</code>.</p>
+  <p class="lead">A filled circle with the character's initial, and a level badge pinned to its lower right. The fill is a hex stored on the character, applied per row with <code>--tok</code> and <code>--on-tok</code>.</p>
   <div class="riso specimen">
     <div class="tok-set">
-      <figure style="--tok:var(--a);--on-tok:var(--on-a)"><div class="tok">B<b>6</b></div>structural</figure>
-      <figure style="--tok:var(--b);--on-tok:var(--on-b)"><div class="tok">T<b>8</b></div>accent</figure>
-      <figure style="--tok:var(--mix);--on-tok:var(--on-mix)"><div class="tok">V<b>7</b></div>overprint</figure>
+      <figure style="--tok:var(--a);--on-tok:var(--on-a)"><div class="tok">B<b>6</b></div>#2560b0</figure>
+      <figure style="--tok:var(--b);--on-tok:var(--on-b)"><div class="tok">T<b>8</b></div>#e0689c</figure>
+      <figure style="--tok:#2f6a4a;--on-tok:#f2f0eb"><div class="tok">F<b>5</b></div>#2f6a4a</figure>
       <figure><div class="d" style="display:contents"><div class="tok" style="--tok:var(--a);--on-tok:var(--on-a);width:64px;height:64px;font-size:23px">A<b>7</b></div></div>desktop, 64</figure>
       <figure><div class="draft" style="display:contents"><div class="tok">K<b>3</b></div></div>draft</figure>
     </div>
   </div>
-  <pre><code>&lt;article class="row" style="--tok:var(--b);--on-tok:var(--on-b)"&gt;
+  <pre><code>&lt;article class="row" style="--tok:#e0689c;--on-tok:#412029"&gt;
   &lt;div class="tok"&gt;T&lt;b&gt;8&lt;/b&gt;&lt;/div&gt;
   ...</code></pre>
   <table>
@@ -1281,9 +1280,9 @@ button.mark{font-family:inherit;cursor:pointer}
     <tbody>
       <tr><td>Circle</td><td>56px phone, 64px desktop. Initial at 20 / 23px, 700. 4px accent shadow, always accent regardless of token colour.</td></tr>
       <tr><td>Level badge</td><td>23px circle, sheet fill, ink digit at 11.5 / 700, 2px structural ring. Offset -7 -7 so it overlaps the token edge. It shows total level, so wizard 5 / rogue 2 reads 7.</td></tr>
-      <tr><td>Colour assignment</td><td>Stored on the character as an ink role: structural, accent or overprint. The player picks it in the first creation step. The default is the ink they use least across their other characters. Sorting and filtering never change it. Players never see the role names. Each theme names its three inks, and the default theme calls them Blue, Rose and Purple, in the colour picker and anywhere else a token colour is named.</td></tr>
+      <tr><td>Colour assignment</td><td>Stored on the character as a hex colour, not an ink role. The player picks it in the first creation step and can change it from Basic details. Sorting and filtering never change it. A theme change leaves the token as it is. The five inks stay chrome: plates, shadows, hurt, concentration.</td></tr>
       <tr><td>Draft variant</td><td>Sheet fill, structural initial, 2px inset structural ring, shadow in <code>--rule</code> instead of accent. Reads as an outline of a token.</td></tr>
-      <tr><td>Text colour</td><td>Rose tokens carry dark text because light text fails on rose. Blue and purple tokens carry light text.</td></tr>
+      <tr><td>Text colour</td><td>The letter is contrast-targeted against the chosen fill, the same 4.5:1 rule as on-ink. Light text if it holds, otherwise a dark mix toward near-black.</td></tr>
     </tbody>
   </table>
 </section>
@@ -2129,20 +2128,26 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   </table>
 
   <h3>Token colour picker</h3>
-  <p class="why">The stored token ink as three swatches, named by the theme — Blue, Rose and Purple in the default — because token colour is identity, not status.</p>
+  <p class="why">The token is the control. Tap it to pick a colour. A native colour input sits on top of it, invisible, so the letter and level badge still show as they will on the sheet.</p>
   <div class="riso specimen tight">
     <div class="phone-frame">
       <section class="block">
         <h3 class="bhead">Token color</h3>
-        <div class="tokpick" role="radiogroup" aria-label="Token color"><button role="radio" aria-checked="false" tabindex="-1" aria-label="Blue"><div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">T</div><span>Blue</span><small>Chosen</small></button><button role="radio" aria-checked="true" tabindex="0" aria-label="Rose"><div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">T</div><span>Rose</span><small>Chosen</small></button><button role="radio" aria-checked="false" tabindex="-1" aria-label="Purple"><div class="tok" style="--tok:var(--mix);--on-tok:var(--on-mix)">T</div><span>Purple</span><small>Chosen</small></button></div>
+        <div class="tokpick">
+          <div class="tok" style="--tok:#e0689c;--on-tok:#412029">T<b>8</b>
+            <input type="color" value="#e0689c" aria-label="Pick token color">
+          </div>
+        </div>
+        <p class="padnote">Tap the token to edit its color.</p>
       </section>
     </div>
   </div>
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Swatch</td><td>96 tall at least: the 48px token with the character's initial, the theme's name for the ink under it, then "Chosen" in dim under the selected one. Idle is the wash tile; selected keeps the tile and takes the 2px structural ring. A <code>radiogroup</code>.</td></tr>
-      <tr><td>Stored</td><td>The character stores the ink role, not a colour, so a theme change updates every token. Players never see the role names, only the theme's names.</td></tr>
+      <tr><td>Token</td><td>The 56px header token with the character's initial and level badge. It is the hit target. Focus draws the 2px structural outline outside the circle. Pressed sinks with an inset ring in the letter colour.</td></tr>
+      <tr><td>Hint</td><td>A dim line under the token: &ldquo;Tap the token to edit its color.&rdquo;</td></tr>
+      <tr><td>Stored</td><td>The character stores a hex colour. A theme change leaves it alone.</td></tr>
     </tbody>
   </table>
 
@@ -2654,6 +2659,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <tr><td>Reduced motion query</td><td>The accessibility info module. The dice roll reads it and shows its result at once. The header shrink stays, because it tracks the scroll rather than playing on its own.</td></tr>
       <tr><td>Semantic elements and accessibility attributes</td><td>Roles and accessibility props: a header role on titles, labels on icon-only buttons, hidden meters and pips, and selected or disabled state on chips and buttons.</td></tr>
       <tr><td>Hit areas</td><td>Hit slop, with the same numbers as the web rule under accessibility.</td></tr>
+      <tr><td>Colour input overlaid on the token</td><td>The tap is a Pressable. Web (including React Native Web) uses a hidden colour input, as here. iOS 14+ can present <code>UIColorPickerViewController</code> from that press. Android has no system colour picker, so present one in the static bottom sheet, the system's overlay shape. The token is the control on every platform; only the picker UI behind it changes.</td></tr>
     </tbody>
   </table>
 
@@ -2701,7 +2707,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <tr><td>Motion</td><td>The system has two animations, both on the sheet: the header shrinks continuously as the page scrolls, and the dice roll animates while it rolls, about half a second, stepped between fixed poses with its shadow held still. Nothing else moves: state changes are instant. <code>prefers-reduced-motion</code> shows the roll&rsquo;s result at once, and a tap skips it. Screen readers hear only the result.</td></tr>
       <tr><td>Text opacity</td><td>Banned. The mockup used opacity on the tray heading, column headers, title count and ring label, which pushed them below contrast. All four are now solid.</td></tr>
       <tr><td>Colour alone</td><td>Hurt is shown by meter colour, a "Below half" mark and the number. Death saves differ in shape as well as colour and are spelled out in the line. Token colour carries no meaning.</td></tr>
-      <tr><td>Semantics</td><td>Cards are <code>article</code> with the name as a link stretched over the card, names are <code>h3</code>, search has a label, and filter chips are a radio group. Meters and pips are decorative or collapsed into one control; the adjacent text carries the value. On the character sheet: switches that swap the content below are <code>tablist</code> with <code>aria-selected</code> (sheet tabs, rest length, catalog or custom, the pad's tabs, the coin switch), single choices are <code>radiogroup</code> with <code>aria-checked</code> (ranks, alignment, token colour, ability, uses, ends, gain or spend), multi-select toggles keep <code>aria-pressed</code> (conditions, inspiration), and a pip row is one <code>spinbutton</code> with <code>aria-valuetext</code> such as "1 of 2 left", stepped with arrow keys, Home and End. Arrow keys move a choice with roving focus. A toggle row with a details chevron is two siblings, a label and a button, so opening details never toggles the row. Bottom sheets are <code>dialog</code> with <code>aria-modal</code>: the page behind is inert, focus cycles inside, and the opener carries <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>. Disclosures report <code>aria-expanded</code>. The header's vitals block is one button named by its numbers, and live regions carry the notes' save status and the roll's running total.</td></tr>
+      <tr><td>Semantics</td><td>Cards are <code>article</code> with the name as a link stretched over the card, names are <code>h3</code>, search has a label, and filter chips are a radio group. Meters and pips are decorative or collapsed into one control; the adjacent text carries the value. On the character sheet: switches that swap the content below are <code>tablist</code> with <code>aria-selected</code> (sheet tabs, rest length, catalog or custom, the pad's tabs, the coin switch), single choices are <code>radiogroup</code> with <code>aria-checked</code> (ranks, alignment, ability, uses, ends, gain or spend), multi-select toggles keep <code>aria-pressed</code> (conditions, inspiration), and a pip row is one <code>spinbutton</code> with <code>aria-valuetext</code> such as "1 of 2 left", stepped with arrow keys, Home and End. Arrow keys move a choice with roving focus. A toggle row with a details chevron is two siblings, a label and a button, so opening details never toggles the row. Bottom sheets are <code>dialog</code> with <code>aria-modal</code>: the page behind is inert, focus cycles inside, and the opener carries <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>. Disclosures report <code>aria-expanded</code>. The header's vitals block is one button named by its numbers, and live regions carry the notes' save status and the roll's running total.</td></tr>
       <tr><td>Hit areas</td><td>Every control answers taps across at least 44 by 44. On web the extension is an invisible <code>::after</code> centred on the control, so layout and appearance do not change. Where two controls sit closer than that, their areas meet at the midpoint of the gap instead of overlapping, and 24 is the floor in that direction, the WCAG 2.2 AA minimum. Chips extend to 44 tall and keep their own width. Text fields get a real 44 minimum height instead, because an overlay would cover the caret.</td></tr>
       <tr><td>Native semantics</td><td>HTML elements and accessibility attributes map onto React Native roles and props. See React Native.</td></tr>
     </tbody>
@@ -2716,7 +2722,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <li><b>Contrast.</b> Text tokens are contrast-targeted in the derivation. Dim and rose text are darker, rose surfaces carry dark text, the inactive chip tint is lighter, and text never uses opacity.</li>
     <li><b>Interaction states.</b> Pressed sinks, focus outlines, selected inverts and disabled loses its ink. Hover is deferred.</li>
     <li><b>Meter colour.</b> Meters are structural for every character and turn rose below half. The unused alias that suggested token-coloured meters is gone.</li>
-    <li><b>Token colour.</b> Stored per character as an ink role and picked at creation. The data model and creation flow now include it.</li>
+    <li><b>Token colour.</b> Stored per character as a hex colour. The token is the picker: tap it to change the fill. The letter is contrast-targeted against that fill. Theme inks stay chrome. 16 September 2026.</li>
     <li><b>Zero hit points.</b> Dying shows death save pips, stable shows an empty meter, and dead drops the token's ink.</li>
     <li><b>Icons.</b> Outline only, 1.8 stroke on a 16 grid, colour from context.</li>
     <li><b>Font weights.</b> Capped at 700, the heaviest face Space Grotesk has. 12 September 2026.</li>
@@ -2724,7 +2730,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <li><b>Safe areas and press feedback.</b> The plate paints under the status bar, the Create button clears the home indicator, and Android's ripple is off. 12 September 2026.</li>
     <li><b>Hit areas.</b> At least 44 by 44 for every control: an invisible extension on web, hit slop on native. Neighbours meet mid-gap, with a floor of 24. 12 September 2026.</li>
     <li><b>Primary buttons.</b> "Only one primary per screen" becomes at most one full-width primary per screen or sheet, with repeated cards and rows allowed one small primary each for their own action. The character sheet designs settled it. 13 September 2026.</li>
-    <li><b>Selection and semantics.</b> Selected state lives in ARIA attributes, not a data attribute: <code>aria-selected</code> for tabs, <code>aria-checked</code> for single choices including filter chips, and <code>aria-pressed</code> for multi-select toggles. Arrow keys move a choice with roving focus. A list card is one link stretched over the card. Token colours are named by the theme. 14 September 2026.</li>
+    <li><b>Selection and semantics.</b> Selected state lives in ARIA attributes, not a data attribute: <code>aria-selected</code> for tabs, <code>aria-checked</code> for single choices including filter chips, and <code>aria-pressed</code> for multi-select toggles. Arrow keys move a choice with roving focus. A list card is one link stretched over the card. 14 September 2026.</li>
     <li><b>Case and person.</b> Names of features, feats, subclasses, invocations, spells and items are sentence case, keeping proper nouns. UI copy addresses the player as &ldquo;you&rdquo; and refers to the character in the third person; quoted rules text is left as printed. 14 September 2026.</li>
     <li><b>Spelling.</b> The app&rsquo;s UI copy uses American spelling to match the catalog. Internal documents stay British. 14 September 2026.</li>
     <li><b>Draft contrast.</b> Dim and rose text are checked against the draft tint over paper as well as over the card colour, because a draft sits on paper and its tint is see-through. Both come out a step darker than before. 14 September 2026.</li>
@@ -2744,7 +2750,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <li><b>Hover.</b> Desktop needs some pointer feedback. It should stay within the print metaphor and must not move layout.</li>
     <li><b>Empty states.</b> Design each one with its screen: no characters, no search results, no drafts.</li>
     <li><b>Tablet.</b> Nothing exists between 390 and 1440 wide. Decide once two or three screens show what needs to reflow.</li>
-    <li><b>Dark mode.</b> The token rule keeps this cheap. The derivation should handle a dark paper, but no dark pairing has been tried.</li>
+    <li><b>Dark mode.</b> The derivation should handle a dark paper, but no dark pairing has been tried. Stored token hexes do not remap with the theme.</li>
     <li><b>Level-up wizard.</b> The Character tab has its entry and the draft card; the flow itself is its own screen set.</li>
     <li><b>Edit conflicts.</b> <code>lock_version</code> catches a change made from another device while a section is open. Nothing shows what happens then.</li>
     <li><b>Desktop and tablet sheets.</b> The character sheet is designed at 390 only. The desktop and tablet layouts, and how its pushed screens and bottom sheets behave there, are not drawn.</li>
