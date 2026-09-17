@@ -252,12 +252,16 @@ unresolved.
 ## Sessions
 
 - `user_id`: references Users, `ON DELETE CASCADE`
-- `token`: text, unique
+- `token_digest`: text, unique, not null
 - `created_at`: timestamptz
 - `expires_at`: timestamptz, nullable
 
 Every character, draft, and homebrew write requires a current user from a
 valid session.
+
+Store only a SHA-256 digest of each high-entropy bearer token. Return the
+plaintext token when the session is created, then discard it. A database leak
+must not expose credentials that can be used directly.
 
 ## Characters
 
