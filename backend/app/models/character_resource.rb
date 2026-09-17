@@ -1,3 +1,7 @@
+# A pool of uses, such as spell slots, hit dice, or Lay on Hands.
+# maximum_override replaces the maximum derived from the character's rules; null
+# means derive normally. reset_on names which rest recovers it, and key is
+# stable per character and class.
 class CharacterResource < ApplicationRecord
   belongs_to :character
   belongs_to :character_class, optional: true

@@ -1,3 +1,5 @@
+# An account that signs in with email and password. Owns its characters and
+# sessions; deleting a user cascades to both.
 class User < ApplicationRecord
   has_secure_password
 

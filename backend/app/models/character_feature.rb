@@ -1,3 +1,6 @@
+# A class feature, racial trait, feat, or manual addition on the sheet. state
+# holds character-specific selections, such as a Wild Shape's known forms.
+# position orders a character's features and traits.
 class CharacterFeature < ApplicationRecord
   belongs_to :character
 

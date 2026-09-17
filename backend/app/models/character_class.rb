@@ -1,3 +1,6 @@
+# One class on a character, such as Fighter 8 or Rogue 2, with an optional
+# subclass. position orders a multiclass character's classes and is unique per
+# character.
 class CharacterClass < ApplicationRecord
   belongs_to :character
 

@@ -1,3 +1,6 @@
+# A confirmed player character: identity, token ink colour, ancestry, and hit
+# points. Unfinished creation and level-up flows live in CharacterDraft, never
+# here. Owns its classes, resources, features, and effects.
 class Character < ApplicationRecord
   belongs_to :user
 
