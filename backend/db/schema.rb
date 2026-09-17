@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_17_220950) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_17_221717) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -25,6 +25,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_220950) do
     t.index ["character_id", "position"], name: "index_character_classes_on_character_id_and_position", unique: true
     t.check_constraint "\"position\" >= 0", name: "character_classes_position_check"
     t.check_constraint "level > 0", name: "character_classes_level_check"
+  end
+
+  create_table "character_resources", force: :cascade do |t|
+    t.bigint "character_class_id"
+    t.bigint "character_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "current", null: false
+    t.text "key", null: false
+    t.integer "maximum_override"
+    t.text "name", null: false
+    t.text "reset_on", null: false
+    t.jsonb "state", default: {}, null: false
+    t.datetime "updated_at", null: false
+    t.index ["character_class_id"], name: "index_character_resources_on_character_class_id"
+    t.index ["character_id", "character_class_id", "key"], name: "idx_on_character_id_character_class_id_key_6ae544b517", unique: true, nulls_not_distinct: true
+    t.check_constraint "current >= 0", name: "character_resources_current_check"
+    t.check_constraint "jsonb_typeof(state) = 'object'::text", name: "character_resources_state_object_check"
+    t.check_constraint "maximum_override IS NULL OR maximum_override >= 0", name: "character_resources_maximum_override_check"
+    t.check_constraint "reset_on = ANY (ARRAY['short_rest'::text, 'long_rest'::text, 'dawn'::text, 'manual'::text])", name: "character_resources_reset_on_check"
   end
 
   create_table "characters", force: :cascade do |t|
@@ -69,6 +88,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_220950) do
   end
 
   add_foreign_key "character_classes", "characters", on_delete: :cascade
+  add_foreign_key "character_resources", "character_classes", on_delete: :cascade
+  add_foreign_key "character_resources", "characters", on_delete: :cascade
   add_foreign_key "characters", "users", on_delete: :cascade
   add_foreign_key "sessions", "users", on_delete: :cascade
 end
