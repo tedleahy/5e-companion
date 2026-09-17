@@ -44,4 +44,61 @@ class CharacterTest < ActiveSupport::TestCase
 
     assert_not Character.exists?(character_id)
   end
+
+  test "total_level sums class levels" do
+    character = characters(:one)
+
+    assert_equal 1, character.total_level
+
+    character.character_classes.create!(name: "Rogue", level: 2, position: 2)
+    assert_equal 3, character.total_level
+  end
+
+  test "below_half_hit_points? is true only below half" do
+    character = characters(:one)
+
+    assert_not character.below_half_hit_points?
+
+    character.current_hit_points = 12
+    assert_not character.below_half_hit_points?
+
+    character.current_hit_points = 11
+    assert character.below_half_hit_points?
+
+    character.current_hit_points = nil
+    assert_not character.below_half_hit_points?
+
+    character.current_hit_points = 11
+    character.maximum_hit_points = nil
+    assert_not character.below_half_hit_points?
+
+    character.maximum_hit_points = 0
+    assert_not character.below_half_hit_points?
+  end
+
+  test "effective_armor_class reads the armor_class override" do
+    character = characters(:one)
+
+    assert_nil character.effective_armor_class
+
+    character.overrides = { "armor_class" => 18 }
+    assert_equal 18, character.effective_armor_class
+  end
+
+  test "destroying a character destroys its owned rows" do
+    character = characters(:one)
+    class_id = character_classes(:one).id
+    resource_id = character_resources(:one).id
+    feature_id = character_features(:one).id
+    effect_id = character_effects(:one).id
+    draft_id = character_drafts(:one).id
+
+    character.destroy
+
+    assert_not CharacterClass.exists?(class_id)
+    assert_not CharacterResource.exists?(resource_id)
+    assert_not CharacterFeature.exists?(feature_id)
+    assert_not CharacterEffect.exists?(effect_id)
+    assert_not CharacterDraft.exists?(draft_id)
+  end
 end

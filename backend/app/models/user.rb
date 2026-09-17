@@ -7,4 +7,5 @@ class User < ApplicationRecord
 
   has_many :characters, dependent: :destroy
   has_many :sessions, dependent: :destroy
+  has_many :character_drafts, dependent: :destroy
 end

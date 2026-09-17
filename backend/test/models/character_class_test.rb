@@ -66,4 +66,13 @@ class CharacterClassTest < ActiveSupport::TestCase
 
     assert_not CharacterClass.exists?(character_class_id)
   end
+
+  test "destroying a class destroys its resources" do
+    character_class = character_classes(:one)
+    resource_id = character_resources(:one).id
+
+    character_class.destroy
+
+    assert_not CharacterResource.exists?(resource_id)
+  end
 end

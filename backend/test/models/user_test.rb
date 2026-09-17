@@ -35,4 +35,13 @@ class UserTest < ActiveSupport::TestCase
 
     assert_not Session.exists?(session_id)
   end
+
+  test "destroying a user destroys their character drafts" do
+    user = users(:one)
+    draft_id = character_drafts(:one).id
+
+    user.destroy
+
+    assert_not CharacterDraft.exists?(draft_id)
+  end
 end

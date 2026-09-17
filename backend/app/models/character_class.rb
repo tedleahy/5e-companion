@@ -3,6 +3,7 @@
 # character.
 class CharacterClass < ApplicationRecord
   belongs_to :character
+  has_many :character_resources, dependent: :destroy
 
   validates :name, presence: true
   validates :level, numericality: { only_integer: true, greater_than: 0 }
