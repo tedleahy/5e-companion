@@ -271,7 +271,7 @@ manual values, or in-play state.
 
 - `user_id`: references Users, `ON DELETE CASCADE`
 - `name`: text
-- `token_ink`: text, default `'structural'`
+- `token_ink`: text, a six-digit CSS hex colour such as `#e0689c`
 - `rules_version`: text
 - `lock_version`: non-negative integer, default 0
 - `race_id`: references Races, nullable
@@ -303,12 +303,10 @@ manual values, or in-play state.
 - `overrides`: JSONB, default `{}`
 - `notes`: text, nullable
 
-`token_ink` is the colour of the character's token in lists and on the sheet:
-`structural`, `accent`, or `overprint`. It names an ink role rather than a hex
-value, so a theme change recolours every token without a data change. Enforce
-the three values with a check constraint. The player picks it when creating
-the character; the default is the ink they use least across their other
-characters.
+`token_ink` is the colour of the character's token in lists and on the sheet.
+Store it as a six-digit CSS hex value including the leading `#`, and enforce
+that format with a check constraint. The player picks it when creating the
+character.
 
 `race_name`, `subrace_name`, and `background_name` contain the player's chosen
 display values. The corresponding catalog references are optional, which
