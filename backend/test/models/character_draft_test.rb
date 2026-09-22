@@ -91,6 +91,12 @@ class CharacterDraftTest < ActiveSupport::TestCase
     end
   end
 
+  test "database accepts a creation draft with no character" do
+    draft = users(:one).character_drafts.create!(kind: "creation")
+
+    assert_nil draft.reload.character_id
+  end
+
   test "deleting a character cascades to its draft in the database" do
     character = characters(:one)
     draft_id = character_drafts(:one).id

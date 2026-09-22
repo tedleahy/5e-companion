@@ -20,6 +20,9 @@ class CharacterSeedsTest < ActiveSupport::TestCase
     demo = User.find_by!(email: "demo@example.test")
     assert_equal 6, demo.characters.count
     assert_equal [ "Orik Stonehand" ], User.find_by!(email: "other@example.test").characters.pluck(:name)
+    draft = demo.character_drafts.sole
+    assert_equal "level_up", draft.kind
+    assert_equal "Kethra Ironsong", draft.character.name
 
     vesper = demo.characters.find_by!(name: "Vesper Quill")
     rogue = vesper.character_classes.find_by!(name: "Rogue")

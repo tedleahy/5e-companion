@@ -54,6 +54,13 @@ class CharacterTest < ActiveSupport::TestCase
     assert_equal 3, character.total_level
   end
 
+  test "total_level is 0 for a character with no classes" do
+    character = characters(:one)
+    character.character_classes.destroy_all
+
+    assert_equal 0, character.reload.total_level
+  end
+
   test "effective_armor_class reads the armor_class override" do
     character = characters(:one)
 
