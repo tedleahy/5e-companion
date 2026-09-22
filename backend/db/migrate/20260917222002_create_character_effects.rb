@@ -11,7 +11,7 @@ class CreateCharacterEffects < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :character_effects, [:character_id, :effect_key], unique: true
+    add_index :character_effects, [ :character_id, :effect_key ], unique: true
 
     add_check_constraint :character_effects,
       "jsonb_typeof(state) = 'object'",

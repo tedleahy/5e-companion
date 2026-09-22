@@ -28,14 +28,14 @@ ActiveRecord::Base.transaction do
       current_hit_points: 68,
       overrides: { "armor_class" => 18 },
       classes: [
-        { name: "Fighter", level: 8, subclass_name: "Champion" }
+        { name: "Fighter", level: 8, subclass_name: "Champion" },
       ],
       resources: [
         { key: "second_wind", name: "Second Wind", current: 1, maximum_override: 1,
-          reset_on: "short_rest", class_name: "Fighter" },
+          reset_on: "short_rest", class_name: "Fighter", },
         { key: "action_surge", name: "Action Surge", current: 1, maximum_override: 1,
-          reset_on: "short_rest", class_name: "Fighter" }
-      ]
+          reset_on: "short_rest", class_name: "Fighter", },
+      ],
     },
     {
       name: "Alarra Vane",
@@ -46,12 +46,12 @@ ActiveRecord::Base.transaction do
       current_hit_points: 38,
       overrides: { "armor_class" => 19 },
       classes: [
-        { name: "Cleric", level: 7, subclass_name: "Life Domain" }
+        { name: "Cleric", level: 7, subclass_name: "Life Domain" },
       ],
       resources: [
         { key: "channel_divinity", name: "Channel Divinity", current: 1, maximum_override: 2,
-          reset_on: "short_rest", class_name: "Cleric" }
-      ]
+          reset_on: "short_rest", class_name: "Cleric", },
+      ],
     },
     {
       name: "Vesper Quill",
@@ -63,14 +63,14 @@ ActiveRecord::Base.transaction do
       overrides: { "armor_class" => 12 },
       classes: [
         { name: "Wizard", level: 5, subclass_name: "Divination" },
-        { name: "Rogue", level: 2, subclass_name: nil }
+        { name: "Rogue", level: 2, subclass_name: nil },
       ],
       resources: [
         { key: "spell_slot_1", name: "Spell Slots (1st)", current: 2,
-          reset_on: "long_rest" },
+          reset_on: "long_rest", },
         { key: "portent", name: "Portent", current: 1, maximum_override: 2,
-          reset_on: "long_rest", class_name: "Wizard" }
-      ]
+          reset_on: "long_rest", class_name: "Wizard", },
+      ],
     },
     {
       name: "Brenna Duskhollow",
@@ -82,15 +82,15 @@ ActiveRecord::Base.transaction do
       temporary_hit_points: 5,
       overrides: { "armor_class" => 13 },
       classes: [
-        { name: "Warlock", level: 6, subclass_name: "The Fiend" }
+        { name: "Warlock", level: 6, subclass_name: "The Fiend" },
       ],
       resources: [
         { key: "pact_magic", name: "Pact Magic", current: 1, maximum_override: 2,
-          reset_on: "short_rest", class_name: "Warlock" }
+          reset_on: "short_rest", class_name: "Warlock", },
       ],
       effects: [
-        { effect_key: "hex", name: "Hex", is_concentration: true }
-      ]
+        { effect_key: "hex", name: "Hex", is_concentration: true },
+      ],
     },
     {
       name: "Mudge Tealeaf",
@@ -101,19 +101,19 @@ ActiveRecord::Base.transaction do
       current_hit_points: 9,
       overrides: { "armor_class" => 15 },
       classes: [
-        { name: "Rogue", level: 4, subclass_name: "Arcane Trickster" }
+        { name: "Rogue", level: 4, subclass_name: "Arcane Trickster" },
       ],
       resources: [
         { key: "hit_dice", name: "Hit Dice", current: 1,
-          reset_on: "short_rest", class_name: "Rogue" }
+          reset_on: "short_rest", class_name: "Rogue", },
       ],
       features: [
         { name: "Sneak Attack",
-          description: "Once per turn, deal extra damage to one creature you hit with an attack." }
+          description: "Once per turn, deal extra damage to one creature you hit with an attack.", },
       ],
       effects: [
-        { effect_key: "poisoned", name: "Poisoned", is_concentration: false }
-      ]
+        { effect_key: "poisoned", name: "Poisoned", is_concentration: false },
+      ],
     },
     {
       name: "Kethra Ironsong",
@@ -124,12 +124,12 @@ ActiveRecord::Base.transaction do
       current_hit_points: 28,
       overrides: { "armor_class" => 18 },
       classes: [
-        { name: "Paladin", level: 3, subclass_name: "Oath of Devotion" }
+        { name: "Paladin", level: 3, subclass_name: "Oath of Devotion" },
       ],
       resources: [
         { key: "lay_on_hands", name: "Lay on Hands", current: 15, maximum_override: 15,
-          reset_on: "long_rest", class_name: "Paladin" }
-      ]
+          reset_on: "long_rest", class_name: "Paladin", },
+      ],
     },
     {
       user: other,
@@ -141,9 +141,9 @@ ActiveRecord::Base.transaction do
       current_hit_points: 20,
       overrides: { "armor_class" => 14 },
       classes: [
-        { name: "Barbarian", level: 2, subclass_name: nil }
-      ]
-    }
+        { name: "Barbarian", level: 2, subclass_name: nil },
+      ],
+    },
   ]
 
   characters.each do |data|
@@ -187,7 +187,7 @@ ActiveRecord::Base.transaction do
     to_level: 4,
     completed_choices: 3,
     total_choices: 5,
-    next_step: "ability_score_or_feat"
+    next_step: "ability_score_or_feat",
   }
   demo.character_drafts.find_or_initialize_by(character: kethra).update!(
     kind: "level_up",

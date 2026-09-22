@@ -15,7 +15,7 @@ class CreateCharacterResources < ActiveRecord::Migration[8.1]
     end
 
     add_index :character_resources,
-      [:character_id, :character_class_id, :key],
+      [ :character_id, :character_class_id, :key ],
       unique: true,
       nulls_not_distinct: true
 
