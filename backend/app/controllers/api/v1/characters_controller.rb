@@ -3,7 +3,8 @@ module Api
     class CharactersController < ApplicationController
       def index
         query = params[:q]
-        sort = params[:sort] || "level"
+        sort = params[:sort]
+        sort = "level" if sort.nil? || sort == ""
         return render_invalid_query unless valid_query?(query, sort)
 
         query = query&.strip.presence
