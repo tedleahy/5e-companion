@@ -3,6 +3,8 @@
 # repeatedly without duplicating records.
 # Associations omitted from this dataset are preserved on reruns.
 
+raise "Character-list demo seeds are local only" unless Rails.env.local?
+
 demo_token = "dev-character-list-token"
 demo_password = "demo-password"
 

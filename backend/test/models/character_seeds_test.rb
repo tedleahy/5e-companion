@@ -1,6 +1,18 @@
 require "test_helper"
 
 class CharacterSeedsTest < ActiveSupport::TestCase
+  test "refuses to expose demo credentials outside local environments" do
+    seed = Rails.root.join("db/seeds/character_list.rb")
+    environment = Rails.env
+    local = environment.method(:local?)
+    environment.define_singleton_method(:local?) { false }
+
+    error = assert_raises(RuntimeError) { capture_io { load seed } }
+    assert_equal "Character-list demo seeds are local only", error.message
+  ensure
+    environment&.define_singleton_method(:local?, local) if local
+  end
+
   test "reruns preserve omitted associations and match resources by class" do
     seed = Rails.root.join("db/seeds/character_list.rb")
     capture_io { load seed }
