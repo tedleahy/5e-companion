@@ -17,6 +17,10 @@ class Character < ApplicationRecord
   validates :temporary_hit_points, :lock_version,
     numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
+  scope :named, ->(query) {
+    where("characters.name ILIKE ?", "%#{sanitize_sql_like(query)}%")
+  }
+
   def total_level
     character_classes.sum(&:level)
   end
