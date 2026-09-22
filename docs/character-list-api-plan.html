@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Character list API plan</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --paper: #17191d;
+      --sheet: #22252b;
+      --ink: #edf0f4;
+      --muted: #aab1bc;
+      --blue: #79adff;
+      --rose: #ee78a8;
+      --violet: #b89bdd;
+      --line: #40454f;
+      --code: #101216;
+      --code-ink: #e8ebf0;
+      --note: #202b3d;
+      --warn: #3a2e18;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 1px 1px, rgba(121, 173, 255, .13) 1px, transparent 1.2px) 0 0 / 18px 18px,
+        var(--paper);
+      color: var(--ink);
+      font: 16px/1.65 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    a { color: var(--blue); }
+    a:hover { color: var(--violet); }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    code {
+      padding: .12rem .32rem;
+      border-radius: 4px;
+      background: #30343c;
+      font-size: .92em;
+    }
+    pre {
+      overflow-x: auto;
+      margin: 1rem 0;
+      padding: 1rem 1.1rem;
+      border-radius: 7px;
+      background: var(--code);
+      color: var(--code-ink);
+      font-size: .88rem;
+      line-height: 1.55;
+    }
+    pre code { padding: 0; background: transparent; color: inherit; }
+
+    .page {
+      width: min(1120px, calc(100% - 32px));
+      margin: 30px auto 72px;
+    }
+    .hero {
+      padding: clamp(28px, 6vw, 68px);
+      border: 2px solid var(--blue);
+      background: var(--sheet);
+      box-shadow: 9px 9px 0 #a33f6a;
+    }
+    .eyebrow {
+      margin: 0 0 .45rem;
+      color: var(--rose);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3 { line-height: 1.18; }
+    h1 {
+      max-width: 16ch;
+      margin: 0;
+      font-size: clamp(2.2rem, 6vw, 4.6rem);
+      letter-spacing: -.055em;
+    }
+    .lede {
+      max-width: 70ch;
+      margin: 1.4rem 0 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+    .status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 1.35rem;
+    }
+    .status span {
+      padding: .28rem .65rem;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      font-size: .82rem;
+      font-weight: 700;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 245px minmax(0, 1fr);
+      gap: 34px;
+      margin-top: 42px;
+      align-items: start;
+    }
+    nav {
+      position: sticky;
+      top: 18px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: rgba(34, 37, 43, .95);
+      backdrop-filter: blur(10px);
+    }
+    nav h2 {
+      margin: 0 0 .75rem;
+      font-size: .84rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    nav ol {
+      margin: 0;
+      padding-left: 1.25rem;
+      font-size: .91rem;
+    }
+    nav li + li { margin-top: .38rem; }
+
+    main { min-width: 0; }
+    section {
+      margin-bottom: 38px;
+      padding: clamp(22px, 4vw, 38px);
+      border: 1px solid var(--line);
+      background: var(--sheet);
+    }
+    section > h2 {
+      margin: 0 0 .9rem;
+      font-size: clamp(1.5rem, 3vw, 2.05rem);
+      letter-spacing: -.025em;
+    }
+    section > h3 { margin-top: 1.8rem; }
+    .step-no {
+      display: inline-grid;
+      width: 2.1rem;
+      height: 2.1rem;
+      margin-right: .55rem;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #11151b;
+      font-size: 1rem;
+      vertical-align: .14em;
+    }
+    .outcome {
+      margin: 0 0 1.2rem;
+      padding-left: 1rem;
+      border-left: 4px solid var(--rose);
+      color: var(--muted);
+    }
+    .decision, .warning {
+      margin: 1.25rem 0;
+      padding: 1rem 1.1rem;
+      border-left: 5px solid var(--violet);
+      background: var(--note);
+    }
+    .warning { border-left-color: #e0a52f; background: var(--warn); }
+    .decision h3, .warning h3 {
+      margin: 0 0 .35rem;
+      font-size: 1rem;
+    }
+    .decision p:last-child, .warning p:last-child { margin-bottom: 0; }
+    ul, ol { padding-left: 1.35rem; }
+    li + li { margin-top: .38rem; }
+    .checks { list-style: none; padding-left: 0; }
+    .checks li { position: relative; padding-left: 1.7rem; }
+    .checks li::before {
+      content: "□";
+      position: absolute;
+      left: 0;
+      color: var(--blue);
+      font-weight: 800;
+    }
+
+    table {
+      width: 100%;
+      margin: 1rem 0;
+      border-collapse: collapse;
+      font-size: .92rem;
+    }
+    th, td {
+      padding: .7rem .75rem;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #2d3138; }
+    .compact td:first-child { white-space: nowrap; font-weight: 700; }
+    .small { color: var(--muted); font-size: .9rem; }
+    footer {
+      padding: 22px;
+      color: var(--muted);
+      text-align: center;
+      font-size: .85rem;
+    }
+
+    @media (max-width: 800px) {
+      .page { width: min(100% - 20px, 720px); margin-top: 10px; }
+      .layout { display: block; margin-top: 24px; }
+      nav { position: static; margin-bottom: 24px; }
+      section { margin-bottom: 20px; }
+      table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <p class="eyebrow">5e Companion backend</p>
+      <h1>Character list API plan</h1>
+      <p class="lede">
+        Finish one authenticated endpoint for the
+        <a href="../mockups/character-list.html">character list</a>. The endpoint returns character
+        summaries plus unfinished creation and level-up drafts. Setup, schema, seed data, and bearer
+        authentication already exist; this plan covers only the work left.
+      </p>
+      <div class="status" aria-label="Plan assumptions">
+        <span>Rails 8.1.3.1</span>
+        <span>Ruby 4.0.6</span>
+        <span>PostgreSQL 18.6</span>
+        <span>5e_companion databases</span>
+        <span>JSON REST API</span>
+        <span>Minitest</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="Plan contents">
+        <h2>Contents</h2>
+        <ol>
+          <li><a href="#current">Current state</a></li>
+          <li><a href="#contract">Fix the contract</a></li>
+          <li><a href="#implement">Implement the endpoint</a></li>
+          <li><a href="#tests">Test the endpoint</a></li>
+          <li><a href="#frontend">Connect the frontend</a></li>
+          <li><a href="#done">Definition of done</a></li>
+        </ol>
+      </nav>
+
+      <main>
+        <section id="current">
+          <h2>Current state</h2>
+          <p class="outcome">The repository already has the foundation. Do not regenerate it.</p>
+
+          <ul class="checks">
+            <li>Rails runs from <code>backend/</code> as <code>FiveECompanion</code>.</li>
+            <li>Ruby 4.0.6, Rails 8.1.3.1, and PostgreSQL 18.6 are pinned.</li>
+            <li><code>compose.yaml</code> and <code>database.yml</code> use the
+              <code>5e_companion</code> role and database prefix.</li>
+            <li>Users, sessions, characters, classes, resources, features, effects, and drafts have
+              migrations, models, constraints, and fixtures.</li>
+            <li>The development seed creates six demo characters, a second user's character, and
+              Kethra's level-up draft.</li>
+            <li>Bearer authentication sets <code>Current.session</code> and
+              <code>Current.user</code>.</li>
+            <li>A composite foreign key prevents a draft from referencing another user's
+              character.</li>
+            <li>The character-list seed refuses to create or print its known credentials outside
+              development and test.</li>
+            <li><code>GET /api/v1/characters</code> validates search and sort parameters, returns
+              explicit character summaries, and includes both draft kinds.</li>
+          </ul>
+
+          <p>The schema is broader than this endpoint because the character sheet needs token ink,
+            armor-class overrides, resources, features, and effects. Keep those tables and columns.
+            The list endpoint must not load or return them.</p>
+
+        </section>
+
+        <section id="contract">
+          <h2><span class="step-no">1</span>Fix the contract</h2>
+          <p class="outcome">Frontend and backend work against one small, explicit response.</p>
+
+          <pre><code>GET /api/v1/characters?q=vesper&amp;sort=level
+Authorization: Bearer &lt;development token&gt;</code></pre>
+
+          <h3>Query parameters</h3>
+          <table class="compact">
+            <thead>
+              <tr><th>Parameter</th><th>Rules</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>q</code></td>
+                <td>Optional scalar string, at most 100 characters. Trim whitespace. Blank means no
+                  search. Match names case-insensitively and escape literal <code>%</code>,
+                  <code>_</code>, and backslashes before using <code>ILIKE</code>.</td>
+              </tr>
+              <tr>
+                <td><code>sort</code></td>
+                <td>Optional scalar string. Allow <code>level</code> and <code>name</code> only;
+                  default to <code>level</code>.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>Reject an array, object, overlong search, or unknown sort with HTTP 400 and this stable
+            shape:</p>
+
+          <pre><code>{
+  "error": {
+    "code": "invalid_query",
+    "message": "Unsupported query parameters."
+  }
+}</code></pre>
+
+          <h3>Ordering</h3>
+          <ul>
+            <li><code>sort=level</code>: total class level descending, case-insensitive name
+              ascending, then ID ascending. A character with no classes has level 0.</li>
+            <li><code>sort=name</code>: case-insensitive name ascending, then ID ascending.</li>
+            <li>Drafts are independent of character search and sort by most recently updated, then
+              ID descending.</li>
+          </ul>
+
+          <h3>Response</h3>
+          <pre><code>{
+  "characters": [
+    {
+      "id": "123",
+      "name": "Vesper Quill",
+      "ancestry": {
+        "race_name": "Gnome",
+        "subrace_name": "Rock gnome"
+      },
+      "classes": [
+        { "name": "Wizard", "level": 5, "subclass_name": "Divination" },
+        { "name": "Rogue", "level": 2, "subclass_name": null }
+      ],
+      "total_level": 7,
+      "hit_points": {
+        "current": 12,
+        "maximum": 26,
+        "temporary": 0
+      }
+    }
+  ],
+  "drafts": [
+    {
+      "id": "455",
+      "kind": "creation",
+      "name": "Nyra Ashfall",
+      "completed_choices": 2,
+      "total_choices": 5,
+      "next_step": "choose_class"
+    },
+    {
+      "id": "456",
+      "kind": "level_up",
+      "character_id": "789",
+      "character_name": "Kethra Ironsong",
+      "from_level": 3,
+      "to_level": 4,
+      "completed_choices": 3,
+      "total_choices": 5,
+      "next_step": "ability_score_or_feat"
+    }
+  ]
+}</code></pre>
+
+          <p>Drafts form a discriminated union. A creation draft reads its provisional name and
+            progress from <code>state</code>; <code>name</code> may be null until the player supplies
+            one. A level-up draft reads its character identity from the associated character and its
+            progress from <code>state</code>. Do not add null level-up fields to creation drafts.</p>
+
+          <p>Return IDs as strings and levels, hit points, and progress counts as JSON numbers. Keep
+            classes in their stored position order. Do not add links, count metadata, pagination,
+            token ink, armor class, badges, effects, resources, features, CSS classes, meter
+            segments, formatted summaries, or HTML.</p>
+
+          <p>The frontend derives the token initial, ancestry and class summary, HP fraction, and
+            low-HP colour. The API does not return a below-half flag. Low HP means current HP times
+            two is less than maximum HP. It uses the subrace name when present and otherwise uses
+            the race name. An HP meter and low-HP state are unavailable when current HP is null or
+            maximum HP is null or zero. Clamp the displayed fraction to 0 through 1. Temporary HP
+            does not affect the fraction or low-HP state.</p>
+        </section>
+
+        <section id="implement">
+          <h2><span class="step-no">2</span>Implement the endpoint</h2>
+          <p class="outcome">One controller action returns owned characters and both draft kinds.</p>
+
+          <h3>Protect draft ownership</h3>
+          <p>The data model requires the draft and its character to have the same
+            <code>user_id</code>. Add a follow-up migration because the original migrations are
+            already committed:</p>
+
+          <pre><code>add_index :characters, [:user_id, :id], unique: true
+
+remove_foreign_key :character_drafts, :characters
+add_foreign_key :character_drafts, :characters,
+  column: [:user_id, :character_id],
+  primary_key: [:user_id, :id],
+  on_delete: :cascade</code></pre>
+
+          <p>The composite foreign key permits a null <code>character_id</code> for creation drafts
+            and rejects a level-up draft attached to another user's character. Mirror it with one
+            friendly model validation for API writes.</p>
+
+          <h3>Keep demo credentials local</h3>
+          <p>Guard <code>backend/db/seeds/character_list.rb</code> before it creates or prints the
+            known password and bearer token:</p>
+
+          <pre><code>raise "Character-list demo seeds are local only" unless Rails.env.local?</code></pre>
+
+          <p><code>Rails.env.local?</code> allows development and test, which keeps local setup and CI
+            working without making the known token available in production.</p>
+
+          <h3>Add the route and controller</h3>
+          <pre><code># backend/config/routes.rb
+namespace :api do
+  namespace :v1 do
+    resources :characters, only: :index
+  end
+end</code></pre>
+
+          <p>Use <code>Api::V1::CharactersController</code> in
+            <code>backend/app/controllers/api/v1/characters_controller.rb</code>. Replace the current
+            singular, unnamespaced controller draft rather than keeping both.</p>
+
+          <p>The action should:</p>
+          <ol>
+            <li>Validate <code>q</code> and <code>sort</code> before building SQL.</li>
+            <li>Start from <code>Current.user.characters</code>.</li>
+            <li>Apply escaped name search when <code>q</code> is present.</li>
+            <li>Sort in PostgreSQL with a fixed allow-list. Never pass a raw sort value to
+              <code>order</code>.</li>
+            <li>Preload only <code>character_classes</code> for character summaries.</li>
+            <li>Load <code>Current.user.character_drafts.includes(:character)</code> separately so
+              search does not hide drafts.</li>
+            <li>Render explicit hashes through private <code>character_summary</code> and
+              <code>draft_summary</code> methods.</li>
+          </ol>
+
+          <pre><code>render json: {
+  characters: characters.map { |character| character_summary(character) },
+  drafts: drafts.map { |draft| draft_summary(draft) }
+}</code></pre>
+
+          <p>Branch on <code>draft.kind</code> inside <code>draft_summary</code>. Return the two shapes
+            from step 1. Raise on an unknown kind; the database constraint should make that path
+            unreachable.</p>
+
+          <div class="decision">
+            <h3>Keep the implementation local</h3>
+            <p>Private controller methods and the existing <code>Character.named</code> scope are
+              enough. Do not add a serializer gem, query object, service layer, pagination, or
+              OpenAPI document for this endpoint.</p>
+          </div>
+
+          <p>Add CORS only when a browser frontend runs on another origin. A React Native client
+            does not need it.</p>
+        </section>
+
+        <section id="tests">
+          <h2><span class="step-no">3</span>Test the endpoint</h2>
+          <p class="outcome">A small request suite locks down the public contract and ownership.</p>
+
+          <p>Keep endpoint fixtures smaller than the development seed. Request tests assert the
+            fixture-owned count; the seed test alone asserts six demo characters.</p>
+
+          <h3>Migration and model checks</h3>
+          <ul>
+            <li>The database rejects a draft whose user does not own its character.</li>
+            <li>A creation draft with no character remains valid.</li>
+            <li>Total level sums ordered class rows and returns 0 for a character with no classes.</li>
+          </ul>
+
+          <h3>Request checks</h3>
+          <ul>
+            <li>Missing, unknown, and expired bearer tokens return the existing 401 error.</li>
+            <li>The other user's characters and drafts never appear.</li>
+            <li>The happy path returns the exact public keys under <code>characters</code> and
+              <code>drafts</code>. An allow-list assertion is clearer than a blacklist of private
+              columns.</li>
+            <li>Creation and level-up drafts use their agreed, distinct shapes.</li>
+            <li>Search is case-insensitive, trims whitespace, and treats literal <code>%</code>,
+              <code>_</code>, and backslashes safely.</li>
+            <li>A blank search returns the full owned list without hiding drafts.</li>
+            <li>Level and name sorts are deterministic, including tied names and a character with
+              no classes.</li>
+            <li>Unknown sorts, overlong searches, arrays, and objects return the stable 400 error.</li>
+            <li>Character summaries work under <code>strict_loading</code>, proving classes were
+              preloaded. Draft summaries preload their optional character.</li>
+          </ul>
+
+          <h3>Seed checks</h3>
+          <ul>
+            <li>The local seed is repeatable.</li>
+            <li>The demo user has six characters and Kethra's level-up draft.</li>
+            <li>The second user's character stays separate.</li>
+            <li>The seed refuses to create or print known credentials outside a local environment.</li>
+          </ul>
+
+          <pre><code>cd backend
+bin/rails test
+bin/rails zeitwerk:check
+bin/rubocop
+bin/brakeman
+bin/ci</code></pre>
+        </section>
+
+        <section id="frontend">
+          <h2><span class="step-no">4</span>Connect the frontend</h2>
+          <p class="outcome">This is a separate follow-up after the API definition of done passes.</p>
+
+          <ol>
+            <li>Generate the React Native application in <code>frontend/</code> when its framework
+              choices are ready. Do not create placeholder package or workspace configuration.</li>
+            <li>Keep the API base URL and development token in an ignored local environment file.
+              A browser bundle cannot keep a bearer token secret; this known token is for local
+              development only.</li>
+            <li>Replace hard-coded character and draft data with the endpoint response.</li>
+            <li>Render creation drafts as "Resume creation" and level-up drafts as "Resume
+              level-up". Use "New character" when a creation draft has no provisional name.</li>
+            <li>Wire search and sort to query parameters. Debounce search by roughly 200 to 300 ms
+              and cancel stale requests.</li>
+            <li>Render loading, empty, unauthorized, and generic error states.</li>
+            <li>Compare screenshots at the four mockup layouts: phone, tablet portrait, tablet
+              landscape, and desktop.</li>
+          </ol>
+
+          <p>Keep <code>mockups/</code>, <code>docs/</code>, and <code>srd-json-files/</code> at the
+            repository root. Add root development, test, and CI wrappers only after both applications
+            exist and repeating their commands becomes a real nuisance.</p>
+        </section>
+
+        <section id="done">
+          <h2>Definition of done</h2>
+
+          <h3>API milestone</h3>
+          <ul class="checks">
+            <li>A fresh checkout starts PostgreSQL and prepares Rails with <code>bin/setup</code>.</li>
+            <li><code>backend/bin/ci</code> passes.</li>
+            <li>The composite draft ownership constraint is present in
+              <code>backend/db/schema.rb</code>.</li>
+            <li>The known demo credentials can be seeded only in development and test.</li>
+            <li>An authenticated request returns owned characters plus creation and level-up drafts.</li>
+            <li>Name search and both sorts satisfy the contract.</li>
+            <li>The endpoint performs no association query per character or draft.</li>
+            <li>The response contains only the documented public fields.</li>
+          </ul>
+
+          <h3>Frontend follow-up</h3>
+          <ul class="checks">
+            <li>The frontend contains no hard-coded character or draft game data.</li>
+            <li>Both draft kinds have resume actions.</li>
+            <li>Loading, empty, unauthorized, and generic error states work.</li>
+            <li>Phone, both tablet layouts, and desktop match the mockup.</li>
+          </ul>
+
+          <h3>Later backend slices</h3>
+          <ol>
+            <li>Real login, logout, token rotation, expiry, and password reset.</li>
+            <li><code>GET /api/v1/characters/:id</code> for the character sheet.</li>
+            <li>SRD catalog import.</li>
+            <li>Character state writes with optimistic locking.</li>
+            <li>Creation and level-up confirmation transactions.</li>
+            <li>Campaigns and memberships when the DM journey enters scope.</li>
+          </ol>
+        </section>
+      </main>
+    </div>
+
+    <footer>
+      5e Companion. Character list backend milestone.
+    </footer>
+  </div>
+</body>
+</html>

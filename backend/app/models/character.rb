@@ -21,12 +21,6 @@ class Character < ApplicationRecord
     character_classes.sum(&:level)
   end
 
-  def below_half_hit_points?
-    return false unless current_hit_points && maximum_hit_points&.positive?
-
-    current_hit_points * 2 < maximum_hit_points
-  end
-
   def effective_armor_class
     overrides["armor_class"]
   end

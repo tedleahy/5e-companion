@@ -1308,7 +1308,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
     <tbody>
       <tr><td>Resolution</td><td>Ten segments, so each is 10% of max. Rounding rule not set. Suggest round up so one hit point still shows one segment.</td></tr>
-      <tr><td>Hurt threshold</td><td>Strictly below half sets <code>data-hurt</code>. This matches the "Below half" filter chip and mark.</td></tr>
+      <tr><td>Hurt threshold</td><td>The client derives this state when current hit points times two is less than maximum hit points. It is unavailable when either value is null or maximum is zero. The API does not return a below-half flag. This mockup uses <code>data-hurt</code> for the derived state.</td></tr>
       <tr><td>Temporary hit points</td><td>On the character list, shown in the line only ("5 temporary"), not on the meter. On the character sheet&rsquo;s tall header, a solid overprint block follows the meter after a gap, and the line still states the amount. It is one block with no empty segments, because temporary hit points have no maximum. The compact header spells it out as "+5 temp", so colour never carries it alone.</td></tr>
       <tr><td>Hit point line</td><td>Bold current value in structural, the rest in dim at 500. A comma then one short resource note, chosen per class.</td></tr>
       <tr><td>Zero</td><td>At 0 hit points the meter is replaced or emptied. See zero hit points.</td></tr>

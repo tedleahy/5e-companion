@@ -54,28 +54,6 @@ class CharacterTest < ActiveSupport::TestCase
     assert_equal 3, character.total_level
   end
 
-  test "below_half_hit_points? is true only below half" do
-    character = characters(:one)
-
-    assert_not character.below_half_hit_points?
-
-    character.current_hit_points = 12
-    assert_not character.below_half_hit_points?
-
-    character.current_hit_points = 11
-    assert character.below_half_hit_points?
-
-    character.current_hit_points = nil
-    assert_not character.below_half_hit_points?
-
-    character.current_hit_points = 11
-    character.maximum_hit_points = nil
-    assert_not character.below_half_hit_points?
-
-    character.maximum_hit_points = 0
-    assert_not character.below_half_hit_points?
-  end
-
   test "effective_armor_class reads the armor_class override" do
     character = characters(:one)
 
