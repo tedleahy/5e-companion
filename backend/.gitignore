@@ -24,6 +24,7 @@
 
 # Ruby/Rails generated artifacts
 *.rbc
+/.yardoc
 
 # OS/editor junk
 .DS_Store
