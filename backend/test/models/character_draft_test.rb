@@ -51,6 +51,18 @@ class CharacterDraftTest < ActiveSupport::TestCase
     assert draft.valid?
   end
 
+  test "a level-up draft must belong to the character's user" do
+    draft = CharacterDraft.new(
+      user: users(:one),
+      kind: "level_up",
+      character: characters(:two),
+      base_character_lock_version: 0
+    )
+
+    assert_not draft.valid?
+    assert_includes draft.errors[:character], "must belong to user"
+  end
+
   test "database rejects an unknown kind" do
     assert_raises ActiveRecord::StatementInvalid do
       character_drafts(:two).update_column(:kind, "multiclass")
@@ -70,6 +82,12 @@ class CharacterDraftTest < ActiveSupport::TestCase
         character_id: characters(:one).id,
         base_character_lock_version: 0
       )
+    end
+  end
+
+  test "database rejects a draft for another user's character" do
+    assert_raises ActiveRecord::InvalidForeignKey do
+      character_drafts(:one).update_column(:character_id, characters(:two).id)
     end
   end
 

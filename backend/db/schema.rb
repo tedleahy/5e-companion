@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_17_222705) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_22_015721) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -101,7 +101,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_222705) do
     t.text "token_ink", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
-    t.index ["user_id"], name: "index_characters_on_user_id"
+    t.index ["user_id", "id"], name: "index_characters_on_user_id_and_id", unique: true
     t.check_constraint "char_length(token_ink) = 7 AND token_ink ~ '^#[0-9A-Fa-f]{6}$'::text", name: "characters_token_ink_check"
     t.check_constraint "current_hit_points IS NULL OR current_hit_points >= 0", name: "characters_current_hp_check"
     t.check_constraint "jsonb_typeof(overrides) = 'object'::text", name: "characters_overrides_object_check"
@@ -129,7 +129,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_222705) do
   end
 
   add_foreign_key "character_classes", "characters", on_delete: :cascade
-  add_foreign_key "character_drafts", "characters", on_delete: :cascade
+  add_foreign_key "character_drafts", "characters", column: ["user_id", "character_id"], primary_key: ["user_id", "id"], on_delete: :cascade
   add_foreign_key "character_drafts", "users", on_delete: :cascade
   add_foreign_key "character_effects", "characters", on_delete: :cascade
   add_foreign_key "character_features", "characters", on_delete: :cascade

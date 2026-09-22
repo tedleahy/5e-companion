@@ -12,6 +12,7 @@ class CharacterDraft < ApplicationRecord
   validates :base_character_lock_version,
     numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
   validate :kind_requirements
+  validate :character_belongs_to_user
 
   private
 
@@ -23,5 +24,11 @@ class CharacterDraft < ApplicationRecord
       errors.add(:character, "can't be blank") if character_id.blank?
       errors.add(:base_character_lock_version, "can't be blank") if base_character_lock_version.blank?
     end
+  end
+
+  def character_belongs_to_user
+    return unless character && user_id
+
+    errors.add(:character, "must belong to user") if character.user_id != user_id
   end
 end
