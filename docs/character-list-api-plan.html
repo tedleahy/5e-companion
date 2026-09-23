@@ -180,6 +180,7 @@
       color: var(--blue);
       font-weight: 800;
     }
+    .checks li.done::before { content: "☑"; }
 
     table {
       width: 100%;
@@ -511,7 +512,7 @@ bin/ci</code></pre>
 
         <section id="frontend">
           <h2><span class="step-no">4</span>Connect the frontend</h2>
-          <p class="outcome">This is a separate follow-up after the API definition of done passes.</p>
+          <p class="outcome">Out of this plan. The character list screen gets its own plan.</p>
 
           <ol>
             <li>Generate the React Native application in <code>frontend/</code> when its framework
@@ -539,18 +540,19 @@ bin/ci</code></pre>
 
           <h3>API milestone</h3>
           <ul class="checks">
-            <li>A fresh checkout starts PostgreSQL and prepares Rails with <code>bin/setup</code>.</li>
-            <li><code>backend/bin/ci</code> passes.</li>
-            <li>The composite draft ownership constraint is present in
+            <li class="done">A fresh checkout starts PostgreSQL and prepares Rails with <code>bin/setup</code>.</li>
+            <li class="done"><code>backend/bin/ci</code> passes.</li>
+            <li class="done">The composite draft ownership constraint is present in
               <code>backend/db/schema.rb</code>.</li>
-            <li>The known demo credentials can be seeded only in development and test.</li>
-            <li>An authenticated request returns owned characters plus creation and level-up drafts.</li>
-            <li>Name search and both sorts satisfy the contract.</li>
-            <li>The endpoint performs no association query per character or draft.</li>
-            <li>The response contains only the documented public fields.</li>
+            <li class="done">The known demo credentials can be seeded only in development and test.</li>
+            <li class="done">An authenticated request returns owned characters plus creation and level-up drafts.</li>
+            <li class="done">Name search and both sorts satisfy the contract.</li>
+            <li class="done">The endpoint performs no association query per character or draft.</li>
+            <li class="done">The response contains only the documented public fields.</li>
           </ul>
 
           <h3>Frontend follow-up</h3>
+          <p>These stay open until the separate frontend plan.</p>
           <ul class="checks">
             <li>The frontend contains no hard-coded character or draft game data.</li>
             <li>Both draft kinds have resume actions.</li>
