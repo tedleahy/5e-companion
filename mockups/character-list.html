@@ -53,7 +53,9 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .note b{color:#d4d8de;font-weight:600}
 .hexline{margin:6px 0 0;color:#6f7681;font:12px/1.4 ui-monospace,"Cascadia Mono",monospace}
 .studio{padding:28px 22px 48px}
-.pair{max-width:1600px;margin:0 auto;display:flex;gap:34px;align-items:flex-start}
+.pair{max-width:1600px;margin:0 auto;display:flex;gap:34px;align-items:flex-start;flex-wrap:wrap}
+.stagewrap.port{flex:0 1 820px;width:min(820px,100%)}
+.stagewrap.full{flex:1 1 100%}
 .stagewrap{flex:1 1 auto;min-width:0}
 .stagebox{overflow:hidden}
 .stage{transform-origin:top left;overflow:hidden;border-radius:8px;box-shadow:0 24px 60px -24px rgba(0,0,0,.7)}
@@ -63,7 +65,10 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .phone-scroll{width:100%;height:100%;overflow-y:auto;scrollbar-width:none}
 .phone-scroll::-webkit-scrollbar{display:none}
 .frame-label{font-size:11.5px;color:#8a919a;margin:0 0 8px 2px}
-@media (max-width:1180px){.pair{flex-direction:column-reverse}.stagewrap{width:100%}}
+@media (max-width:1180px){
+  .pair{flex-direction:column-reverse}
+  .stagewrap,.stagewrap.port,.stagewrap.full{width:100%;max-width:none;flex:0 0 auto}
+}
 @media (max-width:720px){
   .gal-intro{padding:8px 16px 12px}
   .gal-intro h1{font-size:22px}
@@ -77,50 +82,59 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .mat{height:100%;display:flex;flex-direction:column;position:relative}
 .top{padding:20px 18px 14px}
 .title{margin:0;font-size:21px;font-weight:700;letter-spacing:-.015em}
-.title sup{font-size:12px;font-weight:600;margin-left:8px;top:-.55em}
 .find{display:flex;gap:8px;margin-top:13px}
 .find label{flex:1;display:flex;align-items:center;gap:8px;padding:9px 12px;min-width:0;min-height:44px}
 .find input{all:unset;flex:1;font-size:14px;font-family:inherit;min-width:0}
 .sortbtn{padding:0 13px;font-size:13px;cursor:pointer;font-family:inherit}
-.chips{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
-.chip{font-size:12px;padding:4px 10px;cursor:pointer;white-space:nowrap;border:0;font-family:inherit}
-.rows{flex:1;padding:12px 12px 0;display:flex;flex-direction:column;gap:9px}
-.row{display:grid;grid-template-columns:56px 1fr auto;gap:13px;align-items:center;padding:11px 12px}
-.tok{width:56px;height:56px;display:grid;place-items:center;position:relative;font-weight:700;font-size:20px;flex:none}
-.tok b{position:absolute;bottom:-7px;right:-7px;width:23px;height:23px;display:grid;place-items:center;
-  font-size:11.5px;font-weight:700;line-height:1}
+.rows{flex:1;padding:12px 12px 0;display:flex;flex-direction:column;gap:14px}
+.row{display:grid;grid-template-columns:56px minmax(0,1fr);column-gap:13px;align-items:center;padding:11px 12px}
+.who{min-width:0}
+.who .lvl{float:right;margin:0 0 8px 13px}
+.who .vitals-hp{clear:both}
+.vitals-hp{flex:1;min-width:0}
+.tok{width:56px;height:56px;display:grid;place-items:center;font-weight:700;font-size:20px;flex:none}
 .name{margin:0;font-size:16.5px;font-weight:700;letter-spacing:-.01em}
 .sub{margin:2px 0 8px;font-size:12.5px}
 .meter{display:flex;gap:2px}
 .meter i{flex:1;height:14px}
 .hp{margin:5px 0 0;font-size:12px;font-weight:600}
-.stat{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:54px}
-.ac{width:44px;height:44px;display:grid;place-items:center;font-weight:700;font-size:17px;line-height:1;flex:none}
-.ac em{display:block;font-style:normal;font-size:8px;font-weight:700;margin-top:1px}
-.mark{font-size:11px;padding:3px 7px;white-space:nowrap;line-height:1.35}
-.marks{display:flex;gap:6px;flex-wrap:wrap}
-.tray{margin-top:14px;padding-top:13px}
-.trayhead{margin:0 0 9px;font-size:12px;font-weight:700}
+.badgelab{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;line-height:1}
+.tray{padding-bottom:16px;margin-bottom:2px}
+.trayhead{margin:0 0 9px;font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.draft .sub{margin-bottom:0}
 .draft{display:grid;grid-template-columns:56px 1fr auto;gap:13px;align-items:center;padding:11px 12px}
 .resume{padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
 .newwrap{position:sticky;bottom:0;padding:14px 12px 18px;margin-top:8px}
 .newbtn{width:100%;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
-.d{overflow:hidden}
-.d .dtop{display:flex;align-items:flex-end;gap:20px;padding:26px 34px 16px}
+/* The band, the bar and the list share one measure, so nothing is aligned by arithmetic. */
+.d{overflow:auto}
+.dtop-inner,.dbar-inner,.dbody{width:min(1020px,calc(100% - 48px));margin:0 auto}
+.d .dtop{flex-shrink:0;padding:26px 0 24px}
+.dbar{position:sticky;top:0;z-index:5;padding:14px 0 18px}
+.dbar-inner{display:flex;align-items:center;gap:16px}
+.dbody{padding:24px 0 44px;display:flex;flex-direction:column;gap:16px}
 .d .title{font-size:30px}
-.d .find{margin:0;flex:1;max-width:420px}
-.d .chips{margin:0}
+.d .find{margin:0;flex:1;max-width:520px}
 .dnew{width:auto;margin-left:auto;padding:12px 20px;font-size:14px}
-.cols{display:grid;grid-template-columns:74px 1fr 200px 104px 224px 132px;gap:16px;padding:10px 34px;
-  font-size:11.5px;font-weight:700}
-.drow{display:grid;grid-template-columns:74px 1fr 200px 104px 224px 132px;gap:16px;align-items:center;padding:14px 34px}
+.drow{display:grid;grid-template-columns:74px minmax(0,1fr) 84px 240px 128px;gap:22px;
+  align-items:center;padding:16px 22px}
 .d .tok{width:64px;height:64px;font-size:23px}
 .d .name{font-size:19px}
-.d .sub{font-size:13px}
+.d .sub{font-size:13px;margin-bottom:0}
 .go{padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
-.traywrap{padding:16px 34px}
-.d .tray{margin:0}
-.d .draft{grid-template-columns:74px 1fr auto}
+.d .tray{margin-bottom:4px}
+.d .draft{grid-template-columns:74px minmax(0,1fr) auto;gap:22px;padding:16px 22px}
+.lvl{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center}
+.lvl b{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.d .lvl .badgelab{font-size:13px}
+/* Tablet uses the desktop band and bar. Portrait is one column of the
+   phone card. Landscape sets those cards in two columns. */
+.tablet .row{grid-template-columns:64px minmax(0,1fr);column-gap:16px;padding:14px 18px}
+.tablet:not(.land) .dbody{padding-bottom:28px}
+.tablet .who .sub{margin:2px 0 8px}
+.tablet .find{min-width:0}
+.land .dbody{display:grid;grid-template-columns:1fr 1fr;align-items:start}
+.land .tray{grid-column:1 / -1;margin-bottom:0}
 
 .riso{--full:var(--a);--low:var(--b);
   font-family:"Space Grotesk",system-ui,sans-serif;color:var(--ink);
@@ -131,15 +145,14 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
     var(--paper)}
 .riso .top{background:var(--a);color:var(--on-a);padding-bottom:16px;box-shadow:5px 5px 0 var(--b)}
 .riso .title{font-weight:700;letter-spacing:-.03em}
-.riso .find label{background:var(--sheet);color:var(--dim);box-shadow:4px 4px 0 var(--b)}
+.riso .find label{background:var(--sheet);color:var(--dim);border:2px solid var(--a);box-shadow:4px 4px 0 var(--b)}
 .riso .find input{color:var(--ink)}
 .riso .find input::placeholder{color:var(--dim)}
-.riso .sortbtn{background:var(--b);color:var(--on-b);border:0;font-weight:700}
-.riso .chip{background:var(--chip);color:var(--on-a);font-weight:600}
-.riso .chip:is([aria-checked=true],[aria-pressed=true]){background:var(--sheet);color:var(--a);font-weight:700}
-.riso .row,.riso .draft{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
-.riso .tok{border-radius:50%;font-weight:700;color:var(--on-tok,var(--on-a));background:var(--tok);box-shadow:4px 4px 0 var(--b)}
-.riso .tok b{background:var(--sheet);color:var(--ink);border-radius:50%;box-shadow:0 0 0 2px var(--a)}
+.riso .sortbtn{background:var(--sheet);color:var(--a);border:2px solid var(--a);font-weight:700;
+  box-shadow:4px 4px 0 var(--b)}
+.riso .row,.riso .drow,.riso .draft{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
+.riso .tok{border-radius:50%;font-weight:700;color:var(--on-a);background:var(--a);box-shadow:4px 4px 0 var(--b)}
+.riso .lvl b{color:var(--a)}
 .riso .name{font-weight:700;letter-spacing:-.02em}
 .riso .sub{color:var(--dim)}
 .riso .meter{gap:2px}
@@ -149,33 +162,28 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .riso .meter[data-hurt] i[data-e]{background:var(--empty)}
 .riso .hp{color:var(--dim);font-weight:500}
 .riso .hp b{color:var(--a);font-weight:700}
-.riso .ac{border-radius:50%;border:2px solid var(--a);color:var(--a);background:var(--sheet);
-  box-shadow:3px 3px 0 var(--b);width:46px;height:46px}
-.riso .mark{border:1.5px solid var(--a);color:var(--a);background:var(--sheet);font-weight:600}
-.riso .mark[data-t=bad]{border-color:var(--b);color:var(--b-text)}
-.riso .mark[data-t=conc]{border-color:var(--mix);color:var(--mix)}
-.riso .tray{border-top:2px dashed var(--b)}
+.riso :is(.row,.drow):has(.meter[data-hurt]) .hp b{color:var(--b-text)}
+.riso .badgelab{color:var(--dim)}
+.riso .tray{border-bottom:2px dashed var(--b)}
 .riso .trayhead{color:var(--dim)}
 .riso .draft{border-style:dashed;box-shadow:none;background:var(--draft-bg)}
 .riso .draft .tok{background:var(--sheet);color:var(--a);box-shadow:4px 4px 0 var(--rule),inset 0 0 0 2px var(--a)}
-.riso .resume{background:var(--a);color:var(--on-a);border:0}
-.riso .newbtn{background:var(--b);color:var(--on-b);border:0;box-shadow:5px 5px 0 var(--a)}
+.riso .resume{background:var(--sheet);color:var(--a);border:2px solid var(--a);box-shadow:3px 3px 0 var(--b)}
+.riso .newbtn{background:var(--a);color:var(--on-a);border:0;box-shadow:5px 5px 0 var(--b)}
 .riso .newwrap{background:linear-gradient(180deg,transparent,var(--paper) 45%);padding-bottom:24px}
 .riso .d .dtop{background:var(--a);color:var(--on-a);box-shadow:0 5px 0 var(--b);margin-bottom:5px}
-.riso .cols{color:var(--dim);border-bottom:2px solid var(--a)}
-.riso .drow{border-bottom:1.5px solid var(--rule)}
-.riso .drow:nth-child(even){background:var(--wash)}
+.riso .dbar{background:var(--paper);border-bottom:2px solid var(--a)}
 .riso .go{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
-.riso .traywrap{padding-top:20px}
 
 /* ---- interaction states ---- */
 .riso :focus-visible{outline:2px solid var(--a);outline-offset:3px}
 .riso .top :focus-visible,.riso .dtop :focus-visible{outline-color:var(--on-a)}
 .riso .find label:focus-within{outline:2px solid var(--on-a);outline-offset:3px}
+.riso .dbar .find label:focus-within{outline-color:var(--a)}
 .riso .find input:focus-visible{outline:none}
 .riso .row:active,.riso .newbtn:active{transform:translate(5px,5px);box-shadow:none}
-.riso .go:active{transform:translate(3px,3px);box-shadow:none}
-.riso .resume:active,.riso .sortbtn:active,.riso .chip:active{box-shadow:inset 0 0 0 2px currentColor}
+.riso :is(.go,.resume):active{transform:translate(3px,3px);box-shadow:none}
+.riso .sortbtn:active{transform:translate(4px,4px);box-shadow:none}
 .riso .go[aria-pressed=true]{background:var(--a);color:var(--on-a)}
 .riso :is(.newbtn,.resume,.go,.sortbtn):is(:disabled,[aria-disabled=true]){background:transparent;color:var(--dim);
   box-shadow:inset 0 0 0 2px var(--rule);transform:none;cursor:not-allowed}
@@ -190,8 +198,8 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 a.go{display:inline-block;text-decoration:none;text-align:center}
 
 /* ---- hit areas: every control answers taps across at least 44 by 44 ---- */
-:is(.chip,.sortbtn,.resume,.go){position:relative}
-:is(.chip,.sortbtn,.resume,.go)::after{content:"";position:absolute;
+:is(.sortbtn,.resume,.go){position:relative}
+:is(.sortbtn,.resume,.go)::after{content:"";position:absolute;
   top:min(0px,calc((100% - 44px) / 2));bottom:min(0px,calc((100% - 44px) / 2));
   left:min(0px,calc((100% - 44px) / 2));right:min(0px,calc((100% - 44px) / 2))}
 </style>
@@ -233,198 +241,286 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 <div class="studio">
   <div class="pair">
     <div data-slot="phone"></div>
-    <div class="stagewrap" data-slot="desktop"></div>
+    <div class="stagewrap port" data-slot="tablet-port"></div>
+    <div class="stagewrap full" data-slot="tablet-land"></div>
+    <div class="stagewrap full" data-slot="desktop"></div>
   </div>
 </div>
 
 <template id="tpl-phone">
   <div class="mat">
     <div class="top">
-      <h2 class="title">Characters<sup>6 saved</sup></h2>
-      <div class="find">
-        <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
-          <input placeholder="Find a character" aria-label="Find a character"></label>
-        <button class="sortbtn">Sort: level</button>
-      </div>
-      <div class="chips" role="radiogroup" aria-label="Filter characters">
-        <button class="chip" role="radio" aria-checked="true" tabindex="0">All</button>
-        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Below half</button>
-        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Conditions</button>
-        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Sunless Crown</button>
-      </div>
-    </div>
-    <div class="rows">
-      <article class="row" style="--tok:var(--b);--on-tok:var(--on-b)">
-        <div class="tok">T<b>8</b></div>
-        <div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Thorn Grimsby</a></h3>
-          <p class="sub">Mountain dwarf fighter, Champion</p>
-          <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div>
-          <p class="hp"><b>68</b>/72 hit points, second wind ready</p>
-        </div>
-        <div class="stat">
-          <div class="ac"><span>18<em>AC</em></span></div>
-          <span class="mark" data-t="ok">Second wind</span>
-        </div>
-      </article>
-      <article class="row" style="--tok:var(--a);--on-tok:var(--on-a)">
-        <div class="tok">A<b>7</b></div>
-        <div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Alarra Vane</a></h3>
-          <p class="sub">Human cleric, Life domain</p>
-          <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
-          <p class="hp"><b>38</b>/52 hit points, channel divinity 1</p>
-        </div>
-        <div class="stat">
-          <div class="ac"><span>19<em>AC</em></span></div>
-          <span class="mark" data-t="ok">Channel 1 of 2</span>
-        </div>
-      </article>
-      <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
-        <div class="tok">V<b>7</b></div>
-        <div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
-          <p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p>
-          <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
-          <p class="hp"><b>12</b>/26 hit points, 2 slots left</p>
-        </div>
-        <div class="stat">
-          <div class="ac"><span>12<em>AC</em></span></div>
-          <span class="mark" data-t="bad">Below half</span>
-        </div>
-      </article>
-      <article class="row" style="--tok:var(--a);--on-tok:var(--on-a)">
-        <div class="tok">B<b>6</b></div>
-        <div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Brenna Duskhollow</a></h3>
-          <p class="sub">Half-elf warlock, the Fiend</p>
-          <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
-          <p class="hp"><b>31</b>/44 hit points, 5 temporary</p>
-        </div>
-        <div class="stat">
-          <div class="ac"><span>13<em>AC</em></span></div>
-          <span class="mark" data-t="conc">Hex</span>
-        </div>
-      </article>
-      <article class="row" style="--tok:var(--b);--on-tok:var(--on-b)">
-        <div class="tok">M<b>4</b></div>
-        <div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Mudge Tealeaf</a></h3>
-          <p class="sub">Lightfoot halfling rogue, Arcane trickster</p>
-          <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
-          <p class="hp"><b>9</b>/27 hit points, 1 hit die</p>
-        </div>
-        <div class="stat">
-          <div class="ac"><span>15<em>AC</em></span></div>
-          <span class="mark" data-t="bad">Poisoned</span>
-        </div>
-      </article>
-      <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
-        <div class="tok">K<b>3</b></div>
-        <div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Kethra Ironsong</a></h3>
-          <p class="sub">Hill dwarf paladin, Oath of devotion</p>
-          <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-          <p class="hp"><b>28</b>/28 hit points, lay on hands 15</p>
-        </div>
-        <div class="stat">
-          <div class="ac"><span>18<em>AC</em></span></div>
-          <span class="mark" data-t="ok">Leveling up</span>
-        </div>
-      </article>
-      <div class="tray">
-        <h3 class="trayhead">Waiting to be finished</h3>
-        <article class="draft">
-          <div class="tok">K<b>3</b></div>
-          <div>
-            <h3 class="name">Kethra Ironsong</h3>
-            <p class="sub" style="margin-bottom:0">Level 3 to 4, three of five choices made. Her sheet is untouched until you confirm.</p>
-          </div>
-          <button class="resume">Resume</button>
-        </article>
-      </div>
-    </div>
-    <div class="newwrap"><button class="newbtn">Create character</button></div>
-  </div>
-</template>
-
-<template id="tpl-desktop">
-  <div class="mat d">
-    <div class="dtop">
       <h2 class="title">Characters</h2>
       <div class="find">
         <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
           <input placeholder="Find a character" aria-label="Find a character"></label>
         <button class="sortbtn">Sort: level</button>
       </div>
-      <div class="chips" role="radiogroup" aria-label="Filter characters">
-        <button class="chip" role="radio" aria-checked="true" tabindex="0">All</button>
-        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Below half</button>
-        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Conditions</button>
-        <button class="chip" role="radio" aria-checked="false" tabindex="-1">Sunless Crown</button>
-      </div>
-      <button class="newbtn dnew">Create character</button>
     </div>
-    <div class="cols"><span></span><span>Character</span><span>Hit points</span><span>Armor</span><span>Conditions and resources</span><span></span></div>
-    <div class="drow" style="--tok:var(--b);--on-tok:var(--on-b)">
-      <div class="tok">T<b>8</b></div>
-      <div><h3 class="name">Thorn Grimsby</h3><p class="sub" style="margin-bottom:0">Mountain dwarf fighter, Champion</p></div>
-      <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>68</b>/72 hit points, second wind ready</p></div>
-      <div class="ac"><span>18<em>AC</em></span></div>
-      <div class="marks"><span class="mark" data-t="ok">Second wind</span><span class="mark" data-t="ok">Action surge</span></div>
-      <a class="go" href="#sheet" aria-label="Open Thorn Grimsby&rsquo;s sheet">Open sheet</a>
-    </div>
-    <div class="drow" style="--tok:var(--a);--on-tok:var(--on-a)">
-      <div class="tok">A<b>7</b></div>
-      <div><h3 class="name">Alarra Vane</h3><p class="sub" style="margin-bottom:0">Human cleric, Life domain</p></div>
-      <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>38</b>/52 hit points, channel divinity 1</p></div>
-      <div class="ac"><span>19<em>AC</em></span></div>
-      <div class="marks"><span class="mark" data-t="ok">Channel 1 of 2</span></div>
-      <a class="go" href="#sheet" aria-label="Open Alarra Vane&rsquo;s sheet">Open sheet</a>
-    </div>
-    <div class="drow" style="--tok:var(--mix);--on-tok:var(--on-mix)">
-      <div class="tok">V<b>7</b></div>
-      <div><h3 class="name">Vesper Quill</h3><p class="sub" style="margin-bottom:0">Rock gnome wizard 5 / rogue 2, Divination</p></div>
-      <div><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points, 2 slots left</p></div>
-      <div class="ac"><span>12<em>AC</em></span></div>
-      <div class="marks"><span class="mark" data-t="bad">Below half</span><span class="mark" data-t="conc">Portent 1</span></div>
-      <a class="go" href="#sheet" aria-label="Open Vesper Quill&rsquo;s sheet">Open sheet</a>
-    </div>
-    <div class="drow" style="--tok:var(--a);--on-tok:var(--on-a)">
-      <div class="tok">B<b>6</b></div>
-      <div><h3 class="name">Brenna Duskhollow</h3><p class="sub" style="margin-bottom:0">Half-elf warlock, the Fiend</p></div>
-      <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>31</b>/44 hit points, 5 temporary</p></div>
-      <div class="ac"><span>13<em>AC</em></span></div>
-      <div class="marks"><span class="mark" data-t="conc">Hex</span><span class="mark" data-t="ok">1 pact slot</span></div>
-      <a class="go" href="#sheet" aria-label="Open Brenna Duskhollow&rsquo;s sheet">Open sheet</a>
-    </div>
-    <div class="drow" style="--tok:var(--b);--on-tok:var(--on-b)">
-      <div class="tok">M<b>4</b></div>
-      <div><h3 class="name">Mudge Tealeaf</h3><p class="sub" style="margin-bottom:0">Lightfoot halfling rogue, Arcane trickster</p></div>
-      <div><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>9</b>/27 hit points, 1 hit die</p></div>
-      <div class="ac"><span>15<em>AC</em></span></div>
-      <div class="marks"><span class="mark" data-t="bad">Poisoned</span><span class="mark" data-t="ok">Sneak 2d6</span></div>
-      <a class="go" href="#sheet" aria-label="Open Mudge Tealeaf&rsquo;s sheet">Open sheet</a>
-    </div>
-    <div class="drow" style="--tok:var(--mix);--on-tok:var(--on-mix)">
-      <div class="tok">K<b>3</b></div>
-      <div><h3 class="name">Kethra Ironsong</h3><p class="sub" style="margin-bottom:0">Hill dwarf paladin, Oath of devotion</p></div>
-      <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p class="hp"><b>28</b>/28 hit points, lay on hands 15</p></div>
-      <div class="ac"><span>18<em>AC</em></span></div>
-      <div class="marks"><span class="mark" data-t="ok">Leveling up</span><span class="mark" data-t="ok">Lay on hands 15</span></div>
-      <a class="go" href="#sheet" aria-label="Open Kethra Ironsong&rsquo;s sheet">Open sheet</a>
-    </div>
-    <div class="traywrap">
+    <div class="rows">
       <div class="tray">
         <h3 class="trayhead">Waiting to be finished</h3>
         <article class="draft">
-          <div class="tok">K<b>3</b></div>
+          <div class="tok">K</div>
+          <div>
+            <h3 class="name">Kethra Ironsong</h3>
+            <p class="sub">Level 3 to 4, three of five choices made. Her sheet is untouched until you confirm.</p>
+          </div>
+          <button class="resume">Resume</button>
+        </article>
+      </div>
+      <article class="row">
+        <div class="tok">T</div>
+        <div class="who">
+          <div class="lvl"><span class="badgelab">Level</span><b>8</b></div>
+          <h3 class="name"><a class="rowlink" href="#sheet">Thorn Grimsby</a></h3>
+          <p class="sub">Mountain dwarf fighter, Champion</p>
+          <div class="vitals-hp">
+            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div>
+            <p class="hp"><b>68</b>/72 hit points</p>
+          </div>
+        </div>
+      </article>
+      <article class="row">
+        <div class="tok">A</div>
+        <div class="who">
+          <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
+          <h3 class="name"><a class="rowlink" href="#sheet">Alarra Vane</a></h3>
+          <p class="sub">Human cleric, Life domain</p>
+          <div class="vitals-hp">
+            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+            <p class="hp"><b>38</b>/52 hit points</p>
+          </div>
+        </div>
+      </article>
+      <article class="row">
+        <div class="tok">V</div>
+        <div class="who">
+          <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
+          <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
+          <p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p>
+          <div class="vitals-hp">
+            <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+            <p class="hp"><b>12</b>/26 hit points</p>
+          </div>
+        </div>
+      </article>
+      <article class="row">
+        <div class="tok">B</div>
+        <div class="who">
+          <div class="lvl"><span class="badgelab">Level</span><b>6</b></div>
+          <h3 class="name"><a class="rowlink" href="#sheet">Brenna Duskhollow</a></h3>
+          <p class="sub">Half-elf warlock, the Fiend</p>
+          <div class="vitals-hp">
+            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+            <p class="hp"><b>31</b>/44 hit points, 5 temporary</p>
+          </div>
+        </div>
+      </article>
+      <article class="row">
+        <div class="tok">M</div>
+        <div class="who">
+          <div class="lvl"><span class="badgelab">Level</span><b>4</b></div>
+          <h3 class="name"><a class="rowlink" href="#sheet">Mudge Tealeaf</a></h3>
+          <p class="sub">Lightfoot halfling rogue, Arcane trickster</p>
+          <div class="vitals-hp">
+            <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+            <p class="hp"><b>9</b>/27 hit points</p>
+          </div>
+        </div>
+      </article>
+      <article class="row">
+        <div class="tok">K</div>
+        <div class="who">
+          <div class="lvl"><span class="badgelab">Level</span><b>3</b></div>
+          <h3 class="name"><a class="rowlink" href="#sheet">Kethra Ironsong</a></h3>
+          <p class="sub">Hill dwarf paladin, Oath of devotion</p>
+          <div class="vitals-hp">
+            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <p class="hp"><b>28</b>/28 hit points</p>
+          </div>
+        </div>
+      </article>
+    </div>
+    <div class="newwrap"><button class="newbtn">Create character</button></div>
+  </div>
+</template>
+
+<template id="tpl-tablet">
+  <div class="mat d tablet">
+    <div class="dtop">
+      <div class="dtop-inner">
+        <h2 class="title">Characters</h2>
+      </div>
+    </div>
+    <div class="dbar">
+      <div class="dbar-inner">
+        <div class="find">
+          <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+            <input placeholder="Find a character" aria-label="Find a character"></label>
+          <button class="sortbtn">Sort: level</button>
+        </div>
+        <button class="newbtn dnew">Create character</button>
+      </div>
+    </div>
+    <div class="dbody">
+      <div class="tray">
+        <h3 class="trayhead">Waiting to be finished</h3>
+        <article class="draft">
+          <div class="tok">K</div>
           <div>
             <h3 class="name">Kethra Ironsong, level 3 to 4</h3>
-            <p class="sub" style="margin-bottom:0">Three of five choices made. Next up is an ability increase or a feat. Nothing reaches her sheet until you confirm.</p>
+            <p class="sub">Three of five choices made. Next up is an ability increase or a feat. Nothing reaches her sheet until you confirm.</p>
           </div>
           <button class="resume">Resume level-up</button>
         </article>
+      </div>
+      <article class="row">
+        <div class="tok">T</div>
+        <div class="who">
+          <div class="lvl"><span class="badgelab">Level</span><b>8</b></div>
+          <h3 class="name"><a class="rowlink" href="#sheet">Thorn Grimsby</a></h3>
+          <p class="sub">Mountain dwarf fighter, Champion</p>
+          <div class="vitals-hp">
+            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div>
+            <p class="hp"><b>68</b>/72 hit points</p>
+          </div>
+        </div>
+      </article>
+      <article class="row">
+        <div class="tok">A</div>
+        <div class="who">
+          <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
+          <h3 class="name"><a class="rowlink" href="#sheet">Alarra Vane</a></h3>
+          <p class="sub">Human cleric, Life domain</p>
+          <div class="vitals-hp">
+            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+            <p class="hp"><b>38</b>/52 hit points</p>
+          </div>
+        </div>
+      </article>
+      <article class="row">
+        <div class="tok">V</div>
+        <div class="who">
+          <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
+          <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
+          <p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p>
+          <div class="vitals-hp">
+            <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+            <p class="hp"><b>12</b>/26 hit points</p>
+          </div>
+        </div>
+      </article>
+      <article class="row">
+        <div class="tok">B</div>
+        <div class="who">
+          <div class="lvl"><span class="badgelab">Level</span><b>6</b></div>
+          <h3 class="name"><a class="rowlink" href="#sheet">Brenna Duskhollow</a></h3>
+          <p class="sub">Half-elf warlock, the Fiend</p>
+          <div class="vitals-hp">
+            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+            <p class="hp"><b>31</b>/44 hit points, 5 temporary</p>
+          </div>
+        </div>
+      </article>
+      <article class="row">
+        <div class="tok">M</div>
+        <div class="who">
+          <div class="lvl"><span class="badgelab">Level</span><b>4</b></div>
+          <h3 class="name"><a class="rowlink" href="#sheet">Mudge Tealeaf</a></h3>
+          <p class="sub">Lightfoot halfling rogue, Arcane trickster</p>
+          <div class="vitals-hp">
+            <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+            <p class="hp"><b>9</b>/27 hit points</p>
+          </div>
+        </div>
+      </article>
+      <article class="row">
+        <div class="tok">K</div>
+        <div class="who">
+          <div class="lvl"><span class="badgelab">Level</span><b>3</b></div>
+          <h3 class="name"><a class="rowlink" href="#sheet">Kethra Ironsong</a></h3>
+          <p class="sub">Hill dwarf paladin, Oath of devotion</p>
+          <div class="vitals-hp">
+            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <p class="hp"><b>28</b>/28 hit points</p>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-desktop">
+  <div class="mat d">
+    <div class="dtop">
+      <div class="dtop-inner">
+        <h2 class="title">Characters</h2>
+      </div>
+    </div>
+    <div class="dbar">
+      <div class="dbar-inner">
+        <div class="find">
+          <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+            <input placeholder="Find a character" aria-label="Find a character"></label>
+          <button class="sortbtn">Sort: level</button>
+        </div>
+        <button class="newbtn dnew">Create character</button>
+      </div>
+    </div>
+    <div class="dbody">
+      <div class="tray">
+        <h3 class="trayhead">Waiting to be finished</h3>
+        <article class="draft">
+          <div class="tok">K</div>
+          <div>
+            <h3 class="name">Kethra Ironsong, level 3 to 4</h3>
+            <p class="sub">Three of five choices made. Next up is an ability increase or a feat. Nothing reaches her sheet until you confirm.</p>
+          </div>
+          <button class="resume">Resume level-up</button>
+        </article>
+      </div>
+      <div class="drow">
+        <div class="tok">T</div>
+        <div><h3 class="name">Thorn Grimsby</h3><p class="sub">Mountain dwarf fighter, Champion</p></div>
+        <div class="lvl"><span class="badgelab">Level</span><b>8</b></div>
+        <div class="vitals-hp"><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>68</b>/72 hit points</p></div>
+        <a class="go" href="#sheet" aria-label="Open Thorn Grimsby&rsquo;s sheet">Open sheet</a>
+      </div>
+      <div class="drow">
+        <div class="tok">A</div>
+        <div><h3 class="name">Alarra Vane</h3><p class="sub">Human cleric, Life domain</p></div>
+        <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
+        <div class="vitals-hp"><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>38</b>/52 hit points</p></div>
+        <a class="go" href="#sheet" aria-label="Open Alarra Vane&rsquo;s sheet">Open sheet</a>
+      </div>
+      <div class="drow">
+        <div class="tok">V</div>
+        <div><h3 class="name">Vesper Quill</h3><p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p></div>
+        <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
+        <div class="vitals-hp"><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points</p></div>
+        <a class="go" href="#sheet" aria-label="Open Vesper Quill&rsquo;s sheet">Open sheet</a>
+      </div>
+      <div class="drow">
+        <div class="tok">B</div>
+        <div><h3 class="name">Brenna Duskhollow</h3><p class="sub">Half-elf warlock, the Fiend</p></div>
+        <div class="lvl"><span class="badgelab">Level</span><b>6</b></div>
+        <div class="vitals-hp"><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>31</b>/44 hit points, 5 temporary</p></div>
+        <a class="go" href="#sheet" aria-label="Open Brenna Duskhollow&rsquo;s sheet">Open sheet</a>
+      </div>
+      <div class="drow">
+        <div class="tok">M</div>
+        <div><h3 class="name">Mudge Tealeaf</h3><p class="sub">Lightfoot halfling rogue, Arcane trickster</p></div>
+        <div class="lvl"><span class="badgelab">Level</span><b>4</b></div>
+        <div class="vitals-hp"><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>9</b>/27 hit points</p></div>
+        <a class="go" href="#sheet" aria-label="Open Mudge Tealeaf&rsquo;s sheet">Open sheet</a>
+      </div>
+      <div class="drow">
+        <div class="tok">K</div>
+        <div><h3 class="name">Kethra Ironsong</h3><p class="sub">Hill dwarf paladin, Oath of devotion</p></div>
+        <div class="lvl"><span class="badgelab">Level</span><b>3</b></div>
+        <div class="vitals-hp"><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p class="hp"><b>28</b>/28 hit points</p></div>
+        <a class="go" href="#sheet" aria-label="Open Kethra Ironsong&rsquo;s sheet">Open sheet</a>
       </div>
     </div>
   </div>
@@ -505,28 +601,21 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     // A draft's tint is see-through and sits on paper, so text is checked
     // against the tint over paper as well as over the card colour.
     var draftSolid = mix(sheet, b, 0.11), draftOnPaper = mix(paper, b, 0.11);
-    var chipAlpha = steps(0.16, 0, -0.02).filter(function(al){
-      return contrast(onA, mix(a, onA, al)) >= AA;
-    })[0] || 0;
     return {
       paper: paper, sheet: sheet, a: a, b: b, mix: mx, ink: ink,
       dim: ensure(function(t){ return mix(ink, paper, t); }, steps(0.42, 0, -0.02), [paper, sheet, draftSolid, draftOnPaper]),
       onA: onA, onB: onInk(b, paper), onMix: onInk(mx, paper),
       bText: ensure(function(t){ return mix(b, '#1a0a08', t); }, steps(0.15, 0.9, 0.05), [sheet, draftSolid, draftOnPaper]),
-      wash: rgba('#ffffff', 0.5),
-      dot: rgba(a, 0.13),
-      line: rgba(b, lum(b) > 0.6 ? 0.28 : 0.18),
+      dot: rgba(a, 0.10),
+      line: rgba(b, lum(b) > 0.6 ? 0.16 : 0.10),
       empty: rgba(lum(b) > 0.55 ? mix(b, '#3a3010', 0.35) : b, 0.26),
       draftBg: rgba(b, 0.11),
-      rule: rgba(a, 0.28),
-      chip: rgba(onA, chipAlpha)
+      rule: rgba(a, 0.28)
     };
   }
 
   var phoneTpl = document.getElementById('tpl-phone');
-  var deskTpl = document.getElementById('tpl-desktop');
   var phoneSlot = document.querySelector('[data-slot=phone]');
-  var deskSlot = document.querySelector('[data-slot=desktop]');
 
   var phoneLabel = document.createElement('p');
   phoneLabel.className = 'frame-label';
@@ -543,20 +632,27 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   phoneSlot.appendChild(phoneLabel);
   phoneSlot.appendChild(phone);
 
-  var deskLabel = document.createElement('p');
-  deskLabel.className = 'frame-label';
-  deskLabel.innerHTML = 'Desktop, 1440 &times; 900';
-  var stage = document.createElement('div');
-  stage.className = 'stage riso live';
-  stage.dataset.w = '1440';
-  stage.dataset.h = '900';
-  stage.appendChild(deskTpl.content.cloneNode(true));
-  deskSlot.appendChild(deskLabel);
-  deskSlot.appendChild(stage);
-  var box = document.createElement('div');
-  box.className = 'stagebox';
-  stage.parentElement.insertBefore(box, stage);
-  box.appendChild(stage);
+  function mountStage(slot, tplId, label, w, h, extra){
+    var slotEl = document.querySelector('[data-slot="'+slot+'"]');
+    var deskLabel = document.createElement('p');
+    deskLabel.className = 'frame-label';
+    deskLabel.innerHTML = label;
+    var stage = document.createElement('div');
+    stage.className = 'stage riso live';
+    stage.dataset.w = String(w);
+    stage.dataset.h = String(h);
+    var frag = document.getElementById(tplId).content.cloneNode(true);
+    if(extra) frag.querySelector('.mat').classList.add(extra);
+    stage.appendChild(frag);
+    var box = document.createElement('div');
+    box.className = 'stagebox';
+    slotEl.appendChild(deskLabel);
+    slotEl.appendChild(box);
+    box.appendChild(stage);
+  }
+  mountStage('tablet-port', 'tpl-tablet', 'Tablet, portrait, 820 &times; 1180', 820, 1180);
+  mountStage('tablet-land', 'tpl-tablet', 'Tablet, landscape, 1180 &times; 820', 1180, 820, 'land');
+  mountStage('desktop', 'tpl-desktop', 'Desktop, 1440 &times; 900', 1440, 900);
 
   var lives = document.querySelectorAll('.live');
   var picks = {paper:'', sheet:'', a:'', b:'', mix:''};
@@ -581,8 +677,6 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
       el.style.setProperty('--empty', t.empty);
       el.style.setProperty('--draft-bg', t.draftBg);
       el.style.setProperty('--rule', t.rule);
-      el.style.setProperty('--chip', t.chip);
-      el.style.setProperty('--wash', t.wash);
     });
   }
   function syncPickers(){
@@ -661,14 +755,16 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   });
 
   function fit(){
-    var w = +stage.dataset.w, h = +stage.dataset.h;
-    var wrap = stage.parentElement;
-    var avail = wrap.parentElement.clientWidth;
-    var scale = Math.min(1, avail / w);
-    stage.style.width = w + 'px';
-    stage.style.height = h + 'px';
-    stage.style.transform = 'scale(' + scale + ')';
-    wrap.style.height = (h * scale) + 'px';
+    document.querySelectorAll('.stage').forEach(function(stage){
+      var w = +stage.dataset.w, h = +stage.dataset.h;
+      var wrap = stage.parentElement;
+      var avail = wrap.parentElement.clientWidth;
+      var scale = Math.min(1, avail / w);
+      stage.style.width = w + 'px';
+      stage.style.height = h + 'px';
+      stage.style.transform = 'scale(' + scale + ')';
+      wrap.style.height = (h * scale) + 'px';
+    });
   }
   var mixer = document.getElementById('mixer');
   var mixerToggle = document.getElementById('mixer-toggle');
@@ -682,25 +778,6 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     setMixerOpen(mixer.classList.contains('is-closed'));
   });
   setMixerOpen(!window.matchMedia('(max-width: 720px)').matches);
-
-  // Filter chips are one radio group: a click or the arrow keys move the choice.
-  document.querySelectorAll('[role=radiogroup]').forEach(function(group){
-    var items = function(){ return Array.prototype.slice.call(group.querySelectorAll('[role=radio]')); };
-    function choose(item, focus){
-      items().forEach(function(el){ el.setAttribute('aria-checked', el === item ? 'true' : 'false'); el.tabIndex = el === item ? 0 : -1; });
-      if(focus) item.focus();
-    }
-    group.addEventListener('click', function(e){ var item = e.target.closest('[role=radio]'); if(item) choose(item, false); });
-    group.addEventListener('keydown', function(e){
-      var list = items(), i = list.indexOf(document.activeElement), next = null;
-      if(i < 0) return;
-      if(e.key === 'ArrowRight' || e.key === 'ArrowDown') next = list[(i + 1) % list.length];
-      else if(e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = list[(i - 1 + list.length) % list.length];
-      else if(e.key === 'Home') next = list[0];
-      else if(e.key === 'End') next = list[list.length - 1];
-      if(next){ e.preventDefault(); choose(next, true); }
-    });
-  });
 
   loadPreset(PRESETS[0].id);
   fit();

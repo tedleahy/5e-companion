@@ -1,0 +1,19 @@
+one:
+  user: one
+  name: Vesper
+  token_ink: "#5c3d88"
+  rules_version: "2014"
+  maximum_hit_points: 24
+  current_hit_points: 18
+  temporary_hit_points: 0
+  overrides: {}
+
+two:
+  user: two
+  name: Kethra
+  token_ink: "#2560b0"
+  rules_version: "2014"
+  maximum_hit_points: 31
+  current_hit_points: 31
+  temporary_hit_points: 0
+  overrides: {}

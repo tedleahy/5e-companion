@@ -223,8 +223,8 @@ Each catalog table's `data` object is validated by the importer and by the
 code that reads those fields. The kept keys are listed on that table. Homebrew
 edits use the same consumed-field checks.
 
-`AdvancementDrafts.state` is an object of wizard answers. Rails validates it
-on write. There is no schema version; see AdvancementDrafts.
+`CharacterDrafts.state` is an object of wizard answers. Rails validates it
+on write. There is no schema version; see CharacterDrafts.
 
 ## Users
 
@@ -241,7 +241,7 @@ Creating a user also creates one private homebrew ContentSource owned by that
 user. That source is enough for MVP create, edit, and delete of custom
 content. Extra named sources are deferred.
 
-`Characters.user_id` and `AdvancementDrafts.user_id` use `ON DELETE CASCADE`.
+`Characters.user_id` and `CharacterDrafts.user_id` use `ON DELETE CASCADE`.
 Deleting a user therefore deletes their characters, drafts, owned homebrew
 sources, and the catalog rows in those sources. Official and imported
 third-party sources have no owner and are not deleted. Other people's
@@ -252,12 +252,16 @@ unresolved.
 ## Sessions
 
 - `user_id`: references Users, `ON DELETE CASCADE`
-- `token`: text, unique
+- `token_digest`: text, unique, not null
 - `created_at`: timestamptz
 - `expires_at`: timestamptz, nullable
 
 Every character, draft, and homebrew write requires a current user from a
 valid session.
+
+Store only a SHA-256 digest of each high-entropy bearer token. Return the
+plaintext token when the session is created, then discard it. A database leak
+must not expose credentials that can be used directly.
 
 ## Characters
 
@@ -271,7 +275,7 @@ manual values, or in-play state.
 
 - `user_id`: references Users, `ON DELETE CASCADE`
 - `name`: text
-- `token_ink`: text, default `'structural'`
+- `token_ink`: text, a six-digit CSS hex colour such as `#e0689c`
 - `rules_version`: text
 - `lock_version`: non-negative integer, default 0
 - `race_id`: references Races, nullable
@@ -303,12 +307,10 @@ manual values, or in-play state.
 - `overrides`: JSONB, default `{}`
 - `notes`: text, nullable
 
-`token_ink` is the colour of the character's token in lists and on the sheet:
-`structural`, `accent`, or `overprint`. It names an ink role rather than a hex
-value, so a theme change recolours every token without a data change. Enforce
-the three values with a check constraint. The player picks it when creating
-the character; the default is the ink they use least across their other
-characters.
+`token_ink` is the colour of the character's token in lists and on the sheet.
+Store it as a six-digit CSS hex value including the leading `#`, and enforce
+that format with a check constraint. The player picks it when creating the
+character.
 
 `race_name`, `subrace_name`, and `background_name` contain the player's chosen
 display values. The corresponding catalog references are optional, which
@@ -329,10 +331,10 @@ the character. CharacterSpells can override one access path when a racial,
 feat, item, or manual grant has its own casting rules.
 
 A Character row always represents a character the player has confirmed.
-Unfinished creation and level-up flows live in AdvancementDrafts.
+Unfinished creation and level-up flows live in CharacterDrafts.
 
 Every transaction that changes a Character or one of its owned rows increments
-`lock_version`. AdvancementDrafts use it to detect character changes made after
+`lock_version`. CharacterDrafts use it to detect character changes made after
 a level-up flow started. This includes in-play changes such as spending a
 resource, not only edits to the Characters row.
 
@@ -1002,7 +1004,7 @@ descriptive metadata for a manual action. CharacterEffects track live source
 instances through their source columns instead of grant origins. A
 concentration anchor is an ordinary effect row and is never reconciled.
 
-## AdvancementDrafts
+## CharacterDrafts
 
 - `user_id`: references Users, `ON DELETE CASCADE`
 - `character_id`: references Characters, nullable

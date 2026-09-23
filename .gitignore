@@ -1,4 +1,7 @@
 .stfolder/
+.playwright-mcp/
 mockups/shots/
 character-sheet-examples/
 srd-json-files/5e-Spells-Custom.json
+
+.env

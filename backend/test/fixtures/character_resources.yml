@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  character: one
+  character_class: one
+  key: spell_slot_1
+  name: Spell Slots (1st)
+  current: 2
+  reset_on: long_rest
+  state: {}
+
+two:
+  character: two
+  key: lay_on_hands
+  name: Lay on Hands
+  current: 15
+  maximum_override: 15
+  reset_on: long_rest
+  state: {}

@@ -1,0 +1,19 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
+  host: <%= ENV.fetch("POSTGRES_HOST", "127.0.0.1") %>
+  port: <%= ENV.fetch("POSTGRES_PORT", 5432) %>
+  username: <%= ENV.fetch("POSTGRES_USER", "5e_companion") %>
+  password: <%= ENV.fetch("POSTGRES_PASSWORD", "5e_companion") %>
+
+development:
+  <<: *default
+  database: 5e_companion_development
+
+test:
+  <<: *default
+  database: 5e_companion_test
+
+production:
+  url: <%= ENV["DATABASE_URL"] %>
