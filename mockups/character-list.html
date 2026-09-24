@@ -154,7 +154,10 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 @keyframes spin{to{transform:rotate(360deg)}}
 .quiet{margin:0;font-size:13px;font-weight:500}
 .d .quiet{font-size:14px}
-.busy{flex:none;font-size:12px;font-weight:500;white-space:nowrap}
+.busy{flex:none;display:flex}
+.busy .spinner{width:16px;height:16px;stroke-width:6}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.vitals-hp .hp:first-child{margin-top:0}
 .tray.alone{padding-bottom:0}
 .slate{padding:18px 18px 20px}
 .notice{display:flex;gap:11px;align-items:flex-start;padding:16px 16px 18px 14px}
@@ -208,7 +211,8 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .riso .d .dtop{background:var(--a);color:var(--on-a);box-shadow:0 5px 0 var(--b);margin-bottom:5px}
 .riso .dbar{background:var(--paper);border-bottom:2px solid var(--a)}
 .riso .go{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
-.riso :is(.quiet,.busy){color:var(--dim)}
+.riso .quiet{color:var(--dim)}
+.riso .lvl b[data-unset]{color:var(--dim)}
 .riso .spinner circle{stroke:var(--empty)}
 .riso .spinner path{stroke:var(--a)}
 .riso .tray.alone{border-bottom:0}
@@ -516,7 +520,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 <template id="tpl-part-find-ves">
   <div class="find">
     <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
-      <input value="Ves" placeholder="Find a character" aria-label="Find a character"><span class="busy" role="status">Searching&hellip;</span></label>
+      <input value="Ves" placeholder="Find a character" aria-label="Find a character"><span class="busy" role="status"><svg class="spinner" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15"/><path d="M18 3a15 15 0 0 1 15 15"/></svg><span class="vh">Searching&hellip;</span></span></label>
     <button class="sortbtn">Sort: level</button>
   </div>
 </template>
@@ -656,6 +660,115 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     <div class="lvl"><span class="badgelab">Level</span><b>11</b></div>
     <div class="vitals-hp"><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>88</b>/94 hit points</p></div>
     <a class="go" href="#sheet" aria-label="Open Wilhelmina Thistlewood-Ashgrove of Brackenfell&rsquo;s sheet">Open sheet</a>
+  </div>
+</template>
+
+<!-- Characters saved before every choice is made. -->
+<template id="tpl-part-cards-incomplete">
+  <article class="row">
+    <div class="tok">C</div>
+    <div class="who">
+      <div class="lvl"><span class="badgelab">Level</span><b>3</b></div>
+      <div class="idn">
+        <h3 class="name"><a class="rowlink" href="#sheet">Corwin Hale</a></h3>
+        <p class="sub">Fighter, Champion</p>
+      </div>
+      <div class="vitals-hp">
+        <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div>
+        <p class="hp"><b>24</b>/28 hit points</p>
+      </div>
+    </div>
+  </article>
+  <article class="row">
+    <div class="tok">O</div>
+    <div class="who">
+      <div class="lvl"><span class="badgelab">Level</span><b>2</b></div>
+      <div class="idn">
+        <h3 class="name"><a class="rowlink" href="#sheet">Orin Blackwater</a></h3>
+        <p class="sub">Hill dwarf cleric, Life domain</p>
+      </div>
+      <div class="vitals-hp">
+        <p class="hp">Hit points not set</p>
+      </div>
+    </div>
+  </article>
+  <article class="row">
+    <div class="tok">P</div>
+    <div class="who">
+      <div class="lvl"><span class="badgelab">Level</span><b>2</b></div>
+      <div class="idn">
+        <h3 class="name"><a class="rowlink" href="#sheet">Pell Marsh</a></h3>
+        <p class="sub">Stout halfling rogue</p>
+      </div>
+      <div class="vitals-hp">
+        <div class="meter" data-hurt aria-hidden="true"><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+        <p class="hp"><b>0</b>/15 hit points</p>
+      </div>
+    </div>
+  </article>
+  <article class="row">
+    <div class="tok">D</div>
+    <div class="who">
+      <div class="lvl"><span class="badgelab">Level</span><b data-unset>&ndash;</b></div>
+      <div class="idn">
+        <h3 class="name"><a class="rowlink" href="#sheet">Dorian Vale</a></h3>
+        <p class="sub">Race and class not set</p>
+      </div>
+      <div class="vitals-hp">
+        <p class="hp">Hit points not set</p>
+      </div>
+    </div>
+  </article>
+  <article class="row">
+    <div class="tok">S</div>
+    <div class="who">
+      <div class="lvl"><span class="badgelab">Level</span><b data-unset>&ndash;</b></div>
+      <div class="idn">
+        <h3 class="name"><a class="rowlink" href="#sheet">Sable Wren</a></h3>
+        <p class="sub">Tiefling</p>
+      </div>
+      <div class="vitals-hp">
+        <p class="hp">Hit points not set</p>
+      </div>
+    </div>
+  </article>
+</template>
+
+<template id="tpl-part-drows-incomplete">
+  <div class="drow">
+    <div class="tok">C</div>
+    <div><h3 class="name">Corwin Hale</h3><p class="sub">Fighter, Champion</p></div>
+    <div class="lvl"><span class="badgelab">Level</span><b>3</b></div>
+    <div class="vitals-hp"><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>24</b>/28 hit points</p></div>
+    <a class="go" href="#sheet" aria-label="Open Corwin Hale&rsquo;s sheet">Open sheet</a>
+  </div>
+  <div class="drow">
+    <div class="tok">O</div>
+    <div><h3 class="name">Orin Blackwater</h3><p class="sub">Hill dwarf cleric, Life domain</p></div>
+    <div class="lvl"><span class="badgelab">Level</span><b>2</b></div>
+    <div class="vitals-hp"><p class="hp">Hit points not set</p></div>
+    <a class="go" href="#sheet" aria-label="Open Orin Blackwater&rsquo;s sheet">Open sheet</a>
+  </div>
+  <div class="drow">
+    <div class="tok">P</div>
+    <div><h3 class="name">Pell Marsh</h3><p class="sub">Stout halfling rogue</p></div>
+    <div class="lvl"><span class="badgelab">Level</span><b>2</b></div>
+    <div class="vitals-hp"><div class="meter" data-hurt aria-hidden="true"><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>0</b>/15 hit points</p></div>
+    <a class="go" href="#sheet" aria-label="Open Pell Marsh&rsquo;s sheet">Open sheet</a>
+  </div>
+  <div class="drow">
+    <div class="tok">D</div>
+    <div><h3 class="name">Dorian Vale</h3><p class="sub">Race and class not set</p></div>
+    <div class="lvl"><span class="badgelab">Level</span><b data-unset>&ndash;</b></div>
+    <div class="vitals-hp"><p class="hp">Hit points not set</p></div>
+    <a class="go" href="#sheet" aria-label="Open Dorian Vale&rsquo;s sheet">Open sheet</a>
+  </div>
+  <div class="drow">
+    <div class="tok">S</div>
+    <div><h3 class="name">Sable Wren</h3><p class="sub">Tiefling</p></div>
+    <div class="lvl"><span class="badgelab">Level</span><b data-unset>&ndash;</b></div>
+    <div class="vitals-hp"><p class="hp">Hit points not set</p></div>
+    <a class="go" href="#sheet" aria-label="Open Sable Wren&rsquo;s sheet">Open sheet</a>
   </div>
 </template>
 
@@ -949,6 +1062,29 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   </div>
 </template>
 
+<!-- ============================================================
+     INCOMPLETE CHARACTERS
+     ============================================================ -->
+<template id="tpl-incomplete">
+  <div class="mat">
+    <div data-part="plate"></div>
+    <div class="rows">
+      <div data-part="cards-incomplete"></div>
+    </div>
+    <div data-part="newwrap"></div>
+  </div>
+</template>
+
+<template id="tpl-d-incomplete">
+  <div class="mat d">
+    <div data-part="band"></div>
+    <div data-part="bar"></div>
+    <div class="dbody">
+      <div data-part="drows-incomplete"></div>
+    </div>
+  </div>
+</template>
+
 <script>
 (function(){
   var PRESETS = [
@@ -1056,9 +1192,9 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     {id:'d-loading', desktop:true, label:'First load',
      note:'The same, a size up, centred under the bar.'},
     {id:'searching', label:'Searching',
-     note:'The player has typed &ldquo;Ves&rdquo;. After the 250 ms debounce the request goes out and the previous results stay put. &ldquo;Searching&hellip;&rdquo; sits at the right of the field in dim until the response lands, where the eye already is, so nothing below it shifts. It is a polite live region. On a fast connection it may never show, which is fine. Drafts ignore the search, so the tray stays.'},
+     note:'The player has typed &ldquo;Ves&rdquo;. After the 250 ms debounce the request goes out and the previous results stay put. A 16 point version of the first-load spinner turns at the right of the field until the response lands, where the eye already is, so nothing below it shifts. It is a polite live region that reads &ldquo;Searching&hellip;&rdquo; to screen readers. On a fast connection it may never show, which is fine. Drafts ignore the search, so the tray stays.'},
     {id:'d-searching', desktop:true, label:'Searching',
-     note:'The field is wider here, so the indicator sits well clear of the text.'},
+     note:'The same spinner, at the same size, at the right of the wider field.'},
 
     {section:'Nothing to show',
      text:'An empty list is a dashed slate, the system&rsquo;s mark for something not real yet. Search and sort only show when there are characters to find, so they drop out when the player has none.'},
@@ -1097,7 +1233,14 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     {id:'d-long', desktop:true, label:'Long name on a desktop row',
      note:'The name column is the only flexible one, so the name and subtitle wrap there and the row grows. Level, meter and Open sheet stay centred on the row.'},
     {id:'t-long', tablet:true, label:'Long content in two columns, landscape',
-     note:'Cards in a row share a height, so the long card&rsquo;s neighbour grows to match and its content centres, as it does in every card. In React Native that is a row of two cards with the default stretch.'}
+     note:'Cards in a row share a height, so the long card&rsquo;s neighbour grows to match and its content centres, as it does in every card. In React Native that is a row of two cards with the default stretch.'},
+
+    {section:'Incomplete characters',
+     text:'Characters saved before every choice is made. Each card keeps its shape and says what is missing rather than inventing a value.'},
+    {id:'incomplete', label:'Missing race, class or hit points',
+     note:'From the top. No race: the subtitle starts at the class, with a capital. No hit points yet: no meter, and the line reads &ldquo;Hit points not set&rdquo;. Zero hit points: ten empty segments, and the zero in the hurt ink. No race or class: &ldquo;Race and class not set&rdquo;. Race only: the race alone. With no classes the level block shows a dim dash rather than 0, which is not a level, and those characters sort last.'},
+    {id:'d-incomplete', desktop:true, label:'Missing race, class or hit points',
+     note:'The level column keeps its dash and the vitals column its line, so the rows stay aligned.'}
   ];
 
   var wrap = document.getElementById('frames');
