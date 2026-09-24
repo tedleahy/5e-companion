@@ -8,3 +8,4 @@ cd "$repo_root"
 # start the postgres docker container
 docker compose up -d --wait postgres
 (cd backend && bin/setup --skip-server)
+(cd frontend && npm install)
