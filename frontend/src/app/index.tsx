@@ -1,17 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Characters } from '@/screens/characters';
 
-export default function Index() {
-  return (
-    <View style={styles.container}>
-      <Text>5e Companion</Text>
-    </View>
-  );
+export default function CharactersRoute() {
+  return <Characters />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

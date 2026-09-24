@@ -25,3 +25,10 @@ The files carry two corrections against the SRD 5.1 text, both made on
 
 Everything else is unmodified. The app's importer reshapes the files into its
 own tables, as described in `docs/data-model.md`.
+
+## Space Grotesk
+
+The app's typeface is [Space Grotesk](https://github.com/floriankarsten/space-grotesk)
+by the Space Grotesk Project Authors, bundled through `@expo-google-fonts/space-grotesk`.
+It is licensed under the SIL Open Font License 1.1, whose text ships with the package in
+`LICENSE_FONT`.
