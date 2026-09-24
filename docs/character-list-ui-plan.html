@@ -399,6 +399,7 @@
             <dt>Depends on</dt><dd>Nothing</dd>
             <dt>Review focus</dt><dd>Screenshots of each new frame: does it look right, and is the copy
               right?</dd>
+            <dt>Status</dt><dd>Done. Every frame approved on 25 September 2026.</dd>
           </dl>
 
           <h3>Make the frames screenshotable first</h3>
@@ -413,34 +414,34 @@
           <p>Add each as a phone frame and a desktop frame. Tablet frames are only needed where the
             tablet layout differs from both.</p>
           <ul class="checks">
-            <li><strong>First load.</strong> Plate, search and sort in place, with no data yet. A spinner
+            <li class="done"><strong>First load.</strong> Plate, search and sort in place, with no data yet. A spinner
               centred in the space the list will fill, with "Loading characters&hellip;" under it. The
               spinner is the list's only motion and holds still when reduced motion is on.</li>
-            <li><strong>Searching.</strong> The previous results stay on screen while a new search loads,
+            <li class="done"><strong>Searching.</strong> The previous results stay on screen while a new search loads,
               and a 16 point spinner turns at the right of the search field.</li>
-            <li><strong>No characters yet.</strong> No characters and no drafts. Create character is the
+            <li class="done"><strong>No characters yet.</strong> No characters and no drafts. Create character is the
               obvious next step.</li>
-            <li><strong>No characters, one creation draft.</strong> The tray alone.</li>
-            <li><strong>No search results.</strong> Nothing matches the search. Drafts ignore the search,
+            <li class="done"><strong>No characters, one creation draft.</strong> The tray alone.</li>
+            <li class="done"><strong>No search results.</strong> Nothing matches the search. Drafts ignore the search,
               so the tray still shows. Include the searched text in the copy.</li>
-            <li><strong>Not signed in.</strong> The API returned 401. With no login screen yet, the copy
+            <li class="done"><strong>Not signed in.</strong> The API returned 401. With no login screen yet, the copy
               tells a developer to check <code>EXPO_PUBLIC_API_TOKEN</code>, and the frame should make it
               obvious that this copy is temporary.</li>
-            <li><strong>Couldn't load.</strong> A network error or a 500, with a Try again button.</li>
-            <li><strong>Creation drafts in the tray.</strong> One named ("Nyra Ashfall") and one unnamed
+            <li class="done"><strong>Couldn't load.</strong> A network error or a 500, with a Try again button.</li>
+            <li class="done"><strong>Creation drafts in the tray.</strong> One named ("Nyra Ashfall") and one unnamed
               ("New character"), each with progress and the next step. Settle the token letter for an
               unnamed draft.</li>
-            <li><strong>Long content.</strong> A long name and a long multiclass subtitle, to settle
+            <li class="done"><strong>Long content.</strong> A long name and a long multiclass subtitle, to settle
               wrapping versus truncation, which the design system leaves open.</li>
-            <li><strong>Incomplete characters.</strong> No race, no classes, neither, hit points not set,
+            <li class="done"><strong>Incomplete characters.</strong> No race, no classes, neither, hit points not set,
               and 0 hit points, following the step 0 rules.</li>
           </ul>
 
           <h3>Copy fixes in existing frames</h3>
           <ul class="checks">
-            <li>Replace "Her sheet is untouched until you confirm" and "Nothing reaches her sheet until
+            <li class="done">Replace "Her sheet is untouched until you confirm" and "Nothing reaches her sheet until
               you confirm" with neutral copy.</li>
-            <li>List the <code>next_step</code> phrases the frames use. The seed and tests use
+            <li class="done">List the <code>next_step</code> phrases the frames use. The seed and tests use
               <code>ability_score_or_feat</code> ("an ability increase or a feat") and
               <code>choose_class</code>.</li>
           </ul>
@@ -852,7 +853,7 @@
         <section id="done">
           <h2>Definition of done</h2>
           <ul class="checks">
-            <li>Step 1's frames are approved, and <code>mockups/shoot.sh character-list</code> produces
+            <li class="done">Step 1's frames are approved, and <code>mockups/shoot.sh character-list</code> produces
               one image per frame.</li>
             <li>The design system is at v0.5 and describes the list as built.</li>
             <li>The Expo web build loads the seeded list with no CORS errors, both on this computer and
