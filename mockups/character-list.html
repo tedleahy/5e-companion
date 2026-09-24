@@ -53,27 +53,31 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .note b{color:#d4d8de;font-weight:600}
 .hexline{margin:6px 0 0;color:#6f7681;font:12px/1.4 ui-monospace,"Cascadia Mono",monospace}
 .studio{padding:28px 22px 48px}
-.pair{max-width:1600px;margin:0 auto;display:flex;gap:34px;align-items:flex-start;flex-wrap:wrap}
-.stagewrap.port{flex:0 1 820px;width:min(820px,100%)}
-.stagewrap.full{flex:1 1 100%}
-.stagewrap{flex:1 1 auto;min-width:0}
-.stagebox{overflow:hidden}
-.stage{transform-origin:top left;overflow:hidden;border-radius:8px;box-shadow:0 24px 60px -24px rgba(0,0,0,.7)}
+.frames{max-width:1600px;margin:0 auto;display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start}
+.framewrap{width:414px}
+.frame-label{font-size:12.5px;font-weight:600;color:#e7e9ec;margin:0 0 4px 2px}
+.frame-note{font-size:12px;color:#8a919a;line-height:1.5;margin:0 0 10px 2px}
+.frame-note code{font-size:11.5px;color:#c3c9d1}
+.frames-head{flex-basis:100%;padding-top:26px;border-top:1px solid #3c4046}
+.frames-head:first-child{padding-top:0;border-top:0}
+.frames-head h2{margin:0 0 4px;font-size:19px;font-weight:700;color:#fff;letter-spacing:-.01em}
+.frames-head p{margin:0;color:#8a919a;font-size:13px;max-width:80ch;line-height:1.5}
 .phone{flex:none;width:414px;padding:12px;border-radius:44px;background:#111318;
   box-shadow:0 24px 60px -24px rgba(0,0,0,.75), inset 0 0 0 1px #43474e}
 .phone-screen{width:390px;height:812px;border-radius:33px;overflow:hidden;position:relative}
 .phone-scroll{width:100%;height:100%;overflow-y:auto;scrollbar-width:none}
 .phone-scroll::-webkit-scrollbar{display:none}
-.frame-label{font-size:11.5px;color:#8a919a;margin:0 0 8px 2px}
-@media (max-width:1180px){
-  .pair{flex-direction:column-reverse}
-  .stagewrap,.stagewrap.port,.stagewrap.full{width:100%;max-width:none;flex:0 0 auto}
-}
+/* A desktop frame shares a row with its phone frame only, scaled to fit. */
+.frames-break{flex-basis:100%;height:0}
+.deskwrap{flex:1 1 640px;min-width:0}
+.stagebox{overflow:hidden}
+.stage{transform-origin:top left;overflow:hidden;border-radius:8px;box-shadow:0 24px 60px -24px rgba(0,0,0,.7)}
 @media (max-width:720px){
   .gal-intro{padding:8px 16px 12px}
   .gal-intro h1{font-size:22px}
   .mixer{padding:8px 16px}
   .studio{padding:18px 16px 36px}
+  .framewrap,.phone{width:100%;max-width:414px}
 }
 :focus-visible{outline:2px solid #7cc4ff;outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -88,9 +92,11 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .sortbtn{padding:0 13px;font-size:13px;cursor:pointer;font-family:inherit}
 .rows{flex:1;padding:12px 12px 0;display:flex;flex-direction:column;gap:14px}
 .row{display:grid;grid-template-columns:56px minmax(0,1fr);column-gap:13px;align-items:center;padding:11px 12px}
-.who{min-width:0}
-.who .lvl{float:right;margin:0 0 8px 13px}
-.who .vitals-hp{clear:both}
+/* Name and subtitle wrap in a column beside the level block, the meter runs under both. */
+.who{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:13px}
+.who .idn{grid-area:1 / 1}
+.who .lvl{grid-area:1 / 2;margin-bottom:8px}
+.who .vitals-hp{grid-column:1 / -1}
 .vitals-hp{flex:1;min-width:0}
 .tok{width:56px;height:56px;display:grid;place-items:center;font-weight:700;font-size:20px;flex:none}
 .name{margin:0;font-size:16.5px;font-weight:700;letter-spacing:-.01em}
@@ -238,290 +244,266 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   </div>
 </div>
 
-<div class="studio">
-  <div class="pair">
-    <div data-slot="phone"></div>
-    <div class="stagewrap port" data-slot="tablet-port"></div>
-    <div class="stagewrap full" data-slot="tablet-land"></div>
-    <div class="stagewrap full" data-slot="desktop"></div>
-  </div>
-</div>
+<div class="studio"><div class="frames" id="frames"></div></div>
 
-<template id="tpl-phone">
-  <div class="mat">
-    <div class="top">
+<!-- ============================================================
+     PARTS
+     Shared pieces. A frame names one with data-part, and the
+     element is replaced by the part's contents, so parts add no
+     wrappers. Parts can hold parts.
+     ============================================================ -->
+<template id="tpl-part-find">
+  <div class="find">
+    <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+      <input placeholder="Find a character" aria-label="Find a character"></label>
+    <button class="sortbtn">Sort: level</button>
+  </div>
+</template>
+
+<template id="tpl-part-plate">
+  <div class="top">
+    <h2 class="title">Characters</h2>
+    <div data-part="find"></div>
+  </div>
+</template>
+
+<template id="tpl-part-newwrap">
+  <div class="newwrap"><button class="newbtn">Create character</button></div>
+</template>
+
+<template id="tpl-part-band">
+  <div class="dtop">
+    <div class="dtop-inner">
       <h2 class="title">Characters</h2>
-      <div class="find">
-        <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
-          <input placeholder="Find a character" aria-label="Find a character"></label>
-        <button class="sortbtn">Sort: level</button>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-part-bar">
+  <div class="dbar">
+    <div class="dbar-inner">
+      <div data-part="find"></div>
+      <button class="newbtn dnew">Create character</button>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-part-draft-kethra">
+  <article class="draft">
+    <div class="tok">K</div>
+    <div>
+      <h3 class="name">Kethra Ironsong</h3>
+      <p class="sub">Level 3 to 4, three of five choices made. Her sheet is untouched until you confirm.</p>
+    </div>
+    <button class="resume">Resume</button>
+  </article>
+</template>
+
+<template id="tpl-part-draft-kethra-wide">
+  <article class="draft">
+    <div class="tok">K</div>
+    <div>
+      <h3 class="name">Kethra Ironsong, level 3 to 4</h3>
+      <p class="sub">Three of five choices made. Next up is an ability increase or a feat. Nothing reaches her sheet until you confirm.</p>
+    </div>
+    <button class="resume">Resume level-up</button>
+  </article>
+</template>
+
+<template id="tpl-part-tray">
+  <div class="tray">
+    <h3 class="trayhead">Waiting to be finished</h3>
+    <div data-part="draft-kethra"></div>
+  </div>
+</template>
+
+<template id="tpl-part-tray-wide">
+  <div class="tray">
+    <h3 class="trayhead">Waiting to be finished</h3>
+    <div data-part="draft-kethra-wide"></div>
+  </div>
+</template>
+
+<!-- The six characters as phone cards, which tablets use too. -->
+<template id="tpl-part-cards">
+  <article class="row">
+    <div class="tok">T</div>
+    <div class="who">
+      <div class="lvl"><span class="badgelab">Level</span><b>8</b></div>
+      <div class="idn">
+        <h3 class="name"><a class="rowlink" href="#sheet">Thorn Grimsby</a></h3>
+        <p class="sub">Mountain dwarf fighter, Champion</p>
+      </div>
+      <div class="vitals-hp">
+        <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div>
+        <p class="hp"><b>68</b>/72 hit points</p>
       </div>
     </div>
+  </article>
+  <article class="row">
+    <div class="tok">A</div>
+    <div class="who">
+      <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
+      <div class="idn">
+        <h3 class="name"><a class="rowlink" href="#sheet">Alarra Vane</a></h3>
+        <p class="sub">Human cleric, Life domain</p>
+      </div>
+      <div class="vitals-hp">
+        <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+        <p class="hp"><b>38</b>/52 hit points</p>
+      </div>
+    </div>
+  </article>
+  <article class="row">
+    <div class="tok">V</div>
+    <div class="who">
+      <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
+      <div class="idn">
+        <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
+        <p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p>
+      </div>
+      <div class="vitals-hp">
+        <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+        <p class="hp"><b>12</b>/26 hit points</p>
+      </div>
+    </div>
+  </article>
+  <article class="row">
+    <div class="tok">B</div>
+    <div class="who">
+      <div class="lvl"><span class="badgelab">Level</span><b>6</b></div>
+      <div class="idn">
+        <h3 class="name"><a class="rowlink" href="#sheet">Brenna Duskhollow</a></h3>
+        <p class="sub">Half-elf warlock, the Fiend</p>
+      </div>
+      <div class="vitals-hp">
+        <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+        <p class="hp"><b>31</b>/44 hit points, 5 temporary</p>
+      </div>
+    </div>
+  </article>
+  <article class="row">
+    <div class="tok">M</div>
+    <div class="who">
+      <div class="lvl"><span class="badgelab">Level</span><b>4</b></div>
+      <div class="idn">
+        <h3 class="name"><a class="rowlink" href="#sheet">Mudge Tealeaf</a></h3>
+        <p class="sub">Lightfoot halfling rogue, Arcane trickster</p>
+      </div>
+      <div class="vitals-hp">
+        <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+        <p class="hp"><b>9</b>/27 hit points</p>
+      </div>
+    </div>
+  </article>
+  <article class="row">
+    <div class="tok">K</div>
+    <div class="who">
+      <div class="lvl"><span class="badgelab">Level</span><b>3</b></div>
+      <div class="idn">
+        <h3 class="name"><a class="rowlink" href="#sheet">Kethra Ironsong</a></h3>
+        <p class="sub">Hill dwarf paladin, Oath of devotion</p>
+      </div>
+      <div class="vitals-hp">
+        <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <p class="hp"><b>28</b>/28 hit points</p>
+      </div>
+    </div>
+  </article>
+</template>
+
+<!-- The six characters as desktop rows. -->
+<template id="tpl-part-drows">
+  <div class="drow">
+    <div class="tok">T</div>
+    <div><h3 class="name">Thorn Grimsby</h3><p class="sub">Mountain dwarf fighter, Champion</p></div>
+    <div class="lvl"><span class="badgelab">Level</span><b>8</b></div>
+    <div class="vitals-hp"><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>68</b>/72 hit points</p></div>
+    <a class="go" href="#sheet" aria-label="Open Thorn Grimsby&rsquo;s sheet">Open sheet</a>
+  </div>
+  <div class="drow">
+    <div class="tok">A</div>
+    <div><h3 class="name">Alarra Vane</h3><p class="sub">Human cleric, Life domain</p></div>
+    <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
+    <div class="vitals-hp"><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>38</b>/52 hit points</p></div>
+    <a class="go" href="#sheet" aria-label="Open Alarra Vane&rsquo;s sheet">Open sheet</a>
+  </div>
+  <div class="drow">
+    <div class="tok">V</div>
+    <div><h3 class="name">Vesper Quill</h3><p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p></div>
+    <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
+    <div class="vitals-hp"><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points</p></div>
+    <a class="go" href="#sheet" aria-label="Open Vesper Quill&rsquo;s sheet">Open sheet</a>
+  </div>
+  <div class="drow">
+    <div class="tok">B</div>
+    <div><h3 class="name">Brenna Duskhollow</h3><p class="sub">Half-elf warlock, the Fiend</p></div>
+    <div class="lvl"><span class="badgelab">Level</span><b>6</b></div>
+    <div class="vitals-hp"><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>31</b>/44 hit points, 5 temporary</p></div>
+    <a class="go" href="#sheet" aria-label="Open Brenna Duskhollow&rsquo;s sheet">Open sheet</a>
+  </div>
+  <div class="drow">
+    <div class="tok">M</div>
+    <div><h3 class="name">Mudge Tealeaf</h3><p class="sub">Lightfoot halfling rogue, Arcane trickster</p></div>
+    <div class="lvl"><span class="badgelab">Level</span><b>4</b></div>
+    <div class="vitals-hp"><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>9</b>/27 hit points</p></div>
+    <a class="go" href="#sheet" aria-label="Open Mudge Tealeaf&rsquo;s sheet">Open sheet</a>
+  </div>
+  <div class="drow">
+    <div class="tok">K</div>
+    <div><h3 class="name">Kethra Ironsong</h3><p class="sub">Hill dwarf paladin, Oath of devotion</p></div>
+    <div class="lvl"><span class="badgelab">Level</span><b>3</b></div>
+    <div class="vitals-hp"><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p class="hp"><b>28</b>/28 hit points</p></div>
+    <a class="go" href="#sheet" aria-label="Open Kethra Ironsong&rsquo;s sheet">Open sheet</a>
+  </div>
+</template>
+
+<!-- ============================================================
+     THE LIST
+     Phone frames are tpl-<id>, desktop frames tpl-d-<id> at 1440
+     by 900, and tablet frames tpl-t-<id> at their data-size. Each
+     kind keeps the order of FRAMES, which shoot.sh numbers by.
+     ============================================================ -->
+<template id="tpl-list">
+  <div class="mat">
+    <div data-part="plate"></div>
     <div class="rows">
-      <div class="tray">
-        <h3 class="trayhead">Waiting to be finished</h3>
-        <article class="draft">
-          <div class="tok">K</div>
-          <div>
-            <h3 class="name">Kethra Ironsong</h3>
-            <p class="sub">Level 3 to 4, three of five choices made. Her sheet is untouched until you confirm.</p>
-          </div>
-          <button class="resume">Resume</button>
-        </article>
-      </div>
-      <article class="row">
-        <div class="tok">T</div>
-        <div class="who">
-          <div class="lvl"><span class="badgelab">Level</span><b>8</b></div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Thorn Grimsby</a></h3>
-          <p class="sub">Mountain dwarf fighter, Champion</p>
-          <div class="vitals-hp">
-            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div>
-            <p class="hp"><b>68</b>/72 hit points</p>
-          </div>
-        </div>
-      </article>
-      <article class="row">
-        <div class="tok">A</div>
-        <div class="who">
-          <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Alarra Vane</a></h3>
-          <p class="sub">Human cleric, Life domain</p>
-          <div class="vitals-hp">
-            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
-            <p class="hp"><b>38</b>/52 hit points</p>
-          </div>
-        </div>
-      </article>
-      <article class="row">
-        <div class="tok">V</div>
-        <div class="who">
-          <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
-          <p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p>
-          <div class="vitals-hp">
-            <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
-            <p class="hp"><b>12</b>/26 hit points</p>
-          </div>
-        </div>
-      </article>
-      <article class="row">
-        <div class="tok">B</div>
-        <div class="who">
-          <div class="lvl"><span class="badgelab">Level</span><b>6</b></div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Brenna Duskhollow</a></h3>
-          <p class="sub">Half-elf warlock, the Fiend</p>
-          <div class="vitals-hp">
-            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
-            <p class="hp"><b>31</b>/44 hit points, 5 temporary</p>
-          </div>
-        </div>
-      </article>
-      <article class="row">
-        <div class="tok">M</div>
-        <div class="who">
-          <div class="lvl"><span class="badgelab">Level</span><b>4</b></div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Mudge Tealeaf</a></h3>
-          <p class="sub">Lightfoot halfling rogue, Arcane trickster</p>
-          <div class="vitals-hp">
-            <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
-            <p class="hp"><b>9</b>/27 hit points</p>
-          </div>
-        </div>
-      </article>
-      <article class="row">
-        <div class="tok">K</div>
-        <div class="who">
-          <div class="lvl"><span class="badgelab">Level</span><b>3</b></div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Kethra Ironsong</a></h3>
-          <p class="sub">Hill dwarf paladin, Oath of devotion</p>
-          <div class="vitals-hp">
-            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-            <p class="hp"><b>28</b>/28 hit points</p>
-          </div>
-        </div>
-      </article>
+      <div data-part="tray"></div>
+      <div data-part="cards"></div>
     </div>
-    <div class="newwrap"><button class="newbtn">Create character</button></div>
+    <div data-part="newwrap"></div>
   </div>
 </template>
 
-<template id="tpl-tablet">
-  <div class="mat d tablet">
-    <div class="dtop">
-      <div class="dtop-inner">
-        <h2 class="title">Characters</h2>
-      </div>
-    </div>
-    <div class="dbar">
-      <div class="dbar-inner">
-        <div class="find">
-          <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
-            <input placeholder="Find a character" aria-label="Find a character"></label>
-          <button class="sortbtn">Sort: level</button>
-        </div>
-        <button class="newbtn dnew">Create character</button>
-      </div>
-    </div>
-    <div class="dbody">
-      <div class="tray">
-        <h3 class="trayhead">Waiting to be finished</h3>
-        <article class="draft">
-          <div class="tok">K</div>
-          <div>
-            <h3 class="name">Kethra Ironsong, level 3 to 4</h3>
-            <p class="sub">Three of five choices made. Next up is an ability increase or a feat. Nothing reaches her sheet until you confirm.</p>
-          </div>
-          <button class="resume">Resume level-up</button>
-        </article>
-      </div>
-      <article class="row">
-        <div class="tok">T</div>
-        <div class="who">
-          <div class="lvl"><span class="badgelab">Level</span><b>8</b></div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Thorn Grimsby</a></h3>
-          <p class="sub">Mountain dwarf fighter, Champion</p>
-          <div class="vitals-hp">
-            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div>
-            <p class="hp"><b>68</b>/72 hit points</p>
-          </div>
-        </div>
-      </article>
-      <article class="row">
-        <div class="tok">A</div>
-        <div class="who">
-          <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Alarra Vane</a></h3>
-          <p class="sub">Human cleric, Life domain</p>
-          <div class="vitals-hp">
-            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
-            <p class="hp"><b>38</b>/52 hit points</p>
-          </div>
-        </div>
-      </article>
-      <article class="row">
-        <div class="tok">V</div>
-        <div class="who">
-          <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
-          <p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p>
-          <div class="vitals-hp">
-            <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
-            <p class="hp"><b>12</b>/26 hit points</p>
-          </div>
-        </div>
-      </article>
-      <article class="row">
-        <div class="tok">B</div>
-        <div class="who">
-          <div class="lvl"><span class="badgelab">Level</span><b>6</b></div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Brenna Duskhollow</a></h3>
-          <p class="sub">Half-elf warlock, the Fiend</p>
-          <div class="vitals-hp">
-            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
-            <p class="hp"><b>31</b>/44 hit points, 5 temporary</p>
-          </div>
-        </div>
-      </article>
-      <article class="row">
-        <div class="tok">M</div>
-        <div class="who">
-          <div class="lvl"><span class="badgelab">Level</span><b>4</b></div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Mudge Tealeaf</a></h3>
-          <p class="sub">Lightfoot halfling rogue, Arcane trickster</p>
-          <div class="vitals-hp">
-            <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
-            <p class="hp"><b>9</b>/27 hit points</p>
-          </div>
-        </div>
-      </article>
-      <article class="row">
-        <div class="tok">K</div>
-        <div class="who">
-          <div class="lvl"><span class="badgelab">Level</span><b>3</b></div>
-          <h3 class="name"><a class="rowlink" href="#sheet">Kethra Ironsong</a></h3>
-          <p class="sub">Hill dwarf paladin, Oath of devotion</p>
-          <div class="vitals-hp">
-            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-            <p class="hp"><b>28</b>/28 hit points</p>
-          </div>
-        </div>
-      </article>
-    </div>
-  </div>
-</template>
-
-<template id="tpl-desktop">
+<template id="tpl-d-list">
   <div class="mat d">
-    <div class="dtop">
-      <div class="dtop-inner">
-        <h2 class="title">Characters</h2>
-      </div>
-    </div>
-    <div class="dbar">
-      <div class="dbar-inner">
-        <div class="find">
-          <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
-            <input placeholder="Find a character" aria-label="Find a character"></label>
-          <button class="sortbtn">Sort: level</button>
-        </div>
-        <button class="newbtn dnew">Create character</button>
-      </div>
-    </div>
+    <div data-part="band"></div>
+    <div data-part="bar"></div>
     <div class="dbody">
-      <div class="tray">
-        <h3 class="trayhead">Waiting to be finished</h3>
-        <article class="draft">
-          <div class="tok">K</div>
-          <div>
-            <h3 class="name">Kethra Ironsong, level 3 to 4</h3>
-            <p class="sub">Three of five choices made. Next up is an ability increase or a feat. Nothing reaches her sheet until you confirm.</p>
-          </div>
-          <button class="resume">Resume level-up</button>
-        </article>
-      </div>
-      <div class="drow">
-        <div class="tok">T</div>
-        <div><h3 class="name">Thorn Grimsby</h3><p class="sub">Mountain dwarf fighter, Champion</p></div>
-        <div class="lvl"><span class="badgelab">Level</span><b>8</b></div>
-        <div class="vitals-hp"><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>68</b>/72 hit points</p></div>
-        <a class="go" href="#sheet" aria-label="Open Thorn Grimsby&rsquo;s sheet">Open sheet</a>
-      </div>
-      <div class="drow">
-        <div class="tok">A</div>
-        <div><h3 class="name">Alarra Vane</h3><p class="sub">Human cleric, Life domain</p></div>
-        <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
-        <div class="vitals-hp"><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>38</b>/52 hit points</p></div>
-        <a class="go" href="#sheet" aria-label="Open Alarra Vane&rsquo;s sheet">Open sheet</a>
-      </div>
-      <div class="drow">
-        <div class="tok">V</div>
-        <div><h3 class="name">Vesper Quill</h3><p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p></div>
-        <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
-        <div class="vitals-hp"><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points</p></div>
-        <a class="go" href="#sheet" aria-label="Open Vesper Quill&rsquo;s sheet">Open sheet</a>
-      </div>
-      <div class="drow">
-        <div class="tok">B</div>
-        <div><h3 class="name">Brenna Duskhollow</h3><p class="sub">Half-elf warlock, the Fiend</p></div>
-        <div class="lvl"><span class="badgelab">Level</span><b>6</b></div>
-        <div class="vitals-hp"><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>31</b>/44 hit points, 5 temporary</p></div>
-        <a class="go" href="#sheet" aria-label="Open Brenna Duskhollow&rsquo;s sheet">Open sheet</a>
-      </div>
-      <div class="drow">
-        <div class="tok">M</div>
-        <div><h3 class="name">Mudge Tealeaf</h3><p class="sub">Lightfoot halfling rogue, Arcane trickster</p></div>
-        <div class="lvl"><span class="badgelab">Level</span><b>4</b></div>
-        <div class="vitals-hp"><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>9</b>/27 hit points</p></div>
-        <a class="go" href="#sheet" aria-label="Open Mudge Tealeaf&rsquo;s sheet">Open sheet</a>
-      </div>
-      <div class="drow">
-        <div class="tok">K</div>
-        <div><h3 class="name">Kethra Ironsong</h3><p class="sub">Hill dwarf paladin, Oath of devotion</p></div>
-        <div class="lvl"><span class="badgelab">Level</span><b>3</b></div>
-        <div class="vitals-hp"><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p class="hp"><b>28</b>/28 hit points</p></div>
-        <a class="go" href="#sheet" aria-label="Open Kethra Ironsong&rsquo;s sheet">Open sheet</a>
-      </div>
+      <div data-part="tray-wide"></div>
+      <div data-part="drows"></div>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-t-list-portrait" data-size="820x1180">
+  <div class="mat d tablet">
+    <div data-part="band"></div>
+    <div data-part="bar"></div>
+    <div class="dbody">
+      <div data-part="tray-wide"></div>
+      <div data-part="cards"></div>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-t-list-landscape" data-size="1180x820">
+  <div class="mat d tablet land">
+    <div data-part="band"></div>
+    <div data-part="bar"></div>
+    <div class="dbody">
+      <div data-part="tray-wide"></div>
+      <div data-part="cards"></div>
     </div>
   </div>
 </template>
@@ -614,45 +596,102 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     };
   }
 
-  var phoneTpl = document.getElementById('tpl-phone');
-  var phoneSlot = document.querySelector('[data-slot=phone]');
+  var FRAMES = [
+    {section:'The list',
+     text:'Six characters sorted by level, with Kethra&rsquo;s level-up waiting in the tray above them.'},
+    {id:'list', label:'Characters and a level-up draft',
+     note:'The draft tray sits above the list, with a dashed rule under it. Each card is one control: tapping anywhere on it opens the sheet. Create character sticks to the foot of the screen over a fade.'},
+    {id:'d-list', desktop:true, label:'Rows with named Open sheet links',
+     note:'The plate holds only the title. Search, sort and Create sit in a bar that sticks under it, and the band, the bar and the list share one 1020 measure. Rows have columns of 74, 1fr, 84, 240 and 128.'},
+    {id:'t-list-portrait', tablet:true, label:'Portrait, 820 by 1180',
+     note:'The desktop band and bar over one column of phone cards.'},
+    {id:'t-list-landscape', tablet:true, label:'Landscape, 1180 by 820',
+     note:'The same cards in two columns. The tray spans both.'}
+  ];
 
-  var phoneLabel = document.createElement('p');
-  phoneLabel.className = 'frame-label';
-  phoneLabel.innerHTML = 'Phone, 390 &times; 812';
-  var phone = document.createElement('div');
-  phone.className = 'phone';
-  var screen = document.createElement('div');
-  screen.className = 'phone-screen';
-  var scroll = document.createElement('div');
-  scroll.className = 'phone-scroll riso live';
-  scroll.appendChild(phoneTpl.content.cloneNode(true));
-  screen.appendChild(scroll);
-  phone.appendChild(screen);
-  phoneSlot.appendChild(phoneLabel);
-  phoneSlot.appendChild(phone);
-
-  function mountStage(slot, tplId, label, w, h, extra){
-    var slotEl = document.querySelector('[data-slot="'+slot+'"]');
-    var deskLabel = document.createElement('p');
-    deskLabel.className = 'frame-label';
-    deskLabel.innerHTML = label;
-    var stage = document.createElement('div');
-    stage.className = 'stage riso live';
-    stage.dataset.w = String(w);
-    stage.dataset.h = String(h);
-    var frag = document.getElementById(tplId).content.cloneNode(true);
-    if(extra) frag.querySelector('.mat').classList.add(extra);
-    stage.appendChild(frag);
+  var wrap = document.getElementById('frames');
+  var frameNo = 0, deskNo = 0, tabNo = 0;
+  // Replaces each [data-part] element with its part, until none are left.
+  function fillParts(root){
+    var slot;
+    while((slot = root.querySelector('[data-part]'))){
+      slot.replaceWith(document.getElementById('tpl-part-' + slot.dataset.part).content.cloneNode(true));
+    }
+  }
+  function frameText(col, label, note){
+    var l = document.createElement('p');
+    l.className = 'frame-label';
+    l.innerHTML = label;
+    var n = document.createElement('p');
+    n.className = 'frame-note';
+    n.innerHTML = note;
+    col.appendChild(l);
+    col.appendChild(n);
+  }
+  // Desktop and tablet frames sit on a stage, 1440 by 900 unless the template
+  // sets data-size, scaled to the width the frame gets. Tablet frames share a
+  // row, sized so both scale alike.
+  function buildDesk(f, tpl, next){
+    var size = (tpl.getAttribute('data-size') || '1440x900').split('x');
+    var col = document.createElement('div');
+    col.className = 'deskwrap';
+    col.id = 'frame-' + f.id;
+    col.dataset.kind = f.tablet ? 'tablet' : 'desk';
+    if(f.tablet){ col.style.flex = size[0] + ' 1 0'; col.style.maxWidth = size[0] + 'px'; }
+    frameText(col, (f.tablet ? 'Tablet ' + (++tabNo) : 'Desktop ' + (++deskNo)) + '. ' + f.label, f.note);
     var box = document.createElement('div');
     box.className = 'stagebox';
-    slotEl.appendChild(deskLabel);
-    slotEl.appendChild(box);
+    var stage = document.createElement('div');
+    stage.className = 'stage riso live';
+    stage.dataset.w = size[0];
+    stage.dataset.h = size[1];
+    stage.style.width = size[0] + 'px';
+    stage.style.height = size[1] + 'px';
+    stage.appendChild(tpl.content.cloneNode(true));
+    fillParts(stage);
     box.appendChild(stage);
+    col.appendChild(box);
+    wrap.appendChild(col);
+    if(f.tablet && next && next.tablet) return;
+    var br = document.createElement('div');
+    br.className = 'frames-break';
+    wrap.appendChild(br);
   }
-  mountStage('tablet-port', 'tpl-tablet', 'Tablet, portrait, 820 &times; 1180', 820, 1180);
-  mountStage('tablet-land', 'tpl-tablet', 'Tablet, landscape, 1180 &times; 820', 1180, 820, 'land');
-  mountStage('desktop', 'tpl-desktop', 'Desktop, 1440 &times; 900', 1440, 900);
+  FRAMES.forEach(function(f, n){
+    if(f.section){
+      var h = document.createElement('div');
+      h.className = 'frames-head';
+      h.innerHTML = '<h2>' + f.section + '</h2><p>' + f.text + '</p>';
+      wrap.appendChild(h);
+      return;
+    }
+    var tpl = document.getElementById('tpl-' + f.id);
+    if(!tpl) return;
+    if(f.desktop || f.tablet){ buildDesk(f, tpl, FRAMES[n + 1]); return; }
+    // A phone frame with a desktop partner starts a row, so the pair sits together.
+    var next = FRAMES[n + 1];
+    if(next && next.desktop){
+      var br = document.createElement('div');
+      br.className = 'frames-break';
+      wrap.appendChild(br);
+    }
+    var col = document.createElement('div');
+    col.className = 'framewrap';
+    col.id = 'frame-' + f.id;
+    frameText(col, (++frameNo) + '. ' + f.label, f.note);
+    var phone = document.createElement('div');
+    phone.className = 'phone';
+    var screen = document.createElement('div');
+    screen.className = 'phone-screen';
+    var scroll = document.createElement('div');
+    scroll.className = 'phone-scroll riso live';
+    scroll.appendChild(tpl.content.cloneNode(true));
+    fillParts(scroll);
+    screen.appendChild(scroll);
+    phone.appendChild(screen);
+    col.appendChild(phone);
+    wrap.appendChild(col);
+  });
 
   var lives = document.querySelectorAll('.live');
   var picks = {paper:'', sheet:'', a:'', b:'', mix:''};
@@ -756,14 +795,9 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 
   function fit(){
     document.querySelectorAll('.stage').forEach(function(stage){
-      var w = +stage.dataset.w, h = +stage.dataset.h;
-      var wrap = stage.parentElement;
-      var avail = wrap.parentElement.clientWidth;
-      var scale = Math.min(1, avail / w);
-      stage.style.width = w + 'px';
-      stage.style.height = h + 'px';
+      var box = stage.parentElement, scale = Math.min(1, box.clientWidth / +stage.dataset.w);
       stage.style.transform = 'scale(' + scale + ')';
-      wrap.style.height = (h * scale) + 'px';
+      box.style.height = (+stage.dataset.h * scale) + 'px';
     });
   }
   var mixer = document.getElementById('mixer');
