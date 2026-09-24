@@ -145,7 +145,15 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .draft + .draft{margin-top:12px}
 
 /* ---- list states ---- */
-.quiet{margin:2px 0 0;font-size:13px;font-weight:500}
+/* First load: a spinner centred in the space the list will fill, the line under it. */
+.loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding-bottom:12px}
+.d .dbody.fill{flex:1 0 auto}
+.d .loading{gap:16px;padding-bottom:44px}
+.spinner{width:36px;height:36px;fill:none;stroke-width:4;animation:spin .9s linear infinite}
+.d .spinner{width:44px;height:44px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.quiet{margin:0;font-size:13px;font-weight:500}
+.d .quiet{font-size:14px}
 .busy{flex:none;font-size:12px;font-weight:500;white-space:nowrap}
 .tray.alone{padding-bottom:0}
 .slate{padding:18px 18px 20px}
@@ -201,6 +209,8 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .riso .dbar{background:var(--paper);border-bottom:2px solid var(--a)}
 .riso .go{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
 .riso :is(.quiet,.busy){color:var(--dim)}
+.riso .spinner circle{stroke:var(--empty)}
+.riso .spinner path{stroke:var(--a)}
 .riso .tray.alone{border-bottom:0}
 /* A dashed slate is a card not printed yet. An error is a warning strip, larger. */
 .riso .slate{background:var(--sheet);border:2px dashed var(--a)}
@@ -706,7 +716,10 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   <div class="mat">
     <div data-part="plate"></div>
     <div class="rows">
-      <p class="quiet" role="status">Loading characters&hellip;</p>
+      <div class="loading">
+        <svg class="spinner" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15"/><path d="M18 3a15 15 0 0 1 15 15"/></svg>
+        <p class="quiet" role="status">Loading characters&hellip;</p>
+      </div>
     </div>
     <div data-part="newwrap"></div>
   </div>
@@ -716,8 +729,11 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   <div class="mat d">
     <div data-part="band"></div>
     <div data-part="bar"></div>
-    <div class="dbody">
-      <p class="quiet" role="status">Loading characters&hellip;</p>
+    <div class="dbody fill">
+      <div class="loading">
+        <svg class="spinner" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15"/><path d="M18 3a15 15 0 0 1 15 15"/></svg>
+        <p class="quiet" role="status">Loading characters&hellip;</p>
+      </div>
     </div>
   </div>
 </template>
@@ -1034,11 +1050,11 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
      note:'The same cards in two columns. The tray spans both.'},
 
     {section:'Loading and searching',
-     text:'Nothing moves while data loads, because the design system has no motion for it. Search, sort and Create work from the first frame.'},
+     text:'The first load gets a spinner, the only motion on the list. Search, sort and Create work from the first frame.'},
     {id:'loading', label:'First load',
-     note:'The plate, search, sort and Create are in place before any data arrives. Where the list will go, one quiet line in dim says what is happening. No skeleton cards: without motion they read as content that failed to draw, and a single line leaves nothing to jump when the list lands. The tray arrives with the list, because both come from one request.'},
+     note:'The plate, search, sort and Create are in place before any data arrives. A spinner sits in the middle of the space the list will fill, with a quiet line in dim under it. The spinner is a structural arc turning on a rose-tint track, once every 0.9 seconds, drawn with react-native-svg rather than the platform&rsquo;s ActivityIndicator. It is a new exception to the design system&rsquo;s motion rules, and with reduced motion it holds still. The tray arrives with the list, because both come from one request.'},
     {id:'d-loading', desktop:true, label:'First load',
-     note:'The same line, at the top of the list&rsquo;s measure.'},
+     note:'The same, a size up, centred under the bar.'},
     {id:'searching', label:'Searching',
      note:'The player has typed &ldquo;Ves&rdquo;. After the 250 ms debounce the request goes out and the previous results stay put. &ldquo;Searching&hellip;&rdquo; sits at the right of the field in dim until the response lands, where the eye already is, so nothing below it shifts. It is a polite live region. On a fast connection it may never show, which is fine. Drafts ignore the search, so the tray stays.'},
     {id:'d-searching', desktop:true, label:'Searching',
