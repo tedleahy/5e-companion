@@ -17,4 +17,5 @@ Then press `w` to open the web build, or scan the QR code with Expo Go on your p
 ```bash
 npm run lint
 npm run typecheck
+npm test
 ```
