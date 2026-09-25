@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>5e Companion design system, v0.4</title>
+<title>5e Companion design system, v0.5</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -127,15 +127,19 @@ td code{white-space:nowrap}
 .mat{height:100%;display:flex;flex-direction:column;position:relative}
 .top{padding:20px 18px 14px}
 .title{margin:0;font-size:21px;font-weight:700;letter-spacing:-.015em}
-.title sup{font-size:12px;font-weight:600;margin-left:8px;top:-.55em}
 .find{display:flex;gap:8px;margin-top:13px}
 .find label{flex:1;display:flex;align-items:center;gap:8px;padding:9px 12px;min-width:0;min-height:44px}
 .find input{all:unset;flex:1;font-size:14px;font-family:inherit;min-width:0}
 .sortbtn{padding:0 13px;font-size:13px;cursor:pointer;font-family:inherit}
-.chips{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
-.chip{font-size:12px;padding:4px 10px;cursor:pointer;white-space:nowrap;border:0;font-family:inherit}
-.rows{flex:1;padding:12px 12px 0;display:flex;flex-direction:column;gap:9px}
-.row{display:grid;grid-template-columns:56px 1fr auto;gap:13px;align-items:center;padding:11px 12px}
+.rows{flex:1;padding:12px 12px 0;display:flex;flex-direction:column;gap:14px}
+.row{display:grid;grid-template-columns:56px minmax(0,1fr);column-gap:13px;align-items:center;padding:11px 12px}
+/* Name and subtitle wrap in a column beside the level block, the meter runs under both.
+   Scoped to .row because the sheet header has its own .who. */
+.row .who{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:13px}
+.row .who .idn{grid-area:1 / 1}
+.row .who .lvl{grid-area:1 / 2;margin-bottom:8px}
+.row .who .vitals-hp{grid-column:1 / -1}
+.vitals-hp{flex:1;min-width:0}
 .tok{width:56px;height:56px;display:grid;place-items:center;position:relative;font-weight:700;font-size:20px;flex:none}
 .tok b{position:absolute;bottom:-7px;right:-7px;width:23px;height:23px;display:grid;place-items:center;
   font-size:11.5px;font-weight:700;line-height:1}
@@ -144,46 +148,98 @@ td code{white-space:nowrap}
 .meter{display:flex;gap:2px}
 .meter i{flex:1;height:14px}
 .hp{margin:5px 0 0;font-size:12px;font-weight:600}
+.vitals-hp .hp:first-child{margin-top:0}
+.badgelab{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;line-height:1}
+.lvl{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center}
+.lvl b{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1}
 .stat{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:54px}
 .ac{width:44px;height:44px;display:grid;place-items:center;font-weight:700;font-size:17px;line-height:1;flex:none}
 .ac em{display:block;font-style:normal;font-size:8px;font-weight:700;margin-top:1px}
 .mark{font-size:11px;padding:3px 7px;white-space:nowrap;line-height:1.35}
 .marks{display:flex;gap:6px;flex-wrap:wrap}
-.tray{margin-top:14px;padding-top:13px}
-.trayhead{margin:0 0 9px;font-size:12px;font-weight:700}
+.tray{padding-bottom:16px;margin-bottom:2px}
+.tray.alone{padding-bottom:0}
+.trayhead{margin:0 0 9px;font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
 .draft{display:grid;grid-template-columns:56px 1fr auto;gap:13px;align-items:center;padding:11px 12px}
+.draft .sub{margin-bottom:0}
+.draft + .draft{margin-top:12px}
 .resume{padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
 .newwrap{position:sticky;bottom:0;padding:14px 12px 18px;margin-top:8px}
 .newbtn{width:100%;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+
+/* tablet and desktop: the band, the bar and the list share one measure */
 .d{overflow:hidden}
-.d .dtop{display:flex;align-items:flex-end;gap:20px;padding:26px 34px 16px}
+.dtop-inner,.dbar-inner,.dbody{width:min(1020px,calc(100% - 48px));margin:0 auto}
+.d .dtop{flex-shrink:0;padding:26px 0 24px}
+.dbar{position:sticky;top:0;z-index:5;padding:14px 0 18px}
+.dbar-inner{display:flex;align-items:center;gap:16px}
+.dbody{padding:24px 0 44px;display:flex;flex-direction:column;gap:16px}
 .d .title{font-size:30px}
-.d .find{margin:0;flex:1;max-width:420px}
-.d .chips{margin:0}
+.d .find{margin:0;flex:1;max-width:520px}
 .dnew{width:auto;margin-left:auto;padding:12px 20px;font-size:14px}
-.cols{display:grid;grid-template-columns:74px 1fr 200px 104px 224px 132px;gap:16px;padding:10px 34px;
-  font-size:11.5px;font-weight:700}
-.drow{display:grid;grid-template-columns:74px 1fr 200px 104px 224px 132px;gap:16px;align-items:center;padding:14px 34px}
+.drow{display:grid;grid-template-columns:74px minmax(0,1fr) 84px 240px 128px;gap:22px;align-items:center;padding:16px 22px}
 .d .tok{width:64px;height:64px;font-size:23px}
 .d .name{font-size:19px}
-.d .sub{font-size:13px}
+.d .sub{font-size:13px;margin-bottom:0}
+.d .lvl .badgelab{font-size:13px}
 .go{padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
-.traywrap{padding:16px 34px}
-.d .tray{margin:0}
-.d .draft{grid-template-columns:74px 1fr auto}
+.d .tray{margin-bottom:4px}
+.d .draft{grid-template-columns:74px minmax(0,1fr) auto;gap:22px;padding:16px 22px}
+/* Tablet puts phone cards under the desktop band and bar. Landscape sets them
+   in two columns, and cards in a row share a height. */
+.tablet .row{grid-template-columns:64px minmax(0,1fr);column-gap:16px;padding:14px 18px}
+.tablet .row .who .sub{margin:2px 0 8px}
+.land .dbody{display:grid;grid-template-columns:1fr 1fr}
+.land .tray{grid-column:1 / -1;margin-bottom:0}
+
+/* list states (new in v0.5) */
+.loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding-bottom:12px}
+.d .dbody.fill{flex:1 0 auto}
+.d .loading{gap:16px;padding-bottom:44px}
+.spinner{width:36px;height:36px;fill:none;stroke-width:4;animation:spin .9s linear infinite}
+.d .spinner{width:44px;height:44px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.quiet{margin:0;font-size:13px;font-weight:500}
+.d .quiet{font-size:14px}
+.busy{flex:none;display:flex}
+.busy .spinner{width:16px;height:16px;stroke-width:6}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.slate{padding:18px 18px 20px}
+.notice{display:flex;gap:11px;align-items:flex-start;padding:16px 16px 18px 14px}
+.notice > svg{width:18px;height:18px;flex:none;margin-top:2px}
+.notice .badgelab{display:block;margin:3px 0 8px}
+:is(.slate,.notice) h3{margin:0 0 5px;font-size:16.5px;font-weight:700;letter-spacing:-.02em;line-height:1.25}
+:is(.slate,.notice) p{margin:0;font-size:13px;line-height:1.5}
+.notice b{font-weight:700}
+.retry{margin-top:14px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.d :is(.slate,.notice){padding:22px 24px 24px}
+.d .notice{gap:13px;padding-left:20px}
+.d .notice > svg{width:20px;height:20px;margin-top:3px}
+.d :is(.slate,.notice) h3{font-size:19px}
+.d :is(.slate,.notice) p{font-size:14px;max-width:64ch}
+
+/* not in current designs: filter chips and the desktop table */
+.chips{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.chip{font-size:12px;padding:4px 10px;cursor:pointer;white-space:nowrap;border:0;font-family:inherit}
+.cols{display:grid;grid-template-columns:74px 1fr 200px 104px 224px 132px;gap:16px;padding:10px 34px;
+  font-size:11.5px;font-weight:700}
+.trow{display:grid;grid-template-columns:74px 1fr 200px 104px 224px 132px;gap:16px;align-items:center;padding:14px 34px}
 
 /* riso skin */
 .riso .top{background:var(--a);color:var(--on-a);padding-bottom:16px;box-shadow:5px 5px 0 var(--b)}
 .riso .title{font-weight:700;letter-spacing:-.03em}
-.riso .find label{background:var(--sheet);color:var(--dim);box-shadow:4px 4px 0 var(--b)}
+.riso .find label{background:var(--sheet);color:var(--dim);border:2px solid var(--a);box-shadow:4px 4px 0 var(--b)}
 .riso .find input{color:var(--ink)}
 .riso .find input::placeholder{color:var(--dim)}
-.riso .sortbtn{background:var(--b);color:var(--on-b);border:0;font-weight:700}
+.riso .sortbtn{background:var(--sheet);color:var(--a);border:2px solid var(--a);font-weight:700;box-shadow:4px 4px 0 var(--b)}
 .riso .chip{background:var(--chip);color:var(--on-a);font-weight:600}
 .riso .chip:is([aria-checked=true],[aria-pressed=true]){background:var(--sheet);color:var(--a);font-weight:700}
-.riso .row,.riso .draft{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
-.riso .tok{border-radius:50%;font-weight:700;color:var(--on-tok,var(--on-a));background:var(--tok);box-shadow:4px 4px 0 var(--b)}
+.riso :is(.row,.drow,.draft){background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
+.riso .tok{border-radius:50%;font-weight:700;color:var(--on-tok,var(--on-a));background:var(--tok,var(--a));box-shadow:4px 4px 0 var(--b)}
 .riso .tok b{background:var(--sheet);color:var(--ink);border-radius:50%;box-shadow:0 0 0 2px var(--a)}
+.riso .lvl b{color:var(--a)}
+.riso .lvl b[data-unset]{color:var(--dim)}
+.riso .badgelab{color:var(--dim)}
 .riso .name{font-weight:700;letter-spacing:-.02em}
 .riso .sub{color:var(--dim)}
 .riso .meter{gap:2px}
@@ -193,37 +249,51 @@ td code{white-space:nowrap}
 .riso .meter[data-hurt] i[data-e]{background:var(--empty)}
 .riso .hp{color:var(--dim);font-weight:500}
 .riso .hp b{color:var(--a);font-weight:700}
+.riso :is(.row,.drow):is(:has(.meter[data-hurt]),[data-hurt]) .hp b{color:var(--b-text)}
 .riso .ac{border-radius:50%;border:2px solid var(--a);color:var(--a);background:var(--sheet);
   box-shadow:3px 3px 0 var(--b);width:46px;height:46px}
 .riso .mark{border:1.5px solid var(--a);color:var(--a);background:var(--sheet);font-weight:600}
 .riso .mark[data-t=bad]{border-color:var(--b);color:var(--b-text)}
 .riso .mark[data-t=conc]{border-color:var(--mix);color:var(--mix)}
-.riso .tray{border-top:2px dashed var(--b)}
+.riso .tray{border-bottom:2px dashed var(--b)}
+.riso .tray.alone{border-bottom:0}
 .riso .trayhead{color:var(--dim)}
 .riso .draft{border-style:dashed;box-shadow:none;background:var(--draft-bg)}
 .riso .draft .tok{background:var(--sheet);color:var(--a);box-shadow:4px 4px 0 var(--rule),inset 0 0 0 2px var(--a)}
-.riso .resume{background:var(--a);color:var(--on-a);border:0}
+.riso :is(.resume,.retry){background:var(--sheet);color:var(--a);border:2px solid var(--a);box-shadow:3px 3px 0 var(--b)}
 .riso .newbtn{background:var(--b);color:var(--on-b);border:0;box-shadow:5px 5px 0 var(--a)}
 .riso .newwrap{background:linear-gradient(180deg,transparent,var(--paper) 45%);padding-bottom:24px}
 .riso .d .dtop{background:var(--a);color:var(--on-a);box-shadow:0 5px 0 var(--b);margin-bottom:5px}
-.riso .cols{color:var(--dim);border-bottom:2px solid var(--a)}
-.riso .drow{border-bottom:1.5px solid var(--rule)}
-.riso .drow:nth-child(even){background:var(--wash)}
+.riso .dbar{background:var(--paper);border-bottom:2px solid var(--a)}
 .riso .go{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
-.riso .traywrap{padding-top:20px}
+.riso .quiet{color:var(--dim)}
+.riso .spinner circle{stroke:var(--empty)}
+.riso .spinner path{stroke:var(--a)}
+/* A dashed slate is a card not printed yet. An error is a warning strip, larger. */
+.riso .slate{background:var(--sheet);border:2px dashed var(--a)}
+.riso .notice{background:var(--sheet);border-left:4px solid var(--b-text)}
+.riso .notice > svg{color:var(--b-text)}
+.riso :is(.slate,.notice) p{color:var(--dim)}
+.riso .notice b{color:var(--ink)}
+.riso .notice.dev{border:2px dashed var(--a);border-left:4px solid var(--b-text)}
+.riso .cols{color:var(--dim);border-bottom:2px solid var(--a)}
+.riso .trow{border-bottom:1.5px solid var(--rule)}
+.riso .trow:nth-child(even){background:var(--wash)}
 
 /* interaction states (also in the mockup) */
 .riso :focus-visible{outline:2px solid var(--a);outline-offset:3px}
 .riso .top :focus-visible,.riso .dtop :focus-visible{outline-color:var(--on-a)}
 .riso .find label:focus-within{outline:2px solid var(--on-a);outline-offset:3px}
+.riso .dbar .find label:focus-within{outline-color:var(--a)}
 .riso .find input:focus-visible{outline:none}
 .riso .row:active,.riso .newbtn:active{transform:translate(5px,5px);box-shadow:none}
-.riso .go:active{transform:translate(3px,3px);box-shadow:none}
-.riso .resume:active,.riso .sortbtn:active,.riso .chip:active{box-shadow:inset 0 0 0 2px currentColor}
+.riso :is(.go,.resume,.retry):active{transform:translate(3px,3px);box-shadow:none}
+.riso .sortbtn:active{transform:translate(4px,4px);box-shadow:none}
+.riso .chip:active{box-shadow:inset 0 0 0 2px currentColor}
 .riso .go[aria-pressed=true]{background:var(--a);color:var(--on-a)}
-.riso :is(.newbtn,.resume,.go,.sortbtn):is(:disabled,[aria-disabled=true]){background:transparent;color:var(--dim);
+.riso :is(.newbtn,.resume,.retry,.go,.sortbtn):is(:disabled,[aria-disabled=true]){background:transparent;color:var(--dim);
   box-shadow:inset 0 0 0 2px var(--rule);transform:none;cursor:not-allowed}
-.riso .go:is(:disabled,[aria-disabled=true]){border-color:var(--rule);box-shadow:none}
+.riso :is(.go,.resume,.retry,.sortbtn):is(:disabled,[aria-disabled=true]){border-color:var(--rule);box-shadow:none}
 
 /* the card is one control: its name is a link stretched over it */
 .row{position:relative}
@@ -234,12 +304,12 @@ td code{white-space:nowrap}
 a.go{display:inline-block;text-decoration:none;text-align:center}
 
 /* hit areas: every control answers taps across at least 44 by 44 */
-:is(.chip,.sortbtn,.resume,.go){position:relative}
-:is(.chip,.sortbtn,.resume,.go)::after{content:"";position:absolute;
+:is(.chip,.sortbtn,.resume,.retry,.go){position:relative}
+:is(.chip,.sortbtn,.resume,.retry,.go)::after{content:"";position:absolute;
   top:min(0px,calc((100% - 44px) / 2));bottom:min(0px,calc((100% - 44px) / 2));
   left:min(0px,calc((100% - 44px) / 2));right:min(0px,calc((100% - 44px) / 2))}
 
-/* zero hit points (new in v0.2, not in the mockup yet) */
+/* zero hit points (v0.2; the list cannot show these until its API returns death saves) */
 .saves{display:flex;gap:14px;align-items:center}
 .saves span{display:flex;gap:4px}
 .saves i{display:block;width:13px;height:13px}
@@ -252,8 +322,9 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 
 /* doc-only helpers inside specimens */
 .riso .is-pressed:is(.row,.newbtn){transform:translate(5px,5px);box-shadow:none}
-.riso .is-pressed.go{transform:translate(3px,3px);box-shadow:none}
-.riso .is-pressed:is(.resume,.sortbtn,.chip){box-shadow:inset 0 0 0 2px currentColor}
+.riso .is-pressed:is(.go,.resume,.retry){transform:translate(3px,3px);box-shadow:none}
+.riso .is-pressed.sortbtn{transform:translate(4px,4px);box-shadow:none}
+.riso .is-pressed.chip{box-shadow:inset 0 0 0 2px currentColor}
 .riso .is-focus{outline:2px solid var(--a);outline-offset:3px}
 .riso .plate .is-focus{outline-color:var(--on-a)}
 .riso .state-grid{display:grid;grid-template-columns:96px repeat(5,minmax(0,1fr));gap:22px 18px;align-items:center;font-size:12px;color:var(--dim)}
@@ -275,6 +346,10 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .riso .contrast{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;font-size:12px}
 .riso .contrast div{padding:12px;font-weight:600}
 .riso .contrast small{display:block;font-weight:500;opacity:.8;margin-top:2px;font-size:10.5px}
+.riso .state-set{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;align-items:start}
+.riso .state-set figure{margin:0;display:flex;flex-direction:column;gap:10px;font-size:11.5px;color:var(--dim)}
+.riso .state-set .phone-frame{width:100%;box-shadow:none;border-radius:0}
+.riso .state-set .rows{padding:14px 12px 18px}
 
 /* =========================================================
    DESIGN SYSTEM: SHEET COMPONENTS (new in v0.4)
@@ -856,9 +931,10 @@ button.mark{font-family:inherit;cursor:pointer}
 <header class="doc-head">
   <div class="doc-head-inner">
     <b>5e Companion</b>
-    <h1>Design system, v0.4</h1>
+    <h1>Design system, v0.5</h1>
     <p>Distilled from <code>character-list.html</code> and <code>character-sheet.html</code>. It records the "riso" direction: two-ink risograph printing on toned paper, with a third overprint colour where the inks would overlap. Everything on this page is rendered with the same CSS as the mockups, so the specimens are the source of truth, not the prose.</p>
-    <p style="margin-top:8px">v0.4, 14 September 2026: the character sheet joins the document. New sections for the sheet's structure (header, tabs, blocks, detail screens, bottom sheets, editing), its controls, the pads and the roll sheet, and its value displays, plus two destructive buttons and the condition marks. The scrim and paper chip tokens, and corrections to the motion and semantics rules. See <a href="#decisions">decisions</a>.<br>
+    <p style="margin-top:8px">v0.5, 25 September 2026: the character list as redesigned and built. A level block, the desktop row, list states, tablet layouts, the meter&rsquo;s rounding rule, the loading spinner as a third motion exception, and no pronouns for characters. Search, sort, Resume and the draft tray change look. The armour ring, marks and level badge leave the list but stay for the sheet; filter chips and the desktop table are not in current designs. See <a href="#decisions">decisions</a>.<br>
+    v0.4, 14 September 2026: the character sheet joins the document. New sections for the sheet's structure (header, tabs, blocks, detail screens, bottom sheets, editing), its controls, the pads and the roll sheet, and its value displays, plus two destructive buttons and the condition marks. The scrim and paper chip tokens, and corrections to the motion and semantics rules. See <a href="#decisions">decisions</a>.<br>
     Updated 13 and 14 September 2026: the hit area rule, repeated small primaries, selection and semantics, sentence case and person, American spelling in the app, and text colours checked against the draft tint over paper. See <a href="#decisions">decisions</a>.<br>
     v0.3, 12 September 2026: a <a href="#native">React Native</a> mapping, font weights capped at 700, and decisions on font scaling, safe areas and press feedback.<br>
     v0.2, 11 September 2026: contrast-targeted colours, interaction states, a stored token colour, zero hit point states and an icon rule. See <a href="#decisions">decisions</a>.</p>
@@ -884,12 +960,15 @@ button.mark{font-family:inherit;cursor:pointer}
     <li><a href="#search">Search and sort</a></li>
     <li><a href="#chips">Filter chips</a></li>
     <li><a href="#token">Character token</a></li>
+    <li><a href="#level">Level block</a></li>
     <li><a href="#meter">Hit point meter</a></li>
     <li><a href="#zero">Zero hit points</a></li>
     <li><a href="#ac">Armour class ring</a></li>
     <li><a href="#marks">Marks</a></li>
     <li><a href="#card">Character card</a></li>
+    <li><a href="#row">Desktop row</a></li>
     <li><a href="#draft">Draft tray</a></li>
+    <li><a href="#list-states">List states</a></li>
     <li><a href="#buttons">Buttons</a></li>
     <li><a href="#table">Desktop table</a></li>
     <li><a href="#sheet-header">Sheet header</a></li>
@@ -904,7 +983,7 @@ button.mark{font-family:inherit;cursor:pointer}
   </ul>
   <h2>Patterns</h2>
   <ul>
-    <li><a href="#layouts">Phone and desktop</a></li>
+    <li><a href="#layouts">Phone, tablet and desktop</a></li>
     <li><a href="#native">React Native</a></li>
     <li><a href="#a11y">Accessibility</a></li>
     <li><a href="#decisions">Decisions</a></li>
@@ -935,7 +1014,7 @@ button.mark{font-family:inherit;cursor:pointer}
     </div>
     <div class="do"><b>Built for play</b>
       <ul>
-        <li>Status is readable at a glance: filled meter, a mark or two. Token colour is identity, not status.</li>
+        <li>Status is readable at a glance: the filled meter, and on the sheet a mark or two. Token colour is identity, not status.</li>
         <li>Below half hit points changes the meter colour. The player should not need to read the number.</li>
         <li>Dense is fine, unscannable is not. Every row has the same shape.</li>
       </ul>
@@ -963,8 +1042,8 @@ button.mark{font-family:inherit;cursor:pointer}
     <tbody>
       <tr><td><i class="sw" style="background:#eae6de"></i><code>--paper</code></td><td><code>#eae6de</code></td><td>Page background. Warm, slightly grey so the inks have somewhere to sit.</td></tr>
       <tr><td><i class="sw" style="background:#f0ece4"></i><code>--sheet</code></td><td><code>#f0ece4</code></td><td>Card, field and ring surface. One step lighter than paper.</td></tr>
-      <tr><td><i class="sw" style="background:#2560b0"></i><code>--a</code></td><td><code>#2560b0</code></td><td>Structural ink. Header plate, card borders, primary numbers, default token.</td></tr>
-      <tr><td><i class="sw" style="background:#e0689c"></i><code>--b</code></td><td><code>#e0689c</code></td><td>Accent ink. Offset shadows, sort button, hurt meter, create button, dashed tray rule.</td></tr>
+      <tr><td><i class="sw" style="background:#2560b0"></i><code>--a</code></td><td><code>#2560b0</code></td><td>Structural ink. Header plate, card borders, outlined buttons, primary numbers, list tokens.</td></tr>
+      <tr><td><i class="sw" style="background:#e0689c"></i><code>--b</code></td><td><code>#e0689c</code></td><td>Accent ink. Offset shadows, hurt meter, the primary button, dashed tray rule.</td></tr>
       <tr><td><i class="sw" style="background:#5c3d88"></i><code>--mix</code></td><td><code>#5c3d88</code></td><td>Overprint. Concentration marks.</td></tr>
     </tbody>
   </table>
@@ -975,19 +1054,19 @@ button.mark{font-family:inherit;cursor:pointer}
     <thead><tr><th>Token</th><th>Value</th><th>Derivation</th><th>Used for</th></tr></thead>
     <tbody>
       <tr><td><i class="sw" style="background:#1f4477"></i><code>--ink</code></td><td><code>#1f4477</code></td><td>structural mixed 72% toward <code>#14110e</code></td><td>Body text, level badge digit</td></tr>
-      <tr><td><i class="sw" style="background:#44618a"></i><code>--dim</code></td><td><code>#44618a</code></td><td>ink mixed toward paper. Lightest step from 42% that reaches 4.5:1 on paper, sheet, and the draft fill over both sheet and paper; currently 18%</td><td>Subtitles, hit point line, column headers, tray heading, placeholder, disabled text</td></tr>
+      <tr><td><i class="sw" style="background:#44618a"></i><code>--dim</code></td><td><code>#44618a</code></td><td>ink mixed toward paper. Lightest step from 42% that reaches 4.5:1 on paper, sheet, and the draft fill over both sheet and paper; currently 18%</td><td>Subtitles, hit point line, small labels, tray heading, status lines, placeholder, disabled text</td></tr>
       <tr><td><i class="sw" style="background:#f2f0eb"></i><code>--on-a</code></td><td><code>#f2f0eb</code></td><td>paper mixed 40% toward white, kept because it reaches 4.5:1 on structural</td><td>Text on the header plate and blue tokens</td></tr>
       <tr><td><i class="sw" style="background:#412029"></i><code>--on-b</code></td><td><code>#412029</code></td><td>light text only reaches 2.78:1 on rose, so accent is darkened toward <code>#140c08</code> until it reaches 4.5:1; currently 78%</td><td>Text on rose buttons and tokens</td></tr>
       <tr><td><i class="sw" style="background:#f2f0eb"></i><code>--on-mix</code></td><td><code>#f2f0eb</code></td><td>same rule</td><td>Text on purple tokens</td></tr>
-      <tr><td><i class="sw" style="background:#914261"></i><code>--b-text</code></td><td><code>#914261</code></td><td>accent mixed toward <code>#1a0a08</code>. First step from 15% that reaches 4.5:1 on sheet and on the draft fill over both sheet and paper; currently 40%</td><td>Accent as text, and small accent graphics such as failed death saves</td></tr>
+      <tr><td><i class="sw" style="background:#914261"></i><code>--b-text</code></td><td><code>#914261</code></td><td>accent mixed toward <code>#1a0a08</code>. First step from 15% that reaches 4.5:1 on sheet and on the draft fill over both sheet and paper; currently 40%</td><td>Accent as text, the hurt number, and small accent graphics such as failed death saves and the notice&rsquo;s edge and icon</td></tr>
       <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(37,96,176,.13),rgba(37,96,176,.13))"></i><code>--dot</code></td><td><code>rgba(37,96,176,.13)</code></td><td>structural at 13%</td><td>Paper grid dots</td></tr>
       <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(224,104,156,.18),rgba(224,104,156,.18))"></i><code>--line</code></td><td><code>rgba(224,104,156,.18)</code></td><td>accent at 18%</td><td>Paper grid lines</td></tr>
-      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(224,104,156,.26),rgba(224,104,156,.26))"></i><code>--empty</code></td><td><code>rgba(224,104,156,.26)</code></td><td>accent at 26%</td><td>Empty meter segments</td></tr>
+      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(224,104,156,.26),rgba(224,104,156,.26))"></i><code>--empty</code></td><td><code>rgba(224,104,156,.26)</code></td><td>accent at 26%</td><td>Empty meter segments, the spinner&rsquo;s track</td></tr>
       <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(224,104,156,.11),rgba(224,104,156,.11))"></i><code>--draft-bg</code></td><td><code>rgba(224,104,156,.11)</code></td><td>accent at 11%</td><td>Draft card fill</td></tr>
-      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(37,96,176,.28),rgba(37,96,176,.28))"></i><code>--rule</code></td><td><code>rgba(37,96,176,.28)</code></td><td>structural at 28%</td><td>Table row rules, draft token shadow, disabled outline, dead token</td></tr>
+      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(37,96,176,.28),rgba(37,96,176,.28))"></i><code>--rule</code></td><td><code>rgba(37,96,176,.28)</code></td><td>structural at 28%</td><td>Draft token shadow, disabled outline, dead token, and the desktop table&rsquo;s row rules, not in current designs</td></tr>
       <tr><td><i class="sw" style="background:#2560b0;background-image:linear-gradient(rgba(242,240,235,.10),rgba(242,240,235,.10))"></i><code>--chip</code></td><td><code>rgba(242,240,235,.10)</code></td><td>on-a at the highest alpha from 16% that keeps chip text at 4.5:1; currently 10%</td><td>Inactive filter chip and tab on the plate</td></tr>
       <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(31,68,119,.08),rgba(31,68,119,.08))"></i><code>--chip2</code></td><td><code>rgba(31,68,119,.08)</code></td><td>ink at 8%</td><td>Idle pad tab fill on paper, with dim text</td></tr>
-      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,.5))"></i><code>--wash</code></td><td><code>rgba(255,255,255,.5)</code></td><td>white at 50%</td><td>Even rows in the desktop table, stat tiles and fields</td></tr>
+      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,.5))"></i><code>--wash</code></td><td><code>rgba(255,255,255,.5)</code></td><td>white at 50%</td><td>Stat tiles and fields, and the desktop table&rsquo;s even rows, not in current designs</td></tr>
       <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(31,68,119,.4),rgba(31,68,119,.4))"></i><code>--scrim</code></td><td><code>rgba(31,68,119,.4)</code></td><td>ink at 40%</td><td>The dim layer behind a modal bottom sheet</td></tr>
     </tbody>
   </table>
@@ -1027,26 +1106,28 @@ button.mark{font-family:inherit;cursor:pointer}
   <p class="lead">One family in product: Space Grotesk, weights 400 to 700. Manrope is only used in the mockup viewer chrome. Numbers that matter are bold and coloured in structural ink.</p>
   <div class="riso flat specimen">
     <div class="type-row"><small>Title, desktop<br>30 / 700 / -.03em</small><h2 class="title" style="font-size:30px">Characters</h2></div>
-    <div class="type-row"><small>Title, phone<br>21 / 700 / -.03em</small><h2 class="title">Characters<sup>6 saved</sup></h2></div>
+    <div class="type-row"><small>Title, phone<br>21 / 700 / -.03em</small><h2 class="title">Characters</h2></div>
     <div class="type-row"><small>Name, desktop<br>19 / 700 / -.02em</small><h3 class="name" style="font-size:19px">Brenna Duskhollow</h3></div>
     <div class="type-row"><small>Name, phone<br>16.5 / 700 / -.02em</small><h3 class="name">Brenna Duskhollow</h3></div>
+    <div class="type-row"><small>Level number<br>26 / 700 / -.03em / a</small><span class="lvl" style="align-items:flex-start"><b>6</b></span></div>
+    <div class="type-row"><small>Small label<br>11 / 700 / .09em / caps / dim, 13 on desktop</small><span class="badgelab">Level</span></div>
+    <div class="type-row"><small>Tray heading<br>11.5 / 700 / .09em / caps / dim</small><h3 class="trayhead" style="margin:0">Waiting to be finished</h3></div>
     <div class="type-row"><small>Input<br>14 / 400</small><span style="font-size:14px">Find a character</span></div>
     <div class="type-row"><small>Subtitle<br>12.5 / 400 / dim</small><p class="sub" style="margin:0">Half-elf warlock, the Fiend</p></div>
     <div class="type-row"><small>Hit point line<br>12 / 500 / dim, bold number in a</small><p class="hp" style="margin:0"><b>31</b>/44 hit points, 5 temporary</p></div>
-    <div class="type-row"><small>Column header<br>11.5 / 700 / dim</small><span style="font-size:11.5px;font-weight:700;color:var(--dim)">Conditions and resources</span></div>
-    <div class="type-row"><small>Mark<br>11 / 600</small><span class="mark">Second wind</span></div>
-    <div class="type-row"><small>Ring label<br>8 / 700</small><span style="font-size:8px;font-weight:700;color:var(--a)">AC</span></div>
+    <div class="type-row"><small>Status line<br>13 / 500 / dim, 14 on desktop</small><p class="quiet">Loading characters&hellip;</p></div>
+    <div class="type-row"><small>Mark, sheet only<br>11 / 600</small><span class="mark" style="justify-self:start">Second wind</span></div>
+    <div class="type-row"><small>Ring label, sheet only<br>8 / 700</small><span style="font-size:8px;font-weight:700;color:var(--a)">AC</span></div>
   </div>
   <table>
     <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
     <tbody>
-      <tr><td>Tracking</td><td>Titles and names are tracked tight (-.02em to -.03em). Nothing else is tracked.</td></tr>
-      <tr><td>Weights</td><td>700 for titles, names, numbers, buttons. 600 for chips and marks. 500 for the hit point line. 400 for input text and subtitles. 700 is the cap: Space Grotesk has no heavier face, and React Native will not fake one.</td></tr>
-      <tr><td>Case</td><td>Sentence case everywhere, including buttons, column headers and the names of features, feats, subclasses, invocations, spells and items: Dark One&rsquo;s own luck, Pact of the blade, Ring of spell storing. Proper nouns keep their capitals, as in Hunger of Hadar or the Dark One. Only the "AC" ring label is caps.</td></tr>
-      <tr><td>Person</td><td>Second person for the player and third person for the character: &ldquo;until you confirm&rdquo;, &ldquo;set by you&rdquo;, &ldquo;when she drops a foe&rdquo;. Quoted rules text stays as printed, even where it says &ldquo;you&rdquo;.</td></tr>
+      <tr><td>Tracking</td><td>Titles and names are tracked tight (-.02em to -.03em). Small labels, such as &ldquo;Level&rdquo; and &ldquo;Waiting to be finished&rdquo;, are tracked .09em, because they are set in capitals. Nothing else is tracked.</td></tr>
+      <tr><td>Weights</td><td>700 for titles, names, numbers, buttons and small labels. 600 for chips and marks. 500 for the hit point line and status lines. 400 for input text and subtitles. 700 is the cap: Space Grotesk has no heavier face, and React Native will not fake one.</td></tr>
+      <tr><td>Case</td><td>Sentence case everywhere, including buttons, column headers and the names of features, feats, subclasses, invocations, spells and items: Dark One&rsquo;s own luck, Pact of the blade, Ring of spell storing. Proper nouns keep their capitals, as in Hunger of Hadar or the Dark One. Two exceptions are set in capitals: the &ldquo;AC&rdquo; ring label, and small labels. Small labels are capitals by style only. Their copy is written in sentence case and uppercased in the stylesheet, so copy changes and screen readers still see sentence case.</td></tr>
+      <tr><td>Person</td><td>Second person for the player: &ldquo;until you confirm&rdquo;, &ldquo;set by you&rdquo;. The character is called by name or not referred to at all, never by a pronoun, because the app stores no pronouns: &ldquo;Nothing changes on the sheet until you confirm&rdquo;, not &ldquo;Her sheet is untouched&rdquo;. Quoted rules text stays as printed, even where it says &ldquo;you&rdquo;. The sheet mockup&rsquo;s pronoun copy predates this rule and is due for a rewrite.</td></tr>
       <tr><td>Spelling</td><td>American spelling in the app, so labels match the catalog&rsquo;s names: armor class, color, gray. This document and the plan stay in British English, because players never see them.</td></tr>
       <tr><td>Numbers</td><td>The current value is the bold one. Maximums and units stay in dim at regular weight.</td></tr>
-      <tr><td>Counts</td><td>Superscript count next to the title on phone only ("6 saved"). Desktop has the room to skip it.</td></tr>
       <tr><td>Opacity</td><td>Never lower the opacity of text. Hierarchy comes from size, weight and the dim token, which is contrast-checked. Opacity on top of it is not.</td></tr>
     </tbody>
   </table>
@@ -1066,20 +1147,23 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>Element</th><th>Border</th><th>Shadow</th><th>Radius</th></tr></thead>
     <tbody>
-      <tr><td>Header plate</td><td>none, filled a</td><td><code>5px 5px 0 b</code> (phone), <code>0 5px 0 b</code> (desktop, full width)</td><td>0</td></tr>
-      <tr><td>Character card</td><td><code>2px solid a</code></td><td><code>5px 5px 0 b</code></td><td>0</td></tr>
-      <tr><td>Search field</td><td>none, filled sheet</td><td><code>4px 4px 0 b</code></td><td>0</td></tr>
+      <tr><td>Header plate</td><td>none, filled a</td><td><code>5px 5px 0 b</code> (phone), <code>0 5px 0 b</code> (tablet and desktop, full width)</td><td>0</td></tr>
+      <tr><td>Character card, desktop row</td><td><code>2px solid a</code></td><td><code>5px 5px 0 b</code></td><td>0</td></tr>
+      <tr><td>Search field</td><td><code>2px solid a</code>, filled sheet</td><td><code>4px 4px 0 b</code></td><td>0</td></tr>
+      <tr><td>Sort button</td><td><code>2px solid a</code>, filled sheet</td><td><code>4px 4px 0 b</code></td><td>0</td></tr>
       <tr><td>Token</td><td>none, filled</td><td><code>4px 4px 0 b</code></td><td>50%</td></tr>
-      <tr><td>Level badge</td><td><code>0 0 0 2px a</code> as ring</td><td>none</td><td>50%</td></tr>
-      <tr><td>Armour ring</td><td><code>2px solid a</code></td><td><code>3px 3px 0 b</code></td><td>50%</td></tr>
-      <tr><td>Secondary button (Open sheet)</td><td><code>2px solid a</code></td><td><code>3px 3px 0 b</code></td><td>0</td></tr>
+      <tr><td>Level badge, sheet only</td><td><code>0 0 0 2px a</code> as ring</td><td>none</td><td>50%</td></tr>
+      <tr><td>Armour ring, sheet only</td><td><code>2px solid a</code></td><td><code>3px 3px 0 b</code></td><td>50%</td></tr>
+      <tr><td>Outlined button (Resume, Try again, Open sheet)</td><td><code>2px solid a</code></td><td><code>3px 3px 0 b</code></td><td>0</td></tr>
       <tr><td>Primary button (Create)</td><td>none, filled b</td><td><code>5px 5px 0 a</code></td><td>0</td></tr>
-      <tr><td>Mark</td><td><code>1.5px solid</code> in its state colour</td><td>none</td><td>0</td></tr>
+      <tr><td>Mark, sheet only</td><td><code>1.5px solid</code> in its state colour</td><td>none</td><td>0</td></tr>
       <tr><td>Draft card</td><td><code>2px dashed a</code></td><td>none</td><td>0</td></tr>
-      <tr><td>Draft tray rule</td><td><code>2px dashed b</code> top</td><td>none</td><td>0</td></tr>
+      <tr><td>Draft tray rule</td><td><code>2px dashed b</code>, under the tray</td><td>none</td><td>0</td></tr>
+      <tr><td>Slate (empty list)</td><td><code>2px dashed a</code>, filled sheet</td><td>none</td><td>0</td></tr>
+      <tr><td>Notice (error)</td><td><code>4px solid b-text</code> on the left edge only, filled sheet. The development notice adds <code>2px dashed a</code> on the other sides.</td><td>none</td><td>0</td></tr>
     </tbody>
   </table>
-  <p class="why" style="margin-top:12px">Shadow scale is 3, 4, 5. Three for small interactive elements, four for tokens and fields, five for cards, plates and the primary button. The shadow is always in the other ink: blue things cast rose, rose things cast blue. Drafts cast nothing because they are not real yet.</p>
+  <p class="why" style="margin-top:12px">Shadow scale is 3, 4, 5. Three for small interactive elements, four for tokens, fields and the sort button, five for cards, plates and the primary button. The shadow is always in the other ink: blue things cast rose, rose things cast blue. Drafts and slates cast nothing because they are not real yet.</p>
 </section>
 
 <!-- ============================================================ -->
@@ -1088,27 +1172,33 @@ button.mark{font-family:inherit;cursor:pointer}
   <p class="lead">Values are taken from the mockup rather than snapped to a grid. Where the same number recurs it is listed once.</p>
   <div class="riso flat specimen tight">
     <div class="space-row"><b>2</b><i style="width:2px"></i>meter segment gap, level badge ring</div>
+    <div class="space-row"><b>5</b><i style="width:5px"></i>level label to number, meter to hit point line</div>
     <div class="space-row"><b>6</b><i style="width:6px"></i>chip gap, mark gap, stat column gap</div>
-    <div class="space-row"><b>8</b><i style="width:8px"></i>search to sort gap, icon to input gap</div>
-    <div class="space-row"><b>9</b><i style="width:9px"></i>card to card gap (phone)</div>
-    <div class="space-row"><b>12</b><i style="width:12px"></i>phone list side padding, card inner padding</div>
-    <div class="space-row"><b>13</b><i style="width:13px"></i>card column gap, title to search</div>
-    <div class="space-row"><b>16</b><i style="width:16px"></i>desktop table column gap</div>
-    <div class="space-row"><b>18</b><i style="width:18px"></i>phone plate side padding</div>
-    <div class="space-row"><b>34</b><i style="width:34px"></i>desktop side padding</div>
+    <div class="space-row"><b>8</b><i style="width:8px"></i>search to sort gap, icon to input gap, subtitle to meter</div>
+    <div class="space-row"><b>12</b><i style="width:12px"></i>phone list side padding, card inner padding, draft to draft</div>
+    <div class="space-row"><b>13</b><i style="width:13px"></i>card column gap (phone), title to search</div>
+    <div class="space-row"><b>14</b><i style="width:14px"></i>card to card gap (phone)</div>
+    <div class="space-row"><b>16</b><i style="width:16px"></i>card to card gap (tablet and desktop), bar gap, tablet card column gap</div>
+    <div class="space-row"><b>18</b><i style="width:18px"></i>phone plate side padding, tablet card side padding</div>
+    <div class="space-row"><b>22</b><i style="width:22px"></i>desktop row column gap and side padding</div>
+    <div class="space-row"><b>24</b><i style="width:24px"></i>least margin either side of the tablet and desktop measure</div>
   </div>
   <table>
-    <thead><tr><th>Component</th><th>Phone</th><th>Desktop</th></tr></thead>
+    <thead><tr><th>Component</th><th>Phone</th><th>Tablet</th><th>Desktop</th></tr></thead>
     <tbody>
-      <tr><td>Plate padding</td><td>20 18 16</td><td>26 34 16</td></tr>
-      <tr><td>Card padding</td><td>11 12</td><td>14 34 (row)</td></tr>
-      <tr><td>Card columns</td><td><code>56px 1fr auto</code></td><td><code>74px 1fr 200px 104px 224px 132px</code></td></tr>
-      <tr><td>Token size</td><td>56</td><td>64</td></tr>
-      <tr><td>Level badge</td><td>23, offset -7 -7</td><td>same</td></tr>
-      <tr><td>Armour ring</td><td>46</td><td>46</td></tr>
-      <tr><td>Meter height</td><td>13</td><td>13</td></tr>
-      <tr><td>Search field</td><td>9 12 padding, at least 44 tall</td><td>same, max 420 wide</td></tr>
-      <tr><td>Primary button</td><td>14 all round, full width</td><td>12 20, auto width, right aligned</td></tr>
+      <tr><td>Measure</td><td>full width, 12 side padding</td><td><code>min(1020, width &minus; 48)</code>, centred</td><td>same</td></tr>
+      <tr><td>Plate padding</td><td>20 18 16</td><td>band: 26 0 24 inside the measure</td><td>same</td></tr>
+      <tr><td>Bar padding</td><td>no bar</td><td>14 0 18 inside the measure</td><td>same</td></tr>
+      <tr><td>Card padding</td><td>11 12</td><td>14 18</td><td>16 22 (row)</td></tr>
+      <tr><td>Card columns</td><td><code>56px 1fr</code>, identity <code>1fr auto</code></td><td><code>64px 1fr</code>, two cards across in landscape</td><td><code>74px 1fr 84px 240px 128px</code></td></tr>
+      <tr><td>Card to card</td><td>14</td><td>16</td><td>16</td></tr>
+      <tr><td>Token size</td><td>56</td><td>64</td><td>64</td></tr>
+      <tr><td>Level block</td><td>label 11, number 26</td><td>same</td><td>label 13, number 26</td></tr>
+      <tr><td>Meter height</td><td>13</td><td>13</td><td>13</td></tr>
+      <tr><td>Search field</td><td>9 12 padding, at least 44 tall</td><td>same, max 520 wide</td><td>same</td></tr>
+      <tr><td>Primary button</td><td>14 all round, full width</td><td>12 20, auto width, right of the bar</td><td>same</td></tr>
+      <tr><td>Level badge, sheet only</td><td>23, offset -7 -7</td><td colspan="2">same</td></tr>
+      <tr><td>Armour ring, sheet only</td><td>46</td><td colspan="2">same</td></tr>
     </tbody>
   </table>
 </section>
@@ -1116,7 +1206,7 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="states">
   <h2>Interaction states</h2>
-  <p class="lead">States follow the print metaphor. Pressed things sink onto the paper, selected things invert, disabled things lose their ink. Nothing fades or glows, and every state change is instant. The only motion is the sheet header shrinking as the page scrolls and the dice roll; see <a href="#a11y">accessibility</a>.</p>
+  <p class="lead">States follow the print metaphor. Pressed things sink onto the paper, selected things invert, disabled things lose their ink. Nothing fades or glows, and every state change is instant. The only motion is the sheet header shrinking as the page scrolls, the dice roll, and the list&rsquo;s loading spinner; see <a href="#a11y">accessibility</a>.</p>
   <div class="riso specimen">
     <div class="state-grid">
       <span></span><b>Rest</b><b>Pressed</b><b>Focus</b><b>Selected</b><b>Disabled</b>
@@ -1126,19 +1216,25 @@ button.mark{font-family:inherit;cursor:pointer}
       <button class="newbtn is-focus">Create</button>
       <span>not used</span>
       <button class="newbtn" disabled>Create</button>
-      <b>Structural</b>
+      <b>Outlined</b>
       <div><button class="resume">Resume</button></div>
       <div><button class="resume is-pressed">Resume</button></div>
       <div><button class="resume is-focus">Resume</button></div>
       <span>not used</span>
       <div><button class="resume" disabled>Resume</button></div>
-      <b>Outlined</b>
+      <b>Outlined link</b>
       <div><button class="go">Open sheet</button></div>
       <div><button class="go is-pressed">Open sheet</button></div>
       <div><button class="go is-focus">Open sheet</button></div>
       <div><button class="go" aria-pressed="true">Open sheet</button></div>
       <div><button class="go" disabled>Open sheet</button></div>
-      <b>Chip, on plate</b>
+      <b>Sort, on plate</b>
+      <div class="plate"><button class="sortbtn" style="padding:9px 13px">Sort: level</button></div>
+      <div class="plate"><button class="sortbtn is-pressed" style="padding:9px 13px">Sort: level</button></div>
+      <div class="plate"><button class="sortbtn is-focus" style="padding:9px 13px">Sort: level</button></div>
+      <span>not used</span>
+      <span>hidden instead</span>
+      <b>Chip, on plate, not in current designs</b>
       <div class="plate" role="radiogroup" aria-label="Chip state specimen"><button class="chip" role="radio" aria-checked="false">Conditions</button></div>
       <div class="plate" role="radiogroup" aria-label="Chip state specimen"><button class="chip is-pressed" role="radio" aria-checked="false">Conditions</button></div>
       <div class="plate" role="radiogroup" aria-label="Chip state specimen"><button class="chip is-focus" role="radio" aria-checked="false">Conditions</button></div>
@@ -1149,10 +1245,10 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>State</th><th>Rule</th><th>Selector</th></tr></thead>
     <tbody>
-      <tr><td>Pressed</td><td>Anything with an offset shadow moves by the shadow's offset and the shadow disappears. That means 5px for cards and the primary button, 3px for outlined buttons. Anything without a shadow gets a 2px inset ring in its own text colour. On phone the whole character card presses.</td><td><code>:active</code></td></tr>
-      <tr><td>Focus</td><td>2px structural outline, 3px offset. Inside the plate the outline is on-a, because structural on structural is invisible. The search field outlines the whole field, not the bare input.</td><td><code>:focus-visible</code>, <code>:focus-within</code> on the field</td></tr>
+      <tr><td>Pressed</td><td>Anything with an offset shadow moves by the shadow&rsquo;s offset and the shadow disappears. That means 5px for cards and the primary button, 4px for sort, and 3px for outlined buttons: Resume, Try again and Open sheet. Anything without a shadow gets a 2px inset ring in its own text colour. On phone and tablet the whole character card presses.</td><td><code>:active</code></td></tr>
+      <tr><td>Focus</td><td>2px structural outline, 3px offset. Inside the plate the outline is on-a, because structural on structural is invisible. The search field outlines the whole field, not the bare input, in on-a on the phone plate and structural in the tablet and desktop bar.</td><td><code>:focus-visible</code>, <code>:focus-within</code> on the field</td></tr>
       <tr><td>Selected</td><td>Inversion. On paper, the control fills with structural and its text turns on-a. On the plate, it becomes a sheet cutout with structural text, as the active chip already does.</td><td><code>[aria-pressed=true]</code> for toggles, <code>[aria-checked=true]</code> for single choices such as chips, <code>[aria-selected=true]</code> for tabs</td></tr>
-      <tr><td>Disabled</td><td>No fill, no shadow, dim text and a 2px rule-coloured outline. Controls on the plate are hidden rather than disabled, because dim text cannot reach contrast on structural.</td><td><code>:disabled</code>, <code>[aria-disabled=true]</code></td></tr>
+      <tr><td>Disabled</td><td>No fill, no shadow, dim text and a 2px rule-coloured outline. Controls on the plate are hidden rather than disabled, because dim text cannot reach contrast on structural. The list hides controls that cannot work, such as search when there is nothing to search, rather than disabling them.</td><td><code>:disabled</code>, <code>[aria-disabled=true]</code></td></tr>
       <tr><td>Hover</td><td>Not defined yet. See deferred.</td><td></td></tr>
     </tbody>
   </table>
@@ -1183,31 +1279,44 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="plate">
   <h2>Header plate</h2>
-  <p class="lead">A solid block of structural ink holding the title, search, sort and filters. It is the only large filled area on the screen, so it anchors the page.</p>
+  <p class="lead">A solid block of structural ink holding the title. It is the only large filled area on the screen, so it anchors the page. On phone it also holds search and sort. On tablet and desktop it holds only the title, and search, sort and Create sit in a bar that sticks under it.</p>
   <div class="riso specimen">
     <div class="phone-frame">
       <div class="top">
-        <h2 class="title">Characters<sup>6 saved</sup></h2>
+        <h2 class="title">Characters</h2>
         <div class="find">
           <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
             <input placeholder="Find a character" aria-label="Find a character"></label>
           <button class="sortbtn">Sort: level</button>
         </div>
-        <div class="chips" role="radiogroup" aria-label="Filter characters">
-          <button class="chip" role="radio" aria-checked="true" tabindex="0">All</button>
-          <button class="chip" role="radio" aria-checked="false" tabindex="-1">Below half</button>
-          <button class="chip" role="radio" aria-checked="false" tabindex="-1">Conditions</button>
-          <button class="chip" role="radio" aria-checked="false" tabindex="-1">Sunless Crown</button>
+      </div>
+    </div>
+  </div>
+  <div class="riso specimen scroll-x" style="padding:0">
+    <div class="desk-frame" style="min-width:900px">
+      <div class="mat d">
+        <div class="dtop"><div class="dtop-inner"><h2 class="title">Characters</h2></div></div>
+        <div class="dbar">
+          <div class="dbar-inner">
+            <div class="find">
+              <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+                <input placeholder="Find a character" aria-label="Find a character"></label>
+              <button class="sortbtn">Sort: level</button>
+            </div>
+            <button class="newbtn dnew">Create character</button>
+          </div>
         </div>
+        <div style="height:28px"></div>
       </div>
     </div>
   </div>
   <table>
-    <thead><tr><th>Aspect</th><th>Phone</th><th>Desktop</th></tr></thead>
+    <thead><tr><th>Aspect</th><th>Phone</th><th>Tablet and desktop</th></tr></thead>
     <tbody>
       <tr><td>Shadow</td><td>5px right and down in accent</td><td>5px down only, full width, 5px margin below to make room</td></tr>
-      <tr><td>Layout</td><td>Stacked: title, search row, chips</td><td>One row, baseline aligned: title, search, chips, create button pushed right</td></tr>
-      <tr><td>Count</td><td>Superscript after title</td><td>Omitted</td></tr>
+      <tr><td>Layout</td><td>Stacked: title, then search and sort</td><td>The band holds the title alone. Search, sort and Create sit in the bar under it, with Create pushed right. The band, the bar and the list share one measure, so nothing is aligned by arithmetic.</td></tr>
+      <tr><td>Bar</td><td>none</td><td>Paper fill with a 2px structural rule under it. It sticks to the top as the list scrolls.</td></tr>
+      <tr><td>What hides</td><td colspan="2">Search and sort show only when the player has characters to find. When the API rejects the token, only the title is left: the phone plate loses its search row, and the tablet and desktop bar goes. See <a href="#list-states">list states</a>.</td></tr>
     </tbody>
   </table>
 </section>
@@ -1215,22 +1324,33 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="search">
   <h2>Search and sort</h2>
-  <p class="lead">A sheet-coloured field with a hairline search icon, paired with an accent-filled sort button. They sit inside the plate and share its height.</p>
+  <p class="lead">A sheet field with a hairline search icon, paired with an outlined sort button. Both have a 2px structural border and a 4px accent shadow. On phone they sit in the plate, and on tablet and desktop in the bar.</p>
   <div class="riso specimen">
-    <div class="plate" style="max-width:420px">
-      <div class="find" style="margin:0">
-        <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
-          <input placeholder="Find a character" aria-label="Find a character"></label>
-        <button class="sortbtn">Sort: level</button>
+    <div class="stack" style="max-width:420px">
+      <div class="plate">
+        <div class="find" style="margin:0">
+          <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+            <input placeholder="Find a character" aria-label="Find a character"></label>
+          <button class="sortbtn">Sort: level</button>
+        </div>
+      </div>
+      <div class="plate">
+        <div class="find" style="margin:0">
+          <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+            <input value="Ves" aria-label="Find a character"><span class="busy" role="status"><svg class="spinner" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15"/><path d="M18 3a15 15 0 0 1 15 15"/></svg><span class="vh">Searching&hellip;</span></span></label>
+          <button class="sortbtn">Sort: name</button>
+        </div>
       </div>
     </div>
   </div>
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Field</td><td>Sheet fill, no border, 4px accent shadow, 9 12 padding and a 44 minimum height, the text field rule. Icon is 15px, 1.8 stroke, in dim. Text in ink, placeholder in dim.</td></tr>
-      <tr><td>Sort</td><td>Accent fill, on-b text, 13px 700, 0 13 padding, no border, no shadow. Label pattern is "Sort: {key}".</td></tr>
-      <tr><td>Behaviour</td><td>Not specified in the mockup. Sort button presumably opens a menu; document when designed.</td></tr>
+      <tr><td>Field</td><td>Sheet fill, 2px structural border, 4px accent shadow, 9 12 padding and a 44 minimum height, the text field rule. At most 520 wide in the bar. Icon is 15px, 1.8 stroke, in dim. Text in ink, placeholder in dim.</td></tr>
+      <tr><td>Sort</td><td>Sheet fill, 2px structural border, structural text at 13 / 700, 0 13 padding, 4px accent shadow. The label reads &ldquo;Sort: level&rdquo; or &ldquo;Sort: name&rdquo;.</td></tr>
+      <tr><td>Sort behaviour</td><td>Each tap switches between level and name. There is no menu. Level puts the highest total level first, then sorts by name; name sorts A to Z.</td></tr>
+      <tr><td>Search behaviour</td><td>Search matches names only. The request goes out 250 ms after typing stops, and the previous results stay on screen until the new ones land. Drafts ignore the search.</td></tr>
+      <tr><td>Searching</td><td>While a search is in flight, a 16px <a href="#list-states">spinner</a> turns at the right of the field, where the eye already is, so nothing below it moves. It is a polite live region that reads &ldquo;Searching&hellip;&rdquo;.</td></tr>
     </tbody>
   </table>
 </section>
@@ -1238,7 +1358,7 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="chips">
   <h2>Filter chips</h2>
-  <p class="lead">Chips live on the plate only. The active chip is a sheet-coloured cutout with structural text. Inactive chips are a translucent tint of the plate text.</p>
+  <p class="lead"><b>Not in current designs.</b> The list dropped its filters in v0.5, and no other screen uses chips. The <code>--chip</code> token stays, because the sheet&rsquo;s plate tabs use it. As designed: chips live on the plate only. The active chip is a sheet-coloured cutout with structural text. Inactive chips are a translucent tint of the plate text.</p>
   <div class="riso specimen">
     <div class="plate" style="max-width:420px">
       <div class="chips" style="margin:0" role="radiogroup" aria-label="Filter characters">
@@ -1262,27 +1382,57 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="token">
   <h2>Character token</h2>
-  <p class="lead">A filled circle with the character's initial, and a level badge pinned to its lower right. The fill is a hex stored on the character, applied per row with <code>--tok</code> and <code>--on-tok</code>.</p>
+  <p class="lead">A filled circle with the character&rsquo;s initial. On the list every token is structural ink with no badge, and the level has its own <a href="#level">level block</a>. On the sheet the fill is a hex stored on the character, applied with <code>--tok</code> and <code>--on-tok</code>, and a level badge is pinned to its lower right.</p>
   <div class="riso specimen">
     <div class="tok-set">
-      <figure style="--tok:var(--a);--on-tok:var(--on-a)"><div class="tok">B<b>6</b></div>#2560b0</figure>
-      <figure style="--tok:var(--b);--on-tok:var(--on-b)"><div class="tok">T<b>8</b></div>#e0689c</figure>
-      <figure style="--tok:#2f6a4a;--on-tok:#f2f0eb"><div class="tok">F<b>5</b></div>#2f6a4a</figure>
-      <figure><div class="d" style="display:contents"><div class="tok" style="--tok:var(--a);--on-tok:var(--on-a);width:64px;height:64px;font-size:23px">A<b>7</b></div></div>desktop, 64</figure>
-      <figure><div class="draft" style="display:contents"><div class="tok">K<b>3</b></div></div>draft</figure>
+      <figure><div class="tok">B</div>list, 56</figure>
+      <figure><div class="d" style="display:contents"><div class="tok" style="width:64px;height:64px;font-size:23px">A</div></div>tablet and desktop, 64</figure>
+      <figure><div class="draft" style="display:contents"><div class="tok">K</div></div>draft</figure>
+      <figure><div class="draft" style="display:contents"><div class="tok" aria-hidden="true"></div></div>unnamed draft</figure>
     </div>
   </div>
-  <pre><code>&lt;article class="row" style="--tok:#e0689c;--on-tok:#412029"&gt;
-  &lt;div class="tok"&gt;T&lt;b&gt;8&lt;/b&gt;&lt;/div&gt;
-  ...</code></pre>
+  <div class="riso specimen">
+    <div class="tok-set">
+      <figure style="--tok:var(--a);--on-tok:var(--on-a)"><div class="tok">B<b>6</b></div>sheet, #2560b0</figure>
+      <figure style="--tok:var(--b);--on-tok:var(--on-b)"><div class="tok">T<b>8</b></div>#e0689c</figure>
+      <figure style="--tok:#2f6a4a;--on-tok:#f2f0eb"><div class="tok">F<b>5</b></div>#2f6a4a</figure>
+    </div>
+  </div>
+  <pre><code>&lt;!-- list --&gt;
+&lt;div class="tok"&gt;T&lt;/div&gt;
+&lt;!-- sheet --&gt;
+&lt;div class="tok" style="--tok:#e0689c;--on-tok:#412029"&gt;T&lt;b&gt;8&lt;/b&gt;&lt;/div&gt;</code></pre>
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Circle</td><td>56px phone, 64px desktop. Initial at 20 / 23px, 700. 4px accent shadow, always accent regardless of token colour.</td></tr>
-      <tr><td>Level badge</td><td>23px circle, sheet fill, ink digit at 11.5 / 700, 2px structural ring. Offset -7 -7 so it overlaps the token edge. It shows total level, so wizard 5 / rogue 2 reads 7.</td></tr>
-      <tr><td>Colour assignment</td><td>Stored on the character as a hex colour, not an ink role. The player picks it in the first creation step and can change it from Basic details. Sorting and filtering never change it. A theme change leaves the token as it is. The five inks stay chrome: plates, shadows, hurt, concentration.</td></tr>
-      <tr><td>Draft variant</td><td>Sheet fill, structural initial, 2px inset structural ring, shadow in <code>--rule</code> instead of accent. Reads as an outline of a token.</td></tr>
-      <tr><td>Text colour</td><td>The letter is contrast-targeted against the chosen fill, the same 4.5:1 rule as on-ink. Light text if it holds, otherwise a dark mix toward near-black.</td></tr>
+      <tr><td>Circle</td><td>56px on phone, 64px on tablet and desktop. Initial at 20 / 23px, 700. 4px accent shadow, always accent regardless of token colour.</td></tr>
+      <tr><td>Initial</td><td>The first letter of the name, uppercased, taken by code point so an accented letter or emoji is not split. Hidden from screen readers, because the name beside it says the same.</td></tr>
+      <tr><td>Level badge</td><td>Sheet only. 23px circle, sheet fill, ink digit at 11.5 / 700, 2px structural ring. Offset -7 -7 so it overlaps the token edge. It shows total level, so wizard 5 / rogue 2 reads 7.</td></tr>
+      <tr><td>Colour assignment</td><td>On the list, every token is structural ink. On the sheet, the fill is stored on the character as a hex colour, not an ink role. The player picks it in the first creation step and can change it from Basic details. A theme change leaves it as it is. The five inks stay chrome: plates, shadows, hurt, concentration.</td></tr>
+      <tr><td>Draft variant</td><td>Sheet fill, structural initial, 2px inset structural ring, shadow in <code>--rule</code> instead of accent. Reads as an outline of a token. No badge. An unnamed creation draft shows the ring with no letter: the letter comes from a name it does not have yet, and the N of &ldquo;New character&rdquo; would read as a real name.</td></tr>
+      <tr><td>Text colour</td><td>The letter is contrast-targeted against the fill, the same 4.5:1 rule as on-ink. Light text if it holds, otherwise a dark mix toward near-black.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="level">
+  <h2>Level block</h2>
+  <p class="lead">A small &ldquo;Level&rdquo; label over the character&rsquo;s total level. On phone and tablet it sits at the top right of the card, in its own column beside the name and subtitle. On desktop it has its own 84 column in the row. New in v0.5.</p>
+  <div class="riso flat specimen">
+    <div class="inline" style="gap:44px;align-items:flex-end">
+      <div class="lvl"><span class="badgelab">Level</span><b>8</b></div>
+      <div class="d" style="display:contents"><div class="lvl"><span class="badgelab">Level</span><b>11</b></div></div>
+      <div class="lvl"><span class="badgelab">Level</span><b data-unset>&ndash;</b></div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Label</td><td>&ldquo;Level&rdquo; as a small label: 11 / 700, tracked .09em, capitals by style, in dim. 13 on desktop.</td></tr>
+      <tr><td>Number</td><td>26 / 700 / -.03em in structural. It shows total level, so wizard 5 / rogue 2 reads 7. The label sits 5 above it.</td></tr>
+      <tr><td>No classes</td><td>A character with no classes has a total level of 0. The block shows a dash in dim instead, because 0 is not a level, and screen readers hear &ldquo;Level not set&rdquo;. Those characters sort last by level.</td></tr>
+      <tr><td>On the card</td><td>8 below the block before the meter starts, so the meter clears it. The block keeps its column however the name wraps.</td></tr>
     </tbody>
   </table>
 </section>
@@ -1290,7 +1440,7 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="meter">
   <h2>Hit point meter</h2>
-  <p class="lead">Ten segments, 13px tall, 2px apart. Filled segments are structural ink. Below half, the filled segments switch to accent. Empty segments are always a rose tint. The meter colour does not depend on the row's token colour.</p>
+  <p class="lead">Ten segments, 13px tall, 2px apart. Filled segments are structural ink. Below half, the filled segments switch to accent. Empty segments are always a rose tint. The meter is the same for every character, whatever their token colour.</p>
   <div class="riso specimen">
     <div class="meter-set">
       <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p>Full</p></div>
@@ -1298,20 +1448,22 @@ button.mark{font-family:inherit;cursor:pointer}
       <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p>Nearly full</p></div>
       <div><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p>Below half <code>[data-hurt]</code>. Fill flips to accent.</p></div>
       <div><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p>Well below half. Same state, no further escalation.</p></div>
+      <div><div class="meter" data-hurt aria-hidden="true"><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p>Zero, on the list. All ten empty.</p></div>
     </div>
   </div>
   <pre><code>&lt;div class="meter" data-hurt&gt;
   &lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i data-e&gt;&lt;/i&gt; ... 10 total
 &lt;/div&gt;
-&lt;p class="hp"&gt;&lt;b&gt;12&lt;/b&gt;/26 hit points, 2 slots left&lt;/p&gt;</code></pre>
+&lt;p class="hp"&gt;&lt;b&gt;12&lt;/b&gt;/26 hit points&lt;/p&gt;</code></pre>
   <table>
     <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
     <tbody>
-      <tr><td>Resolution</td><td>Ten segments, so each is 10% of max. Rounding rule not set. Suggest round up so one hit point still shows one segment.</td></tr>
-      <tr><td>Hurt threshold</td><td>The client derives this state when current hit points times two is less than maximum hit points. It is unavailable when either value is null or maximum is zero. The API does not return a below-half flag. This mockup uses <code>data-hurt</code> for the derived state.</td></tr>
-      <tr><td>Temporary hit points</td><td>On the character list, shown in the line only ("5 temporary"), not on the meter. On the character sheet&rsquo;s tall header, a solid overprint block follows the meter after a gap, and the line still states the amount. It is one block with no empty segments, because temporary hit points have no maximum. The compact header spells it out as "+5 temp", so colour never carries it alone.</td></tr>
-      <tr><td>Hit point line</td><td>Bold current value in structural, the rest in dim at 500. A comma then one short resource note, chosen per class.</td></tr>
-      <tr><td>Zero</td><td>At 0 hit points the meter is replaced or emptied. See zero hit points.</td></tr>
+      <tr><td>Resolution</td><td>Ten segments. The filled count is the fraction times ten, rounded to the nearest whole, then held between 1 and 9 while hit points are above 0 and below the maximum. So 1 hit point still shows one segment, and a scratch still shows one empty. That rule reproduces every row in the list mockup.</td></tr>
+      <tr><td>Hurt threshold</td><td>The client derives this state when current hit points times two is less than maximum hit points. It is unavailable when either value is null or maximum is zero. The API does not return a below-half flag. This mockup uses <code>data-hurt</code> for the derived state. When hurt, the bold number in the line turns <code>--b-text</code> as well.</td></tr>
+      <tr><td>Temporary hit points</td><td>On the character list, shown in the line only (&ldquo;5 temporary&rdquo;), not on the meter. On the character sheet&rsquo;s tall header, a solid overprint block follows the meter after a gap, and the line still states the amount. It is one block with no empty segments, because temporary hit points have no maximum. The compact header spells it out as &ldquo;+5 temp&rdquo;, so colour never carries it alone.</td></tr>
+      <tr><td>Hit point line</td><td>Bold current value in structural, or <code>--b-text</code> when hurt, and the rest in dim at 500. On the list the only note is temporary hit points: &ldquo;31/44 hit points, 5 temporary&rdquo;.</td></tr>
+      <tr><td>Not set</td><td>With no current or maximum, or a maximum of 0, there is no meter and the line reads &ldquo;Hit points not set&rdquo;, moved up to where the meter was.</td></tr>
+      <tr><td>Zero</td><td>At 0 the list shows all ten segments empty and the 0 in hurt ink, because its API returns no death saves. The sheet tells dying, stable and dead apart; see <a href="#zero">zero hit points</a>.</td></tr>
       <tr><td>Contrast</td><td>Rose segments reach only 2.5:1 on paper, below the 3:1 target for graphics. That is acceptable only because the hit point line always states the value. Never show a meter without its line.</td></tr>
     </tbody>
   </table>
@@ -1320,46 +1472,50 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="zero">
   <h2>Zero hit points</h2>
-  <p class="lead">At 0 hit points a character is dying, stable or dead. Each state changes what sits in the meter slot and adds a bad mark, so it reads without relying on colour. Death save counts are already stored on the character, so these states need no new data. The character sheet builds on these states with its death save tab and hit point pad.</p>
+  <p class="lead">At 0 hit points a character is dying, stable or dead, and each state changes what sits in the meter slot. Death save counts are stored on the character, but the list&rsquo;s API does not return them yet, so a list card at 0 shows an empty meter whatever the state. The states below are for the sheet, which builds on them with its death save tab and hit point pad, and for the list once its API returns the counts.</p>
   <div class="riso specimen">
     <div class="phone-frame">
       <div class="rows" style="padding:14px 12px 20px">
-        <article class="row" style="--tok:var(--b);--on-tok:var(--on-b)">
-          <div class="tok">M<b>4</b></div>
-          <div>
-            <h3 class="name"><a class="rowlink" href="#sheet">Mudge Tealeaf</a></h3>
-            <p class="sub">Lightfoot halfling rogue, Arcane trickster</p>
-            <div class="saves" aria-hidden="true"><span data-k="ok"><i data-on></i><i></i><i></i></span><span data-k="bad"><i data-on></i><i data-on></i><i></i></span></div>
-            <p class="hp"><b>0</b>/27 hit points, 1 success, 2 failures</p>
-          </div>
-          <div class="stat">
-            <div class="ac"><span>15<em>AC</em></span></div>
-            <span class="mark" data-t="bad">Dying</span>
-          </div>
-        </article>
-        <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
-          <div class="tok">V<b>7</b></div>
-          <div>
-            <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
-            <p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p>
-            <div class="meter" data-hurt aria-hidden="true"><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
-            <p class="hp"><b>0</b>/26 hit points, stable</p>
-          </div>
-          <div class="stat">
-            <div class="ac"><span>12<em>AC</em></span></div>
-            <span class="mark" data-t="bad">Unconscious</span>
+        <article class="row" data-hurt>
+          <div class="tok">M</div>
+          <div class="who">
+            <div class="lvl"><span class="badgelab">Level</span><b>4</b></div>
+            <div class="idn">
+              <h3 class="name"><a class="rowlink" href="#sheet">Mudge Tealeaf</a></h3>
+              <p class="sub">Lightfoot halfling rogue, Arcane trickster</p>
+            </div>
+            <div class="vitals-hp">
+              <div class="saves" aria-hidden="true"><span data-k="ok"><i data-on></i><i></i><i></i></span><span data-k="bad"><i data-on></i><i data-on></i><i></i></span></div>
+              <p class="hp"><b>0</b>/27 hit points, 1 success, 2 failures</p>
+            </div>
           </div>
         </article>
-        <article class="row" data-state="dead" style="--tok:var(--a);--on-tok:var(--on-a)">
-          <div class="tok">T<b>8</b></div>
-          <div>
-            <h3 class="name"><a class="rowlink" href="#sheet">Thorn Grimsby</a></h3>
-            <p class="sub">Mountain dwarf fighter, Champion</p>
-            <p class="hp"><b>0</b>/72 hit points, 3 failures</p>
+        <article class="row">
+          <div class="tok">V</div>
+          <div class="who">
+            <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
+            <div class="idn">
+              <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
+              <p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p>
+            </div>
+            <div class="vitals-hp">
+              <div class="meter" data-hurt aria-hidden="true"><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+              <p class="hp"><b>0</b>/26 hit points, stable</p>
+            </div>
           </div>
-          <div class="stat">
-            <div class="ac"><span>18<em>AC</em></span></div>
-            <span class="mark" data-t="bad">Dead</span>
+        </article>
+        <article class="row" data-state="dead" data-hurt>
+          <div class="tok">T</div>
+          <div class="who">
+            <div class="lvl"><span class="badgelab">Level</span><b>8</b></div>
+            <div class="idn">
+              <h3 class="name"><a class="rowlink" href="#sheet">Thorn Grimsby</a></h3>
+              <p class="sub">Mountain dwarf fighter, Champion</p>
+            </div>
+            <div class="vitals-hp">
+              
+              <p class="hp"><b>0</b>/72 hit points, 3 failures</p>
+            </div>
           </div>
         </article>
       </div>
@@ -1371,21 +1527,21 @@ button.mark{font-family:inherit;cursor:pointer}
 &lt;/div&gt;
 &lt;p class="hp"&gt;&lt;b&gt;0&lt;/b&gt;/27 hit points, 1 success, 2 failures&lt;/p&gt;</code></pre>
   <table>
-    <thead><tr><th>State</th><th>When</th><th>Meter slot</th><th>Hit point line</th><th>Mark</th></tr></thead>
+    <thead><tr><th>State</th><th>When</th><th>Meter slot</th><th>Hit point line</th><th>Mark, on the sheet</th></tr></thead>
     <tbody>
-      <tr><td>Dying</td><td>0 hit points, fewer than 3 successes and fewer than 3 failures</td><td>Death save pips</td><td>"0/27 hit points, 1 success, 2 failures"</td><td>Dying</td></tr>
-      <tr><td>Stable</td><td>0 hit points and 3 successes</td><td>Empty meter, all ten segments</td><td>"0/26 hit points, stable"</td><td>Unconscious</td></tr>
-      <tr><td>Dead</td><td>3 failures</td><td>Nothing. The line moves up.</td><td>"0/72 hit points, 3 failures"</td><td>Dead</td></tr>
+      <tr><td>Dying</td><td>0 hit points, fewer than 3 successes and fewer than 3 failures</td><td>Death save pips</td><td>&ldquo;0/27 hit points, 1 success, 2 failures&rdquo;</td><td>Dying</td></tr>
+      <tr><td>Stable</td><td>0 hit points and 3 successes</td><td>Empty meter, all ten segments</td><td>&ldquo;0/26 hit points, stable&rdquo;</td><td>Unconscious</td></tr>
+      <tr><td>Dead</td><td>3 failures</td><td>Nothing. The line moves up.</td><td>&ldquo;0/72 hit points, 3 failures&rdquo;</td><td>Dead</td></tr>
     </tbody>
   </table>
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Pips</td><td>Two groups of three, 13px so they fill the meter's slot, 4px apart with 14px between groups. Successes are structural circles. Failures are squares in <code>--b-text</code>, because they are small state graphics and raw rose is too faint. Marked pips are filled, unmarked ones are a 2px outline. Shape differs as well as colour.</td></tr>
+      <tr><td>Pips</td><td>Two groups of three, 13px so they fill the meter&rsquo;s slot, 4px apart with 14px between groups. Successes are structural circles. Failures are squares in <code>--b-text</code>, because they are small state graphics and raw rose is too faint. Marked pips are filled, unmarked ones are a 2px outline. Shape differs as well as colour.</td></tr>
       <tr><td>Screen readers</td><td>Pips are hidden. The hit point line spells out both counts.</td></tr>
       <tr><td>Dead card</td><td>Border in <code>--rule</code> and no shadow. The token loses its ink: sheet fill, dim initial and a <code>--rule</code> ring. The card is still solid-bordered, so it does not read as a draft.</td></tr>
       <tr><td>Recovery</td><td>Any healing above 0 clears both counts and brings the normal meter back, as the rules do.</td></tr>
-      <tr><td>Mark priority</td><td>On phone, the zero hit point mark takes the single mark slot ahead of any other.</td></tr>
+      <tr><td>Mark priority</td><td>On the sheet&rsquo;s compact header, the zero hit point mark takes the single mark slot ahead of any other. The list has no marks.</td></tr>
     </tbody>
   </table>
 </section>
@@ -1393,7 +1549,7 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="ac">
   <h2>Armour class ring</h2>
-  <p class="lead">A 46px ring on sheet with a 2px structural border and 3px accent shadow. The number is 17 / 700 and the label under it is 8px caps.</p>
+  <p class="lead">A 46px ring on sheet with a 2px structural border and 3px accent shadow. The number is 17 / 700 and the label under it is 8px caps. Sheet only: the list dropped it in v0.5.</p>
   <div class="riso specimen">
     <div class="inline" style="gap:22px">
       <div class="ac"><span>13<em>AC</em></span></div>
@@ -1407,7 +1563,7 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="marks">
   <h2>Marks</h2>
-  <p class="lead">Small outlined labels for conditions and resources. Three states, each a different ink for border and text, sheet fill always. No fills, no icons.</p>
+  <p class="lead">Small outlined labels for conditions and resources. Three states, each a different ink for border and text, sheet fill always. No fills, no icons. Sheet only: the list dropped marks in v0.5, including the Leveling up mark on a character with a draft.</p>
   <div class="riso specimen">
     <div class="marks">
       <span class="mark" data-t="ok">Second wind</span>
@@ -1422,12 +1578,12 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th><code>data-t</code></th><th>Border and text</th><th>Meaning</th><th>Examples in mockup</th></tr></thead>
     <tbody>
-      <tr><td><code>ok</code> (or unset)</td><td>structural, <code>--a</code></td><td>Resource available, feature ready</td><td>Second wind, Action surge, Channel 1 of 2, 1 pact slot, Sneak 2d6, Leveling up</td></tr>
+      <tr><td><code>ok</code> (or unset)</td><td>structural, <code>--a</code></td><td>Resource available, feature ready</td><td>Second wind, Action surge, Channel 1 of 2, 1 pact slot, Sneak 2d6</td></tr>
       <tr><td><code>bad</code></td><td>accent, text in <code>--b-text</code></td><td>Condition or danger</td><td>Below half, Poisoned, and the zero hit point marks Dying, Unconscious and Dead</td></tr>
       <tr><td><code>conc</code></td><td>overprint, <code>--mix</code></td><td>Concentration or an active effect the player must track</td><td>Hex, Portent 1</td></tr>
     </tbody>
   </table>
-  <p class="why" style="margin-top:12px">Phone shows one mark per row, under the armour ring. Desktop shows up to two in a wrapping row. The priority order when truncating is bad, then conc, then ok.</p>
+  <p class="why" style="margin-top:12px">Where space holds fewer marks than there are, the priority order is bad, then conc, then ok.</p>
 
   <h3>Marks on the sheet plate</h3>
   <p class="why">On the character sheet's header plate, a mark that opens something is a button. A condition mark opens the status sheet, and the concentration mark opens the spell behind it. The dashed Condition control is the plate's Add: dashed like every Add, in the plate's own text colour. While its sheet is open the control and the mark show the pressed ring. The compact header holds one mark in the same priority order; more than one condition reads "Poisoned +1".</p>
@@ -1453,93 +1609,224 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="card">
   <h2>Character card</h2>
-  <p class="lead">The phone list row. Three columns: token, identity plus meter, then a stat stack. Whole card is the tap target: the name is a link stretched over the card, so the card is one focusable control named by the character.</p>
+  <p class="lead">The list row on phone and tablet. Two columns: the token, then the identity, where the name and subtitle sit beside the <a href="#level">level block</a> and the meter and its line run under both. The whole card is the tap target: the name is a link stretched over the card, so the card is one focusable control named by the character.</p>
   <div class="riso specimen">
     <div class="phone-frame">
       <div class="rows" style="padding:14px 12px 20px">
-        <article class="row" style="--tok:var(--a);--on-tok:var(--on-a)">
-          <div class="tok">B<b>6</b></div>
-          <div>
-            <h3 class="name"><a class="rowlink" href="#sheet">Brenna Duskhollow</a></h3>
-            <p class="sub">Half-elf warlock, the Fiend</p>
-            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
-            <p class="hp"><b>31</b>/44 hit points, 5 temporary</p>
-          </div>
-          <div class="stat">
-            <div class="ac"><span>13<em>AC</em></span></div>
-            <span class="mark" data-t="conc">Hex</span>
+        <article class="row">
+          <div class="tok">B</div>
+          <div class="who">
+            <div class="lvl"><span class="badgelab">Level</span><b>6</b></div>
+            <div class="idn">
+              <h3 class="name"><a class="rowlink" href="#sheet">Brenna Duskhollow</a></h3>
+              <p class="sub">Half-elf warlock, the Fiend</p>
+            </div>
+            <div class="vitals-hp">
+              <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div>
+              <p class="hp"><b>31</b>/44 hit points, 5 temporary</p>
+            </div>
           </div>
         </article>
-        <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
-          <div class="tok">V<b>7</b></div>
-          <div>
-            <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
-            <p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p>
-            <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
-            <p class="hp"><b>12</b>/26 hit points, 2 slots left</p>
+        <article class="row">
+          <div class="tok">V</div>
+          <div class="who">
+            <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
+            <div class="idn">
+              <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
+              <p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p>
+            </div>
+            <div class="vitals-hp">
+              <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+              <p class="hp"><b>12</b>/26 hit points</p>
+            </div>
           </div>
-          <div class="stat">
-            <div class="ac"><span>12<em>AC</em></span></div>
-            <span class="mark" data-t="bad">Below half</span>
+        </article>
+        <article class="row">
+          <div class="tok">W</div>
+          <div class="who">
+            <div class="lvl"><span class="badgelab">Level</span><b>11</b></div>
+            <div class="idn">
+              <h3 class="name"><a class="rowlink" href="#sheet">Wilhelmina Thistlewood-Ashgrove of Brackenfell</a></h3>
+              <p class="sub">Half-elf paladin 6 / warlock 3 / sorcerer 2, Oath of devotion, the Fiend, Draconic bloodline</p>
+            </div>
+            <div class="vitals-hp">
+              <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div>
+              <p class="hp"><b>88</b>/94 hit points</p>
+            </div>
+          </div>
+        </article>
+        <article class="row">
+          <div class="tok">S</div>
+          <div class="who">
+            <div class="lvl"><span class="badgelab">Level</span><b data-unset>&ndash;</b></div>
+            <div class="idn">
+              <h3 class="name"><a class="rowlink" href="#sheet">Sable Wren</a></h3>
+              <p class="sub">Tiefling</p>
+            </div>
+            <div class="vitals-hp">
+              
+              <p class="hp">Hit points not set</p>
+            </div>
           </div>
         </article>
       </div>
     </div>
   </div>
-  <pre><code>&lt;article class="row" style="--tok:var(--a);--on-tok:var(--on-a)"&gt;
-  &lt;div class="tok"&gt;B&lt;b&gt;6&lt;/b&gt;&lt;/div&gt;
-  &lt;div&gt;
-    &lt;h3 class="name"&gt;&lt;a class="rowlink" href="#sheet"&gt;Brenna Duskhollow&lt;/a&gt;&lt;/h3&gt;
-    &lt;p class="sub"&gt;Half-elf warlock, the Fiend&lt;/p&gt;
-    &lt;div class="meter"&gt;...&lt;/div&gt;
-    &lt;p class="hp"&gt;&lt;b&gt;31&lt;/b&gt;/44 hit points, 5 temporary&lt;/p&gt;
-  &lt;/div&gt;
-  &lt;div class="stat"&gt;
-    &lt;div class="ac"&gt;&lt;span&gt;13&lt;em&gt;AC&lt;/em&gt;&lt;/span&gt;&lt;/div&gt;
-    &lt;span class="mark" data-t="conc"&gt;Hex&lt;/span&gt;
+  <pre><code>&lt;article class="row"&gt;
+  &lt;div class="tok"&gt;B&lt;/div&gt;
+  &lt;div class="who"&gt;
+    &lt;div class="lvl"&gt;&lt;span class="badgelab"&gt;Level&lt;/span&gt;&lt;b&gt;6&lt;/b&gt;&lt;/div&gt;
+    &lt;div class="idn"&gt;
+      &lt;h3 class="name"&gt;&lt;a class="rowlink" href="#sheet"&gt;Brenna Duskhollow&lt;/a&gt;&lt;/h3&gt;
+      &lt;p class="sub"&gt;Half-elf warlock, the Fiend&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="vitals-hp"&gt;
+      &lt;div class="meter"&gt;...&lt;/div&gt;
+      &lt;p class="hp"&gt;&lt;b&gt;31&lt;/b&gt;/44 hit points, 5 temporary&lt;/p&gt;
+    &lt;/div&gt;
   &lt;/div&gt;
 &lt;/article&gt;</code></pre>
   <table>
     <thead><tr><th>Content</th><th>Format</th></tr></thead>
     <tbody>
-      <tr><td>Name</td><td>Full character name, one line. Truncation behaviour not designed.</td></tr>
-      <tr><td>Subtitle</td><td>"{Subrace or race} {class}, {subclass}" for a single class, as in "Half-elf warlock, the Fiend". With more than one class, each class carries its level: "Rock gnome wizard 5 / rogue 2, Divination". Subclass names are sentence case, keeping proper nouns ("the Fiend", "Champion", "Life domain", "Arcane trickster").</td></tr>
-      <tr><td>Hit point line</td><td>Current, max, then one resource note relevant to the class.</td></tr>
-      <tr><td>Stat stack</td><td>Armour ring above one mark. Minimum width 54 so rings align across rows.</td></tr>
+      <tr><td>Name</td><td>Full character name. It wraps and never truncates: the name is how a player tells characters apart.</td></tr>
+      <tr><td>Subtitle</td><td>&ldquo;{Subrace or race} {class}, {subclass}&rdquo; for a single class, as in &ldquo;Half-elf warlock, the Fiend&rdquo;. With more than one class, each class carries its level and the subclasses follow in class order, separated by commas: &ldquo;Rock gnome wizard 5 / rogue 2, Divination&rdquo;. Class names are lowercased; subclass names are shown as stored, in sentence case with proper nouns (&ldquo;the Fiend&rdquo;, &ldquo;Champion&rdquo;, &ldquo;Life domain&rdquo;). It wraps and never truncates, because a multiclass subtitle carries its levels at the end.</td></tr>
+      <tr><td>Missing parts</td><td>With no race the subtitle starts at the class, capitalised: &ldquo;Fighter, Champion&rdquo;. With no classes it is the race alone: &ldquo;Tiefling&rdquo;. With neither it reads &ldquo;Race and class not set&rdquo;.</td></tr>
+      <tr><td>Level</td><td>The <a href="#level">level block</a>, top right.</td></tr>
+      <tr><td>Hit points</td><td>The <a href="#meter">meter</a> and its line, across the full width of the identity column.</td></tr>
+    </tbody>
+  </table>
+  <table>
+    <thead><tr><th>Width</th><th>Layout</th></tr></thead>
+    <tbody>
+      <tr><td>Phone</td><td>One column of cards, 14 apart. 56 token, 11 12 padding, 13 between columns.</td></tr>
+      <tr><td>Tablet, portrait</td><td>One column of cards, 16 apart, under the desktop band and bar. 64 token, 14 18 padding, 16 between columns.</td></tr>
+      <tr><td>Tablet, landscape (1024 and up)</td><td>The same cards in two columns. Cards in a row share a height, and their content stays centred, so a long card&rsquo;s neighbour grows to match. The draft tray spans both columns.</td></tr>
+      <tr><td>Desktop</td><td>The <a href="#row">desktop row</a> instead.</td></tr>
     </tbody>
   </table>
 </section>
 
 <!-- ============================================================ -->
+<section id="row">
+  <h2>Desktop row</h2>
+  <p class="lead">The list row on desktop, which replaced the <a href="#table">desktop table</a> in v0.5. Each row is a bordered, shadowed card laid out in columns, ending in an Open sheet link named for the character.</p>
+  <div class="riso specimen scroll-x" style="padding:0">
+    <div class="desk-frame" style="min-width:900px">
+      <div class="mat d">
+        <div class="dbody" style="width:calc(100% - 48px)">
+        <div class="drow">
+          <div class="tok">T</div>
+          <div><h3 class="name">Thorn Grimsby</h3><p class="sub">Mountain dwarf fighter, Champion</p></div>
+          <div class="lvl"><span class="badgelab">Level</span><b>8</b></div>
+          <div class="vitals-hp"><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>68</b>/72 hit points</p></div>
+          <a class="go" href="#sheet" aria-label="Open Thorn Grimsby&rsquo;s sheet">Open sheet</a>
+        </div>
+        <div class="drow">
+          <div class="tok">V</div>
+          <div><h3 class="name">Vesper Quill</h3><p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p></div>
+          <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
+          <div class="vitals-hp"><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points</p></div>
+          <a class="go" href="#sheet" aria-label="Open Vesper Quill&rsquo;s sheet">Open sheet</a>
+        </div>
+        <div class="drow">
+          <div class="tok">W</div>
+          <div><h3 class="name">Wilhelmina Thistlewood-Ashgrove of Brackenfell</h3><p class="sub">Half-elf paladin 6 / warlock 3 / sorcerer 2, Oath of devotion, the Fiend, Draconic bloodline</p></div>
+          <div class="lvl"><span class="badgelab">Level</span><b>11</b></div>
+          <div class="vitals-hp"><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>88</b>/94 hit points</p></div>
+          <a class="go" href="#sheet" aria-label="Open Wilhelmina Thistlewood-Ashgrove of Brackenfell&rsquo;s sheet">Open sheet</a>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Column</th><th>Width</th><th>Content</th></tr></thead>
+    <tbody>
+      <tr><td>Token</td><td>74</td><td>64px token</td></tr>
+      <tr><td>Identity</td><td>1fr</td><td>Name at 19px and subtitle at 13px. The only flexible column, so long content wraps here and the row grows.</td></tr>
+      <tr><td>Level</td><td>84</td><td><a href="#level">Level block</a> with the 13px label</td></tr>
+      <tr><td>Hit points</td><td>240</td><td>Meter then hit point line</td></tr>
+      <tr><td>Action</td><td>128</td><td>Open sheet, a link named for the character</td></tr>
+    </tbody>
+  </table>
+  <p class="why" style="margin-top:12px">22 between columns and 16 22 padding. Rows are 16 apart in the 1020 measure. Everything is centred on the row, so a row that grows for a long name keeps its level, meter and link level with each other. Only Open sheet is a target; the rest of the row waits for hover, which is deferred.</p>
+</section>
+
+<!-- ============================================================ -->
 <section id="draft">
   <h2>Draft tray</h2>
-  <p class="lead">Unfinished creations and level-ups sit below the list under a dashed accent rule. Draft cards are dashed, unshadowed and tinted, so they read as not-yet-real. Nothing in a draft touches the saved sheet until confirmed. A character with a level-up in progress also keeps its normal card in the list, with a Leveling up mark, so its sheet stays one tap away. A creation draft has no character yet, so it appears only in the tray.</p>
+  <p class="lead">Unfinished creations and level-ups wait in a tray above the list, with a dashed accent rule under it. Draft cards are dashed, unshadowed and tinted, so they read as not yet real. Nothing in a draft touches a saved sheet until confirmed. Drafts ignore search and sort, and list the most recently updated first.</p>
   <div class="riso specimen">
     <div class="phone-frame">
       <div class="rows" style="padding:14px 12px 20px">
-        <article class="row" style="--tok:var(--mix);--on-tok:var(--on-mix)">
-          <div class="tok">K<b>3</b></div>
-          <div>
-            <h3 class="name"><a class="rowlink" href="#sheet">Kethra Ironsong</a></h3>
-            <p class="sub">Hill dwarf paladin, Oath of devotion</p>
-            <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-            <p class="hp"><b>28</b>/28 hit points, lay on hands 15</p>
-          </div>
-          <div class="stat">
-            <div class="ac"><span>18<em>AC</em></span></div>
-            <span class="mark" data-t="ok">Leveling up</span>
-          </div>
-        </article>
         <div class="tray">
           <h3 class="trayhead">Waiting to be finished</h3>
           <article class="draft">
-            <div class="tok">K<b>3</b></div>
+            <div class="tok">N</div>
             <div>
-              <h3 class="name">Kethra Ironsong</h3>
-              <p class="sub" style="margin-bottom:0">Level 3 to 4, three of five choices made. Her sheet is untouched until you confirm.</p>
+              <h3 class="name">Nyra Ashfall</h3>
+              <p class="sub">Creation, two of five choices made. Nothing is added to your list until you confirm.</p>
             </div>
             <button class="resume">Resume</button>
           </article>
+          <article class="draft">
+            <div class="tok" aria-hidden="true"></div>
+            <div>
+              <h3 class="name">New character</h3>
+              <p class="sub">Creation, one of five choices made. Nothing is added to your list until you confirm.</p>
+            </div>
+            <button class="resume">Resume</button>
+          </article>
+          <article class="draft">
+            <div class="tok">K</div>
+            <div>
+              <h3 class="name">Kethra Ironsong</h3>
+              <p class="sub">Level 3 to 4, three of five choices made. Nothing changes on the sheet until you confirm.</p>
+            </div>
+            <button class="resume">Resume</button>
+          </article>
+        </div>
+        <article class="row">
+          <div class="tok">K</div>
+          <div class="who">
+            <div class="lvl"><span class="badgelab">Level</span><b>3</b></div>
+            <div class="idn">
+              <h3 class="name"><a class="rowlink" href="#sheet">Kethra Ironsong</a></h3>
+              <p class="sub">Hill dwarf paladin, Oath of devotion</p>
+            </div>
+            <div class="vitals-hp">
+              <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              <p class="hp"><b>28</b>/28 hit points</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+  <div class="riso specimen scroll-x" style="padding:0">
+    <div class="desk-frame" style="min-width:900px">
+      <div class="mat d">
+        <div class="dbody" style="width:calc(100% - 48px)">
+          <div class="tray">
+            <h3 class="trayhead">Waiting to be finished</h3>
+          <article class="draft">
+            <div class="tok">N</div>
+            <div>
+              <h3 class="name">Nyra Ashfall, new character</h3>
+              <p class="sub">Two of five choices made. Next up is choosing a class. Nothing is added to your list until you confirm.</p>
+            </div>
+            <button class="resume">Resume creation</button>
+          </article>
+          <article class="draft">
+            <div class="tok">K</div>
+            <div>
+              <h3 class="name">Kethra Ironsong, level 3 to 4</h3>
+              <p class="sub">Three of five choices made. Next up is an ability increase or a feat. Nothing changes on the sheet until you confirm.</p>
+            </div>
+            <button class="resume">Resume level-up</button>
+          </article>
+          </div>
         </div>
       </div>
     </div>
@@ -1547,13 +1834,54 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Level-up row</td><td>The character&rsquo;s normal card stays in the list, sorted with the rest, and carries an ok mark reading Leveling up. The tray card below is the draft itself.</td></tr>
-      <tr><td>Tray rule</td><td>2px dashed accent, 13 padding above the heading.</td></tr>
-      <tr><td>Heading</td><td>"Waiting to be finished", 12 / 700 in dim.</td></tr>
-      <tr><td>Card</td><td>Same grid as a character card. 2px dashed structural border, <code>--draft-bg</code> fill, no shadow.</td></tr>
-      <tr><td>Token</td><td>Draft variant, outlined. Level badge shows the level being left, not the target.</td></tr>
-      <tr><td>Copy</td><td>States progress as "{n} of {m} choices made" and reassures that the sheet is untouched. Desktop adds what the next choice is.</td></tr>
-      <tr><td>Action</td><td>Resume button, structural fill. Label is "Resume" on phone, "Resume level-up" on desktop.</td></tr>
+      <tr><td>Place</td><td>Above the list, 16 above a 2px dashed accent rule. When there are no characters the tray stands alone and the rule goes, because there is nothing under it to separate. With no drafts there is no tray.</td></tr>
+      <tr><td>Heading</td><td>&ldquo;Waiting to be finished&rdquo;, a small label at 11.5 / 700, tracked .09em, capitals by style, in dim.</td></tr>
+      <tr><td>Card</td><td>2px dashed structural border, <code>--draft-bg</code> fill, no shadow. Drafts are 12 apart. Token, text, then Resume: <code>56px 1fr auto</code> on phone, <code>74px 1fr auto</code> with 22 gaps on tablet and desktop.</td></tr>
+      <tr><td>Token</td><td>Draft variant, no badge. An unnamed creation draft has an empty ring.</td></tr>
+      <tr><td>Title</td><td>On phone, the name, or &ldquo;New character&rdquo; for an unnamed creation. On tablet and desktop, a level-up reads &ldquo;Kethra Ironsong, level 3 to 4&rdquo; and a creation &ldquo;Nyra Ashfall, new character&rdquo;, or &ldquo;New character&rdquo; alone.</td></tr>
+      <tr><td>Line, phone</td><td>A level-up: &ldquo;Level 3 to 4, three of five choices made. Nothing changes on the sheet until you confirm.&rdquo; A creation: &ldquo;Creation, two of five choices made. Nothing is added to your list until you confirm.&rdquo;</td></tr>
+      <tr><td>Line, tablet and desktop</td><td>&ldquo;{Count} of {total} choices made. Next up is {step}.&rdquo;, then the same reassurance. Counts are words up to ten.</td></tr>
+      <tr><td>Next step</td><td>From <code>next_step</code>: <code>choose_class</code> is &ldquo;choosing a class&rdquo;, and <code>ability_score_or_feat</code> is &ldquo;an ability increase or a feat&rdquo;. A step with no phrase drops the Next up sentence rather than show a raw key.</td></tr>
+      <tr><td>Action</td><td>Outlined Resume with a 3px accent shadow. &ldquo;Resume&rdquo; on phone; &ldquo;Resume level-up&rdquo; or &ldquo;Resume creation&rdquo; on tablet and desktop.</td></tr>
+      <tr><td>Level-up character</td><td>Keeps its normal card in the list, sorted with the rest and unmarked, so its sheet stays one tap away. A creation draft has no character yet, so it appears only in the tray.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<section id="list-states">
+  <h2>List states</h2>
+  <p class="lead">What the list shows while it loads, when it has nothing to show, and when it cannot load. The header stays in place through all of them. New in v0.5.</p>
+  <div class="riso specimen">
+    <div class="state-set">
+      <figure>First load<div class="phone-frame"><div class="mat" style="height:230px"><div class="rows"><div class="loading"><svg class="spinner" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15"/><path d="M18 3a15 15 0 0 1 15 15"/></svg><p class="quiet" role="status">Loading characters&hellip;</p></div></div></div></div></figure>
+      <figure>No characters yet<div class="phone-frame"><div class="rows"><div class="slate"><h3>No characters yet</h3><p>Create character walks you through class, race, background, and ability scores, one step at a time.</p></div></div></div></figure>
+      <figure>No search results<div class="phone-frame"><div class="rows"><div class="slate"><h3>No characters match &ldquo;Zephyr&rdquo;</h3><p>Search only looks at names. Check the spelling, or clear the search to see all your characters.</p></div></div></div></figure>
+      <figure>Couldn&rsquo;t load<div class="phone-frame"><div class="rows"><div class="notice" role="alert"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg><div><h3>Couldn&rsquo;t load your characters</h3><p>Check your connection and try again. If that doesn&rsquo;t work, the server may be having trouble.</p><button class="retry">Try again</button></div></div></div></div></figure>
+      <figure>Not signed in, temporary<div class="phone-frame"><div class="rows"><div class="notice dev" role="alert"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg><div><span class="badgelab">Development only</span><h3>Not signed in</h3><p>The API rejected the development token. Set <b>EXPO_PUBLIC_API_TOKEN</b> in frontend/.env to the token bin/rails db:seed prints, then restart Expo.</p></div></div></div></div></figure>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>State</th><th>When</th><th>What shows</th></tr></thead>
+    <tbody>
+      <tr><td>First load</td><td>No data yet</td><td>The header and Create are in place. A 36 spinner (44 on tablet and desktop) sits in the middle of the space the list will fill, with &ldquo;Loading characters&hellip;&rdquo; under it as a status line. The tray arrives with the list, because both come from one request.</td></tr>
+      <tr><td>Searching</td><td>A new search is in flight</td><td>The previous results stay, and a 16 spinner turns in the <a href="#search">search field</a>.</td></tr>
+      <tr><td>No characters yet</td><td>No search, no characters, no drafts</td><td>A slate that names Create character, which is already on screen. Search and sort are hidden.</td></tr>
+      <tr><td>Drafts only</td><td>No search, no characters, at least one draft</td><td>The <a href="#draft">tray</a> alone, without its rule. No slate, because Resume is the next step. Search and sort are hidden.</td></tr>
+      <tr><td>No search results</td><td>A search and no characters</td><td>A slate that quotes the search as typed and says search only looks at names, because a player who types &ldquo;dwarf&rdquo; would otherwise think something broke. The tray still shows.</td></tr>
+      <tr><td>Not signed in</td><td>The API returns 401</td><td>A development notice. There is no login screen yet, so the copy speaks to a developer and goes when sign-in arrives. Search, sort and Create are hidden, and so is the desktop bar. No Try again, because retrying cannot help until the token changes.</td></tr>
+      <tr><td>Couldn&rsquo;t load</td><td>A network error or any other error status</td><td>A notice with Try again. The header stays. Try again repeats the same request, and while it runs the first-load spinner takes the notice&rsquo;s place. Either error replaces the list, on first load or during a search.</td></tr>
+    </tbody>
+  </table>
+  <table>
+    <thead><tr><th>Part</th><th>Spec</th></tr></thead>
+    <tbody>
+      <tr><td>Slate</td><td>A card not printed yet: 2px dashed structural border, sheet fill, no shadow. Heading at 16.5 / 700 in ink (19 on desktop), then a line at 13 in dim (14, at most 64 characters wide). 18 18 20 padding (22 24 24).</td></tr>
+      <tr><td>Notice</td><td>The <a href="#displays">warning strip</a>, larger: sheet fill, a 4px <code>--b-text</code> edge on the left, an 18 outline warning icon in <code>--b-text</code> (20 on desktop), a bold heading and a dim line. It is an alert, so screen readers announce it.</td></tr>
+      <tr><td>Development notice</td><td>A notice with a 2px dashed structural border on its other three sides, the system&rsquo;s mark for not real yet, and a &ldquo;Development only&rdquo; small label over the heading. Only for copy that is meant to go away.</td></tr>
+      <tr><td>Try again</td><td>An outlined button, as Resume, at 13 / 700 with 9 14 padding, 14 under the line.</td></tr>
+      <tr><td>Spinner</td><td>A quarter arc in structural ink on a full track in <code>--empty</code>: a 36 viewBox with a 15 radius and a 4 stroke (6 at 16, so it stays visible). One turn every 0.9 seconds, linear. It holds still when reduced motion is on. Hidden from screen readers, because the text beside it is the status. Built with react-native-svg and Reanimated, not <code>ActivityIndicator</code>; see <a href="#native">React Native</a>.</td></tr>
+      <tr><td>Status line</td><td>13 / 500 in dim, 14 on desktop, 14 under the spinner (16 on desktop). A polite live region.</td></tr>
     </tbody>
   </table>
 </section>
@@ -1568,7 +1896,7 @@ button.mark{font-family:inherit;cursor:pointer}
       <button class="newbtn" style="width:auto;padding:9px 16px;font-size:13px;box-shadow:3px 3px 0 var(--a)">Cast</button>
       <button class="resume">Resume level-up</button>
       <button class="go">Open sheet</button>
-      <div class="plate" style="padding:10px 12px"><button class="sortbtn" style="padding:9px 13px">Sort: level</button></div>
+      <div class="plate" style="padding:10px 14px 14px 12px"><button class="sortbtn" style="padding:9px 13px">Sort: level</button></div>
       <div style="width:220px"><button class="dangerbtn" style="margin:0">Remove daggers</button></div>
       <button class="dangerbtn small" style="margin-top:0">Remove this way to cast</button>
     </div>
@@ -1576,11 +1904,11 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>Style</th><th>Class</th><th>Fill</th><th>Text</th><th>Shadow</th><th>Where</th></tr></thead>
     <tbody>
-      <tr><td>Primary</td><td><code>.newbtn</code></td><td>accent</td><td>on-b, 15 / 700 (14 desktop)</td><td>5px structural</td><td>Create character. Sticky footer on phone, plate right on desktop.</td></tr>
+      <tr><td>Primary</td><td><code>.newbtn</code></td><td>accent</td><td>on-b, 15 / 700 (14 desktop)</td><td>5px structural</td><td>Create character. Sticky footer on phone, right of the bar on tablet and desktop.</td></tr>
       <tr><td>Small primary</td><td><code>.castbtn.small</code> in the sheet mockup</td><td>accent</td><td>on-b, 13 / 700</td><td>3px structural</td><td>One per card or row, for that card&rsquo;s own action: Cast, Use, Transform. Also Save on a block being edited.</td></tr>
-      <tr><td>Structural</td><td><code>.resume</code></td><td>structural</td><td>on-a, 12.5 / 700</td><td>none</td><td>Resume a draft. Inside a draft card.</td></tr>
-      <tr><td>Outlined</td><td><code>.go</code></td><td>sheet, 2px structural border</td><td>structural, 13 / 700</td><td>3px accent</td><td>Open sheet, a link rather than a button, named for the character. Desktop rows only; on phone the card is one link stretched over it.</td></tr>
-      <tr><td>On-plate</td><td><code>.sortbtn</code></td><td>accent</td><td>on-b, 13 / 700</td><td>none</td><td>Sort. Only inside the plate.</td></tr>
+      <tr><td>Outlined</td><td><code>.resume</code>, <code>.retry</code></td><td>sheet, 2px structural border</td><td>structural, 12.5 / 700 (13 for Try again)</td><td>3px accent</td><td>Resume, inside a draft card. Try again, inside an error notice.</td></tr>
+      <tr><td>Outlined link</td><td><code>.go</code></td><td>sheet, 2px structural border</td><td>structural, 13 / 700</td><td>3px accent</td><td>Open sheet, a link rather than a button, named for the character. Desktop rows only; on phone and tablet the card is one link stretched over it.</td></tr>
+      <tr><td>Sort</td><td><code>.sortbtn</code></td><td>sheet, 2px structural border</td><td>structural, 13 / 700</td><td>4px accent</td><td>Sort, in the plate on phone and in the bar on tablet and desktop.</td></tr>
       <tr><td>Destructive</td><td><code>.dangerbtn</code></td><td>sheet, 2px <code>--b-text</code> border</td><td><code>--b-text</code>, 14 / 700</td><td>none</td><td>Remove an item, End concentration, Delete Thorn Grimsby. Anything that removes something or ends in death, including a footer action that kills. Never the primary look.</td></tr>
       <tr><td>Small destructive</td><td><code>.dangerbtn.small</code></td><td>sheet, 2px <code>--b-text</code> border</td><td><code>--b-text</code>, 13 / 700</td><td>none</td><td>One per card, at its foot: Remove this way to cast on an access path card. The card rule applies: never two primaries or destructives on one card.</td></tr>
     </tbody>
@@ -1601,12 +1929,12 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="table">
   <h2>Desktop table</h2>
-  <p class="lead">Desktop drops the card border and shadow and lays the same content out as a table. Rows are separated by a hairline rule and alternate with a half-white wash.</p>
+  <p class="lead"><b>Not in current designs.</b> The <a href="#row">desktop row</a> replaced it on the list in v0.5, and no other screen uses it. As designed: desktop dropped the card border and shadow and laid the same content out as a table, with rows separated by a hairline rule and alternating with a half-white wash.</p>
   <div class="riso specimen scroll-x" style="padding:0">
     <div class="desk-frame" style="min-width:1100px">
       <div class="mat d">
         <div class="cols"><span></span><span>Character</span><span>Hit points</span><span>Armor</span><span>Conditions and resources</span><span></span></div>
-        <div class="drow" style="--tok:var(--b);--on-tok:var(--on-b)">
+        <div class="trow" style="--tok:var(--b);--on-tok:var(--on-b)">
           <div class="tok">T<b>8</b></div>
           <div><h3 class="name">Thorn Grimsby</h3><p class="sub" style="margin-bottom:0">Mountain dwarf fighter, Champion</p></div>
           <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>68</b>/72 hit points, second wind ready</p></div>
@@ -1614,7 +1942,7 @@ button.mark{font-family:inherit;cursor:pointer}
           <div class="marks"><span class="mark" data-t="ok">Second wind</span><span class="mark" data-t="ok">Action surge</span></div>
           <a class="go" href="#sheet" aria-label="Open Thorn Grimsby&rsquo;s sheet">Open sheet</a>
         </div>
-        <div class="drow" style="--tok:var(--mix);--on-tok:var(--on-mix)">
+        <div class="trow" style="--tok:var(--mix);--on-tok:var(--on-mix)">
           <div class="tok">V<b>7</b></div>
           <div><h3 class="name">Vesper Quill</h3><p class="sub" style="margin-bottom:0">Rock gnome wizard 5 / rogue 2, Divination</p></div>
           <div><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points, 2 slots left</p></div>
@@ -1622,7 +1950,7 @@ button.mark{font-family:inherit;cursor:pointer}
           <div class="marks"><span class="mark" data-t="bad">Below half</span><span class="mark" data-t="conc">Portent 1</span></div>
           <a class="go" href="#sheet" aria-label="Open Vesper Quill&rsquo;s sheet">Open sheet</a>
         </div>
-        <div class="drow" style="--tok:var(--a);--on-tok:var(--on-a)">
+        <div class="trow" style="--tok:var(--a);--on-tok:var(--on-a)">
           <div class="tok">B<b>6</b></div>
           <div><h3 class="name">Brenna Duskhollow</h3><p class="sub" style="margin-bottom:0">Half-elf warlock, the Fiend</p></div>
           <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>31</b>/44 hit points, 5 temporary</p></div>
@@ -1922,7 +2250,7 @@ button.mark{font-family:inherit;cursor:pointer}
           <div class="editrow"><span class="lbl">Intelligence</span><button class="step" aria-label="Lower Intelligence">&minus;</button><span class="num">10</span><button class="step" aria-label="Raise Intelligence">+</button><span class="mod">+0</span></div>
           <div class="editrow"><span class="lbl">Wisdom</span><button class="step" aria-label="Lower Wisdom">&minus;</button><span class="num">18</span><button class="step" aria-label="Raise Wisdom">+</button><span class="mod">+4</span></div>
           <div class="editrow"><span class="lbl">Charisma</span><button class="step" aria-label="Lower Charisma">&minus;</button><span class="num">12</span><button class="step" aria-label="Raise Charisma">+</button><span class="mod">+1</span></div>
-          <p class="padnote"><b>Constitution 16</b> raises her maximum hit points from 52 to 59, and her Constitution saves and concentration checks by 1.</p>
+          <p class="padnote"><b>Constitution 16</b> raises maximum hit points from 52 to 59, and Constitution saves and concentration checks by 1.</p>
         </section>
         <section class="block">
           <h3 class="bhead">Saving throws <button class="editbtn" disabled>Edit</button></h3>
@@ -2309,7 +2637,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
           <div class="dicerow"><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="First d8, 6"><b>6</b><em>d8</em></button></div><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="Second d8, 5"><b>5</b><em>d8</em></button></div><span class="dieplus">+4</span></div>
           <p class="dicemath" aria-live="polite">6 + 5 + 4 = <b>15</b></p>
           <div class="rollafter">
-            <p class="padnote rollnote"><b>13 hit points restored.</b> Brenna reaches her maximum of 44, so 2 are lost.</p>
+            <p class="padnote rollnote"><b>13 hit points restored.</b> Brenna reaches the maximum of 44, so 2 are lost.</p>
             <p class="padnote rollhint">Tap a die to change it.</p>
             <button class="castbtn rollconfirm">Restore 13 hit points</button>
           </div>
@@ -2613,21 +2941,28 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
 <!-- ============================================================ -->
 <section id="layouts">
-  <h2>Phone and desktop</h2>
-  <p class="lead">Two frames were designed: phone at 390 by 812 and desktop at 1440 by 900. The mockup has no in-between layout.</p>
+  <h2>Phone, tablet and desktop</h2>
+  <p class="lead">The list is designed at four sizes: phone at 390 by 812, tablet portrait at 820 by 1180, tablet landscape at 1180 by 820, and desktop at 1440 by 900. Layout follows the window width, not the device.</p>
   <table>
-    <thead><tr><th>Concern</th><th>Phone</th><th>Desktop</th></tr></thead>
+    <thead><tr><th>Breakpoint</th><th>From</th><th>List layout</th></tr></thead>
     <tbody>
-      <tr><td>List</td><td>Stack of bordered, shadowed cards, 9px apart</td><td>Ruled table rows, no card chrome</td></tr>
-      <tr><td>Plate</td><td>Stacked controls, offset shadow</td><td>Single row, drop shadow below only</td></tr>
-      <tr><td>Primary action</td><td>Sticky footer, full width</td><td>In the plate, right aligned</td></tr>
-      <tr><td>Row action</td><td>Whole card, one link stretched over it</td><td>Open sheet link. The rest of the row is not a target until hover is designed.</td></tr>
-      <tr><td>Marks</td><td>One, under the ring</td><td>Two, own column</td></tr>
-      <tr><td>Draft copy</td><td>Short</td><td>Longer, names the next choice</td></tr>
-      <tr><td>Title count</td><td>Superscript</td><td>Omitted</td></tr>
+      <tr><td>Phone</td><td>0</td><td>Plate with search and sort, one column of cards, sticky Create.</td></tr>
+      <tr><td>Tablet</td><td>720</td><td>Band and bar over one column of cards.</td></tr>
+      <tr><td>Tablet, landscape</td><td>1024</td><td>Band and bar over two columns of cards.</td></tr>
+      <tr><td>Desktop</td><td>1280</td><td>Band and bar over desktop rows.</td></tr>
     </tbody>
   </table>
-  <p class="why" style="margin-top:12px">Suggested rule for tablets: keep the phone card layout up to around 900px, then switch to the table. The card grid could also go two-up between 700 and 1100 but that is undesigned.</p>
+  <table>
+    <thead><tr><th>Concern</th><th>Phone</th><th>Tablet</th><th>Desktop</th></tr></thead>
+    <tbody>
+      <tr><td>List</td><td>Bordered, shadowed cards, 14 apart</td><td>The same cards, 16 apart: one column in portrait, two in landscape</td><td>Desktop rows, 16 apart</td></tr>
+      <tr><td>Plate</td><td>Title, search and sort, offset shadow</td><td>Band with the title alone, drop shadow below; search, sort and Create in the sticky bar</td><td>same as tablet</td></tr>
+      <tr><td>Primary action</td><td>Sticky footer, full width</td><td>Right of the bar</td><td>same</td></tr>
+      <tr><td>Row action</td><td>Whole card, one link stretched over it</td><td>same as phone</td><td>Open sheet link. The rest of the row is not a target until hover is designed.</td></tr>
+      <tr><td>Draft copy</td><td>Short</td><td>Longer, names the next choice</td><td>same as tablet</td></tr>
+      <tr><td>Resume label</td><td>&ldquo;Resume&rdquo;</td><td>&ldquo;Resume level-up&rdquo; or &ldquo;Resume creation&rdquo;</td><td>same as tablet</td></tr>
+    </tbody>
+  </table>
 </section>
 
 <!-- ============================================================ -->
@@ -2642,21 +2977,21 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <tr><td>Tokens as custom properties</td><td>A theme object in TypeScript. The derivation is already plain JavaScript with no browser calls, so it ports unchanged. Once code exists, that module is the source of truth and this page mirrors it.</td></tr>
       <tr><td>Pixel sizes</td><td>Density-independent points. The same numbers carry over.</td></tr>
       <tr><td>Cascade and descendant selectors</td><td>Explicit props. The riso skin becomes a style factory that takes the theme; there is no inheritance except for text inside text.</td></tr>
-      <tr><td>Grid columns on rows and the table</td><td>Flexbox. Fixed-width views for the token and action columns, flex 1 for the identity column. React Native has no grid.</td></tr>
-      <tr><td>Media queries</td><td>Window dimensions from a hook, so phone and desktop layouts become a width check.</td></tr>
+      <tr><td>Grid columns on cards and rows</td><td>Flexbox. Fixed-width views for the token, level, hit point and action columns, flex 1 for the identity column. React Native has no grid. The landscape tablet&rsquo;s two columns are rows of two cards, which stretch to one height by default.</td></tr>
+      <tr><td>Media queries</td><td>Window dimensions from <code>useBreakpoint()</code>, which names phone, tablet, landscape tablet and desktop from the widths in <a href="#layouts">layouts</a>.</td></tr>
       <tr><td>Paper texture, three stacked gradients</td><td>Native gradient support exists but is experimental and single-layer in practice. Use one repeating SVG pattern, or a tiled image, painted behind the screen.</td></tr>
       <tr><td>Hard offset shadows</td><td>Box shadow, which needs React Native 0.76 or later on the new architecture, and Android 9 or later. Otherwise draw a plain offset view behind the element, which also turns the pressed state into a position change.</td></tr>
       <tr><td>Inset rings on the level badge, draft token and disabled controls</td><td>A border, or an inset box shadow where available. Inset shadows need Android 10 or later.</td></tr>
-      <tr><td>Dashed rule above the tray</td><td>React Native has no per-side border style, so the rule needs its own view or an SVG line. Dashed card borders are fine, because all four sides match.</td></tr>
+      <tr><td>Dashed rule under the tray</td><td>React Native has no per-side border style, so the rule needs its own view or an SVG line. Dashed card borders are fine, because all four sides match.</td></tr>
       <tr><td>Sticky footer with a fade</td><td>Put the Create button outside the scroll view. Use the gradient route above for the fade, or accept a solid paper bar.</td></tr>
-      <tr><td>Sticky plate</td><td>Sticky header indices on the phone scroll view.</td></tr>
+      <tr><td>Sticky bar</td><td>Sticky header indices on the tablet and desktop scroll view.</td></tr>
       <tr><td>Focus outline</td><td>Outline props, which landed in React Native 0.77 on the new architecture. They draw outside the border box without affecting layout, like CSS.</td></tr>
       <tr><td>Hover, active, focus, disabled selectors</td><td>Pressable's pressed state, focus state from focus and blur handlers, and the disabled prop.</td></tr>
       <tr><td>Placeholder colour</td><td>The placeholder text colour prop on the text input.</td></tr>
       <tr><td>Even-row wash</td><td>Row index parity.</td></tr>
-      <tr><td>Letter spacing in em</td><td>Points, so the values must be multiplied out: -0.03em at 30px is -0.9, and -0.02em at 16.5px is -0.33.</td></tr>
-      <tr><td>Superscript count</td><td>A separate text node aligned to the top. There is no vertical alignment.</td></tr>
-      <tr><td>Reduced motion query</td><td>The accessibility info module. The dice roll reads it and shows its result at once. The header shrink stays, because it tracks the scroll rather than playing on its own.</td></tr>
+      <tr><td>Letter spacing in em</td><td>Points, so the values must be multiplied out: -0.03em at 30px is -0.9, -0.02em at 16.5px is -0.33, and .09em at 11px is 0.99.</td></tr>
+      <tr><td>Reduced motion query</td><td>The accessibility info module, or Reanimated&rsquo;s <code>useReducedMotion()</code>. The dice roll reads it and shows its result at once, and the spinner holds still. The header shrink stays, because it tracks the scroll rather than playing on its own.</td></tr>
+      <tr><td>Spinner</td><td>react-native-svg draws the arc and its track, and Reanimated turns it on the UI thread, so it keeps turning while JavaScript is busy. Not <code>ActivityIndicator</code>, which draws a different native spinner on each platform and takes only a colour.</td></tr>
       <tr><td>Semantic elements and accessibility attributes</td><td>Roles and accessibility props: a header role on titles, labels on icon-only buttons, hidden meters and pips, and selected or disabled state on chips and buttons.</td></tr>
       <tr><td>Hit areas</td><td>Hit slop, with the same numbers as the web rule under accessibility.</td></tr>
       <tr><td>Colour input overlaid on the token</td><td>The tap is a Pressable. Web (including React Native Web) uses a hidden colour input, as here. iOS 14+ can present <code>UIColorPickerViewController</code> from that press. Android has no system colour picker, so present one in the static bottom sheet, the system's overlay shape. The token is the control on every platform; only the picker UI behind it changes.</td></tr>
@@ -2704,10 +3039,10 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <thead><tr><th>Topic</th><th>Status</th></tr></thead>
     <tbody>
       <tr><td>Focus</td><td>Defined in interaction states. Every interactive element shows a 2px outline on keyboard focus.</td></tr>
-      <tr><td>Motion</td><td>The system has two animations, both on the sheet: the header shrinks continuously as the page scrolls, and the dice roll animates while it rolls, about half a second, stepped between fixed poses with its shadow held still. Nothing else moves: state changes are instant. <code>prefers-reduced-motion</code> shows the roll&rsquo;s result at once, and a tap skips it. Screen readers hear only the result.</td></tr>
+      <tr><td>Motion</td><td>The system has three animations. On the sheet, the header shrinks continuously as the page scrolls, and the dice roll animates while it rolls, about half a second, stepped between fixed poses with its shadow held still. On the list, the loading spinner turns while data loads, and holds still when reduced motion is on. Nothing else moves: state changes are instant. <code>prefers-reduced-motion</code> shows the roll&rsquo;s result at once, and a tap skips it. Screen readers hear only the result.</td></tr>
       <tr><td>Text opacity</td><td>Banned. The mockup used opacity on the tray heading, column headers, title count and ring label, which pushed them below contrast. All four are now solid.</td></tr>
-      <tr><td>Colour alone</td><td>Hurt is shown by meter colour, a "Below half" mark and the number. Death saves differ in shape as well as colour and are spelled out in the line. Token colour carries no meaning.</td></tr>
-      <tr><td>Semantics</td><td>Cards are <code>article</code> with the name as a link stretched over the card, names are <code>h3</code>, search has a label, and filter chips are a radio group. Meters and pips are decorative or collapsed into one control; the adjacent text carries the value. On the character sheet: switches that swap the content below are <code>tablist</code> with <code>aria-selected</code> (sheet tabs, rest length, catalog or custom, the pad's tabs, the coin switch), single choices are <code>radiogroup</code> with <code>aria-checked</code> (ranks, alignment, ability, uses, ends, gain or spend), multi-select toggles keep <code>aria-pressed</code> (conditions, inspiration), and a pip row is one <code>spinbutton</code> with <code>aria-valuetext</code> such as "1 of 2 left", stepped with arrow keys, Home and End. Arrow keys move a choice with roving focus. A toggle row with a details chevron is two siblings, a label and a button, so opening details never toggles the row. Bottom sheets are <code>dialog</code> with <code>aria-modal</code>: the page behind is inert, focus cycles inside, and the opener carries <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>. Disclosures report <code>aria-expanded</code>. The header's vitals block is one button named by its numbers, and live regions carry the notes' save status and the roll's running total.</td></tr>
+      <tr><td>Colour alone</td><td>Hurt is shown by meter colour and the number, which turns rose as well; on the sheet a "Below half" mark adds to it. Death saves differ in shape as well as colour and are spelled out in the line. Token colour carries no meaning.</td></tr>
+      <tr><td>Semantics</td><td>Cards are <code>article</code> with the name as a link stretched over the card, names are <code>h3</code>, search has a label, and filter chips are a radio group. Meters and pips are decorative or collapsed into one control; the adjacent text carries the value. On the list, loading and searching are polite live regions, error notices are alerts, spinners are hidden, and a level block with no classes reads &ldquo;Level not set&rdquo;. On the character sheet: switches that swap the content below are <code>tablist</code> with <code>aria-selected</code> (sheet tabs, rest length, catalog or custom, the pad's tabs, the coin switch), single choices are <code>radiogroup</code> with <code>aria-checked</code> (ranks, alignment, ability, uses, ends, gain or spend), multi-select toggles keep <code>aria-pressed</code> (conditions, inspiration), and a pip row is one <code>spinbutton</code> with <code>aria-valuetext</code> such as "1 of 2 left", stepped with arrow keys, Home and End. Arrow keys move a choice with roving focus. A toggle row with a details chevron is two siblings, a label and a button, so opening details never toggles the row. Bottom sheets are <code>dialog</code> with <code>aria-modal</code>: the page behind is inert, focus cycles inside, and the opener carries <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>. Disclosures report <code>aria-expanded</code>. The header's vitals block is one button named by its numbers, and live regions carry the notes' save status and the roll's running total.</td></tr>
       <tr><td>Hit areas</td><td>Every control answers taps across at least 44 by 44. On web the extension is an invisible <code>::after</code> centred on the control, so layout and appearance do not change. Where two controls sit closer than that, their areas meet at the midpoint of the gap instead of overlapping, and 24 is the floor in that direction, the WCAG 2.2 AA minimum. Chips extend to 44 tall and keep their own width. Text fields get a real 44 minimum height instead, because an overlay would cover the caret.</td></tr>
       <tr><td>Native semantics</td><td>HTML elements and accessibility attributes map onto React Native roles and props. See React Native.</td></tr>
     </tbody>
@@ -2739,6 +3074,15 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <li><b>Bottom sheets are modal.</b> A scrim in <code>--scrim</code> dims the page, which is inert; focus cycles inside the sheet; Escape, Close or a tap on the scrim closes it and returns focus to the opener, which carries <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>. No drag, no slide, no grab handle. 13 and 14 September 2026.</li>
     <li><b>Editing.</b> Persistent facts sit behind a per-section Edit; an open block takes the draft skin (dashed border, <code>--draft-bg</code>, no shadow) with Cancel and Save, "Was" marks on changed values, and knock-on effects spelled out. List removals are staged until Save; every Add opens its own screen and commits from its footer. 13 September 2026.</li>
     <li><b>Destructive button.</b> Outlined in <code>--b-text</code>, no shadow, never the primary look, used for anything that removes something or ends in death. 13 September 2026.</li>
+    <li><b>The list redesign.</b> Where the character list mockup and this document disagreed, the mockup won: no armour ring, marks, filter chips, level badge or desktop table on the list; structural tokens; the tray above the list; outlined search, sort and Resume. Patterns the sheet still uses stay here, marked sheet only. 25 September 2026.</li>
+    <li><b>Primary stays rose.</b> The list tried a structural Create character and went back to the rose primary, so the list and the sheet share one primary look. 25 September 2026.</li>
+    <li><b>Level block and sort.</b> Level moves off the token into its own block, with a dim dash when a character has no classes. Sort is one button that switches between level and name, with no menu. 25 September 2026.</li>
+    <li><b>Meter rounding.</b> The nearest whole segment, held between 1 and 9 while hit points are above 0 and below the maximum. No hit points shows &ldquo;Hit points not set&rdquo; and no meter. 25 September 2026.</li>
+    <li><b>Wrapping.</b> Names and subtitles wrap and never truncate, on every card and row. 25 September 2026.</li>
+    <li><b>Tablet.</b> The desktop band and bar over phone cards: one column from 720, two from 1024, desktop rows from 1280. Cards in a row share a height. 25 September 2026.</li>
+    <li><b>List states.</b> A spinner for first load and a small one in the search field; a dashed slate for an empty list or no results; a larger warning strip for errors, with a dashed development notice for the temporary 401 copy. 25 September 2026.</li>
+    <li><b>Motion, again.</b> The loading spinner is a third exception to instant state changes. It holds still with reduced motion. 25 September 2026.</li>
+    <li><b>No pronouns.</b> Copy calls a character by name or avoids referring to them, because the app stores no pronouns. This replaces the third-person example in case and person, and the sheet&rsquo;s pronoun copy is due for a rewrite. 25 September 2026.</li>
   </ul>
 </section>
 
@@ -2748,8 +3092,9 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <p class="lead">Deliberately left until a screen needs them.</p>
   <ul style="max-width:70ch;color:#c3c9d1">
     <li><b>Hover.</b> Desktop needs some pointer feedback. It should stay within the print metaphor and must not move layout.</li>
-    <li><b>Empty states.</b> Design each one with its screen: no characters, no search results, no drafts.</li>
-    <li><b>Tablet.</b> Nothing exists between 390 and 1440 wide. Decide once two or three screens show what needs to reflow.</li>
+    <li><b>Empty states.</b> The list&rsquo;s are designed; see <a href="#list-states">list states</a>. Design the rest with their screens.</li>
+    <li><b>Zero hit points on the list.</b> Dying, stable and dead need death saves in the list&rsquo;s API. Until then a list card at 0 shows an empty meter.</li>
+    <li><b>Sheet copy.</b> The sheet mockup still uses she and her, which the no pronouns rule retires. The specimens here are already neutral. Text a player writes, such as an appearance note, is theirs and stays as written.</li>
     <li><b>Dark mode.</b> The derivation should handle a dark paper, but no dark pairing has been tried. Stored token hexes do not remap with the theme.</li>
     <li><b>Level-up wizard.</b> The Character tab has its entry and the draft card; the flow itself is its own screen set.</li>
     <li><b>Edit conflicts.</b> <code>lock_version</code> catches a change made from another device while a section is open. Nothing shows what happens then.</li>
