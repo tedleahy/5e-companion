@@ -48,7 +48,7 @@ ActiveRecord::Base.transaction do
       current_hit_points: 38,
       overrides: { "armor_class" => 19 },
       classes: [
-        { name: "Cleric", level: 7, subclass_name: "Life Domain" },
+        { name: "Cleric", level: 7, subclass_name: "Life domain" },
       ],
       resources: [
         { key: "channel_divinity", name: "Channel Divinity", current: 1, maximum_override: 2,
@@ -84,7 +84,7 @@ ActiveRecord::Base.transaction do
       temporary_hit_points: 5,
       overrides: { "armor_class" => 13 },
       classes: [
-        { name: "Warlock", level: 6, subclass_name: "The Fiend" },
+        { name: "Warlock", level: 6, subclass_name: "the Fiend" },
       ],
       resources: [
         { key: "pact_magic", name: "Pact Magic", current: 1, maximum_override: 2,
@@ -103,7 +103,7 @@ ActiveRecord::Base.transaction do
       current_hit_points: 9,
       overrides: { "armor_class" => 15 },
       classes: [
-        { name: "Rogue", level: 4, subclass_name: "Arcane Trickster" },
+        { name: "Rogue", level: 4, subclass_name: "Arcane trickster" },
       ],
       resources: [
         { key: "hit_dice", name: "Hit Dice", current: 1,
@@ -126,7 +126,7 @@ ActiveRecord::Base.transaction do
       current_hit_points: 28,
       overrides: { "armor_class" => 18 },
       classes: [
-        { name: "Paladin", level: 3, subclass_name: "Oath of Devotion" },
+        { name: "Paladin", level: 3, subclass_name: "Oath of devotion" },
       ],
       resources: [
         { key: "lay_on_hands", name: "Lay on Hands", current: 15, maximum_override: 15,
