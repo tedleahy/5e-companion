@@ -8,7 +8,9 @@
 #
 # Read more: https://github.com/cyu/rack-cors
 if Rails.env.local?
-  tailscale_addresses = IPAddr.new("100.64.0.0/10")
+  require_relative "../tailscale"
+
+  magic_dns_name = /\A#{Tailscale::MAGIC_DNS_NAME}\z/
 
   # Origins are allowed on any port:
   # - http://localhost and http://127.0.0.1
@@ -17,14 +19,14 @@ if Rails.env.local?
   allowed_origin = lambda do |origin, _env|
     uri = URI.parse(origin)
     host = uri.host.to_s.downcase
-    magic_dns = host.end_with?(".ts.net")
+    magic_dns = magic_dns_name.match?(host)
 
     case uri.scheme
     when "http"
       next true if magic_dns || %w[localhost 127.0.0.1].include?(host)
 
       begin
-        tailscale_addresses.include?(IPAddr.new(host))
+        Tailscale::ADDRESSES.include?(IPAddr.new(host))
       rescue IPAddr::Error
         false
       end

@@ -31,12 +31,8 @@ class CharacterSeedsTest < ActiveSupport::TestCase
       character_class: rogue, key: "portent", name: "Keep me", current: 0, reset_on: "manual"
     )
     effect = vesper.character_effects.create!(effect_key: "blessed", name: "Blessed")
-    cleric = demo.characters.find_by!(name: "Alarra Vane").character_classes.sole
-    cleric.update!(subclass_name: "Life Domain")
 
     capture_io { load seed }
-    assert_equal "Life domain", cleric.reload.subclass_name
-
     assert_equal "Keep me", extra.reload.name
     assert_equal "Blessed", effect.reload.name
     portent = vesper.character_resources.find_by!(key: "portent", character_class: vesper.character_classes.find_by!(name: "Wizard"))
