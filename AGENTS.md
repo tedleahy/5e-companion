@@ -20,6 +20,7 @@
 - The app runs in Expo Go. Say so before adding a package with native code that Expo Go lacks.
 - Run `npm run lint`, `npm run typecheck` and `npm test` before finishing.
 - Separate adjacent assertions in tests with newlines.
+- Add JSDoc to any type, function, or exported variable unless it's already immediately obvious what it does without the JSDoc
 
 ## Agent shell
 
