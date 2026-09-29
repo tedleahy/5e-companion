@@ -7,6 +7,7 @@ import { deriveColors, duskBlueDustyRose } from './colors';
  * this module and the doc disagree, this module is the source of truth.
  */
 
+/** Colour tokens for the current palette. */
 export const colors = deriveColors(duskBlueDustyRose);
 
 /**

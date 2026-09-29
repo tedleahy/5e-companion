@@ -22,6 +22,7 @@ export type Inks = {
   mix: string;
 };
 
+/** Every colour token: the five inks plus the tokens derived from them. */
 export type Colors = Inks & {
   ink: string;
   dim: string;
@@ -49,8 +50,10 @@ export const duskBlueDustyRose: Inks = {
   mix: '#5c3d88',
 };
 
+/** The WCAG AA contrast minimum for body text. */
 const AA = 4.5;
 
+/** Parses `#rrggbb` or the short `#rgb` form. */
 function hexToRgb(hex: string): [number, number, number] {
   let digits = hex.replace('#', '');
   if (digits.length === 3) {
@@ -63,6 +66,7 @@ function hexToRgb(hex: string): [number, number, number] {
   ];
 }
 
+/** Formats channels as `#rrggbb`, rounding and clamping each to 0–255. */
 function rgbToHex(r: number, g: number, b: number): string {
   return (
     '#' +
@@ -84,6 +88,7 @@ function rgba(hex: string, alpha: number): string {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
+/** WCAG relative luminance, from 0 for black to 1 for white. */
 function luminance(hex: string): number {
   const [r, g, b] = hexToRgb(hex).map((c) => {
     const s = c / 255;
@@ -99,6 +104,10 @@ export function contrast(x: string, y: string): number {
   return p > q ? p / q : q / p;
 }
 
+/**
+ * Numbers from `from` to `to` inclusive, `by` apart. Each is rounded to two decimals so that
+ * floating point drift doesn't miss the end. `by` is negative to count down.
+ */
 function steps(from: number, to: number, by: number): number[] {
   const out: number[] = [];
   const n = Math.round((to - from) / by);
@@ -132,7 +141,8 @@ export function deriveColors({ paper, sheet, a, b, mix: overprint }: Inks): Colo
   // against the tint over paper as well as over the card colour.
   const draftSolid = mix(sheet, b, 0.11);
   const draftOnPaper = mix(paper, b, 0.11);
-  const chipAlpha = steps(0.16, 0, -0.02).find((alpha) => contrast(onA, mix(a, onA, alpha)) >= AA) ?? 0;
+  const chipAlpha =
+    steps(0.16, 0, -0.02).find((alpha) => contrast(onA, mix(a, onA, alpha)) >= AA) ?? 0;
 
   return {
     paper,
@@ -141,11 +151,20 @@ export function deriveColors({ paper, sheet, a, b, mix: overprint }: Inks): Colo
     b,
     mix: overprint,
     ink,
-    dim: ensure((t) => mix(ink, paper, t), steps(0.42, 0, -0.02), [paper, sheet, draftSolid, draftOnPaper]),
+    dim: ensure((t) => mix(ink, paper, t), steps(0.42, 0, -0.02), [
+      paper,
+      sheet,
+      draftSolid,
+      draftOnPaper,
+    ]),
     onA,
     onB: onInk(b, paper),
     onMix: onInk(overprint, paper),
-    bText: ensure((t) => mix(b, '#1a0a08', t), steps(0.15, 0.9, 0.05), [sheet, draftSolid, draftOnPaper]),
+    bText: ensure((t) => mix(b, '#1a0a08', t), steps(0.15, 0.9, 0.05), [
+      sheet,
+      draftSolid,
+      draftOnPaper,
+    ]),
     wash: rgba('#ffffff', 0.5),
     dot: rgba(a, 0.13),
     line: rgba(b, luminance(b) > 0.6 ? 0.28 : 0.18),

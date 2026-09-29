@@ -12,7 +12,10 @@ export function Characters() {
     <SafeAreaView style={styles.screen}>
       <Text
         role="heading"
-        style={[breakpoint === 'phone' ? typography.titlePhone : typography.titleDesktop, styles.title]}
+        style={[
+          breakpoint === 'phone' ? typography.titlePhone : typography.titleDesktop,
+          styles.title,
+        ]}
       >
         Characters
       </Text>
