@@ -632,42 +632,56 @@
 
         <section id="step-5">
           <h2><span class="step-no">5</span>Display helpers</h2>
-          <p class="outcome">Every string and number the list shows is derived by a pure, unit-tested
-            function, so the components only lay things out.</p>
+          <p class="outcome">Derived copy and hit point meter values come from pure, unit-tested
+            helpers. Static labels and values already supplied by the API, such as total level, do not
+            need their own functions.</p>
           <dl class="meta">
-            <dt>Touches</dt><dd><code>frontend/src/characters/display.ts</code> and its test</dd>
+            <dt>Touches</dt><dd><code>frontend/src/characters/display.ts</code>, its test, and
+              <code>frontend/package.json</code> and its lockfile for grapheme segmentation</dd>
             <dt>Depends on</dt><dd>Step 4 for the types, and copy approved in step 1</dd>
             <dt>Review focus</dt><dd>Edge cases and copy. There is no UI in this step.</dd>
+            <dt>Status</dt><dd>Done. Display helpers and their tests are implemented; lint, typecheck
+              and the full test suite pass.</dd>
           </dl>
           <table class="compact">
             <tr><th>Helper</th><th>Behaviour</th></tr>
-            <tr><td><code>initial(name)</code></td><td>First character, uppercased, measured by code
-              point so an emoji or accented letter doesn't split. An empty name follows the step 1
-              decision.</td></tr>
+            <tr><td><code>initial(name)</code></td><td>First grapheme cluster, uppercased, so combining
+              accents and joined emoji stay together. Trim surrounding whitespace. A null, empty or
+              whitespace-only name returns an empty string, giving an unnamed draft an empty token.
+              Derive the initial from the actual name, never the fallback title "New character".
+              Use <code>unicode-segmenter/grapheme</code>, a small pure JavaScript dependency that works
+              in Expo Go, because Hermes lacks <code>Intl.Segmenter</code>. Use the same implementation
+              on web and native, without a global polyfill.</td></tr>
             <tr><td><code>subtitle(character)</code></td><td>Uses the subrace name, else the race name.
               Class names are lowercased. One class reads "Mountain dwarf fighter, Champion". More than one
               reads "Rock gnome wizard 5 / rogue 2, Divination", with each subclass that is present joined
               by ", " in class order. Missing parts are left out, and the first letter is capitalised if
               the ancestry is missing. With no ancestry and no classes it returns "Race and class not
               set".</td></tr>
-            <tr><td><code>hitPoints(hp)</code></td><td>Returns <code>null</code> when the meter is
-              unavailable; otherwise the filled segment count, <code>hurt</code>, and the line split into
-              the bold current value and the rest ("/72 hit points", then ", 5 temporary" when temporary
-              is above 0). Follows the rules in step 0.</td></tr>
-            <tr><td><code>countWord(n)</code></td><td>"zero" to "ten", then digits. Capitalised where a
-              sentence starts.</td></tr>
-            <tr><td><code>nextStepPhrase(step)</code></td><td>Maps the known <code>next_step</code>
-              values to the approved phrases, and returns <code>null</code> for any other value, which
-              drops that sentence rather than showing a raw key.</td></tr>
+            <tr><td><code>hitPoints(hp)</code></td><td>Always returns display data with a
+              <code>meter</code> and a <code>line</code>. The available meter holds the filled segment
+              count and <code>hurt</code>; the line holds the bold current value and the rest
+              ("/72 hit points", then ", 5 temporary" when temporary is above 0). When unavailable,
+              the meter and bold current value are null and the rest reads "Hit points not set".
+              Clamp the meter, preserving the actual current value in the text, even above the maximum.
+              Follows the rules in step 0.</td></tr>
+            <tr><td><code>getNumberWord(n)</code>, private</td><td>Lowercase "zero" to "ten", then
+              digits. Only <code>draftCopy</code> uses it and handles sentence capitalisation.</td></tr>
+            <tr><td>Next-step lookup, private</td><td>A lookup table maps <code>choose_class</code>
+              to "choosing a class" and <code>ability_score_or_feat</code> to "an ability increase or a
+              feat". Any other value drops the Next up sentence rather than showing a raw key. No
+              exported <code>nextStepPhrase</code> function is needed.</td></tr>
             <tr><td><code>draftCopy(draft, compact)</code></td><td>Title, detail and resume label for
-              either draft kind. <code>compact</code> selects the phone copy. Uses the approved copy from
-              step 1.</td></tr>
+              either draft kind. <code>compact</code> selects the phone copy, which omits the next step.
+              Wide copy adds "new character" to a named creation title, but leaves an unnamed title as
+              "New character". Uses the approved copy from step 1; use "choice" when the total is one.</td></tr>
           </table>
           <h3>Tests</h3>
           <p>One test for each row of the mockup, reproducing its subtitle, segment count, hurt state and
             hit point line. Add edge cases: no classes, no ancestry, null and zero hit points, current
             above the maximum, 1 hit point, the maximum minus one, an unknown <code>next_step</code>, an
-            unnamed creation draft.</p>
+            unnamed creation draft. Cover combining accents and joined emoji, both sizes of draft copy,
+            zero, ten and larger choice counts, and the singular "choice".</p>
         </section>
 
         <section id="step-6">
