@@ -336,7 +336,11 @@
             <tr><td>Navigation</td><td>Card taps, Open sheet, Resume and Create character render with full
               press and focus states but do nothing. Each takes an optional <code>onPress</code> prop that
               the screen leaves unset, so a later plan only has to pass handlers. They are not styled as
-              disabled. Try again in the error state does work, because it stays on this screen.</td></tr>
+              disabled. Try again in the error state does work, because it stays on this screen. Card
+              taps and Open sheet are links, and a handler alone won't do for them: React Native Web
+              leaves Enter on the link role to the browser, which only acts on a real anchor, so a
+              keyboard can't open them. The navigation plan gives them an <code>href</code> instead,
+              for example through expo-router's <code>Link asChild</code>.</td></tr>
             <tr><td>Fetching</td><td>TanStack Query v5, which is pure JavaScript and runs in Expo Go.
               Search is sent as <code>q</code> after a 250&nbsp;ms debounce. Stale requests are cancelled
               through the query's <code>AbortSignal</code>, and the previous list stays on screen while a
@@ -894,7 +898,8 @@
           <h3>Next plans</h3>
           <ul>
             <li>Navigation: the character sheet route, the draft resume routes, and create
-              character.</li>
+              character. Card taps and Open sheet get an <code>href</code>, so they render as real
+              anchors and open with Enter; see the navigation decision in step 0.</li>
             <li>Real sign-in, replacing the development token and the temporary "Not signed in"
               copy.</li>
             <li>Zero hit point states on the list, once the API returns death saves.</li>
