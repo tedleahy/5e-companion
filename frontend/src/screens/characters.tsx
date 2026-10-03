@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.paper,
   },
   title: {
-    color: colors.ink,
+    color: colors.text,
   },
   subtitle: {
     color: colors.dim,

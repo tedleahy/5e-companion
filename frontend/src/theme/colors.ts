@@ -13,41 +13,41 @@ export type Inks = {
   /** Page background. */
   paper: string;
   /** Card, field and ring surface, one step lighter than paper. */
-  sheet: string;
-  /** Structural ink: plates, borders, primary numbers. */
-  a: string;
-  /** Accent ink: offset shadows, hurt state, primary actions. */
-  b: string;
-  /** Overprint, for concentration marks. */
-  mix: string;
+  card: string;
+  /** Plates, borders, primary numbers. */
+  structural: string;
+  /** Offset shadows, hurt state, primary actions. */
+  accent: string;
+  /** Concentration marks. */
+  overprint: string;
 };
 
 /** Every colour token: the five inks plus the tokens derived from them. */
 export type Colors = Inks & {
-  ink: string;
+  text: string;
   dim: string;
-  onA: string;
-  onB: string;
-  onMix: string;
-  bText: string;
+  onStructural: string;
+  onAccent: string;
+  onOverprint: string;
+  accentText: string;
   wash: string;
   dot: string;
   line: string;
-  empty: string;
-  draftBg: string;
+  track: string;
+  draftFill: string;
   rule: string;
-  chip: string;
-  chip2: string;
+  chipOnPlate: string;
+  chipOnPaper: string;
   scrim: string;
 };
 
 /** The current pairing, "Dusk blue / dusty rose". */
 export const duskBlueDustyRose: Inks = {
   paper: '#eae6de',
-  sheet: '#f0ece4',
-  a: '#2560b0',
-  b: '#e0689c',
-  mix: '#5c3d88',
+  card: '#f0ece4',
+  structural: '#2560b0',
+  accent: '#e0689c',
+  overprint: '#5c3d88',
 };
 
 /** The WCAG AA contrast minimum for body text. */
@@ -133,46 +133,48 @@ function onInk(bg: string, paper: string): string {
 }
 
 /** Derives every colour token from the five source inks. */
-export function deriveColors({ paper, sheet, a, b, mix: overprint }: Inks): Colors {
-  let ink = mix(a, '#14110e', luminance(a) > 0.2 ? 0.72 : 0.35);
-  if (luminance(ink) > 0.22) ink = mix(ink, '#14110e', 0.55);
-  const onA = onInk(a, paper);
+export function deriveColors({ paper, card, structural, accent, overprint }: Inks): Colors {
+  let text = mix(structural, '#14110e', luminance(structural) > 0.2 ? 0.72 : 0.35);
+  if (luminance(text) > 0.22) text = mix(text, '#14110e', 0.55);
+  const onStructural = onInk(structural, paper);
   // A draft's tint is see-through and sits on paper, so text is checked
   // against the tint over paper as well as over the card colour.
-  const draftSolid = mix(sheet, b, 0.11);
-  const draftOnPaper = mix(paper, b, 0.11);
+  const draftSolid = mix(card, accent, 0.11);
+  const draftOnPaper = mix(paper, accent, 0.11);
   const chipAlpha =
-    steps(0.16, 0, -0.02).find((alpha) => contrast(onA, mix(a, onA, alpha)) >= AA) ?? 0;
+    steps(0.16, 0, -0.02).find(
+      (alpha) => contrast(onStructural, mix(structural, onStructural, alpha)) >= AA,
+    ) ?? 0;
 
   return {
     paper,
-    sheet,
-    a,
-    b,
-    mix: overprint,
-    ink,
-    dim: ensure((t) => mix(ink, paper, t), steps(0.42, 0, -0.02), [
+    card,
+    structural,
+    accent,
+    overprint,
+    text,
+    dim: ensure((t) => mix(text, paper, t), steps(0.42, 0, -0.02), [
       paper,
-      sheet,
+      card,
       draftSolid,
       draftOnPaper,
     ]),
-    onA,
-    onB: onInk(b, paper),
-    onMix: onInk(overprint, paper),
-    bText: ensure((t) => mix(b, '#1a0a08', t), steps(0.15, 0.9, 0.05), [
-      sheet,
+    onStructural,
+    onAccent: onInk(accent, paper),
+    onOverprint: onInk(overprint, paper),
+    accentText: ensure((t) => mix(accent, '#1a0a08', t), steps(0.15, 0.9, 0.05), [
+      card,
       draftSolid,
       draftOnPaper,
     ]),
     wash: rgba('#ffffff', 0.5),
-    dot: rgba(a, 0.13),
-    line: rgba(b, luminance(b) > 0.6 ? 0.28 : 0.18),
-    empty: rgba(luminance(b) > 0.55 ? mix(b, '#3a3010', 0.35) : b, 0.26),
-    draftBg: rgba(b, 0.11),
-    rule: rgba(a, 0.28),
-    chip: rgba(onA, chipAlpha),
-    chip2: rgba(ink, 0.08),
-    scrim: rgba(ink, 0.4),
+    dot: rgba(structural, 0.13),
+    line: rgba(accent, luminance(accent) > 0.6 ? 0.28 : 0.18),
+    track: rgba(luminance(accent) > 0.55 ? mix(accent, '#3a3010', 0.35) : accent, 0.26),
+    draftFill: rgba(accent, 0.11),
+    rule: rgba(structural, 0.28),
+    chipOnPlate: rgba(onStructural, chipAlpha),
+    chipOnPaper: rgba(text, 0.08),
+    scrim: rgba(text, 0.4),
   };
 }
