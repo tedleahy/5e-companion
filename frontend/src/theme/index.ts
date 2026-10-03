@@ -1,11 +1,13 @@
 import type { TextStyle } from 'react-native';
 
-import { deriveColors, duskBlueDustyRose } from './colors';
+import { deriveColors, duskBlueDustyRose, type Colors } from './colors';
 
 /**
  * Design tokens. `docs/design-system.html` describes what they are for; once
  * this module and the doc disagree, this module is the source of truth.
  */
+
+export type { Colors };
 
 /** Colour tokens for the current palette. */
 export const colors = deriveColors(duskBlueDustyRose);
@@ -34,7 +36,45 @@ export const typography = {
   columnHeader: { fontFamily: fonts.bold, fontSize: 11.5 },
   mark: { fontFamily: fonts.semiBold, fontSize: 11 },
   ringLabel: { fontFamily: fonts.bold, fontSize: 8 },
+  initialPhone: { fontFamily: fonts.bold, fontSize: 20 },
+  initialDesktop: { fontFamily: fonts.bold, fontSize: 23 },
+  levelNumber: { fontFamily: fonts.bold, fontSize: 26, letterSpacing: -0.78, lineHeight: 26 },
+  // Small labels are the only tracked text besides titles and names. Their copy is written in
+  // sentence case and uppercased here.
+  smallLabel: {
+    fontFamily: fonts.bold,
+    fontSize: 11,
+    letterSpacing: 0.99,
+    lineHeight: 11,
+    textTransform: 'uppercase',
+  },
+  smallLabelDesktop: {
+    fontFamily: fonts.bold,
+    fontSize: 13,
+    letterSpacing: 1.17,
+    lineHeight: 13,
+    textTransform: 'uppercase',
+  },
+  /** A large primary button. */
+  buttonPrimary: { fontFamily: fonts.bold, fontSize: 15 },
+  /** A medium primary button. */
+  buttonPrimaryCompact: { fontFamily: fonts.bold, fontSize: 14 },
+  /** Large and medium secondary buttons. */
+  buttonSecondary: { fontFamily: fonts.bold, fontSize: 13 },
+  /** A small secondary button. */
+  buttonSecondaryCompact: { fontFamily: fonts.bold, fontSize: 12.5 },
 } satisfies Record<string, TextStyle>;
+
+/** How far an offset shadow sits below and to the right of its surface, in points. */
+export type ShadowDepth = 3 | 4 | 5;
+
+/**
+ * A hard print shadow, offset `depth` points down and right with no blur, in the colour token
+ * `token`. The result is a `boxShadow` style string.
+ */
+export function offsetShadow(depth: ShadowDepth, token: keyof Colors): string {
+  return `${depth}px ${depth}px 0 ${colors[token]}`;
+}
 
 /**
  * Minimum window widths for each layout. The mockups are drawn at 390
