@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>5e Companion design system, v0.5</title>
+<title>5e Companion design system, v0.6</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -43,6 +43,7 @@ table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0 0}
 th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #3c4046;vertical-align:top}
 th{font-weight:600;color:#8a919a;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em}
 td code{white-space:nowrap}
+td:has(> .sw){white-space:nowrap}
 .sw{display:inline-block;width:22px;height:22px;vertical-align:middle;margin-right:8px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
 .sw.on-paper{background-color:#eae6de;background-image:var(--sw-fill)}
 .specimen{margin:12px 0 0;padding:26px 24px;overflow:hidden;position:relative}
@@ -63,8 +64,8 @@ td code{white-space:nowrap}
 .type-row{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--rule)}
 .type-row small{font:500 11px/1.3 "Manrope",system-ui,sans-serif;color:var(--dim)}
 .space-row{display:flex;align-items:center;gap:12px;margin:6px 0;font-size:12.5px;color:var(--dim)}
-.space-row i{display:block;height:14px;background:var(--a)}
-.space-row b{width:38px;font-weight:700;color:var(--ink)}
+.space-row i{display:block;height:14px;background:var(--structural)}
+.space-row b{width:38px;font-weight:700;color:var(--text)}
 @media (max-width:860px){.doc-layout{grid-template-columns:1fr}.doc-nav{position:static}}
 :focus-visible{outline:2px solid #7cc4ff;outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -78,38 +79,38 @@ td code{white-space:nowrap}
 .riso{
   /* source inks */
   --paper:#eae6de;   /* page background */
-  --sheet:#f0ece4;   /* card and field surface, one step lighter than paper */
-  --a:#2560b0;       /* structural ink: plates, borders, primary text accents */
-  --b:#e0689c;       /* accent ink: offset shadows, hurt state, CTA */
-  --mix:#5c3d88;     /* overprint: where a and b would overlap; concentration marks */
+  --card:#f0ece4;   /* card and field surface, one step lighter than paper */
+  --structural:#2560b0;       /* structural ink: plates, borders, primary text accents */
+  --accent:#e0689c;       /* accent ink: offset shadows, hurt state, CTA */
+  --overprint:#5c3d88;     /* overprint: where structural and accent would overlap; concentration marks */
 
   /* derived. Text tokens are contrast-targeted to 4.5:1, see derive() */
-  --ink:#1f4477;     /* body text, a darkened */
-  --dim:#44618a;     /* secondary text, ink mixed 18% toward paper */
-  --on-a:#f2f0eb;    /* text on structural */
-  --on-b:#412029;    /* text on accent: dark, light text fails on rose */
-  --on-mix:#f2f0eb;  /* text on overprint */
-  --b-text:#914261;  /* accent as text or small graphics on sheet */
+  --text:#1f4477;     /* body text, structural darkened */
+  --dim:#44618a;     /* secondary text, text mixed 18% toward paper */
+  --on-structural:#f2f0eb;    /* text on structural */
+  --on-accent:#412029;    /* text on accent: dark, light text fails on rose */
+  --on-overprint:#f2f0eb;  /* text on overprint */
+  --accent-text:#914261;  /* accent as text or small graphics on card */
   --dot:rgba(37,96,176,.13);     /* grid dots */
   --line:rgba(224,104,156,.18);  /* grid lines */
-  --empty:rgba(224,104,156,.26); /* empty meter segments */
-  --draft-bg:rgba(224,104,156,.11); /* draft card fill */
+  --track:rgba(224,104,156,.26); /* empty meter segments, spinner track */
+  --draft-fill:rgba(224,104,156,.11); /* draft card fill */
   --rule:rgba(37,96,176,.28);    /* hairline rules, disabled outline, dead token */
-  --chip:rgba(242,240,235,.10);  /* inactive chip or tab on a plate */
-  --chip2:rgba(31,68,119,.08);   /* idle pad tab fill on paper */
+  --chip-on-plate:rgba(242,240,235,.10);  /* inactive chip or tab on a plate */
+  --chip-on-paper:rgba(31,68,119,.08);   /* idle pad tab fill on paper */
   --wash:rgba(255,255,255,.5);   /* even table rows, stat tiles, fields */
   --scrim:rgba(31,68,119,.4);    /* dim layer behind a modal bottom sheet */
 
   /* semantic aliases used by components */
-  --full:var(--a);   /* filled meter, same for every character */
-  --low:var(--b);    /* filled meter when below half */
+  --full:var(--structural);   /* filled meter, same for every character */
+  --low:var(--accent);    /* filled meter when below half */
 }
 
 /* =========================================================
    DESIGN SYSTEM: SURFACE
    ========================================================= */
 .riso{
-  font-family:"Space Grotesk",system-ui,sans-serif;color:var(--ink);
+  font-family:"Space Grotesk",system-ui,sans-serif;color:var(--text);
   background:
     radial-gradient(var(--dot) 1.1px,transparent 1.1px) 0 0/9px 9px,
     linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 27px,
@@ -159,7 +160,7 @@ td code{white-space:nowrap}
 .marks{display:flex;gap:6px;flex-wrap:wrap}
 .tray{padding-bottom:16px;margin-bottom:2px}
 .tray.alone{padding-bottom:0}
-.trayhead{margin:0 0 9px;font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.trayhead{margin:0 0 9px;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
 .draft{display:grid;grid-template-columns:56px 1fr auto;gap:13px;align-items:center;padding:11px 12px}
 .draft .sub{margin-bottom:0}
 .draft + .draft{margin-top:12px}
@@ -167,7 +168,7 @@ td code{white-space:nowrap}
 .newwrap{position:sticky;bottom:0;padding:14px 12px 18px;margin-top:8px}
 .newbtn{width:100%;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
 
-/* tablet and desktop: the band, the bar and the list share one measure */
+/* tablet and desktop: the plate, the toolbar and the list share one measure */
 .d{overflow:hidden}
 .dtop-inner,.dbar-inner,.dbody{width:min(1020px,calc(100% - 48px));margin:0 auto}
 .d .dtop{flex-shrink:0;padding:26px 0 24px}
@@ -185,7 +186,7 @@ td code{white-space:nowrap}
 .go{padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
 .d .tray{margin-bottom:4px}
 .d .draft{grid-template-columns:74px minmax(0,1fr) auto;gap:22px;padding:16px 22px}
-/* Tablet puts phone cards under the desktop band and bar. Landscape sets them
+/* Tablet puts phone cards under the desktop plate and toolbar. Landscape sets them
    in two columns, and cards in a row share a height. */
 .tablet .row{grid-template-columns:64px minmax(0,1fr);column-gap:16px;padding:14px 18px}
 .tablet .row .who .sub{margin:2px 0 8px}
@@ -204,19 +205,19 @@ td code{white-space:nowrap}
 .busy{flex:none;display:flex}
 .busy .spinner{width:16px;height:16px;stroke-width:6}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.slate{padding:18px 18px 20px}
+.empty-card{padding:18px 18px 20px}
 .notice{display:flex;gap:11px;align-items:flex-start;padding:16px 16px 18px 14px}
 .notice > svg{width:18px;height:18px;flex:none;margin-top:2px}
 .notice .badgelab{display:block;margin:3px 0 8px}
-:is(.slate,.notice) h3{margin:0 0 5px;font-size:16.5px;font-weight:700;letter-spacing:-.02em;line-height:1.25}
-:is(.slate,.notice) p{margin:0;font-size:13px;line-height:1.5}
+:is(.empty-card,.notice) h3{margin:0 0 5px;font-size:16.5px;font-weight:700;letter-spacing:-.02em;line-height:1.25}
+:is(.empty-card,.notice) p{margin:0;font-size:13px;line-height:1.5}
 .notice b{font-weight:700}
 .retry{margin-top:14px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
-.d :is(.slate,.notice){padding:22px 24px 24px}
+.d :is(.empty-card,.notice){padding:22px 24px 24px}
 .d .notice{gap:13px;padding-left:20px}
 .d .notice > svg{width:20px;height:20px;margin-top:3px}
-.d :is(.slate,.notice) h3{font-size:19px}
-.d :is(.slate,.notice) p{font-size:14px;max-width:64ch}
+.d :is(.empty-card,.notice) h3{font-size:19px}
+.d :is(.empty-card,.notice) p{font-size:14px;max-width:64ch}
 
 /* not in current designs: filter chips and the desktop table */
 .chips{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
@@ -226,71 +227,71 @@ td code{white-space:nowrap}
 .trow{display:grid;grid-template-columns:74px 1fr 200px 104px 224px 132px;gap:16px;align-items:center;padding:14px 34px}
 
 /* riso skin */
-.riso .top{background:var(--a);color:var(--on-a);padding-bottom:16px;box-shadow:5px 5px 0 var(--b)}
+.riso .top{background:var(--structural);color:var(--on-structural);padding-bottom:16px;box-shadow:5px 5px 0 var(--accent)}
 .riso .title{font-weight:700;letter-spacing:-.03em}
-.riso .find label{background:var(--sheet);color:var(--dim);border:2px solid var(--a);box-shadow:4px 4px 0 var(--b)}
-.riso .find input{color:var(--ink)}
+.riso .find label{background:var(--card);color:var(--dim);border:2px solid var(--structural);box-shadow:4px 4px 0 var(--accent)}
+.riso .find input{color:var(--text)}
 .riso .find input::placeholder{color:var(--dim)}
-.riso .sortbtn{background:var(--sheet);color:var(--a);border:2px solid var(--a);font-weight:700;box-shadow:4px 4px 0 var(--b)}
-.riso .chip{background:var(--chip);color:var(--on-a);font-weight:600}
-.riso .chip:is([aria-checked=true],[aria-pressed=true]){background:var(--sheet);color:var(--a);font-weight:700}
-.riso :is(.row,.drow,.draft){background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
-.riso .tok{border-radius:50%;font-weight:700;color:var(--on-tok,var(--on-a));background:var(--tok,var(--a));box-shadow:4px 4px 0 var(--b)}
-.riso .tok b{background:var(--sheet);color:var(--ink);border-radius:50%;box-shadow:0 0 0 2px var(--a)}
-.riso .lvl b{color:var(--a)}
+.riso .sortbtn{background:var(--card);color:var(--structural);border:2px solid var(--structural);font-weight:700;box-shadow:4px 4px 0 var(--accent)}
+.riso .chip{background:var(--chip-on-plate);color:var(--on-structural);font-weight:600}
+.riso .chip:is([aria-checked=true],[aria-pressed=true]){background:var(--card);color:var(--structural);font-weight:700}
+.riso :is(.row,.drow,.draft){background:var(--card);border:2px solid var(--structural);box-shadow:5px 5px 0 var(--accent)}
+.riso .tok{border-radius:50%;font-weight:700;color:var(--on-tok,var(--on-structural));background:var(--tok,var(--structural));box-shadow:4px 4px 0 var(--accent)}
+.riso .tok b{background:var(--card);color:var(--text);border-radius:50%;box-shadow:0 0 0 2px var(--structural)}
+.riso .lvl b{color:var(--structural)}
 .riso .lvl b[data-unset]{color:var(--dim)}
 .riso .badgelab{color:var(--dim)}
 .riso .name{font-weight:700;letter-spacing:-.02em}
 .riso .sub{color:var(--dim)}
 .riso .meter{gap:2px}
 .riso .meter i{height:13px;background:var(--full)}
-.riso .meter i[data-e]{background:var(--empty)}
+.riso .meter i[data-e]{background:var(--track)}
 .riso .meter[data-hurt] i{background:var(--low)}
-.riso .meter[data-hurt] i[data-e]{background:var(--empty)}
+.riso .meter[data-hurt] i[data-e]{background:var(--track)}
 .riso .hp{color:var(--dim);font-weight:500}
-.riso .hp b{color:var(--a);font-weight:700}
-.riso :is(.row,.drow):is(:has(.meter[data-hurt]),[data-hurt]) .hp b{color:var(--b-text)}
-.riso .ac{border-radius:50%;border:2px solid var(--a);color:var(--a);background:var(--sheet);
-  box-shadow:3px 3px 0 var(--b);width:46px;height:46px}
-.riso .mark{border:1.5px solid var(--a);color:var(--a);background:var(--sheet);font-weight:600}
-.riso .mark[data-t=bad]{border-color:var(--b);color:var(--b-text)}
-.riso .mark[data-t=conc]{border-color:var(--mix);color:var(--mix)}
-.riso .tray{border-bottom:2px dashed var(--b)}
+.riso .hp b{color:var(--structural);font-weight:700}
+.riso :is(.row,.drow):is(:has(.meter[data-hurt]),[data-hurt]) .hp b{color:var(--accent-text)}
+.riso .ac{border-radius:50%;border:2px solid var(--structural);color:var(--structural);background:var(--card);
+  box-shadow:3px 3px 0 var(--accent);width:46px;height:46px}
+.riso .mark{border:1.5px solid var(--structural);color:var(--structural);background:var(--card);font-weight:600}
+.riso .mark[data-t=bad]{border-color:var(--accent);color:var(--accent-text)}
+.riso .mark[data-t=conc]{border-color:var(--overprint);color:var(--overprint)}
+.riso .tray{border-bottom:2px dashed var(--accent)}
 .riso .tray.alone{border-bottom:0}
 .riso .trayhead{color:var(--dim)}
-.riso .draft{border-style:dashed;box-shadow:none;background:var(--draft-bg)}
-.riso .draft .tok{background:var(--sheet);color:var(--a);box-shadow:4px 4px 0 var(--rule),inset 0 0 0 2px var(--a)}
-.riso :is(.resume,.retry){background:var(--sheet);color:var(--a);border:2px solid var(--a);box-shadow:3px 3px 0 var(--b)}
-.riso .newbtn{background:var(--b);color:var(--on-b);border:0;box-shadow:5px 5px 0 var(--a)}
+.riso .draft{border-style:dashed;box-shadow:none;background:var(--draft-fill)}
+.riso .draft .tok{background:var(--card);color:var(--structural);box-shadow:4px 4px 0 var(--rule),inset 0 0 0 2px var(--structural)}
+.riso :is(.resume,.retry){background:var(--card);color:var(--structural);border:2px solid var(--structural);box-shadow:3px 3px 0 var(--accent)}
+.riso .newbtn{background:var(--accent);color:var(--on-accent);border:0;box-shadow:5px 5px 0 var(--structural)}
 .riso .newwrap{background:linear-gradient(180deg,transparent,var(--paper) 45%);padding-bottom:24px}
-.riso .d .dtop{background:var(--a);color:var(--on-a);box-shadow:0 5px 0 var(--b);margin-bottom:5px}
-.riso .dbar{background:var(--paper);border-bottom:2px solid var(--a)}
-.riso .go{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
+.riso .d .dtop{background:var(--structural);color:var(--on-structural);box-shadow:0 5px 0 var(--accent);margin-bottom:5px}
+.riso .dbar{background:var(--paper);border-bottom:2px solid var(--structural)}
+.riso .go{background:var(--card);border:2px solid var(--structural);color:var(--structural);box-shadow:3px 3px 0 var(--accent)}
 .riso .quiet{color:var(--dim)}
-.riso .spinner circle{stroke:var(--empty)}
-.riso .spinner path{stroke:var(--a)}
-/* A dashed slate is a card not printed yet. An error is a warning strip, larger. */
-.riso .slate{background:var(--sheet);border:2px dashed var(--a)}
-.riso .notice{background:var(--sheet);border-left:4px solid var(--b-text)}
-.riso .notice > svg{color:var(--b-text)}
-.riso :is(.slate,.notice) p{color:var(--dim)}
-.riso .notice b{color:var(--ink)}
-.riso .notice.dev{border:2px dashed var(--a);border-left:4px solid var(--b-text)}
-.riso .cols{color:var(--dim);border-bottom:2px solid var(--a)}
+.riso .spinner circle{stroke:var(--track)}
+.riso .spinner path{stroke:var(--structural)}
+/* A dashed empty card is a card not printed yet. An error is a warning strip, larger. */
+.riso .empty-card{background:var(--card);border:2px dashed var(--structural)}
+.riso .notice{background:var(--card);border-left:4px solid var(--accent-text)}
+.riso .notice > svg{color:var(--accent-text)}
+.riso :is(.empty-card,.notice) p{color:var(--dim)}
+.riso .notice b{color:var(--text)}
+.riso .notice.dev{border:2px dashed var(--structural);border-left:4px solid var(--accent-text)}
+.riso .cols{color:var(--dim);border-bottom:2px solid var(--structural)}
 .riso .trow{border-bottom:1.5px solid var(--rule)}
 .riso .trow:nth-child(even){background:var(--wash)}
 
 /* interaction states (also in the mockup) */
-.riso :focus-visible{outline:2px solid var(--a);outline-offset:3px}
-.riso .top :focus-visible,.riso .dtop :focus-visible{outline-color:var(--on-a)}
-.riso .find label:focus-within{outline:2px solid var(--on-a);outline-offset:3px}
-.riso .dbar .find label:focus-within{outline-color:var(--a)}
+.riso :focus-visible{outline:2px solid var(--structural);outline-offset:3px}
+.riso .top :focus-visible,.riso .dtop :focus-visible{outline-color:var(--on-structural)}
+.riso .find label:focus-within{outline:2px solid var(--on-structural);outline-offset:3px}
+.riso .dbar .find label:focus-within{outline-color:var(--structural)}
 .riso .find input:focus-visible{outline:none}
 .riso .row:active,.riso .newbtn:active{transform:translate(5px,5px);box-shadow:none}
 .riso :is(.go,.resume,.retry):active{transform:translate(3px,3px);box-shadow:none}
 .riso .sortbtn:active{transform:translate(4px,4px);box-shadow:none}
 .riso .chip:active{box-shadow:inset 0 0 0 2px currentColor}
-.riso .go[aria-pressed=true]{background:var(--a);color:var(--on-a)}
+.riso .go[aria-pressed=true]{background:var(--structural);color:var(--on-structural)}
 .riso :is(.newbtn,.resume,.retry,.go,.sortbtn):is(:disabled,[aria-disabled=true]){background:transparent;color:var(--dim);
   box-shadow:inset 0 0 0 2px var(--rule);transform:none;cursor:not-allowed}
 .riso :is(.go,.resume,.retry,.sortbtn):is(:disabled,[aria-disabled=true]){border-color:var(--rule);box-shadow:none}
@@ -300,7 +301,7 @@ td code{white-space:nowrap}
 .rowlink{color:inherit;text-decoration:none}
 .rowlink::after{content:"";position:absolute;inset:0}
 .riso .rowlink:focus-visible{outline:none}
-.riso .row:has(.rowlink:focus-visible){outline:2px solid var(--a);outline-offset:3px}
+.riso .row:has(.rowlink:focus-visible){outline:2px solid var(--structural);outline-offset:3px}
 a.go{display:inline-block;text-decoration:none;text-align:center}
 
 /* hit areas: every control answers taps across at least 44 by 44 */
@@ -313,32 +314,32 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .saves{display:flex;gap:14px;align-items:center}
 .saves span{display:flex;gap:4px}
 .saves i{display:block;width:13px;height:13px}
-.riso .saves [data-k=ok] i{border-radius:50%;box-shadow:inset 0 0 0 2px var(--a)}
-.riso .saves [data-k=ok] i[data-on]{background:var(--a)}
-.riso .saves [data-k=bad] i{box-shadow:inset 0 0 0 2px var(--b-text)}
-.riso .saves [data-k=bad] i[data-on]{background:var(--b-text)}
+.riso .saves [data-k=ok] i{border-radius:50%;box-shadow:inset 0 0 0 2px var(--structural)}
+.riso .saves [data-k=ok] i[data-on]{background:var(--structural)}
+.riso .saves [data-k=bad] i{box-shadow:inset 0 0 0 2px var(--accent-text)}
+.riso .saves [data-k=bad] i[data-on]{background:var(--accent-text)}
 .riso .row[data-state=dead]{border-color:var(--rule);box-shadow:none}
-.riso [data-state=dead] .tok{background:var(--sheet);color:var(--dim);box-shadow:inset 0 0 0 2px var(--rule)}
+.riso [data-state=dead] .tok{background:var(--card);color:var(--dim);box-shadow:inset 0 0 0 2px var(--rule)}
 
 /* doc-only helpers inside specimens */
 .riso .is-pressed:is(.row,.newbtn){transform:translate(5px,5px);box-shadow:none}
 .riso .is-pressed:is(.go,.resume,.retry){transform:translate(3px,3px);box-shadow:none}
 .riso .is-pressed.sortbtn{transform:translate(4px,4px);box-shadow:none}
 .riso .is-pressed.chip{box-shadow:inset 0 0 0 2px currentColor}
-.riso .is-focus{outline:2px solid var(--a);outline-offset:3px}
-.riso .plate .is-focus{outline-color:var(--on-a)}
+.riso .is-focus{outline:2px solid var(--structural);outline-offset:3px}
+.riso .plate .is-focus{outline-color:var(--on-structural)}
 .riso .state-grid{display:grid;grid-template-columns:96px repeat(5,minmax(0,1fr));gap:22px 18px;align-items:center;font-size:12px;color:var(--dim)}
 .riso .state-grid>b{font-size:11.5px;font-weight:700;color:var(--dim)}
 .riso .state-grid .newbtn{padding:11px;font-size:14px}
 .riso .state-grid .plate{padding:10px 12px;box-shadow:none}
-.riso .plate{background:var(--a);color:var(--on-a);padding:16px 18px;box-shadow:5px 5px 0 var(--b)}
+.riso .plate{background:var(--structural);color:var(--on-structural);padding:16px 18px;box-shadow:5px 5px 0 var(--accent)}
 .riso .shadow-demo{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}
-.riso .shadow-demo>div{background:var(--sheet);border:2px solid var(--a);padding:14px 16px;font-size:12.5px;min-width:150px}
+.riso .shadow-demo>div{background:var(--card);border:2px solid var(--structural);padding:14px 16px;font-size:12.5px;min-width:150px}
 .riso .shadow-demo small{display:block;color:var(--dim);margin-top:4px;font-size:11px}
 .riso .shape{display:flex;gap:24px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--dim)}
-.riso .shape span{display:grid;place-items:center;width:64px;height:48px;background:var(--sheet);border:2px solid var(--a);box-shadow:4px 4px 0 var(--b);color:var(--a);font-weight:700}
+.riso .shape span{display:grid;place-items:center;width:64px;height:48px;background:var(--card);border:2px solid var(--structural);box-shadow:4px 4px 0 var(--accent);color:var(--structural);font-weight:700}
 .riso .shape span.round{border-radius:50%;width:48px}
-.riso .shape span.dashed{border-style:dashed;box-shadow:none;background:var(--draft-bg)}
+.riso .shape span.dashed{border-style:dashed;box-shadow:none;background:var(--draft-fill)}
 .riso .tok-set{display:flex;gap:22px;align-items:flex-end;flex-wrap:wrap}
 .riso .tok-set figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:12px;font-size:11.5px;color:var(--dim)}
 .riso .meter-set{display:grid;gap:14px;max-width:360px}
@@ -373,7 +374,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .ssub{margin:2px 0 0;font-size:12px;font-weight:500}
 .vitals{margin-top:13px;padding:9px 10px}
 .vitals[role=button]{cursor:pointer}
-.riso .vitals[role=button]:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .vitals[role=button]:active{box-shadow:inset 0 0 0 2px var(--structural)}
 .hprow{display:flex;gap:13px;align-items:center}
 .hprow .meter{flex:1}
 .temp{width:40px;height:13px;flex:none}
@@ -389,23 +390,23 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .dyingbox p{margin:0;font-size:11.5px;font-weight:600}
 .dyingbox[role=button]{cursor:pointer}
 
-.riso .shead{background:var(--a);color:var(--on-a);box-shadow:0 5px 0 var(--b)}
-.riso .ssub{color:var(--on-a)}
-.riso .vitals{background:var(--sheet);color:var(--ink)}
+.riso .shead{background:var(--structural);color:var(--on-structural);box-shadow:0 5px 0 var(--accent)}
+.riso .ssub{color:var(--on-structural)}
+.riso .vitals{background:var(--card);color:var(--text)}
 .riso .vitals .hpline{color:var(--dim)}
-.riso .vitals .hpline b{color:var(--a)}
-.riso .shead > .hpline{color:var(--on-a)}
+.riso .vitals .hpline b{color:var(--structural)}
+.riso .shead > .hpline{color:var(--on-structural)}
 .riso .hpline b{font-weight:700}
-.riso .temp{background:var(--mix)}
-.riso .shead .tok{box-shadow:0 0 0 2px var(--sheet),4px 4px 0 var(--b)}
-.riso .tile{background:var(--sheet);color:var(--a)}
+.riso .temp{background:var(--overprint)}
+.riso .shead .tok{box-shadow:0 0 0 2px var(--card),4px 4px 0 var(--accent)}
+.riso .tile{background:var(--card);color:var(--structural)}
 .riso .tile em{color:var(--dim)}
-.riso .tile:active{box-shadow:inset 0 0 0 2px var(--a)}
-.riso .restbtn{background:var(--b);color:var(--on-b)}
+.riso .tile:active{box-shadow:inset 0 0 0 2px var(--structural)}
+.riso .restbtn{background:var(--accent);color:var(--on-accent)}
 .riso .restbtn:active{box-shadow:inset 0 0 0 2px currentColor}
-.riso .dyingbox{background:var(--sheet);color:var(--ink)}
-.riso .dyingbox[role=button]:active{box-shadow:inset 0 0 0 2px var(--a)}
-.riso .shead :focus-visible,.riso .tabs :focus-visible{outline-color:var(--on-a)}
+.riso .dyingbox{background:var(--card);color:var(--text)}
+.riso .dyingbox[role=button]:active{box-shadow:inset 0 0 0 2px var(--structural)}
+.riso .shead :focus-visible,.riso .tabs :focus-visible{outline-color:var(--on-structural)}
 
 /* sheet header, compact */
 .shead.mini{display:flex;align-items:center;gap:9px;padding:9px 12px;position:sticky;top:0}
@@ -414,21 +415,21 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .minihp{flex:none;padding:4px 8px;font-size:12.5px;font-weight:500;white-space:nowrap;border:0;font-family:inherit;cursor:pointer}
 .minihp b{font-weight:700}
 .minihp em{font-style:normal;margin-left:5px}
-.riso .minihp{background:var(--sheet);color:var(--dim)}
-.riso .minihp b{color:var(--a)}
-.riso .minihp em{color:var(--mix)}
-.riso .shead.mini .ac{width:36px;height:36px;font-size:13px;box-shadow:2px 2px 0 var(--b)}
+.riso .minihp{background:var(--card);color:var(--dim)}
+.riso .minihp b{color:var(--structural)}
+.riso .minihp em{color:var(--overprint)}
+.riso .shead.mini .ac{width:36px;height:36px;font-size:13px;box-shadow:2px 2px 0 var(--accent)}
 .riso .shead.mini .ac em{font-size:8px;margin-top:0}
-.riso .minihp:active,.riso .minihp[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .minihp:active,.riso .minihp[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--structural)}
 
 /* tabs */
 .tabs{display:flex;gap:5px;padding:2px 12px 9px;position:sticky;top:54px;z-index:3}
 .tab{flex:1;padding:8px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;font-size:11.5px;font-weight:600;line-height:1.15;cursor:pointer;border:0;text-align:center}
 .tab svg{width:16px;height:16px;flex:none}
 .shead:not(.mini) + .tabs{top:0}
-.riso .tabs{background:var(--a);box-shadow:0 5px 0 var(--b)}
-.riso .tab{background:var(--chip);color:var(--on-a)}
-.riso .tab:is([aria-selected=true],[aria-checked=true]){background:var(--sheet);color:var(--a);font-weight:700}
+.riso .tabs{background:var(--structural);box-shadow:0 5px 0 var(--accent)}
+.riso .tab{background:var(--chip-on-plate);color:var(--on-structural)}
+.riso .tab:is([aria-selected=true],[aria-checked=true]){background:var(--card);color:var(--structural);font-weight:700}
 .riso .tab:active{box-shadow:inset 0 0 0 2px currentColor}
 
 /* header and tabs as one attached unit */
@@ -438,11 +439,11 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .block{padding:11px 12px}
 .bhead{margin:0 0 9px;font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:8px}
 .bhead span{font-size:11px;font-weight:500;margin-left:auto}
-.riso .block{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
-.riso .bhead{color:var(--a)}
+.riso .block{background:var(--card);border:2px solid var(--structural);box-shadow:5px 5px 0 var(--accent)}
+.riso .bhead{color:var(--structural)}
 .riso .bhead span{color:var(--dim)}
 .riso :is(.res,.atk,.act,.prep,.skill,.calc,.change,.editrow,.erow,.form,.origin,.para){border-top-color:var(--rule)}
-.riso .calc.total{border-top-color:var(--a)}
+.riso .calc.total{border-top-color:var(--structural)}
 .block > :is(.prep,.editrow,.res,.padnote,.act) + :is(.prep,.editrow,.res,.act){border-top:1.5px solid transparent}
 .block > :is(.prep,.editrow,.padnote,.act) + .res{padding-top:11px}
 .block > .padnote + :is(.res,.prep,.editrow,.act){margin-top:10px}
@@ -457,9 +458,9 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .pips i{width:22px;height:22px;display:block;cursor:pointer}
 .pips.wide i{width:20px;height:22px}
 .riso .resl span{color:var(--dim)}
-.riso .pips i{background:var(--empty)}
-.riso .pips i[data-on]{background:var(--a)}
-.riso .pips i:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .pips i{background:var(--track)}
+.riso .pips i[data-on]{background:var(--structural)}
+.riso .pips i:active{box-shadow:inset 0 0 0 2px var(--structural)}
 
 /* attack table */
 .atkh,.atk{display:grid;grid-template-columns:1fr 44px 104px;gap:8px;align-items:center}
@@ -473,7 +474,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .atk .dmg em{display:block;font-style:normal;font-size:10.5px;font-weight:500;margin-top:1px}
 .riso .atkh{color:var(--dim)}
 .riso .atk small,.riso .atk .dmg em,.riso .atk .hit small{color:var(--dim)}
-.riso .atk .hit{color:var(--a)}
+.riso .atk .hit{color:var(--structural)}
 
 /* list row that pushes a detail screen */
 .grp{margin:11px 0 0;font-size:10.5px;font-weight:700}
@@ -487,8 +488,8 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .chev.down{transform:rotate(135deg);margin-top:-5px}
 .riso .grp{color:var(--dim)}
 .riso .actl span{color:var(--dim)}
-.riso .chev{color:var(--a)}
-.riso .act:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .chev{color:var(--structural)}
+.riso .act:active{box-shadow:inset 0 0 0 2px var(--structural)}
 
 /* spellcasting statistics card */
 .cast{padding:10px 11px}
@@ -499,17 +500,17 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .caststats div{flex:1;text-align:center;padding:5px 4px 6px}
 .caststats b{display:block;font-size:15px;font-weight:700;line-height:1.1}
 .caststats em{display:block;font-style:normal;font-size:10px;font-weight:600;margin-top:2px}
-.riso .cast{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
+.riso .cast{background:var(--card);border:2px solid var(--structural);box-shadow:5px 5px 0 var(--accent)}
 .riso .casttop span{color:var(--dim)}
 .riso .caststats div{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule)}
-.riso .caststats b{color:var(--a)}
+.riso .caststats b{color:var(--structural)}
 .riso .caststats em{color:var(--dim)}
 
 /* find field on paper */
 .findp{display:flex;align-items:center;gap:8px;padding:9px 12px;min-height:44px}
 .findp input{all:unset;flex:1;font-size:14px;font-family:inherit;min-width:0}
-.riso .findp{background:var(--sheet);color:var(--dim);box-shadow:4px 4px 0 var(--b)}
-.riso .findp input{color:var(--ink)}
+.riso .findp{background:var(--card);color:var(--dim);box-shadow:4px 4px 0 var(--accent)}
+.riso .findp input{color:var(--text)}
 .riso .findp input::placeholder{color:var(--dim)}
 
 /* warning strip: a margin note */
@@ -517,9 +518,9 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .warn b{font-weight:700}
 .warn > svg{width:16px;height:16px;flex:none;margin-top:1px}
 .warn button{all:unset;cursor:pointer;font-size:11px;font-weight:700;margin-left:auto;white-space:nowrap}
-.riso .warn{background:var(--sheet);border-left:4px solid var(--b-text);color:var(--ink)}
-.riso .warn > svg{color:var(--b-text)}
-.riso .warn button{color:var(--b-text)}
+.riso .warn{background:var(--card);border-left:4px solid var(--accent-text);color:var(--text)}
+.riso .warn > svg{color:var(--accent-text)}
+.riso .warn button{color:var(--accent-text)}
 
 /* full screen detail push */
 .origin{margin:9px 0 0;font-size:11px;font-weight:500;padding-top:8px;border-top:1.5px solid transparent}
@@ -532,13 +533,13 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .pathstats b{font-weight:700}
 .disclose{display:flex;align-items:center;gap:9px;padding:11px 12px;cursor:pointer;font-size:13px;font-weight:700;width:100%;text-align:left;font-family:inherit}
 .riso .origin{color:var(--dim)}
-.riso .castbtn{background:var(--b);color:var(--on-b);box-shadow:5px 5px 0 var(--a)}
+.riso .castbtn{background:var(--accent);color:var(--on-accent);box-shadow:5px 5px 0 var(--structural)}
 .riso .castbtn:active{transform:translate(5px,5px);box-shadow:none}
-.riso .pathcard{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
+.riso .pathcard{background:var(--card);border:2px solid var(--structural);box-shadow:5px 5px 0 var(--accent)}
 .riso .pathtop span{color:var(--dim)}
-.riso .disclose{background:var(--sheet);border:2px solid var(--a);color:var(--a)}
-.riso .pathstats b{color:var(--a)}
-.riso .castbtn.small{width:auto;padding:9px 16px;font-size:13px;box-shadow:3px 3px 0 var(--a)}
+.riso .disclose{background:var(--card);border:2px solid var(--structural);color:var(--structural)}
+.riso .pathstats b{color:var(--structural)}
+.riso .castbtn.small{width:auto;padding:9px 16px;font-size:13px;box-shadow:3px 3px 0 var(--structural)}
 .riso .castbtn:disabled{background:transparent;color:var(--dim);box-shadow:inset 0 0 0 2px var(--rule);transform:none;cursor:not-allowed}
 
 /* hit point pad */
@@ -551,13 +552,13 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .quick{display:flex;gap:6px;margin-top:11px}
 .quick button{flex:1;padding:9px 0;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .padnote{margin:10px 0 0;font-size:11.5px;font-weight:500;line-height:1.45}
-.riso .pad{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
-.riso .padtabs button{background:var(--chip2);color:var(--dim)}
-.riso .padtabs button:is([aria-selected=true],[aria-checked=true]){background:var(--a);color:var(--on-a)}
-.riso .padnum b{color:var(--a)}
-.riso .step{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
+.riso .pad{background:var(--card);border:2px solid var(--structural);box-shadow:5px 5px 0 var(--accent)}
+.riso .padtabs button{background:var(--chip-on-paper);color:var(--dim)}
+.riso .padtabs button:is([aria-selected=true],[aria-checked=true]){background:var(--structural);color:var(--on-structural)}
+.riso .padnum b{color:var(--structural)}
+.riso .step{background:var(--card);border:2px solid var(--structural);color:var(--structural);box-shadow:3px 3px 0 var(--accent)}
 .riso .step:active{transform:translate(3px,3px);box-shadow:none}
-.riso .quick button{background:var(--sheet);border:1.5px solid var(--a);color:var(--a)}
+.riso .quick button{background:var(--card);border:1.5px solid var(--structural);color:var(--structural)}
 .riso .padnote{color:var(--dim)}
 
 /* override badge: a value the player replaced */
@@ -565,11 +566,11 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .ovr svg{width:11px;height:11px}
 .has-ovr{position:relative}
 .has-ovr > .ovr{position:absolute;top:-7px;right:-7px}
-.riso .ovr{background:var(--sheet);color:var(--b-text);border-radius:50%;box-shadow:0 0 0 1.5px var(--b-text)}
+.riso .ovr{background:var(--card);color:var(--accent-text);border-radius:50%;box-shadow:0 0 0 1.5px var(--accent-text)}
 
 /* outlined secondary button, the sheet's form of Open sheet */
 .gobtn{padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex:none}
-.riso .gobtn{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
+.riso .gobtn{background:var(--card);border:2px solid var(--structural);color:var(--structural);box-shadow:3px 3px 0 var(--accent)}
 .riso .gobtn:active{transform:translate(3px,3px);box-shadow:none}
 
 /* preparation toggle row */
@@ -581,23 +582,23 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .prep input:checked + .box svg{visibility:visible}
 .prep:has(input:disabled){cursor:default}
 .infobtn{all:unset;width:32px;height:32px;display:grid;place-items:center;cursor:pointer;flex:none}
-.riso .box{box-shadow:inset 0 0 0 2px var(--a);color:var(--on-a)}
-.riso .prep input:checked + .box{background:var(--a)}
+.riso .box{box-shadow:inset 0 0 0 2px var(--structural);color:var(--on-structural)}
+.riso .prep input:checked + .box{background:var(--structural)}
 .riso .prep input:disabled + .box{background:transparent;box-shadow:inset 0 0 0 2px var(--rule);color:var(--dim)}
-.riso .prep input:focus-visible + .box{outline:2px solid var(--a);outline-offset:3px}
-.riso .prep:not(:has(input:disabled)):active .box{box-shadow:inset 0 0 0 2px var(--a),inset 0 0 0 4px var(--sheet)}
-.riso .infobtn{color:var(--a)}
+.riso .prep input:focus-visible + .box{outline:2px solid var(--structural);outline-offset:3px}
+.riso .prep:not(:has(input:disabled)):active .box{box-shadow:inset 0 0 0 2px var(--structural),inset 0 0 0 4px var(--card)}
+.riso .infobtn{color:var(--structural)}
 .prep > .prepmain{display:flex;align-items:center;gap:12px;flex:1;min-width:0;align-self:stretch;cursor:pointer;min-height:44px}
 .prep:has(> .prepmain){cursor:default;padding:0}
-.riso .prep:not(:has(input:disabled)):has(.infobtn:active) .box{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .prep:not(:has(input:disabled)):has(.infobtn:active) .box{box-shadow:inset 0 0 0 2px var(--structural)}
 
 /* a single choice: the toggle row with a round marker */
 .box.round{border-radius:50%}
-.riso .prep input:checked + .box.round{background:var(--sheet);box-shadow:inset 0 0 0 2px var(--a),inset 0 0 0 6px var(--sheet),inset 0 0 0 11px var(--a)}
+.riso .prep input:checked + .box.round{background:var(--card);box-shadow:inset 0 0 0 2px var(--structural),inset 0 0 0 6px var(--card),inset 0 0 0 11px var(--structural)}
 
 /* counter that can go over: the excess spills rose */
 .over{width:22px;height:13px;flex:none}
-.riso .over{background:var(--b)}
+.riso .over{background:var(--accent)}
 
 /* sticky footer for a pushed screen's primary action */
 .footbar{position:sticky;bottom:0;margin-top:auto;padding:16px 12px 18px;z-index:4}
@@ -611,14 +612,14 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .abil span{display:block;font-size:11px;font-weight:500;margin-top:1px}
 .riso .abil div{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule)}
 .riso .abil em,.riso .abil span{color:var(--dim)}
-.riso .abil b{color:var(--a)}
+.riso .abil b{color:var(--structural)}
 
 /* proficiency rank: a shape, never colour alone */
 .rank{width:12px;height:12px;flex:none;display:inline-block}
-.riso .rank{box-shadow:inset 0 0 0 1.5px var(--a)}
-.riso .rank[data-r=half]{background:linear-gradient(90deg,var(--a) 50%,transparent 50%)}
-.riso .rank[data-r=prof]{background:var(--a)}
-.riso .rank[data-r=exp]{background:var(--a);box-shadow:inset 0 0 0 1.5px var(--a),inset 0 0 0 3px var(--sheet)}
+.riso .rank{box-shadow:inset 0 0 0 1.5px var(--structural)}
+.riso .rank[data-r=half]{background:linear-gradient(90deg,var(--structural) 50%,transparent 50%)}
+.riso .rank[data-r=prof]{background:var(--structural)}
+.riso .rank[data-r=exp]{background:var(--structural);box-shadow:inset 0 0 0 1.5px var(--structural),inset 0 0 0 3px var(--card)}
 .legend{display:flex;flex-wrap:wrap;gap:5px 13px;margin:-2px 0 6px;font-size:11px;font-weight:500}
 .legend span{display:inline-flex;align-items:center;gap:5px}
 .riso .legend{color:var(--dim)}
@@ -629,8 +630,8 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .skill:nth-child(-n+2){border-top:0}
 .skill .lbl{flex:1;min-width:0;font-size:13px;font-weight:500;white-space:nowrap}
 .skill b{font-size:14px;font-weight:700}
-.riso .skill b{color:var(--a)}
-.riso .skill:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .skill b{color:var(--structural)}
+.riso .skill:active{box-shadow:inset 0 0 0 2px var(--structural)}
 
 /* value detail: a big ring and the calculation behind it */
 .bigval{display:flex;align-items:center;gap:18px}
@@ -645,9 +646,9 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .calc strong{font-size:16px;font-weight:700}
 .calc.total{border-top:2px solid transparent;margin-top:2px}
 .riso .bigval p{color:var(--dim)}
-.riso .bigval p b{color:var(--ink)}
+.riso .bigval p b{color:var(--text)}
 .riso .calc span{color:var(--dim)}
-.riso .calc strong{color:var(--a)}
+.riso .calc strong{color:var(--structural)}
 
 /* slot grid: several spell slot levels inside one resource row */
 .slotgrid{display:grid;grid-template-columns:1fr 1fr;column-gap:14px;margin-top:-4px}
@@ -674,7 +675,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .change strong{font-size:14px;font-weight:700;white-space:nowrap}
 .change .was{font-style:normal;font-weight:500}
 .riso .change > div span{color:var(--dim)}
-.riso .change strong{color:var(--a)}
+.riso .change strong{color:var(--structural)}
 .riso .change .was{color:var(--dim)}
 
 /* money */
@@ -682,9 +683,9 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .coin{min-height:52px;padding:6px 2px;text-align:center;border:0;font-family:inherit;cursor:pointer}
 .coin b{display:block;font-size:16px;font-weight:700;line-height:1.1}
 .coin em{display:block;font-style:normal;font-size:10px;font-weight:600;margin-top:2px}
-.riso .coin{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--a)}
+.riso .coin{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--structural)}
 .riso .coin em{color:var(--dim)}
-.riso .coin:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .coin:active{box-shadow:inset 0 0 0 2px var(--structural)}
 
 /* quantities, and a container open in place */
 .qty{font-size:12.5px;font-weight:700}
@@ -697,53 +698,53 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .kv dt{font-weight:600}
 .kv dd{margin:0;font-weight:500}
 .riso .kv dt{color:var(--dim)}
-.riso .kv dd{color:var(--ink)}
+.riso .kv dd{color:var(--text)}
 .para{margin:12px 0 0;padding-top:10px;border-top:1.5px solid transparent}
 .para h4{margin:0 0 3px;font-size:11.5px;font-weight:700}
 .para p{margin:0;font-size:12.5px;line-height:1.5;font-weight:500}
-.riso .para h4{color:var(--a)}
+.riso .para h4{color:var(--structural)}
 
 /* per-section edit */
 .editbtn{font-family:inherit;font-size:12px;font-weight:700;padding:5px 11px;cursor:pointer;flex:none}
 .bhead .editbtn{margin-left:auto}
 .bhead span + .editbtn{margin-left:10px}
 .bhead .castbtn.small{padding:6px 12px;font-size:12px;margin-left:8px}
-.riso .editbtn{background:var(--sheet);border:1.5px solid var(--a);color:var(--a)}
-.riso .editbtn:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .editbtn{background:var(--card);border:1.5px solid var(--structural);color:var(--structural)}
+.riso .editbtn:active{box-shadow:inset 0 0 0 2px var(--structural)}
 .riso .editbtn:disabled{border-color:var(--rule);color:var(--dim);cursor:not-allowed;box-shadow:none}
-.riso .block.editing{border-style:dashed;box-shadow:none;background:var(--draft-bg)}
+.riso .block.editing{border-style:dashed;box-shadow:none;background:var(--draft-fill)}
 .editrow{display:flex;align-items:center;gap:10px;min-height:52px;border-top:1.5px solid transparent}
 .editrow:first-of-type{border-top:0}
 .editrow .lbl{flex:1;min-width:0;font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:8px}
 .editrow .step{width:40px;height:40px;font-size:20px}
 .editrow .num{width:30px;text-align:center;font-size:18px;font-weight:700}
 .editrow .mod{width:32px;text-align:right;font-size:13px;font-weight:600}
-.riso .editrow .num{color:var(--a)}
+.riso .editrow .num{color:var(--structural)}
 .riso .editrow .mod{color:var(--dim)}
 
 /* detail screens */
 .rules p{margin:0 0 9px;font-size:13px;line-height:1.5;font-weight:500}
 .rules p:last-child{margin-bottom:0}
-.riso .rules p{color:var(--ink)}
+.riso .rules p{color:var(--text)}
 
 /* destructive: outlined in rose text ink, no shadow, never the primary look */
 .dangerbtn{width:100%;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
-.riso .dangerbtn{background:var(--sheet);border:2px solid var(--b-text);color:var(--b-text)}
-.riso .dangerbtn:active{box-shadow:inset 0 0 0 2px var(--b-text)}
+.riso .dangerbtn{background:var(--card);border:2px solid var(--accent-text);color:var(--accent-text)}
+.riso .dangerbtn:active{box-shadow:inset 0 0 0 2px var(--accent-text)}
 
 /* a big rectangular value, the square cousin of the armour ring */
 .bignum{width:72px;height:72px;display:grid;place-items:center;font-size:26px;font-weight:700;flex:none}
-.riso .bignum{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
+.riso .bignum{background:var(--card);border:2px solid var(--structural);color:var(--structural);box-shadow:3px 3px 0 var(--accent)}
 
 /* proficiency rank as a four-way choice */
 .rankseg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .rankseg button{min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;border:0}
-.riso .rankseg button{background:var(--sheet);box-shadow:inset 0 0 0 1.5px var(--a);color:var(--a)}
-.riso .rankseg button[aria-checked=true]{background:var(--a);color:var(--on-a);font-weight:700}
-.riso .rankseg button[aria-checked=true] .rank{box-shadow:inset 0 0 0 1.5px var(--on-a)}
-.riso .rankseg button[aria-checked=true] .rank[data-r=half]{background:linear-gradient(90deg,var(--on-a) 50%,transparent 50%)}
-.riso .rankseg button[aria-checked=true] .rank[data-r=prof]{background:var(--on-a)}
-.riso .rankseg button[aria-checked=true] .rank[data-r=exp]{background:var(--on-a);box-shadow:inset 0 0 0 1.5px var(--on-a),inset 0 0 0 3px var(--a)}
+.riso .rankseg button{background:var(--card);box-shadow:inset 0 0 0 1.5px var(--structural);color:var(--structural)}
+.riso .rankseg button[aria-checked=true]{background:var(--structural);color:var(--on-structural);font-weight:700}
+.riso .rankseg button[aria-checked=true] .rank{box-shadow:inset 0 0 0 1.5px var(--on-structural)}
+.riso .rankseg button[aria-checked=true] .rank[data-r=half]{background:linear-gradient(90deg,var(--on-structural) 50%,transparent 50%)}
+.riso .rankseg button[aria-checked=true] .rank[data-r=prof]{background:var(--on-structural)}
+.riso .rankseg button[aria-checked=true] .rank[data-r=exp]{background:var(--on-structural);box-shadow:inset 0 0 0 1.5px var(--on-structural),inset 0 0 0 3px var(--structural)}
 
 /* selector widths for two, three and six options */
 .rankseg.two{grid-template-columns:repeat(2,1fr)}
@@ -765,12 +766,12 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .grip svg,.rmbtn svg{width:16px;height:16px}
 .erow.removing .actl b{text-decoration:line-through}
 .riso .grip{color:var(--dim)}
-.riso .rmbtn{color:var(--b-text)}
+.riso .rmbtn{color:var(--accent-text)}
 .riso .erow.removing .actl b{color:var(--dim)}
 .addrow{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;margin-top:8px;padding:0 12px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;text-align:left}
 .addrow svg{width:16px;height:16px;flex:none}
-.riso .addrow{background:var(--sheet);border:1.5px dashed var(--a);color:var(--a)}
-.riso .addrow:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .addrow{background:var(--card);border:1.5px dashed var(--structural);color:var(--structural)}
+.riso .addrow:active{box-shadow:inset 0 0 0 2px var(--structural)}
 
 /* text fields */
 .field{display:block;margin-top:12px}
@@ -779,8 +780,8 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 .field input,.field textarea{all:unset;box-sizing:border-box;display:block;width:100%;min-height:44px;padding:10px 11px;font-family:inherit;font-size:14px;line-height:1.45;white-space:pre-wrap}
 .field textarea{min-height:92px}
 .riso .field > span{color:var(--dim)}
-.riso .field input,.riso .field textarea{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--ink)}
-.riso .field :is(input,textarea):focus-visible{box-shadow:inset 0 0 0 2px var(--a);outline:none}
+.riso .field input,.riso .field textarea{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--text)}
+.riso .field :is(input,textarea):focus-visible{box-shadow:inset 0 0 0 2px var(--structural);outline:none}
 
 /* a known form: its numbers and a button to become it */
 .form{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1.5px solid transparent}
@@ -795,43 +796,43 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   padding:0;border:0;opacity:0;cursor:pointer}
 .tokpick .tok b{pointer-events:none}
 .riso .tokpick .tok input:focus-visible{outline:none}
-.riso .tokpick .tok:focus-within{outline:2px solid var(--a);outline-offset:3px}
-.riso .tokpick .tok:has(:active){box-shadow:inset 0 0 0 2px var(--on-tok),4px 4px 0 var(--b)}
+.riso .tokpick .tok:focus-within{outline:2px solid var(--structural);outline-offset:3px}
+.riso .tokpick .tok:has(:active){box-shadow:inset 0 0 0 2px var(--on-tok),4px 4px 0 var(--accent)}
 
 /* static bottom sheet: the sheet menu, the conditions picker, the pads */
 .bscrim{position:absolute;inset:0;z-index:5}
 .riso .bscrim{background:var(--scrim)}
 .bsheet{position:sticky;bottom:0;z-index:6;margin-top:auto;padding:10px 12px 18px}
-.riso .bsheet{background:var(--sheet);border-top:2px solid var(--a);box-shadow:0 -5px 0 var(--b)}
+.riso .bsheet{background:var(--card);border-top:2px solid var(--structural);box-shadow:0 -5px 0 var(--accent)}
 .bsheet-title{margin:4px 8px 4px;font-size:11.5px;font-weight:700}
 .riso .bsheet-title{color:var(--dim)}
 .menuitem{display:flex;align-items:center;gap:14px;width:100%;min-height:56px;padding:0 8px;border:0;background:none;font-family:inherit;font-size:15px;font-weight:700;text-align:left;cursor:pointer}
 .menuitem svg{width:16px;height:16px;flex:none}
 .menuitem .mi{flex:1;min-width:0}
 .menuitem .mi small{display:block;font-size:11.5px;font-weight:500;margin-top:2px}
-.riso .menuitem{color:var(--a)}
+.riso .menuitem{color:var(--structural)}
 .riso .menuitem .mi small{color:var(--dim)}
-.riso .menuitem.danger{color:var(--b-text)}
+.riso .menuitem.danger{color:var(--accent-text)}
 .riso .menuitem:active{box-shadow:inset 0 0 0 2px currentColor}
 .menusep{height:1.5px;margin:4px 8px}
 .riso .menusep{background:var(--rule)}
 .menuitem.close{justify-content:center;min-height:48px;margin-top:8px}
-.riso .menuitem.close{box-shadow:inset 0 0 0 2px var(--a)}
-.riso .shead .icnbtn[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--on-a)}
-.riso .vitals[aria-expanded=true],.riso .dyingbox[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .menuitem.close{box-shadow:inset 0 0 0 2px var(--structural)}
+.riso .shead .icnbtn[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--on-structural)}
+.riso .vitals[aria-expanded=true],.riso .dyingbox[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--structural)}
 
 /* conditions: the entry on the plate, and the picker inside a bottom sheet */
 .addmark{display:inline-flex;align-items:center;gap:5px;font-family:inherit;font-size:11px;font-weight:700;padding:3px 8px 3px 6px;line-height:1.35;cursor:pointer;white-space:nowrap}
 .addmark svg{width:11px;height:11px;flex:none}
 button.mark{font-family:inherit;cursor:pointer}
-.riso .addmark{background:transparent;color:var(--on-a);border:1.5px dashed var(--on-a)}
-.riso .addmark:active,.riso .addmark[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--on-a)}
+.riso .addmark{background:transparent;color:var(--on-structural);border:1.5px dashed var(--on-structural)}
+.riso .addmark:active,.riso .addmark[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--on-structural)}
 .riso button.mark:active,.riso button.mark[aria-expanded=true]{box-shadow:inset 0 0 0 2px currentColor}
 .condgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0 0}
 .condgrid button{min-height:44px;padding:0 4px;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;border:0}
-.riso .condgrid button{background:var(--sheet);box-shadow:inset 0 0 0 1.5px var(--a);color:var(--a)}
-.riso .condgrid button[aria-pressed=true]{background:var(--a);color:var(--on-a);font-weight:700}
-.riso .condgrid button.condcustom{display:flex;align-items:center;justify-content:center;gap:6px;background:transparent;box-shadow:none;border:1.5px dashed var(--a);font-weight:700}
+.riso .condgrid button{background:var(--card);box-shadow:inset 0 0 0 1.5px var(--structural);color:var(--structural)}
+.riso .condgrid button[aria-pressed=true]{background:var(--structural);color:var(--on-structural);font-weight:700}
+.riso .condgrid button.condcustom{display:flex;align-items:center;justify-content:center;gap:6px;background:transparent;box-shadow:none;border:1.5px dashed var(--structural);font-weight:700}
 .condcustom svg{width:12px;height:12px;flex:none}
 .bsheet .grp{margin:12px 8px 6px}
 .bsheet .rankseg button{min-height:44px}
@@ -841,18 +842,18 @@ button.mark{font-family:inherit;cursor:pointer}
 .bsheet > .padnote{margin:10px 8px 0}
 
 /* concentration: the card that reads the anchor row */
-.riso .cast.conc{border-color:var(--mix)}
-.riso .cast.conc .casttop b{color:var(--mix)}
+.riso .cast.conc{border-color:var(--overprint)}
+.riso .cast.conc .casttop b{color:var(--overprint)}
 .cast.conc > .dangerbtn{margin-top:12px}
 .cast .bigval{margin-top:10px}
 
 /* death saves: the pad's third tab */
 .dsrows{margin-top:10px}
-.riso .pips.ds-ok i{border-radius:50%;background:transparent;box-shadow:inset 0 0 0 2px var(--a)}
-.riso .pips.ds-ok i[data-on]{background:var(--a)}
-.riso .pips.ds-bad i{background:transparent;box-shadow:inset 0 0 0 2px var(--b-text)}
-.riso .pips.ds-bad i[data-on]{background:var(--b-text)}
-.riso .shead .tok[data-state=dead]{background:var(--sheet);color:var(--dim);box-shadow:inset 0 0 0 2px var(--rule)}
+.riso .pips.ds-ok i{border-radius:50%;background:transparent;box-shadow:inset 0 0 0 2px var(--structural)}
+.riso .pips.ds-ok i[data-on]{background:var(--structural)}
+.riso .pips.ds-bad i{background:transparent;box-shadow:inset 0 0 0 2px var(--accent-text)}
+.riso .pips.ds-bad i[data-on]{background:var(--accent-text)}
+.riso .shead .tok[data-state=dead]{background:var(--card);color:var(--dim);box-shadow:inset 0 0 0 2px var(--rule)}
 .pad > .prep{margin-top:8px}
 
 /* the hit point pad as a bottom sheet: the pad loses its card chrome */
@@ -872,42 +873,42 @@ button.mark{font-family:inherit;cursor:pointer}
 .facegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
 .facegrid button{min-height:44px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer}
 .roll[data-mode=app]:not([data-editing]) .facegrid{display:none}
-.riso .dieshadow{background:var(--b)}
-.riso .die{background:var(--sheet);border:2px solid var(--a);color:var(--a)}
+.riso .dieshadow{background:var(--accent)}
+.riso .die{background:var(--card);border:2px solid var(--structural);color:var(--structural)}
 .riso .die em{color:var(--dim)}
 .riso .die[data-empty] b{color:var(--dim)}
-.riso .die[aria-pressed=true]{background:var(--a);color:var(--on-a)}
-.riso .die[aria-pressed=true] b,.riso .die[aria-pressed=true] em{color:var(--on-a)}
-.riso .dieplus,.riso .dicemath b{color:var(--a)}
+.riso .die[aria-pressed=true]{background:var(--structural);color:var(--on-structural)}
+.riso .die[aria-pressed=true] b,.riso .die[aria-pressed=true] em{color:var(--on-structural)}
+.riso .dieplus,.riso .dicemath b{color:var(--structural)}
 .riso .dicemath{color:var(--dim)}
-.riso .facegrid button{background:var(--sheet);border:1.5px solid var(--a);color:var(--a)}
-.riso .facegrid button:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .facegrid button{background:var(--card);border:1.5px solid var(--structural);color:var(--structural)}
+.riso .facegrid button:active{box-shadow:inset 0 0 0 2px var(--structural)}
 
 /* notes: typed straight into, saved as you go */
 .notearea{all:unset;box-sizing:border-box;display:block;width:100%;min-height:44px;padding:10px 11px;font-family:inherit;font-size:13px;line-height:1.45;white-space:pre-wrap;overflow:hidden;resize:none}
-.riso .notearea{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--ink)}
+.riso .notearea{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--text)}
 .riso .notearea::placeholder{color:var(--dim)}
-.riso .notearea:focus{box-shadow:inset 0 0 0 2px var(--a);outline:none}
+.riso .notearea:focus{box-shadow:inset 0 0 0 2px var(--structural);outline:none}
 /* Clamped, the bottom padding goes so no part of a seventh line shows through it. */
 .notearea.clamped{padding-bottom:0}
 .notefoot{display:flex;align-items:center;gap:10px;min-height:20px;margin-top:6px}
 .notestatus{margin:0;font-size:11px;font-weight:500}
 .riso .notestatus{color:var(--dim)}
 .noteshow{all:unset;cursor:pointer;margin-left:auto;font-size:12px;font-weight:700}
-.riso .noteshow{color:var(--a)}
+.riso .noteshow{color:var(--structural)}
 .pathnote{display:block;margin-top:11px}
 .pathnote > span{display:block;font-size:11.5px;font-weight:700;margin-bottom:5px}
 .riso .pathnote > span{color:var(--dim)}
 
 /* folded rules text with its origin */
 .rulesfold{padding:0 12px 11px}
-.riso .rulesfold{background:var(--sheet);border:2px solid var(--a)}
+.riso .rulesfold{background:var(--card);border:2px solid var(--structural)}
 .rulesfold > .disclose{padding:11px 0}
 .riso .rulesfold > .disclose{border:0;background:none}
 .rulesfold > .origin{margin-top:0}
 
 /* selection and adjustable controls */
-.riso .pips[role=spinbutton]:focus-visible{outline:2px solid var(--a);outline-offset:4px}
+.riso .pips[role=spinbutton]:focus-visible{outline:2px solid var(--structural);outline-offset:4px}
 
 /* hit areas, sheet components: same rule as the list's, longer list */
 :is(.icnbtn,.restbtn,.tab,.act,.step,.quick button,.padtabs button,.castbtn,.disclose,.warn button,.vitals[role=button],.ac[role=button],.tile,.gobtn,.infobtn,.prep,.skill,.coin,.editbtn,.rankseg button,.dangerbtn,.grip,.rmbtn,.addrow,.menuitem,.addmark,button.mark,.condgrid button,.dyingbox[role=button],.minihp,.die,.facegrid button,.noteshow){position:relative}
@@ -923,7 +924,7 @@ button.mark{font-family:inherit;cursor:pointer}
 .riso .sheetdemo{position:relative;display:flex;flex-direction:column;width:390px;max-width:100%;overflow:hidden}
 .riso .anno{margin:20px 0 10px;padding-top:11px;font-size:11.5px;font-weight:700;line-height:1.45}
 .riso .anno:first-child{margin-top:0;padding-top:0;border-top:0}
-.riso .anno{border-top:2px dashed var(--b);color:var(--dim)}
+.riso .anno{border-top:2px dashed var(--accent);color:var(--dim)}
 </style>
 </head>
 <body>
@@ -931,9 +932,10 @@ button.mark{font-family:inherit;cursor:pointer}
 <header class="doc-head">
   <div class="doc-head-inner">
     <b>5e Companion</b>
-    <h1>Design system, v0.5</h1>
+    <h1>Design system, v0.6</h1>
     <p>Distilled from <code>character-list.html</code> and <code>character-sheet.html</code>. It records the "riso" direction: two-ink risograph printing on toned paper, with a third overprint colour where the inks would overlap. Everything on this page is rendered with the same CSS as the mockups, so the specimens are the source of truth, not the prose.</p>
-    <p style="margin-top:8px">v0.5, 25 September 2026: the character list as redesigned and built. A level block, the desktop row, list states, tablet layouts, the meter&rsquo;s rounding rule, the loading spinner as a third motion exception, and no pronouns for characters. Search, sort, Resume and the draft tray change look. The armour ring, marks and level badge leave the list but stay for the sheet; filter chips and the desktop table are not in current designs. See <a href="#decisions">decisions</a>.<br>
+    <p style="margin-top:8px">v0.6, 3 October 2026: names that say what things are. Tokens are named for their role rather than a letter, buttons are primary, secondary or destructive in sizes, the tablet and desktop plate and toolbar replace the band and bar, the slate is the empty card, and the tray heading is a small label. Nothing changes how anything looks except the tray heading, which drops half a point to 11. See <a href="#decisions">decisions</a>.<br>
+    v0.5, 25 September 2026: the character list as redesigned and built. A level block, the desktop row, list states, tablet layouts, the meter&rsquo;s rounding rule, the loading spinner as a third motion exception, and no pronouns for characters. Search, sort, Resume and the draft tray change look. The armour ring, marks and level badge leave the list but stay for the sheet; filter chips and the desktop table are not in current designs. See <a href="#decisions">decisions</a>.<br>
     v0.4, 14 September 2026: the character sheet joins the document. New sections for the sheet's structure (header, tabs, blocks, detail screens, bottom sheets, editing), its controls, the pads and the roll sheet, and its value displays, plus two destructive buttons and the condition marks. The scrim and paper chip tokens, and corrections to the motion and semantics rules. See <a href="#decisions">decisions</a>.<br>
     Updated 13 and 14 September 2026: the hit area rule, repeated small primaries, selection and semantics, sentence case and person, American spelling in the app, and text colours checked against the draft tint over paper. See <a href="#decisions">decisions</a>.<br>
     v0.3, 12 September 2026: a <a href="#native">React Native</a> mapping, font weights capped at 700, and decisions on font scaling, safe areas and press feedback.<br>
@@ -1041,33 +1043,33 @@ button.mark{font-family:inherit;cursor:pointer}
     <thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead>
     <tbody>
       <tr><td><i class="sw" style="background:#eae6de"></i><code>--paper</code></td><td><code>#eae6de</code></td><td>Page background. Warm, slightly grey so the inks have somewhere to sit.</td></tr>
-      <tr><td><i class="sw" style="background:#f0ece4"></i><code>--sheet</code></td><td><code>#f0ece4</code></td><td>Card, field and ring surface. One step lighter than paper.</td></tr>
-      <tr><td><i class="sw" style="background:#2560b0"></i><code>--a</code></td><td><code>#2560b0</code></td><td>Structural ink. Header plate, card borders, outlined buttons, primary numbers, list tokens.</td></tr>
-      <tr><td><i class="sw" style="background:#e0689c"></i><code>--b</code></td><td><code>#e0689c</code></td><td>Accent ink. Offset shadows, hurt meter, the primary button, dashed tray rule.</td></tr>
-      <tr><td><i class="sw" style="background:#5c3d88"></i><code>--mix</code></td><td><code>#5c3d88</code></td><td>Overprint. Concentration marks.</td></tr>
+      <tr><td><i class="sw" style="background:#f0ece4"></i><code>--card</code></td><td><code>#f0ece4</code></td><td>Card, field and ring surface. One step lighter than paper.</td></tr>
+      <tr><td><i class="sw" style="background:#2560b0"></i><code>--structural</code></td><td><code>#2560b0</code></td><td>Structural ink. Header plate, card borders, secondary buttons, primary numbers, list tokens.</td></tr>
+      <tr><td><i class="sw" style="background:#e0689c"></i><code>--accent</code></td><td><code>#e0689c</code></td><td>Accent ink. Offset shadows, hurt meter, the primary button, dashed tray rule.</td></tr>
+      <tr><td><i class="sw" style="background:#5c3d88"></i><code>--overprint</code></td><td><code>#5c3d88</code></td><td>Overprint. Concentration marks.</td></tr>
     </tbody>
   </table>
 
   <h3>Derived tokens</h3>
-  <p class="why">Formulas are in the mockup's <code>derive()</code> function. Text colours come from mixing structural ink toward near-black, secondary text mixes ink toward paper, and every translucent tint is an alpha of one of the inks. Every token that carries text is <b>contrast-targeted</b>. The derivation steps through mix ratios and keeps the first one that reaches 4.5:1 on every surface the text sits on, so the mixer cannot produce a failing palette whatever inks are chosen.</p>
+  <p class="why">Formulas are in the mockup's <code>derive()</code> function. Text colours come from mixing structural ink toward near-black, secondary text mixes text toward paper, and every translucent tint is an alpha of one of the inks. Every token that carries text is <b>contrast-targeted</b>. The derivation steps through mix ratios and keeps the first one that reaches 4.5:1 on every surface the text sits on, so the mixer cannot produce a failing palette whatever inks are chosen.</p>
   <table>
     <thead><tr><th>Token</th><th>Value</th><th>Derivation</th><th>Used for</th></tr></thead>
     <tbody>
-      <tr><td><i class="sw" style="background:#1f4477"></i><code>--ink</code></td><td><code>#1f4477</code></td><td>structural mixed 72% toward <code>#14110e</code></td><td>Body text, level badge digit</td></tr>
-      <tr><td><i class="sw" style="background:#44618a"></i><code>--dim</code></td><td><code>#44618a</code></td><td>ink mixed toward paper. Lightest step from 42% that reaches 4.5:1 on paper, sheet, and the draft fill over both sheet and paper; currently 18%</td><td>Subtitles, hit point line, small labels, tray heading, status lines, placeholder, disabled text</td></tr>
-      <tr><td><i class="sw" style="background:#f2f0eb"></i><code>--on-a</code></td><td><code>#f2f0eb</code></td><td>paper mixed 40% toward white, kept because it reaches 4.5:1 on structural</td><td>Text on the header plate and blue tokens</td></tr>
-      <tr><td><i class="sw" style="background:#412029"></i><code>--on-b</code></td><td><code>#412029</code></td><td>light text only reaches 2.78:1 on rose, so accent is darkened toward <code>#140c08</code> until it reaches 4.5:1; currently 78%</td><td>Text on rose buttons and tokens</td></tr>
-      <tr><td><i class="sw" style="background:#f2f0eb"></i><code>--on-mix</code></td><td><code>#f2f0eb</code></td><td>same rule</td><td>Text on purple tokens</td></tr>
-      <tr><td><i class="sw" style="background:#914261"></i><code>--b-text</code></td><td><code>#914261</code></td><td>accent mixed toward <code>#1a0a08</code>. First step from 15% that reaches 4.5:1 on sheet and on the draft fill over both sheet and paper; currently 40%</td><td>Accent as text, the hurt number, and small accent graphics such as failed death saves and the notice&rsquo;s edge and icon</td></tr>
+      <tr><td><i class="sw" style="background:#1f4477"></i><code>--text</code></td><td><code>#1f4477</code></td><td>structural mixed 72% toward <code>#14110e</code></td><td>Body text, level badge digit</td></tr>
+      <tr><td><i class="sw" style="background:#44618a"></i><code>--dim</code></td><td><code>#44618a</code></td><td>text mixed toward paper. Lightest step from 42% that reaches 4.5:1 on paper, card, and the draft fill over both card and paper; currently 18%</td><td>Subtitles, hit point line, small labels, tray heading, status lines, placeholder, disabled text</td></tr>
+      <tr><td><i class="sw" style="background:#f2f0eb"></i><code>--on-structural</code></td><td><code>#f2f0eb</code></td><td>paper mixed 40% toward white, kept because it reaches 4.5:1 on structural</td><td>Text on the header plate and blue tokens</td></tr>
+      <tr><td><i class="sw" style="background:#412029"></i><code>--on-accent</code></td><td><code>#412029</code></td><td>light text only reaches 2.78:1 on rose, so accent is darkened toward <code>#140c08</code> until it reaches 4.5:1; currently 78%</td><td>Text on rose buttons and tokens</td></tr>
+      <tr><td><i class="sw" style="background:#f2f0eb"></i><code>--on-overprint</code></td><td><code>#f2f0eb</code></td><td>same rule</td><td>Text on purple tokens</td></tr>
+      <tr><td><i class="sw" style="background:#914261"></i><code>--accent-text</code></td><td><code>#914261</code></td><td>accent mixed toward <code>#1a0a08</code>. First step from 15% that reaches 4.5:1 on card and on the draft fill over both card and paper; currently 40%</td><td>Accent as text, the hurt number, and small accent graphics such as failed death saves and the notice&rsquo;s edge and icon</td></tr>
       <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(37,96,176,.13),rgba(37,96,176,.13))"></i><code>--dot</code></td><td><code>rgba(37,96,176,.13)</code></td><td>structural at 13%</td><td>Paper grid dots</td></tr>
       <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(224,104,156,.18),rgba(224,104,156,.18))"></i><code>--line</code></td><td><code>rgba(224,104,156,.18)</code></td><td>accent at 18%</td><td>Paper grid lines</td></tr>
-      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(224,104,156,.26),rgba(224,104,156,.26))"></i><code>--empty</code></td><td><code>rgba(224,104,156,.26)</code></td><td>accent at 26%</td><td>Empty meter segments, the spinner&rsquo;s track</td></tr>
-      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(224,104,156,.11),rgba(224,104,156,.11))"></i><code>--draft-bg</code></td><td><code>rgba(224,104,156,.11)</code></td><td>accent at 11%</td><td>Draft card fill</td></tr>
+      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(224,104,156,.26),rgba(224,104,156,.26))"></i><code>--track</code></td><td><code>rgba(224,104,156,.26)</code></td><td>accent at 26%</td><td>Empty meter segments, the spinner&rsquo;s track</td></tr>
+      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(224,104,156,.11),rgba(224,104,156,.11))"></i><code>--draft-fill</code></td><td><code>rgba(224,104,156,.11)</code></td><td>accent at 11%</td><td>Draft card fill</td></tr>
       <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(37,96,176,.28),rgba(37,96,176,.28))"></i><code>--rule</code></td><td><code>rgba(37,96,176,.28)</code></td><td>structural at 28%</td><td>Draft token shadow, disabled outline, dead token, and the desktop table&rsquo;s row rules, not in current designs</td></tr>
-      <tr><td><i class="sw" style="background:#2560b0;background-image:linear-gradient(rgba(242,240,235,.10),rgba(242,240,235,.10))"></i><code>--chip</code></td><td><code>rgba(242,240,235,.10)</code></td><td>on-a at the highest alpha from 16% that keeps chip text at 4.5:1; currently 10%</td><td>Inactive filter chip and tab on the plate</td></tr>
-      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(31,68,119,.08),rgba(31,68,119,.08))"></i><code>--chip2</code></td><td><code>rgba(31,68,119,.08)</code></td><td>ink at 8%</td><td>Idle pad tab fill on paper, with dim text</td></tr>
+      <tr><td><i class="sw" style="background:#2560b0;background-image:linear-gradient(rgba(242,240,235,.10),rgba(242,240,235,.10))"></i><code>--chip-on-plate</code></td><td><code>rgba(242,240,235,.10)</code></td><td>on-structural at the highest alpha from 16% that keeps chip text at 4.5:1; currently 10%</td><td>Inactive filter chip and tab on the plate</td></tr>
+      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(31,68,119,.08),rgba(31,68,119,.08))"></i><code>--chip-on-paper</code></td><td><code>rgba(31,68,119,.08)</code></td><td>text at 8%</td><td>Idle pad tab fill on paper, with dim text</td></tr>
       <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,.5))"></i><code>--wash</code></td><td><code>rgba(255,255,255,.5)</code></td><td>white at 50%</td><td>Stat tiles and fields, and the desktop table&rsquo;s even rows, not in current designs</td></tr>
-      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(31,68,119,.4),rgba(31,68,119,.4))"></i><code>--scrim</code></td><td><code>rgba(31,68,119,.4)</code></td><td>ink at 40%</td><td>The dim layer behind a modal bottom sheet</td></tr>
+      <tr><td><i class="sw on-paper" style="--sw-fill:linear-gradient(rgba(31,68,119,.4),rgba(31,68,119,.4))"></i><code>--scrim</code></td><td><code>rgba(31,68,119,.4)</code></td><td>text at 40%</td><td>The dim layer behind a modal bottom sheet</td></tr>
     </tbody>
   </table>
 
@@ -1075,12 +1077,12 @@ button.mark{font-family:inherit;cursor:pointer}
   <p class="why">Every filled surface has one legal text colour. Do not put structural text on accent or the reverse. Rose is light enough that it takes dark text, while blue and purple take light text.</p>
   <div class="riso flat specimen tight">
     <div class="contrast">
-      <div style="background:var(--paper);color:var(--ink)">ink on paper<small>body text, 7.84:1</small></div>
-      <div style="background:var(--sheet);color:var(--dim)">dim on sheet<small>secondary, 5.36:1</small></div>
-      <div style="background:var(--a);color:var(--on-a)">on-a on structural<small>plate, blue token, 5.46:1</small></div>
-      <div style="background:var(--b);color:var(--on-b)">on-b on accent<small>CTA, rose token, 4.53:1</small></div>
-      <div style="background:var(--mix);color:var(--on-mix)">on-mix on overprint<small>purple token, 7.44:1</small></div>
-      <div style="background:var(--sheet);color:var(--b-text)">b-text on sheet<small>bad marks, 5.65:1</small></div>
+      <div style="background:var(--paper);color:var(--text)">text on paper<small>body text, 7.84:1</small></div>
+      <div style="background:var(--card);color:var(--dim)">dim on card<small>secondary, 5.36:1</small></div>
+      <div style="background:var(--structural);color:var(--on-structural)">on-structural on structural<small>plate, blue token, 5.46:1</small></div>
+      <div style="background:var(--accent);color:var(--on-accent)">on-accent on accent<small>CTA, rose token, 4.53:1</small></div>
+      <div style="background:var(--overprint);color:var(--on-overprint)">on-overprint on overprint<small>purple token, 7.44:1</small></div>
+      <div style="background:var(--card);color:var(--accent-text)">accent-text on card<small>bad marks, 5.65:1</small></div>
     </div>
   </div>
 </section>
@@ -1097,7 +1099,7 @@ button.mark{font-family:inherit;cursor:pointer}
   linear-gradient(var(--line) 1px, transparent 1px) 0 0 / 100% 27px,
   linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0 / 27px 100%,
   var(--paper);</code></pre>
-  <p class="why" style="margin-top:12px">Cards use plain <code>--sheet</code> with no texture, which is what makes them read as stuck on. The sticky footer fades from transparent to paper so the grid is visible above the button.</p>
+  <p class="why" style="margin-top:12px">Cards use plain <code>--card</code> with no texture, which is what makes them read as stuck on. The sticky footer fades from transparent to paper so the grid is visible above the button.</p>
 </section>
 
 <!-- ============================================================ -->
@@ -1109,15 +1111,15 @@ button.mark{font-family:inherit;cursor:pointer}
     <div class="type-row"><small>Title, phone<br>21 / 700 / -.03em</small><h2 class="title">Characters</h2></div>
     <div class="type-row"><small>Name, desktop<br>19 / 700 / -.02em</small><h3 class="name" style="font-size:19px">Brenna Duskhollow</h3></div>
     <div class="type-row"><small>Name, phone<br>16.5 / 700 / -.02em</small><h3 class="name">Brenna Duskhollow</h3></div>
-    <div class="type-row"><small>Level number<br>26 / 700 / -.03em / a</small><span class="lvl" style="align-items:flex-start"><b>6</b></span></div>
+    <div class="type-row"><small>Level number<br>26 / 700 / -.03em / structural</small><span class="lvl" style="align-items:flex-start"><b>6</b></span></div>
     <div class="type-row"><small>Small label<br>11 / 700 / .09em / caps / dim, 13 on desktop</small><span class="badgelab">Level</span></div>
-    <div class="type-row"><small>Tray heading<br>11.5 / 700 / .09em / caps / dim</small><h3 class="trayhead" style="margin:0">Waiting to be finished</h3></div>
+    <div class="type-row"><small>Small label as the tray heading<br>11 / 700 / .09em / caps / dim</small><h3 class="trayhead" style="margin:0">Waiting to be finished</h3></div>
     <div class="type-row"><small>Input<br>14 / 400</small><span style="font-size:14px">Find a character</span></div>
     <div class="type-row"><small>Subtitle<br>12.5 / 400 / dim</small><p class="sub" style="margin:0">Half-elf warlock, the Fiend</p></div>
-    <div class="type-row"><small>Hit point line<br>12 / 500 / dim, bold number in a</small><p class="hp" style="margin:0"><b>31</b>/44 hit points, 5 temporary</p></div>
+    <div class="type-row"><small>Hit point line<br>12 / 500 / dim, bold number in structural</small><p class="hp" style="margin:0"><b>31</b>/44 hit points, 5 temporary</p></div>
     <div class="type-row"><small>Status line<br>13 / 500 / dim, 14 on desktop</small><p class="quiet">Loading characters&hellip;</p></div>
     <div class="type-row"><small>Mark, sheet only<br>11 / 600</small><span class="mark" style="justify-self:start">Second wind</span></div>
-    <div class="type-row"><small>Ring label, sheet only<br>8 / 700</small><span style="font-size:8px;font-weight:700;color:var(--a)">AC</span></div>
+    <div class="type-row"><small>Ring label, sheet only<br>8 / 700</small><span style="font-size:8px;font-weight:700;color:var(--structural)">AC</span></div>
   </div>
   <table>
     <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
@@ -1140,30 +1142,30 @@ button.mark{font-family:inherit;cursor:pointer}
   <div class="riso specimen">
     <div class="shape">
       <span>card</span><span class="round">tok</span><span class="dashed">draft</span>
-      <span style="background:var(--a);color:var(--on-a);border-color:var(--a)">plate</span>
-      <span style="background:var(--b);color:var(--on-b);border-color:var(--b);box-shadow:5px 5px 0 var(--a)">CTA</span>
+      <span style="background:var(--structural);color:var(--on-structural);border-color:var(--structural)">plate</span>
+      <span style="background:var(--accent);color:var(--on-accent);border-color:var(--accent);box-shadow:5px 5px 0 var(--structural)">CTA</span>
     </div>
   </div>
   <table>
     <thead><tr><th>Element</th><th>Border</th><th>Shadow</th><th>Radius</th></tr></thead>
     <tbody>
-      <tr><td>Header plate</td><td>none, filled a</td><td><code>5px 5px 0 b</code> (phone), <code>0 5px 0 b</code> (tablet and desktop, full width)</td><td>0</td></tr>
-      <tr><td>Character card, desktop row</td><td><code>2px solid a</code></td><td><code>5px 5px 0 b</code></td><td>0</td></tr>
-      <tr><td>Search field</td><td><code>2px solid a</code>, filled sheet</td><td><code>4px 4px 0 b</code></td><td>0</td></tr>
-      <tr><td>Sort button</td><td><code>2px solid a</code>, filled sheet</td><td><code>4px 4px 0 b</code></td><td>0</td></tr>
-      <tr><td>Token</td><td>none, filled</td><td><code>4px 4px 0 b</code></td><td>50%</td></tr>
-      <tr><td>Level badge, sheet only</td><td><code>0 0 0 2px a</code> as ring</td><td>none</td><td>50%</td></tr>
-      <tr><td>Armour ring, sheet only</td><td><code>2px solid a</code></td><td><code>3px 3px 0 b</code></td><td>50%</td></tr>
-      <tr><td>Outlined button (Resume, Try again, Open sheet)</td><td><code>2px solid a</code></td><td><code>3px 3px 0 b</code></td><td>0</td></tr>
-      <tr><td>Primary button (Create)</td><td>none, filled b</td><td><code>5px 5px 0 a</code></td><td>0</td></tr>
+      <tr><td>Header plate</td><td>none, filled structural</td><td><code>5px 5px 0 accent</code> (phone), <code>0 5px 0 accent</code> (tablet and desktop, full width)</td><td>0</td></tr>
+      <tr><td>Character card, desktop row</td><td><code>2px solid structural</code></td><td><code>5px 5px 0 accent</code></td><td>0</td></tr>
+      <tr><td>Search field</td><td><code>2px solid structural</code>, filled card</td><td><code>4px 4px 0 accent</code></td><td>0</td></tr>
+      <tr><td>Secondary button, large (Sort)</td><td><code>2px solid structural</code>, filled card</td><td><code>4px 4px 0 accent</code></td><td>0</td></tr>
+      <tr><td>Character token</td><td>none, filled</td><td><code>4px 4px 0 accent</code></td><td>50%</td></tr>
+      <tr><td>Level badge, sheet only</td><td><code>0 0 0 2px structural</code> as ring</td><td>none</td><td>50%</td></tr>
+      <tr><td>Armour ring, sheet only</td><td><code>2px solid structural</code></td><td><code>3px 3px 0 accent</code></td><td>50%</td></tr>
+      <tr><td>Secondary button, medium and small (Resume, Try again, Open sheet)</td><td><code>2px solid structural</code></td><td><code>3px 3px 0 accent</code></td><td>0</td></tr>
+      <tr><td>Primary button, large and medium (Create)</td><td>none, filled accent</td><td><code>5px 5px 0 structural</code></td><td>0</td></tr>
       <tr><td>Mark, sheet only</td><td><code>1.5px solid</code> in its state colour</td><td>none</td><td>0</td></tr>
-      <tr><td>Draft card</td><td><code>2px dashed a</code></td><td>none</td><td>0</td></tr>
-      <tr><td>Draft tray rule</td><td><code>2px dashed b</code>, under the tray</td><td>none</td><td>0</td></tr>
-      <tr><td>Slate (empty list)</td><td><code>2px dashed a</code>, filled sheet</td><td>none</td><td>0</td></tr>
-      <tr><td>Notice (error)</td><td><code>4px solid b-text</code> on the left edge only, filled sheet. The development notice adds <code>2px dashed a</code> on the other sides.</td><td>none</td><td>0</td></tr>
+      <tr><td>Draft card</td><td><code>2px dashed structural</code></td><td>none</td><td>0</td></tr>
+      <tr><td>Draft tray rule</td><td><code>2px dashed accent</code>, under the tray</td><td>none</td><td>0</td></tr>
+      <tr><td>Empty card (empty list)</td><td><code>2px dashed structural</code>, filled card</td><td>none</td><td>0</td></tr>
+      <tr><td>Notice (error)</td><td><code>4px solid accent-text</code> on the left edge only, filled card. The development notice adds <code>2px dashed structural</code> on the other sides.</td><td>none</td><td>0</td></tr>
     </tbody>
   </table>
-  <p class="why" style="margin-top:12px">Shadow scale is 3, 4, 5. Three for small interactive elements, four for tokens, fields and the sort button, five for cards, plates and the primary button. The shadow is always in the other ink: blue things cast rose, rose things cast blue. Drafts and slates cast nothing because they are not real yet.</p>
+  <p class="why" style="margin-top:12px">Shadow scale is 3, 4, 5. Three for small interactive elements, four for tokens, fields and the sort button, five for cards, plates and the primary button. The shadow is always in the other ink: blue things cast rose, rose things cast blue. Drafts and empty cards cast nothing because they are not real yet.</p>
 </section>
 
 <!-- ============================================================ -->
@@ -1178,7 +1180,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <div class="space-row"><b>12</b><i style="width:12px"></i>phone list side padding, card inner padding, draft to draft</div>
     <div class="space-row"><b>13</b><i style="width:13px"></i>card column gap (phone), title to search</div>
     <div class="space-row"><b>14</b><i style="width:14px"></i>card to card gap (phone)</div>
-    <div class="space-row"><b>16</b><i style="width:16px"></i>card to card gap (tablet and desktop), bar gap, tablet card column gap</div>
+    <div class="space-row"><b>16</b><i style="width:16px"></i>card to card gap (tablet and desktop), toolbar gap, tablet card column gap</div>
     <div class="space-row"><b>18</b><i style="width:18px"></i>phone plate side padding, tablet card side padding</div>
     <div class="space-row"><b>22</b><i style="width:22px"></i>desktop row column gap and side padding</div>
     <div class="space-row"><b>24</b><i style="width:24px"></i>least margin either side of the tablet and desktop measure</div>
@@ -1187,8 +1189,8 @@ button.mark{font-family:inherit;cursor:pointer}
     <thead><tr><th>Component</th><th>Phone</th><th>Tablet</th><th>Desktop</th></tr></thead>
     <tbody>
       <tr><td>Measure</td><td>full width, 12 side padding</td><td><code>min(1020, width &minus; 48)</code>, centred</td><td>same</td></tr>
-      <tr><td>Plate padding</td><td>20 18 16</td><td>band: 26 0 24 inside the measure</td><td>same</td></tr>
-      <tr><td>Bar padding</td><td>no bar</td><td>14 0 18 inside the measure</td><td>same</td></tr>
+      <tr><td>Plate padding</td><td>20 18 16</td><td>26 0 24 inside the measure</td><td>same</td></tr>
+      <tr><td>Toolbar padding</td><td>no toolbar</td><td>14 0 18 inside the measure</td><td>same</td></tr>
       <tr><td>Card padding</td><td>11 12</td><td>14 18</td><td>16 22 (row)</td></tr>
       <tr><td>Card columns</td><td><code>56px 1fr</code>, identity <code>1fr auto</code></td><td><code>64px 1fr</code>, two cards across in landscape</td><td><code>74px 1fr 84px 240px 128px</code></td></tr>
       <tr><td>Card to card</td><td>14</td><td>16</td><td>16</td></tr>
@@ -1196,7 +1198,7 @@ button.mark{font-family:inherit;cursor:pointer}
       <tr><td>Level block</td><td>label 11, number 26</td><td>same</td><td>label 13, number 26</td></tr>
       <tr><td>Meter height</td><td>13</td><td>13</td><td>13</td></tr>
       <tr><td>Search field</td><td>9 12 padding, at least 44 tall</td><td>same, max 520 wide</td><td>same</td></tr>
-      <tr><td>Primary button</td><td>14 all round, full width</td><td>12 20, auto width, right of the bar</td><td>same</td></tr>
+      <tr><td>Primary button</td><td>14 all round, full width</td><td>12 20, auto width, right of the toolbar</td><td>same</td></tr>
       <tr><td>Level badge, sheet only</td><td>23, offset -7 -7</td><td colspan="2">same</td></tr>
       <tr><td>Armour ring, sheet only</td><td>46</td><td colspan="2">same</td></tr>
     </tbody>
@@ -1216,19 +1218,19 @@ button.mark{font-family:inherit;cursor:pointer}
       <button class="newbtn is-focus">Create</button>
       <span>not used</span>
       <button class="newbtn" disabled>Create</button>
-      <b>Outlined</b>
+      <b>Secondary</b>
       <div><button class="resume">Resume</button></div>
       <div><button class="resume is-pressed">Resume</button></div>
       <div><button class="resume is-focus">Resume</button></div>
       <span>not used</span>
       <div><button class="resume" disabled>Resume</button></div>
-      <b>Outlined link</b>
+      <b>Secondary as a link</b>
       <div><button class="go">Open sheet</button></div>
       <div><button class="go is-pressed">Open sheet</button></div>
       <div><button class="go is-focus">Open sheet</button></div>
       <div><button class="go" aria-pressed="true">Open sheet</button></div>
       <div><button class="go" disabled>Open sheet</button></div>
-      <b>Sort, on plate</b>
+      <b>Large secondary (Sort), on plate</b>
       <div class="plate"><button class="sortbtn" style="padding:9px 13px">Sort: level</button></div>
       <div class="plate"><button class="sortbtn is-pressed" style="padding:9px 13px">Sort: level</button></div>
       <div class="plate"><button class="sortbtn is-focus" style="padding:9px 13px">Sort: level</button></div>
@@ -1245,9 +1247,9 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>State</th><th>Rule</th><th>Selector</th></tr></thead>
     <tbody>
-      <tr><td>Pressed</td><td>Anything with an offset shadow moves by the shadow&rsquo;s offset and the shadow disappears. That means 5px for cards and the primary button, 4px for sort, and 3px for outlined buttons: Resume, Try again and Open sheet. Anything without a shadow gets a 2px inset ring in its own text colour. On phone and tablet the whole character card presses.</td><td><code>:active</code></td></tr>
-      <tr><td>Focus</td><td>2px structural outline, 3px offset. Inside the plate the outline is on-a, because structural on structural is invisible. The search field outlines the whole field, not the bare input, in on-a on the phone plate and structural in the tablet and desktop bar.</td><td><code>:focus-visible</code>, <code>:focus-within</code> on the field</td></tr>
-      <tr><td>Selected</td><td>Inversion. On paper, the control fills with structural and its text turns on-a. On the plate, it becomes a sheet cutout with structural text, as the active chip already does.</td><td><code>[aria-pressed=true]</code> for toggles, <code>[aria-checked=true]</code> for single choices such as chips, <code>[aria-selected=true]</code> for tabs</td></tr>
+      <tr><td>Pressed</td><td>Anything with an offset shadow moves by the shadow&rsquo;s offset and the shadow disappears. That means 5px for cards and the primary button, 4px for the large secondary button (Sort), and 3px for small primaries and for medium and small secondary buttons: Resume, Try again and Open sheet. Anything without a shadow gets a 2px inset ring in its own text colour. On phone and tablet the whole character card presses.</td><td><code>:active</code></td></tr>
+      <tr><td>Focus</td><td>2px structural outline, 3px offset. Inside the plate the outline is on-structural, because structural on structural is invisible. The search field outlines the whole field, not the bare input, in on-structural on the phone plate and structural in the tablet and desktop toolbar.</td><td><code>:focus-visible</code>, <code>:focus-within</code> on the field</td></tr>
+      <tr><td>Selected</td><td>Inversion. On paper, the control fills with structural and its text turns on-structural. On the plate, it becomes a card cutout with structural text, as the active chip already does.</td><td><code>[aria-pressed=true]</code> for toggles, <code>[aria-checked=true]</code> for single choices such as chips, <code>[aria-selected=true]</code> for tabs</td></tr>
       <tr><td>Disabled</td><td>No fill, no shadow, dim text and a 2px rule-coloured outline. Controls on the plate are hidden rather than disabled, because dim text cannot reach contrast on structural. The list hides controls that cannot work, such as search when there is nothing to search, rather than disabling them.</td><td><code>:disabled</code>, <code>[aria-disabled=true]</code></td></tr>
       <tr><td>Hover</td><td>Not defined yet. See deferred.</td><td></td></tr>
     </tbody>
@@ -1261,7 +1263,7 @@ button.mark{font-family:inherit;cursor:pointer}
   <div class="riso flat specimen tight">
     <div class="inline" style="color:var(--dim);gap:26px">
       <span class="inline" style="gap:8px;font-size:14px"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg> Find a character</span>
-      <span style="color:var(--a)"><svg width="45" height="45" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg></span>
+      <span style="color:var(--structural)"><svg width="45" height="45" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg></span>
     </div>
   </div>
   <table>
@@ -1279,7 +1281,7 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="plate">
   <h2>Header plate</h2>
-  <p class="lead">A solid block of structural ink holding the title. It is the only large filled area on the screen, so it anchors the page. On phone it also holds search and sort. On tablet and desktop it holds only the title, and search, sort and Create sit in a bar that sticks under it.</p>
+  <p class="lead">A solid block of structural ink holding the title. It is the only large filled area on the screen, so it anchors the page. On phone it also holds search and sort. On tablet and desktop it holds only the title, and search, sort and Create sit in a toolbar that sticks under it.</p>
   <div class="riso specimen">
     <div class="phone-frame">
       <div class="top">
@@ -1314,9 +1316,9 @@ button.mark{font-family:inherit;cursor:pointer}
     <thead><tr><th>Aspect</th><th>Phone</th><th>Tablet and desktop</th></tr></thead>
     <tbody>
       <tr><td>Shadow</td><td>5px right and down in accent</td><td>5px down only, full width, 5px margin below to make room</td></tr>
-      <tr><td>Layout</td><td>Stacked: title, then search and sort</td><td>The band holds the title alone. Search, sort and Create sit in the bar under it, with Create pushed right. The band, the bar and the list share one measure, so nothing is aligned by arithmetic.</td></tr>
-      <tr><td>Bar</td><td>none</td><td>Paper fill with a 2px structural rule under it. It sticks to the top as the list scrolls.</td></tr>
-      <tr><td>What hides</td><td colspan="2">Search and sort show only when the player has characters to find. When the API rejects the token, only the title is left: the phone plate loses its search row, and the tablet and desktop bar goes. See <a href="#list-states">list states</a>.</td></tr>
+      <tr><td>Layout</td><td>Stacked: title, then search and sort</td><td>The plate holds the title alone. Search, sort and Create sit in the toolbar under it, with Create pushed right. The plate, the toolbar and the list share one measure, so nothing is aligned by arithmetic.</td></tr>
+      <tr><td>Toolbar</td><td>none</td><td>Paper fill with a 2px structural rule under it. It sticks to the top as the list scrolls.</td></tr>
+      <tr><td>What hides</td><td colspan="2">Search and sort show only when the player has characters to find. When the API rejects the token, only the title is left: the phone plate loses its search row, and the tablet and desktop toolbar goes. See <a href="#list-states">list states</a>.</td></tr>
     </tbody>
   </table>
 </section>
@@ -1324,7 +1326,7 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="search">
   <h2>Search and sort</h2>
-  <p class="lead">A sheet field with a hairline search icon, paired with an outlined sort button. Both have a 2px structural border and a 4px accent shadow. On phone they sit in the plate, and on tablet and desktop in the bar.</p>
+  <p class="lead">A card-coloured field with a hairline search icon, paired with a large secondary button for sort. Both have a 2px structural border and a 4px accent shadow. On phone they sit in the plate, and on tablet and desktop in the toolbar.</p>
   <div class="riso specimen">
     <div class="stack" style="max-width:420px">
       <div class="plate">
@@ -1346,8 +1348,8 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Field</td><td>Sheet fill, 2px structural border, 4px accent shadow, 9 12 padding and a 44 minimum height, the text field rule. At most 520 wide in the bar. Icon is 15px, 1.8 stroke, in dim. Text in ink, placeholder in dim.</td></tr>
-      <tr><td>Sort</td><td>Sheet fill, 2px structural border, structural text at 13 / 700, 0 13 padding, 4px accent shadow. The label reads &ldquo;Sort: level&rdquo; or &ldquo;Sort: name&rdquo;.</td></tr>
+      <tr><td>Field</td><td>Card fill, 2px structural border, 4px accent shadow, 9 12 padding and a 44 minimum height, the text field rule. At most 520 wide in the toolbar. Icon is 15px, 1.8 stroke, in dim. Text in <code>--text</code>, placeholder in dim.</td></tr>
+      <tr><td>Sort</td><td>Card fill, 2px structural border, structural text at 13 / 700, 0 13 padding, 4px accent shadow. The label reads &ldquo;Sort: level&rdquo; or &ldquo;Sort: name&rdquo;.</td></tr>
       <tr><td>Sort behaviour</td><td>Each tap switches between level and name. There is no menu. Level puts the highest total level first, then sorts by name; name sorts A to Z.</td></tr>
       <tr><td>Search behaviour</td><td>Search matches names only. The request goes out 250 ms after typing stops, and the previous results stay on screen until the new ones land. Drafts ignore the search.</td></tr>
       <tr><td>Searching</td><td>While a search is in flight, a 16px <a href="#list-states">spinner</a> turns at the right of the field, where the eye already is, so nothing below it moves. It is a polite live region that reads &ldquo;Searching&hellip;&rdquo;.</td></tr>
@@ -1358,7 +1360,7 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="chips">
   <h2>Filter chips</h2>
-  <p class="lead"><b>Not in current designs.</b> The list dropped its filters in v0.5, and no other screen uses chips. The <code>--chip</code> token stays, because the sheet&rsquo;s plate tabs use it. As designed: chips live on the plate only. The active chip is a sheet-coloured cutout with structural text. Inactive chips are a translucent tint of the plate text.</p>
+  <p class="lead"><b>Not in current designs.</b> The list dropped its filters in v0.5, and no other screen uses chips. The <code>--chip-on-plate</code> token stays, because the sheet&rsquo;s plate tabs use it. As designed: chips live on the plate only. The active chip is a card-coloured cutout with structural text. Inactive chips are a translucent tint of the plate text.</p>
   <div class="riso specimen">
     <div class="plate" style="max-width:420px">
       <div class="chips" style="margin:0" role="radiogroup" aria-label="Filter characters">
@@ -1372,8 +1374,8 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>State</th><th>Fill</th><th>Text</th><th>Weight</th></tr></thead>
     <tbody>
-      <tr><td>Inactive</td><td><code>--chip</code> (on-a at 10%)</td><td><code>--on-a</code></td><td>600</td></tr>
-      <tr><td>Active <code>[aria-checked=true]</code></td><td><code>--sheet</code></td><td><code>--a</code></td><td>700</td></tr>
+      <tr><td>Inactive</td><td><code>--chip-on-plate</code> (on-structural at 10%)</td><td><code>--on-structural</code></td><td>600</td></tr>
+      <tr><td>Active <code>[aria-checked=true]</code></td><td><code>--card</code></td><td><code>--structural</code></td><td>700</td></tr>
     </tbody>
   </table>
   <p class="why" style="margin-top:12px">Filters seen so far: All, Below half, Conditions, and a campaign name. Single select is implied by "All" being present, so the chips are one radio group: arrow keys move the choice, and each chip extends to a 44 tall tap area. Pressed, focus and selected follow the interaction states. Hover is deferred.</p>
@@ -1393,8 +1395,8 @@ button.mark{font-family:inherit;cursor:pointer}
   </div>
   <div class="riso specimen">
     <div class="tok-set">
-      <figure style="--tok:var(--a);--on-tok:var(--on-a)"><div class="tok">B<b>6</b></div>sheet, #2560b0</figure>
-      <figure style="--tok:var(--b);--on-tok:var(--on-b)"><div class="tok">T<b>8</b></div>#e0689c</figure>
+      <figure style="--tok:var(--structural);--on-tok:var(--on-structural)"><div class="tok">B<b>6</b></div>sheet, #2560b0</figure>
+      <figure style="--tok:var(--accent);--on-tok:var(--on-accent)"><div class="tok">T<b>8</b></div>#e0689c</figure>
       <figure style="--tok:#2f6a4a;--on-tok:#f2f0eb"><div class="tok">F<b>5</b></div>#2f6a4a</figure>
     </div>
   </div>
@@ -1407,9 +1409,9 @@ button.mark{font-family:inherit;cursor:pointer}
     <tbody>
       <tr><td>Circle</td><td>56px on phone, 64px on tablet and desktop. Initial at 20 / 23px, 700. 4px accent shadow, always accent regardless of token colour.</td></tr>
       <tr><td>Initial</td><td>The first letter of the name, uppercased, taken by code point so an accented letter or emoji is not split. Hidden from screen readers, because the name beside it says the same.</td></tr>
-      <tr><td>Level badge</td><td>Sheet only. 23px circle, sheet fill, ink digit at 11.5 / 700, 2px structural ring. Offset -7 -7 so it overlaps the token edge. It shows total level, so wizard 5 / rogue 2 reads 7.</td></tr>
+      <tr><td>Level badge</td><td>Sheet only. 23px circle, card fill, a digit in <code>--text</code> at 11.5 / 700, 2px structural ring. Offset -7 -7 so it overlaps the token edge. It shows total level, so wizard 5 / rogue 2 reads 7.</td></tr>
       <tr><td>Colour assignment</td><td>On the list, every token is structural ink. On the sheet, the fill is stored on the character as a hex colour, not an ink role. The player picks it in the first creation step and can change it from Basic details. A theme change leaves it as it is. The five inks stay chrome: plates, shadows, hurt, concentration.</td></tr>
-      <tr><td>Draft variant</td><td>Sheet fill, structural initial, 2px inset structural ring, shadow in <code>--rule</code> instead of accent. Reads as an outline of a token. No badge. An unnamed creation draft shows the ring with no letter: the letter comes from a name it does not have yet, and the N of &ldquo;New character&rdquo; would read as a real name.</td></tr>
+      <tr><td>Draft variant</td><td>Card fill, structural initial, 2px inset structural ring, shadow in <code>--rule</code> instead of accent. Reads as an outline of a token. No badge. An unnamed creation draft shows the ring with no letter: the letter comes from a name it does not have yet, and the N of &ldquo;New character&rdquo; would read as a real name.</td></tr>
       <tr><td>Text colour</td><td>The letter is contrast-targeted against the fill, the same 4.5:1 rule as on-ink. Light text if it holds, otherwise a dark mix toward near-black.</td></tr>
     </tbody>
   </table>
@@ -1459,9 +1461,9 @@ button.mark{font-family:inherit;cursor:pointer}
     <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
     <tbody>
       <tr><td>Resolution</td><td>Ten segments. The filled count is the fraction times ten, rounded to the nearest whole, then held between 1 and 9 while hit points are above 0 and below the maximum. So 1 hit point still shows one segment, and a scratch still shows one empty. That rule reproduces every row in the list mockup.</td></tr>
-      <tr><td>Hurt threshold</td><td>The client derives this state when current hit points times two is less than maximum hit points. It is unavailable when either value is null or maximum is zero. The API does not return a below-half flag. This mockup uses <code>data-hurt</code> for the derived state. When hurt, the bold number in the line turns <code>--b-text</code> as well.</td></tr>
+      <tr><td>Hurt threshold</td><td>The client derives this state when current hit points times two is less than maximum hit points. It is unavailable when either value is null or maximum is zero. The API does not return a below-half flag. This mockup uses <code>data-hurt</code> for the derived state. When hurt, the bold number in the line turns <code>--accent-text</code> as well.</td></tr>
       <tr><td>Temporary hit points</td><td>On the character list, shown in the line only (&ldquo;5 temporary&rdquo;), not on the meter. On the character sheet&rsquo;s tall header, a solid overprint block follows the meter after a gap, and the line still states the amount. It is one block with no empty segments, because temporary hit points have no maximum. The compact header spells it out as &ldquo;+5 temp&rdquo;, so colour never carries it alone.</td></tr>
-      <tr><td>Hit point line</td><td>Bold current value in structural, or <code>--b-text</code> when hurt, and the rest in dim at 500. On the list the only note is temporary hit points: &ldquo;31/44 hit points, 5 temporary&rdquo;.</td></tr>
+      <tr><td>Hit point line</td><td>Bold current value in structural, or <code>--accent-text</code> when hurt, and the rest in dim at 500. On the list the only note is temporary hit points: &ldquo;31/44 hit points, 5 temporary&rdquo;.</td></tr>
       <tr><td>Not set</td><td>With no current or maximum, or a maximum of 0, there is no meter and the line reads &ldquo;Hit points not set&rdquo;, moved up to where the meter was.</td></tr>
       <tr><td>Zero</td><td>At 0 the list shows all ten segments empty and the 0 in hurt ink, because its API returns no death saves. The sheet tells dying, stable and dead apart; see <a href="#zero">zero hit points</a>.</td></tr>
       <tr><td>Contrast</td><td>Rose segments reach only 2.5:1 on paper, below the 3:1 target for graphics. That is acceptable only because the hit point line always states the value. Never show a meter without its line.</td></tr>
@@ -1537,9 +1539,9 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Pips</td><td>Two groups of three, 13px so they fill the meter&rsquo;s slot, 4px apart with 14px between groups. Successes are structural circles. Failures are squares in <code>--b-text</code>, because they are small state graphics and raw rose is too faint. Marked pips are filled, unmarked ones are a 2px outline. Shape differs as well as colour.</td></tr>
+      <tr><td>Pips</td><td>Two groups of three, 13px so they fill the meter&rsquo;s slot, 4px apart with 14px between groups. Successes are structural circles. Failures are squares in <code>--accent-text</code>, because they are small state graphics and raw rose is too faint. Marked pips are filled, unmarked ones are a 2px outline. Shape differs as well as colour.</td></tr>
       <tr><td>Screen readers</td><td>Pips are hidden. The hit point line spells out both counts.</td></tr>
-      <tr><td>Dead card</td><td>Border in <code>--rule</code> and no shadow. The token loses its ink: sheet fill, dim initial and a <code>--rule</code> ring. The card is still solid-bordered, so it does not read as a draft.</td></tr>
+      <tr><td>Dead card</td><td>Border in <code>--rule</code> and no shadow. The token loses its ink: card fill, dim initial and a <code>--rule</code> ring. The card is still solid-bordered, so it does not read as a draft.</td></tr>
       <tr><td>Recovery</td><td>Any healing above 0 clears both counts and brings the normal meter back, as the rules do.</td></tr>
       <tr><td>Mark priority</td><td>On the sheet&rsquo;s compact header, the zero hit point mark takes the single mark slot ahead of any other. The list has no marks.</td></tr>
     </tbody>
@@ -1549,7 +1551,7 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="ac">
   <h2>Armour class ring</h2>
-  <p class="lead">A 46px ring on sheet with a 2px structural border and 3px accent shadow. The number is 17 / 700 and the label under it is 8px caps. Sheet only: the list dropped it in v0.5.</p>
+  <p class="lead">A 46px ring on card with a 2px structural border and 3px accent shadow. The number is 17 / 700 and the label under it is 8px caps. Sheet only: the list dropped it in v0.5.</p>
   <div class="riso specimen">
     <div class="inline" style="gap:22px">
       <div class="ac"><span>13<em>AC</em></span></div>
@@ -1563,7 +1565,7 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="marks">
   <h2>Marks</h2>
-  <p class="lead">Small outlined labels for conditions and resources. Three states, each a different ink for border and text, sheet fill always. No fills, no icons. Sheet only: the list dropped marks in v0.5, including the Leveling up mark on a character with a draft.</p>
+  <p class="lead">Small outlined labels for conditions and resources. Three states, each a different ink for border and text, card fill always. No fills, no icons. Sheet only: the list dropped marks in v0.5, including the Leveling up mark on a character with a draft.</p>
   <div class="riso specimen">
     <div class="marks">
       <span class="mark" data-t="ok">Second wind</span>
@@ -1578,9 +1580,9 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th><code>data-t</code></th><th>Border and text</th><th>Meaning</th><th>Examples in mockup</th></tr></thead>
     <tbody>
-      <tr><td><code>ok</code> (or unset)</td><td>structural, <code>--a</code></td><td>Resource available, feature ready</td><td>Second wind, Action surge, Channel 1 of 2, 1 pact slot, Sneak 2d6</td></tr>
-      <tr><td><code>bad</code></td><td>accent, text in <code>--b-text</code></td><td>Condition or danger</td><td>Below half, Poisoned, and the zero hit point marks Dying, Unconscious and Dead</td></tr>
-      <tr><td><code>conc</code></td><td>overprint, <code>--mix</code></td><td>Concentration or an active effect the player must track</td><td>Hex, Portent 1</td></tr>
+      <tr><td><code>ok</code> (or unset)</td><td>structural, <code>--structural</code></td><td>Resource available, feature ready</td><td>Second wind, Action surge, Channel 1 of 2, 1 pact slot, Sneak 2d6</td></tr>
+      <tr><td><code>bad</code></td><td>accent, text in <code>--accent-text</code></td><td>Condition or danger</td><td>Below half, Poisoned, and the zero hit point marks Dying, Unconscious and Dead</td></tr>
+      <tr><td><code>conc</code></td><td>overprint, <code>--overprint</code></td><td>Concentration or an active effect the player must track</td><td>Hex, Portent 1</td></tr>
     </tbody>
   </table>
   <p class="why" style="margin-top:12px">Where space holds fewer marks than there are, the priority order is bad, then conc, then ok.</p>
@@ -1600,7 +1602,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
       <tr><td>Button mark</td><td>A <code>button.mark</code> with an aria-label that says what it opens. Pressed and open states are the 2px inset ring in the mark's own colour. Concentration is not a condition: its mark opens the spell's detail, not the status sheet.</td></tr>
-      <tr><td>Condition control</td><td><code>.addmark</code>: 1.5px dashed border and text in on-a, a plus icon and the word Condition. Opens the status sheet, so it carries <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>, and the pressed ring is on-a. Dashed always means adding or not real yet, here and in <a href="#controls">list editing</a>.</td></tr>
+      <tr><td>Condition control</td><td><code>.addmark</code>: 1.5px dashed border and text in on-structural, a plus icon and the word Condition. Opens the status sheet, so it carries <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>, and the pressed ring is on-structural. Dashed always means adding or not real yet, here and in <a href="#controls">list editing</a>.</td></tr>
       <tr><td>The picker</td><td>The status sheet is a <a href="#sheets">bottom sheet</a>: a three-column grid of condition names toggled with <code>aria-pressed</code>, Custom in the last cell, the chosen condition's end under the grid, then an exhaustion stepper. It toggles live: a tap adds with no end, a second tap removes. See the specimen under <a href="#sheets">bottom sheets</a>.</td></tr>
     </tbody>
   </table>
@@ -1700,7 +1702,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <thead><tr><th>Width</th><th>Layout</th></tr></thead>
     <tbody>
       <tr><td>Phone</td><td>One column of cards, 14 apart. 56 token, 11 12 padding, 13 between columns.</td></tr>
-      <tr><td>Tablet, portrait</td><td>One column of cards, 16 apart, under the desktop band and bar. 64 token, 14 18 padding, 16 between columns.</td></tr>
+      <tr><td>Tablet, portrait</td><td>One column of cards, 16 apart, under the desktop plate and toolbar. 64 token, 14 18 padding, 16 between columns.</td></tr>
       <tr><td>Tablet, landscape (1024 and up)</td><td>The same cards in two columns. Cards in a row share a height, and their content stays centred, so a long card&rsquo;s neighbour grows to match. The draft tray spans both columns.</td></tr>
       <tr><td>Desktop</td><td>The <a href="#row">desktop row</a> instead.</td></tr>
     </tbody>
@@ -1836,13 +1838,13 @@ button.mark{font-family:inherit;cursor:pointer}
     <tbody>
       <tr><td>Place</td><td>Above the list, 16 above a 2px dashed accent rule. When there are no characters the tray stands alone and the rule goes, because there is nothing under it to separate. With no drafts there is no tray.</td></tr>
       <tr><td>Heading</td><td>&ldquo;Waiting to be finished&rdquo;, a small label at 11.5 / 700, tracked .09em, capitals by style, in dim.</td></tr>
-      <tr><td>Card</td><td>2px dashed structural border, <code>--draft-bg</code> fill, no shadow. Drafts are 12 apart. Token, text, then Resume: <code>56px 1fr auto</code> on phone, <code>74px 1fr auto</code> with 22 gaps on tablet and desktop.</td></tr>
+      <tr><td>Card</td><td>2px dashed structural border, <code>--draft-fill</code> fill, no shadow. Drafts are 12 apart. Token, text, then Resume: <code>56px 1fr auto</code> on phone, <code>74px 1fr auto</code> with 22 gaps on tablet and desktop.</td></tr>
       <tr><td>Token</td><td>Draft variant, no badge. An unnamed creation draft has an empty ring.</td></tr>
       <tr><td>Title</td><td>On phone, the name, or &ldquo;New character&rdquo; for an unnamed creation. On tablet and desktop, a level-up reads &ldquo;Kethra Ironsong, level 3 to 4&rdquo; and a creation &ldquo;Nyra Ashfall, new character&rdquo;, or &ldquo;New character&rdquo; alone.</td></tr>
       <tr><td>Line, phone</td><td>A level-up: &ldquo;Level 3 to 4, three of five choices made. Nothing changes on the sheet until you confirm.&rdquo; A creation: &ldquo;Creation, two of five choices made. Nothing is added to your list until you confirm.&rdquo;</td></tr>
       <tr><td>Line, tablet and desktop</td><td>&ldquo;{Count} of {total} choices made. Next up is {step}.&rdquo;, then the same reassurance. Counts are words up to ten.</td></tr>
       <tr><td>Next step</td><td>From <code>next_step</code>: <code>choose_class</code> is &ldquo;choosing a class&rdquo;, and <code>ability_score_or_feat</code> is &ldquo;an ability increase or a feat&rdquo;. A step with no phrase drops the Next up sentence rather than show a raw key.</td></tr>
-      <tr><td>Action</td><td>Outlined Resume with a 3px accent shadow. &ldquo;Resume&rdquo; on phone; &ldquo;Resume level-up&rdquo; or &ldquo;Resume creation&rdquo; on tablet and desktop.</td></tr>
+      <tr><td>Action</td><td>A small secondary button, Resume, with a 3px accent shadow. &ldquo;Resume&rdquo; on phone; &ldquo;Resume level-up&rdquo; or &ldquo;Resume creation&rdquo; on tablet and desktop.</td></tr>
       <tr><td>Level-up character</td><td>Keeps its normal card in the list, sorted with the rest and unmarked, so its sheet stays one tap away. A creation draft has no character yet, so it appears only in the tray.</td></tr>
     </tbody>
   </table>
@@ -1855,8 +1857,8 @@ button.mark{font-family:inherit;cursor:pointer}
   <div class="riso specimen">
     <div class="state-set">
       <figure>First load<div class="phone-frame"><div class="mat" style="height:230px"><div class="rows"><div class="loading"><svg class="spinner" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15"/><path d="M18 3a15 15 0 0 1 15 15"/></svg><p class="quiet" role="status">Loading characters&hellip;</p></div></div></div></div></figure>
-      <figure>No characters yet<div class="phone-frame"><div class="rows"><div class="slate"><h3>No characters yet</h3><p>Create character walks you through class, race, background, and ability scores, one step at a time.</p></div></div></div></figure>
-      <figure>No search results<div class="phone-frame"><div class="rows"><div class="slate"><h3>No characters match &ldquo;Zephyr&rdquo;</h3><p>Search only looks at names. Check the spelling, or clear the search to see all your characters.</p></div></div></div></figure>
+      <figure>No characters yet<div class="phone-frame"><div class="rows"><div class="empty-card"><h3>No characters yet</h3><p>Create character walks you through class, race, background, and ability scores, one step at a time.</p></div></div></div></figure>
+      <figure>No search results<div class="phone-frame"><div class="rows"><div class="empty-card"><h3>No characters match &ldquo;Zephyr&rdquo;</h3><p>Search only looks at names. Check the spelling, or clear the search to see all your characters.</p></div></div></div></figure>
       <figure>Couldn&rsquo;t load<div class="phone-frame"><div class="rows"><div class="notice" role="alert"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg><div><h3>Couldn&rsquo;t load your characters</h3><p>Check your connection and try again. If that doesn&rsquo;t work, the server may be having trouble.</p><button class="retry">Try again</button></div></div></div></div></figure>
       <figure>Not signed in, temporary<div class="phone-frame"><div class="rows"><div class="notice dev" role="alert"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg><div><span class="badgelab">Development only</span><h3>Not signed in</h3><p>The API rejected the development token. Set <b>EXPO_PUBLIC_API_TOKEN</b> in frontend/.env to the token bin/rails db:seed prints, then restart Expo.</p></div></div></div></div></figure>
     </div>
@@ -1866,21 +1868,21 @@ button.mark{font-family:inherit;cursor:pointer}
     <tbody>
       <tr><td>First load</td><td>No data yet</td><td>The header and Create are in place. A 36 spinner (44 on tablet and desktop) sits in the middle of the space the list will fill, with &ldquo;Loading characters&hellip;&rdquo; under it as a status line. The tray arrives with the list, because both come from one request.</td></tr>
       <tr><td>Searching</td><td>A new search is in flight</td><td>The previous results stay, and a 16 spinner turns in the <a href="#search">search field</a>.</td></tr>
-      <tr><td>No characters yet</td><td>No search, no characters, no drafts</td><td>A slate that names Create character, which is already on screen. Search and sort are hidden.</td></tr>
-      <tr><td>Drafts only</td><td>No search, no characters, at least one draft</td><td>The <a href="#draft">tray</a> alone, without its rule. No slate, because Resume is the next step. Search and sort are hidden.</td></tr>
-      <tr><td>No search results</td><td>A search and no characters</td><td>A slate that quotes the search as typed and says search only looks at names, because a player who types &ldquo;dwarf&rdquo; would otherwise think something broke. The tray still shows.</td></tr>
-      <tr><td>Not signed in</td><td>The API returns 401</td><td>A development notice. There is no login screen yet, so the copy speaks to a developer and goes when sign-in arrives. Search, sort and Create are hidden, and so is the desktop bar. No Try again, because retrying cannot help until the token changes.</td></tr>
+      <tr><td>No characters yet</td><td>No search, no characters, no drafts</td><td>An empty card that names Create character, which is already on screen. Search and sort are hidden.</td></tr>
+      <tr><td>Drafts only</td><td>No search, no characters, at least one draft</td><td>The <a href="#draft">tray</a> alone, without its rule. No empty card, because Resume is the next step. Search and sort are hidden.</td></tr>
+      <tr><td>No search results</td><td>A search and no characters</td><td>An empty card that quotes the search as typed and says search only looks at names, because a player who types &ldquo;dwarf&rdquo; would otherwise think something broke. The tray still shows.</td></tr>
+      <tr><td>Not signed in</td><td>The API returns 401</td><td>A development notice. There is no login screen yet, so the copy speaks to a developer and goes when sign-in arrives. Search, sort and Create are hidden, and so is the desktop toolbar. No Try again, because retrying cannot help until the token changes.</td></tr>
       <tr><td>Couldn&rsquo;t load</td><td>A network error or any other error status</td><td>A notice with Try again. The header stays. Try again repeats the same request, and while it runs the first-load spinner takes the notice&rsquo;s place. Either error replaces the list, on first load or during a search.</td></tr>
     </tbody>
   </table>
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Slate</td><td>A card not printed yet: 2px dashed structural border, sheet fill, no shadow. Heading at 16.5 / 700 in ink (19 on desktop), then a line at 13 in dim (14, at most 64 characters wide). 18 18 20 padding (22 24 24).</td></tr>
-      <tr><td>Notice</td><td>The <a href="#displays">warning strip</a>, larger: sheet fill, a 4px <code>--b-text</code> edge on the left, an 18 outline warning icon in <code>--b-text</code> (20 on desktop), a bold heading and a dim line. It is an alert, so screen readers announce it.</td></tr>
+      <tr><td>Empty card</td><td>A card not printed yet: 2px dashed structural border, card fill, no shadow. Heading at 16.5 / 700 in <code>--text</code> (19 on desktop), then a line at 13 in dim (14, at most 64 characters wide). 18 18 20 padding (22 24 24).</td></tr>
+      <tr><td>Notice</td><td>The <a href="#displays">warning strip</a>, larger: card fill, a 4px <code>--accent-text</code> edge on the left, an 18 outline warning icon in <code>--accent-text</code> (20 on desktop), a bold heading and a dim line. It is an alert, so screen readers announce it.</td></tr>
       <tr><td>Development notice</td><td>A notice with a 2px dashed structural border on its other three sides, the system&rsquo;s mark for not real yet, and a &ldquo;Development only&rdquo; small label over the heading. Only for copy that is meant to go away.</td></tr>
-      <tr><td>Try again</td><td>An outlined button, as Resume, at 13 / 700 with 9 14 padding, 14 under the line.</td></tr>
-      <tr><td>Spinner</td><td>A quarter arc in structural ink on a full track in <code>--empty</code>: a 36 viewBox with a 15 radius and a 4 stroke (6 at 16, so it stays visible). One turn every 0.9 seconds, linear. It holds still when reduced motion is on. Hidden from screen readers, because the text beside it is the status. Built with react-native-svg and Reanimated, not <code>ActivityIndicator</code>; see <a href="#native">React Native</a>.</td></tr>
+      <tr><td>Try again</td><td>A medium secondary button, at 13 / 700 with 9 14 padding, 14 under the line.</td></tr>
+      <tr><td>Spinner</td><td>A quarter arc in structural ink on a full track in <code>--track</code>: a 36 viewBox with a 15 radius and a 4 stroke (6 at 16, so it stays visible). One turn every 0.9 seconds, linear. It holds still when reduced motion is on. Hidden from screen readers, because the text beside it is the status. Built with react-native-svg and Reanimated, not <code>ActivityIndicator</code>; see <a href="#native">React Native</a>.</td></tr>
       <tr><td>Status line</td><td>13 / 500 in dim, 14 on desktop, 14 under the spinner (16 on desktop). A polite live region.</td></tr>
     </tbody>
   </table>
@@ -1889,11 +1891,11 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="buttons">
   <h2>Buttons</h2>
-  <p class="lead">Seven button styles appear. Fill and shadow ink tell you which is which. Each screen or sheet has at most one full-width primary; repeated cards and rows may instead each carry one small primary for their own action.</p>
+  <p class="lead">Three kinds of button, named for what they do: primary, secondary and destructive. Each comes in sizes. Fill and shadow ink tell the kinds apart. Each screen or sheet has at most one full-width primary; repeated cards and rows may instead each carry one small primary for their own action.</p>
   <div class="riso specimen">
     <div class="inline" style="gap:26px;align-items:flex-start">
       <div style="width:220px"><button class="newbtn">Create character</button></div>
-      <button class="newbtn" style="width:auto;padding:9px 16px;font-size:13px;box-shadow:3px 3px 0 var(--a)">Cast</button>
+      <button class="newbtn" style="width:auto;padding:9px 16px;font-size:13px;box-shadow:3px 3px 0 var(--structural)">Cast</button>
       <button class="resume">Resume level-up</button>
       <button class="go">Open sheet</button>
       <div class="plate" style="padding:10px 14px 14px 12px"><button class="sortbtn" style="padding:9px 13px">Sort: level</button></div>
@@ -1902,18 +1904,19 @@ button.mark{font-family:inherit;cursor:pointer}
     </div>
   </div>
   <table>
-    <thead><tr><th>Style</th><th>Class</th><th>Fill</th><th>Text</th><th>Shadow</th><th>Where</th></tr></thead>
+    <thead><tr><th>Kind</th><th>Size</th><th>Class</th><th>Text</th><th>Shadow</th><th>Where</th></tr></thead>
     <tbody>
-      <tr><td>Primary</td><td><code>.newbtn</code></td><td>accent</td><td>on-b, 15 / 700 (14 desktop)</td><td>5px structural</td><td>Create character. Sticky footer on phone, right of the bar on tablet and desktop.</td></tr>
-      <tr><td>Small primary</td><td><code>.castbtn.small</code> in the sheet mockup</td><td>accent</td><td>on-b, 13 / 700</td><td>3px structural</td><td>One per card or row, for that card&rsquo;s own action: Cast, Use, Transform. Also Save on a block being edited.</td></tr>
-      <tr><td>Outlined</td><td><code>.resume</code>, <code>.retry</code></td><td>sheet, 2px structural border</td><td>structural, 12.5 / 700 (13 for Try again)</td><td>3px accent</td><td>Resume, inside a draft card. Try again, inside an error notice.</td></tr>
-      <tr><td>Outlined link</td><td><code>.go</code></td><td>sheet, 2px structural border</td><td>structural, 13 / 700</td><td>3px accent</td><td>Open sheet, a link rather than a button, named for the character. Desktop rows only; on phone and tablet the card is one link stretched over it.</td></tr>
-      <tr><td>Sort</td><td><code>.sortbtn</code></td><td>sheet, 2px structural border</td><td>structural, 13 / 700</td><td>4px accent</td><td>Sort, in the plate on phone and in the bar on tablet and desktop.</td></tr>
-      <tr><td>Destructive</td><td><code>.dangerbtn</code></td><td>sheet, 2px <code>--b-text</code> border</td><td><code>--b-text</code>, 14 / 700</td><td>none</td><td>Remove an item, End concentration, Delete Thorn Grimsby. Anything that removes something or ends in death, including a footer action that kills. Never the primary look.</td></tr>
-      <tr><td>Small destructive</td><td><code>.dangerbtn.small</code></td><td>sheet, 2px <code>--b-text</code> border</td><td><code>--b-text</code>, 13 / 700</td><td>none</td><td>One per card, at its foot: Remove this way to cast on an access path card. The card rule applies: never two primaries or destructives on one card.</td></tr>
+      <tr><td rowspan="3">Primary: accent fill, on-accent text</td><td>Large</td><td><code>.newbtn</code></td><td>15 / 700</td><td>5px structural</td><td>Create character in the sticky footer on phone.</td></tr>
+      <tr><td>Medium</td><td><code>.newbtn.dnew</code></td><td>14 / 700</td><td>5px structural</td><td>Create character, right of the toolbar on tablet and desktop.</td></tr>
+      <tr><td>Small</td><td><code>.castbtn.small</code> in the sheet mockup</td><td>13 / 700</td><td>3px structural</td><td>One per card or row, for that card&rsquo;s own action: Cast, Use, Transform. Also Save on a block being edited.</td></tr>
+      <tr><td rowspan="3">Secondary: card fill, 2px structural border, structural text</td><td>Large</td><td><code>.sortbtn</code></td><td>13 / 700, at least 44 tall</td><td>4px accent</td><td>Sort, in the plate on phone and in the toolbar on tablet and desktop.</td></tr>
+      <tr><td>Medium</td><td><code>.go</code>, <code>.retry</code></td><td>13 / 700</td><td>3px accent</td><td>Open sheet on desktop rows, and Try again inside an error notice.</td></tr>
+      <tr><td>Small</td><td><code>.resume</code></td><td>12.5 / 700</td><td>3px accent</td><td>Resume, inside a draft card.</td></tr>
+      <tr><td rowspan="2">Destructive: card fill, 2px <code>--accent-text</code> border and text</td><td>Medium</td><td><code>.dangerbtn</code></td><td>14 / 700</td><td>none</td><td>Remove an item, End concentration, Delete Thorn Grimsby. Anything that removes something or ends in death, including a footer action that kills. Never the primary look.</td></tr>
+      <tr><td>Small</td><td><code>.dangerbtn.small</code></td><td>13 / 700</td><td>none</td><td>One per card, at its foot: Remove this way to cast on an access path card. The card rule applies: never two primaries or destructives on one card.</td></tr>
     </tbody>
   </table>
-  <p class="why" style="margin-top:12px">The primary button on phone sits in a sticky footer with a gradient from transparent to paper, so the list scrolls under it. Pressed, focus, selected and disabled follow the interaction states.</p>
+  <p class="why" style="margin-top:12px">The primary button on phone sits in a sticky footer with a gradient from transparent to paper, so the list scrolls under it. Pressed, focus, selected and disabled follow the interaction states. A button that goes somewhere rather than acting where it is takes the link role and keeps its look: Open sheet is a medium secondary button, named for the character, and appears on desktop rows only, because on phone and tablet the card is one link stretched over it.</p>
   <table>
     <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
     <tbody>
@@ -1934,7 +1937,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <div class="desk-frame" style="min-width:1100px">
       <div class="mat d">
         <div class="cols"><span></span><span>Character</span><span>Hit points</span><span>Armor</span><span>Conditions and resources</span><span></span></div>
-        <div class="trow" style="--tok:var(--b);--on-tok:var(--on-b)">
+        <div class="trow" style="--tok:var(--accent);--on-tok:var(--on-accent)">
           <div class="tok">T<b>8</b></div>
           <div><h3 class="name">Thorn Grimsby</h3><p class="sub" style="margin-bottom:0">Mountain dwarf fighter, Champion</p></div>
           <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i></div><p class="hp"><b>68</b>/72 hit points, second wind ready</p></div>
@@ -1942,7 +1945,7 @@ button.mark{font-family:inherit;cursor:pointer}
           <div class="marks"><span class="mark" data-t="ok">Second wind</span><span class="mark" data-t="ok">Action surge</span></div>
           <a class="go" href="#sheet" aria-label="Open Thorn Grimsby&rsquo;s sheet">Open sheet</a>
         </div>
-        <div class="trow" style="--tok:var(--mix);--on-tok:var(--on-mix)">
+        <div class="trow" style="--tok:var(--overprint);--on-tok:var(--on-overprint)">
           <div class="tok">V<b>7</b></div>
           <div><h3 class="name">Vesper Quill</h3><p class="sub" style="margin-bottom:0">Rock gnome wizard 5 / rogue 2, Divination</p></div>
           <div><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points, 2 slots left</p></div>
@@ -1950,7 +1953,7 @@ button.mark{font-family:inherit;cursor:pointer}
           <div class="marks"><span class="mark" data-t="bad">Below half</span><span class="mark" data-t="conc">Portent 1</span></div>
           <a class="go" href="#sheet" aria-label="Open Vesper Quill&rsquo;s sheet">Open sheet</a>
         </div>
-        <div class="trow" style="--tok:var(--a);--on-tok:var(--on-a)">
+        <div class="trow" style="--tok:var(--structural);--on-tok:var(--on-structural)">
           <div class="tok">B<b>6</b></div>
           <div><h3 class="name">Brenna Duskhollow</h3><p class="sub" style="margin-bottom:0">Half-elf warlock, the Fiend</p></div>
           <div><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>31</b>/44 hit points, 5 temporary</p></div>
@@ -1985,7 +1988,7 @@ button.mark{font-family:inherit;cursor:pointer}
         <div class="shead attached">
           <div class="sheadtop">
             <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-            <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">B<b>6</b></div>
+            <div class="tok" style="--tok:var(--structural);--on-tok:var(--on-structural)">B<b>6</b></div>
             <div class="who">
               <h2 class="sname">Brenna Duskhollow</h2>
               <p class="ssub">Half-elf warlock 6, the Fiend</p>
@@ -2027,12 +2030,12 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Token</td><td>56px, but with a 2px sheet ring around it: a structural token on the structural plate is invisible without it. Level badge as in the list, showing total level; two classes show the split in the subtitle instead.</td></tr>
-      <tr><td>Name and subtitle</td><td>17 / 700 and 12 / 500, both in on-a. Dim text cannot reach 4.5:1 on structural, so hierarchy on the plate comes from size and weight only. The name truncates with an ellipsis.</td></tr>
-      <tr><td>Vitals</td><td>A sheet cutout on the plate, because a full meter's structural segments vanish on the plate. It holds the meter, the temporary hit point block and the line. The whole block is one button, named by its numbers ("31 of 44 hit points, 5 temporary. Open the hit point pad"), and it opens the <a href="#pads">hit point pad</a>. The temporary block is one solid overprint block after a gap; see <a href="#meter">the meter</a>.</td></tr>
+      <tr><td>Token</td><td>56px, but with a 2px card ring around it: a structural token on the structural plate is invisible without it. Level badge as in the list, showing total level; two classes show the split in the subtitle instead.</td></tr>
+      <tr><td>Name and subtitle</td><td>17 / 700 and 12 / 500, both in on-structural. Dim text cannot reach 4.5:1 on structural, so hierarchy on the plate comes from size and weight only. The name truncates with an ellipsis.</td></tr>
+      <tr><td>Vitals</td><td>A card cutout on the plate, because a full meter's structural segments vanish on the plate. It holds the meter, the temporary hit point block and the line. The whole block is one button, named by its numbers ("31 of 44 hit points, 5 temporary. Open the hit point pad"), and it opens the <a href="#pads">hit point pad</a>. The temporary block is one solid overprint block after a gap; see <a href="#meter">the meter</a>.</td></tr>
       <tr><td>Stat rail</td><td>The armour ring, then one tile per value: Initiative, Speed, Spell save. Sheet cutouts, number 17 / 700 in structural, caption 10 / 600 in dim. Every value on the plate opens its detail: the ring and the tiles are all buttons.</td></tr>
       <tr><td>Marks row</td><td>Status marks as buttons, the dashed Condition control, and Rest in accent, pushed right. See <a href="#marks">marks</a>. Rest stays out of the compact header; rests happen between fights, when scrolling back costs nothing.</td></tr>
-      <tr><td>Dying</td><td>At 0 hit points a <code>.dyingbox</code> joins the header under the vitals: sheet cutout, the death save pips, the counts spelled out. It is one button and opens the pad's <a href="#pads">Death save tab</a>. See <a href="#zero">zero hit points</a>.</td></tr>
+      <tr><td>Dying</td><td>At 0 hit points a <code>.dyingbox</code> joins the header under the vitals: card cutout, the death save pips, the counts spelled out. It is one button and opens the pad's <a href="#pads">Death save tab</a>. See <a href="#zero">zero hit points</a>.</td></tr>
       <tr><td>Form swap</td><td>A wild shape puts the form on top: its token, name and numbers are the live ones, and the character's own sit on a line underneath ("Fenn underneath: 47/61 hit points, AC 13…"). The Rest slot holds Revert.</td></tr>
       <tr><td>Compact</td><td>54px: back button, first name, one status mark in the <a href="#marks">priority order</a> (a condition before concentration; two conditions read "Poisoned +1"), the hit points as a button, and the ring at 36px. Temporary hit points are spelled out as "+5 temp", so colour never carries them alone. No token and no meter: six things did not fit, and identity is carried by the name inside the sheet.</td></tr>
       <tr><td>Warnings</td><td>Rules warnings sit under the header as <a href="#displays">warning strips</a>. They never block anything.</td></tr>
@@ -2049,7 +2052,7 @@ button.mark{font-family:inherit;cursor:pointer}
       <div class="sheetdemo">
         <div class="shead attached">
           <div class="sheadtop">
-            <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">B<b>6</b></div>
+            <div class="tok" style="--tok:var(--structural);--on-tok:var(--on-structural)">B<b>6</b></div>
             <div class="who">
               <h2 class="sname">Brenna Duskhollow</h2>
               <p class="ssub">Half-elf warlock 6, the Fiend</p>
@@ -2085,8 +2088,8 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Idle tab</td><td><code>--chip</code> fill, on-a text at 11.5 / 600, icon above the label. The filter chip rule on the plate, applied to navigation.</td></tr>
-      <tr><td>Selected tab</td><td>The sheet cutout: <code>--sheet</code> fill, structural text at 700, <code>aria-selected="true"</code> and the roving <code>tabindex="0"</code>. Arrow keys move the choice.</td></tr>
+      <tr><td>Idle tab</td><td><code>--chip-on-plate</code> fill, on-structural text at 11.5 / 600, icon above the label. The filter chip rule on the plate, applied to navigation.</td></tr>
+      <tr><td>Selected tab</td><td>The card cutout: <code>--card</code> fill, structural text at 700, <code>aria-selected="true"</code> and the roving <code>tabindex="0"</code>. Arrow keys move the choice.</td></tr>
       <tr><td>Icons</td><td>Five outline icons on the 16 grid at stroke 1.8, in <code>currentColor</code>: a sword for Play, a d20 for Stats, a four-point spark for Spells, a pack for Gear and a figure for Character. The <a href="#icons">icon rule</a> unchanged.</td></tr>
       <tr><td>Pinning</td><td>The bar is sticky. Under the compact header it pins at 54px; under the tall header it has already reached the top. The tabs keep the unit's accent drop shadow.</td></tr>
       <tr><td>Missing tabs</td><td>A character with no spell access has four tabs: Spells is absent, not disabled, and the remaining tabs widen to fill. Adding a first spell makes the tab appear.</td></tr>
@@ -2123,7 +2126,7 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Card</td><td>Sheet fill, 2px structural border, 5px accent shadow, 11 12 padding. Blocks on a tab are 13px apart, the tab's 12px side padding as the list's.</td></tr>
+      <tr><td>Card</td><td>Card fill, 2px structural border, 5px accent shadow, 11 12 padding. Blocks on a tab are 13px apart, the tab's 12px side padding as the list's.</td></tr>
       <tr><td>Heading</td><td><code>.bhead</code>, 11.5 / 700 in structural. A <code>span</code> at the right carries the note in dim at 11 / 500, and a block that edits gets its <a href="#editing">Edit button</a> there too.</td></tr>
       <tr><td>Row rules</td><td>1.5px <code>--rule</code> between rows, none above the first. Because mixed row types follow each other, the pairing is ruled explicitly rather than by class.</td></tr>
     </tbody>
@@ -2223,10 +2226,10 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Scrim</td><td><code>--scrim</code>, ink at 40%, painted over the whole screen so the page reads as inert. It appears instantly like the sheet, and a tap on it closes the sheet. A token, so a dark set derives its own.</td></tr>
-      <tr><td>Sheet</td><td>Sheet fill, a 2px structural top border with the 5px accent rule above it, so it reads as laid over the page. No handle bar, because nothing drags. 10 12 18 padding, rows within thumb reach.</td></tr>
+      <tr><td>Scrim</td><td><code>--scrim</code>, text at 40%, painted over the whole screen so the page reads as inert. It appears instantly like the sheet, and a tap on it closes the sheet. A token, so a dark set derives its own.</td></tr>
+      <tr><td>Sheet</td><td>Card fill, a 2px structural top border with the 5px accent rule above it, so it reads as laid over the page. No handle bar, because nothing drags. 10 12 18 padding, rows within thumb reach.</td></tr>
       <tr><td>Title</td><td>The character's name, 11.5 / 700 in dim, so the sheet is named when the dialog is announced.</td></tr>
-      <tr><td>Rows</td><td><code>.menuitem</code>, 56 tall: a 16px outline icon, the label at 15 / 700 in structural, a dim second line. A destructive row is separated by a <code>--rule</code> hairline and drawn in <code>--b-text</code>.</td></tr>
+      <tr><td>Rows</td><td><code>.menuitem</code>, 56 tall: a 16px outline icon, the label at 15 / 700 in structural, a dim second line. A destructive row is separated by a <code>--rule</code> hairline and drawn in <code>--accent-text</code>.</td></tr>
       <tr><td>Close</td><td>An outlined row, centred, 48 tall. Escape and the scrim do the same. Closing returns focus to the opener.</td></tr>
       <tr><td>Modality</td><td><code>role="dialog"</code> with <code>aria-modal="true"</code> and an <code>aria-label</code>. The page behind is <code>inert</code> and focus is trapped. The opener carries <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>, and shows the pressed ring while its sheet is open.</td></tr>
       <tr><td>Layering</td><td>The sheet is its own layer: the page's primary under the scrim does not count against the sheet's. See the Layers rule under <a href="#buttons">buttons</a>. A roll that starts inside a pad replaces the pad's content in place, so no sheet opens over a sheet.</td></tr>
@@ -2238,7 +2241,7 @@ button.mark{font-family:inherit;cursor:pointer}
 <!-- ============================================================ -->
 <section id="editing">
   <h2>Per-section edit</h2>
-  <p class="lead">In-play values are always live. Persistent facts sit behind an Edit in their block's header, and only one block edits at a time. An open block takes the draft skin from the <a href="#draft">draft tray</a> — dashed border, <code>--draft-bg</code>, no shadow — because nothing is real until Save. The skin is shared with the list on purpose: the same ink, the same meaning.</p>
+  <p class="lead">In-play values are always live. Persistent facts sit behind an Edit in their block's header, and only one block edits at a time. An open block takes the draft skin from the <a href="#draft">draft tray</a> — dashed border, <code>--draft-fill</code>, no shadow — because nothing is real until Save. The skin is shared with the list on purpose: the same ink, the same meaning.</p>
   <div class="riso specimen">
     <div class="phone-frame">
       <div class="body pad-bottom">
@@ -2265,8 +2268,8 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Edit button</td><td><code>.editbtn</code>: sheet fill, 1.5px structural border, 12 / 700, at the block heading's right. While another block is open it is disabled: rule-coloured border and dim text, no shadow.</td></tr>
-      <tr><td>Editing skin</td><td><code>.block.editing</code>: dashed border, <code>--draft-bg</code>, no shadow. Cancel and Save replace Edit in the header; Save is the block's <a href="#buttons">small primary</a>.</td></tr>
+      <tr><td>Edit button</td><td><code>.editbtn</code>: card fill, 1.5px structural border, 12 / 700, at the block heading's right. While another block is open it is disabled: rule-coloured border and dim text, no shadow.</td></tr>
+      <tr><td>Editing skin</td><td><code>.block.editing</code>: dashed border, <code>--draft-fill</code>, no shadow. Cancel and Save replace Edit in the header; Save is the block's <a href="#buttons">small primary</a>.</td></tr>
       <tr><td>Steppers</td><td>One row per value: label, −, the number, +, and what the number derives (the modifier) following live. See <a href="#controls">steppers</a>.</td></tr>
       <tr><td>Was marker</td><td>A plain <a href="#marks">mark</a> after the label naming the saved value ("Was 14"), so the change shows before it is committed. On a list, "New" marks an addition and a struck-through "Removing" row a staged removal; see <a href="#controls">list editing</a>.</td></tr>
       <tr><td>Knock-on effects</td><td>A note at the foot of the block spells out what follows the change before saving.</td></tr>
@@ -2301,16 +2304,16 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Pip</td><td>22px square, or 20 wide in a wide row of five or more. Filled is structural, empty is the rose tint <code>--empty</code>. Pressed is the 2px inset ring.</td></tr>
+      <tr><td>Pip</td><td>22px square, or 20 wide in a wide row of five or more. Filled is structural, empty is the rose tint <code>--track</code>. Pressed is the 2px inset ring.</td></tr>
       <tr><td>Hit area</td><td>44 tall and 24 or 26 wide, meeting at the midpoint of the 4px gap. Resource rows are 44 tall so stacked rows meet instead of overlapping.</td></tr>
       <tr><td>Semantics</td><td>The row is one <code>spinbutton</code>, named by the resource, with <code>aria-valuemin</code>, <code>aria-valuemax</code> and <code>aria-valuetext</code> such as "1 of 2 left". Arrow keys step it, Home spends every use, End restores them. The pips stay touch targets but are not announced one by one. Pools larger than about six get explicit plus and minus instead.</td></tr>
       <tr><td>Slot grid</td><td><code>.slotgrid</code>, two columns: a level label in dim ("1st") and its pip row, each cell 44 tall.</td></tr>
-      <tr><td>Death saves</td><td>Successes are structural circles, failures <code>--b-text</code> squares, drawn at pip size so they correct a mistake with the same rule. See <a href="#pads">the hit point pad</a>.</td></tr>
+      <tr><td>Death saves</td><td>Successes are structural circles, failures <code>--accent-text</code> squares, drawn at pip size so they correct a mistake with the same rule. See <a href="#pads">the hit point pad</a>.</td></tr>
     </tbody>
   </table>
 
   <h3>Steppers</h3>
-  <p class="why">A − and + around the number. Outlined structural buttons with the 3px accent shadow, so they sink 3px when pressed. 52px inside a pad, 40px in an edit row; both carry aria-labels naming what they change.</p>
+  <p class="why">A − and + around the number. Secondary buttons, sized for the stepper, with the 3px accent shadow, so they sink 3px when pressed. 52px inside a pad, 40px in an edit row; both carry aria-labels naming what they change.</p>
   <div class="riso specimen tight">
     <div class="inline" style="gap:34px;align-items:flex-start">
       <div class="padnum" style="margin-top:0">
@@ -2345,7 +2348,7 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Box</td><td>22px, 2px structural inset ring. Ticked fills structural with the on-a tick. Focus outlines the box. Pressed draws a second ring inside, so the sheet shows through between rings.</td></tr>
+      <tr><td>Box</td><td>22px, 2px structural inset ring. Ticked fills structural with the on-structural tick. Focus outlines the box. Pressed draws a second ring inside, so the sheet shows through between rings.</td></tr>
       <tr><td>Single choice</td><td><code>.box.round</code>: the chosen marker is a structural dot ringed twice, the sheet showing between. The group is a <code>radiogroup</code> of real radio inputs.</td></tr>
       <tr><td>Disabled</td><td>Ticked with no ink: the <code>--rule</code> ring, dim tick, and a mark saying why ("Domain", "Here now", "Known").</td></tr>
       <tr><td>Marks</td><td>"New" marks a choice made since the last save, so the change shows before it is committed.</td></tr>
@@ -2375,14 +2378,14 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Shape</td><td><code>.rank</code>, 12px. The shapes are drawn in structural ink with <code>data-r</code> of half, prof or exp. On an inverted button the same shapes draw in on-a.</td></tr>
-      <tr><td>Selector</td><td><code>.rankseg</code>: outlined buttons at 56 tall, shape above label, the checked one filled structural with on-a text. A <code>radiogroup</code> with arrow keys. Picking a rank other than the one advancement gave writes the rank override.</td></tr>
+      <tr><td>Shape</td><td><code>.rank</code>, 12px. The shapes are drawn in structural ink with <code>data-r</code> of half, prof or exp. On an inverted button the same shapes draw in on-structural.</td></tr>
+      <tr><td>Selector</td><td><code>.rankseg</code>: outlined buttons at 56 tall, shape above label, the checked one filled structural with on-structural text. A <code>radiogroup</code> with arrow keys. Picking a rank other than the one advancement gave writes the rank override.</td></tr>
       <tr><td>Saving throws</td><td>Proficient or not, so the selector is two wide without Half or Expertise, which stay with skills and tools.</td></tr>
     </tbody>
   </table>
 
   <h3>Two-way switch and equal buttons</h3>
-  <p class="why">A choice that swaps the content below is a pair of tab-style buttons on the plate — rest length, catalog or custom, the coin — while two equal actions sit side by side as a pair of outlined buttons.</p>
+  <p class="why">A choice that swaps the content below is a pair of tab-style buttons on the plate — rest length, catalog or custom, the coin — while two equal actions sit side by side as a pair of secondary buttons.</p>
   <div class="riso specimen tight">
     <div class="phone-frame">
       <div class="shead">
@@ -2400,7 +2403,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
       <tr><td>Switch</td><td><code>.seg</code> on the plate: the same buttons as the sheet tabs at 12.5px, a <code>tablist</code> with <code>aria-selected</code>. Used for Short or Long rest, From the catalog or Custom, and the money pad's coin row.</td></tr>
-      <tr><td>Pair</td><td><code>.pair</code>: two equal outlined buttons (<code>.gobtn</code>), 12px apart, both 44 tall. Roll and I rolled open the same <a href="#pads">roll sheet</a>. Neither is the primary; the screen's commit stays in the footer.</td></tr>
+      <tr><td>Pair</td><td><code>.pair</code>: two equal secondary buttons (<code>.gobtn</code>), 12px apart, both 44 tall. Roll and I rolled open the same <a href="#pads">roll sheet</a>. Neither is the primary; the screen's commit stays in the footer.</td></tr>
     </tbody>
   </table>
 
@@ -2448,7 +2451,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Field</td><td>Label 11.5 / 700 in dim, the box 14 / 400 in ink on <code>--wash</code> with a 1.5px <code>--rule</code> inset ring, 10 11 padding. A real 44 minimum height, because a hit-area overlay would cover the caret. Multiline boxes start at 92.</td></tr>
+      <tr><td>Field</td><td>Label 11.5 / 700 in dim, the box 14 / 400 in <code>--text</code> on <code>--wash</code> with a 1.5px <code>--rule</code> inset ring, 10 11 padding. A real 44 minimum height, because a hit-area overlay would cover the caret. Multiline boxes start at 92.</td></tr>
       <tr><td>Note</td><td>The same box at 13px, <code>overflow:hidden</code> and no resize handle. It saves after typing pauses and on blur; a dim status line reads Saving, then Saved, in a live region. Only a deliberate tap opens the keyboard, not a touch that starts a scroll.</td></tr>
       <tr><td>Folding</td><td>A long note shows its first six lines with Show all, and opens fully while it has focus, so it never pushes the rest of a tab away. Clamped, the bottom padding goes, so no part of a seventh line shows through it.</td></tr>
       <tr><td>Per path</td><td>A spell note belongs to one way to cast, as the data model stores it; each path card carries its own note field and there is no spell-wide note.</td></tr>
@@ -2497,7 +2500,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
       <tr><td>Drag handle</td><td><code>.grip</code>, three horizontal lines in dim, 28 by 36, <code>cursor:grab</code>. Only on rows with a stored order; proficiencies and languages sort by kind and name, so they get none.</td></tr>
-      <tr><td>Remove</td><td><code>.rmbtn</code>, a minus in a circle in <code>--b-text</code>, 32px. Once staged, the same spot holds the undo arrow, labelled "Keep Rations".</td></tr>
+      <tr><td>Remove</td><td><code>.rmbtn</code>, a minus in a circle in <code>--accent-text</code>, 32px. Once staged, the same spot holds the undo arrow, labelled "Keep Rations".</td></tr>
       <tr><td>Staged removal</td><td><code>.erow.removing</code>: the name struck through in dim and a bad mark reading "Removing". The row keeps its place until Save; granted things are confirmed as suppressions at Save, with a note that a level-up review can restore them.</td></tr>
       <tr><td>Add rows</td><td><code>.addrow</code>: dashed structural border, 13.5 / 700, a plus. They group at the foot of the list, in view mode and inside Edit, so neither looks tied to one group. Every Add opens its own screen and commits from that screen's footer, so the draft holds only reordering and removal.</td></tr>
     </tbody>
@@ -2580,9 +2583,9 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Tabs</td><td><code>.padtabs</code>, a <code>tablist</code>: idle fills <code>--chip2</code> with dim text, the selected tab fills structural with on-a. The idle fill is the paper version of the chip rule, which is why the token exists.</td></tr>
+      <tr><td>Tabs</td><td><code>.padtabs</code>, a <code>tablist</code>: idle fills <code>--chip-on-paper</code> with dim text, the selected tab fills structural with on-structural. The idle fill is the paper version of the chip rule, which is why the token exists.</td></tr>
       <tr><td>Number</td><td>36 / 700 in structural between the <a href="#controls">steppers</a>.</td></tr>
-      <tr><td>Quick amounts</td><td>Four equal outlined buttons, 44 tall: 1, 2, 5, 10.</td></tr>
+      <tr><td>Quick amounts</td><td>Four equal secondary buttons, 44 tall: 1, 2, 5, 10.</td></tr>
       <tr><td>Note</td><td><code>.padnote</code>, 11.5 / 500 in dim, allowing for caps and naming knock-on effects: temporary hit points first, then the concentration save.</td></tr>
       <tr><td>Commit</td><td>The full-width <a href="#buttons">primary</a>, naming the action and the amount. When the outcome kills, it is the destructive button instead.</td></tr>
     </tbody>
@@ -2704,7 +2707,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <tr><td>Columns</td><td><code>1fr 44px 104px</code>, 8px gaps: the attack's name and a dim summary, the hit, the damage.</td></tr>
       <tr><td>Header</td><td>10.5 / 700 in dim, the hit and damage labels centred and right to match their columns.</td></tr>
       <tr><td>Hit</td><td>15 / 700 in structural. An attack that forces a save shows the DC with the save's ability under it in dim, because there is no attack roll.</td></tr>
-      <tr><td>Damage</td><td>12.5 / 600 in ink, right aligned, with the type and any rider in dim under it.</td></tr>
+      <tr><td>Damage</td><td>12.5 / 600 in <code>--text</code>, right aligned, with the type and any rider in dim under it.</td></tr>
     </tbody>
   </table>
 
@@ -2798,8 +2801,8 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Big value</td><td>The 72 ring, or <code>.bignum</code>, a 72 square with the ring's border and shadow, for bonuses like "+9". The explanation beside it says what uses the value. Without an override the explanation says Calculated, and an outlined button offers "Replace the bonus" where the stepper would be.</td></tr>
-      <tr><td>Override badge</td><td><code>.ovr</code>: an 18px sheet circle with a pencil in a <code>--b-text</code> ring, pinned to the value's corner the way the level badge is pinned to a token. The pencil shape carries the meaning, so it never depends on colour; it reads "set by you".</td></tr>
+      <tr><td>Big value</td><td>The 72 ring, or <code>.bignum</code>, a 72 square with the ring's border and shadow, for bonuses like "+9". The explanation beside it says what uses the value. Without an override the explanation says Calculated, and a secondary button offers "Replace the bonus" where the stepper would be.</td></tr>
+      <tr><td>Override badge</td><td><code>.ovr</code>: an 18px card circle with a pencil in a <code>--accent-text</code> ring, pinned to the value's corner the way the level badge is pinned to a token. The pencil shape carries the meaning, so it never depends on colour; it reads "set by you".</td></tr>
       <tr><td>Calculation</td><td><code>.calc</code> rows: the contributor's name, a dim line saying where it comes from, and its number in structural. The total row takes a 2px structural top rule.</td></tr>
     </tbody>
   </table>
@@ -2843,7 +2846,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Layout</td><td>16px outline icon in <code>--b-text</code>, the text at 12 / 1.45 with the lead in bold, and an optional action at the right in <code>--b-text</code>. <code>role="note"</code>.</td></tr>
+      <tr><td>Layout</td><td>16px outline icon in <code>--accent-text</code>, the text at 12 / 1.45 with the lead in bold, and an optional action at the right in <code>--accent-text</code>. <code>role="note"</code>.</td></tr>
       <tr><td>Behaviour</td><td>Warnings are never blocking. They sit under the header for rules warnings and unresolved catalog references, or inline where the problem acts, such as casting a second concentration spell. The left border maps straight onto native.</td></tr>
     </tbody>
   </table>
@@ -2861,9 +2864,9 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Disclosure</td><td><code>.disclose</code>: sheet fill, 2px structural border, structural text at 13 / 700, the chevron turned down. Reports <code>aria-expanded</code>.</td></tr>
+      <tr><td>Disclosure</td><td><code>.disclose</code>: card fill, 2px structural border, structural text at 13 / 700, the chevron turned down. Reports <code>aria-expanded</code>.</td></tr>
       <tr><td>When folded</td><td>Expanded where the text is the content — items, traits, skills. Folded where cards carry the detail — spells, features with effects, forms.</td></tr>
-      <tr><td>Expanded text</td><td><code>.rules</code>, 13 / 500 in ink, quoting the source as printed, second person and all. Headed "Rules text" with the edition ("SRD 5.1") in the dim slot.</td></tr>
+      <tr><td>Expanded text</td><td><code>.rules</code>, 13 / 500 in <code>--text</code>, quoting the source as printed, second person and all. Headed "Rules text" with the edition ("SRD 5.1") in the dim slot.</td></tr>
     </tbody>
   </table>
 
@@ -2886,8 +2889,8 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Labelled values</td><td><code>.kv</code>, a definition list on an 88px label column: labels in dim at 600, values in ink at 500. For short fields: alignment, age, height, item properties, costs.</td></tr>
-      <tr><td>Paragraphs</td><td><code>.para</code>: a structural heading at 11.5 / 700, then 12.5 / 500 in ink. For personality traits, ideals, bonds, flaws, and allies and enemies.</td></tr>
+      <tr><td>Labelled values</td><td><code>.kv</code>, a definition list on an 88px label column: labels in dim at 600, values in <code>--text</code> at 500. For short fields: alignment, age, height, item properties, costs.</td></tr>
+      <tr><td>Paragraphs</td><td><code>.para</code>: a structural heading at 11.5 / 700, then 12.5 / 500 in <code>--text</code>. For personality traits, ideals, bonds, flaws, and allies and enemies.</td></tr>
     </tbody>
   </table>
 
@@ -2947,17 +2950,17 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <thead><tr><th>Breakpoint</th><th>From</th><th>List layout</th></tr></thead>
     <tbody>
       <tr><td>Phone</td><td>0</td><td>Plate with search and sort, one column of cards, sticky Create.</td></tr>
-      <tr><td>Tablet</td><td>720</td><td>Band and bar over one column of cards.</td></tr>
-      <tr><td>Tablet, landscape</td><td>1024</td><td>Band and bar over two columns of cards.</td></tr>
-      <tr><td>Desktop</td><td>1280</td><td>Band and bar over desktop rows.</td></tr>
+      <tr><td>Tablet</td><td>720</td><td>Plate and toolbar over one column of cards.</td></tr>
+      <tr><td>Tablet, landscape</td><td>1024</td><td>Plate and toolbar over two columns of cards.</td></tr>
+      <tr><td>Desktop</td><td>1280</td><td>Plate and toolbar over desktop rows.</td></tr>
     </tbody>
   </table>
   <table>
     <thead><tr><th>Concern</th><th>Phone</th><th>Tablet</th><th>Desktop</th></tr></thead>
     <tbody>
       <tr><td>List</td><td>Bordered, shadowed cards, 14 apart</td><td>The same cards, 16 apart: one column in portrait, two in landscape</td><td>Desktop rows, 16 apart</td></tr>
-      <tr><td>Plate</td><td>Title, search and sort, offset shadow</td><td>Band with the title alone, drop shadow below; search, sort and Create in the sticky bar</td><td>same as tablet</td></tr>
-      <tr><td>Primary action</td><td>Sticky footer, full width</td><td>Right of the bar</td><td>same</td></tr>
+      <tr><td>Plate</td><td>Title, search and sort, offset shadow</td><td>Plate with the title alone, drop shadow below; search, sort and Create in the sticky toolbar</td><td>same as tablet</td></tr>
+      <tr><td>Primary action</td><td>Sticky footer, full width</td><td>Right of the toolbar</td><td>same</td></tr>
       <tr><td>Row action</td><td>Whole card, one link stretched over it</td><td>same as phone</td><td>Open sheet link. The rest of the row is not a target until hover is designed.</td></tr>
       <tr><td>Draft copy</td><td>Short</td><td>Longer, names the next choice</td><td>same as tablet</td></tr>
       <tr><td>Resume label</td><td>&ldquo;Resume&rdquo;</td><td>&ldquo;Resume level-up&rdquo; or &ldquo;Resume creation&rdquo;</td><td>same as tablet</td></tr>
@@ -2974,6 +2977,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <table>
     <thead><tr><th>Here</th><th>In React Native</th></tr></thead>
     <tbody>
+      <tr><td>Token names</td><td>The same names in camel case: <code>--on-structural</code> is <code>colors.onStructural</code> in <code>@/theme</code>.</td></tr>
       <tr><td>Tokens as custom properties</td><td>A theme object in TypeScript. The derivation is already plain JavaScript with no browser calls, so it ports unchanged. Once code exists, that module is the source of truth and this page mirrors it.</td></tr>
       <tr><td>Pixel sizes</td><td>Density-independent points. The same numbers carry over.</td></tr>
       <tr><td>Cascade and descendant selectors</td><td>Explicit props. The riso skin becomes a style factory that takes the theme; there is no inheritance except for text inside text.</td></tr>
@@ -2984,7 +2988,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <tr><td>Inset rings on the level badge, draft token and disabled controls</td><td>A border, or an inset box shadow where available. Inset shadows need Android 10 or later.</td></tr>
       <tr><td>Dashed rule under the tray</td><td>React Native has no per-side border style, so the rule needs its own view or an SVG line. Dashed card borders are fine, because all four sides match.</td></tr>
       <tr><td>Sticky footer with a fade</td><td>Put the Create button outside the scroll view. Use the gradient route above for the fade, or accept a solid paper bar.</td></tr>
-      <tr><td>Sticky bar</td><td>Sticky header indices on the tablet and desktop scroll view.</td></tr>
+      <tr><td>Sticky toolbar</td><td>Sticky header indices on the tablet and desktop scroll view.</td></tr>
       <tr><td>Focus outline</td><td>Outline props, which landed in React Native 0.77 on the new architecture. They draw outside the border box without affecting layout, like CSS.</td></tr>
       <tr><td>Hover, active, focus, disabled selectors</td><td>Pressable's pressed state, focus state from focus and blur handlers, and the disabled prop.</td></tr>
       <tr><td>Placeholder colour</td><td>The placeholder text colour prop on the text input.</td></tr>
@@ -3019,17 +3023,17 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <tbody>
       <tr><td>Ink on paper</td><td>7.84</td><td>4.5</td></tr>
       <tr><td>Dim on paper</td><td>5.08</td><td>4.5</td></tr>
-      <tr><td>Dim on sheet</td><td>5.36</td><td>4.5</td></tr>
-      <tr><td>Dim on draft fill over sheet</td><td>4.84</td><td>4.5</td></tr>
+      <tr><td>Dim on card</td><td>5.36</td><td>4.5</td></tr>
+      <tr><td>Dim on draft fill over card</td><td>4.84</td><td>4.5</td></tr>
       <tr><td>Dim on draft fill over paper, the worst case</td><td>4.60</td><td>4.5</td></tr>
-      <tr><td>Structural on sheet</td><td>5.28</td><td>4.5</td></tr>
+      <tr><td>Structural on card</td><td>5.28</td><td>4.5</td></tr>
       <tr><td>Structural on draft fill over paper</td><td>4.52</td><td>4.5</td></tr>
       <tr><td>On-a on structural</td><td>5.46</td><td>4.5</td></tr>
       <tr><td>Inactive chip text</td><td>4.51</td><td>4.5</td></tr>
       <tr><td>On-b on accent</td><td>4.53</td><td>4.5</td></tr>
       <tr><td>On-mix on overprint</td><td>7.44</td><td>4.5</td></tr>
-      <tr><td>Rose text on sheet</td><td>5.65</td><td>4.5</td></tr>
-      <tr><td>Rose text on draft fill over sheet</td><td>5.09</td><td>4.5</td></tr>
+      <tr><td>Rose text on card</td><td>5.65</td><td>4.5</td></tr>
+      <tr><td>Rose text on draft fill over card</td><td>5.09</td><td>4.5</td></tr>
       <tr><td>Rose text on draft fill over paper</td><td>4.84</td><td>4.5</td></tr>
       <tr><td>Focus outline on paper</td><td>4.99</td><td>3</td></tr>
       <tr><td>Rose meter segments on paper</td><td>2.54</td><td>3, accepted, see meter</td></tr>
@@ -3072,8 +3076,8 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <li><b>Sheet navigation.</b> A persistent header, tall and compact, with the tabs attached underneath. Detail screens are full-screen pushes, never bottom sheets or in-place expansions; the static bottom sheet is the system's one overlay shape, for the sheet menu, the status picker and the in-play pads. 12 and 13 September 2026.</li>
     <li><b>Motion.</b> Two exceptions to instant state changes: the header shrinks continuously as the page scrolls, and the dice roll animates for about half a second, stepped between fixed poses with its shadow held still. Reduced motion shows the result at once. 13 September 2026.</li>
     <li><b>Bottom sheets are modal.</b> A scrim in <code>--scrim</code> dims the page, which is inert; focus cycles inside the sheet; Escape, Close or a tap on the scrim closes it and returns focus to the opener, which carries <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>. No drag, no slide, no grab handle. 13 and 14 September 2026.</li>
-    <li><b>Editing.</b> Persistent facts sit behind a per-section Edit; an open block takes the draft skin (dashed border, <code>--draft-bg</code>, no shadow) with Cancel and Save, "Was" marks on changed values, and knock-on effects spelled out. List removals are staged until Save; every Add opens its own screen and commits from its footer. 13 September 2026.</li>
-    <li><b>Destructive button.</b> Outlined in <code>--b-text</code>, no shadow, never the primary look, used for anything that removes something or ends in death. 13 September 2026.</li>
+    <li><b>Editing.</b> Persistent facts sit behind a per-section Edit; an open block takes the draft skin (dashed border, <code>--draft-fill</code>, no shadow) with Cancel and Save, "Was" marks on changed values, and knock-on effects spelled out. List removals are staged until Save; every Add opens its own screen and commits from its footer. 13 September 2026.</li>
+    <li><b>Destructive button.</b> Outlined in <code>--accent-text</code>, no shadow, never the primary look, used for anything that removes something or ends in death. 13 September 2026.</li>
     <li><b>The list redesign.</b> Where the character list mockup and this document disagreed, the mockup won: no armour ring, marks, filter chips, level badge or desktop table on the list; structural tokens; the tray above the list; outlined search, sort and Resume. Patterns the sheet still uses stay here, marked sheet only. 25 September 2026.</li>
     <li><b>Primary stays rose.</b> The list tried a structural Create character and went back to the rose primary, so the list and the sheet share one primary look. 25 September 2026.</li>
     <li><b>Level block and sort.</b> Level moves off the token into its own block, with a dim dash when a character has no classes. Sort is one button that switches between level and name, with no menu. 25 September 2026.</li>
@@ -3083,6 +3087,16 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <li><b>List states.</b> A spinner for first load and a small one in the search field; a dashed slate for an empty list or no results; a larger warning strip for errors, with a dashed development notice for the temporary 401 copy. 25 September 2026.</li>
     <li><b>Motion, again.</b> The loading spinner is a third exception to instant state changes. It holds still with reduced motion. 25 September 2026.</li>
     <li><b>No pronouns.</b> Copy calls a character by name or avoids referring to them, because the app stores no pronouns. This replaces the third-person example in case and person, and the sheet&rsquo;s pronoun copy is due for a rewrite. 25 September 2026.</li>
+    <li><b>Names that say what things are.</b> Renamed so that code, mockups and this page share one vocabulary, and so that no name means two things. Entries above keep the names they were written with. 3 October 2026.
+      <ul>
+        <li>Tokens: <code>--a</code> is <code>--structural</code>, <code>--b</code> is <code>--accent</code>, <code>--mix</code> is <code>--overprint</code>, and the text on each is <code>--on-structural</code>, <code>--on-accent</code> and <code>--on-overprint</code>. <code>--b-text</code> is <code>--accent-text</code>.</li>
+        <li><code>--sheet</code> is <code>--card</code>, because &ldquo;sheet&rdquo; already means the character sheet and the bottom sheet. <code>--ink</code> is <code>--text</code>, because &ldquo;ink&rdquo; means the five source inks.</li>
+        <li><code>--empty</code> is <code>--track</code>, for the meter and the spinner both. <code>--draft-bg</code> is <code>--draft-fill</code>. <code>--chip</code> and <code>--chip2</code> are <code>--chip-on-plate</code> and <code>--chip-on-paper</code>.</li>
+        <li>Buttons: seven styles become three kinds in sizes. Outlined, Outlined link and Sort are all secondary; Open sheet is a secondary button with the link role.</li>
+        <li>The header is the plate at every width; the band was the same plate. The bar is the toolbar. The slate is the empty card. In code, the character token is <code>CharacterToken</code>, because a bare &ldquo;token&rdquo; also means a design token.</li>
+        <li>The tray heading uses the small label style, 11 rather than 11.5, since the two differed by half a point.</li>
+      </ul>
+    </li>
   </ul>
 </section>
 

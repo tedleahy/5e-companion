@@ -327,7 +327,7 @@
             <tr><td>Source of truth</td><td>The mockup wins where it and <code>design-system.html</code>
               disagree. The mockup is newer and matches the API. It has no armour class ring, no marks, no
               filter chips and no desktop table. Every token is filled with structural ink, the draft tray
-              sits above the list, and Create is the system's rose primary: accent fill, <code>onB</code> text
+              sits above the list, and Create is the system's rose primary: accent fill, <code>onAccent</code> text
               and a 5px structural shadow, as on the sheet. Colour values still come from
               <code>@/theme</code>. The mockup's grid dots and lines are a little fainter than the theme's
               <code>dot</code> and <code>line</code> tokens; use the tokens.</td></tr>
@@ -697,8 +697,8 @@
           </dl>
           <ul class="checks">
             <li><strong>Theme additions.</strong> Add typography tokens for the level number (26, bold,
-              -0.78), small label (11, bold, 0.99 tracking, uppercase), tray heading (11.5), and the button
-              sizes 15, 14, 13 and 12.5. Add an <code>offsetShadow(depth, ink)</code> helper that returns a
+              -0.78), small label (11, bold, 0.99 tracking, uppercase), which the tray heading also uses, and the
+              button sizes 15, 14, 13 and 12.5. Add an <code>offsetShadow(depth, token)</code> helper that returns a
               <code>boxShadow</code> string from a token. Convert letter spacing from em to points, as the
               existing tokens already do.</li>
             <li><strong><code>Paper</code>.</strong> Fills its parent with <code>colors.paper</code> and a
@@ -707,30 +707,30 @@
               grid.</li>
             <li><strong><code>SearchIcon</code>.</strong> The 16 by 16 glass from the mockup, stroke 1.8,
               drawn at 15, in a <code>color</code> prop.</li>
-            <li><strong><code>Token</code>.</strong> <code>size</code> 56 or 64 and a
+            <li><strong><code>CharacterToken</code>.</strong> <code>size</code> 56 or 64 and a
               <code>draft</code> variant. The character token is filled with structural ink, has
-              <code>onA</code> text and a 4 point accent shadow. The draft token has a sheet fill, a 2
+              <code>onStructural</code> text and a 4 point accent shadow. The draft token has a card fill, a 2
               point structural ring, structural text and a shadow in <code>rule</code>. The initial is
               hidden from screen readers.</li>
             <li><strong><code>HitPoints</code>.</strong> The meter and its line together, so the meter
               never shows without its line. It takes the result of <code>hitPoints()</code>. Segments are
               13 tall with a gap of 2. The meter is hidden from screen readers, and the line is the
-              accessible text. When hurt, the bold number uses <code>bText</code>.</li>
+              accessible text. When hurt, the bold number uses <code>accentText</code>.</li>
             <li><strong><code>LevelBlock</code>.</strong> The "Level" label over the number, with a
               <code>large</code> variant for desktop's 13 point label. A level of 0 shows a dash in
               <code>dim</code>, labelled "Level not set" for screen readers.</li>
-            <li><strong><code>Spinner</code>.</strong> A react-native-svg arc in structural ink on an
-              <code>empty</code> track, rotated with Reanimated once every 0.9 seconds and still when
+            <li><strong><code>Spinner</code>.</strong> A react-native-svg arc in structural ink on a
+              <code>track</code>, rotated with Reanimated once every 0.9 seconds and still when
               <code>useReducedMotion()</code> is true. Sizes 36, 44 and 16. Hidden from screen readers,
               because the text beside it carries the meaning.</li>
             <li><strong><code>PrintPressable</code>.</strong> Wraps <code>Pressable</code>. It takes a
               shadow depth of 3, 4 or 5 and, while pressed, moves by that offset and drops the shadow.
               While focused on web it shows a 2 point outline offset by 3, in structural ink or
-              <code>onA</code> on the plate. It passes <code>role</code> and
+              <code>onStructural</code> on the plate. It passes <code>role</code> and
               <code>accessibilityLabel</code> through.</li>
             <li><strong>Buttons built on it.</strong> <code>PrimaryButton</code> (Create) and
-              <code>OutlinedButton</code> in three sizes for Sort, Resume and Open sheet. Each
-              <code>onPress</code> is optional.</li>
+              <code>SecondaryButton</code> in three sizes for Sort, Resume and Open sheet, which takes the
+              link role. Each <code>onPress</code> is optional.</li>
           </ul>
           <h3>Tests</h3>
           <p>The meter renders ten segments, the right number filled, and switches ink when hurt. Without
@@ -776,7 +776,7 @@
             <li><strong>Character card.</strong> Two columns, 56 and the rest. The level block sits at the
               top right of the second column, beside the name and subtitle, and the hit points run full
               width below. The whole card is one pressable with a link role, named by the character.</li>
-            <li><strong>Draft card.</strong> A 2 point dashed structural border, <code>draftBg</code>
+            <li><strong>Draft card.</strong> A 2 point dashed structural border, <code>draftFill</code>
               fill and no shadow. The phone copy comes from <code>draftCopy</code>, and Resume sits on the
               right.</li>
             <li><strong>Create footer.</strong> Pinned to the bottom above the safe area, with the SVG fade
@@ -811,11 +811,11 @@
             <li>Add <code>breakpoints.wideTablet: 1024</code>, and have <code>Breakpoint</code> and
               <code>breakpointForWidth</code> return <code>wideTablet</code>. Update the hook's tests and
               check that nothing else relied on the three-value type.</li>
-            <li><strong>Band and bar.</strong> From <code>tablet</code> up, the plate holds only the
+            <li><strong>Plate and toolbar.</strong> From <code>tablet</code> up, the plate holds only the
               title: 30 point, padding 26 then 24, with a 5 point accent shadow straight down. Below it,
-              a sticky bar on paper, using <code>stickyHeaderIndices</code>, holds the search field (at most
+              a sticky toolbar on paper, using <code>stickyHeaderIndices</code>, holds the search field (at most
               520 wide), the sort button, and Create character pushed to the right, above a 2 point
-              structural rule. The band, the bar and the list share one measure,
+              structural rule. The plate, the toolbar and the list share one measure,
               <code>min(1020, width - 48)</code>, centred. The phone footer is hidden.</li>
             <li><strong>Tablet.</strong> The phone card at a larger size: 64 token and 19 point name,
               with columns 64 and the rest, a gap of 16 and padding 14 18.
@@ -832,7 +832,7 @@
           <p>Mock <code>useWindowDimensions</code> to render each breakpoint.</p>
           <ul>
             <li>On desktop, Open sheet links are named for each character.</li>
-            <li>From tablet up, Create character is in the bar, not the footer.</li>
+            <li>From tablet up, Create character is in the toolbar, not the footer.</li>
             <li>Resume labels follow the draft kind.</li>
             <li>The breakpoint boundaries fall at 719/720, 1023/1024 and 1279/1280.</li>
           </ul>

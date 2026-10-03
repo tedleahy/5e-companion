@@ -569,7 +569,7 @@ screenshot code. Shots are generated and gitignored.
 - **The compact header dropped the character token.** Six things did not fit in
   390px, and the name was truncating. Identity is carried by the name inside the
   sheet, and the token is still in the tall header. Confirmed.
-- **Secondary text on the header plate is `on-a`, not `dim`.** Dim cannot reach
+- **Secondary text on the header plate is `on-structural`, not `dim`.** Dim cannot reach
   4.5:1 on structural ink. Hierarchy there comes from size and weight only.
 - **Temporary hit points are overprint segments** after a gap in the meter, a
   new meter state the list screen never needed.
