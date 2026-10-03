@@ -125,8 +125,8 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 /* =========================================================
    DESIGN SYSTEM v0.3, carried over from the character list.
    ========================================================= */
-.riso{--full:var(--a);--low:var(--b);
-  font-family:"Space Grotesk",system-ui,sans-serif;color:var(--ink);
+.riso{--full:var(--structural);--low:var(--accent);
+  font-family:"Space Grotesk",system-ui,sans-serif;color:var(--text);
   background:
     radial-gradient(var(--dot) 1.1px,transparent 1.1px) 0 0/9px 9px,
     linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 27px,
@@ -135,31 +135,31 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .tok{width:56px;height:56px;display:grid;place-items:center;position:relative;font-weight:700;font-size:20px;flex:none}
 .tok b{position:absolute;bottom:-7px;right:-7px;width:23px;height:23px;display:grid;place-items:center;
   font-size:11.5px;font-weight:700;line-height:1}
-.riso .tok{border-radius:50%;color:var(--on-tok,var(--on-a));background:var(--tok);box-shadow:4px 4px 0 var(--b)}
-.riso .tok b{background:var(--sheet);color:var(--ink);border-radius:50%;box-shadow:0 0 0 2px var(--a)}
+.riso .tok{border-radius:50%;color:var(--on-tok,var(--on-structural));background:var(--tok);box-shadow:4px 4px 0 var(--accent)}
+.riso .tok b{background:var(--card);color:var(--text);border-radius:50%;box-shadow:0 0 0 2px var(--structural)}
 .meter{display:flex;gap:2px}
 .meter i{flex:1;height:13px}
 .riso .meter i{background:var(--full)}
-.riso .meter i[data-e]{background:var(--empty)}
+.riso .meter i[data-e]{background:var(--track)}
 .riso .meter[data-hurt] i{background:var(--low)}
-.riso .meter[data-hurt] i[data-e]{background:var(--empty)}
+.riso .meter[data-hurt] i[data-e]{background:var(--track)}
 .ac{width:46px;height:46px;display:grid;place-items:center;font-weight:700;font-size:17px;line-height:1;flex:none}
 .ac em{display:block;font-style:normal;font-size:8px;font-weight:700;margin-top:1px}
-.riso .ac{border-radius:50%;border:2px solid var(--a);color:var(--a);background:var(--sheet);box-shadow:3px 3px 0 var(--b)}
-.riso .ac[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a),3px 3px 0 var(--b)}
+.riso .ac{border-radius:50%;border:2px solid var(--structural);color:var(--structural);background:var(--card);box-shadow:3px 3px 0 var(--accent)}
+.riso .ac[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--structural),3px 3px 0 var(--accent)}
 .mark{font-size:11px;padding:3px 7px;white-space:nowrap;line-height:1.35;display:inline-block}
-.riso .mark{border:1.5px solid var(--a);color:var(--a);background:var(--sheet);font-weight:600}
-.riso .mark[data-t=bad]{border-color:var(--b);color:var(--b-text)}
-.riso .mark[data-t=conc]{border-color:var(--mix);color:var(--mix)}
+.riso .mark{border:1.5px solid var(--structural);color:var(--structural);background:var(--card);font-weight:600}
+.riso .mark[data-t=bad]{border-color:var(--accent);color:var(--accent-text)}
+.riso .mark[data-t=conc]{border-color:var(--overprint);color:var(--overprint)}
 .saves{display:flex;gap:14px;align-items:center}
 .saves span{display:flex;gap:4px;align-items:center}
 .saves i{display:block;width:13px;height:13px}
-.riso .saves [data-k=ok] i{border-radius:50%;box-shadow:inset 0 0 0 2px var(--a)}
-.riso .saves [data-k=ok] i[data-on]{background:var(--a)}
-.riso .saves [data-k=bad] i{box-shadow:inset 0 0 0 2px var(--b-text)}
-.riso .saves [data-k=bad] i[data-on]{background:var(--b-text)}
-.riso :focus-visible{outline:2px solid var(--a);outline-offset:3px}
-.riso .shead :focus-visible,.riso .tabs :focus-visible{outline-color:var(--on-a)}
+.riso .saves [data-k=ok] i{border-radius:50%;box-shadow:inset 0 0 0 2px var(--structural)}
+.riso .saves [data-k=ok] i[data-on]{background:var(--structural)}
+.riso .saves [data-k=bad] i{box-shadow:inset 0 0 0 2px var(--accent-text)}
+.riso .saves [data-k=bad] i[data-on]{background:var(--accent-text)}
+.riso :focus-visible{outline:2px solid var(--structural);outline-offset:3px}
+.riso .shead :focus-visible,.riso .tabs :focus-visible{outline-color:var(--on-structural)}
 
 /* =========================================================
    NEW IN THIS PASS. Candidates for design system v0.4.
@@ -181,11 +181,11 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .ssub{margin:2px 0 0;font-size:12px;font-weight:500}
 .vitals{margin-top:13px;padding:9px 10px}
 .vitals[role=button]{cursor:pointer}
-.riso .vitals[role=button]:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .vitals[role=button]:active{box-shadow:inset 0 0 0 2px var(--structural)}
 .hprow{display:flex;gap:13px;align-items:center}
 .hprow .meter{flex:1}
 .temp{width:40px;height:13px;flex:none}
-.riso .temp{background:var(--mix)}
+.riso .temp{background:var(--overprint)}
 .hpline{margin:6px 0 0;font-size:12px;font-weight:500}
 .shead > .hpline{margin-top:11px}
 .rail{display:flex;gap:8px;align-items:center;margin-top:12px}
@@ -197,23 +197,23 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .dyingbox{margin-top:12px;padding:9px 11px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .dyingbox p{margin:0;font-size:11.5px;font-weight:600}
 
-.riso .shead{background:var(--a);color:var(--on-a);box-shadow:0 5px 0 var(--b)}
+.riso .shead{background:var(--structural);color:var(--on-structural);box-shadow:0 5px 0 var(--accent)}
 .riso .sname{letter-spacing:-.02em}
-.riso .ssub{color:var(--on-a)}
-.riso .vitals{background:var(--sheet);color:var(--ink)}
+.riso .ssub{color:var(--on-structural)}
+.riso .vitals{background:var(--card);color:var(--text)}
 .riso .vitals .hpline{color:var(--dim)}
-.riso .vitals .hpline b{color:var(--a)}
-.riso .shead > .hpline{color:var(--on-a)}
+.riso .vitals .hpline b{color:var(--structural)}
+.riso .shead > .hpline{color:var(--on-structural)}
 .riso .hpline b{font-weight:700}
 /* A structural token on a structural plate is invisible without a ring. */
-.riso .shead .tok{box-shadow:0 0 0 2px var(--sheet),4px 4px 0 var(--b)}
-.riso .tile{background:var(--sheet);color:var(--a)}
+.riso .shead .tok{box-shadow:0 0 0 2px var(--card),4px 4px 0 var(--accent)}
+.riso .tile{background:var(--card);color:var(--structural)}
 .riso .tile em{color:var(--dim)}
-.riso .tile:active{box-shadow:inset 0 0 0 2px var(--a)}
-.riso .restbtn{background:var(--b);color:var(--on-b)}
+.riso .tile:active{box-shadow:inset 0 0 0 2px var(--structural)}
+.riso .restbtn{background:var(--accent);color:var(--on-accent)}
 .riso .restbtn:active,.riso .restbtn[aria-expanded=true]{box-shadow:inset 0 0 0 2px currentColor}
-.riso .dyingbox{background:var(--sheet);color:var(--ink)}
-.riso .dyingbox:active,.riso .dyingbox[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .dyingbox{background:var(--card);color:var(--text)}
+.riso .dyingbox:active,.riso .dyingbox[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--structural)}
 
 /* ---- sheet header, compact ---- */
 .shead.mini{display:flex;align-items:center;gap:9px;padding:9px 12px;position:sticky;top:0}
@@ -222,10 +222,10 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .minihp{flex:none;padding:4px 8px;font-size:12.5px;font-weight:500;white-space:nowrap}
 .minihp b{font-weight:700}
 .minihp em{font-style:normal;margin-left:5px}
-.riso .minihp{background:var(--sheet);color:var(--dim)}
-.riso .minihp b{color:var(--a)}
-.riso .minihp em{color:var(--mix)}
-.riso .shead.mini .ac{width:36px;height:36px;font-size:13px;box-shadow:2px 2px 0 var(--b)}
+.riso .minihp{background:var(--card);color:var(--dim)}
+.riso .minihp b{color:var(--structural)}
+.riso .minihp em{color:var(--overprint)}
+.riso .shead.mini .ac{width:36px;height:36px;font-size:13px;box-shadow:2px 2px 0 var(--accent)}
 .riso .shead.mini .ac em{font-size:8px;margin-top:0}
 
 /* ---- tabs ---- */
@@ -235,20 +235,20 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 /* Under a tall header the bar pins to the very top. In the product the header
    shrinks to 54px as it scrolls, so this is the start of that animation. */
 .shead:not(.mini) + .tabs{top:0}
-.riso .tabs{background:var(--a);box-shadow:0 5px 0 var(--b)}
-.riso .tab{background:var(--chip);color:var(--on-a)}
-.riso .tab:is([aria-selected=true],[aria-checked=true]){background:var(--sheet);color:var(--a);font-weight:700}
+.riso .tabs{background:var(--structural);box-shadow:0 5px 0 var(--accent)}
+.riso .tab{background:var(--chip-on-plate);color:var(--on-structural)}
+.riso .tab:is([aria-selected=true],[aria-checked=true]){background:var(--card);color:var(--structural);font-weight:700}
 .riso .tab:active{box-shadow:inset 0 0 0 2px currentColor}
 
 /* ---- content block ---- */
 .block{padding:11px 12px}
 .bhead{margin:0 0 9px;font-size:15.5px;font-weight:700;display:flex;align-items:center;gap:8px}
 .bhead span{font-size:11px;font-weight:500;margin-left:auto}
-.riso .block{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
-.riso .bhead{color:var(--a)}
+.riso .block{background:var(--card);border:2px solid var(--structural);box-shadow:5px 5px 0 var(--accent)}
+.riso .bhead{color:var(--structural)}
 .riso .bhead span{color:var(--dim)}
 .riso :is(.res,.atk,.act,.prep,.skill,.calc,.change,.editrow,.erow,.form,.origin,.para){border-top-color:var(--rule)}
-.riso .calc.total{border-top-color:var(--a)}
+.riso .calc.total{border-top-color:var(--structural)}
 .riso .block > :is(.prep,.editrow,.res,.padnote,.act) + :is(.prep,.editrow,.res,.act){border-top-color:var(--rule)}
 
 /* ---- resource line with tappable pips ---- */
@@ -261,9 +261,9 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .pips i{width:22px;height:22px;display:block;cursor:pointer}
 .pips.wide i{width:20px;height:22px}
 .riso .resl span{color:var(--dim)}
-.riso .pips i{background:var(--empty)}
-.riso .pips i[data-on]{background:var(--a)}
-.riso .pips i:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .pips i{background:var(--track)}
+.riso .pips i[data-on]{background:var(--structural)}
+.riso .pips i:active{box-shadow:inset 0 0 0 2px var(--structural)}
 
 /* ---- attack table ---- */
 .atkh,.atk{display:grid;grid-template-columns:1fr 44px 104px;gap:8px;align-items:center}
@@ -276,7 +276,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .atk .dmg em{display:block;font-style:normal;font-size:10.5px;font-weight:500;margin-top:1px}
 .riso .atkh{color:var(--dim)}
 .riso .atk small,.riso .atk .dmg em{color:var(--dim)}
-.riso .atk .hit{color:var(--a)}
+.riso .atk .hit{color:var(--structural)}
 
 /* ---- list row that pushes a detail screen ---- */
 .grp{margin:11px 0 0;font-size:10.5px;font-weight:700}
@@ -291,8 +291,8 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
   transform:rotate(45deg);flex:none;margin-right:3px}
 .riso .grp{color:var(--dim)}
 .riso .actl span{color:var(--dim)}
-.riso .chev{color:var(--a)}
-.riso .act:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .chev{color:var(--structural)}
+.riso .act:active{box-shadow:inset 0 0 0 2px var(--structural)}
 
 /* ---- spellcasting statistics card ---- */
 .cast{padding:10px 11px}
@@ -303,17 +303,17 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .caststats div{flex:1;text-align:center;padding:5px 4px 6px}
 .caststats b{display:block;font-size:15px;font-weight:700;line-height:1.1}
 .caststats em{display:block;font-style:normal;font-size:10px;font-weight:600;margin-top:2px}
-.riso .cast{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
+.riso .cast{background:var(--card);border:2px solid var(--structural);box-shadow:5px 5px 0 var(--accent)}
 .riso .casttop span{color:var(--dim)}
 .riso .caststats div{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule)}
-.riso .caststats b{color:var(--a)}
+.riso .caststats b{color:var(--structural)}
 .riso .caststats em{color:var(--dim)}
 
 /* ---- find field on paper ---- */
 .findp{display:flex;align-items:center;gap:8px;padding:9px 12px}
 .findp input{all:unset;flex:1;font-size:14px;font-family:inherit;min-width:0}
-.riso .findp{background:var(--sheet);color:var(--dim);box-shadow:4px 4px 0 var(--b)}
-.riso .findp input{color:var(--ink)}
+.riso .findp{background:var(--card);color:var(--dim);box-shadow:4px 4px 0 var(--accent)}
+.riso .findp input{color:var(--text)}
 .riso .findp input::placeholder{color:var(--dim)}
 
 /* ---- warning strip: a margin note ----
@@ -324,9 +324,9 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .warn b{font-weight:700}
 .warn > svg{width:16px;height:16px;flex:none;margin-top:1px}
 .warn button{all:unset;cursor:pointer;font-size:11px;font-weight:700;margin-left:auto;white-space:nowrap}
-.riso .warn{background:var(--sheet);border-left:4px solid var(--b-text);color:var(--ink)}
-.riso .warn > svg{color:var(--b-text)}
-.riso .warn button{color:var(--b-text)}
+.riso .warn{background:var(--card);border-left:4px solid var(--accent-text);color:var(--text)}
+.riso .warn > svg{color:var(--accent-text)}
+.riso .warn button{color:var(--accent-text)}
 
 /* ---- full screen detail push ---- */
 .pushbar{display:flex;align-items:center;gap:6px;padding:11px 12px 13px}
@@ -342,15 +342,15 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .pathstats{display:flex;gap:14px;font-size:12px;font-weight:500;margin-bottom:10px;flex-wrap:wrap}
 .pathstats b{font-weight:700}
 .disclose{display:flex;align-items:center;gap:9px;padding:11px 12px;cursor:pointer;font-size:13px;font-weight:700;width:100%;text-align:left;font-family:inherit}
-.riso .pushbar{background:var(--a);color:var(--on-a);box-shadow:0 5px 0 var(--b)}
+.riso .pushbar{background:var(--structural);color:var(--on-structural);box-shadow:0 5px 0 var(--accent)}
 .riso .origin{color:var(--dim)}
-.riso .castbtn{background:var(--b);color:var(--on-b);box-shadow:5px 5px 0 var(--a)}
+.riso .castbtn{background:var(--accent);color:var(--on-accent);box-shadow:5px 5px 0 var(--structural)}
 .riso .castbtn:active{transform:translate(5px,5px);box-shadow:none}
-.riso .pathcard{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
+.riso .pathcard{background:var(--card);border:2px solid var(--structural);box-shadow:5px 5px 0 var(--accent)}
 .riso .pathtop span{color:var(--dim)}
-.riso .disclose{background:var(--sheet);border:2px solid var(--a);color:var(--a)}
-.riso .pathstats b{color:var(--a)}
-.riso .castbtn.small{width:auto;padding:9px 16px;font-size:13px;box-shadow:3px 3px 0 var(--a)}
+.riso .disclose{background:var(--card);border:2px solid var(--structural);color:var(--structural)}
+.riso .pathstats b{color:var(--structural)}
+.riso .castbtn.small{width:auto;padding:9px 16px;font-size:13px;box-shadow:3px 3px 0 var(--structural)}
 
 /* ---- hit point pad ---- */
 .pad{padding:12px;margin-top:12px}
@@ -362,13 +362,13 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .quick{display:flex;gap:6px;margin-top:11px}
 .quick button{flex:1;padding:9px 0;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .padnote{margin:10px 0 0;font-size:11.5px;font-weight:500;line-height:1.45}
-.riso .pad{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
-.riso .padtabs button{background:var(--chip2);color:var(--dim)}
-.riso .padtabs button:is([aria-selected=true],[aria-checked=true]){background:var(--a);color:var(--on-a)}
-.riso .padnum b{color:var(--a)}
-.riso .step{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
+.riso .pad{background:var(--card);border:2px solid var(--structural);box-shadow:5px 5px 0 var(--accent)}
+.riso .padtabs button{background:var(--chip-on-paper);color:var(--dim)}
+.riso .padtabs button:is([aria-selected=true],[aria-checked=true]){background:var(--structural);color:var(--on-structural)}
+.riso .padnum b{color:var(--structural)}
+.riso .step{background:var(--card);border:2px solid var(--structural);color:var(--structural);box-shadow:3px 3px 0 var(--accent)}
 .riso .step:active{transform:translate(3px,3px);box-shadow:none}
-.riso .quick button{background:var(--sheet);border:1.5px solid var(--a);color:var(--a)}
+.riso .quick button{background:var(--card);border:1.5px solid var(--structural);color:var(--structural)}
 .riso .padnote{color:var(--dim)}
 
 /* ---- header and tabs as one attached unit ---- */
@@ -381,14 +381,14 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .ovr svg{width:11px;height:11px}
 .has-ovr{position:relative}
 .has-ovr > .ovr{position:absolute;top:-7px;right:-7px}
-.riso .ovr{background:var(--sheet);color:var(--b-text);border-radius:50%;box-shadow:0 0 0 1.5px var(--b-text)}
+.riso .ovr{background:var(--card);color:var(--accent-text);border-radius:50%;box-shadow:0 0 0 1.5px var(--accent-text)}
 .ac[role=button]{cursor:pointer}
 
 /* ---- outlined secondary button, from v0.3's Open sheet ---- */
 .gobtn{padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex:none}
-.riso .gobtn{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
+.riso .gobtn{background:var(--card);border:2px solid var(--structural);color:var(--structural);box-shadow:3px 3px 0 var(--accent)}
 .riso .gobtn:active{transform:translate(3px,3px);box-shadow:none}
-.riso .gobtn[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a),3px 3px 0 var(--b)}
+.riso .gobtn[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--structural),3px 3px 0 var(--accent)}
 
 /* ---- preparation toggle row ----
    The whole row toggles. Info is a separate control at the end. Always
@@ -401,16 +401,16 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .prep input:checked + .box svg{visibility:visible}
 .prep:has(input:disabled){cursor:default}
 .infobtn{all:unset;width:32px;height:32px;display:grid;place-items:center;cursor:pointer;flex:none}
-.riso .box{box-shadow:inset 0 0 0 2px var(--a);color:var(--on-a)}
-.riso .prep input:checked + .box{background:var(--a)}
+.riso .box{box-shadow:inset 0 0 0 2px var(--structural);color:var(--on-structural)}
+.riso .prep input:checked + .box{background:var(--structural)}
 .riso .prep input:disabled + .box{background:transparent;box-shadow:inset 0 0 0 2px var(--rule);color:var(--dim)}
-.riso .prep input:focus-visible + .box{outline:2px solid var(--a);outline-offset:3px}
-.riso .prep:not(:has(input:disabled)):active .box{box-shadow:inset 0 0 0 2px var(--a),inset 0 0 0 4px var(--sheet)}
-.riso .infobtn{color:var(--a)}
+.riso .prep input:focus-visible + .box{outline:2px solid var(--structural);outline-offset:3px}
+.riso .prep:not(:has(input:disabled)):active .box{box-shadow:inset 0 0 0 2px var(--structural),inset 0 0 0 4px var(--card)}
+.riso .infobtn{color:var(--structural)}
 
 /* ---- counter that can go over: the limit fills, the excess spills rose ---- */
 .over{width:22px;height:13px;flex:none}
-.riso .over{background:var(--b)}
+.riso .over{background:var(--accent)}
 
 /* ---- sticky footer for a pushed screen's primary action ---- */
 .footbar{position:sticky;bottom:0;margin-top:auto;padding:16px 12px 18px;z-index:4}
@@ -424,14 +424,14 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .abil span{display:block;font-size:11px;font-weight:500;margin-top:1px}
 .riso .abil div{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule)}
 .riso .abil em,.riso .abil span{color:var(--dim)}
-.riso .abil b{color:var(--a)}
+.riso .abil b{color:var(--structural)}
 
 /* ---- proficiency rank: a shape, never colour alone ---- */
 .rank{width:12px;height:12px;flex:none;display:inline-block}
-.riso .rank{box-shadow:inset 0 0 0 1.5px var(--a)}
-.riso .rank[data-r=half]{background:linear-gradient(90deg,var(--a) 50%,transparent 50%)}
-.riso .rank[data-r=prof]{background:var(--a)}
-.riso .rank[data-r=exp]{background:var(--a);box-shadow:inset 0 0 0 1.5px var(--a),inset 0 0 0 3px var(--sheet)}
+.riso .rank{box-shadow:inset 0 0 0 1.5px var(--structural)}
+.riso .rank[data-r=half]{background:linear-gradient(90deg,var(--structural) 50%,transparent 50%)}
+.riso .rank[data-r=prof]{background:var(--structural)}
+.riso .rank[data-r=exp]{background:var(--structural);box-shadow:inset 0 0 0 1.5px var(--structural),inset 0 0 0 3px var(--card)}
 .legend{display:flex;flex-wrap:wrap;gap:5px 13px;margin:-2px 0 6px;font-size:11px;font-weight:500}
 .legend span{display:inline-flex;align-items:center;gap:5px}
 .riso .legend{color:var(--dim)}
@@ -443,8 +443,8 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .skill:nth-child(-n+2){border-top:0}
 .skill .lbl{flex:1;min-width:0;font-size:13px;font-weight:500;white-space:nowrap}
 .skill b{font-size:14px;font-weight:700}
-.riso .skill b{color:var(--a)}
-.riso .skill:active,.riso .skill[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .skill b{color:var(--structural)}
+.riso .skill:active,.riso .skill[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--structural)}
 
 /* ---- value detail: a big ring and the calculation behind it ---- */
 .bigval{display:flex;align-items:center;gap:18px}
@@ -459,9 +459,9 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .calc strong{font-size:16px;font-weight:700}
 .calc.total{border-top:2px solid transparent;margin-top:2px}
 .riso .bigval p{color:var(--dim)}
-.riso .bigval p b{color:var(--ink)}
+.riso .bigval p b{color:var(--text)}
 .riso .calc span{color:var(--dim)}
-.riso .calc strong{color:var(--a)}
+.riso .calc strong{color:var(--structural)}
 
 /* ---- tab icons ----
    Five outline icons on the 16 grid, stroke 1.8, above their label. */
@@ -492,7 +492,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .change strong{font-size:14px;font-weight:700;white-space:nowrap}
 .change .was{font-style:normal;font-weight:500}
 .riso .change > div span{color:var(--dim)}
-.riso .change strong{color:var(--a)}
+.riso .change strong{color:var(--structural)}
 .riso .change .was{color:var(--dim)}
 
 /* ---- money ---- */
@@ -500,9 +500,9 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .coin{min-height:52px;padding:6px 2px;text-align:center;border:0;font-family:inherit;cursor:pointer}
 .coin b{display:block;font-size:16px;font-weight:700;line-height:1.1}
 .coin em{display:block;font-style:normal;font-size:10px;font-weight:600;margin-top:2px}
-.riso .coin{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--a)}
+.riso .coin{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--structural)}
 .riso .coin em{color:var(--dim)}
-.riso .coin:active,.riso .coin[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .coin:active,.riso .coin[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--structural)}
 
 /* ---- quantities, and a container open in place ---- */
 .qty{font-size:12.5px;font-weight:700}
@@ -516,11 +516,11 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .kv dt{font-weight:600}
 .kv dd{margin:0;font-weight:500}
 .riso .kv dt{color:var(--dim)}
-.riso .kv dd{color:var(--ink)}
+.riso .kv dd{color:var(--text)}
 .para{margin:12px 0 0;padding-top:10px;border-top:1.5px solid transparent}
 .para h4{margin:0 0 3px;font-size:11.5px;font-weight:700}
 .para p{margin:0;font-size:12.5px;line-height:1.5;font-weight:500}
-.riso .para h4{color:var(--a)}
+.riso .para h4{color:var(--structural)}
 
 /* ---- per-section edit ----
    Persistent facts sit behind an Edit in their block header. A block being
@@ -530,47 +530,47 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .bhead .editbtn{margin-left:auto}
 .bhead span + .editbtn{margin-left:10px}
 .bhead .castbtn.small{padding:6px 12px;font-size:12px;margin-left:8px}
-.riso .editbtn{background:var(--sheet);border:1.5px solid var(--a);color:var(--a)}
-.riso .editbtn:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .editbtn{background:var(--card);border:1.5px solid var(--structural);color:var(--structural)}
+.riso .editbtn:active{box-shadow:inset 0 0 0 2px var(--structural)}
 .riso .editbtn:disabled{border-color:var(--rule);color:var(--dim);cursor:not-allowed;box-shadow:none}
-.riso .block.editing{border-style:dashed;box-shadow:none;background:var(--draft-bg)}
+.riso .block.editing{border-style:dashed;box-shadow:none;background:var(--draft-fill)}
 .editrow{display:flex;align-items:center;gap:10px;min-height:52px;border-top:1.5px solid transparent}
 .editrow:first-of-type{border-top:0}
 .editrow .lbl{flex:1;min-width:0;font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:8px}
 .editrow .step{width:40px;height:40px;font-size:20px}
 .editrow .num{width:30px;text-align:center;font-size:18px;font-weight:700}
 .editrow .mod{width:32px;text-align:right;font-size:13px;font-weight:600}
-.riso .editrow .num{color:var(--a)}
+.riso .editrow .num{color:var(--structural)}
 .riso .editrow .mod{color:var(--dim)}
 
 /* ---- detail screens ---- */
 .rules p{margin:0 0 9px;font-size:13px;line-height:1.5;font-weight:500}
 .rules p:last-child{margin-bottom:0}
-.riso .rules p{color:var(--ink)}
+.riso .rules p{color:var(--text)}
 
 /* a single choice: the toggle row with a round marker */
 .box.round{border-radius:50%}
-.riso .prep input:checked + .box.round{background:var(--sheet);box-shadow:inset 0 0 0 2px var(--a),inset 0 0 0 6px var(--sheet),inset 0 0 0 11px var(--a)}
+.riso .prep input:checked + .box.round{background:var(--card);box-shadow:inset 0 0 0 2px var(--structural),inset 0 0 0 6px var(--card),inset 0 0 0 11px var(--structural)}
 
 /* destructive: outlined in rose text ink, no shadow, never the primary look */
 .dangerbtn{width:100%;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
-.riso .dangerbtn{background:var(--sheet);border:2px solid var(--b-text);color:var(--b-text)}
-.riso .dangerbtn:active{box-shadow:inset 0 0 0 2px var(--b-text)}
+.riso .dangerbtn{background:var(--card);border:2px solid var(--accent-text);color:var(--accent-text)}
+.riso .dangerbtn:active{box-shadow:inset 0 0 0 2px var(--accent-text)}
 
 /* a big rectangular value, the square cousin of the armour ring */
 .bignum{width:72px;height:72px;display:grid;place-items:center;font-size:26px;font-weight:700;flex:none}
-.riso .bignum{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
+.riso .bignum{background:var(--card);border:2px solid var(--structural);color:var(--structural);box-shadow:3px 3px 0 var(--accent)}
 
 /* proficiency rank as a four-way choice */
 .rankseg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .rankseg button{min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
   font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;border:0}
-.riso .rankseg button{background:var(--sheet);box-shadow:inset 0 0 0 1.5px var(--a);color:var(--a)}
-.riso .rankseg button[aria-checked=true]{background:var(--a);color:var(--on-a);font-weight:700}
-.riso .rankseg button[aria-checked=true] .rank{box-shadow:inset 0 0 0 1.5px var(--on-a)}
-.riso .rankseg button[aria-checked=true] .rank[data-r=half]{background:linear-gradient(90deg,var(--on-a) 50%,transparent 50%)}
-.riso .rankseg button[aria-checked=true] .rank[data-r=prof]{background:var(--on-a)}
-.riso .rankseg button[aria-checked=true] .rank[data-r=exp]{background:var(--on-a);box-shadow:inset 0 0 0 1.5px var(--on-a),inset 0 0 0 3px var(--a)}
+.riso .rankseg button{background:var(--card);box-shadow:inset 0 0 0 1.5px var(--structural);color:var(--structural)}
+.riso .rankseg button[aria-checked=true]{background:var(--structural);color:var(--on-structural);font-weight:700}
+.riso .rankseg button[aria-checked=true] .rank{box-shadow:inset 0 0 0 1.5px var(--on-structural)}
+.riso .rankseg button[aria-checked=true] .rank[data-r=half]{background:linear-gradient(90deg,var(--on-structural) 50%,transparent 50%)}
+.riso .rankseg button[aria-checked=true] .rank[data-r=prof]{background:var(--on-structural)}
+.riso .rankseg button[aria-checked=true] .rank[data-r=exp]{background:var(--on-structural);box-shadow:inset 0 0 0 1.5px var(--on-structural),inset 0 0 0 3px var(--structural)}
 
 /* Mixed rows in one block. :first-of-type counts tags, not classes, so a row
    that follows a toggle, a note or a different row type loses its rule unless
@@ -593,13 +593,13 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .grip svg,.rmbtn svg{width:16px;height:16px}
 .erow.removing .actl b{text-decoration:line-through}
 .riso .grip{color:var(--dim)}
-.riso .rmbtn{color:var(--b-text)}
+.riso .rmbtn{color:var(--accent-text)}
 .riso .erow.removing .actl b{color:var(--dim)}
 .addrow{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;margin-top:8px;padding:0 12px;
   font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;text-align:left}
 .addrow svg{width:16px;height:16px;flex:none}
-.riso .addrow{background:var(--sheet);border:1.5px dashed var(--a);color:var(--a)}
-.riso .addrow:active,.riso .addrow[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .addrow{background:var(--card);border:1.5px dashed var(--structural);color:var(--structural)}
+.riso .addrow:active,.riso .addrow[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--structural)}
 
 /* ---- text fields ---- */
 .field{display:block;margin-top:12px}
@@ -609,8 +609,8 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
   font-family:inherit;font-size:14px;line-height:1.45;white-space:pre-wrap}
 .field textarea{min-height:92px}
 .riso .field > span{color:var(--dim)}
-.riso .field input,.riso .field textarea{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--ink)}
-.riso .field :is(input,textarea):focus-visible{box-shadow:inset 0 0 0 2px var(--a);outline:none}
+.riso .field input,.riso .field textarea{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--text)}
+.riso .field :is(input,textarea):focus-visible{box-shadow:inset 0 0 0 2px var(--structural);outline:none}
 
 /* ---- a known form: its numbers and a button to become it ---- */
 .form{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1.5px solid transparent}
@@ -637,8 +637,8 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
   padding:0;border:0;opacity:0;cursor:pointer}
 .tokpick .tok b{pointer-events:none}
 .riso .tokpick .tok input:focus-visible{outline:none}
-.riso .tokpick .tok:focus-within{outline:2px solid var(--a);outline-offset:3px}
-.riso .tokpick .tok:has(:active){box-shadow:inset 0 0 0 2px var(--on-tok),4px 4px 0 var(--b)}
+.riso .tokpick .tok:focus-within{outline:2px solid var(--structural);outline-offset:3px}
+.riso .tokpick .tok:has(:active){box-shadow:inset 0 0 0 2px var(--on-tok),4px 4px 0 var(--accent)}
 
 /* ---- static bottom sheet: the sheet menu ----
    The one overlay shape. The sheet menu and the conditions picker use it; it
@@ -649,7 +649,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .bscrim{position:absolute;inset:0;z-index:5}
 .riso .bscrim{background:var(--scrim)}
 .bsheet{position:sticky;bottom:0;z-index:6;margin-top:auto;padding:10px 12px 18px}
-.riso .bsheet{background:var(--sheet);border-top:2px solid var(--a);box-shadow:0 -5px 0 var(--b)}
+.riso .bsheet{background:var(--card);border-top:2px solid var(--structural);box-shadow:0 -5px 0 var(--accent)}
 .bsheet-title{margin:4px 8px 4px;font-size:11.5px;font-weight:700}
 .riso .bsheet-title{color:var(--dim)}
 .menuitem{display:flex;align-items:center;gap:14px;width:100%;min-height:56px;padding:0 8px;border:0;background:none;
@@ -657,15 +657,15 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .menuitem svg{width:16px;height:16px;flex:none}
 .menuitem .mi{flex:1;min-width:0}
 .menuitem .mi small{display:block;font-size:11.5px;font-weight:500;margin-top:2px}
-.riso .menuitem{color:var(--a)}
+.riso .menuitem{color:var(--structural)}
 .riso .menuitem .mi small{color:var(--dim)}
-.riso .menuitem.danger{color:var(--b-text)}
+.riso .menuitem.danger{color:var(--accent-text)}
 .riso .menuitem:active{box-shadow:inset 0 0 0 2px currentColor}
 .menusep{height:1.5px;margin:4px 8px}
 .riso .menusep{background:var(--rule)}
 .menuitem.close{justify-content:center;min-height:48px;margin-top:8px}
-.riso .menuitem.close{box-shadow:inset 0 0 0 2px var(--a)}
-.riso .shead .icnbtn[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--on-a)}
+.riso .menuitem.close{box-shadow:inset 0 0 0 2px var(--structural)}
+.riso .shead .icnbtn[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--on-structural)}
 
 /* ---- conditions: the entry on the plate, and the picker inside a bottom sheet ----
    The entry is dashed like every Add. A condition mark is a button that opens
@@ -673,14 +673,14 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .addmark{display:inline-flex;align-items:center;gap:5px;font-family:inherit;font-size:11px;font-weight:700;padding:3px 8px 3px 6px;line-height:1.35;cursor:pointer;white-space:nowrap}
 .addmark svg{width:11px;height:11px;flex:none}
 button.mark{font-family:inherit;cursor:pointer}
-.riso .addmark{background:transparent;color:var(--on-a);border:1.5px dashed var(--on-a)}
-.riso .addmark:active,.riso .addmark[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--on-a)}
+.riso .addmark{background:transparent;color:var(--on-structural);border:1.5px dashed var(--on-structural)}
+.riso .addmark:active,.riso .addmark[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--on-structural)}
 .riso button.mark:active{box-shadow:inset 0 0 0 2px currentColor}
 .condgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0 0}
 .condgrid button{min-height:44px;padding:0 4px;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;border:0}
-.riso .condgrid button{background:var(--sheet);box-shadow:inset 0 0 0 1.5px var(--a);color:var(--a)}
-.riso .condgrid button[aria-pressed=true]{background:var(--a);color:var(--on-a);font-weight:700}
-.riso .condgrid button.condcustom{display:flex;align-items:center;justify-content:center;gap:6px;background:transparent;box-shadow:none;border:1.5px dashed var(--a);font-weight:700}
+.riso .condgrid button{background:var(--card);box-shadow:inset 0 0 0 1.5px var(--structural);color:var(--structural)}
+.riso .condgrid button[aria-pressed=true]{background:var(--structural);color:var(--on-structural);font-weight:700}
+.riso .condgrid button.condcustom{display:flex;align-items:center;justify-content:center;gap:6px;background:transparent;box-shadow:none;border:1.5px dashed var(--structural);font-weight:700}
 .condcustom svg{width:12px;height:12px;flex:none}
 .bsheet .grp{margin:12px 8px 6px}
 .bsheet .rankseg button{min-height:44px}
@@ -690,8 +690,8 @@ button.mark{font-family:inherit;cursor:pointer}
 /* ---- concentration: the card that reads the anchor row ----
    Overprint ink, because concentration marks already use it. The shadow stays
    rose like every other card. */
-.riso .cast.conc{border-color:var(--mix)}
-.riso .cast.conc .casttop b{color:var(--mix)}
+.riso .cast.conc{border-color:var(--overprint)}
+.riso .cast.conc .casttop b{color:var(--overprint)}
 .cast.conc > .dangerbtn{margin-top:12px}
 .cast .bigval{margin-top:10px}
 .pair .dangerbtn{flex:1;width:auto;padding:9px 14px;font-size:13px}
@@ -703,13 +703,13 @@ button.mark{font-family:inherit;cursor:pointer}
    Successes are structural circles and failures rose-text squares, as in v0.2,
    drawn at pip size so they correct a mistake with the pip rule. */
 .dyingbox[role=button]{cursor:pointer}
-.riso .dyingbox[role=button]:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .dyingbox[role=button]:active{box-shadow:inset 0 0 0 2px var(--structural)}
 .dsrows{margin-top:10px}
-.riso .pips.ds-ok i{border-radius:50%;background:transparent;box-shadow:inset 0 0 0 2px var(--a)}
-.riso .pips.ds-ok i[data-on]{background:var(--a)}
-.riso .pips.ds-bad i{background:transparent;box-shadow:inset 0 0 0 2px var(--b-text)}
-.riso .pips.ds-bad i[data-on]{background:var(--b-text)}
-.riso .shead .tok[data-state=dead]{background:var(--sheet);color:var(--dim);box-shadow:inset 0 0 0 2px var(--rule)}
+.riso .pips.ds-ok i{border-radius:50%;background:transparent;box-shadow:inset 0 0 0 2px var(--structural)}
+.riso .pips.ds-ok i[data-on]{background:var(--structural)}
+.riso .pips.ds-bad i{background:transparent;box-shadow:inset 0 0 0 2px var(--accent-text)}
+.riso .pips.ds-bad i[data-on]{background:var(--accent-text)}
+.riso .shead .tok[data-state=dead]{background:var(--card);color:var(--dim);box-shadow:inset 0 0 0 2px var(--rule)}
 .pad > .prep{margin-top:8px}
 
 /* ---- the hit point pad as a bottom sheet ----
@@ -717,9 +717,9 @@ button.mark{font-family:inherit;cursor:pointer}
    one, so the player keeps their place. Inside the sheet the pad and the
    concentration save lose their card chrome. */
 .riso .bsheet .pad,.riso .bsheet .cast{background:transparent;border:0;box-shadow:none;margin:0;padding:6px 8px 0}
-.riso .vitals[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .vitals[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--structural)}
 .minihp{border:0;font-family:inherit;cursor:pointer}
-.riso .minihp:active,.riso .minihp[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .minihp:active,.riso .minihp[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--structural)}
 
 /* ---- the roll sheet: dice boxes, face buttons and the roll ----
    One sheet serves Roll and I rolled. Each die is the big value square. While
@@ -752,16 +752,16 @@ button.mark{font-family:inherit;cursor:pointer}
 .roll.rolling .rollafter,.roll.rolling .dicemath{visibility:hidden}
 .luckyrow[hidden]{display:none}
 .rollconfirm{margin-top:12px}
-.riso .dieshadow{background:var(--b)}
-.riso .die{background:var(--sheet);border:2px solid var(--a);color:var(--a)}
+.riso .dieshadow{background:var(--accent)}
+.riso .die{background:var(--card);border:2px solid var(--structural);color:var(--structural)}
 .riso .die em{color:var(--dim)}
 .riso .die[data-empty] b{color:var(--dim)}
-.riso .die[aria-pressed=true]{background:var(--a);color:var(--on-a)}
-.riso .die[aria-pressed=true] b,.riso .die[aria-pressed=true] em{color:var(--on-a)}
-.riso .dieplus,.riso .dicemath b{color:var(--a)}
+.riso .die[aria-pressed=true]{background:var(--structural);color:var(--on-structural)}
+.riso .die[aria-pressed=true] b,.riso .die[aria-pressed=true] em{color:var(--on-structural)}
+.riso .dieplus,.riso .dicemath b{color:var(--structural)}
 .riso .dicemath{color:var(--dim)}
-.riso .facegrid button{background:var(--sheet);border:1.5px solid var(--a);color:var(--a)}
-.riso .facegrid button:active{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .facegrid button{background:var(--card);border:1.5px solid var(--structural);color:var(--structural)}
+.riso .facegrid button:active{box-shadow:inset 0 0 0 2px var(--structural)}
 .riso .castbtn:disabled{background:transparent;color:var(--dim);box-shadow:inset 0 0 0 2px var(--rule);transform:none;cursor:not-allowed}
 
 /* ---- notes: typed straight into, saved as you go ----
@@ -769,9 +769,9 @@ button.mark{font-family:inherit;cursor:pointer}
    because it is one. A long note shows six lines with Show all, and expands
    while it has focus. */
 .notearea{all:unset;box-sizing:border-box;display:block;width:100%;min-height:44px;padding:10px 11px;font-family:inherit;font-size:13px;line-height:1.45;white-space:pre-wrap;overflow:hidden;resize:none}
-.riso .notearea{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--ink)}
+.riso .notearea{background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule);color:var(--text)}
 .riso .notearea::placeholder{color:var(--dim)}
-.riso .notearea:focus{box-shadow:inset 0 0 0 2px var(--a);outline:none}
+.riso .notearea:focus{box-shadow:inset 0 0 0 2px var(--structural);outline:none}
 /* Clamped, the bottom padding goes so no part of a seventh line shows through it. */
 .notearea.clamped{padding-bottom:0}
 .notefoot{display:flex;align-items:center;gap:10px;min-height:20px;margin-top:6px}
@@ -779,7 +779,7 @@ button.mark{font-family:inherit;cursor:pointer}
 .riso .notestatus{color:var(--dim)}
 .noteshow{all:unset;cursor:pointer;margin-left:auto;font-size:12px;font-weight:700}
 .noteshow[hidden]{display:none}
-.riso .noteshow{color:var(--a)}
+.riso .noteshow{color:var(--structural)}
 .pathnote{display:block;margin-top:11px}
 .pathnote > span{display:block;font-size:11.5px;font-weight:700;margin-bottom:5px}
 .riso .pathnote > span{color:var(--dim)}
@@ -788,7 +788,7 @@ button.mark{font-family:inherit;cursor:pointer}
    Where the rules text folds away, the origin line sits inside the fold, so it
    never floats on bare paper. The fold keeps the disclosure bar's look. */
 .rulesfold{padding:0 12px 11px}
-.riso .rulesfold{background:var(--sheet);border:2px solid var(--a)}
+.riso .rulesfold{background:var(--card);border:2px solid var(--structural)}
 .rulesfold > .disclose{padding:11px 0}
 .riso .rulesfold > .disclose{border:0;background:none}
 .rulesfold > .origin{margin-top:0}
@@ -798,12 +798,12 @@ button.mark{font-family:inherit;cursor:pointer}
    groups, and multi-select toggles keep aria-pressed. A pip row is one
    adjustable control. A toggle row with a details button splits into a label
    and a sibling button, so opening details never toggles the row. */
-.riso .pips[role=spinbutton]:focus-visible{outline:2px solid var(--a);outline-offset:4px}
+.riso .pips[role=spinbutton]:focus-visible{outline:2px solid var(--structural);outline-offset:4px}
 .prep > .prepmain{display:flex;align-items:center;gap:12px;flex:1;min-width:0;align-self:stretch;cursor:pointer}
 .prep:has(> .prepmain){cursor:default;padding:0}
 .prep > .prepmain{min-height:44px}
 .prep:has(> .prepmain)::after{content:none}
-.riso .prep:not(:has(input:disabled)):has(.infobtn:active) .box{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .prep:not(:has(input:disabled)):has(.infobtn:active) .box{box-shadow:inset 0 0 0 2px var(--structural)}
 /* ---- hit areas, web ----
    Every control answers taps across at least 44 by 44. The extension is an
    invisible ::after centred on the control, so nothing moves and nothing looks
@@ -824,7 +824,7 @@ button.mark{font-family:inherit;cursor:pointer}
 /* ---- mockup annotation, never product UI ---- */
 .anno{margin:20px 0 10px;padding-top:11px;font-size:11.5px;font-weight:700;line-height:1.45}
 .anno:first-child{margin-top:0;padding-top:0;border-top:0}
-.riso .anno{border-top:2px dashed var(--b);color:var(--dim)}
+.riso .anno{border-top:2px dashed var(--accent);color:var(--dim)}
 
 /* =========================================================
    DESKTOP, 1440 by 900.
@@ -857,8 +857,8 @@ button.mark{font-family:inherit;cursor:pointer}
 .dtabs{display:flex;gap:5px}
 /* With the width to spare, a desktop tab puts its icon beside the label. */
 .dtabs .tab{flex-direction:row;justify-content:center;gap:7px;min-height:40px;padding:0 4px;font-size:12.5px}
-.riso .dstrip{background:var(--a);color:var(--on-a);box-shadow:0 5px 0 var(--b)}
-.riso .dstrip :focus-visible{outline-color:var(--on-a)}
+.riso .dstrip{background:var(--structural);color:var(--on-structural);box-shadow:0 5px 0 var(--accent)}
+.riso .dstrip :focus-visible{outline-color:var(--on-structural)}
 
 /* ---- columns ---- */
 .dcols{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:minmax(0,1fr);column-gap:24px;padding:0 22px}
@@ -878,19 +878,19 @@ button.mark{font-family:inherit;cursor:pointer}
 .spanel > .body{min-height:0;overflow-y:auto;scrollbar-width:none}
 .spanel > .body::-webkit-scrollbar{display:none}
 .spanel > .footbar{flex:none;position:static;margin:0;padding:14px 16px 16px}
-.riso .spanel{border-left-color:var(--a);box-shadow:-5px 0 0 var(--b)}
+.riso .spanel{border-left-color:var(--structural);box-shadow:-5px 0 0 var(--accent)}
 /* The opener row keeps its ring, pulled 8px into the card's padding so it clears the text. */
 .act[aria-expanded=true]{width:calc(100% + 16px);margin:0 -8px;padding-left:8px;padding-right:8px}
-.riso .act[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--a)}
+.riso .act[aria-expanded=true]{box-shadow:inset 0 0 0 2px var(--structural)}
 
 /* ---- the pad takes typing on desktop ---- */
 .padnum input{all:unset;box-sizing:border-box;flex:1;min-width:0;height:52px;text-align:center;font-family:inherit;font-size:36px;font-weight:700;line-height:1}
-.riso .padnum input{color:var(--a);background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule)}
-.riso .padnum input:focus-visible{box-shadow:inset 0 0 0 2px var(--a);outline:none}
+.riso .padnum input{color:var(--structural);background:var(--wash);box-shadow:inset 0 0 0 1.5px var(--rule)}
+.riso .padnum input:focus-visible{box-shadow:inset 0 0 0 2px var(--structural);outline:none}
 .keyhint{margin:8px 0 0;font-size:11px;font-weight:500}
 .keyhint kbd{font-family:inherit;font-size:10.5px;font-weight:700;padding:1px 5px}
 .riso .keyhint{color:var(--dim)}
-.riso .keyhint kbd{color:var(--a);box-shadow:inset 0 0 0 1.5px var(--rule)}
+.riso .keyhint kbd{color:var(--structural);box-shadow:inset 0 0 0 1.5px var(--rule)}
 
 /* ---- header variants: plates on bare paper ---- */
 .dvar{padding:26px 34px}
@@ -989,10 +989,10 @@ button.mark{font-family:inherit;cursor:pointer}
         <h2>Drums</h2>
         <div class="drums">
           <label class="drum"><span>Paper</span><span class="swatch" data-swatch="paper"><input type="color" data-key="paper"></span><input type="text" data-hex="paper" spellcheck="false" maxlength="7" aria-label="Paper hex"></label>
-          <label class="drum"><span>Cards</span><span class="swatch" data-swatch="sheet"><input type="color" data-key="sheet"></span><input type="text" data-hex="sheet" spellcheck="false" maxlength="7" aria-label="Cards hex"></label>
-          <label class="drum"><span>Structural</span><span class="swatch" data-swatch="a"><input type="color" data-key="a"></span><input type="text" data-hex="a" spellcheck="false" maxlength="7" aria-label="Structural hex"></label>
-          <label class="drum"><span>Accent</span><span class="swatch" data-swatch="b"><input type="color" data-key="b"></span><input type="text" data-hex="b" spellcheck="false" maxlength="7" aria-label="Accent hex"></label>
-          <label class="drum"><span>Overprint</span><span class="swatch" data-swatch="mix"><input type="color" data-key="mix"></span><input type="text" data-hex="mix" spellcheck="false" maxlength="7" aria-label="Overprint hex"></label>
+          <label class="drum"><span>Cards</span><span class="swatch" data-swatch="card"><input type="color" data-key="card"></span><input type="text" data-hex="card" spellcheck="false" maxlength="7" aria-label="Cards hex"></label>
+          <label class="drum"><span>Structural</span><span class="swatch" data-swatch="structural"><input type="color" data-key="structural"></span><input type="text" data-hex="structural" spellcheck="false" maxlength="7" aria-label="Structural hex"></label>
+          <label class="drum"><span>Accent</span><span class="swatch" data-swatch="accent"><input type="color" data-key="accent"></span><input type="text" data-hex="accent" spellcheck="false" maxlength="7" aria-label="Accent hex"></label>
+          <label class="drum"><span>Overprint</span><span class="swatch" data-swatch="overprint"><input type="color" data-key="overprint"></span><input type="text" data-hex="overprint" spellcheck="false" maxlength="7" aria-label="Overprint hex"></label>
           <button class="resetbtn" type="button" id="reset">Reset to dusk blue</button>
           <button class="resetbtn" type="button" id="hits" aria-pressed="false">Show hit areas</button>
         </div>
@@ -1016,7 +1016,7 @@ button.mark{font-family:inherit;cursor:pointer}
   <div class="shead attached">
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-      <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">B<b>6</b></div>
+      <div class="tok" style="--tok:var(--structural);--on-tok:var(--on-structural)">B<b>6</b></div>
       <div class="who">
         <h2 class="sname">Brenna Duskhollow</h2>
         <p class="ssub">Half-elf warlock 6, the Fiend</p>
@@ -1350,7 +1350,7 @@ button.mark{font-family:inherit;cursor:pointer}
   <div class="shead attached">
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-      <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">B<b>6</b></div>
+      <div class="tok" style="--tok:var(--structural);--on-tok:var(--on-structural)">B<b>6</b></div>
       <div class="who">
         <h2 class="sname">Brenna Duskhollow</h2>
         <p class="ssub">Half-elf warlock 6, the Fiend</p>
@@ -1422,7 +1422,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <p class="anno">A form swap. The bear's numbers are the live ones, the druid's sit underneath.</p>
     <div class="shead" style="margin:0 -12px">
       <div class="sheadtop">
-        <div class="tok" style="--tok:var(--mix);--on-tok:var(--on-mix)">F<b>8</b></div>
+        <div class="tok" style="--tok:var(--overprint);--on-tok:var(--on-overprint)">F<b>8</b></div>
         <div class="who">
           <h2 class="sname">Brown bear</h2>
           <p class="ssub">Fenn Mosswright, wild shaped</p>
@@ -1447,7 +1447,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <p class="anno">At zero hit points. Death saves take over the vitals block.</p>
     <div class="shead" style="margin:0 -12px">
       <div class="sheadtop">
-        <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+        <div class="tok" style="--tok:var(--accent);--on-tok:var(--on-accent)">M<b>4</b></div>
         <div class="who">
           <h2 class="sname">Mudge Tealeaf</h2>
           <p class="ssub">Lightfoot halfling rogue 4, Arcane trickster</p>
@@ -1472,7 +1472,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <p class="anno">Two classes. The badge shows total level, the line shows the split.</p>
     <div class="shead" style="margin:0 -12px">
       <div class="sheadtop">
-        <div class="tok" style="--tok:var(--mix);--on-tok:var(--on-mix)">V<b>7</b></div>
+        <div class="tok" style="--tok:var(--overprint);--on-tok:var(--on-overprint)">V<b>7</b></div>
         <div class="who">
           <h2 class="sname">Vesper Quill</h2>
           <p class="ssub">Rock gnome wizard 5 / rogue 2, Divination</p>
@@ -1515,7 +1515,7 @@ button.mark{font-family:inherit;cursor:pointer}
      ============================================================ -->
 <template id="tpl-part-brenna-plate">
   <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-  <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">B<b>6</b></div>
+  <div class="tok" style="--tok:var(--structural);--on-tok:var(--on-structural)">B<b>6</b></div>
   <div class="who">
     <h2 class="sname">Brenna Duskhollow</h2>
     <p class="ssub">Half-elf warlock 6, the Fiend</p>
@@ -2197,7 +2197,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="body dvar">
     <p class="anno">A form swap. The bear's numbers are the live ones, and the druid's sit under the name.</p>
     <div class="shead dplate">
-      <div class="tok" style="--tok:var(--mix);--on-tok:var(--on-mix)">F<b>8</b></div>
+      <div class="tok" style="--tok:var(--overprint);--on-tok:var(--on-overprint)">F<b>8</b></div>
       <div class="who">
         <h2 class="sname">Brown bear</h2>
         <p class="ssub">Fenn Mosswright, wild shaped. Underneath: <b>47</b>/61 hit points, AC 13, speed 30, spell save 15.</p>
@@ -2219,7 +2219,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
     <p class="anno">At zero hit points. Death saves take the rail's place beside the vitals, and open the pad's Death save tab.</p>
     <div class="shead dplate">
-      <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+      <div class="tok" style="--tok:var(--accent);--on-tok:var(--on-accent)">M<b>4</b></div>
       <div class="who">
         <h2 class="sname">Mudge Tealeaf</h2>
         <p class="ssub">Lightfoot halfling rogue 4, Arcane trickster</p>
@@ -2242,7 +2242,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
     <p class="anno">Two classes. The badge shows total level, the line shows the split.</p>
     <div class="shead dplate">
-      <div class="tok" style="--tok:var(--mix);--on-tok:var(--on-mix)">V<b>7</b></div>
+      <div class="tok" style="--tok:var(--overprint);--on-tok:var(--on-overprint)">V<b>7</b></div>
       <div class="who">
         <h2 class="sname">Vesper Quill</h2>
         <p class="ssub">Rock gnome wizard 5 / rogue 2, Divination</p>
@@ -2282,7 +2282,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="body dvar">
     <p class="anno">A form swap. The bear's numbers are the live ones, and the druid's sit under the name.</p>
     <div class="shead dplate">
-      <div class="tok" style="--tok:var(--mix);--on-tok:var(--on-mix)">F<b>8</b></div>
+      <div class="tok" style="--tok:var(--overprint);--on-tok:var(--on-overprint)">F<b>8</b></div>
       <div class="who">
         <h2 class="sname">Brown bear</h2>
         <p class="ssub">Fenn Mosswright, wild shaped. Underneath: <b>47</b>/61 hit points, AC 13, speed 30, spell save 15.</p>
@@ -2304,7 +2304,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
     <p class="anno">At zero hit points. Death saves take the rail's place beside the vitals, and open the pad's Death save tab.</p>
     <div class="shead dplate">
-      <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+      <div class="tok" style="--tok:var(--accent);--on-tok:var(--on-accent)">M<b>4</b></div>
       <div class="who">
         <h2 class="sname">Mudge Tealeaf</h2>
         <p class="ssub">Lightfoot halfling rogue 4, Arcane trickster</p>
@@ -2327,7 +2327,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
     <p class="anno">Two classes. The badge shows total level, the line shows the split.</p>
     <div class="shead dplate">
-      <div class="tok" style="--tok:var(--mix);--on-tok:var(--on-mix)">V<b>7</b></div>
+      <div class="tok" style="--tok:var(--overprint);--on-tok:var(--on-overprint)">V<b>7</b></div>
       <div class="who">
         <h2 class="sname">Vesper Quill</h2>
         <p class="ssub">Rock gnome wizard 5 / rogue 2, Divination</p>
@@ -2370,7 +2370,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="shead attached">
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-      <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">A<b>7</b></div>
+      <div class="tok" style="--tok:var(--structural);--on-tok:var(--on-structural)">A<b>7</b></div>
       <div class="who">
         <h2 class="sname">Alarra Vane</h2>
         <p class="ssub">Human cleric 7, Life domain</p>
@@ -2631,7 +2631,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="shead attached">
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-      <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">A<b>7</b></div>
+      <div class="tok" style="--tok:var(--structural);--on-tok:var(--on-structural)">A<b>7</b></div>
       <div class="who">
         <h2 class="sname">Alarra Vane</h2>
         <p class="ssub">Human cleric 7, Life domain</p>
@@ -2788,7 +2788,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
      ============================================================ -->
 <template id="tpl-part-alarra-plate">
   <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-  <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">A<b>7</b></div>
+  <div class="tok" style="--tok:var(--structural);--on-tok:var(--on-structural)">A<b>7</b></div>
   <div class="who">
     <h2 class="sname">Alarra Vane</h2>
     <p class="ssub">Human cleric 7, Life domain</p>
@@ -6027,7 +6027,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 </template>
 <template id="tpl-part-fenn-plate">
   <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-  <div class="tok" style="--tok:var(--mix);--on-tok:var(--on-mix)">F<b>8</b></div>
+  <div class="tok" style="--tok:var(--overprint);--on-tok:var(--on-overprint)">F<b>8</b></div>
   <div class="who">
     <h2 class="sname">Fenn Mosswright</h2>
     <p class="ssub">Human druid 8, Circle of the Land</p>
@@ -7347,7 +7347,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
      ============================================================ -->
 <template id="tpl-part-thorn-plate">
   <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-  <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">T<b>8</b></div>
+  <div class="tok" style="--tok:var(--accent);--on-tok:var(--on-accent)">T<b>8</b></div>
   <div class="who">
     <h2 class="sname">Thorn Grimsby</h2>
     <p class="ssub">Mountain dwarf fighter 8, Champion</p>
@@ -7667,7 +7667,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="body pad-bottom">
     <section class="block">
       <div class="res" style="padding-top:0">
-        <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b);width:48px;height:48px;font-size:18px">T<b>8</b></div>
+        <div class="tok" style="--tok:var(--accent);--on-tok:var(--on-accent);width:48px;height:48px;font-size:18px">T<b>8</b></div>
         <div class="resl"><b>Thorn Grimsby</b><span>Mountain dwarf fighter 8, Champion</span></div>
       </div>
     </section>
@@ -7689,7 +7689,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="shead attached">
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-      <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">T<b>8</b></div>
+      <div class="tok" style="--tok:var(--accent);--on-tok:var(--on-accent)">T<b>8</b></div>
       <div class="who">
         <h2 class="sname">Thorn Grimsby</h2>
         <p class="ssub">Mountain dwarf fighter 8, Champion</p>
@@ -7858,7 +7858,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="body pad-bottom">
     <section class="block">
       <div class="res" style="padding-top:0">
-        <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b);width:48px;height:48px;font-size:18px">T<b>8</b></div>
+        <div class="tok" style="--tok:var(--accent);--on-tok:var(--on-accent);width:48px;height:48px;font-size:18px">T<b>8</b></div>
         <div class="resl"><b>Thorn Grimsby</b><span>Mountain dwarf fighter 8, Champion</span></div>
       </div>
     </section>
@@ -8027,7 +8027,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
      ============================================================ -->
 <template id="tpl-part-mudge-plate">
   <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-  <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+  <div class="tok" style="--tok:var(--accent);--on-tok:var(--on-accent)">M<b>4</b></div>
   <div class="who">
     <h2 class="sname">Mudge Tealeaf</h2>
     <p class="ssub">Lightfoot halfling rogue 4, Arcane trickster</p>
@@ -8053,7 +8053,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 </template>
 <template id="tpl-part-mudge-plate-dying">
   <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-  <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+  <div class="tok" style="--tok:var(--accent);--on-tok:var(--on-accent)">M<b>4</b></div>
   <div class="who">
     <h2 class="sname">Mudge Tealeaf</h2>
     <p class="ssub">Lightfoot halfling rogue 4, Arcane trickster</p>
@@ -8081,7 +8081,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 </template>
 <template id="tpl-part-mudge-plate-dead">
   <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-  <div class="tok" data-state="dead" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+  <div class="tok" data-state="dead" style="--tok:var(--accent);--on-tok:var(--on-accent)">M<b>4</b></div>
   <div class="who">
     <h2 class="sname">Mudge Tealeaf</h2>
     <p class="ssub">Lightfoot halfling rogue 4, Arcane trickster</p>
@@ -8327,7 +8327,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="shead attached">
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-      <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+      <div class="tok" style="--tok:var(--accent);--on-tok:var(--on-accent)">M<b>4</b></div>
       <div class="who">
         <h2 class="sname">Mudge Tealeaf</h2>
         <p class="ssub">Lightfoot halfling rogue 4, Arcane trickster</p>
@@ -8455,7 +8455,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="shead attached">
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-      <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">B<b>6</b></div>
+      <div class="tok" style="--tok:var(--structural);--on-tok:var(--on-structural)">B<b>6</b></div>
       <div class="who">
         <h2 class="sname">Brenna Duskhollow</h2>
         <p class="ssub">Half-elf warlock 6, the Fiend</p>
@@ -8567,7 +8567,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="shead attached">
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-      <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">B<b>6</b></div>
+      <div class="tok" style="--tok:var(--structural);--on-tok:var(--on-structural)">B<b>6</b></div>
       <div class="who">
         <h2 class="sname">Brenna Duskhollow</h2>
         <p class="ssub">Half-elf warlock 6, the Fiend</p>
@@ -8825,7 +8825,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 <div class="desk" data-opener=".vitals">
   <div class="shead attached dplate">
     <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-    <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">B<b>6</b></div>
+    <div class="tok" style="--tok:var(--structural);--on-tok:var(--on-structural)">B<b>6</b></div>
     <div class="who">
       <h2 class="sname">Brenna Duskhollow</h2>
       <p class="ssub">Half-elf warlock 6, the Fiend</p>
@@ -8870,7 +8870,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 <div class="desk tablet portrait" data-opener=".vitals">
   <div class="shead attached dplate">
     <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-    <div class="tok" style="--tok:var(--a);--on-tok:var(--on-a)">B<b>6</b></div>
+    <div class="tok" style="--tok:var(--structural);--on-tok:var(--on-structural)">B<b>6</b></div>
     <div class="who">
       <h2 class="sname">Brenna Duskhollow</h2>
       <p class="ssub">Half-elf warlock 6, the Fiend</p>
@@ -8989,7 +8989,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="shead attached">
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-      <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+      <div class="tok" style="--tok:var(--accent);--on-tok:var(--on-accent)">M<b>4</b></div>
       <div class="who">
         <h2 class="sname">Mudge Tealeaf</h2>
         <p class="ssub">Lightfoot halfling rogue 4, Arcane trickster</p>
@@ -9051,7 +9051,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="shead attached">
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-      <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+      <div class="tok" style="--tok:var(--accent);--on-tok:var(--on-accent)">M<b>4</b></div>
       <div class="who">
         <h2 class="sname">Mudge Tealeaf</h2>
         <p class="ssub">Lightfoot halfling rogue 4, Arcane trickster</p>
@@ -9113,7 +9113,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="shead attached">
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-      <div class="tok" data-state="dead" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+      <div class="tok" data-state="dead" style="--tok:var(--accent);--on-tok:var(--on-accent)">M<b>4</b></div>
       <div class="who">
         <h2 class="sname">Mudge Tealeaf</h2>
         <p class="ssub">Lightfoot halfling rogue 4, Arcane trickster</p>
@@ -9544,7 +9544,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="shead attached">
     <div class="sheadtop">
       <button class="icnbtn" aria-label="Back to characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-      <div class="tok" style="--tok:var(--b);--on-tok:var(--on-b)">M<b>4</b></div>
+      <div class="tok" style="--tok:var(--accent);--on-tok:var(--on-accent)">M<b>4</b></div>
       <div class="who">
         <h2 class="sname">Mudge Tealeaf</h2>
         <p class="ssub">Lightfoot halfling rogue 4, Arcane trickster</p>
@@ -9798,7 +9798,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
 <script>
 (function(){
-  var BASE = {paper:'#eae6de', sheet:'#f0ece4', a:'#2560b0', b:'#e0689c', mix:'#5c3d88'};
+  var BASE = {paper:'#eae6de', card:'#f0ece4', structural:'#2560b0', accent:'#e0689c', overprint:'#5c3d88'};
 
   var FRAMES = [
     {section:'Brenna Duskhollow, warlock',
@@ -10225,30 +10225,30 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   }
   // Unchanged from the character list mockup. Five inks in, every other token out.
   function derive(p){
-    var paper = p.paper, sheet = p.sheet, a = p.a, b = p.b, mx = p.mix;
-    var ink = mix(a, '#14110e', lum(a) > 0.2 ? 0.72 : 0.35);
-    if(lum(ink) > 0.22) ink = mix(ink, '#14110e', 0.55);
-    var onA = onInk(a, paper);
+    var paper = p.paper, card = p.card, structural = p.structural, accent = p.accent, overprint = p.overprint;
+    var text = mix(structural, '#14110e', lum(structural) > 0.2 ? 0.72 : 0.35);
+    if(lum(text) > 0.22) text = mix(text, '#14110e', 0.55);
+    var onStructural = onInk(structural, paper);
     // A draft's tint is see-through and sits on paper, so text is checked
     // against the tint over paper as well as over the card colour.
-    var draftSolid = mix(sheet, b, 0.11), draftOnPaper = mix(paper, b, 0.11);
+    var draftSolid = mix(card, accent, 0.11), draftOnPaper = mix(paper, accent, 0.11);
     var chipAlpha = steps(0.16, 0, -0.02).filter(function(al){
-      return contrast(onA, mix(a, onA, al)) >= AA;
+      return contrast(onStructural, mix(structural, onStructural, al)) >= AA;
     })[0] || 0;
     return {
-      paper: paper, sheet: sheet, a: a, b: b, mix: mx, ink: ink,
-      dim: ensure(function(t){ return mix(ink, paper, t); }, steps(0.42, 0, -0.02), [paper, sheet, draftSolid, draftOnPaper]),
-      onA: onA, onB: onInk(b, paper), onMix: onInk(mx, paper),
-      bText: ensure(function(t){ return mix(b, '#1a0a08', t); }, steps(0.15, 0.9, 0.05), [sheet, draftSolid, draftOnPaper]),
+      paper: paper, card: card, structural: structural, accent: accent, overprint: overprint, text: text,
+      dim: ensure(function(t){ return mix(text, paper, t); }, steps(0.42, 0, -0.02), [paper, card, draftSolid, draftOnPaper]),
+      onStructural: onStructural, onAccent: onInk(accent, paper), onOverprint: onInk(overprint, paper),
+      accentText: ensure(function(t){ return mix(accent, '#1a0a08', t); }, steps(0.15, 0.9, 0.05), [card, draftSolid, draftOnPaper]),
       wash: rgba('#ffffff', 0.5),
-      dot: rgba(a, 0.13),
-      line: rgba(b, lum(b) > 0.6 ? 0.28 : 0.18),
-      empty: rgba(lum(b) > 0.55 ? mix(b, '#3a3010', 0.35) : b, 0.26),
-      draftBg: rgba(b, 0.11),
-      rule: rgba(a, 0.28),
-      chip: rgba(onA, chipAlpha),
-      chip2: rgba(ink, 0.08),
-      scrim: rgba(ink, 0.4)
+      dot: rgba(structural, 0.13),
+      line: rgba(accent, lum(accent) > 0.6 ? 0.28 : 0.18),
+      track: rgba(lum(accent) > 0.55 ? mix(accent, '#3a3010', 0.35) : accent, 0.26),
+      draftFill: rgba(accent, 0.11),
+      rule: rgba(structural, 0.28),
+      chipOnPlate: rgba(onStructural, chipAlpha),
+      chipOnPaper: rgba(text, 0.08),
+      scrim: rgba(text, 0.4)
     };
   }
 
@@ -10501,34 +10501,34 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   }, {passive: true});
 
   var lives = document.querySelectorAll('.live');
-  var picks = {paper:BASE.paper, sheet:BASE.sheet, a:BASE.a, b:BASE.b, mix:BASE.mix};
+  var picks = {paper:BASE.paper, card:BASE.card, structural:BASE.structural, accent:BASE.accent, overprint:BASE.overprint};
 
   function apply(t){
     lives.forEach(function(el){
       el.style.setProperty('--paper', t.paper);
-      el.style.setProperty('--sheet', t.sheet);
-      el.style.setProperty('--a', t.a);
-      el.style.setProperty('--b', t.b);
-      el.style.setProperty('--mix', t.mix);
-      el.style.setProperty('--ink', t.ink);
+      el.style.setProperty('--card', t.card);
+      el.style.setProperty('--structural', t.structural);
+      el.style.setProperty('--accent', t.accent);
+      el.style.setProperty('--overprint', t.overprint);
+      el.style.setProperty('--text', t.text);
       el.style.setProperty('--dim', t.dim);
-      el.style.setProperty('--on-a', t.onA);
-      el.style.setProperty('--on-b', t.onB);
-      el.style.setProperty('--on-mix', t.onMix);
-      el.style.setProperty('--b-text', t.bText);
+      el.style.setProperty('--on-structural', t.onStructural);
+      el.style.setProperty('--on-accent', t.onAccent);
+      el.style.setProperty('--on-overprint', t.onOverprint);
+      el.style.setProperty('--accent-text', t.accentText);
       el.style.setProperty('--dot', t.dot);
       el.style.setProperty('--line', t.line);
-      el.style.setProperty('--empty', t.empty);
-      el.style.setProperty('--draft-bg', t.draftBg);
+      el.style.setProperty('--track', t.track);
+      el.style.setProperty('--draft-fill', t.draftFill);
       el.style.setProperty('--rule', t.rule);
-      el.style.setProperty('--chip', t.chip);
-      el.style.setProperty('--chip2', t.chip2);
+      el.style.setProperty('--chip-on-plate', t.chipOnPlate);
+      el.style.setProperty('--chip-on-paper', t.chipOnPaper);
       el.style.setProperty('--scrim', t.scrim);
       el.style.setProperty('--wash', t.wash);
     });
   }
   function syncPickers(){
-    ['paper','sheet','a','b','mix'].forEach(function(key){
+    ['paper','card','structural','accent','overprint'].forEach(function(key){
       var hex = picks[key];
       var color = document.querySelector('input[data-key="'+key+'"]');
       var text = document.querySelector('input[data-hex="'+key+'"]');
@@ -10539,12 +10539,12 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     });
     document.getElementById('mixer-now').innerHTML =
       '<span class="mixer-now-inks">'+
-      '<i style="background:'+picks.a+'"></i>'+
-      '<i style="background:'+picks.b+'"></i>'+
-      '<i style="background:'+picks.mix+'"></i>'+
+      '<i style="background:'+picks.structural+'"></i>'+
+      '<i style="background:'+picks.accent+'"></i>'+
+      '<i style="background:'+picks.overprint+'"></i>'+
       '<i style="background:'+picks.paper+'"></i></span><b>Dusk blue / dusty rose</b>';
     document.getElementById('hexline').textContent =
-      'paper '+picks.paper+'   cards '+picks.sheet+'   structural '+picks.a+'   accent '+picks.b+'   overprint '+picks.mix;
+      'paper '+picks.paper+'   cards '+picks.card+'   structural '+picks.structural+'   accent '+picks.accent+'   overprint '+picks.overprint;
   }
   function paint(){ apply(derive(picks)); syncPickers(); paintTokPicks(); }
 
@@ -10572,7 +10572,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     input.addEventListener('keydown', function(e){ if(e.key === 'Enter') input.blur(); });
   });
   document.getElementById('reset').addEventListener('click', function(){
-    picks = {paper:BASE.paper, sheet:BASE.sheet, a:BASE.a, b:BASE.b, mix:BASE.mix};
+    picks = {paper:BASE.paper, card:BASE.card, structural:BASE.structural, accent:BASE.accent, overprint:BASE.overprint};
     paint();
   });
 

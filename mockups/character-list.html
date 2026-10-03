@@ -106,18 +106,18 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .hp{margin:5px 0 0;font-size:12px;font-weight:600}
 .badgelab{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;line-height:1}
 .tray{padding-bottom:16px;margin-bottom:2px}
-.trayhead{margin:0 0 9px;font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.trayhead{margin:0 0 9px;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
 .draft .sub{margin-bottom:0}
 .draft{display:grid;grid-template-columns:56px 1fr auto;gap:13px;align-items:center;padding:11px 12px}
 .resume{padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
 .newwrap{position:sticky;bottom:0;padding:14px 12px 18px;margin-top:8px}
 .newbtn{width:100%;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
-/* The band, the bar and the list share one measure, so nothing is aligned by arithmetic. */
+/* The plate, the toolbar and the list share one measure, so nothing is aligned by arithmetic. */
 .d{overflow:auto}
-.dtop-inner,.dbar-inner,.dbody{width:min(1020px,calc(100% - 48px));margin:0 auto}
-.d .dtop{flex-shrink:0;padding:26px 0 24px}
-.dbar{position:sticky;top:0;z-index:5;padding:14px 0 18px}
-.dbar-inner{display:flex;align-items:center;gap:16px}
+.wide-plate-inner,.toolbar-inner,.dbody{width:min(1020px,calc(100% - 48px));margin:0 auto}
+.d .wide-plate{flex-shrink:0;padding:26px 0 24px}
+.toolbar{position:sticky;top:0;z-index:5;padding:14px 0 18px}
+.toolbar-inner{display:flex;align-items:center;gap:16px}
 .dbody{padding:24px 0 44px;display:flex;flex-direction:column;gap:16px}
 .d .title{font-size:30px}
 .d .find{margin:0;flex:1;max-width:520px}
@@ -133,7 +133,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .lvl{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center}
 .lvl b{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1}
 .d .lvl .badgelab{font-size:13px}
-/* Tablet uses the desktop band and bar. Portrait is one column of the
+/* Tablet uses the desktop plate and toolbar. Portrait is one column of the
    phone card. Landscape sets those cards in two columns. */
 .tablet .row{grid-template-columns:64px minmax(0,1fr);column-gap:16px;padding:14px 18px}
 .tablet:not(.land) .dbody{padding-bottom:28px}
@@ -159,82 +159,82 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .vitals-hp .hp:first-child{margin-top:0}
 .tray.alone{padding-bottom:0}
-.slate{padding:18px 18px 20px}
+.empty-card{padding:18px 18px 20px}
 .notice{display:flex;gap:11px;align-items:flex-start;padding:16px 16px 18px 14px}
 .notice > svg{width:18px;height:18px;flex:none;margin-top:2px}
 .notice .badgelab{display:block;margin:3px 0 8px}
-:is(.slate,.notice) h3{margin:0 0 5px;font-size:16.5px;font-weight:700;letter-spacing:-.02em;line-height:1.25}
-:is(.slate,.notice) p{margin:0;font-size:13px;line-height:1.5}
+:is(.empty-card,.notice) h3{margin:0 0 5px;font-size:16.5px;font-weight:700;letter-spacing:-.02em;line-height:1.25}
+:is(.empty-card,.notice) p{margin:0;font-size:13px;line-height:1.5}
 .notice b{font-weight:700}
 .retry{margin-top:14px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
-.d :is(.slate,.notice){padding:22px 24px 24px}
+.d :is(.empty-card,.notice){padding:22px 24px 24px}
 .d .notice{gap:13px;padding-left:20px}
 .d .notice > svg{width:20px;height:20px;margin-top:3px}
-.d :is(.slate,.notice) h3{font-size:19px}
-.d :is(.slate,.notice) p{font-size:14px;max-width:64ch}
+.d :is(.empty-card,.notice) h3{font-size:19px}
+.d :is(.empty-card,.notice) p{font-size:14px;max-width:64ch}
 
-.riso{--full:var(--a);--low:var(--b);
-  font-family:"Space Grotesk",system-ui,sans-serif;color:var(--ink);
+.riso{--full:var(--structural);--low:var(--accent);
+  font-family:"Space Grotesk",system-ui,sans-serif;color:var(--text);
   background:
     radial-gradient(var(--dot) 1.1px,transparent 1.1px) 0 0/9px 9px,
     linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 27px,
     linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/27px 100%,
     var(--paper)}
-.riso .top{background:var(--a);color:var(--on-a);padding-bottom:16px;box-shadow:5px 5px 0 var(--b)}
+.riso .top{background:var(--structural);color:var(--on-structural);padding-bottom:16px;box-shadow:5px 5px 0 var(--accent)}
 .riso .title{font-weight:700;letter-spacing:-.03em}
-.riso .find label{background:var(--sheet);color:var(--dim);border:2px solid var(--a);box-shadow:4px 4px 0 var(--b)}
-.riso .find input{color:var(--ink)}
+.riso .find label{background:var(--card);color:var(--dim);border:2px solid var(--structural);box-shadow:4px 4px 0 var(--accent)}
+.riso .find input{color:var(--text)}
 .riso .find input::placeholder{color:var(--dim)}
-.riso .sortbtn{background:var(--sheet);color:var(--a);border:2px solid var(--a);font-weight:700;
-  box-shadow:4px 4px 0 var(--b)}
-.riso .row,.riso .drow,.riso .draft{background:var(--sheet);border:2px solid var(--a);box-shadow:5px 5px 0 var(--b)}
-.riso .tok{border-radius:50%;font-weight:700;color:var(--on-a);background:var(--a);box-shadow:4px 4px 0 var(--b)}
-.riso .lvl b{color:var(--a)}
+.riso .sortbtn{background:var(--card);color:var(--structural);border:2px solid var(--structural);font-weight:700;
+  box-shadow:4px 4px 0 var(--accent)}
+.riso .row,.riso .drow,.riso .draft{background:var(--card);border:2px solid var(--structural);box-shadow:5px 5px 0 var(--accent)}
+.riso .tok{border-radius:50%;font-weight:700;color:var(--on-structural);background:var(--structural);box-shadow:4px 4px 0 var(--accent)}
+.riso .lvl b{color:var(--structural)}
 .riso .name{font-weight:700;letter-spacing:-.02em}
 .riso .sub{color:var(--dim)}
 .riso .meter{gap:2px}
 .riso .meter i{height:13px;background:var(--full)}
-.riso .meter i[data-e]{background:var(--empty)}
+.riso .meter i[data-e]{background:var(--track)}
 .riso .meter[data-hurt] i{background:var(--low)}
-.riso .meter[data-hurt] i[data-e]{background:var(--empty)}
+.riso .meter[data-hurt] i[data-e]{background:var(--track)}
 .riso .hp{color:var(--dim);font-weight:500}
-.riso .hp b{color:var(--a);font-weight:700}
-.riso :is(.row,.drow):has(.meter[data-hurt]) .hp b{color:var(--b-text)}
+.riso .hp b{color:var(--structural);font-weight:700}
+.riso :is(.row,.drow):has(.meter[data-hurt]) .hp b{color:var(--accent-text)}
 .riso .badgelab{color:var(--dim)}
-.riso .tray{border-bottom:2px dashed var(--b)}
+.riso .tray{border-bottom:2px dashed var(--accent)}
 .riso .trayhead{color:var(--dim)}
-.riso .draft{border-style:dashed;box-shadow:none;background:var(--draft-bg)}
-.riso .draft .tok{background:var(--sheet);color:var(--a);box-shadow:4px 4px 0 var(--rule),inset 0 0 0 2px var(--a)}
-.riso .resume{background:var(--sheet);color:var(--a);border:2px solid var(--a);box-shadow:3px 3px 0 var(--b)}
-.riso .newbtn{background:var(--b);color:var(--on-b);border:0;box-shadow:5px 5px 0 var(--a)}
+.riso .draft{border-style:dashed;box-shadow:none;background:var(--draft-fill)}
+.riso .draft .tok{background:var(--card);color:var(--structural);box-shadow:4px 4px 0 var(--rule),inset 0 0 0 2px var(--structural)}
+.riso .resume{background:var(--card);color:var(--structural);border:2px solid var(--structural);box-shadow:3px 3px 0 var(--accent)}
+.riso .newbtn{background:var(--accent);color:var(--on-accent);border:0;box-shadow:5px 5px 0 var(--structural)}
 .riso .newwrap{background:linear-gradient(180deg,transparent,var(--paper) 45%);padding-bottom:24px}
-.riso .d .dtop{background:var(--a);color:var(--on-a);box-shadow:0 5px 0 var(--b);margin-bottom:5px}
-.riso .dbar{background:var(--paper);border-bottom:2px solid var(--a)}
-.riso .go{background:var(--sheet);border:2px solid var(--a);color:var(--a);box-shadow:3px 3px 0 var(--b)}
+.riso .d .wide-plate{background:var(--structural);color:var(--on-structural);box-shadow:0 5px 0 var(--accent);margin-bottom:5px}
+.riso .toolbar{background:var(--paper);border-bottom:2px solid var(--structural)}
+.riso .go{background:var(--card);border:2px solid var(--structural);color:var(--structural);box-shadow:3px 3px 0 var(--accent)}
 .riso .quiet{color:var(--dim)}
 .riso .lvl b[data-unset]{color:var(--dim)}
-.riso .spinner circle{stroke:var(--empty)}
-.riso .spinner path{stroke:var(--a)}
+.riso .spinner circle{stroke:var(--track)}
+.riso .spinner path{stroke:var(--structural)}
 .riso .tray.alone{border-bottom:0}
-/* A dashed slate is a card not printed yet. An error is a warning strip, larger. */
-.riso .slate{background:var(--sheet);border:2px dashed var(--a)}
-.riso .notice{background:var(--sheet);border-left:4px solid var(--b-text)}
-.riso .notice > svg{color:var(--b-text)}
-.riso :is(.slate,.notice) p{color:var(--dim)}
-.riso .notice b{color:var(--ink)}
-.riso .notice.dev{border:2px dashed var(--a);border-left:4px solid var(--b-text)}
-.riso .retry{background:var(--sheet);color:var(--a);border:2px solid var(--a);box-shadow:3px 3px 0 var(--b)}
+/* A dashed empty card is a card not printed yet. An error is a warning strip, larger. */
+.riso .empty-card{background:var(--card);border:2px dashed var(--structural)}
+.riso .notice{background:var(--card);border-left:4px solid var(--accent-text)}
+.riso .notice > svg{color:var(--accent-text)}
+.riso :is(.empty-card,.notice) p{color:var(--dim)}
+.riso .notice b{color:var(--text)}
+.riso .notice.dev{border:2px dashed var(--structural);border-left:4px solid var(--accent-text)}
+.riso .retry{background:var(--card);color:var(--structural);border:2px solid var(--structural);box-shadow:3px 3px 0 var(--accent)}
 
 /* ---- interaction states ---- */
-.riso :focus-visible{outline:2px solid var(--a);outline-offset:3px}
-.riso .top :focus-visible,.riso .dtop :focus-visible{outline-color:var(--on-a)}
-.riso .find label:focus-within{outline:2px solid var(--on-a);outline-offset:3px}
-.riso .dbar .find label:focus-within{outline-color:var(--a)}
+.riso :focus-visible{outline:2px solid var(--structural);outline-offset:3px}
+.riso .top :focus-visible,.riso .wide-plate :focus-visible{outline-color:var(--on-structural)}
+.riso .find label:focus-within{outline:2px solid var(--on-structural);outline-offset:3px}
+.riso .toolbar .find label:focus-within{outline-color:var(--structural)}
 .riso .find input:focus-visible{outline:none}
 .riso .row:active,.riso .newbtn:active{transform:translate(5px,5px);box-shadow:none}
 .riso :is(.go,.resume,.retry):active{transform:translate(3px,3px);box-shadow:none}
 .riso .sortbtn:active{transform:translate(4px,4px);box-shadow:none}
-.riso .go[aria-pressed=true]{background:var(--a);color:var(--on-a)}
+.riso .go[aria-pressed=true]{background:var(--structural);color:var(--on-structural)}
 .riso :is(.newbtn,.resume,.retry,.go,.sortbtn):is(:disabled,[aria-disabled=true]){background:transparent;color:var(--dim);
   box-shadow:inset 0 0 0 2px var(--rule);transform:none;cursor:not-allowed}
 .riso .go:is(:disabled,[aria-disabled=true]){border-color:var(--rule);box-shadow:none}
@@ -244,7 +244,7 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .rowlink{color:inherit;text-decoration:none}
 .rowlink::after{content:"";position:absolute;inset:0}
 .riso .rowlink:focus-visible{outline:none}
-.riso .row:has(.rowlink:focus-visible){outline:2px solid var(--a);outline-offset:3px}
+.riso .row:has(.rowlink:focus-visible){outline:2px solid var(--structural);outline-offset:3px}
 a.go{display:inline-block;text-decoration:none;text-align:center}
 
 /* ---- hit areas: every control answers taps across at least 44 by 44 ---- */
@@ -277,10 +277,10 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
       <h2>Drums</h2>
       <div class="drums">
         <label class="drum"><span>Paper</span><span class="swatch" data-swatch="paper"><input type="color" data-key="paper"></span><input type="text" data-hex="paper" spellcheck="false" maxlength="7" aria-label="Paper hex"></label>
-        <label class="drum"><span>Cards</span><span class="swatch" data-swatch="sheet"><input type="color" data-key="sheet"></span><input type="text" data-hex="sheet" spellcheck="false" maxlength="7" aria-label="Cards hex"></label>
-        <label class="drum"><span>Structural</span><span class="swatch" data-swatch="a"><input type="color" data-key="a"></span><input type="text" data-hex="a" spellcheck="false" maxlength="7" aria-label="Structural hex"></label>
-        <label class="drum"><span>Accent</span><span class="swatch" data-swatch="b"><input type="color" data-key="b"></span><input type="text" data-hex="b" spellcheck="false" maxlength="7" aria-label="Accent hex"></label>
-        <label class="drum"><span>Overprint</span><span class="swatch" data-swatch="mix"><input type="color" data-key="mix"></span><input type="text" data-hex="mix" spellcheck="false" maxlength="7" aria-label="Overprint hex"></label>
+        <label class="drum"><span>Cards</span><span class="swatch" data-swatch="card"><input type="color" data-key="card"></span><input type="text" data-hex="card" spellcheck="false" maxlength="7" aria-label="Cards hex"></label>
+        <label class="drum"><span>Structural</span><span class="swatch" data-swatch="structural"><input type="color" data-key="structural"></span><input type="text" data-hex="structural" spellcheck="false" maxlength="7" aria-label="Structural hex"></label>
+        <label class="drum"><span>Accent</span><span class="swatch" data-swatch="accent"><input type="color" data-key="accent"></span><input type="text" data-hex="accent" spellcheck="false" maxlength="7" aria-label="Accent hex"></label>
+        <label class="drum"><span>Overprint</span><span class="swatch" data-swatch="overprint"><input type="color" data-key="overprint"></span><input type="text" data-hex="overprint" spellcheck="false" maxlength="7" aria-label="Overprint hex"></label>
       </div>
       <p class="note" id="note"></p>
       <p class="hexline" id="hexline"></p>
@@ -315,17 +315,17 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   <div class="newwrap"><button class="newbtn">Create character</button></div>
 </template>
 
-<template id="tpl-part-band">
-  <div class="dtop">
-    <div class="dtop-inner">
+<template id="tpl-part-wide-plate">
+  <div class="wide-plate">
+    <div class="wide-plate-inner">
       <h2 class="title">Characters</h2>
     </div>
   </div>
 </template>
 
-<template id="tpl-part-bar">
-  <div class="dbar">
-    <div class="dbar-inner">
+<template id="tpl-part-toolbar">
+  <div class="toolbar">
+    <div class="toolbar-inner">
       <div data-part="find"></div>
       <button class="newbtn dnew">Create character</button>
     </div>
@@ -508,9 +508,9 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   </div>
 </template>
 
-<template id="tpl-part-bar-create">
-  <div class="dbar">
-    <div class="dbar-inner">
+<template id="tpl-part-toolbar-create">
+  <div class="toolbar">
+    <div class="toolbar-inner">
       <button class="newbtn dnew">Create character</button>
     </div>
   </div>
@@ -600,15 +600,15 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   </div>
 </template>
 
-<template id="tpl-part-slate-empty">
-  <div class="slate">
+<template id="tpl-part-empty-card">
+  <div class="empty-card">
     <h3>No characters yet</h3>
     <p>Create character walks you through class, race, background, and ability scores, one step at a time.</p>
   </div>
 </template>
 
-<template id="tpl-part-slate-zephyr">
-  <div class="slate">
+<template id="tpl-part-empty-card-zephyr">
+  <div class="empty-card">
     <h3>No characters match &ldquo;Zephyr&rdquo;</h3>
     <p>Search only looks at names. Check the spelling, or clear the search to see all your characters.</p>
   </div>
@@ -791,8 +791,8 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 
 <template id="tpl-d-list">
   <div class="mat d">
-    <div data-part="band"></div>
-    <div data-part="bar"></div>
+    <div data-part="wide-plate"></div>
+    <div data-part="toolbar"></div>
     <div class="dbody">
       <div data-part="tray-wide"></div>
       <div data-part="drows"></div>
@@ -802,8 +802,8 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 
 <template id="tpl-t-list-portrait" data-size="820x1180">
   <div class="mat d tablet">
-    <div data-part="band"></div>
-    <div data-part="bar"></div>
+    <div data-part="wide-plate"></div>
+    <div data-part="toolbar"></div>
     <div class="dbody">
       <div data-part="tray-wide"></div>
       <div data-part="cards"></div>
@@ -813,8 +813,8 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 
 <template id="tpl-t-list-landscape" data-size="1180x820">
   <div class="mat d tablet land">
-    <div data-part="band"></div>
-    <div data-part="bar"></div>
+    <div data-part="wide-plate"></div>
+    <div data-part="toolbar"></div>
     <div class="dbody">
       <div data-part="tray-wide"></div>
       <div data-part="cards"></div>
@@ -840,8 +840,8 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 
 <template id="tpl-d-loading">
   <div class="mat d">
-    <div data-part="band"></div>
-    <div data-part="bar"></div>
+    <div data-part="wide-plate"></div>
+    <div data-part="toolbar"></div>
     <div class="dbody fill">
       <div class="loading">
         <svg class="spinner" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15"/><path d="M18 3a15 15 0 0 1 15 15"/></svg>
@@ -867,9 +867,9 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 
 <template id="tpl-d-searching">
   <div class="mat d">
-    <div data-part="band"></div>
-    <div class="dbar">
-      <div class="dbar-inner">
+    <div data-part="wide-plate"></div>
+    <div class="toolbar">
+      <div class="toolbar-inner">
         <div data-part="find-ves"></div>
         <button class="newbtn dnew">Create character</button>
       </div>
@@ -888,7 +888,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   <div class="mat">
     <div data-part="plate-bare"></div>
     <div class="rows">
-      <div data-part="slate-empty"></div>
+      <div data-part="empty-card"></div>
     </div>
     <div data-part="newwrap"></div>
   </div>
@@ -896,10 +896,10 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 
 <template id="tpl-d-empty">
   <div class="mat d">
-    <div data-part="band"></div>
-    <div data-part="bar-create"></div>
+    <div data-part="wide-plate"></div>
+    <div data-part="toolbar-create"></div>
     <div class="dbody">
-      <div data-part="slate-empty"></div>
+      <div data-part="empty-card"></div>
     </div>
   </div>
 </template>
@@ -919,8 +919,8 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 
 <template id="tpl-d-draft-only">
   <div class="mat d">
-    <div data-part="band"></div>
-    <div data-part="bar-create"></div>
+    <div data-part="wide-plate"></div>
+    <div data-part="toolbar-create"></div>
     <div class="dbody">
       <div class="tray alone">
         <h3 class="trayhead">Waiting to be finished</h3>
@@ -938,7 +938,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     </div>
     <div class="rows">
       <div data-part="tray"></div>
-      <div data-part="slate-zephyr"></div>
+      <div data-part="empty-card-zephyr"></div>
     </div>
     <div data-part="newwrap"></div>
   </div>
@@ -946,16 +946,16 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 
 <template id="tpl-d-no-results">
   <div class="mat d">
-    <div data-part="band"></div>
-    <div class="dbar">
-      <div class="dbar-inner">
+    <div data-part="wide-plate"></div>
+    <div class="toolbar">
+      <div class="toolbar-inner">
         <div data-part="find-zephyr"></div>
         <button class="newbtn dnew">Create character</button>
       </div>
     </div>
     <div class="dbody">
       <div data-part="tray-wide"></div>
-      <div data-part="slate-zephyr"></div>
+      <div data-part="empty-card-zephyr"></div>
     </div>
   </div>
 </template>
@@ -974,7 +974,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 
 <template id="tpl-d-signed-out">
   <div class="mat d">
-    <div data-part="band"></div>
+    <div data-part="wide-plate"></div>
     <div class="dbody">
       <div data-part="notice-signed-out"></div>
     </div>
@@ -993,8 +993,8 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 
 <template id="tpl-d-failed">
   <div class="mat d">
-    <div data-part="band"></div>
-    <div data-part="bar"></div>
+    <div data-part="wide-plate"></div>
+    <div data-part="toolbar"></div>
     <div class="dbody">
       <div data-part="notice-failed"></div>
     </div>
@@ -1017,8 +1017,8 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 
 <template id="tpl-d-creation-drafts">
   <div class="mat d">
-    <div data-part="band"></div>
-    <div data-part="bar"></div>
+    <div data-part="wide-plate"></div>
+    <div data-part="toolbar"></div>
     <div class="dbody">
       <div data-part="tray-creation-wide"></div>
       <div data-part="drows"></div>
@@ -1040,8 +1040,8 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 
 <template id="tpl-d-long">
   <div class="mat d">
-    <div data-part="band"></div>
-    <div data-part="bar"></div>
+    <div data-part="wide-plate"></div>
+    <div data-part="toolbar"></div>
     <div class="dbody">
       <div data-part="tray-wide"></div>
       <div data-part="drow-long"></div>
@@ -1052,8 +1052,8 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 
 <template id="tpl-t-long" data-size="1180x820">
   <div class="mat d tablet land">
-    <div data-part="band"></div>
-    <div data-part="bar"></div>
+    <div data-part="wide-plate"></div>
+    <div data-part="toolbar"></div>
     <div class="dbody">
       <div data-part="tray-wide"></div>
       <div data-part="card-long"></div>
@@ -1077,8 +1077,8 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 
 <template id="tpl-d-incomplete">
   <div class="mat d">
-    <div data-part="band"></div>
-    <div data-part="bar"></div>
+    <div data-part="wide-plate"></div>
+    <div data-part="toolbar"></div>
     <div class="dbody">
       <div data-part="drows-incomplete"></div>
     </div>
@@ -1089,7 +1089,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 (function(){
   var PRESETS = [
     {id:'p0s', name:'Dusk blue / dusty rose', note:'Darker, greyer blue on the plate, a rose that is not fluorescent, duskier paper so the inks have somewhere to sit. The reset button puts this pairing back if you have been turning the drums.',
-      paper:'#eae6de', sheet:'#f0ece4', a:'#2560b0', b:'#e0689c', mix:'#5c3d88'}
+      paper:'#eae6de', card:'#f0ece4', structural:'#2560b0', accent:'#e0689c', overprint:'#5c3d88'}
   ];
 
   function hexToRgb(hex){
@@ -1153,23 +1153,23 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     return null;
   }
   function derive(p){
-    var paper = p.paper, sheet = p.sheet, a = p.a, b = p.b, mx = p.mix;
-    var ink = mix(a, '#14110e', lum(a) > 0.2 ? 0.72 : 0.35);
-    if(lum(ink) > 0.22) ink = mix(ink, '#14110e', 0.55);
-    var onA = onInk(a, paper);
+    var paper = p.paper, card = p.card, structural = p.structural, accent = p.accent, overprint = p.overprint;
+    var text = mix(structural, '#14110e', lum(structural) > 0.2 ? 0.72 : 0.35);
+    if(lum(text) > 0.22) text = mix(text, '#14110e', 0.55);
+    var onStructural = onInk(structural, paper);
     // A draft's tint is see-through and sits on paper, so text is checked
     // against the tint over paper as well as over the card colour.
-    var draftSolid = mix(sheet, b, 0.11), draftOnPaper = mix(paper, b, 0.11);
+    var draftSolid = mix(card, accent, 0.11), draftOnPaper = mix(paper, accent, 0.11);
     return {
-      paper: paper, sheet: sheet, a: a, b: b, mix: mx, ink: ink,
-      dim: ensure(function(t){ return mix(ink, paper, t); }, steps(0.42, 0, -0.02), [paper, sheet, draftSolid, draftOnPaper]),
-      onA: onA, onB: onInk(b, paper), onMix: onInk(mx, paper),
-      bText: ensure(function(t){ return mix(b, '#1a0a08', t); }, steps(0.15, 0.9, 0.05), [sheet, draftSolid, draftOnPaper]),
-      dot: rgba(a, 0.10),
-      line: rgba(b, lum(b) > 0.6 ? 0.16 : 0.10),
-      empty: rgba(lum(b) > 0.55 ? mix(b, '#3a3010', 0.35) : b, 0.26),
-      draftBg: rgba(b, 0.11),
-      rule: rgba(a, 0.28)
+      paper: paper, card: card, structural: structural, accent: accent, overprint: overprint, text: text,
+      dim: ensure(function(t){ return mix(text, paper, t); }, steps(0.42, 0, -0.02), [paper, card, draftSolid, draftOnPaper]),
+      onStructural: onStructural, onAccent: onInk(accent, paper), onOverprint: onInk(overprint, paper),
+      accentText: ensure(function(t){ return mix(accent, '#1a0a08', t); }, steps(0.15, 0.9, 0.05), [card, draftSolid, draftOnPaper]),
+      dot: rgba(structural, 0.10),
+      line: rgba(accent, lum(accent) > 0.6 ? 0.16 : 0.10),
+      track: rgba(lum(accent) > 0.55 ? mix(accent, '#3a3010', 0.35) : accent, 0.26),
+      draftFill: rgba(accent, 0.11),
+      rule: rgba(structural, 0.28)
     };
   }
 
@@ -1179,9 +1179,9 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     {id:'list', label:'Characters and a level-up draft',
      note:'The draft tray sits above the list, with a dashed rule under it. Each card is one control: tapping anywhere on it opens the sheet. Create character sticks to the foot of the screen over a fade.'},
     {id:'d-list', desktop:true, label:'Rows with named Open sheet links',
-     note:'The plate holds only the title. Search, sort and Create sit in a bar that sticks under it, and the band, the bar and the list share one 1020 measure. Rows have columns of 74, 1fr, 84, 240 and 128.'},
+     note:'The plate holds only the title. Search, sort and Create sit in a toolbar that sticks under it, and the plate, the toolbar and the list share one 1020 measure. Rows have columns of 74, 1fr, 84, 240 and 128.'},
     {id:'t-list-portrait', tablet:true, label:'Portrait, 820 by 1180',
-     note:'The desktop band and bar over one column of phone cards.'},
+     note:'The desktop plate and toolbar over one column of phone cards.'},
     {id:'t-list-landscape', tablet:true, label:'Landscape, 1180 by 820',
      note:'The same cards in two columns. The tray spans both.'},
 
@@ -1190,33 +1190,33 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     {id:'loading', label:'First load',
      note:'The plate, search, sort and Create are in place before any data arrives. A spinner sits in the middle of the space the list will fill, with a quiet line in dim under it. The spinner is a structural arc turning on a rose-tint track, once every 0.9 seconds, drawn with react-native-svg rather than the platform&rsquo;s ActivityIndicator. It is a new exception to the design system&rsquo;s motion rules, and with reduced motion it holds still. The tray arrives with the list, because both come from one request.'},
     {id:'d-loading', desktop:true, label:'First load',
-     note:'The same, a size up, centred under the bar.'},
+     note:'The same, a size up, centred under the toolbar.'},
     {id:'searching', label:'Searching',
      note:'The player has typed &ldquo;Ves&rdquo;. After the 250 ms debounce the request goes out and the previous results stay put. A 16 point version of the first-load spinner turns at the right of the field until the response lands, where the eye already is, so nothing below it shifts. It is a polite live region that reads &ldquo;Searching&hellip;&rdquo; to screen readers. On a fast connection it may never show, which is fine. Drafts ignore the search, so the tray stays.'},
     {id:'d-searching', desktop:true, label:'Searching',
      note:'The same spinner, at the same size, at the right of the wider field.'},
 
     {section:'Nothing to show',
-     text:'An empty list is a dashed slate, the system&rsquo;s mark for something not real yet. Search and sort only show when there are characters to find, so they drop out when the player has none.'},
+     text:'An empty list is a dashed empty card, the system&rsquo;s mark for something not real yet. Search and sort only show when there are characters to find, so they drop out when the player has none.'},
     {id:'empty', label:'No characters yet',
-     note:'No characters and no drafts. The plate holds only the title. The slate names Create character, which is already on screen: at the foot on phone, in the bar on desktop.'},
+     note:'No characters and no drafts. The plate holds only the title. The empty card names Create character, which is already on screen: at the foot on phone, in the toolbar on desktop.'},
     {id:'d-empty', desktop:true, label:'No characters yet',
-     note:'The bar keeps Create character at its right-hand end and loses search and sort.'},
+     note:'The toolbar keeps Create character at its right-hand end and loses search and sort.'},
     {id:'draft-only', label:'No characters, one creation draft',
-     note:'The tray alone. With no list under it, the dashed rule goes too. There is no slate, because Resume is the next step and it is already there.'},
+     note:'The tray alone. With no list under it, the dashed rule goes too. There is no empty card, because Resume is the next step and it is already there.'},
     {id:'d-draft-only', desktop:true, label:'No characters, one creation draft',
      note:'The same on desktop: title, Create, and the tray.'},
     {id:'no-results', label:'No search results',
-     note:'Nothing matches &ldquo;Zephyr&rdquo;. The slate quotes the search as typed and says search only looks at names, because a player who types &ldquo;dwarf&rdquo; would otherwise think something broke. The tray still shows, because drafts ignore the search.'},
+     note:'Nothing matches &ldquo;Zephyr&rdquo;. The empty card quotes the search as typed and says search only looks at names, because a player who types &ldquo;dwarf&rdquo; would otherwise think something broke. The tray still shows, because drafts ignore the search.'},
     {id:'d-no-results', desktop:true, label:'No search results',
-     note:'The slate takes the list&rsquo;s place under the tray.'},
+     note:'The empty card takes the list&rsquo;s place under the tray.'},
 
     {section:'Errors',
      text:'Errors borrow the warning strip at a larger size: the card colour, a solid rose edge, an outline icon and a bold lead. An error replaces the list, whether it happened on first load or during a search.'},
     {id:'signed-out', label:'Not signed in (temporary developer copy)',
      note:'The API returned 401. There is no login screen yet, so this copy is for developers and goes when sign-in arrives. It says so three ways: the Development only label, the dashed border that means not real yet, and copy that names an environment variable. Search, sort and Create are gone, because nothing on this screen works without a token. No Try again, because retrying cannot help until the token changes.'},
     {id:'d-signed-out', desktop:true, label:'Not signed in (temporary developer copy)',
-     note:'With nothing to search or create, the bar goes too.'},
+     note:'With nothing to search or create, the toolbar goes too.'},
     {id:'failed', label:'Couldn&rsquo;t load',
      note:'A network error or a 500. The header stays, so a player can retry a search or create a character. Try again repeats the same request; while it runs, the first-load spinner takes the notice&rsquo;s place. It is the one button on the list that does something in this plan, because it stays on this screen.'},
     {id:'d-failed', desktop:true, label:'Couldn&rsquo;t load',
@@ -1328,32 +1328,32 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   });
 
   var lives = document.querySelectorAll('.live');
-  var picks = {paper:'', sheet:'', a:'', b:'', mix:''};
+  var picks = {paper:'', card:'', structural:'', accent:'', overprint:''};
   var activeId = PRESETS[0].id;
   var custom = false;
 
   function apply(t){
     lives.forEach(function(el){
       el.style.setProperty('--paper', t.paper);
-      el.style.setProperty('--sheet', t.sheet);
-      el.style.setProperty('--a', t.a);
-      el.style.setProperty('--b', t.b);
-      el.style.setProperty('--mix', t.mix);
-      el.style.setProperty('--ink', t.ink);
+      el.style.setProperty('--card', t.card);
+      el.style.setProperty('--structural', t.structural);
+      el.style.setProperty('--accent', t.accent);
+      el.style.setProperty('--overprint', t.overprint);
+      el.style.setProperty('--text', t.text);
       el.style.setProperty('--dim', t.dim);
-      el.style.setProperty('--on-a', t.onA);
-      el.style.setProperty('--on-b', t.onB);
-      el.style.setProperty('--on-mix', t.onMix);
-      el.style.setProperty('--b-text', t.bText);
+      el.style.setProperty('--on-structural', t.onStructural);
+      el.style.setProperty('--on-accent', t.onAccent);
+      el.style.setProperty('--on-overprint', t.onOverprint);
+      el.style.setProperty('--accent-text', t.accentText);
       el.style.setProperty('--dot', t.dot);
       el.style.setProperty('--line', t.line);
-      el.style.setProperty('--empty', t.empty);
-      el.style.setProperty('--draft-bg', t.draftBg);
+      el.style.setProperty('--track', t.track);
+      el.style.setProperty('--draft-fill', t.draftFill);
       el.style.setProperty('--rule', t.rule);
     });
   }
   function syncPickers(){
-    ['paper','sheet','a','b','mix'].forEach(function(key){
+    ['paper','card','structural','accent','overprint'].forEach(function(key){
       var hex = picks[key];
       var color = document.querySelector('input[data-key="'+key+'"]');
       var text = document.querySelector('input[data-hex="'+key+'"]');
@@ -1368,12 +1368,12 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     var title = custom ? (preset.name + ', then tuned') : preset.name;
     document.getElementById('note').innerHTML = '<b>'+title+'.</b> '+preset.note;
     document.getElementById('hexline').textContent =
-      'paper '+picks.paper+'   cards '+picks.sheet+'   structural '+picks.a+'   accent '+picks.b+'   overprint '+picks.mix;
+      'paper '+picks.paper+'   cards '+picks.card+'   structural '+picks.structural+'   accent '+picks.accent+'   overprint '+picks.overprint;
     document.getElementById('mixer-now').innerHTML =
       '<span class="mixer-now-inks">'+
-      '<i style="background:'+picks.a+'"></i>'+
-      '<i style="background:'+picks.b+'"></i>'+
-      '<i style="background:'+picks.mix+'"></i>'+
+      '<i style="background:'+picks.structural+'"></i>'+
+      '<i style="background:'+picks.accent+'"></i>'+
+      '<i style="background:'+picks.overprint+'"></i>'+
       '<i style="background:'+picks.paper+'"></i></span><b>'+title+'</b>';
   }
   function paint(){
@@ -1386,7 +1386,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   }
   function loadPreset(id){
     var p = PRESETS.filter(function(x){ return x.id === id; })[0];
-    picks = {paper:p.paper, sheet:p.sheet, a:p.a, b:p.b, mix:p.mix};
+    picks = {paper:p.paper, card:p.card, structural:p.structural, accent:p.accent, overprint:p.overprint};
     activeId = id;
     custom = false;
     paint();
@@ -1399,9 +1399,9 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     btn.className = 'preset';
     btn.dataset.id = p.id;
     btn.innerHTML = '<span class="preset-inks">'+
-      '<i style="background:'+p.a+'"></i>'+
-      '<i style="background:'+p.b+'"></i>'+
-      '<i style="background:'+p.mix+'"></i>'+
+      '<i style="background:'+p.structural+'"></i>'+
+      '<i style="background:'+p.accent+'"></i>'+
+      '<i style="background:'+p.overprint+'"></i>'+
       '<i style="background:'+p.paper+'"></i></span>'+p.name;
     btn.addEventListener('click', function(){ loadPreset(p.id); });
     presetWrap.appendChild(btn);
