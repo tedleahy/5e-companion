@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 
 /** The value as it was once it stopped changing for `delayMs`. */
 export function useDebouncedValue<T>(value: T, delayMs: number): T {
-  const [debounced, setDebounced] = useState(value);
+    const [debounced, setDebounced] = useState(value);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => setDebounced(value), delayMs);
-    return () => clearTimeout(timeout);
-  }, [value, delayMs]);
+    useEffect(() => {
+        const timeout = setTimeout(() => setDebounced(value), delayMs);
+        return () => clearTimeout(timeout);
+    }, [value, delayMs]);
 
-  return debounced;
+    return debounced;
 }

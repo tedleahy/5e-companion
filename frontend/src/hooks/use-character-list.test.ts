@@ -8,187 +8,189 @@ import { SEARCH_DEBOUNCE_MS, useCharacterList } from './use-character-list';
 type Props = { search: string; sort: CharacterSort };
 
 type PendingRequest = {
-  url: URL;
-  signal: AbortSignal;
-  respond: (body: CharacterList) => Promise<void>;
+    url: URL;
+    signal: AbortSignal;
+    respond: (body: CharacterList) => Promise<void>;
 };
 
 let requests: PendingRequest[];
 
 function listOf(...names: string[]): CharacterList {
-  return {
-    characters: names.map((name, index) => ({
-      id: String(index + 1),
-      name,
-      ancestry: { race_name: 'Human', subrace_name: null },
-      classes: [{ name: 'Fighter', level: 1, subclass_name: null }],
-      total_level: 1,
-      hit_points: { current: 10, maximum: 10, temporary: 0 },
-    })),
-    drafts: [],
-  };
+    return {
+        characters: names.map((name, index) => ({
+            id: String(index + 1),
+            name,
+            ancestry: { race_name: 'Human', subrace_name: null },
+            classes: [{ name: 'Fighter', level: 1, subclass_name: null }],
+            total_level: 1,
+            hit_points: { current: 10, maximum: 10, temporary: 0 },
+        })),
+        drafts: [],
+    };
 }
 
 function lastRequest(): PendingRequest {
-  return requests[requests.length - 1];
+    return requests[requests.length - 1];
 }
 
 async function renderCharacterList(initialProps: Props = { search: '', sort: 'level' }) {
-  return renderHookWithQuery(({ search, sort }: Props) => useCharacterList(search, sort), {
-    initialProps,
-  });
+    return renderHookWithQuery(({ search, sort }: Props) => useCharacterList(search, sort), {
+        initialProps,
+    });
 }
 
 async function advance(ms: number) {
-  await act(async () => {
-    jest.advanceTimersByTime(ms);
-  });
+    await act(async () => {
+        jest.advanceTimersByTime(ms);
+    });
 }
 
 beforeEach(() => {
-  jest.useFakeTimers();
-  process.env.EXPO_PUBLIC_API_URL = 'http://api.test';
-  process.env.EXPO_PUBLIC_API_TOKEN = 'test-token';
-  requests = [];
+    jest.useFakeTimers();
+    process.env.EXPO_PUBLIC_API_URL = 'http://api.test';
+    process.env.EXPO_PUBLIC_API_TOKEN = 'test-token';
+    requests = [];
 
-  globalThis.fetch = jest.fn(
-    (input: RequestInfo | URL, init?: RequestInit) =>
-      new Promise<Response>((resolve, reject) => {
-        const signal = init!.signal!;
-        signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+    globalThis.fetch = jest.fn(
+        (input: RequestInfo | URL, init?: RequestInit) =>
+            new Promise<Response>((resolve, reject) => {
+                const signal = init!.signal!;
+                signal.addEventListener('abort', () =>
+                    reject(new DOMException('Aborted', 'AbortError')),
+                );
 
-        requests.push({
-          url: new URL(String(input)),
-          signal,
-          respond: async (body) => {
-            await act(async () => {
-              resolve({ ok: true, status: 200, json: async () => body } as Response);
-              // TanStack Query batches its updates to observers on a zero-delay timer.
-              await jest.advanceTimersByTimeAsync(0);
-            });
-          },
-        });
-      }),
-  );
+                requests.push({
+                    url: new URL(String(input)),
+                    signal,
+                    respond: async (body) => {
+                        await act(async () => {
+                            resolve({ ok: true, status: 200, json: async () => body } as Response);
+                            // TanStack Query batches its updates to observers on a zero-delay timer.
+                            await jest.advanceTimersByTimeAsync(0);
+                        });
+                    },
+                });
+            }),
+    );
 });
 
 afterEach(() => {
-  jest.useRealTimers();
-  delete process.env.EXPO_PUBLIC_API_URL;
-  delete process.env.EXPO_PUBLIC_API_TOKEN;
+    jest.useRealTimers();
+    delete process.env.EXPO_PUBLIC_API_URL;
+    delete process.env.EXPO_PUBLIC_API_TOKEN;
 });
 
 describe('useCharacterList', () => {
-  it('loads the list sorted by level with no search', async () => {
-    const { result } = await renderCharacterList();
+    it('loads the list sorted by level with no search', async () => {
+        const { result } = await renderCharacterList();
 
-    expect(requests).toHaveLength(1);
+        expect(requests).toHaveLength(1);
 
-    expect(lastRequest().url.pathname).toBe('/api/v1/characters');
+        expect(lastRequest().url.pathname).toBe('/api/v1/characters');
 
-    expect(lastRequest().url.search).toBe('?sort=level');
+        expect(lastRequest().url.search).toBe('?sort=level');
 
-    await lastRequest().respond(listOf('Kethra Ironsong'));
+        await lastRequest().respond(listOf('Kethra Ironsong'));
 
-    expect(result.current.data).toEqual(listOf('Kethra Ironsong'));
+        expect(result.current.data).toEqual(listOf('Kethra Ironsong'));
 
-    expect(result.current.isSearching).toBe(false);
-  });
+        expect(result.current.isSearching).toBe(false);
+    });
 
-  it('sends the sort', async () => {
-    await renderCharacterList({ search: '', sort: 'name' });
+    it('sends the sort', async () => {
+        await renderCharacterList({ search: '', sort: 'name' });
 
-    expect(lastRequest().url.searchParams.get('sort')).toBe('name');
-  });
+        expect(lastRequest().url.searchParams.get('sort')).toBe('name');
+    });
 
-  it('sends one request once typing stops, not one per keystroke', async () => {
-    const { rerender } = await renderCharacterList();
-    await lastRequest().respond(listOf('Kethra Ironsong', 'Vesper Quill'));
+    it('sends one request once typing stops, not one per keystroke', async () => {
+        const { rerender } = await renderCharacterList();
+        await lastRequest().respond(listOf('Kethra Ironsong', 'Vesper Quill'));
 
-    for (const search of ['v', 've', 'ves']) {
-      await rerender({ search, sort: 'level' });
-      await advance(SEARCH_DEBOUNCE_MS - 1);
-    }
+        for (const search of ['v', 've', 'ves']) {
+            await rerender({ search, sort: 'level' });
+            await advance(SEARCH_DEBOUNCE_MS - 1);
+        }
 
-    expect(requests).toHaveLength(1);
+        expect(requests).toHaveLength(1);
 
-    await advance(1);
+        await advance(1);
 
-    expect(requests).toHaveLength(2);
+        expect(requests).toHaveLength(2);
 
-    expect(lastRequest().url.searchParams.get('q')).toBe('ves');
-  });
+        expect(lastRequest().url.searchParams.get('q')).toBe('ves');
+    });
 
-  it('trims the search', async () => {
-    const { rerender } = await renderCharacterList();
+    it('trims the search', async () => {
+        const { rerender } = await renderCharacterList();
 
-    await rerender({ search: '  ves ', sort: 'level' });
-    await advance(SEARCH_DEBOUNCE_MS);
+        await rerender({ search: '  ves ', sort: 'level' });
+        await advance(SEARCH_DEBOUNCE_MS);
 
-    expect(lastRequest().url.searchParams.get('q')).toBe('ves');
-  });
+        expect(lastRequest().url.searchParams.get('q')).toBe('ves');
+    });
 
-  it('sends no q for a search of only whitespace', async () => {
-    await renderCharacterList({ search: '   ', sort: 'level' });
-    await advance(SEARCH_DEBOUNCE_MS);
+    it('sends no q for a search of only whitespace', async () => {
+        await renderCharacterList({ search: '   ', sort: 'level' });
+        await advance(SEARCH_DEBOUNCE_MS);
 
-    expect(requests).toHaveLength(1);
+        expect(requests).toHaveLength(1);
 
-    expect(lastRequest().url.searchParams.has('q')).toBe(false);
-  });
+        expect(lastRequest().url.searchParams.has('q')).toBe(false);
+    });
 
-  it('keeps the previous list on screen while a new search loads', async () => {
-    const { result, rerender } = await renderCharacterList();
-    await lastRequest().respond(listOf('Kethra Ironsong', 'Vesper Quill'));
+    it('keeps the previous list on screen while a new search loads', async () => {
+        const { result, rerender } = await renderCharacterList();
+        await lastRequest().respond(listOf('Kethra Ironsong', 'Vesper Quill'));
 
-    await rerender({ search: 'ves', sort: 'level' });
-    await advance(SEARCH_DEBOUNCE_MS);
+        await rerender({ search: 'ves', sort: 'level' });
+        await advance(SEARCH_DEBOUNCE_MS);
 
-    expect(result.current.data).toEqual(listOf('Kethra Ironsong', 'Vesper Quill'));
+        expect(result.current.data).toEqual(listOf('Kethra Ironsong', 'Vesper Quill'));
 
-    expect(result.current.isSearching).toBe(true);
+        expect(result.current.isSearching).toBe(true);
 
-    await lastRequest().respond(listOf('Vesper Quill'));
+        await lastRequest().respond(listOf('Vesper Quill'));
 
-    expect(result.current.data).toEqual(listOf('Vesper Quill'));
+        expect(result.current.data).toEqual(listOf('Vesper Quill'));
 
-    expect(result.current.isSearching).toBe(false);
-  });
+        expect(result.current.isSearching).toBe(false);
+    });
 
-  it('keeps the previous list without counting as searching when only the sort changes', async () => {
-    const { result, rerender } = await renderCharacterList();
-    await lastRequest().respond(listOf('Kethra Ironsong', 'Vesper Quill'));
+    it('keeps the previous list without counting as searching when only the sort changes', async () => {
+        const { result, rerender } = await renderCharacterList();
+        await lastRequest().respond(listOf('Kethra Ironsong', 'Vesper Quill'));
 
-    await rerender({ search: '', sort: 'name' });
+        await rerender({ search: '', sort: 'name' });
 
-    expect(result.current.data).toEqual(listOf('Kethra Ironsong', 'Vesper Quill'));
+        expect(result.current.data).toEqual(listOf('Kethra Ironsong', 'Vesper Quill'));
 
-    expect(result.current.isFetching).toBe(true);
+        expect(result.current.isFetching).toBe(true);
 
-    expect(result.current.isSearching).toBe(false);
-  });
+        expect(result.current.isSearching).toBe(false);
+    });
 
-  it('is not searching during the first load', async () => {
-    const { result } = await renderCharacterList();
+    it('is not searching during the first load', async () => {
+        const { result } = await renderCharacterList();
 
-    expect(result.current.isPending).toBe(true);
+        expect(result.current.isPending).toBe(true);
 
-    expect(result.current.isSearching).toBe(false);
-  });
+        expect(result.current.isSearching).toBe(false);
+    });
 
-  it('aborts a stale search', async () => {
-    const { rerender } = await renderCharacterList();
-    await lastRequest().respond(listOf('Kethra Ironsong', 'Vesper Quill'));
+    it('aborts a stale search', async () => {
+        const { rerender } = await renderCharacterList();
+        await lastRequest().respond(listOf('Kethra Ironsong', 'Vesper Quill'));
 
-    await rerender({ search: 'v', sort: 'level' });
-    await advance(SEARCH_DEBOUNCE_MS);
-    const stale = lastRequest();
+        await rerender({ search: 'v', sort: 'level' });
+        await advance(SEARCH_DEBOUNCE_MS);
+        const stale = lastRequest();
 
-    await rerender({ search: 've', sort: 'level' });
-    await advance(SEARCH_DEBOUNCE_MS);
+        await rerender({ search: 've', sort: 'level' });
+        await advance(SEARCH_DEBOUNCE_MS);
 
-    expect(stale.signal.aborted).toBe(true);
+        expect(stale.signal.aborted).toBe(true);
 
-    expect(lastRequest().signal.aborted).toBe(false);
-  });
+        expect(lastRequest().signal.aborted).toBe(false);
+    });
 });

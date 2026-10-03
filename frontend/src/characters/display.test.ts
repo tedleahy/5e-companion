@@ -298,8 +298,7 @@ describe('draftCopy', () => {
     it('matches the named creation draft on phone', () => {
         expect(draftCopy(creation, true)).toEqual({
             title: 'Nyra Ashfall',
-            detail:
-                'Creation, two of five choices made. Nothing is added to your list until you confirm.',
+            detail: 'Creation, two of five choices made. Nothing is added to your list until you confirm.',
             resumeLabel: 'Resume',
         });
     });
@@ -307,8 +306,7 @@ describe('draftCopy', () => {
     it('matches the named creation draft on tablet and desktop', () => {
         expect(draftCopy(creation, false)).toEqual({
             title: 'Nyra Ashfall, new character',
-            detail:
-                'Two of five choices made. Next up is choosing a class. Nothing is added to your list until you confirm.',
+            detail: 'Two of five choices made. Next up is choosing a class. Nothing is added to your list until you confirm.',
             resumeLabel: 'Resume creation',
         });
     });
@@ -316,8 +314,7 @@ describe('draftCopy', () => {
     it('matches the unnamed creation draft on phone', () => {
         expect(draftCopy({ ...creation, name: null, completed_choices: 1 }, true)).toEqual({
             title: 'New character',
-            detail:
-                'Creation, one of five choices made. Nothing is added to your list until you confirm.',
+            detail: 'Creation, one of five choices made. Nothing is added to your list until you confirm.',
             resumeLabel: 'Resume',
         });
     });
@@ -325,8 +322,7 @@ describe('draftCopy', () => {
     it('matches the unnamed creation draft on tablet and desktop', () => {
         expect(draftCopy({ ...creation, name: null, completed_choices: 1 }, false)).toEqual({
             title: 'New character',
-            detail:
-                'One of five choices made. Next up is choosing a class. Nothing is added to your list until you confirm.',
+            detail: 'One of five choices made. Next up is choosing a class. Nothing is added to your list until you confirm.',
             resumeLabel: 'Resume creation',
         });
     });
@@ -334,8 +330,7 @@ describe('draftCopy', () => {
     it('matches the level-up draft on phone', () => {
         expect(draftCopy(levelUp, true)).toEqual({
             title: 'Kethra Ironsong',
-            detail:
-                'Level 3 to 4, three of five choices made. Nothing changes on the sheet until you confirm.',
+            detail: 'Level 3 to 4, three of five choices made. Nothing changes on the sheet until you confirm.',
             resumeLabel: 'Resume',
         });
     });
@@ -343,8 +338,7 @@ describe('draftCopy', () => {
     it('matches the level-up draft on tablet and desktop', () => {
         expect(draftCopy(levelUp, false)).toEqual({
             title: 'Kethra Ironsong, level 3 to 4',
-            detail:
-                'Three of five choices made. Next up is an ability increase or a feat. Nothing changes on the sheet until you confirm.',
+            detail: 'Three of five choices made. Next up is an ability increase or a feat. Nothing changes on the sheet until you confirm.',
             resumeLabel: 'Resume level-up',
         });
     });

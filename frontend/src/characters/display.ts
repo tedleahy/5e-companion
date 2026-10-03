@@ -54,7 +54,9 @@ export function subtitle(character: CharacterSummary): string {
     const race = ancestry.subrace_name || ancestry.race_name;
 
     const classText = classes
-        .map(({ name, level }) => classes.length > 1 ? `${name.toLowerCase()} ${level}` : name.toLowerCase())
+        .map(({ name, level }) =>
+            classes.length > 1 ? `${name.toLowerCase()} ${level}` : name.toLowerCase(),
+        )
         .join(' / ');
     const subclasses = classes.map(({ subclass_name }) => subclass_name).filter(Boolean);
     const summary = [race, classText].filter(Boolean).join(' ');

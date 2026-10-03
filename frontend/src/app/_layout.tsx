@@ -19,27 +19,30 @@ SplashScreen.preventAutoHideAsync();
  * the app's one query client.
  */
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    [fonts.regular]: SpaceGrotesk_400Regular,
-    [fonts.medium]: SpaceGrotesk_500Medium,
-    [fonts.semiBold]: SpaceGrotesk_600SemiBold,
-    [fonts.bold]: SpaceGrotesk_700Bold,
-  });
+    const [loaded, error] = useFonts({
+        [fonts.regular]: SpaceGrotesk_400Regular,
+        [fonts.medium]: SpaceGrotesk_500Medium,
+        [fonts.semiBold]: SpaceGrotesk_600SemiBold,
+        [fonts.bold]: SpaceGrotesk_700Bold,
+    });
 
-  const [queryClient] = useState(createQueryClient);
+    const [queryClient] = useState(createQueryClient);
 
-  useEffect(() => {
-    if (loaded || error) SplashScreen.hideAsync();
-  }, [loaded, error]);
+    useEffect(() => {
+        if (loaded || error) SplashScreen.hideAsync();
+    }, [loaded, error]);
 
-  if (!loaded && !error) return null;
+    if (!loaded && !error) return null;
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <StatusBar style="dark" />
-      <Stack
-        screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.paper } }}
-      />
-    </QueryClientProvider>
-  );
+    return (
+        <QueryClientProvider client={queryClient}>
+            <StatusBar style="dark" />
+            <Stack
+                screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: colors.paper },
+                }}
+            />
+        </QueryClientProvider>
+    );
 }
