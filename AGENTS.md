@@ -3,7 +3,10 @@
 ## General rules
 
 - Don't commit any changes unless explicitly asked to.
-- For coding guidlines, see `docs/coding-guidelines`.
+- Always use single quotes instead of curly apostrophes in code.
+- Keep private helper functions close to their callers if they occur in the same file.
+- Add comments explaining calculations or variables whose purpose is unclear. Explain why they exist rather than just restating the code.
+
 
 ### Back-end rails code
 - Add YARD documentation, except for where the contract is already obvious from the code.

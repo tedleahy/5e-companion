@@ -1,2 +1,0 @@
-- Keep private helper functions close to their callers, if they occur in the same file.
-- Add comments explaining calculations or variables whose purpose is unclear. Explain why they exist rather than just restating the code.
