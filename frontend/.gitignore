@@ -39,3 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Screenshots from scripts/shoot.sh
+shots/
