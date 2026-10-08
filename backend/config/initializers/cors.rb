@@ -16,6 +16,7 @@ if Rails.env.local?
   # - http://localhost and http://127.0.0.1
   # - http on a Tailscale address, 100.64.0.0/10
   # - http or https on a Tailscale MagicDNS name, ending in .ts.net
+  # - http on this computer's short MagicDNS name, where Metro serves the app
   allowed_origin = lambda do |origin, _env|
     uri = URI.parse(origin)
     host = uri.host.to_s.downcase
@@ -23,7 +24,7 @@ if Rails.env.local?
 
     case uri.scheme
     when "http"
-      next true if magic_dns || %w[localhost 127.0.0.1].include?(host)
+      next true if magic_dns || [ "localhost", "127.0.0.1", Tailscale::HOST_NAME ].include?(host)
 
       begin
         Tailscale::ADDRESSES.include?(IPAddr.new(host))

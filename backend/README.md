@@ -37,5 +37,7 @@ the computer is on. A browser on this computer can use the Tailscale address
 too.
 
 In development, the API accepts cross-origin requests from `localhost`,
-`127.0.0.1`, Tailscale addresses (100.64.0.0/10) and MagicDNS names ending in
-`.ts.net`. See `config/initializers/cors.rb`.
+`127.0.0.1`, Tailscale addresses (100.64.0.0/10), MagicDNS names ending in
+`.ts.net` and this computer's short MagicDNS name, such as `http://laptop:8081`.
+The short name is the computer's host name, so it won't match if the machine has
+been renamed in the Tailscale admin console. See `config/initializers/cors.rb`.

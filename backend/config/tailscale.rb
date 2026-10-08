@@ -1,4 +1,5 @@
 require "ipaddr"
+require "socket"
 
 # Tailscale patterns shared by the development host allow-list and the
 # development CORS origins. Kept outside lib/ so environment files can require
@@ -11,4 +12,9 @@ module Tailscale
   # anchors host patterns itself and adds an optional port. The string ".ts.net"
   # would match only one subdomain label, and MagicDNS names have two.
   MAGIC_DNS_NAME = /(?:[a-z0-9-]+\.)+ts\.net/i
+
+  # This computer's short name, such as laptop. MagicDNS answers to a machine's
+  # name without the tailnet domain too. Tailscale names a machine after its
+  # host name, so this misses only a machine renamed in the admin console.
+  HOST_NAME = Socket.gethostname.split(".").first.downcase
 end

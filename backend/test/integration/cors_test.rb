@@ -7,9 +7,12 @@ class CorsTest < ActionDispatch::IntegrationTest
     "http://100.101.102.103:8081",
     "http://laptop.tail1234.ts.net:8081",
     "https://laptop.tail1234.ts.net",
+    "http://#{Tailscale::HOST_NAME}:8081",
   ].freeze
 
   REJECTED = [
+    "http://#{Tailscale::HOST_NAME}-other:8081",
+    "https://#{Tailscale::HOST_NAME}:8081",
     "http://192.168.1.20:8081",
     "https://example.com",
     "https://100.101.102.103:8081",
