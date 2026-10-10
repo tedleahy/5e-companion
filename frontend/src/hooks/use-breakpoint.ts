@@ -3,11 +3,12 @@ import { useWindowDimensions } from 'react-native';
 import { breakpoints } from '@/theme';
 
 /** The layouts the app switches between, narrowest first. */
-export type Breakpoint = 'phone' | 'tablet' | 'desktop';
+export type Breakpoint = 'phone' | 'tablet' | 'tabletLandscape' | 'desktop';
 
 /** The layout for a window `width` in points. `breakpoints` sets where each one starts. */
 export function breakpointForWidth(width: number): Breakpoint {
     if (width >= breakpoints.desktop) return 'desktop';
+    if (width >= breakpoints.tabletLandscape) return 'tabletLandscape';
     if (width >= breakpoints.tablet) return 'tablet';
     return 'phone';
 }

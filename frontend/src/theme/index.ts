@@ -32,6 +32,7 @@ export const typography = {
     namePhone: { fontFamily: fonts.bold, fontSize: 16.5, letterSpacing: -0.33 },
     input: { fontFamily: fonts.regular, fontSize: 14 },
     subtitle: { fontFamily: fonts.regular, fontSize: 12.5 },
+    subtitleDesktop: { fontFamily: fonts.regular, fontSize: 13 },
     hitPointLine: { fontFamily: fonts.medium, fontSize: 12 },
     columnHeader: { fontFamily: fonts.bold, fontSize: 11.5 },
     mark: { fontFamily: fonts.semiBold, fontSize: 11 },
@@ -79,8 +80,14 @@ export function offsetShadow(depth: ShadowDepth, token: keyof Colors): string {
 /**
  * Minimum window widths for each layout. The mockups are drawn at 390
  * (phone), 820 and 1180 (tablet, portrait and landscape) and 1440 (desktop).
+ *
+ * Each layout is named for the device that usually has that width, but only the
+ * width counts: a narrow desktop window gets the phone layout. `tabletLandscape`
+ * is the width of a typical tablet held in landscape, where cards fit in two
+ * columns. A large tablet in portrait can be that wide too, and gets it as well.
  */
 export const breakpoints = {
     tablet: 720,
+    tabletLandscape: 1024,
     desktop: 1280,
 } as const;
