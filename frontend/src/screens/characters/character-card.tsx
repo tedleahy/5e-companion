@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import type { CharacterSummary } from '@/api/characters';
 import { hitPoints, subtitle } from '@/characters/display';
@@ -6,38 +6,41 @@ import { CharacterToken } from '@/components/character-token';
 import { HitPoints } from '@/components/hit-points';
 import { LevelBlock } from '@/components/level-block';
 import { PrintPressable } from '@/components/print-pressable';
-import { colors, typography } from '@/theme';
+import { colors } from '@/theme';
+
+import { useCardScale } from './card-scale';
 
 type CharacterCardProps = {
     character: CharacterSummary;
     /** Opens the character's sheet. Unset until the sheet route exists. */
     onPress?: () => void;
+    style?: StyleProp<ViewStyle>;
 };
 
 /**
  * One character in the list. The whole card is a single link named by the character: the token
  * beside the name, the level block at the top right, and the hit points across the bottom.
  */
-export function CharacterCard({ character, onPress }: CharacterCardProps) {
+export function CharacterCard({ character, onPress, style }: CharacterCardProps) {
+    const scale = useCardScale();
+
     return (
         <PrintPressable
             depth={5}
             role="link"
             accessibilityLabel={character.name}
             onPress={onPress}
-            style={styles.card}
+            style={[styles.card, scale.wide && styles.wideCard, style]}
         >
-            <CharacterToken name={character.name} />
+            <CharacterToken name={character.name} size={scale.tokenSize} />
             <View style={styles.details}>
                 <View style={styles.summary}>
                     <View style={styles.identity}>
-                        <Text style={[typography.namePhone, styles.name]}>{character.name}</Text>
-                        <Text style={[typography.subtitle, styles.subtitle]}>
-                            {subtitle(character)}
-                        </Text>
+                        <Text style={[scale.name, styles.name]}>{character.name}</Text>
+                        <Text style={[scale.subtitle, styles.subtitle]}>{subtitle(character)}</Text>
                     </View>
                     <View style={styles.level}>
-                        <LevelBlock level={character.total_level} />
+                        <LevelBlock level={character.total_level} large={scale.largeLevelLabel} />
                     </View>
                 </View>
                 <HitPoints display={hitPoints(character.hit_points)} />
@@ -56,6 +59,11 @@ const styles = StyleSheet.create({
         backgroundColor: colors.card,
         borderWidth: 2,
         borderColor: colors.structural,
+    },
+    wideCard: {
+        gap: 16,
+        paddingVertical: 14,
+        paddingHorizontal: 18,
     },
     details: {
         flex: 1,

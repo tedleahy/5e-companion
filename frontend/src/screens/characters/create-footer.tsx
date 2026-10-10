@@ -22,7 +22,7 @@ export function CreateFooter({ onCreate, onLayout }: CreateFooterProps) {
     const fadeId = `${useId()}-fade`;
 
     return (
-        <View style={styles.footer} onLayout={onLayout}>
+        <View testID="create-footer" style={styles.footer} onLayout={onLayout}>
             <Svg
                 aria-hidden
                 pointerEvents="none"

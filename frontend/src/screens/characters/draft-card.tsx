@@ -4,7 +4,10 @@ import type { Draft } from '@/api/characters';
 import { draftCopy } from '@/characters/display';
 import { SecondaryButton } from '@/components/buttons';
 import { CharacterToken } from '@/components/character-token';
-import { colors, typography } from '@/theme';
+import { colors } from '@/theme';
+
+import { useCardScale } from './card-scale';
+import { ROW_SPACING } from './character-row';
 
 type DraftCardProps = {
     draft: Draft;
@@ -12,19 +15,27 @@ type DraftCardProps = {
     onResume?: () => void;
 };
 
-/** An unfinished creation or level-up, with its progress and a Resume button. */
+/**
+ * An unfinished creation or level-up, with its progress and a Resume button. Phones get the short
+ * copy, and wider screens add the next step and name the kind of draft on the button.
+ */
 export function DraftCard({ draft, onResume }: DraftCardProps) {
-    const { title, detail, resumeLabel } = draftCopy(draft, true);
+    const scale = useCardScale();
+    const { title, detail, resumeLabel } = draftCopy(draft, !scale.wide);
+    const token = (
+        <CharacterToken
+            name={draft.kind === 'creation' ? draft.name : draft.character_name}
+            size={scale.tokenSize}
+            draft
+        />
+    );
 
     return (
-        <View style={styles.card}>
-            <CharacterToken
-                name={draft.kind === 'creation' ? draft.name : draft.character_name}
-                draft
-            />
+        <View style={[styles.card, scale.wide && styles.wideCard]}>
+            {scale.wide ? <View style={styles.wideTokenColumn}>{token}</View> : token}
             <View style={styles.text}>
-                <Text style={[typography.namePhone, styles.title]}>{title}</Text>
-                <Text style={[typography.subtitle, styles.detail]}>{detail}</Text>
+                <Text style={[scale.name, styles.title]}>{title}</Text>
+                <Text style={[scale.subtitle, styles.detail]}>{detail}</Text>
             </View>
             <SecondaryButton
                 label={resumeLabel}
@@ -55,6 +66,14 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderStyle: 'dashed',
         borderColor: colors.structural,
+    },
+    wideCard: {
+        gap: ROW_SPACING.gap,
+        paddingVertical: ROW_SPACING.paddingVertical,
+        paddingHorizontal: ROW_SPACING.paddingHorizontal,
+    },
+    wideTokenColumn: {
+        width: ROW_SPACING.tokenColumn,
     },
     text: {
         flex: 1,

@@ -1,14 +1,22 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import type { Draft } from '@/api/characters';
 import { colors, typography } from '@/theme';
 
+import { useCardScale } from './card-scale';
 import { DraftCard } from './draft-card';
 
+type DraftTrayProps = {
+    drafts: Draft[];
+    style?: StyleProp<ViewStyle>;
+};
+
 /** The drafts waiting above the list, under a small heading and over a dashed accent rule. */
-export function DraftTray({ drafts }: { drafts: Draft[] }) {
+export function DraftTray({ drafts, style }: DraftTrayProps) {
+    const { wide } = useCardScale();
+
     return (
-        <View style={styles.tray}>
+        <View style={[styles.tray, wide && styles.wideTray, style]}>
             <Text role="heading" style={[typography.smallLabel, styles.heading]}>
                 Waiting to be finished
             </Text>
@@ -40,6 +48,9 @@ const RULE_BOX_HEIGHT = 6;
 const styles = StyleSheet.create({
     tray: {
         marginBottom: 2,
+    },
+    wideTray: {
+        marginBottom: 4,
     },
     heading: {
         // The label style sets its line height to its size, for the level block. A heading on its

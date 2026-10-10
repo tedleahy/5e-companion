@@ -7,17 +7,29 @@ import { colors, offsetShadow, typography } from '@/theme';
 type SearchFieldProps = {
     value: string;
     onChangeText: (text: string) => void;
+    /** Sits on the structural plate, so its focus ring needs the light ink. */
+    onPlate?: boolean;
 };
 
 /**
- * The search box on the plate. The input fills the whole field, so a tap anywhere on it focuses
- * the input, and on web the field draws the focus ring in place of the input's own outline.
+ * The search box, on the phone plate or in the wide toolbar. The input fills the whole field, so a
+ * tap anywhere on it focuses the input, and on web the field draws the focus ring in place of the
+ * input's own outline.
  */
-export function SearchField({ value, onChangeText }: SearchFieldProps) {
+export function SearchField({ value, onChangeText, onPlate = false }: SearchFieldProps) {
     const [focused, setFocused] = useState(false);
 
     return (
-        <View style={[styles.field, focused && Platform.OS === 'web' && styles.focusRing]}>
+        <View
+            style={[
+                styles.field,
+                focused &&
+                    Platform.OS === 'web' && [
+                        styles.focusRing,
+                        { outlineColor: onPlate ? colors.onStructural : colors.structural },
+                    ],
+            ]}
+        >
             <View style={styles.icon}>
                 <SearchIcon color={colors.dim} />
             </View>
@@ -59,7 +71,6 @@ const styles = StyleSheet.create({
         outlineStyle: 'solid',
         outlineWidth: 2,
         outlineOffset: 3,
-        outlineColor: colors.onStructural,
     },
     icon: {
         position: 'absolute',
