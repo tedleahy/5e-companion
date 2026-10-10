@@ -812,8 +812,8 @@
               breakpoint change.</dd>
           </dl>
           <ul class="checks">
-            <li>Add <code>breakpoints.wideTablet: 1024</code>, and have <code>Breakpoint</code> and
-              <code>breakpointForWidth</code> return <code>wideTablet</code>. Update the hook's tests and
+            <li>Add <code>breakpoints.tabletLandscape: 1024</code>, and have <code>Breakpoint</code> and
+              <code>breakpointForWidth</code> return <code>tabletLandscape</code>. Update the hook's tests and
               check that nothing else relied on the three-value type.</li>
             <li><strong>Plate and toolbar.</strong> From <code>tablet</code> up, the plate holds only the
               title: 30 point, padding 26 then 24, with a 5 point accent shadow straight down. Below it,
@@ -823,7 +823,7 @@
               <code>min(1020, width - 48)</code>, centred. The phone footer is hidden.</li>
             <li><strong>Tablet.</strong> The phone card at a larger size: 64 token and 19 point name,
               with columns 64 and the rest, a gap of 16 and padding 14 18.
-              <code>wideTablet</code> sets cards in two equal columns with a gap of 16, and the tray
+              <code>tabletLandscape</code> sets cards in two equal columns with a gap of 16, and the tray
               spans both.</li>
             <li><strong>Desktop.</strong> Rows with columns of 74, the rest, 84, 240 and 128, a gap of 22
               and padding 16 22: token, name and subtitle, level block, hit points, then an Open sheet
@@ -903,6 +903,12 @@
             <li>Real sign-in, replacing the development token and the temporary "Not signed in"
               copy.</li>
             <li>Zero hit point states on the list, once the API returns death saves.</li>
+            <li>Crossing the 720 breakpoint, for example by turning a large phone sideways, swaps the
+              phone layout for the wide one and rebuilds the screen. The search field loses focus, which
+              closes the keyboard mid-search, and the list scrolls back to the top. Restore focus to the
+              search field when it had it. The scroll position isn't worth keeping, because every card
+              changes size. Decide too whether a phone in landscape should get the tablet layout at
+              all: it is wide enough, but the sticky toolbar takes nearly a quarter of its height.</li>
           </ul>
         </section>
       </main>
