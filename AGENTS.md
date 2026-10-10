@@ -22,7 +22,8 @@
 - UI copy uses American spelling and sentence case.
 - Nothing but routes in `src/app/`. Every file there becomes a route, tests included.
 - The app runs in Expo Go. Say so before adding a package with native code that Expo Go lacks.
-- Run `npm run lint`, `npm run typecheck` and `npm test` before finishing.
+- Run `npm run format:check`, `npm run lint`, `npm run typecheck` and `npm test` before finishing.
+  `npm run format` fixes formatting.
 - Separate adjacent assertions in tests with newlines.
 - Add JSDoc to any type, function, or exported variable unless it's already immediately obvious what it does without the JSDoc
 

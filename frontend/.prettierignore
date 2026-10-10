@@ -1,0 +1,4 @@
+# Prettier also skips everything in .gitignore.
+
+# Written by Icon Composer in its own style, which it restores on every save.
+assets/expo.icon/

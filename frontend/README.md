@@ -43,7 +43,10 @@ Use plain `http`. Tailscale already encrypts the connection. If you open the web
 ## Checks
 
 ```bash
+npm run format:check
 npm run lint
 npm run typecheck
 npm test
 ```
+
+`npm run format` fixes anything `format:check` reports.
