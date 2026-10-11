@@ -8,11 +8,20 @@ import { DraftCard } from './draft-card';
 
 type DraftTrayProps = {
     drafts: Draft[];
+    alone?: boolean;
     style?: StyleProp<ViewStyle>;
 };
 
-/** The drafts waiting above the list, under a small heading and over a dashed accent rule. */
-export function DraftTray({ drafts, style }: DraftTrayProps) {
+/**
+ * The drafts waiting above the list, under a small heading and over a dashed accent rule.
+ *
+ * @param props.drafts - The drafts to show, in the API's order.
+ * @param props.alone - Set when the player has drafts but no characters, so the tray is the only
+ *   thing on the list. It then leaves out the dashed rule, which only exists to separate the tray
+ *   from the characters below it.
+ * @param props.style - Overrides for the tray's outer spacing, such as in the two-column layout.
+ */
+export function DraftTray({ drafts, alone = false, style }: DraftTrayProps) {
     const { wide } = useCardScale();
 
     return (
@@ -20,12 +29,12 @@ export function DraftTray({ drafts, style }: DraftTrayProps) {
             <Text role="heading" style={[typography.smallLabel, styles.heading]}>
                 Waiting to be finished
             </Text>
-            <View style={styles.drafts}>
+            <View style={[styles.drafts, !alone && styles.draftsAboveRule]}>
                 {drafts.map((draft) => (
                     <DraftCard key={draft.id} draft={draft} />
                 ))}
             </View>
-            <DashedRule />
+            {!alone && <DashedRule />}
         </View>
     );
 }
@@ -61,6 +70,8 @@ const styles = StyleSheet.create({
     },
     drafts: {
         gap: 12,
+    },
+    draftsAboveRule: {
         paddingBottom: 16,
     },
     rule: {

@@ -5,14 +5,22 @@ import { colors, offsetShadow, typography } from '@/theme';
 import { ContentColumn } from './content-column';
 import { SearchControls, type SearchState } from './search-controls';
 
-/** The structural plate at the top of the phone list: the title, then search and sort. */
-export function Header(props: SearchState) {
+/**
+ * The structural plate at the top of the phone list: the title, then search and sort. Without
+ * `searchState` it holds only the title.
+ *
+ * @param props.searchState - The search and sort to show. Leave it unset when there is nothing to
+ *   search, such as before the first character exists.
+ */
+export function Header({ searchState }: { searchState?: SearchState }) {
     return (
         <View style={styles.plate}>
             <Text role="heading" style={[typography.titlePhone, styles.title]}>
                 Characters
             </Text>
-            <SearchControls {...props} onPlate style={styles.searchControls} />
+            {searchState && (
+                <SearchControls {...searchState} onPlate style={styles.searchControls} />
+            )}
         </View>
     );
 }

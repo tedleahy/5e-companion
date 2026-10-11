@@ -1,4 +1,5 @@
 import { act, fireEvent, screen, within } from '@testing-library/react-native';
+import { AccessibilityInfo } from 'react-native';
 
 import type { CharacterList, CharacterSummary, Draft } from '@/api/characters';
 import { SEARCH_DEBOUNCE_MS } from '@/hooks/use-character-list';
@@ -61,6 +62,8 @@ const creation: Draft = {
 let requests: URL[];
 /** What the mocked API answers with. */
 let body: CharacterList;
+/** The error status the mocked API answers with, or null to answer with `body`. */
+let errorStatus: number | null;
 
 function lastRequest(): URL {
     return requests[requests.length - 1];
@@ -104,9 +107,17 @@ beforeEach(() => {
     process.env.EXPO_PUBLIC_API_TOKEN = 'test-token';
     requests = [];
     body = { characters: [thorn, vesper], drafts: [levelUp, creation] };
+    errorStatus = null;
 
     globalThis.fetch = jest.fn(async (input: RequestInfo | URL) => {
         requests.push(new URL(String(input)));
+        if (errorStatus !== null) {
+            return {
+                ok: false,
+                status: errorStatus,
+                text: async () => JSON.stringify({ error: { code: 'error', message: 'Failed' } }),
+            } as Response;
+        }
         return { ok: true, status: 200, json: async () => body } as Response;
     });
 });
@@ -182,15 +193,6 @@ describe('Characters', () => {
         expect(screen.getByText('Thorn Grimsby')).toBeOnTheScreen();
 
         expect(screen.queryByRole('heading', { name: 'Waiting to be finished' })).toBeNull();
-    });
-
-    it('renders the plate and an empty list before the first response', async () => {
-        globalThis.fetch = jest.fn(() => new Promise<Response>(() => {}));
-        await renderScreen();
-
-        expect(screen.getByRole('heading', { name: 'Characters' })).toBeOnTheScreen();
-
-        expect(screen.queryAllByRole('link')).toHaveLength(0);
     });
 
     it('flips the sort label and asks for the other order when sort is tapped', async () => {
@@ -374,5 +376,300 @@ describe('Characters on desktop', () => {
         expect(screen.getAllByRole('link')).toHaveLength(2);
 
         expect(screen.queryByRole('link', { name: 'Thorn Grimsby' })).toBeNull();
+    });
+});
+
+/** Makes every request from now on hang until the test ends, as a slow API would. */
+function hangRequests() {
+    globalThis.fetch = jest.fn(async (input: RequestInfo | URL) => {
+        requests.push(new URL(String(input)));
+        return new Promise<Response>(() => {});
+    });
+}
+
+describe('Characters while loading', () => {
+    it('shows a status line in place of the list on first load, with the controls in place', async () => {
+        hangRequests();
+        await renderScreen();
+
+        expect(screen.getByText('Loading characters…')).toBeOnTheScreen();
+
+        expect(screen.getByLabelText('Find a character')).toBeOnTheScreen();
+
+        expect(screen.getByRole('button', { name: 'Create character' })).toBeOnTheScreen();
+
+        expect(screen.queryAllByRole('link')).toHaveLength(0);
+    });
+
+    it('keeps the list and turns a spinner in the search field while a search loads', async () => {
+        await renderScreen();
+        hangRequests();
+
+        expect(screen.queryByText('Searching…')).toBeNull();
+
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), 'ves');
+        await advance(SEARCH_DEBOUNCE_MS);
+
+        expect(screen.getByText('Searching…')).toBeOnTheScreen();
+
+        expect(screen.getByText('Thorn Grimsby')).toBeOnTheScreen();
+
+        expect(screen.queryByText('Loading characters…')).toBeNull();
+    });
+});
+
+describe('Characters with nothing to show', () => {
+    it('says there are no characters yet, and hides search and sort', async () => {
+        body = { characters: [], drafts: [] };
+        await renderScreen();
+
+        expect(screen.getByRole('heading', { name: 'No characters yet' })).toBeOnTheScreen();
+
+        expect(screen.queryByLabelText('Find a character')).toBeNull();
+
+        expect(screen.queryByRole('button', { name: 'Sort: level' })).toBeNull();
+
+        expect(screen.getByRole('button', { name: 'Create character' })).toBeOnTheScreen();
+    });
+
+    it('keeps the search field when an empty first response arrives after typing starts', async () => {
+        const responses: (() => void)[] = [];
+        globalThis.fetch = jest.fn(async (input: RequestInfo | URL) => {
+            requests.push(new URL(String(input)));
+            return new Promise<Response>((resolve) => {
+                responses.push(() =>
+                    resolve({
+                        ok: true,
+                        status: 200,
+                        json: async () => ({ characters: [], drafts: [] }),
+                    } as Response),
+                );
+            });
+        });
+        await renderScreen();
+
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), 'Zephyr');
+        responses[0]();
+        await advance(0);
+
+        expect(screen.getByLabelText('Find a character')).toBeOnTheScreen();
+
+        await advance(SEARCH_DEBOUNCE_MS);
+
+        expect(lastRequest().searchParams.get('q')).toBe('Zephyr');
+
+        expect(screen.getByText('Searching…')).toBeOnTheScreen();
+    });
+
+    it('shows the tray alone when there are only drafts', async () => {
+        body = { characters: [], drafts: [creation] };
+        await renderScreen();
+
+        expect(screen.getByRole('heading', { name: 'Waiting to be finished' })).toBeOnTheScreen();
+
+        expect(screen.getByText('Nyra Ashfall')).toBeOnTheScreen();
+
+        expect(screen.queryByRole('heading', { name: 'No characters yet' })).toBeNull();
+
+        expect(screen.queryByLabelText('Find a character')).toBeNull();
+    });
+
+    it('quotes a search that matched nothing, and keeps the tray', async () => {
+        await renderScreen();
+        body = { characters: [], drafts: [creation] };
+
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), ' Zephyr ');
+        await advance(SEARCH_DEBOUNCE_MS);
+        await advance(0);
+
+        expect(
+            screen.getByRole('heading', { name: 'No characters match "Zephyr"' }),
+        ).toBeOnTheScreen();
+
+        expect(screen.getByText(/Search only looks at names\./)).toBeOnTheScreen();
+
+        expect(screen.getByText('Nyra Ashfall')).toBeOnTheScreen();
+
+        expect(screen.getByLabelText('Find a character')).toBeOnTheScreen();
+    });
+
+    it('goes by the search the results came from while a cleared search waits to send', async () => {
+        await renderScreen();
+        body = { characters: [], drafts: [] };
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), 'Zephyr');
+        await advance(SEARCH_DEBOUNCE_MS);
+        await advance(0);
+
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), '');
+        await advance(SEARCH_DEBOUNCE_MS - 1);
+
+        expect(
+            screen.getByRole('heading', { name: 'No characters match "Zephyr"' }),
+        ).toBeOnTheScreen();
+
+        expect(screen.queryByRole('heading', { name: 'No characters yet' })).toBeNull();
+
+        expect(screen.getByLabelText('Find a character')).toBeOnTheScreen();
+    });
+});
+
+describe('Characters when the list fails to load', () => {
+    it('shows a development notice on a 401, without the controls or Try again', async () => {
+        errorStatus = 401;
+        await renderScreen();
+
+        expect(screen.getByRole('heading', { name: 'Not signed in' })).toBeOnTheScreen();
+
+        expect(screen.getByText('Development only')).toBeOnTheScreen();
+
+        expect(screen.queryByLabelText('Find a character')).toBeNull();
+
+        expect(screen.queryByRole('button', { name: 'Create character' })).toBeNull();
+
+        expect(screen.queryByRole('button', { name: 'Try again' })).toBeNull();
+    });
+
+    it('offers Try again on any other error, keeping the controls', async () => {
+        errorStatus = 500;
+        await renderScreen();
+
+        expect(
+            screen.getByRole('heading', { name: "Couldn't load your characters" }),
+        ).toBeOnTheScreen();
+
+        expect(screen.getByRole('button', { name: 'Try again' })).toBeOnTheScreen();
+
+        expect(screen.getByLabelText('Find a character')).toBeOnTheScreen();
+
+        expect(screen.getByRole('button', { name: 'Create character' })).toBeOnTheScreen();
+    });
+
+    it('shows the first-load spinner while Try again runs, then the list', async () => {
+        errorStatus = 500;
+        await renderScreen();
+        errorStatus = null;
+        let respond: () => void = () => {};
+        globalThis.fetch = jest.fn(
+            () =>
+                new Promise<Response>((resolve) => {
+                    respond = () =>
+                        resolve({ ok: true, status: 200, json: async () => body } as Response);
+                }),
+        );
+
+        await fireEvent.press(screen.getByRole('button', { name: 'Try again' }));
+
+        expect(screen.getByText('Loading characters…')).toBeOnTheScreen();
+
+        expect(screen.queryByRole('button', { name: 'Try again' })).toBeNull();
+
+        respond();
+        await advance(0);
+
+        expect(screen.getByText('Thorn Grimsby')).toBeOnTheScreen();
+
+        expect(screen.queryByText('Loading characters…')).toBeNull();
+    });
+
+    it('replaces the list when a search fails', async () => {
+        await renderScreen();
+        errorStatus = 500;
+
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), 'ves');
+        await advance(SEARCH_DEBOUNCE_MS);
+        await advance(0);
+
+        expect(
+            screen.getByRole('heading', { name: "Couldn't load your characters" }),
+        ).toBeOnTheScreen();
+
+        expect(screen.queryByText('Thorn Grimsby')).toBeNull();
+    });
+});
+
+describe.each(['tablet', 'tabletLandscape', 'desktop'] as const)(
+    'Characters states on %s',
+    (layout) => {
+        beforeEach(() => {
+            setWindowWidth(WIDTHS[layout]);
+        });
+
+        it('leaves out the toolbar when signed out', async () => {
+            errorStatus = 401;
+            await renderScreen();
+
+            expect(screen.getByRole('heading', { name: 'Not signed in' })).toBeOnTheScreen();
+
+            expect(screen.queryByTestId('toolbar')).toBeNull();
+        });
+
+        it('keeps only Create character in the toolbar when there are no characters', async () => {
+            body = { characters: [], drafts: [] };
+            await renderScreen();
+
+            const toolbar = screen.getByTestId('toolbar');
+
+            expect(
+                within(toolbar).getByRole('button', { name: 'Create character' }),
+            ).toBeOnTheScreen();
+
+            expect(within(toolbar).queryByLabelText('Find a character')).toBeNull();
+        });
+
+        it('shows the first-load status line in place of the list', async () => {
+            hangRequests();
+            await renderScreen();
+
+            expect(screen.getByText('Loading characters…')).toBeOnTheScreen();
+
+            expect(
+                within(screen.getByTestId('toolbar')).getByLabelText('Find a character'),
+            ).toBeOnTheScreen();
+        });
+    },
+);
+
+describe('Characters with a native screen reader', () => {
+    let announce: jest.SpyInstance;
+
+    beforeEach(() => {
+        announce = jest.spyOn(AccessibilityInfo, 'announceForAccessibility').mockImplementation();
+        // React Native's Jest setup already mocks this, so the spy is that mock, calls and all.
+        announce.mockClear();
+    });
+
+    afterEach(() => {
+        announce.mockRestore();
+    });
+
+    it('announces the first load', async () => {
+        hangRequests();
+        await renderScreen();
+
+        expect(announce).toHaveBeenCalledWith('Loading characters…');
+    });
+
+    it('announces a search starting', async () => {
+        await renderScreen();
+        hangRequests();
+
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), 'ves');
+        await advance(SEARCH_DEBOUNCE_MS);
+
+        expect(announce).toHaveBeenLastCalledWith('Searching…');
+    });
+
+    it('announces a failed load', async () => {
+        errorStatus = 500;
+        await renderScreen();
+
+        expect(announce).toHaveBeenLastCalledWith("Couldn't load your characters");
+    });
+
+    it('announces a rejected token', async () => {
+        errorStatus = 401;
+        await renderScreen();
+
+        expect(announce).toHaveBeenLastCalledWith('Not signed in');
     });
 });

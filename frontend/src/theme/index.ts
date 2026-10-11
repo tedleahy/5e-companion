@@ -34,6 +34,12 @@ export const typography = {
     subtitle: { fontFamily: fonts.regular, fontSize: 12.5 },
     subtitleDesktop: { fontFamily: fonts.regular, fontSize: 13 },
     hitPointLine: { fontFamily: fonts.medium, fontSize: 12 },
+    /** Prose under a heading, such as on an empty card or a notice. */
+    body: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 19.5 },
+    bodyDesktop: { fontFamily: fonts.regular, fontSize: 14, lineHeight: 21 },
+    /** A line saying what is happening, such as "Loading characters…". */
+    status: { fontFamily: fonts.medium, fontSize: 13 },
+    statusDesktop: { fontFamily: fonts.medium, fontSize: 14 },
     columnHeader: { fontFamily: fonts.bold, fontSize: 11.5 },
     mark: { fontFamily: fonts.semiBold, fontSize: 11 },
     ringLabel: { fontFamily: fonts.bold, fontSize: 8 },
