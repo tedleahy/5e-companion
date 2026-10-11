@@ -255,8 +255,9 @@ class Api::V1::CharactersControllerTest < ActionDispatch::IntegrationTest
   end
 
   # Creates a character owned by the test user with one class per level given.
-  # @param name [String]
-  # @param class_levels [Array<Integer>] levels in position order
+  # @param name [String] - The character's name, which search and the name sort match on.
+  # @param class_levels [Array<Integer>] - One Fighter class per level, in position order, so the
+  #   total level is their sum.
   # @return [Character]
   def create_character(name, class_levels = [])
     character = @user.characters.create!(name: name, token_ink: "#123456", rules_version: "2014")

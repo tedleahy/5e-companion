@@ -16,7 +16,6 @@ export type QueryParams = Record<string, string | number | undefined>;
 
 /** Options for `apiFetch`. */
 export type ApiFetchOptions = {
-    /** Sent as the query string. Undefined values are left out. */
     query?: QueryParams;
     signal?: AbortSignal;
 };
@@ -24,7 +23,10 @@ export type ApiFetchOptions = {
 /**
  * Sends an authenticated GET to the API and parses the JSON body.
  *
- * @param path Starts with `/` and is appended to `EXPO_PUBLIC_API_URL`.
+ * @param path - The endpoint to call. Starts with `/` and is appended to `EXPO_PUBLIC_API_URL`.
+ * @param options.query - Parameters to send as the query string, such as a search. Undefined
+ *   values are left out, so a caller can pass an optional parameter without checking it first.
+ * @param options.signal - Cancels the request, such as when a newer search makes this one stale.
  * @throws `ApiError` for a non-2xx response. Network failures and aborts propagate unchanged.
  */
 export async function apiFetch<T>(

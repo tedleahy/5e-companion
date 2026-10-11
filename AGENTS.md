@@ -4,8 +4,17 @@
 
 - Don't commit any changes unless explicitly asked to.
 - Always use single quotes instead of curly apostrophes in code.
+- Always use a dark theme when creating HTML plans or code reviews.
 - Keep private helper functions close to their callers if they occur in the same file.
 - Add comments explaining calculations or variables whose purpose is unclear. Explain why they exist rather than just restating the code.
+- Give every function parameter an `@param` description, in JSDoc and YARD alike, even when the
+  rest of the doc comment could be skipped. Say what the parameter is for, not just what it is.
+  Separate the name from the description with a hyphen.
+  - JSDoc: `@param props.drafts - The drafts to show, in the API's order.` Leave out types, since
+    TypeScript already has them. Describe each destructured prop as `@param props.name`, on the
+    function rather than on its props type, so each description lives in one place.
+  - YARD: `@param sort [String] - The requested sort order.` Keep the type in brackets, since Ruby
+    has nowhere else to state it.
 
 
 ### Back-end rails code
