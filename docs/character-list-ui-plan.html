@@ -909,6 +909,12 @@
               search field when it had it. The scroll position isn't worth keeping, because every card
               changes size. Decide too whether a phone in landscape should get the tablet layout at
               all: it is wide enough, but the sticky toolbar takes nearly a quarter of its height.</li>
+            <li>Try again loses keyboard focus on the web. The spinner replaces the notice while the
+              request runs, so the focused button goes and focus drops to the page. If the request
+              fails again, the new Try again isn't focused, and Enter does nothing until Tab reaches
+              it. Restore focus to Try again after a failed retry when it had focus, but not if the
+              player has moved on, for example to search. Fix it alongside the breakpoint focus loss
+              above, since both need focus kept across a remount.</li>
           </ul>
         </section>
       </main>
