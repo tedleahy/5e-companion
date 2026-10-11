@@ -157,6 +157,26 @@ describe('useCharacterList', () => {
         expect(result.current.isSearching).toBe(false);
     });
 
+    it('reports the search the list on screen came from, not the one being typed', async () => {
+        const { result, rerender } = await renderCharacterList();
+        await lastRequest().respond(listOf('Kethra Ironsong', 'Vesper Quill'));
+
+        expect(result.current.shownSearch).toBeUndefined();
+
+        await rerender({ search: ' ves ', sort: 'level' });
+        await advance(SEARCH_DEBOUNCE_MS);
+
+        expect(result.current.shownSearch).toBeUndefined();
+
+        await lastRequest().respond(listOf('Vesper Quill'));
+
+        expect(result.current.shownSearch).toBe('ves');
+
+        await rerender({ search: '', sort: 'level' });
+
+        expect(result.current.shownSearch).toBe('ves');
+    });
+
     it('keeps the previous list without counting as searching when only the sort changes', async () => {
         const { result, rerender } = await renderCharacterList();
         await lastRequest().respond(listOf('Kethra Ironsong', 'Vesper Quill'));

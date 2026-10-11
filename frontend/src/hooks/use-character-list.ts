@@ -13,15 +13,26 @@ import { useDebouncedValue } from './use-debounced-value';
 /** How long typing has to pause before the search is sent. */
 export const SEARCH_DEBOUNCE_MS = 250;
 
-/** The query result from `useCharacterList`, plus whether a search is loading. */
+/**
+ * The query result from `useCharacterList`, plus which search it shows and whether one is
+ * loading.
+ */
 export type CharacterListResult = UseQueryResult<CharacterList> & {
     /** A new search is loading while the previous search's list stays on screen. */
     isSearching: boolean;
+    /**
+     * The trimmed search that `data` is the result of, or undefined when `data` is the whole list.
+     * It lags behind the search text while typing pauses and while the next search loads.
+     */
+    shownSearch: string | undefined;
 };
 
 /**
  * The player's characters and drafts. The search is trimmed and debounced, and a blank search asks
  * for everything. The previous list stays in `data` while the next one loads.
+ *
+ * @param search - The search field's text, as typed. Each change restarts the debounce.
+ * @param sort - The order the API returns the characters in.
  */
 export function useCharacterList(search: string, sort: CharacterSort): CharacterListResult {
     const q = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS) || undefined;
@@ -39,5 +50,5 @@ export function useCharacterList(search: string, sort: CharacterSort): Character
 
     const isSearching = query.isPlaceholderData && query.isFetching && shownQ !== q;
 
-    return { ...query, isSearching };
+    return { ...query, isSearching, shownSearch: shownQ };
 }
