@@ -22,7 +22,13 @@ export async function renderWithQuery(ui: ReactElement, client = createTestQuery
     return { ...view, client };
 }
 
-/** Renders `hook` inside a `QueryClientProvider`, as `renderWithQuery` does for UI. */
+/**
+ * Renders `hook` inside a `QueryClientProvider`, as `renderWithQuery` does for UI.
+ *
+ * @param hook - The hook callback to run inside the query provider.
+ * @param options.initialProps - The props to pass to the hook on its first render.
+ * @param options.client - The query client to provide, or a fresh test client when omitted.
+ */
 export async function renderHookWithQuery<Result, Props>(
     hook: (props: Props) => Result,
     {

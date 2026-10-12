@@ -4,17 +4,18 @@ import { initial } from '@/characters/display';
 import { colors, offsetShadow, typography } from '@/theme';
 
 type CharacterTokenProps = {
-    /** The character's name, or null for an unnamed draft, which gets an empty token. */
     name: string | null;
-    /** Diameter in points. 64 gets the larger initial. */
     size?: 56 | 64;
-    /** A draft's token: an outlined ring instead of a filled one. */
     draft?: boolean;
 };
 
 /**
  * A round token showing the first letter of a name. The letter is decoration: the name beside the
  * token is what screen readers announce.
+ *
+ * @param props.name - The character name, or null for an unnamed draft with an empty token.
+ * @param props.size - The token diameter in points. A 64-point token uses the larger initial.
+ * @param props.draft - Whether to draw an outlined draft ring instead of a filled character token.
  */
 export function CharacterToken({ name, size = 56, draft = false }: CharacterTokenProps) {
     return (

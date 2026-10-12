@@ -12,7 +12,6 @@ import { useCardScale } from './card-scale';
 
 type CharacterCardProps = {
     character: CharacterSummary;
-    /** Opens the character's sheet. Unset until the sheet route exists. */
     onPress?: () => void;
     style?: StyleProp<ViewStyle>;
 };
@@ -20,6 +19,10 @@ type CharacterCardProps = {
 /**
  * One character in the list. The whole card is a single link named by the character: the token
  * beside the name, the level block at the top right, and the hit points across the bottom.
+ *
+ * @param props.character - The character whose identity, level, and hit points to show.
+ * @param props.onPress - Opens the character sheet. Leave unset until the sheet route exists.
+ * @param props.style - Additional styles for the card surface and its layout.
  */
 export function CharacterCard({ character, onPress, style }: CharacterCardProps) {
     const scale = useCardScale();

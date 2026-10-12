@@ -11,13 +11,15 @@ import { ROW_SPACING } from './character-row';
 
 type DraftCardProps = {
     draft: Draft;
-    /** Reopens the draft where the player left it. Unset until the draft routes exist. */
     onResume?: () => void;
 };
 
 /**
  * An unfinished creation or level-up, with its progress and a Resume button. Phones get the short
  * copy, and wider screens add the next step and name the kind of draft on the button.
+ *
+ * @param props.draft - The unfinished creation or level-up whose progress to show.
+ * @param props.onResume - Reopens the draft where the player left it. Leave unset until draft routes exist.
  */
 export function DraftCard({ draft, onResume }: DraftCardProps) {
     const scale = useCardScale();

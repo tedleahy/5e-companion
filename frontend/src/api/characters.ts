@@ -66,12 +66,23 @@ export type CharacterListParams = {
     sort: CharacterSort;
 };
 
-/** The query key for one search and sort. Everything under `['characters']` shares a prefix. */
+/**
+ * The query key for one search and sort. Everything under `['characters']` shares a prefix.
+ *
+ * @param params.q - The trimmed name search, or undefined to cache the whole list.
+ * @param params.sort - The character order that distinguishes this cache entry.
+ */
 export function characterListQueryKey({ q, sort }: CharacterListParams) {
     return ['characters', 'list', { q, sort }] as const;
 }
 
-/** Fetches the character list. Throws as `apiFetch` does. */
+/**
+ * Fetches the character list. Throws as `apiFetch` does.
+ *
+ * @param params.q - The trimmed name search, or undefined to fetch every character.
+ * @param params.sort - The order to request from the API.
+ * @param signal - Cancels the request when its results are no longer needed.
+ */
 export function fetchCharacterList(
     { q, sort }: CharacterListParams,
     signal?: AbortSignal,

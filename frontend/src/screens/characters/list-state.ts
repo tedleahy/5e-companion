@@ -76,11 +76,7 @@ export function showsSearch(state: ListState, search: string): boolean {
     );
 }
 
-/**
- * Whether Create character shows. Creating can't work until the token does.
- *
- * @param state - What the list is showing.
- */
+/** Whether Create character shows. Creating can't work until the token does. */
 export function showsCreate(state: ListState): boolean {
     return state.kind !== 'signedOut';
 }

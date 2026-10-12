@@ -17,6 +17,7 @@ class Character < ApplicationRecord
   validates :temporary_hit_points, :lock_version,
     numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
+  # @param query [String] - The literal name fragment to match, escaping SQL wildcard characters.
   scope :named, ->(query) {
     where("characters.name ILIKE ?", "%#{sanitize_sql_like(query)}%")
   }

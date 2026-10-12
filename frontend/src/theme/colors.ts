@@ -83,12 +83,20 @@ function mix(a: string, b: string, t: number): string {
     return rgbToHex(ar + (br - ar) * t, ag + (bg - ag) * t, ab + (bb - ab) * t);
 }
 
+/**
+ * @param hex - The hex color whose channels to include in the CSS color.
+ * @param alpha - The opacity to apply to the color, from zero to one.
+ */
 function rgba(hex: string, alpha: number): string {
     const [r, g, b] = hexToRgb(hex);
     return `rgba(${r},${g},${b},${alpha})`;
 }
 
-/** WCAG relative luminance, from 0 for black to 1 for white. */
+/**
+ * WCAG relative luminance, from 0 for black to 1 for white.
+ *
+ * @param hex - The opaque hex color whose relative luminance to calculate.
+ */
 function luminance(hex: string): number {
     const [r, g, b] = hexToRgb(hex).map((c) => {
         const s = c / 255;
@@ -115,7 +123,13 @@ function steps(from: number, to: number, by: number): number[] {
     return out;
 }
 
-/** First candidate that reaches AA against every background, else the last candidate. */
+/**
+ * First candidate that reaches AA against every background, else the last candidate.
+ *
+ * @param fn - Builds a candidate color from a mix ratio.
+ * @param ts - The candidate mix ratios in the order to test.
+ * @param backgrounds - The surfaces on which the candidate must meet the AA contrast minimum.
+ */
 function ensure(fn: (t: number) => string, ts: number[], backgrounds: string[]): string {
     for (const t of ts) {
         const candidate = fn(t);
@@ -124,7 +138,12 @@ function ensure(fn: (t: number) => string, ts: number[], backgrounds: string[]):
     return fn(ts[ts.length - 1]);
 }
 
-/** Light text if it passes AA on the ink, otherwise the lightest darkened ink that does. */
+/**
+ * Light text if it passes AA on the ink, otherwise the lightest darkened ink that does.
+ *
+ * @param bg - The ink behind the text that needs an AA contrast ratio.
+ * @param paper - The paper color used to choose a matching light text color.
+ */
 function onInk(bg: string, paper: string): string {
     const light = luminance(paper) > 0.65 ? mix(paper, '#ffffff', 0.4) : '#ffffff';
     if (contrast(light, bg) >= AA) return light;

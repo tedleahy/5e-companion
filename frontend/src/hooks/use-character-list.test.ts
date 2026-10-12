@@ -64,7 +64,11 @@ beforeEach(() => {
                     signal,
                     respond: async (body) => {
                         await act(async () => {
-                            resolve({ ok: true, status: 200, json: async () => body } as Response);
+                            resolve({
+                                ok: true,
+                                status: 200,
+                                json: async () => body,
+                            } as Response);
                             // TanStack Query batches its updates to observers on a zero-delay timer.
                             await jest.advanceTimersByTimeAsync(0);
                         });

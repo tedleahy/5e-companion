@@ -10165,24 +10165,44 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
      note:'The roll takes the right column from below the strip, still inside the pad. The death-saves box stays in view on the dying plate, ringed as the opener. Play stays at the top. There is no scrim, because the plate stays visible.'}
   ];
 
+  /**
+   * @param hex - The hex color to split into red, green, and blue channels.
+   */
   function hexToRgb(hex){
     hex = hex.replace('#','');
     if(hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
     return [parseInt(hex.slice(0,2),16), parseInt(hex.slice(2,4),16), parseInt(hex.slice(4,6),16)];
   }
+  /**
+   * @param r - The red channel to clamp and round to a byte.
+   * @param g - The green channel to clamp and round to a byte.
+   * @param b - The blue channel to clamp and round to a byte.
+   */
   function rgbToHex(r,g,b){
     return '#'+[r,g,b].map(function(x){
       return ('0'+Math.round(Math.max(0,Math.min(255,x))).toString(16)).slice(-2);
     }).join('');
   }
+  /**
+   * @param a - The starting hex color.
+   * @param b - The hex color to mix toward.
+   * @param t - The proportion of the target color, from zero to one.
+   */
   function mix(a,b,t){
     var A = hexToRgb(a), B = hexToRgb(b);
     return rgbToHex(A[0]+(B[0]-A[0])*t, A[1]+(B[1]-A[1])*t, A[2]+(B[2]-A[2])*t);
   }
+  /**
+   * @param hex - The hex color whose channels to include in the CSS color.
+   * @param a - The opacity to apply to the color, from zero to one.
+   */
   function rgba(hex,a){
     var c = hexToRgb(hex);
     return 'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')';
   }
+  /**
+   * @param hex - The opaque hex color whose relative luminance to calculate.
+   */
   function lum(hex){
     var rgb = hexToRgb(hex).map(function(c){
       c /= 255;
@@ -10191,15 +10211,29 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     return 0.2126*rgb[0] + 0.7152*rgb[1] + 0.0722*rgb[2];
   }
   var AA = 4.5;
+  /**
+   * @param x - The first opaque hex color to compare.
+   * @param y - The second opaque hex color to compare.
+   */
   function contrast(x, y){
     var p = lum(x) + 0.05, q = lum(y) + 0.05;
     return p > q ? p / q : q / p;
   }
+  /**
+   * @param from - The first candidate mix ratio to include.
+   * @param to - The last candidate mix ratio to include.
+   * @param by - The step between ratios, negative when searching downward.
+   */
   function steps(from, to, by){
     var out = [], n = Math.round((to - from) / by);
     for(var i = 0; i <= n; i++) out.push(+(from + by * i).toFixed(2));
     return out;
   }
+  /**
+   * @param fn - Builds a candidate color from a mix ratio.
+   * @param ts - The candidate mix ratios in the order to test.
+   * @param bgs - The surfaces on which each candidate must meet the AA contrast minimum.
+   */
   function ensure(fn, ts, bgs){
     for(var i = 0; i < ts.length; i++){
       var c = fn(ts[i]);
@@ -10207,12 +10241,19 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     }
     return fn(ts[ts.length - 1]);
   }
+  /**
+   * @param bg - The ink behind the text that needs an AA contrast ratio.
+   * @param paper - The paper color used to choose a matching light text color.
+   */
   function onInk(bg, paper){
     var light = lum(paper) > 0.65 ? mix(paper, '#ffffff', 0.4) : '#ffffff';
     if(contrast(light, bg) >= AA) return light;
     var dark = ensure(function(t){ return mix(bg, '#140c08', t); }, steps(0.6, 1, 0.02), [bg]);
     return contrast(dark, bg) >= contrast(light, bg) ? dark : light;
   }
+  /**
+   * @param v - The typed color value to validate and normalize, with or without a leading hash.
+   */
   function parseHex(v){
     if(!v) return null;
     v = v.trim();
@@ -10224,6 +10265,9 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     return null;
   }
   // Unchanged from the character list mockup. Five inks in, every other token out.
+  /**
+   * @param p - The five source inks from which to calculate the mockup color tokens.
+   */
   function derive(p){
     var paper = p.paper, card = p.card, structural = p.structural, accent = p.accent, overprint = p.overprint;
     var text = mix(structural, '#14110e', lum(structural) > 0.2 ? 0.72 : 0.35);
@@ -10254,12 +10298,20 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
   var wrap = document.getElementById('frames');
   var frameNo = 0, deskNo = 0, tabNo = 0;
+  /**
+   * @param s - The section title to convert into a gallery anchor ID.
+   */
   function slug(s){
     return s.toLowerCase().replace(/&[a-z]+;/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   }
   // Desktop and tablet frames are assembled from parts on a stage, 1440 by 900
   // unless the template sets data-size, which is scaled to the width its frame
   // gets. Tablet frames share a row, sized so both scale alike.
+  /**
+   * @param f - The frame metadata that selects the device size, label, and note.
+   * @param tpl - The template containing the frame content to clone.
+   * @param next - The following frame, used to keep adjacent tablet frames on the same row.
+   */
   function buildDesk(f, tpl, next){
     var size = (tpl.getAttribute('data-size') || '1440x900').split('x');
     var col = document.createElement('div');
@@ -10356,6 +10408,9 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     wrap.appendChild(col);
   });
 
+  /**
+   * @param f - The desktop or tablet frame whose device label to derive from its template size.
+   */
   function deviceLabel(f){
     if(f.desktop) return 'Desktop';
     var tpl = document.getElementById('tpl-' + f.id);
@@ -10503,6 +10558,9 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   var lives = document.querySelectorAll('.live');
   var picks = {paper:BASE.paper, card:BASE.card, structural:BASE.structural, accent:BASE.accent, overprint:BASE.overprint};
 
+  /**
+   * @param t - The derived color tokens to apply as CSS variables to every live frame.
+   */
   function apply(t){
     lives.forEach(function(el){
       el.style.setProperty('--paper', t.paper);
@@ -10593,12 +10651,20 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   // Tabs and single-choice groups: a click or the arrow keys move the choice,
   // and focus roves so Tab lands on the chosen item. Tabs switch nothing yet:
   // one tab per screen is drawn.
+  /**
+   * @param group - The tab list or radio group whose enabled direct choices to collect.
+   */
   function groupItems(group){
     var role = group.getAttribute('role') === 'tablist' ? 'tab' : 'radio';
     return Array.prototype.filter.call(group.querySelectorAll('[role=' + role + ']'), function(el){
       return el.closest('[role=tablist],[role=radiogroup]') === group && !el.disabled;
     });
   }
+  /**
+   * @param group - The tab list or radio group whose selection to update.
+   * @param item - The enabled choice that becomes selected and receives the tab stop.
+   * @param focus - Whether to move keyboard focus to the selected choice.
+   */
   function choose(group, item, focus){
     var attr = item.getAttribute('role') === 'tab' ? 'aria-selected' : 'aria-checked';
     groupItems(group).forEach(function(el){ el.setAttribute(attr, el === item ? 'true' : 'false'); el.tabIndex = el === item ? 0 : -1; });
@@ -10629,12 +10695,19 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   // filled one and a tap on an empty pip restores the first empty one, so a tap
   // that lands on a neighbour in the same state does the same thing. Arrow keys,
   // or a swipe with a screen reader, step it; Home spends all and End restores all.
+  /**
+   * @param p - The resource or death-save pip row whose accessible value to synchronize.
+   */
   function syncPips(p){
     var all = p.querySelectorAll('i').length, on = p.querySelectorAll('i[data-on]').length;
     var saves = p.classList.contains('ds-ok') || p.classList.contains('ds-bad');
     p.setAttribute('aria-valuemax', all); p.setAttribute('aria-valuenow', on);
     p.setAttribute('aria-valuetext', on + ' of ' + all + (saves ? '' : ' left'));
   }
+  /**
+   * @param p - The pip row whose filled count to adjust.
+   * @param delta - The adjustment direction, positive to restore one pip and negative to spend one.
+   */
   function stepPips(p, delta){
     var on = p.querySelectorAll('i[data-on]'), off = p.querySelectorAll('i:not([data-on])');
     if(delta > 0 && off.length) off[0].setAttribute('data-on', '');
@@ -10664,8 +10737,17 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   // their drawn values; Replay and Re-roll roll for real.
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var POSES = ['p1','p2','p3','p4','p5'];
+  /**
+   * @param n - The number of sides on the die to roll.
+   */
   function d(n){ return 1 + Math.floor(Math.random() * n); }
+  /**
+   * @param roll - The roll container whose die controls to collect in display order.
+   */
   function diceOf(roll){ return Array.prototype.slice.call(roll.querySelectorAll('.die')); }
+  /**
+   * @param roll - The healing or death-save roll whose math, explanation, and confirmation to update.
+   */
   function updateRoll(roll){
     var dice = diceOf(roll), ds = roll.dataset, name = ds.name;
     var vals = dice.map(function(el){ return el.hasAttribute('data-empty') ? null : +el.querySelector('b').textContent; });
@@ -10698,6 +10780,10 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       if(lucky) lucky.hidden = !(v === 1 && ds.lucky === 'true');
     }
   }
+  /**
+   * @param roll - The roll container whose dice to animate and resolve.
+   * @param finals - The predetermined landing faces for a gallery demonstration, or undefined for random rolls.
+   */
   function rollDice(roll, finals){
     var dice = diceOf(roll), sides = +roll.dataset.sides, step = 0;
     var values = dice.map(function(el, i){ return finals ? finals[i] : d(sides); });
@@ -10774,6 +10860,9 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   });
 
   // Notes save as you type. A long note shows six lines until expanded or focused.
+  /**
+   * @param ta - The note textarea whose height and expansion control to update.
+   */
   function sizeNote(ta){
     var wrap = ta.closest('.notewrap'), show = wrap.querySelector('.noteshow');
     ta.classList.remove('clamped');
@@ -10807,6 +10896,9 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   // Bottom sheets are modal. While one is open the screen behind is inert and
   // focus cycles inside the sheet. Escape, Close or the scrim closes it and
   // returns focus to the control that opened it, which opens it again.
+  /**
+   * @param root - The sheet or panel subtree whose visible keyboard focus targets to collect.
+   */
   function focusablesIn(root){
     return Array.prototype.filter.call(root.querySelectorAll('button, a[href], input, textarea, select, [tabindex]'), function(el){
       return el.tabIndex >= 0 && !el.disabled && !el.closest('[hidden],[inert]') && el.getClientRects().length;
@@ -10816,6 +10908,10 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     var screen = sheet.parentElement, scrim = screen.querySelector(':scope > .bscrim');
     var behind = Array.prototype.filter.call(screen.children, function(el){ return el !== sheet && el !== scrim; });
     var opener = screen.querySelector('[aria-haspopup="dialog"][aria-expanded="true"]');
+    /**
+     * @param open - Whether the bottom sheet and its scrim should be visible.
+     * @param from - The control that opened the sheet and should regain focus when it closes.
+     */
     function setOpen(open, from){
       sheet.hidden = !open; if(scrim) scrim.hidden = !open;
       behind.forEach(function(el){ if(open) el.setAttribute('inert', ''); else el.removeAttribute('inert'); });

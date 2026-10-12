@@ -250,6 +250,7 @@ class Api::V1::CharactersControllerTest < ActionDispatch::IntegrationTest
     get api_v1_characters_url, params: params, headers: { "Authorization" => "Bearer #{@token}" }
   end
 
+  # @param key [String] - The response collection, characters or drafts, whose IDs to return in order.
   def body_ids(key)
     response.parsed_body[key].pluck("id")
   end

@@ -134,11 +134,7 @@ function Notice({ title, development = false, children }: NoticeProps) {
     );
 }
 
-/**
- * The bold first line of an empty card or a notice.
- *
- * @param props.children - The heading's text.
- */
+/** The bold first line of an empty card or a notice. */
 function MessageHeading({ children }: { children: ReactNode }) {
     const { wide } = useCardScale();
 

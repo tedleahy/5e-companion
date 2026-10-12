@@ -7,15 +7,16 @@ import { PrimaryButton } from '@/components/buttons';
 import { colors } from '@/theme';
 
 type CreateFooterProps = {
-    /** Starts creating a character. Unset until the creation route exists. */
     onCreate?: () => void;
-    /** Reports the footer's height, so the list can leave room to scroll clear of it. */
     onLayout?: (event: LayoutChangeEvent) => void;
 };
 
 /**
  * The Create character button, pinned to the bottom of the screen above the safe area. The list
  * fades into paper behind it. Taps on the clear part of the fade reach the list underneath.
+ *
+ * @param props.onCreate - Starts creating a character. Leave unset until the creation route exists.
+ * @param props.onLayout - Reports the footer layout so the list can scroll clear of its height.
  */
 export function CreateFooter({ onCreate, onLayout }: CreateFooterProps) {
     // Gradient ids are global to the web document, so each footer needs its own.

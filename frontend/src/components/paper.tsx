@@ -17,6 +17,9 @@ type PaperProps = {
 /**
  * The page background: paper with a dot grid and a coarser line grid printed on it. Fills its
  * parent. The grid stays put while anything scrollable inside it moves.
+ *
+ * @param props.children - The page content to render above the fixed paper grid.
+ * @param props.style - Additional styles for the paper container.
  */
 export function Paper({ children, style }: PaperProps) {
     // Pattern ids are global to the web document, so each Paper needs its own.

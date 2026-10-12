@@ -6,20 +6,28 @@ import { PrintPressable } from './print-pressable';
 
 type ButtonProps = {
     label: string;
-    /** Unset until the action exists. The button still looks and responds as if it were enabled. */
     onPress?: () => void;
     accessibilityLabel?: string;
-    /** Sits on the structural plate, so its focus ring needs the light ink. */
     onPlate?: boolean;
     style?: StyleProp<ViewStyle>;
 };
 
 type PrimaryButtonProps = ButtonProps & {
-    /** `large` has more padding and larger text than `medium`. */
     size?: 'large' | 'medium';
 };
 
-/** Primary button used for key actions in the app. */
+/**
+ * Primary button used for key actions in the app.
+ *
+ * @param props - The button content, appearance, and forwarded press options.
+ * @param props.label - The visible action label.
+ * @param props.size - The button size that selects padding, text, and touch-target spacing.
+ * @param props.style - Additional styles for the button surface.
+ * @param props.onPress - Runs the action when pressed. Leave unset until the action exists; the
+ *   button still looks and responds as enabled.
+ * @param props.accessibilityLabel - The action name announced by screen readers when it differs from the visible label.
+ * @param props.onPlate - Whether the button sits on the structural plate and needs a light focus ring.
+ */
 export function PrimaryButton({ label, size = 'large', style, ...props }: PrimaryButtonProps) {
     return (
         <PrintPressable
@@ -77,11 +85,22 @@ const SECONDARY_SIZES: Record<
 
 type SecondaryButtonProps = ButtonProps & {
     size: SecondarySize;
-    /** `link` for a button that goes somewhere rather than acting here. */
     role?: 'button' | 'link';
 };
 
-/** A secondary action on a card-coloured face with a structural outline and an accent shadow. */
+/**
+ * A secondary action on a card-coloured face with a structural outline and an accent shadow.
+ *
+ * @param props - The button content, appearance, and forwarded press options.
+ * @param props.label - The visible action label.
+ * @param props.size - The button size that selects padding, text, and touch-target spacing.
+ * @param props.style - Additional styles for the button surface.
+ * @param props.onPress - Runs the action when pressed. Leave unset until the action exists; the
+ *   button still looks and responds as enabled.
+ * @param props.accessibilityLabel - The action name announced by screen readers when it differs from the visible label.
+ * @param props.onPlate - Whether the button sits on the structural plate and needs a light focus ring.
+ * @param props.role - The accessible role, using link when the action opens another screen.
+ */
 export function SecondaryButton({
     label,
     size,

@@ -1092,24 +1092,44 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
       paper:'#eae6de', card:'#f0ece4', structural:'#2560b0', accent:'#e0689c', overprint:'#5c3d88'}
   ];
 
+  /**
+   * @param hex - The hex color to split into red, green, and blue channels.
+   */
   function hexToRgb(hex){
     hex = hex.replace('#','');
     if(hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
     return [parseInt(hex.slice(0,2),16), parseInt(hex.slice(2,4),16), parseInt(hex.slice(4,6),16)];
   }
+  /**
+   * @param r - The red channel to clamp and round to a byte.
+   * @param g - The green channel to clamp and round to a byte.
+   * @param b - The blue channel to clamp and round to a byte.
+   */
   function rgbToHex(r,g,b){
     return '#'+[r,g,b].map(function(x){
       return ('0'+Math.round(Math.max(0,Math.min(255,x))).toString(16)).slice(-2);
     }).join('');
   }
+  /**
+   * @param a - The starting hex color.
+   * @param b - The hex color to mix toward.
+   * @param t - The proportion of the target color, from zero to one.
+   */
   function mix(a,b,t){
     var A = hexToRgb(a), B = hexToRgb(b);
     return rgbToHex(A[0]+(B[0]-A[0])*t, A[1]+(B[1]-A[1])*t, A[2]+(B[2]-A[2])*t);
   }
+  /**
+   * @param hex - The hex color whose channels to include in the CSS color.
+   * @param a - The opacity to apply to the color, from zero to one.
+   */
   function rgba(hex,a){
     var c = hexToRgb(hex);
     return 'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')';
   }
+  /**
+   * @param hex - The opaque hex color whose relative luminance to calculate.
+   */
   function lum(hex){
     var rgb = hexToRgb(hex).map(function(c){
       c /= 255;
@@ -1118,16 +1138,30 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     return 0.2126*rgb[0] + 0.7152*rgb[1] + 0.0722*rgb[2];
   }
   var AA = 4.5;
+  /**
+   * @param x - The first opaque hex color to compare.
+   * @param y - The second opaque hex color to compare.
+   */
   function contrast(x, y){
     var p = lum(x) + 0.05, q = lum(y) + 0.05;
     return p > q ? p / q : q / p;
   }
+  /**
+   * @param from - The first candidate mix ratio to include.
+   * @param to - The last candidate mix ratio to include.
+   * @param by - The step between ratios, negative when searching downward.
+   */
   function steps(from, to, by){
     var out = [], n = Math.round((to - from) / by);
     for(var i = 0; i <= n; i++) out.push(+(from + by * i).toFixed(2));
     return out;
   }
   // First candidate that reaches AA against every background, else the last candidate.
+  /**
+   * @param fn - Builds a candidate color from a mix ratio.
+   * @param ts - The candidate mix ratios in the order to test.
+   * @param bgs - The surfaces on which each candidate must meet the AA contrast minimum.
+   */
   function ensure(fn, ts, bgs){
     for(var i = 0; i < ts.length; i++){
       var c = fn(ts[i]);
@@ -1136,12 +1170,19 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     return fn(ts[ts.length - 1]);
   }
   // Light text if it passes AA on the ink, otherwise the lightest darkened ink that does.
+  /**
+   * @param bg - The ink behind the text that needs an AA contrast ratio.
+   * @param paper - The paper color used to choose a matching light text color.
+   */
   function onInk(bg, paper){
     var light = lum(paper) > 0.65 ? mix(paper, '#ffffff', 0.4) : '#ffffff';
     if(contrast(light, bg) >= AA) return light;
     var dark = ensure(function(t){ return mix(bg, '#140c08', t); }, steps(0.6, 1, 0.02), [bg]);
     return contrast(dark, bg) >= contrast(light, bg) ? dark : light;
   }
+  /**
+   * @param v - The typed color value to validate and normalize, with or without a leading hash.
+   */
   function parseHex(v){
     if(!v) return null;
     v = v.trim();
@@ -1152,6 +1193,9 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     }
     return null;
   }
+  /**
+   * @param p - The five source inks from which to calculate the mockup color tokens.
+   */
   function derive(p){
     var paper = p.paper, card = p.card, structural = p.structural, accent = p.accent, overprint = p.overprint;
     var text = mix(structural, '#14110e', lum(structural) > 0.2 ? 0.72 : 0.35);
@@ -1252,6 +1296,11 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
       slot.replaceWith(document.getElementById('tpl-part-' + slot.dataset.part).content.cloneNode(true));
     }
   }
+  /**
+   * @param col - The frame wrapper to receive its label and explanatory note.
+   * @param label - The HTML label identifying the frame and device.
+   * @param note - The HTML explanation of the behavior illustrated by this frame.
+   */
   function frameText(col, label, note){
     var l = document.createElement('p');
     l.className = 'frame-label';
@@ -1265,6 +1314,11 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   // Desktop and tablet frames sit on a stage, 1440 by 900 unless the template
   // sets data-size, scaled to the width the frame gets. Tablet frames share a
   // row, sized so both scale alike.
+  /**
+   * @param f - The frame metadata that selects the device size, label, and note.
+   * @param tpl - The template containing the frame content to clone.
+   * @param next - The following frame, used to keep adjacent tablet frames on the same row.
+   */
   function buildDesk(f, tpl, next){
     var size = (tpl.getAttribute('data-size') || '1440x900').split('x');
     var col = document.createElement('div');
@@ -1332,6 +1386,9 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   var activeId = PRESETS[0].id;
   var custom = false;
 
+  /**
+   * @param t - The derived color tokens to apply as CSS variables to every live frame.
+   */
   function apply(t){
     lives.forEach(function(el){
       el.style.setProperty('--paper', t.paper);
@@ -1384,6 +1441,9 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
       btn.setAttribute('aria-current', btn.dataset.id === activeId && !custom ? 'true' : 'false');
     });
   }
+  /**
+   * @param id - The palette preset ID to load into the ink controls.
+   */
   function loadPreset(id){
     var p = PRESETS.filter(function(x){ return x.id === id; })[0];
     picks = {paper:p.paper, card:p.card, structural:p.structural, accent:p.accent, overprint:p.overprint};

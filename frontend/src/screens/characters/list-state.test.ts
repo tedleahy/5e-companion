@@ -25,11 +25,7 @@ const withCharacters: CharacterList = { characters: [thorn], drafts: [nyra] };
 const nothing: CharacterList = { characters: [], drafts: [] };
 const draftsOnly: CharacterList = { characters: [], drafts: [nyra] };
 
-/**
- * A loaded, unsearched list with no error, changed by `overrides`.
- *
- * @param overrides - The inputs that differ from a plain loaded list.
- */
+/** A loaded, unsearched list with no error, changed by `overrides`. */
 function input(overrides: Partial<ListStateInput>): ListStateInput {
     return {
         data: withCharacters,

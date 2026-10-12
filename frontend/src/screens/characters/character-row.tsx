@@ -23,13 +23,15 @@ export const ROW_SPACING = {
 
 type CharacterRowProps = {
     character: CharacterSummary;
-    /** Opens the character's sheet. Unset until the sheet route exists. */
     onOpen?: () => void;
 };
 
 /**
  * One character on the desktop list, in columns: token, name and subtitle, level, hit points, then
  * an Open sheet link. Only the link is pressable, not the row.
+ *
+ * @param props.character - The character whose summary to show in the desktop columns.
+ * @param props.onOpen - Opens the character sheet. Leave unset until the sheet route exists.
  */
 export function CharacterRow({ character, onOpen }: CharacterRowProps) {
     const scale = useCardScale();

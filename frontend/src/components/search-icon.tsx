@@ -1,6 +1,10 @@
 import Svg, { Circle, Path } from 'react-native-svg';
 
-/** The magnifying glass in the search field, drawn at 15 points. Decorative, so screen readers skip it. */
+/**
+ * The magnifying glass in the search field, drawn at 15 points. Decorative, so screen readers skip it.
+ *
+ * @param props.color - The ink used to draw the magnifying glass stroke.
+ */
 export function SearchIcon({ color }: { color: string }) {
     return (
         <Svg

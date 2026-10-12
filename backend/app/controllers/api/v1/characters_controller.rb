@@ -41,6 +41,8 @@ module Api
         }, status: :bad_request
       end
 
+      # @param characters [ActiveRecord::Relation<Character>] - The user's characters after filtering.
+      # @param sort [String] - The requested order, either name or descending total level.
       def sort_characters(characters, sort)
         if sort == "name"
           characters.order(Arel.sql("LOWER(characters.name) ASC"), id: :asc)
@@ -56,6 +58,7 @@ module Api
         end
       end
 
+      # @param character [Character] - The character whose identity, classes, and hit points to serialize.
       def character_summary(character)
         {
           id: character.id.to_s,
@@ -80,6 +83,7 @@ module Api
         }
       end
 
+      # @param draft [CharacterDraft] - The unfinished creation or level-up whose progress to serialize.
       def draft_summary(draft)
         case draft.kind
         when "creation"

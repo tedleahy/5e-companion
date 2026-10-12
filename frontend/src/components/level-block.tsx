@@ -3,13 +3,16 @@ import { StyleSheet, Text, View } from 'react-native';
 import { colors, typography } from '@/theme';
 
 type LevelBlockProps = {
-    /** Total level. 0 means the character has no classes yet. */
     level: number;
-    /** Draws the label at the larger size. */
     large?: boolean;
 };
 
-/** A "Level" label over the character's total level, or a dim dash when it has no classes. */
+/**
+ * A "Level" label over the character's total level, or a dim dash when it has no classes.
+ *
+ * @param props.level - The total character level. Zero shows Level not set.
+ * @param props.large - Whether to use the larger label for wide layouts.
+ */
 export function LevelBlock({ level, large = false }: LevelBlockProps) {
     const isSet = level > 0;
 

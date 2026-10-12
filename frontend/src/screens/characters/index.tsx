@@ -265,12 +265,7 @@ function wideCharacters(
     ));
 }
 
-/**
- * Splits `characters` into rows of two, in order. The last row has one if the count is odd.
- *
- * @param characters - The characters to pair up. Their order is kept, so reading across each row
- *   and down the rows follows the API's sort.
- */
+/** Splits `characters` into rows of two, in order. The last row has one if the count is odd. */
 function pairs(characters: CharacterSummary[]): CharacterSummary[][] {
     const rows: CharacterSummary[][] = [];
     for (let index = 0; index < characters.length; index += 2) {

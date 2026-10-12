@@ -4,6 +4,11 @@ export class ApiError extends Error {
     /** The API's machine-readable error code, or null when the body didn't carry one. */
     readonly code: string | null;
 
+    /**
+     * @param status - The HTTP status that made the request fail.
+     * @param code - The API error code, or null when the response has none.
+     * @param message - The failure description exposed to callers.
+     */
     constructor(status: number, code: string | null, message: string) {
         super(message);
         this.name = 'ApiError';
@@ -57,7 +62,13 @@ function requireEnv(name: string, value: string | undefined): string {
     return value;
 }
 
-/** Joins `baseUrl` and `path` and adds the encoded query, leaving out undefined values. */
+/**
+ * Joins `baseUrl` and `path` and adds the encoded query, leaving out undefined values.
+ *
+ * @param baseUrl - The API origin and optional path prefix.
+ * @param path - The endpoint path to append to the base URL.
+ * @param query - The query values to encode, omitting undefined entries.
+ */
 function buildUrl(baseUrl: string, path: string, query: QueryParams = {}): string {
     const search = Object.entries(query)
         .filter((entry): entry is [string, string | number] => entry[1] !== undefined)

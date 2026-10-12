@@ -258,7 +258,12 @@ export function ComponentLibrary() {
     );
 }
 
-/** A card for one component: its name, path, description and demo. */
+/**
+ * A card for one component: its name, path, description and demo.
+ *
+ * @param props.entry - The component name, source path, description, and examples to show.
+ * @param props.isPhone - Whether to use the smaller phone heading and body text.
+ */
 function Section({ entry, isPhone }: { entry: Entry; isPhone: boolean }) {
     return (
         <View style={styles.section}>
@@ -282,7 +287,13 @@ function Row({ children }: { children: ReactNode }) {
     return <View style={styles.row}>{children}</View>;
 }
 
-/** One variant of a component with a small label above it. `wide` gives it a card's width. */
+/**
+ * One variant of a component with a small label above it. `wide` gives it a card's width.
+ *
+ * @param props.label - The text identifying this component variant.
+ * @param props.wide - Whether the example should stretch across the available row width.
+ * @param props.children - The live component example to show below its label.
+ */
 function Variant({
     label,
     wide = false,

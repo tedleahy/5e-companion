@@ -39,7 +39,11 @@ export function useCharacterList(search: string, sort: CharacterSort): Character
 
     const query = useQuery({
         queryKey: characterListQueryKey({ q, sort }),
-        queryFn: ({ signal }) => fetchCharacterList({ q, sort }, signal),
+        queryFn:
+            /**
+             * @param context.signal - Cancels the list request when TanStack Query discards this search or sort.
+             */
+            ({ signal }) => fetchCharacterList({ q, sort }, signal),
         placeholderData: keepPreviousData,
     });
 

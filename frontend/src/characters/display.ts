@@ -38,7 +38,11 @@ const NUMBER_WORDS = [
     'ten',
 ];
 
-/** Helper function to return either a word looked up in NUMBER_WORDS or just the input as a string. */
+/**
+ * Helper function to return either a word looked up in NUMBER_WORDS or just the input as a string.
+ *
+ * @param n - The choice count to spell out when it is between zero and ten.
+ */
 function getNumberWord(n: number): string {
     return NUMBER_WORDS[n] ?? n.toString();
 }
@@ -67,19 +71,31 @@ export function subtitle(character: CharacterSummary): string {
     return subclasses.length ? `${text}, ${subclasses.join(', ')}` : text;
 }
 
-/** Uppercases the first grapheme (normal char or unicode char) without changing the rest of the text. */
+/**
+ * Uppercases the first grapheme (normal char or unicode char) without changing the rest of the text.
+ */
 function capitalise(text: string): string {
     const firstChar = splitGraphemes(text).next().value ?? '';
     // Slice by the original length because uppercasing can expand a grapheme, such as ß to SS.
     return firstChar.toUpperCase() + text.slice(firstChar.length);
 }
-/** Returns the the uppercased first character in a name, allowing for unicode chars. */
+/**
+ * Returns the the uppercased first character in a name, allowing for unicode chars.
+ *
+ * @param name - The character or draft name, or null for an empty token.
+ */
 export function initial(name: string | null): string {
     const firstChar = splitGraphemes(name?.trim() ?? '').next().value ?? '';
     return firstChar.toUpperCase();
 }
 
-/** Formats actual hit points and a ten-segment meter; temporary points only affect the text. */
+/**
+ * Formats actual hit points and a ten-segment meter; temporary points only affect the text.
+ *
+ * @param points.current - The remaining hit points, or null when they are not set.
+ * @param points.maximum - The hit point maximum, or null when it is not set. A nonpositive maximum hides the meter.
+ * @param points.temporary - The temporary hit points to append to the text without filling the meter.
+ */
 export function hitPoints({
     current,
     maximum,
@@ -113,7 +129,12 @@ function filledSegments(current: number, maximum: number): number {
     return Math.max(1, Math.min(9, roundedSegments));
 }
 
-/** Formats either draft kind; compact phone copy omits the next step and uses a short button label. */
+/**
+ * Formats either draft kind; compact phone copy omits the next step and uses a short button label.
+ *
+ * @param draft - The unfinished creation or level-up whose title and progress to format.
+ * @param compact - Whether to use the shorter phone title, detail, and Resume label.
+ */
 export function draftCopy(draft: Draft, compact: boolean): DraftCopy {
     const completed = getNumberWord(draft.completed_choices);
     const total = getNumberWord(draft.total_choices);
@@ -129,7 +150,14 @@ export function draftCopy(draft: Draft, compact: boolean): DraftCopy {
         : levelUpDraftCopy(draft, compact, { progress, nextSentence });
 }
 
-/** Formats creation copy for phone or wide layouts, including the unnamed title fallback. */
+/**
+ * Formats creation copy for phone or wide layouts, including the unnamed title fallback.
+ *
+ * @param draft - The unfinished creation draft whose name supplies the title.
+ * @param compact - Whether to use the shorter phone copy.
+ * @param sentences.progress - The completed and total choice counts already formatted as a sentence.
+ * @param sentences.nextSentence - The approved next-step sentence, or an empty string to omit it.
+ */
 function creationDraftCopy(
     draft: CreationDraft,
     compact: boolean,
@@ -147,7 +175,12 @@ function creationDraftCopy(
     };
 }
 
-/** Formats a creation title, keeping unnamed drafts as "New character". */
+/**
+ * Formats a creation title, keeping unnamed drafts as "New character".
+ *
+ * @param name - The creation draft name, or null to use New character.
+ * @param compact - Whether to omit the new-character suffix from a named draft.
+ */
 function creationDraftTitle(name: string | null, compact: boolean): string {
     const trimmedName = name?.trim();
 
@@ -157,7 +190,14 @@ function creationDraftTitle(name: string | null, compact: boolean): string {
     return `${trimmedName}, new character`;
 }
 
-/** Formats level-up copy, placing levels in the phone detail or the wide title. */
+/**
+ * Formats level-up copy, placing levels in the phone detail or the wide title.
+ *
+ * @param draft - The level-up draft supplying the character name and starting and target levels.
+ * @param compact - Whether to use the shorter phone copy.
+ * @param sentences.progress - The completed and total choice counts already formatted as a sentence.
+ * @param sentences.nextSentence - The approved next-step sentence, or an empty string to omit it.
+ */
 function levelUpDraftCopy(
     draft: LevelUpDraft,
     compact: boolean,

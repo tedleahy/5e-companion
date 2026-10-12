@@ -4,7 +4,12 @@ import { ApiError } from './client';
 
 const MAX_RETRIES = 2;
 
-/** Retries anything but a 4xx, which would fail the same way again. */
+/**
+ * Retries anything but a 4xx, which would fail the same way again.
+ *
+ * @param failureCount - The number of retries already attempted for this query.
+ * @param error - The failure to inspect for a non-retryable client error.
+ */
 export function shouldRetry(failureCount: number, error: Error): boolean {
     if (error instanceof ApiError && error.status >= 400 && error.status < 500) return false;
 

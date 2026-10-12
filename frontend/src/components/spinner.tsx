@@ -18,6 +18,8 @@ const TURN_MS = 900;
 /**
  * A structural arc turning on an empty track. It holds still when the system asks for reduced
  * motion. Screen readers skip it, so put the text it stands for beside it.
+ *
+ * @param props.size - The spinner diameter in points. The 16-point variant uses a thicker stroke.
  */
 export function Spinner({ size }: { size: 16 | 36 | 44 }) {
     const reduceMotion = useReducedMotion();
