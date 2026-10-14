@@ -13,6 +13,7 @@ describe('ComponentLibrary', () => {
         expect(sections.map((heading) => heading.props.children)).toEqual([
             'Paper',
             'Heading',
+            'VisuallyHidden',
             'SearchIcon',
             'WarningIcon',
             'CharacterToken',

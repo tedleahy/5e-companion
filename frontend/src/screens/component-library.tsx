@@ -12,6 +12,7 @@ import { Paper } from '@/components/paper';
 import { PrintPressable } from '@/components/print-pressable';
 import { SearchIcon } from '@/components/search-icon';
 import { Spinner } from '@/components/spinner';
+import { VisuallyHidden } from '@/components/visually-hidden';
 import { WarningIcon } from '@/components/warning-icon';
 import { useBreakpoint } from '@/hooks/use-breakpoint';
 import { colors, offsetShadow, typography } from '@/theme';
@@ -50,6 +51,22 @@ const ENTRIES: Entry[] = [
             <Heading level={3} style={[typography.namePhone, styles.body]}>
                 A level 3 heading
             </Heading>
+        ),
+    },
+    {
+        name: 'VisuallyHidden',
+        path: 'src/components/visually-hidden.tsx',
+        description:
+            'Text that screen readers read but nobody sees. A screen reader reads a hidden line after the sentence below.',
+        demo: () => (
+            <View>
+                <Text style={[typography.subtitle, styles.body]}>
+                    Nothing visible follows this.
+                </Text>
+                <VisuallyHidden>
+                    <Text>This line is only for screen readers.</Text>
+                </VisuallyHidden>
+            </View>
         ),
     },
     {

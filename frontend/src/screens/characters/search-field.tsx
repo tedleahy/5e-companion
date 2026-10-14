@@ -4,6 +4,7 @@ import { Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 import { CHARACTER_SEARCH_MAX_LENGTH } from '@/api/characters';
 import { SearchIcon } from '@/components/search-icon';
 import { Spinner } from '@/components/spinner';
+import { VisuallyHidden } from '@/components/visually-hidden';
 import { useAnnouncement } from '@/hooks/use-announcement';
 import { colors, offsetShadow, typography } from '@/theme';
 
@@ -68,9 +69,9 @@ export function SearchField({
                 {searching && (
                     <>
                         <Spinner size={16} />
-                        <View style={styles.visuallyHidden}>
+                        <VisuallyHidden>
                             <Text>{SEARCHING_STATUS}</Text>
-                        </View>
+                        </VisuallyHidden>
                     </>
                 )}
             </View>
@@ -151,12 +152,5 @@ const styles = StyleSheet.create({
         right: TEXT_RIGHT + BORDER_WIDTH,
         justifyContent: 'center',
         pointerEvents: 'none',
-    },
-    // Read by screen readers but not drawn, like the web's visually hidden pattern.
-    visuallyHidden: {
-        position: 'absolute',
-        width: 1,
-        height: 1,
-        overflow: 'hidden',
     },
 });

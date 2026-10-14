@@ -4,6 +4,7 @@ import { Platform, StyleSheet, Text, View } from 'react-native';
 import { SecondaryButton } from '@/components/buttons';
 import { Heading } from '@/components/heading';
 import { Spinner } from '@/components/spinner';
+import { VisuallyHidden } from '@/components/visually-hidden';
 import { WarningIcon } from '@/components/warning-icon';
 import { useAnnouncement } from '@/hooks/use-announcement';
 import { colors, fonts, typography } from '@/theme';
@@ -24,9 +25,9 @@ export function SearchResultsStatus({ message }: { message: string | null }) {
     if (Platform.OS !== 'web') return null;
 
     return (
-        <View accessible role="status" style={styles.visuallyHidden}>
+        <VisuallyHidden accessible role="status">
             <Text>{message}</Text>
-        </View>
+        </VisuallyHidden>
     );
 }
 
@@ -202,13 +203,6 @@ const EDGE_WIDTH = 4;
 const DASHED_BORDER_WIDTH = 2;
 
 const styles = StyleSheet.create({
-    visuallyHidden: {
-        position: 'absolute',
-        width: 1,
-        height: 1,
-        overflow: 'hidden',
-        pointerEvents: 'none',
-    },
     loading: {
         flexGrow: 1,
         alignItems: 'center',
