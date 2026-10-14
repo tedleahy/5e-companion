@@ -25,6 +25,7 @@ if ! curl -s -o /dev/null --max-time 3 "$API_URL/up"; then
   echo "carrying on, so the screenshots will show what the app does without it." >&2
 fi
 
+mkdir -p "$HOME/.cache"
 WORK="$(mktemp -d "$HOME/.cache/app-shots.XXXXXX")"
 trap 'rm -rf "$WORK"; [ -n "${SERVER:-}" ] && kill "$SERVER" 2>/dev/null || true' EXIT
 mkdir -p shots
