@@ -860,6 +860,8 @@
             <tr><td>No characters</td><td>Loaded, with no search, no characters and no drafts</td></tr>
             <tr><td>Drafts only</td><td>Loaded, with no search, no characters and at least one draft</td></tr>
             <tr><td>No results</td><td>Loaded, with a search and no characters. The tray still shows.</td></tr>
+            <tr><td>API settings missing</td><td>A <code>MissingConfigError</code>: <code>EXPO_PUBLIC_API_URL</code> or
+              <code>EXPO_PUBLIC_API_TOKEN</code> isn't set, so no request was sent. Not retried. Added after review.</td></tr>
             <tr><td>Not signed in</td><td>An <code>ApiError</code> with status 401</td></tr>
             <tr><td>Couldn't load</td><td>Any other error. Try again calls <code>refetch()</code>.</td></tr>
           </table>

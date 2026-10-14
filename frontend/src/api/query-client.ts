@@ -1,16 +1,17 @@
 import { QueryClient } from '@tanstack/react-query';
 
-import { ApiError } from './client';
+import { ApiError, MissingConfigError } from './client';
 
 const MAX_RETRIES = 2;
 
 /**
- * Retries anything but a 4xx, which would fail the same way again.
+ * Retries anything but a 4xx or a missing setting, which would fail the same way again.
  *
  * @param failureCount - The number of retries already attempted for this query.
- * @param error - The failure to inspect for a non-retryable client error.
+ * @param error - The failure to inspect for a client error or missing setting, which never retry.
  */
 export function shouldRetry(failureCount: number, error: Error): boolean {
+    if (error instanceof MissingConfigError) return false;
     if (error instanceof ApiError && error.status >= 400 && error.status < 500) return false;
 
     return failureCount < MAX_RETRIES;

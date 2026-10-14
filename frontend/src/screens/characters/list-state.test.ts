@@ -1,4 +1,4 @@
-import { ApiError } from '@/api/client';
+import { ApiError, MissingConfigError } from '@/api/client';
 import type { CharacterList, CharacterSummary, Draft } from '@/api/characters';
 
 import { listState, showsCreate, showsSearch, type ListStateInput } from './list-state';
@@ -75,6 +75,13 @@ describe('listState', () => {
         });
     });
 
+    it('names a missing setting', () => {
+        expect(listState(input({ error: new MissingConfigError('EXPO_PUBLIC_API_URL') }))).toEqual({
+            kind: 'misconfigured',
+            variable: 'EXPO_PUBLIC_API_URL',
+        });
+    });
+
     it('is signed out on a 401', () => {
         const error = new ApiError(401, 'unauthorized', 'Unauthorized');
 
@@ -125,8 +132,12 @@ describe('showsSearch', () => {
         expect(showsSearch({ kind: 'empty' }, '   ')).toBe(false);
     });
 
-    it('hides search when signed out, whatever was typed', () => {
+    it('hides search when signed out or missing a setting, whatever was typed', () => {
         expect(showsSearch({ kind: 'signedOut' }, 'Zephyr')).toBe(false);
+
+        expect(
+            showsSearch({ kind: 'misconfigured', variable: 'EXPO_PUBLIC_API_URL' }, 'Zephyr'),
+        ).toBe(false);
     });
 
     it('hides search when there is nothing to search', () => {
@@ -139,8 +150,10 @@ describe('showsSearch', () => {
 });
 
 describe('showsCreate', () => {
-    it('hides Create character only when signed out', () => {
+    it('hides Create character only when signed out or missing a setting', () => {
         expect(showsCreate({ kind: 'signedOut' })).toBe(false);
+
+        expect(showsCreate({ kind: 'misconfigured', variable: 'EXPO_PUBLIC_API_URL' })).toBe(false);
 
         expect(showsCreate({ kind: 'failed' })).toBe(true);
 

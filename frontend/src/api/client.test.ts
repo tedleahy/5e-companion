@@ -1,4 +1,4 @@
-import { ApiError, apiFetch } from './client';
+import { ApiError, apiFetch, MissingConfigError } from './client';
 
 const fetchMock = jest.fn();
 
@@ -115,7 +115,13 @@ describe('apiFetch', () => {
         async (name) => {
             delete process.env[name];
 
-            await expect(apiFetch('/api/v1/characters')).rejects.toThrow(`${name} is not set`);
+            const failure = apiFetch('/api/v1/characters');
+
+            await expect(failure).rejects.toBeInstanceOf(MissingConfigError);
+
+            await expect(failure).rejects.toMatchObject({ variable: name });
+
+            await expect(failure).rejects.toThrow(`${name} is not set`);
 
             expect(fetchMock).not.toHaveBeenCalled();
         },

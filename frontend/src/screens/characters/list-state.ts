@@ -1,10 +1,12 @@
-import { ApiError } from '@/api/client';
+import { ApiError, MissingConfigError } from '@/api/client';
 import type { CharacterList, Draft } from '@/api/characters';
 
 /** What the list area shows. The header and the controls around it follow from this. */
 export type ListState =
     /** No list yet: the first load, or Try again while it runs. */
     | { kind: 'loading' }
+    /** `frontend/.env` is missing `variable`, so no request was sent. */
+    | { kind: 'misconfigured'; variable: string }
     /** The API rejected the development token. */
     | { kind: 'signedOut' }
     /** Any other error, with Try again. */
@@ -27,7 +29,7 @@ export type ListStateInput = {
 };
 
 /**
- * Chooses what the list shows. Either error replaces the list, even one already on screen, and
+ * Chooses what the list shows. Any error replaces the list, even one already on screen, and
  * Try again shows the first-load spinner in place of the notice until it settles.
  *
  * @param input.data - The list on screen, which may be the previous search's while the next loads.
@@ -38,6 +40,10 @@ export type ListStateInput = {
  */
 export function listState({ data, error, shownSearch, retrying }: ListStateInput): ListState {
     if (retrying) return { kind: 'loading' };
+
+    if (error instanceof MissingConfigError) {
+        return { kind: 'misconfigured', variable: error.variable };
+    }
 
     if (error) {
         return error instanceof ApiError && error.status === 401
@@ -56,7 +62,7 @@ export function listState({ data, error, shownSearch, retrying }: ListStateInput
 
 /**
  * Whether search and sort show. They are hidden when there is nothing to search, and always when
- * signed out.
+ * the development setup stops requests from working.
  *
  * @param state - What the list is showing.
  * @param search - The search field's text, as typed. Once the player has typed something the field
@@ -64,7 +70,7 @@ export function listState({ data, error, shownSearch, retrying }: ListStateInput
  *   never disappears while it's being typed in.
  */
 export function showsSearch(state: ListState, search: string): boolean {
-    if (state.kind === 'signedOut') return false;
+    if (needsSetup(state)) return false;
 
     if (search.trim() !== '') return true;
 
@@ -76,7 +82,12 @@ export function showsSearch(state: ListState, search: string): boolean {
     );
 }
 
-/** Whether Create character shows. Creating can't work until the token does. */
+/** Whether Create character shows. Creating can't work until the API URL and token do. */
 export function showsCreate(state: ListState): boolean {
-    return state.kind !== 'signedOut';
+    return !needsSetup(state);
+}
+
+/** Whether a developer has to fix `frontend/.env` before any request can succeed. */
+function needsSetup(state: ListState): boolean {
+    return state.kind === 'misconfigured' || state.kind === 'signedOut';
 }

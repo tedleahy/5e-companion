@@ -1,11 +1,15 @@
 import { onlineManager } from '@tanstack/react-query';
 
-import { ApiError } from './client';
+import { ApiError, MissingConfigError } from './client';
 import { createQueryClient, shouldRetry } from './query-client';
 
 describe('shouldRetry', () => {
     it.each([400, 401, 404, 499])('never retries a %i', (status) => {
         expect(shouldRetry(0, new ApiError(status, null, 'No'))).toBe(false);
+    });
+
+    it('never retries a missing setting', () => {
+        expect(shouldRetry(0, new MissingConfigError('EXPO_PUBLIC_API_TOKEN'))).toBe(false);
     });
 
     it.each([

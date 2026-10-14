@@ -600,6 +600,26 @@ describe('Characters when the list fails to load', () => {
         expect(screen.queryByRole('button', { name: 'Try again' })).toBeNull();
     });
 
+    it.each(['EXPO_PUBLIC_API_URL', 'EXPO_PUBLIC_API_TOKEN'])(
+        'names %s when it is missing, without the controls or Try again',
+        async (variable) => {
+            delete process.env[variable];
+            await renderScreen();
+
+            expect(screen.getByRole('heading', { name: 'API settings missing' })).toBeOnTheScreen();
+
+            expect(screen.getByText(variable)).toBeOnTheScreen();
+
+            expect(screen.getByText('Development only')).toBeOnTheScreen();
+
+            expect(screen.queryByLabelText('Find a character')).toBeNull();
+
+            expect(screen.queryByRole('button', { name: 'Create character' })).toBeNull();
+
+            expect(screen.queryByRole('button', { name: 'Try again' })).toBeNull();
+        },
+    );
+
     it('offers Try again on any other error, keeping the controls', async () => {
         errorStatus = 500;
         await renderScreen();
@@ -855,5 +875,12 @@ describe('Characters with a native screen reader', () => {
         await renderScreen();
 
         expect(announce).toHaveBeenLastCalledWith('Not signed in');
+    });
+
+    it('announces a missing setting', async () => {
+        delete process.env.EXPO_PUBLIC_API_TOKEN;
+        await renderScreen();
+
+        expect(announce).toHaveBeenLastCalledWith('API settings missing');
     });
 });

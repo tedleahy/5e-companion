@@ -17,6 +17,7 @@ import {
     EmptyCard,
     FailedNotice,
     Loading,
+    MisconfiguredNotice,
     SearchResultsStatus,
     SignedOutNotice,
 } from './list-messages';
@@ -212,6 +213,8 @@ function ListContent({ state, onRetry, trayStyle, renderCharacters }: ListConten
     switch (state.kind) {
         case 'loading':
             return <Loading />;
+        case 'misconfigured':
+            return <MisconfiguredNotice variable={state.variable} />;
         case 'signedOut':
             return <SignedOutNotice />;
         case 'failed':

@@ -17,6 +17,21 @@ export class ApiError extends Error {
     }
 }
 
+/** A required `EXPO_PUBLIC_` variable has no value, so no request can be sent. */
+export class MissingConfigError extends Error {
+    /** The unset variable, such as `EXPO_PUBLIC_API_TOKEN`. */
+    readonly variable: string;
+
+    /**
+     * @param variable - The name of the unset variable, which the message and the screen show.
+     */
+    constructor(variable: string) {
+        super(`${variable} is not set. Copy .env.example to .env and fill it in.`);
+        this.name = 'MissingConfigError';
+        this.variable = variable;
+    }
+}
+
 export type QueryParams = Record<string, string | number | undefined>;
 
 /** Options for `apiFetch`. */
@@ -32,7 +47,8 @@ export type ApiFetchOptions = {
  * @param options.query - Parameters to send as the query string, such as a search. Undefined
  *   values are left out, so a caller can pass an optional parameter without checking it first.
  * @param options.signal - Cancels the request, such as when a newer search makes this one stale.
- * @throws `ApiError` for a non-2xx response. Network failures and aborts propagate unchanged.
+ * @throws `MissingConfigError` before sending when the API URL or token isn't set, and `ApiError`
+ *   for a non-2xx response. Network failures and aborts propagate unchanged.
  */
 export async function apiFetch<T>(
     path: string,
@@ -55,9 +71,9 @@ export async function apiFetch<T>(
     return (await response.json()) as T;
 }
 
-/** Returns `value`, or throws an error naming the unset variable. */
+/** Returns `value`, or throws a `MissingConfigError` naming the unset variable. */
 function requireEnv(name: string, value: string | undefined): string {
-    if (!value) throw new Error(`${name} is not set. Copy .env.example to .env and fill it in.`);
+    if (!value) throw new MissingConfigError(name);
 
     return value;
 }

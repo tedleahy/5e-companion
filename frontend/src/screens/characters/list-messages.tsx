@@ -65,6 +65,25 @@ export function EmptyCard({ title, body }: { title: string; body: string }) {
 }
 
 /**
+ * The notice for an API URL or token missing from `frontend/.env`. It speaks to a developer, and has
+ * no Try again, because the setting is built into the bundle when Metro starts.
+ *
+ * @param props.variable - The unset variable to name, such as `EXPO_PUBLIC_API_URL`.
+ */
+export function MisconfiguredNotice({ variable }: { variable: string }) {
+    return (
+        <Notice title="API settings missing" development>
+            <MessageBody>
+                <Text style={styles.strong}>{variable}</Text>
+                {
+                    " isn't set. Copy frontend/.env.example to frontend/.env, fill it in, then restart Expo."
+                }
+            </MessageBody>
+        </Notice>
+    );
+}
+
+/**
  * The temporary notice for a rejected development token. It speaks to a developer, and goes when
  * sign-in arrives. It has no Try again, because retrying can't help until the token changes.
  */
