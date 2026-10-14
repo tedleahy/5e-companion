@@ -19,6 +19,9 @@ class CorsTest < ActionDispatch::IntegrationTest
     "http://100.63.255.255:8081",
     "http://100.128.0.1:8081",
     "http://ts.net.example.com",
+    "https://laptop.tail9999.ts.net",
+    "http://laptop.tail9999.ts.net:8081",
+    "https://evil.laptop.tail1234.ts.net",
   ].freeze
 
   test "allows local and Tailscale origins" do
@@ -39,7 +42,7 @@ class CorsTest < ActionDispatch::IntegrationTest
     assert_match(/authorization/i, response.headers["Access-Control-Allow-Headers"])
   end
 
-  test "rejects LAN, public and non-Tailscale origins" do
+  test "rejects LAN, public, non-Tailscale and other tailnets' origins" do
     REJECTED.each do |origin|
       get api_v1_characters_url, headers: { "Origin" => origin }
 

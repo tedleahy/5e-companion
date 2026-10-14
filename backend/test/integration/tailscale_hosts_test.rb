@@ -3,7 +3,8 @@ require Rails.root.join("config/tailscale")
 
 # Development adds Tailscale::MAGIC_DNS_NAME and Tailscale::HOST_NAME to
 # config.hosts. The test environment allows every host, so this runs them
-# through Rails's host check directly.
+# through Rails's host check directly. test_helper.rb pins the tailnet to
+# tail1234.ts.net.
 class TailscaleHostsTest < ActiveSupport::TestCase
   setup do
     app = ->(_env) { [ 200, {}, [ "ok" ] ] }
@@ -24,11 +25,13 @@ class TailscaleHostsTest < ActiveSupport::TestCase
     end
   end
 
-  test "blocks the bare domain and look-alikes" do
+  test "blocks the bare domain, look-alikes and other tailnets" do
     [
       "ts.net",
       "laptop.tail1234.ts.net.example.com",
       "laptop.tail1234-ts.net",
+      "laptop.tail9999.ts.net",
+      "evil.laptop.tail1234.ts.net",
       "#{Tailscale::HOST_NAME}-other",
     ].each do |host|
       assert_equal 403, status_for(host), host

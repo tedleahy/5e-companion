@@ -10,17 +10,20 @@
 if Rails.env.local?
   require_relative "../tailscale"
 
-  magic_dns_name = /\A#{Tailscale::MAGIC_DNS_NAME}\z/
+  # Nil when the tailnet's domain is unknown, which refuses every MagicDNS name.
+  magic_dns_name = (/\A#{Tailscale::MAGIC_DNS_NAME}\z/ if Tailscale::MAGIC_DNS_NAME)
 
   # Origins are allowed on any port:
   # - http://localhost and http://127.0.0.1
   # - http on a Tailscale address, 100.64.0.0/10
-  # - http or https on a Tailscale MagicDNS name, ending in .ts.net
+  # - http or https on a MagicDNS name on this tailnet, such as
+  #   laptop.tail1234.ts.net. Other tailnets' names are refused, because
+  #   Funnel can publish them on the public internet.
   # - http on this computer's short MagicDNS name, where Metro serves the app
   allowed_origin = lambda do |origin, _env|
     uri = URI.parse(origin)
     host = uri.host.to_s.downcase
-    magic_dns = magic_dns_name.match?(host)
+    magic_dns = magic_dns_name&.match?(host) || false
 
     case uri.scheme
     when "http"
