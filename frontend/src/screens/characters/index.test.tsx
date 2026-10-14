@@ -1,3 +1,4 @@
+import { onlineManager } from '@tanstack/react-query';
 import { act, fireEvent, screen, within } from '@testing-library/react-native';
 import { AccessibilityInfo } from 'react-native';
 
@@ -644,6 +645,47 @@ describe('Characters when the list fails to load', () => {
     it('replaces the list when a search fails', async () => {
         await renderScreen();
         errorStatus = 500;
+
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), 'ves');
+        await advance(SEARCH_DEBOUNCE_MS);
+        await advance(0);
+
+        expect(
+            screen.getByRole('heading', { name: "Couldn't load your characters" }),
+        ).toBeOnTheScreen();
+
+        expect(screen.queryByText('Thorn Grimsby')).toBeNull();
+    });
+});
+
+describe('Characters when the browser reports it is offline', () => {
+    afterEach(() => {
+        onlineManager.setOnline(true);
+    });
+
+    /** Makes every request fail as a dropped connection does. */
+    function dropConnection() {
+        globalThis.fetch = jest.fn(async () => {
+            throw new TypeError('Network request failed');
+        });
+    }
+
+    it('fails the first load instead of loading forever', async () => {
+        onlineManager.setOnline(false);
+        dropConnection();
+        await renderScreen();
+
+        expect(
+            screen.getByRole('heading', { name: "Couldn't load your characters" }),
+        ).toBeOnTheScreen();
+
+        expect(screen.queryByText('Loading characters…')).toBeNull();
+    });
+
+    it('fails a search instead of leaving the earlier list showing', async () => {
+        await renderScreen();
+        onlineManager.setOnline(false);
+        dropConnection();
 
         await fireEvent.changeText(screen.getByLabelText('Find a character'), 'ves');
         await advance(SEARCH_DEBOUNCE_MS);

@@ -1,3 +1,5 @@
+import { onlineManager } from '@tanstack/react-query';
+
 import { ApiError } from './client';
 import { createQueryClient, shouldRetry } from './query-client';
 
@@ -31,5 +33,23 @@ describe('createQueryClient', () => {
         expect(queryFn).toHaveBeenCalledTimes(1);
 
         client.clear();
+    });
+
+    it('still sends a request when the browser reports it is offline', async () => {
+        onlineManager.setOnline(false);
+        const client = createQueryClient();
+        const failure = new TypeError('Network request failed');
+        const queryFn = jest.fn().mockRejectedValue(failure);
+
+        try {
+            await expect(
+                client.fetchQuery({ queryKey: ['offline'], queryFn, retry: false }),
+            ).rejects.toBe(failure);
+
+            expect(queryFn).toHaveBeenCalledTimes(1);
+        } finally {
+            onlineManager.setOnline(true);
+            client.clear();
+        }
     });
 });

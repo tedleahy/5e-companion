@@ -16,12 +16,20 @@ export function shouldRetry(failureCount: number, error: Error): boolean {
     return failureCount < MAX_RETRIES;
 }
 
-/** The app's query client. Fails fast on a 4xx and never refetches on window focus. */
+/**
+ * The app's query client. Fails fast on a 4xx, never refetches on window focus, and always sends
+ * requests, even when the browser reports it is offline.
+ */
 export function createQueryClient(): QueryClient {
     return new QueryClient({
         defaultOptions: {
             queries: {
                 retry: shouldRetry,
+                // By default, a browser's offline event pauses queries instead of failing them, so the
+                // list would spin forever and a search would leave the old list showing without a
+                // spinner. Sending anyway lets a dead connection fail into Couldn't load, as it does
+                // on native, which never reports itself offline.
+                networkMode: 'always',
                 // Native doesn't refetch when the app returns to the foreground, so the web build doesn't
                 // either when its tab regains focus.
                 refetchOnWindowFocus: false,
