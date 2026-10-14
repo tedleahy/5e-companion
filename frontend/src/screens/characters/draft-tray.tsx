@@ -46,7 +46,7 @@ export function DraftTray({ drafts, alone = false, style }: DraftTrayProps) {
  */
 function DashedRule() {
     return (
-        <View style={styles.rule}>
+        <View testID="dashed-rule" style={styles.rule}>
             <View style={styles.ruleBox} />
         </View>
     );

@@ -57,9 +57,11 @@ describe.each(['ios', 'android'] as const)('CharacterCard accessibility on %s', 
     });
 });
 
-it('keeps the short character name for the web link', async () => {
-    jest.replaceProperty(Platform, 'OS', 'web');
-    await render(<CharacterCard character={vesper} />);
+describe('CharacterCard accessibility on web', () => {
+    it('keeps the short character name for the web link', async () => {
+        jest.replaceProperty(Platform, 'OS', 'web');
+        await render(<CharacterCard character={vesper} />);
 
-    expect(screen.getByRole('link', { name: 'Vesper Quill' })).toBeOnTheScreen();
+        expect(screen.getByRole('link', { name: 'Vesper Quill' })).toBeOnTheScreen();
+    });
 });

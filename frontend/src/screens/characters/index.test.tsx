@@ -91,10 +91,11 @@ const WIDTHS = { phone: 390, tablet: 820, tabletLandscape: 1180, desktop: 1440 }
 const mockWindow = { width: 390 };
 
 // The test renderer's own window is 750 wide, which would put every test on the tablet layout.
-jest.mock('react-native/Libraries/Utilities/useWindowDimensions', () => ({
-    __esModule: true,
-    default: () => ({ width: mockWindow.width, height: 900, scale: 2, fontScale: 1 }),
-}));
+// Mocking the app's own hook keeps the tests off React Native's internal module paths.
+jest.mock('@/hooks/use-breakpoint', () => {
+    const actual = jest.requireActual('@/hooks/use-breakpoint');
+    return { ...actual, useBreakpoint: () => actual.breakpointForWidth(mockWindow.width) };
+});
 
 /** Makes the window `width` points wide for the rest of the test. */
 function setWindowWidth(width: number) {
