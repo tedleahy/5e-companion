@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { CharacterSort, CharacterSummary } from '@/api/characters';
@@ -7,11 +7,12 @@ import { Paper } from '@/components/paper';
 import { useBreakpoint, type Breakpoint } from '@/hooks/use-breakpoint';
 import { useCharacterList } from '@/hooks/use-character-list';
 
+import { CardScaleProvider } from './card-scale';
 import { CharacterCard } from './character-card';
 import { CharacterRow } from './character-row';
+import { ContentColumn } from './content-column';
 import { CreateFooter } from './create-footer';
 import { DraftTray } from './draft-tray';
-import { ContentColumn } from './content-column';
 import { Header, WidePlate } from './header';
 import {
     EmptyCard,
@@ -57,7 +58,7 @@ export function Characters() {
         search,
         onSearchChange: setSearch,
         sort,
-        onSortPress: () => setSort(sort === 'level' ? 'name' : 'level'),
+        onSortPress: () => setSort((current) => (current === 'level' ? 'name' : 'level')),
         // While Try again runs, the first-load spinner already says something is loading.
         searching: isSearching && state.kind !== 'loading',
     };
@@ -70,16 +71,18 @@ export function Characters() {
     return (
         <Paper>
             <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
-                {breakpoint === 'phone' ? (
-                    <PhoneLayout searchState={searchState} state={state} onRetry={retry} />
-                ) : (
-                    <WideLayout
-                        searchState={searchState}
-                        state={state}
-                        onRetry={retry}
-                        breakpoint={breakpoint}
-                    />
-                )}
+                <CardScaleProvider wide={breakpoint !== 'phone'}>
+                    {breakpoint === 'phone' ? (
+                        <PhoneLayout searchState={searchState} state={state} onRetry={retry} />
+                    ) : (
+                        <WideLayout
+                            searchState={searchState}
+                            state={state}
+                            onRetry={retry}
+                            breakpoint={breakpoint}
+                        />
+                    )}
+                </CardScaleProvider>
             </SafeAreaView>
             <SearchResultsStatus message={resultMessage} />
         </Paper>
@@ -123,15 +126,7 @@ function PhoneLayout({ searchState, state, onRetry }: LayoutProps) {
                     searchState={showsSearch(state, searchState.search) ? searchState : undefined}
                 />
                 <View style={[styles.phoneList, styles.grow]}>
-                    <ListContent
-                        state={state}
-                        onRetry={onRetry}
-                        renderCharacters={(characters) =>
-                            characters.map((character) => (
-                                <CharacterCard key={character.id} character={character} />
-                            ))
-                        }
-                    />
+                    <ListContent state={state} onRetry={onRetry} breakpoint="phone" />
                 </View>
             </ScrollView>
             {hasFooter && (
@@ -182,12 +177,7 @@ function WideLayout({
                     styles.grow,
                 ]}
             >
-                <ListContent
-                    state={state}
-                    onRetry={onRetry}
-                    trayStyle={breakpoint === 'tabletLandscape' && styles.fullTray}
-                    renderCharacters={(characters) => wideCharacters(characters, breakpoint)}
-                />
+                <ListContent state={state} onRetry={onRetry} breakpoint={breakpoint} />
             </ContentColumn>
         </ScrollView>
     );
@@ -196,8 +186,7 @@ function WideLayout({
 type ListContentProps = {
     state: ListState;
     onRetry: () => void;
-    trayStyle?: StyleProp<ViewStyle>;
-    renderCharacters: (characters: CharacterSummary[]) => ReactNode;
+    breakpoint: Breakpoint;
 };
 
 /**
@@ -205,11 +194,12 @@ type ListContentProps = {
  *
  * @param props.state - What to show.
  * @param props.onRetry - Repeats the request that failed, for the Try again button.
- * @param props.trayStyle - Overrides for the draft tray's spacing, which the two-column layout
- *   needs because the tray spans both columns.
- * @param props.renderCharacters - Lays out the characters, which each layout does its own way.
+ * @param props.breakpoint - The layout, which decides how the characters and the tray are laid out.
  */
-function ListContent({ state, onRetry, trayStyle, renderCharacters }: ListContentProps) {
+function ListContent({ state, onRetry, breakpoint }: ListContentProps) {
+    // In two columns the tray spans both, and the list's gap is enough below it.
+    const trayStyle = breakpoint === 'tabletLandscape' ? styles.fullTray : undefined;
+
     switch (state.kind) {
         case 'loading':
             return <Loading />;
@@ -248,30 +238,26 @@ function ListContent({ state, onRetry, trayStyle, renderCharacters }: ListConten
                     {state.list.drafts.length > 0 && (
                         <DraftTray drafts={state.list.drafts} style={trayStyle} />
                     )}
-                    {renderCharacters(state.list.characters)}
+                    {characterList(state.list.characters, breakpoint)}
                 </>
             );
     }
 }
 
 /**
- * Rows on desktop, one column of cards on a portrait tablet, and two columns of cards on a
- * landscape one.
+ * Rows on desktop, two columns of cards on a landscape tablet, and one column of cards otherwise.
  *
  * @param characters - The characters to lay out, in the API's order.
- * @param breakpoint - Which wide layout to lay them out for.
+ * @param breakpoint - Which layout to lay them out for.
  */
-function wideCharacters(
-    characters: CharacterSummary[],
-    breakpoint: Exclude<Breakpoint, 'phone'>,
-): ReactNode {
+function characterList(characters: CharacterSummary[], breakpoint: Breakpoint): ReactNode {
     if (breakpoint === 'desktop') {
         return characters.map((character) => (
             <CharacterRow key={character.id} character={character} />
         ));
     }
 
-    if (breakpoint === 'tablet') {
+    if (breakpoint !== 'tabletLandscape') {
         return characters.map((character) => (
             <CharacterCard key={character.id} character={character} />
         ));
@@ -321,7 +307,6 @@ const styles = StyleSheet.create({
         paddingBottom: 28,
     },
     fullTray: {
-        // Between rows, the list's gap is enough.
         marginBottom: 0,
     },
     pair: {

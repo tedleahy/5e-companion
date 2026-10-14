@@ -24,7 +24,7 @@ type DraftCardProps = {
  */
 export function DraftCard({ draft, onResume }: DraftCardProps) {
     const scale = useCardScale();
-    const { title, detail, resumeLabel } = draftCopy(draft, !scale.wide);
+    const { title, detail, resumeLabel, resumeAccessibilityLabel } = draftCopy(draft, !scale.wide);
     const token = (
         <CharacterToken
             name={draft.kind === 'creation' ? draft.name : draft.character_name}
@@ -45,20 +45,12 @@ export function DraftCard({ draft, onResume }: DraftCardProps) {
             </View>
             <SecondaryButton
                 label={resumeLabel}
-                accessibilityLabel={resumeAccessibilityLabel(draft)}
+                accessibilityLabel={resumeAccessibilityLabel}
                 size="small"
                 onPress={onResume}
             />
         </View>
     );
-}
-
-/** Names the draft in the button's label, since every Resume button reads the same. */
-function resumeAccessibilityLabel(draft: Draft): string {
-    if (draft.kind === 'level_up') return `Resume ${draft.character_name}'s level-up`;
-
-    const name = draft.name?.trim();
-    return name ? `Resume creating ${name}` : 'Resume creating a new character';
 }
 
 const styles = StyleSheet.create({

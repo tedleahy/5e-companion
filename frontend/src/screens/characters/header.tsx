@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { Heading } from '@/components/heading';
-import { colors, offsetShadow, typography } from '@/theme';
+import { colors, dropShadow, offsetShadow, typography } from '@/theme';
 
 import { ContentColumn } from './content-column';
 import { SearchControls, type SearchState } from './search-controls';
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
         // The toolbar below is opaque, so the plate keeps clear of it to leave its shadow showing.
         marginBottom: WIDE_PLATE_SHADOW,
         backgroundColor: colors.structural,
-        boxShadow: `0 ${WIDE_PLATE_SHADOW}px 0 ${colors.accent}`,
+        boxShadow: dropShadow(WIDE_PLATE_SHADOW, 'accent'),
     },
     title: {
         color: colors.onStructural,

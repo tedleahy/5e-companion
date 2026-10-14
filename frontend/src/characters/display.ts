@@ -13,11 +13,13 @@ export type HitPointDisplay = {
     };
 };
 
-/** Approved title, progress text and button label for a draft at one layout size. */
+/** Approved title, progress text and button labels for a draft at one layout size. */
 export type DraftCopy = {
     title: string;
     detail: string;
     resumeLabel: string;
+    /** Names the draft, since every Resume button's visible label reads the same. */
+    resumeAccessibilityLabel: string;
 };
 
 /** Shared progress and next-step sentences prepared for either draft kind. */
@@ -173,27 +175,30 @@ function creationDraftCopy(
     const sentences = compact
         ? [`Creation, ${progress}`, confirmation]
         : [capitalize(progress), nextSentence, confirmation];
+    // A blank name counts as no name, for both the title and the Resume button.
+    const name = draft.name?.trim() || null;
 
     return {
-        title: creationDraftTitle(draft.name, compact),
+        title: creationDraftTitle(name, compact),
         detail: sentences.filter(Boolean).join(' '),
         resumeLabel: compact ? 'Resume' : 'Resume creation',
+        resumeAccessibilityLabel: name
+            ? `Resume creating ${name}`
+            : 'Resume creating a new character',
     };
 }
 
 /**
  * Formats a creation title, keeping unnamed drafts as "New character".
  *
- * @param name - The creation draft name, or null to use New character.
+ * @param name - The trimmed creation draft name, or null to use New character.
  * @param compact - Whether to omit the new-character suffix from a named draft.
  */
 function creationDraftTitle(name: string | null, compact: boolean): string {
-    const trimmedName = name?.trim();
+    if (!name) return 'New character';
+    if (compact) return name;
 
-    if (!trimmedName) return 'New character';
-    if (compact) return trimmedName;
-
-    return `${trimmedName}, new character`;
+    return `${name}, new character`;
 }
 
 /**
@@ -219,5 +224,6 @@ function levelUpDraftCopy(
         title: compact ? draft.character_name : `${draft.character_name}, ${levels}`,
         detail: sentences.filter(Boolean).join(' '),
         resumeLabel: compact ? 'Resume' : 'Resume level-up',
+        resumeAccessibilityLabel: `Resume ${draft.character_name}'s level-up`,
     };
 }

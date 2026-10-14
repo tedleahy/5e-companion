@@ -84,6 +84,14 @@ export function offsetShadow(depth: ShadowDepth, token: keyof Colors): string {
 }
 
 /**
+ * A hard print shadow straight down, for a surface as wide as the screen, such as the wide header
+ * plate. Same shape as `offsetShadow` otherwise.
+ */
+export function dropShadow(depth: ShadowDepth, token: keyof Colors): string {
+    return `0 ${depth}px 0 ${colors[token]}`;
+}
+
+/**
  * Minimum window widths for each layout. The mockups are drawn at 390
  * (phone), 820 and 1180 (tablet, portrait and landscape) and 1440 (desktop).
  *

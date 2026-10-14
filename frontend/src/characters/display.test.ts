@@ -300,6 +300,7 @@ describe('draftCopy', () => {
             title: 'Nyra Ashfall',
             detail: 'Creation, two of five choices made. Nothing is added to your list until you confirm.',
             resumeLabel: 'Resume',
+            resumeAccessibilityLabel: 'Resume creating Nyra Ashfall',
         });
     });
 
@@ -308,6 +309,7 @@ describe('draftCopy', () => {
             title: 'Nyra Ashfall, new character',
             detail: 'Two of five choices made. Next up is choosing a class. Nothing is added to your list until you confirm.',
             resumeLabel: 'Resume creation',
+            resumeAccessibilityLabel: 'Resume creating Nyra Ashfall',
         });
     });
 
@@ -316,6 +318,7 @@ describe('draftCopy', () => {
             title: 'New character',
             detail: 'Creation, one of five choices made. Nothing is added to your list until you confirm.',
             resumeLabel: 'Resume',
+            resumeAccessibilityLabel: 'Resume creating a new character',
         });
     });
 
@@ -324,6 +327,7 @@ describe('draftCopy', () => {
             title: 'New character',
             detail: 'One of five choices made. Next up is choosing a class. Nothing is added to your list until you confirm.',
             resumeLabel: 'Resume creation',
+            resumeAccessibilityLabel: 'Resume creating a new character',
         });
     });
 
@@ -332,6 +336,7 @@ describe('draftCopy', () => {
             title: 'Kethra Ironsong',
             detail: 'Level 3 to 4, three of five choices made. Nothing changes on the sheet until you confirm.',
             resumeLabel: 'Resume',
+            resumeAccessibilityLabel: "Resume Kethra Ironsong's level-up",
         });
     });
 
@@ -340,19 +345,26 @@ describe('draftCopy', () => {
             title: 'Kethra Ironsong, level 3 to 4',
             detail: 'Three of five choices made. Next up is an ability increase or a feat. Nothing changes on the sheet until you confirm.',
             resumeLabel: 'Resume level-up',
+            resumeAccessibilityLabel: "Resume Kethra Ironsong's level-up",
         });
     });
 
     it.each(['', ' \t '])('treats a blank creation name %p as unnamed', (name) => {
         expect(draftCopy({ ...creation, name }, false).title).toBe('New character');
 
+        expect(draftCopy({ ...creation, name }, false).resumeAccessibilityLabel).toBe(
+            'Resume creating a new character',
+        );
+
         expect(initial(name)).toBe('');
     });
 
-    it('trims a named creation title', () => {
-        expect(draftCopy({ ...creation, name: '  Nyra Ashfall  ' }, false).title).toBe(
-            'Nyra Ashfall, new character',
-        );
+    it('trims a named creation title and Resume label', () => {
+        const copy = draftCopy({ ...creation, name: '  Nyra Ashfall  ' }, false);
+
+        expect(copy.title).toBe('Nyra Ashfall, new character');
+
+        expect(copy.resumeAccessibilityLabel).toBe('Resume creating Nyra Ashfall');
     });
 
     it.each(['choose_background', '', 'toString', '__proto__'])(
