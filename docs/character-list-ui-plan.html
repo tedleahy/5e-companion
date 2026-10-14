@@ -344,7 +344,8 @@
             <tr><td>Fetching</td><td>TanStack Query v5, which is pure JavaScript and runs in Expo Go.
               Search is sent as <code>q</code> after a 250&nbsp;ms debounce. Stale requests are cancelled
               through the query's <code>AbortSignal</code>, and the previous list stays on screen while a
-              new search loads.</td></tr>
+              new search loads. The input limits the trimmed search to the API's 100 Unicode code
+              points, rather than 100 UTF-16 code units, so emoji count as the API counts them.</td></tr>
             <tr><td>Auth</td><td>The development bearer token comes from <code>EXPO_PUBLIC_API_TOKEN</code>
               in the git-ignored <code>frontend/.env</code>. There is no login screen. The token is in the
               bundle, so it is for local development only.</td></tr>
@@ -874,26 +875,38 @@
           <ul class="checks">
             <li class="done">Step 1's frames are approved, and <code>mockups/shoot.sh character-list</code> produces
               one image per frame.</li>
-            <li>The design system is at v0.5 and describes the list as built.</li>
-            <li>The Expo web build loads the seeded list with no CORS errors, both on this computer and
+            <li class="done">The design system is at v0.6 and describes the list as built.</li>
+            <li class="done">The Expo web build loads the seeded list with no CORS errors, both on this computer and
               in the phone's browser over Tailscale. CORS and the extra hosts apply only in
               development.</li>
-            <li>The screen contains no hard-coded character or draft data.</li>
-            <li>Screenshots at 390, 820, 1180 and 1440 match the mockup frames, differing only where this
+            <li class="done">The screen contains no hard-coded character or draft data.</li>
+            <li class="done">Screenshots at 390, 820, 1180 and 1440 match the mockup frames, differing only where this
               plan decided otherwise: theme grid tokens and neutral draft copy.</li>
-            <li>Search is debounced and cancels stale requests. Sort switches between level and name. Both
+            <li class="done">Search is debounced and cancels stale requests. Sort switches between level and name. Both
               draft kinds show with the right copy and Resume label.</li>
-            <li>Loading, searching, empty, drafts only, no results, not signed in and couldn't load all
+            <li class="done">Loading, searching, empty, drafts only, no results, not signed in and couldn't load all
               render as mocked up.</li>
-            <li>Card, Open sheet, Resume and Create character render with press and focus states, and each
+            <li class="done">Card, Open sheet, Resume and Create character render with press and focus states, and each
               has an unset <code>onPress</code> ready for the navigation plan.</li>
-            <li>Every control is at least 44 by 44 or has a hit slop that makes it so, and has an
+            <li class="done">Every control is at least 44 by 44 or has a hit slop that makes it so, and has an
               accessible role and name.</li>
-            <li>It runs in Expo Go on a phone over Tailscale, on a network other than the computer's,
+            <li class="done">It runs in Expo Go on a phone over Tailscale, on a network other than the computer's,
               by following the README.</li>
-            <li><code>npm run lint</code>, <code>npm run typecheck</code>, <code>npm test</code> and
+            <li class="done"><code>npm run lint</code>, <code>npm run typecheck</code>, <code>npm test</code> and
               <code>backend/bin/ci</code> pass.</li>
           </ul>
+          <p class="small">Assessed 12 October 2026 against the implementation, tests and saved app
+            screenshots beside the mockup frames. Frontend formatting, lint, type checking and all
+            223 tests pass. The developer confirmed both Tailscale phone checks passed, in the phone's
+            browser and in Expo Go on another network, by following the README.</p>
+          <p class="small"><code>backend/bin/ci</code> passes after updating Brakeman to 8.1.0, with
+            <code>--ensure-latest</code> retained. The scan reports no security warnings or errors.
+            All 86 Rails tests, seed checks, Ruby style and the gem audit pass.</p>
+          <p class="small">Review fixes verified 13 October 2026. Frontend formatting, lint, type
+            checking and all 240 tests pass. Browser checks confirm the 100-character Unicode search
+            limit, the full 44-point search target, and a persistent no-results announcement that
+            clears while a different search is pending. Native card labels include the subtitle,
+            level and hit points, with regression coverage for iOS and Android.</p>
 
           <h3>Next plans</h3>
           <ul>

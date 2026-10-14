@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { CHARACTER_SEARCH_MAX_LENGTH } from '@/api/characters';
 import { SearchIcon } from '@/components/search-icon';
 import { Spinner } from '@/components/spinner';
 import { useAnnouncement } from '@/hooks/use-announcement';
@@ -19,7 +20,8 @@ type SearchFieldProps = {
  * input's own outline.
  *
  * @param props.value - The search text, as typed.
- * @param props.onChangeText - Called with the new text on every keystroke.
+ * @param props.onChangeText - Called on every keystroke, limiting the trimmed search to the API's
+ *   maximum number of Unicode code points.
  * @param props.onPlate - Whether the field sits on the structural plate, where its focus ring needs
  *   the light ink to show.
  * @param props.searching - Whether a search is loading, which turns a small spinner at the right of
@@ -50,7 +52,7 @@ export function SearchField({
             </View>
             <TextInput
                 value={value}
-                onChangeText={onChangeText}
+                onChangeText={(text) => onChangeText(limitSearch(text))}
                 onFocus={() => setFocused(true)}
                 onBlur={() => setFocused(false)}
                 placeholder="Find a character"
@@ -76,6 +78,16 @@ export function SearchField({
     );
 }
 
+/** Keeps whitespace as typed unless the trimmed search exceeds the API's code-point limit. */
+function limitSearch(text: string): string {
+    // TextInput's maxLength counts UTF-16 code units, which would reject valid emoji searches
+    // before Rails's character limit. Trimming first also keeps surrounding spaces out of the count.
+    const characters = Array.from(text.trim());
+    return characters.length > CHARACTER_SEARCH_MAX_LENGTH
+        ? characters.slice(0, CHARACTER_SEARCH_MAX_LENGTH).join('')
+        : text;
+}
+
 /** What screen readers hear while a search loads. */
 const SEARCHING_STATUS = 'Searching…';
 
@@ -89,6 +101,8 @@ const ICON_GAP = 8;
 const TEXT_RIGHT = 12;
 /** The spinner's size. */
 const SPINNER_SIZE = 16;
+/** The input owns the border so every point of the visible field can focus it. */
+const BORDER_WIDTH = 2;
 
 const styles = StyleSheet.create({
     field: {
@@ -97,8 +111,6 @@ const styles = StyleSheet.create({
         minHeight: 44,
         justifyContent: 'center',
         backgroundColor: colors.card,
-        borderWidth: 2,
-        borderColor: colors.structural,
         boxShadow: offsetShadow(4, 'accent'),
     },
     focusRing: {
@@ -110,7 +122,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 0,
         bottom: 0,
-        left: ICON_LEFT,
+        left: ICON_LEFT + BORDER_WIDTH,
         justifyContent: 'center',
         pointerEvents: 'none',
     },
@@ -118,10 +130,15 @@ const styles = StyleSheet.create({
         flex: 1,
         alignSelf: 'stretch',
         minWidth: 0,
+        minHeight: 44,
+        borderWidth: BORDER_WIDTH,
+        borderColor: colors.structural,
         paddingVertical: 0,
         paddingLeft: ICON_LEFT + ICON_SIZE + ICON_GAP,
         paddingRight: TEXT_RIGHT,
         color: colors.text,
+        // A browser's auto outline can ignore width 0; solid leaves the ring to the field wrapper.
+        outlineStyle: 'solid',
         outlineWidth: 0,
     },
     inputBesideSpinner: {
@@ -131,7 +148,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 0,
         bottom: 0,
-        right: TEXT_RIGHT,
+        right: TEXT_RIGHT + BORDER_WIDTH,
         justifyContent: 'center',
         pointerEvents: 'none',
     },

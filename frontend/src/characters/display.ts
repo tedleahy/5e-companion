@@ -24,34 +24,6 @@ type DraftSentences = {
     nextSentence: string; // Empty when the next step has no approved phrase
 };
 
-const NUMBER_WORDS = [
-    'zero',
-    'one',
-    'two',
-    'three',
-    'four',
-    'five',
-    'six',
-    'seven',
-    'eight',
-    'nine',
-    'ten',
-];
-
-/**
- * Helper function to return either a word looked up in NUMBER_WORDS or just the input as a string.
- *
- * @param n - The choice count to spell out when it is between zero and ten.
- */
-function getNumberWord(n: number): string {
-    return NUMBER_WORDS[n] ?? n.toString();
-}
-
-const NEXT_STEP_PHRASES = new Map([
-    ['choose_class', 'choosing a class'],
-    ['ability_score_or_feat', 'an ability increase or a feat'],
-]);
-
 /** Formats ancestry, ordered classes and subclasses, leaving out missing parts. */
 export function subtitle(character: CharacterSummary): string {
     const { ancestry, classes } = character;
@@ -129,6 +101,25 @@ function filledSegments(current: number, maximum: number): number {
     return Math.max(1, Math.min(9, roundedSegments));
 }
 
+const NUMBER_WORDS = [
+    'zero',
+    'one',
+    'two',
+    'three',
+    'four',
+    'five',
+    'six',
+    'seven',
+    'eight',
+    'nine',
+    'ten',
+];
+
+const NEXT_STEP_PHRASES = new Map([
+    ['choose_class', 'choosing a class'],
+    ['ability_score_or_feat', 'an ability increase or a feat'],
+]);
+
 /**
  * Formats either draft kind; compact phone copy omits the next step and uses a short button label.
  *
@@ -148,6 +139,15 @@ export function draftCopy(draft: Draft, compact: boolean): DraftCopy {
     return draft.kind === 'creation'
         ? creationDraftCopy(draft, compact, { progress, nextSentence })
         : levelUpDraftCopy(draft, compact, { progress, nextSentence });
+}
+
+/**
+ * Spells out small choice counts, using digits above ten.
+ *
+ * @param n - The choice count to spell out when it is between zero and ten.
+ */
+function getNumberWord(n: number): string {
+    return NUMBER_WORDS[n] ?? n.toString();
 }
 
 /**

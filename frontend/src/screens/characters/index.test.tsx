@@ -154,9 +154,9 @@ describe('Characters', () => {
     it('makes each card a link named by its character', async () => {
         await renderScreen();
 
-        expect(screen.getByRole('link', { name: 'Thorn Grimsby' })).toBeOnTheScreen();
+        expect(screen.getByRole('link', { name: /^Thorn Grimsby\./ })).toBeOnTheScreen();
 
-        expect(screen.getByRole('link', { name: 'Vesper Quill' })).toBeOnTheScreen();
+        expect(screen.getByRole('link', { name: /^Vesper Quill\./ })).toBeOnTheScreen();
     });
 
     it('shows both kinds of draft in the tray', async () => {
@@ -219,6 +219,74 @@ describe('Characters', () => {
         await advance(1);
 
         expect(lastRequest().searchParams.get('q')).toBe('thorn');
+    });
+
+    it.each([
+        {
+            label: '99 ASCII characters',
+            typed: 'a'.repeat(99),
+            field: 'a'.repeat(99),
+            query: 'a'.repeat(99),
+        },
+        {
+            label: '100 ASCII characters',
+            typed: 'a'.repeat(100),
+            field: 'a'.repeat(100),
+            query: 'a'.repeat(100),
+        },
+        {
+            label: '101 ASCII characters',
+            typed: 'a'.repeat(101),
+            field: 'a'.repeat(100),
+            query: 'a'.repeat(100),
+        },
+        {
+            label: '100 emoji',
+            typed: '🐈'.repeat(100),
+            field: '🐈'.repeat(100),
+            query: '🐈'.repeat(100),
+        },
+        {
+            label: '101 emoji',
+            typed: '🐈'.repeat(101),
+            field: '🐈'.repeat(100),
+            query: '🐈'.repeat(100),
+        },
+        {
+            label: 'surrounding spaces',
+            typed: `  ${'a'.repeat(100)}  `,
+            field: `  ${'a'.repeat(100)}  `,
+            query: 'a'.repeat(100),
+        },
+        { label: 'only spaces', typed: ' '.repeat(101), field: ' '.repeat(101), query: null },
+    ])(
+        'keeps $label within the API search limit after trimming',
+        async ({ typed, field, query }) => {
+            await renderScreen();
+
+            await fireEvent.changeText(screen.getByLabelText('Find a character'), typed);
+            await advance(SEARCH_DEBOUNCE_MS);
+            await advance(0);
+
+            expect(screen.getByLabelText('Find a character')).toHaveDisplayValue(field);
+
+            expect(lastRequest().searchParams.get('q')).toBe(query);
+        },
+    );
+
+    it('allows a new shorter search after limiting a long paste', async () => {
+        await renderScreen();
+
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), 'a'.repeat(101));
+        await advance(SEARCH_DEBOUNCE_MS);
+        await advance(0);
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), 'thorn');
+        await advance(SEARCH_DEBOUNCE_MS);
+        await advance(0);
+
+        expect(lastRequest().searchParams.get('q')).toBe('thorn');
+
+        expect(screen.getByLabelText('Find a character')).toHaveDisplayValue('thorn');
     });
 
     it('offers Create character', async () => {
@@ -323,9 +391,9 @@ describe.each(['tablet', 'tabletLandscape'] as const)('Characters on %s', (layou
     it('makes each card a link named by its character', async () => {
         await renderScreen();
 
-        expect(screen.getByRole('link', { name: 'Thorn Grimsby' })).toBeOnTheScreen();
+        expect(screen.getByRole('link', { name: /^Thorn Grimsby\./ })).toBeOnTheScreen();
 
-        expect(screen.getByRole('link', { name: 'Vesper Quill' })).toBeOnTheScreen();
+        expect(screen.getByRole('link', { name: /^Vesper Quill\./ })).toBeOnTheScreen();
     });
 });
 
@@ -334,9 +402,11 @@ describe('Characters on tabletLandscape', () => {
         setWindowWidth(WIDTHS.tabletLandscape);
     });
 
-    /** The accessible name of every link, in screen order. */
+    /** The character name at the start of each native link's summary, in screen order. */
     function linkNames(): string[] {
-        return screen.getAllByRole('link').map((link) => link.props.accessibilityLabel);
+        return screen
+            .getAllByRole('link')
+            .map((link) => link.props.accessibilityLabel.split('. ')[0]);
     }
 
     it('keeps an odd last card in one column, beside an empty one', async () => {
@@ -657,6 +727,78 @@ describe('Characters with a native screen reader', () => {
         await advance(SEARCH_DEBOUNCE_MS);
 
         expect(announce).toHaveBeenLastCalledWith('Searching…');
+    });
+
+    it('announces a settled no-results search once, using the trimmed query', async () => {
+        await renderScreen();
+        body = { characters: [], drafts: [] };
+        announce.mockClear();
+
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), ' Zephyr ');
+        await advance(SEARCH_DEBOUNCE_MS - 1);
+
+        expect(announce).not.toHaveBeenCalled();
+
+        await advance(1);
+        await advance(0);
+
+        expect(announce).toHaveBeenLastCalledWith('No characters match "Zephyr"');
+
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), '  Zephyr  ');
+        await advance(SEARCH_DEBOUNCE_MS);
+
+        expect(
+            announce.mock.calls.filter(([message]) => message === 'No characters match "Zephyr"'),
+        ).toHaveLength(1);
+    });
+
+    it('does not announce earlier no-results data while another search debounces or loads', async () => {
+        await renderScreen();
+        body = { characters: [], drafts: [] };
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), 'Zephyr');
+        await advance(SEARCH_DEBOUNCE_MS);
+        await advance(0);
+        announce.mockClear();
+        hangRequests();
+
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), 'Sirocco');
+        await advance(SEARCH_DEBOUNCE_MS - 1);
+
+        expect(announce).not.toHaveBeenCalled();
+
+        await advance(1);
+
+        expect(
+            screen.getByRole('heading', { name: 'No characters match "Zephyr"' }),
+        ).toBeOnTheScreen();
+
+        expect(announce).toHaveBeenLastCalledWith('Searching…');
+
+        expect(announce).not.toHaveBeenCalledWith('No characters match "Zephyr"');
+
+        expect(announce).not.toHaveBeenCalledWith('No characters match "Sirocco"');
+    });
+
+    it('clears the result announcement when the search is cleared', async () => {
+        await renderScreen();
+        body = { characters: [], drafts: [] };
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), 'Zephyr');
+        await advance(SEARCH_DEBOUNCE_MS);
+        await advance(0);
+        announce.mockClear();
+        body = { characters: [thorn], drafts: [] };
+
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), '');
+        await advance(SEARCH_DEBOUNCE_MS - 1);
+
+        expect(announce).not.toHaveBeenCalled();
+
+        await advance(1);
+        await advance(0);
+
+        expect(screen.getByText('Thorn Grimsby')).toBeOnTheScreen();
+
+        expect(announce).not.toHaveBeenCalledWith('No characters match "Zephyr"');
     });
 
     it('announces a failed load', async () => {

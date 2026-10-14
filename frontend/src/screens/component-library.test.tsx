@@ -10,6 +10,7 @@ describe('ComponentLibrary', () => {
             'Component library',
             'Paper',
             'SearchIcon',
+            'WarningIcon',
             'CharacterToken',
             'HitPoints',
             'LevelBlock',

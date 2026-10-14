@@ -3,6 +3,9 @@ import { apiFetch } from './client';
 /** `level` puts the highest total level first. Both sorts then order by name. */
 export type CharacterSort = 'level' | 'name';
 
+/** The API's maximum trimmed name-search length, counted in Unicode code points. */
+export const CHARACTER_SEARCH_MAX_LENGTH = 100;
+
 export type CharacterClassSummary = {
     name: string;
     level: number;
@@ -61,7 +64,7 @@ export type CharacterList = {
 
 /** The query parameters for `GET /api/v1/characters`. */
 export type CharacterListParams = {
-    /** A trimmed, non-blank name search, or undefined for every character. */
+    /** A trimmed, non-blank name search of at most 100 code points, or undefined for every character. */
     q?: string;
     sort: CharacterSort;
 };

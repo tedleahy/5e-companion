@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 
 import { SecondaryButton } from '@/components/buttons';
 import { Spinner } from '@/components/spinner';
@@ -11,6 +11,23 @@ import { useCardScale } from './card-scale';
 
 /** The first-load status line, which native screen readers are also told. */
 const LOADING_STATUS = 'Loading characters…';
+
+/**
+ * Announces a settled search outcome. The empty web region stays mounted so its later text is read.
+ *
+ * @param props.message - The settled outcome, or null while typing, loading, or showing a list.
+ */
+export function SearchResultsStatus({ message }: { message: string | null }) {
+    useAnnouncement(message);
+
+    if (Platform.OS !== 'web') return null;
+
+    return (
+        <View accessible role="status" style={styles.visuallyHidden}>
+            <Text>{message}</Text>
+        </View>
+    );
+}
 
 /** The spinner in the space the list will fill, over a status line. */
 export function Loading() {
@@ -165,6 +182,13 @@ const EDGE_WIDTH = 4;
 const DASHED_BORDER_WIDTH = 2;
 
 const styles = StyleSheet.create({
+    visuallyHidden: {
+        position: 'absolute',
+        width: 1,
+        height: 1,
+        overflow: 'hidden',
+        pointerEvents: 'none',
+    },
     loading: {
         flexGrow: 1,
         alignItems: 'center',

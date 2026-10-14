@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Platform, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import type { CharacterSummary } from '@/api/characters';
 import { hitPoints, subtitle } from '@/characters/display';
@@ -19,6 +19,7 @@ type CharacterCardProps = {
 /**
  * One character in the list. The whole card is a single link named by the character: the token
  * beside the name, the level block at the top right, and the hit points across the bottom.
+ * Native screen readers receive the summary on the card itself because they group its descendants.
  *
  * @param props.character - The character whose identity, level, and hit points to show.
  * @param props.onPress - Opens the character sheet. Leave unset until the sheet route exists.
@@ -26,12 +27,23 @@ type CharacterCardProps = {
  */
 export function CharacterCard({ character, onPress, style }: CharacterCardProps) {
     const scale = useCardScale();
+    const characterSubtitle = subtitle(character);
+    const points = hitPoints(character.hit_points);
+    const label =
+        Platform.OS === 'web'
+            ? character.name
+            : [
+                  character.name,
+                  characterSubtitle,
+                  character.total_level > 0 ? `Level ${character.total_level}` : 'Level not set',
+                  `${points.line.current ?? ''}${points.line.rest}`,
+              ].join('. ');
 
     return (
         <PrintPressable
             depth={5}
             role="link"
-            accessibilityLabel={character.name}
+            accessibilityLabel={label}
             onPress={onPress}
             style={[styles.card, scale.wide && styles.wideCard, style]}
         >
@@ -40,13 +52,13 @@ export function CharacterCard({ character, onPress, style }: CharacterCardProps)
                 <View style={styles.summary}>
                     <View style={styles.identity}>
                         <Text style={[scale.name, styles.name]}>{character.name}</Text>
-                        <Text style={[scale.subtitle, styles.subtitle]}>{subtitle(character)}</Text>
+                        <Text style={[scale.subtitle, styles.subtitle]}>{characterSubtitle}</Text>
                     </View>
                     <View style={styles.level}>
                         <LevelBlock level={character.total_level} large={scale.largeLevelLabel} />
                     </View>
                 </View>
-                <HitPoints display={hitPoints(character.hit_points)} />
+                <HitPoints display={points} />
             </View>
         </PrintPressable>
     );

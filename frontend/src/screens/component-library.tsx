@@ -11,6 +11,7 @@ import { Paper } from '@/components/paper';
 import { PrintPressable } from '@/components/print-pressable';
 import { SearchIcon } from '@/components/search-icon';
 import { Spinner } from '@/components/spinner';
+import { WarningIcon } from '@/components/warning-icon';
 import { useBreakpoint } from '@/hooks/use-breakpoint';
 import { colors, offsetShadow, typography } from '@/theme';
 
@@ -50,6 +51,24 @@ const ENTRIES: Entry[] = [
                 </Variant>
                 <Variant label="Structural">
                     <SearchIcon color={colors.structural} />
+                </Variant>
+            </Row>
+        ),
+    },
+    {
+        name: 'WarningIcon',
+        path: 'src/components/warning-icon.tsx',
+        description: 'The outlined warning triangle used by notices, in the supplied ink.',
+        demo: () => (
+            <Row>
+                <Variant label="18, accent text">
+                    <WarningIcon size={18} color={colors.accentText} />
+                </Variant>
+                <Variant label="20, accent text">
+                    <WarningIcon size={20} color={colors.accentText} />
+                </Variant>
+                <Variant label="20, structural">
+                    <WarningIcon size={20} color={colors.structural} />
                 </Variant>
             </Row>
         ),

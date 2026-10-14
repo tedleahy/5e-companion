@@ -13,7 +13,13 @@ import { CreateFooter } from './create-footer';
 import { DraftTray } from './draft-tray';
 import { ContentColumn } from './content-column';
 import { Header, WidePlate } from './header';
-import { EmptyCard, FailedNotice, Loading, SignedOutNotice } from './list-messages';
+import {
+    EmptyCard,
+    FailedNotice,
+    Loading,
+    SearchResultsStatus,
+    SignedOutNotice,
+} from './list-messages';
 import { listState, showsCreate, showsSearch, type ListState } from './list-state';
 import type { SearchState } from './search-controls';
 import { Toolbar } from './toolbar';
@@ -28,13 +34,23 @@ const FOOTER_GAP = 8;
 export function Characters() {
     const [search, setSearch] = useState('');
     const [sort, setSort] = useState<CharacterSort>('level');
-    const { data, error, refetch, isSearching, shownSearch } = useCharacterList(search, sort);
+    const { data, error, refetch, isSearching, shownSearch, isFetching, isPlaceholderData } =
+        useCharacterList(search, sort);
     // Try again shows the first-load spinner until its request settles. The query alone can't say
     // so: after a failed search it falls back to the previous search's list while it refetches.
     const [retrying, setRetrying] = useState(false);
     const breakpoint = useBreakpoint();
 
     const state = listState({ data, error, shownSearch, retrying });
+    // The old empty card can remain while a new search debounces or loads. Announce only an
+    // outcome that has settled and still matches the field, never that earlier result.
+    const resultMessage =
+        state.kind === 'noResults' &&
+        !isFetching &&
+        !isPlaceholderData &&
+        search.trim() === state.search
+            ? noResultsMessage(state.search)
+            : null;
 
     const searchState: SearchState = {
         search,
@@ -64,8 +80,14 @@ export function Characters() {
                     />
                 )}
             </SafeAreaView>
+            <SearchResultsStatus message={resultMessage} />
         </Paper>
     );
+}
+
+/** Keeps the empty-card heading and its screen-reader announcement in agreement. */
+function noResultsMessage(search: string): string {
+    return `No characters match "${search}"`;
 }
 
 type LayoutProps = {
@@ -210,7 +232,7 @@ function ListContent({ state, onRetry, trayStyle, renderCharacters }: ListConten
                         <DraftTray drafts={state.drafts} style={trayStyle} />
                     )}
                     <EmptyCard
-                        title={`No characters match "${state.search}"`}
+                        title={noResultsMessage(state.search)}
                         // Says what search covers, so a player who searched for "dwarf" doesn't
                         // think it broke.
                         body="Search only looks at names. Check the spelling, or clear the search to see all your characters."

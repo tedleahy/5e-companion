@@ -1112,7 +1112,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <div class="type-row"><small>Name, desktop<br>19 / 700 / -.02em</small><h3 class="name" style="font-size:19px">Brenna Duskhollow</h3></div>
     <div class="type-row"><small>Name, phone<br>16.5 / 700 / -.02em</small><h3 class="name">Brenna Duskhollow</h3></div>
     <div class="type-row"><small>Level number<br>26 / 700 / -.03em / structural</small><span class="lvl" style="align-items:flex-start"><b>6</b></span></div>
-    <div class="type-row"><small>Small label<br>11 / 700 / .09em / caps / dim, 13 on desktop</small><span class="badgelab">Level</span></div>
+    <div class="type-row"><small>Small label<br>11 / 700 / .09em / caps / dim, level labels 13 on tablet and desktop</small><span class="badgelab">Level</span></div>
     <div class="type-row"><small>Small label as the tray heading<br>11 / 700 / .09em / caps / dim</small><h3 class="trayhead" style="margin:0">Waiting to be finished</h3></div>
     <div class="type-row"><small>Input<br>14 / 400</small><span style="font-size:14px">Find a character</span></div>
     <div class="type-row"><small>Subtitle<br>12.5 / 400 / dim</small><p class="sub" style="margin:0">Half-elf warlock, the Fiend</p></div>
@@ -1195,7 +1195,7 @@ button.mark{font-family:inherit;cursor:pointer}
       <tr><td>Card columns</td><td><code>56px 1fr</code>, identity <code>1fr auto</code></td><td><code>64px 1fr</code>, two cards across in landscape</td><td><code>74px 1fr 84px 240px 128px</code></td></tr>
       <tr><td>Card to card</td><td>14</td><td>16</td><td>16</td></tr>
       <tr><td>Token size</td><td>56</td><td>64</td><td>64</td></tr>
-      <tr><td>Level block</td><td>label 11, number 26</td><td>same</td><td>label 13, number 26</td></tr>
+      <tr><td>Level block</td><td>label 11, number 26</td><td>label 13, number 26</td><td>same as tablet</td></tr>
       <tr><td>Meter height</td><td>13</td><td>13</td><td>13</td></tr>
       <tr><td>Search field</td><td>9 12 padding, at least 44 tall</td><td>same, max 520 wide</td><td>same</td></tr>
       <tr><td>Primary button</td><td>14 all round, full width</td><td>12 20, auto width, right of the toolbar</td><td>same</td></tr>
@@ -1351,7 +1351,7 @@ button.mark{font-family:inherit;cursor:pointer}
       <tr><td>Field</td><td>Card fill, 2px structural border, 4px accent shadow, 9 12 padding and a 44 minimum height, the text field rule. At most 520 wide in the toolbar. Icon is 15px, 1.8 stroke, in dim. Text in <code>--text</code>, placeholder in dim.</td></tr>
       <tr><td>Sort</td><td>Card fill, 2px structural border, structural text at 13 / 700, 0 13 padding, 4px accent shadow. The label reads &ldquo;Sort: level&rdquo; or &ldquo;Sort: name&rdquo;.</td></tr>
       <tr><td>Sort behaviour</td><td>Each tap switches between level and name. There is no menu. Level puts the highest total level first, then sorts by name; name sorts A to Z.</td></tr>
-      <tr><td>Search behaviour</td><td>Search matches names only. The request goes out 250 ms after typing stops, and the previous results stay on screen until the new ones land. Drafts ignore the search.</td></tr>
+      <tr><td>Search behaviour</td><td>Search matches names only. The input limits the trimmed search to 100 Unicode code points, as the API does. The request goes out 250 ms after typing stops, and the previous results stay on screen until the new ones land. Drafts ignore the search.</td></tr>
       <tr><td>Searching</td><td>While a search is in flight, a 16px <a href="#list-states">spinner</a> turns at the right of the field, where the eye already is, so nothing below it moves. It is a polite live region that reads &ldquo;Searching&hellip;&rdquo;.</td></tr>
     </tbody>
   </table>
@@ -1408,7 +1408,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
       <tr><td>Circle</td><td>56px on phone, 64px on tablet and desktop. Initial at 20 / 23px, 700. 4px accent shadow, always accent regardless of token colour.</td></tr>
-      <tr><td>Initial</td><td>The first letter of the name, uppercased, taken by code point so an accented letter or emoji is not split. Hidden from screen readers, because the name beside it says the same.</td></tr>
+      <tr><td>Initial</td><td>The first grapheme cluster of the trimmed name, uppercased, so combining accents and joined emoji stay together. Hidden from screen readers, because the name beside it says the same.</td></tr>
       <tr><td>Level badge</td><td>Sheet only. 23px circle, card fill, a digit in <code>--text</code> at 11.5 / 700, 2px structural ring. Offset -7 -7 so it overlaps the token edge. It shows total level, so wizard 5 / rogue 2 reads 7.</td></tr>
       <tr><td>Colour assignment</td><td>On the list, every token is structural ink. On the sheet, the fill is stored on the character as a hex colour, not an ink role. The player picks it in the first creation step and can change it from Basic details. A theme change leaves it as it is. The five inks stay chrome: plates, shadows, hurt, concentration.</td></tr>
       <tr><td>Draft variant</td><td>Card fill, structural initial, 2px inset structural ring, shadow in <code>--rule</code> instead of accent. Reads as an outline of a token. No badge. An unnamed creation draft shows the ring with no letter: the letter comes from a name it does not have yet, and the N of &ldquo;New character&rdquo; would read as a real name.</td></tr>
@@ -1431,7 +1431,7 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Label</td><td>&ldquo;Level&rdquo; as a small label: 11 / 700, tracked .09em, capitals by style, in dim. 13 on desktop.</td></tr>
+      <tr><td>Label</td><td>&ldquo;Level&rdquo; as a small label: 11 / 700, tracked .09em, capitals by style, in dim. 13 on tablet and desktop.</td></tr>
       <tr><td>Number</td><td>26 / 700 / -.03em in structural. It shows total level, so wizard 5 / rogue 2 reads 7. The label sits 5 above it.</td></tr>
       <tr><td>No classes</td><td>A character with no classes has a total level of 0. The block shows a dash in dim instead, because 0 is not a level, and screen readers hear &ldquo;Level not set&rdquo;. Those characters sort last by level.</td></tr>
       <tr><td>On the card</td><td>8 below the block before the meter starts, so the meter clears it. The block keeps its column however the name wraps.</td></tr>
@@ -1515,7 +1515,7 @@ button.mark{font-family:inherit;cursor:pointer}
               <p class="sub">Mountain dwarf fighter, Champion</p>
             </div>
             <div class="vitals-hp">
-              
+
               <p class="hp"><b>0</b>/72 hit points, 3 failures</p>
             </div>
           </div>
@@ -1666,7 +1666,7 @@ button.mark{font-family:inherit;cursor:pointer}
               <p class="sub">Tiefling</p>
             </div>
             <div class="vitals-hp">
-              
+
               <p class="hp">Hit points not set</p>
             </div>
           </div>
@@ -1837,7 +1837,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
       <tr><td>Place</td><td>Above the list, 16 above a 2px dashed accent rule. When there are no characters the tray stands alone and the rule goes, because there is nothing under it to separate. With no drafts there is no tray.</td></tr>
-      <tr><td>Heading</td><td>&ldquo;Waiting to be finished&rdquo;, a small label at 11.5 / 700, tracked .09em, capitals by style, in dim.</td></tr>
+      <tr><td>Heading</td><td>&ldquo;Waiting to be finished&rdquo;, a small label at 11 / 700, tracked .09em, capitals by style, in dim.</td></tr>
       <tr><td>Card</td><td>2px dashed structural border, <code>--draft-fill</code> fill, no shadow. Drafts are 12 apart. Token, text, then Resume: <code>56px 1fr auto</code> on phone, <code>74px 1fr auto</code> with 22 gaps on tablet and desktop.</td></tr>
       <tr><td>Token</td><td>Draft variant, no badge. An unnamed creation draft has an empty ring.</td></tr>
       <tr><td>Title</td><td>On phone, the name, or &ldquo;New character&rdquo; for an unnamed creation. On tablet and desktop, a level-up reads &ldquo;Kethra Ironsong, level 3 to 4&rdquo; and a creation &ldquo;Nyra Ashfall, new character&rdquo;, or &ldquo;New character&rdquo; alone.</td></tr>
@@ -3028,10 +3028,10 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <tr><td>Dim on draft fill over paper, the worst case</td><td>4.60</td><td>4.5</td></tr>
       <tr><td>Structural on card</td><td>5.28</td><td>4.5</td></tr>
       <tr><td>Structural on draft fill over paper</td><td>4.52</td><td>4.5</td></tr>
-      <tr><td>On-a on structural</td><td>5.46</td><td>4.5</td></tr>
+      <tr><td>On-structural on structural</td><td>5.46</td><td>4.5</td></tr>
       <tr><td>Inactive chip text</td><td>4.51</td><td>4.5</td></tr>
-      <tr><td>On-b on accent</td><td>4.53</td><td>4.5</td></tr>
-      <tr><td>On-mix on overprint</td><td>7.44</td><td>4.5</td></tr>
+      <tr><td>On-accent on accent</td><td>4.53</td><td>4.5</td></tr>
+      <tr><td>On-overprint on overprint</td><td>7.44</td><td>4.5</td></tr>
       <tr><td>Rose text on card</td><td>5.65</td><td>4.5</td></tr>
       <tr><td>Rose text on draft fill over card</td><td>5.09</td><td>4.5</td></tr>
       <tr><td>Rose text on draft fill over paper</td><td>4.84</td><td>4.5</td></tr>
@@ -3046,7 +3046,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <tr><td>Motion</td><td>The system has three animations. On the sheet, the header shrinks continuously as the page scrolls, and the dice roll animates while it rolls, about half a second, stepped between fixed poses with its shadow held still. On the list, the loading spinner turns while data loads, and holds still when reduced motion is on. Nothing else moves: state changes are instant. <code>prefers-reduced-motion</code> shows the roll&rsquo;s result at once, and a tap skips it. Screen readers hear only the result.</td></tr>
       <tr><td>Text opacity</td><td>Banned. The mockup used opacity on the tray heading, column headers, title count and ring label, which pushed them below contrast. All four are now solid.</td></tr>
       <tr><td>Colour alone</td><td>Hurt is shown by meter colour and the number, which turns rose as well; on the sheet a "Below half" mark adds to it. Death saves differ in shape as well as colour and are spelled out in the line. Token colour carries no meaning.</td></tr>
-      <tr><td>Semantics</td><td>Cards are <code>article</code> with the name as a link stretched over the card, names are <code>h3</code>, search has a label, and filter chips are a radio group. Meters and pips are decorative or collapsed into one control; the adjacent text carries the value. On the list, loading and searching are polite live regions, error notices are alerts, spinners are hidden, and a level block with no classes reads &ldquo;Level not set&rdquo;. On the character sheet: switches that swap the content below are <code>tablist</code> with <code>aria-selected</code> (sheet tabs, rest length, catalog or custom, the pad's tabs, the coin switch), single choices are <code>radiogroup</code> with <code>aria-checked</code> (ranks, alignment, ability, uses, ends, gain or spend), multi-select toggles keep <code>aria-pressed</code> (conditions, inspiration), and a pip row is one <code>spinbutton</code> with <code>aria-valuetext</code> such as "1 of 2 left", stepped with arrow keys, Home and End. Arrow keys move a choice with roving focus. A toggle row with a details chevron is two siblings, a label and a button, so opening details never toggles the row. Bottom sheets are <code>dialog</code> with <code>aria-modal</code>: the page behind is inert, focus cycles inside, and the opener carries <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>. Disclosures report <code>aria-expanded</code>. The header's vitals block is one button named by its numbers, and live regions carry the notes' save status and the roll's running total.</td></tr>
+      <tr><td>Semantics</td><td>Cards are <code>article</code> with the name as a link stretched over the card, names are <code>h3</code>, search has a label, and filter chips are a radio group. Meters and pips are decorative or collapsed into one control; the adjacent text carries the value. On the list, loading, searching, and settled no-results messages are polite live regions, error notices are alerts, spinners are hidden, and a level block with no classes reads &ldquo;Level not set&rdquo;. Native phone and tablet cards are one accessible link whose label includes the name, subtitle, level, and hit point line, because the card groups its descendants. No-results announcements wait until the response has settled and matches the current search text. On the character sheet: switches that swap the content below are <code>tablist</code> with <code>aria-selected</code> (sheet tabs, rest length, catalog or custom, the pad's tabs, the coin switch), single choices are <code>radiogroup</code> with <code>aria-checked</code> (ranks, alignment, ability, uses, ends, gain or spend), multi-select toggles keep <code>aria-pressed</code> (conditions, inspiration), and a pip row is one <code>spinbutton</code> with <code>aria-valuetext</code> such as "1 of 2 left", stepped with arrow keys, Home and End. Arrow keys move a choice with roving focus. A toggle row with a details chevron is two siblings, a label and a button, so opening details never toggles the row. Bottom sheets are <code>dialog</code> with <code>aria-modal</code>: the page behind is inert, focus cycles inside, and the opener carries <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>. Disclosures report <code>aria-expanded</code>. The header's vitals block is one button named by its numbers, and live regions carry the notes' save status and the roll's running total.</td></tr>
       <tr><td>Hit areas</td><td>Every control answers taps across at least 44 by 44. On web the extension is an invisible <code>::after</code> centred on the control, so layout and appearance do not change. Where two controls sit closer than that, their areas meet at the midpoint of the gap instead of overlapping, and 24 is the floor in that direction, the WCAG 2.2 AA minimum. Chips extend to 44 tall and keep their own width. Text fields get a real 44 minimum height instead, because an overlay would cover the caret.</td></tr>
       <tr><td>Native semantics</td><td>HTML elements and accessibility attributes map onto React Native roles and props. See React Native.</td></tr>
     </tbody>
