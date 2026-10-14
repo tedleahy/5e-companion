@@ -601,7 +601,7 @@ describe('Characters with nothing to show', () => {
         await advance(0);
 
         expect(
-            screen.getByRole('heading', { name: 'No characters match "Zephyr"' }),
+            screen.getByRole('heading', { name: 'No characters match “Zephyr”' }),
         ).toBeOnTheScreen();
 
         expect(screen.getByText(/Search only looks at names\./)).toBeOnTheScreen();
@@ -622,7 +622,7 @@ describe('Characters with nothing to show', () => {
         await advance(SEARCH_DEBOUNCE_MS - 1);
 
         expect(
-            screen.getByRole('heading', { name: 'No characters match "Zephyr"' }),
+            screen.getByRole('heading', { name: 'No characters match “Zephyr”' }),
         ).toBeOnTheScreen();
 
         expect(screen.queryByRole('heading', { name: 'No characters yet' })).toBeNull();
@@ -851,13 +851,13 @@ describe('Characters with a native screen reader', () => {
         await advance(1);
         await advance(0);
 
-        expect(announce).toHaveBeenLastCalledWith('No characters match "Zephyr"');
+        expect(announce).toHaveBeenLastCalledWith('No characters match “Zephyr”');
 
         await fireEvent.changeText(screen.getByLabelText('Find a character'), '  Zephyr  ');
         await advance(SEARCH_DEBOUNCE_MS);
 
         expect(
-            announce.mock.calls.filter(([message]) => message === 'No characters match "Zephyr"'),
+            announce.mock.calls.filter(([message]) => message === 'No characters match “Zephyr”'),
         ).toHaveLength(1);
     });
 
@@ -878,14 +878,14 @@ describe('Characters with a native screen reader', () => {
         await advance(1);
 
         expect(
-            screen.getByRole('heading', { name: 'No characters match "Zephyr"' }),
+            screen.getByRole('heading', { name: 'No characters match “Zephyr”' }),
         ).toBeOnTheScreen();
 
         expect(announce).toHaveBeenLastCalledWith('Searching…');
 
-        expect(announce).not.toHaveBeenCalledWith('No characters match "Zephyr"');
+        expect(announce).not.toHaveBeenCalledWith('No characters match “Zephyr”');
 
-        expect(announce).not.toHaveBeenCalledWith('No characters match "Sirocco"');
+        expect(announce).not.toHaveBeenCalledWith('No characters match “Sirocco”');
     });
 
     it('clears the result announcement when the search is cleared', async () => {
@@ -907,7 +907,7 @@ describe('Characters with a native screen reader', () => {
 
         expect(screen.getByText('Thorn Grimsby')).toBeOnTheScreen();
 
-        expect(announce).not.toHaveBeenCalledWith('No characters match "Zephyr"');
+        expect(announce).not.toHaveBeenCalledWith('No characters match “Zephyr”');
     });
 
     it('announces a failed load', async () => {

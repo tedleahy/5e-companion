@@ -88,7 +88,7 @@ export function Characters() {
 
 /** Keeps the empty-card heading and its screen-reader announcement in agreement. */
 function noResultsMessage(search: string): string {
-    return `No characters match "${search}"`;
+    return `No characters match “${search}”`;
 }
 
 type LayoutProps = {
