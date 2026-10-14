@@ -36,8 +36,16 @@ const FOOTER_GAP = 8;
 export function Characters() {
     const [search, setSearch] = useState('');
     const [sort, setSort] = useState<CharacterSort>('level');
-    const { data, error, refetch, isSearching, shownSearch, isFetching, isPlaceholderData } =
-        useCharacterList(search, sort);
+    const {
+        data,
+        error,
+        refetch,
+        isSearching,
+        shownSearch,
+        isFetching,
+        isPlaceholderData,
+        sendSearchNow,
+    } = useCharacterList(search, sort);
     // Try again shows the first-load spinner until its request settles. The query alone can't say
     // so: after a failed search it falls back to the previous search's list while it refetches.
     const [retrying, setRetrying] = useState(false);
@@ -57,6 +65,7 @@ export function Characters() {
     const searchState: SearchState = {
         search,
         onSearchChange: setSearch,
+        onSearchSubmit: sendSearchNow,
         sort,
         onSortPress: () => setSort((current) => (current === 'level' ? 'name' : 'level')),
         // While Try again runs, the first-load spinner already says something is loading.

@@ -250,6 +250,20 @@ describe('Characters', () => {
         expect(lastRequest().searchParams.get('q')).toBe('thorn');
     });
 
+    it("sends the search straight away when the keyboard's Search key is pressed", async () => {
+        await renderScreen();
+
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), 'thorn');
+        await fireEvent(screen.getByLabelText('Find a character'), 'submitEditing');
+        await advance(0);
+
+        expect(lastRequest().searchParams.get('q')).toBe('thorn');
+
+        await advance(SEARCH_DEBOUNCE_MS);
+
+        expect(requests.filter((url) => url.searchParams.get('q') === 'thorn')).toHaveLength(1);
+    });
+
     it.each([
         {
             label: '99 ASCII characters',

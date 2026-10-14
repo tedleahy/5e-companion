@@ -17,7 +17,7 @@ async function advance(ms: number) {
 }
 
 async function renderDebounced(value: string) {
-    return renderHook((props: { value: string }) => useDebouncedValue(props.value, 250), {
+    return renderHook((props: { value: string }) => useDebouncedValue(props.value, 250)[0], {
         initialProps: { value },
     });
 }
@@ -42,5 +42,19 @@ describe('useDebouncedValue', () => {
         await advance(1);
 
         expect(result.current).toBe('abc');
+    });
+
+    it('publishes the latest value straight away when flushed', async () => {
+        const { result, rerender } = await renderHook(
+            (props: { value: string }) => useDebouncedValue(props.value, 250),
+            { initialProps: { value: 'a' } },
+        );
+
+        await rerender({ value: 'abc' });
+        await act(async () => {
+            result.current[1]();
+        });
+
+        expect(result.current[0]).toBe('abc');
     });
 });

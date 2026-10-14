@@ -29,9 +29,15 @@ WORK="$(mktemp -d "$HOME/.cache/app-shots.XXXXXX")"
 trap 'rm -rf "$WORK"; [ -n "${SERVER:-}" ] && kill "$SERVER" 2>/dev/null || true' EXIT
 mkdir -p shots
 
+# The component library only exists in development builds, and redirects to / in a release one.
+EXPORT_MODE=()
+if [ "$ROUTE" = /component-library ]; then
+  EXPORT_MODE=(--dev)
+fi
+
 # Metro inlines EXPO_PUBLIC_* values when it transforms a file and caches the result, so without
 # --clear an override would be ignored for any file the cache already holds.
-npx expo export -p web --clear --output-dir "$WORK/dist" >/dev/null
+npx expo export -p web --clear "${EXPORT_MODE[@]}" --output-dir "$WORK/dist" >/dev/null
 
 # The build is a single page app, so any path that isn't a file gets index.html.
 python3 - "$WORK/dist" "$PORT" <<'PY' >/dev/null 2>&1 &

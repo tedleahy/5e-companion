@@ -125,6 +125,17 @@ describe('useCharacterList', () => {
         expect(lastRequest().url.searchParams.get('q')).toBe('ves');
     });
 
+    it('sends the search without waiting when asked to', async () => {
+        const { result, rerender } = await renderCharacterList();
+
+        await rerender({ search: 'ves', sort: 'level' });
+        await act(async () => {
+            result.current.sendSearchNow();
+        });
+
+        expect(lastRequest().url.searchParams.get('q')).toBe('ves');
+    });
+
     it('trims the search', async () => {
         const { rerender } = await renderCharacterList();
 

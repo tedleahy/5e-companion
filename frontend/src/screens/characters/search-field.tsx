@@ -11,6 +11,7 @@ import { colors, offsetShadow, typography } from '@/theme';
 type SearchFieldProps = {
     value: string;
     onChangeText: (text: string) => void;
+    onSubmit: () => void;
     onPlate?: boolean;
     searching?: boolean;
 };
@@ -23,6 +24,7 @@ type SearchFieldProps = {
  * @param props.value - The search text, as typed.
  * @param props.onChangeText - Called on every keystroke, limiting the trimmed search to the API's
  *   maximum number of Unicode code points.
+ * @param props.onSubmit - Called when the keyboard's Search key is pressed.
  * @param props.onPlate - Whether the field sits on the structural plate, where its focus ring needs
  *   the light ink to show.
  * @param props.searching - Whether a search is loading, which turns a small spinner at the right of
@@ -31,6 +33,7 @@ type SearchFieldProps = {
 export function SearchField({
     value,
     onChangeText,
+    onSubmit,
     onPlate = false,
     searching = false,
 }: SearchFieldProps) {
@@ -61,6 +64,7 @@ export function SearchField({
                 aria-label="Find a character"
                 autoCorrect={false}
                 returnKeyType="search"
+                onSubmitEditing={onSubmit}
                 style={[typography.input, styles.input, searching && styles.inputBesideSpinner]}
             />
             {/* Always mounted, so screen readers on the web hear the status change when a search
