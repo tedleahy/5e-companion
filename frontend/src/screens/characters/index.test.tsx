@@ -77,6 +77,13 @@ async function advance(ms: number) {
     });
 }
 
+/** Each heading's text and level, in screen order, as the web's heading outline would list them. */
+function headingOutline(): [string, number][] {
+    return screen
+        .getAllByRole('heading')
+        .map((heading) => [heading.props.children, heading.props['aria-level']]);
+}
+
 /** Window widths that land in each layout: the mockup's phone, tablet and desktop frames. */
 const WIDTHS = { phone: 390, tablet: 820, tabletLandscape: 1180, desktop: 1440 } as const;
 
@@ -134,6 +141,27 @@ describe('Characters', () => {
         await renderScreen();
 
         expect(screen.getByRole('heading', { name: 'Characters' })).toBeOnTheScreen();
+    });
+
+    it('nests the tray and its drafts under the title', async () => {
+        await renderScreen();
+
+        expect(headingOutline()).toEqual([
+            ['Characters', 1],
+            ['Waiting to be finished', 2],
+            ['Kethra Ironsong', 3],
+            ['Nyra Ashfall', 3],
+        ]);
+    });
+
+    it('puts a message heading one level under the title', async () => {
+        errorStatus = 500;
+        await renderScreen();
+
+        expect(headingOutline()).toEqual([
+            ['Characters', 1],
+            ["Couldn't load your characters", 2],
+        ]);
     });
 
     it('renders a card for each character with its name, subtitle and hit point line', async () => {
@@ -439,6 +467,19 @@ describe('Characters on desktop', () => {
         expect(screen.getByRole('link', { name: "Open Thorn Grimsby's sheet" })).toBeOnTheScreen();
 
         expect(screen.getByRole('link', { name: "Open Vesper Quill's sheet" })).toBeOnTheScreen();
+    });
+
+    it('makes each row name a heading beside the tray, since rows are not links', async () => {
+        await renderScreen();
+
+        expect(headingOutline()).toEqual([
+            ['Characters', 1],
+            ['Waiting to be finished', 2],
+            ['Kethra Ironsong, level 3 to 4', 3],
+            ['Nyra Ashfall, new character', 3],
+            ['Thorn Grimsby', 2],
+            ['Vesper Quill', 2],
+        ]);
     });
 
     it('leaves the rows themselves unpressable', async () => {

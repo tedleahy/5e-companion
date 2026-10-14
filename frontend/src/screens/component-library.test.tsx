@@ -6,9 +6,13 @@ describe('ComponentLibrary', () => {
     it('has a section for each component', async () => {
         await render(<ComponentLibrary />);
 
-        expect(screen.getAllByRole('heading').map((heading) => heading.props.children)).toEqual([
-            'Component library',
+        const sections = screen
+            .getAllByRole('heading')
+            .filter((heading) => heading.props['aria-level'] === 2);
+
+        expect(sections.map((heading) => heading.props.children)).toEqual([
             'Paper',
+            'Heading',
             'SearchIcon',
             'WarningIcon',
             'CharacterToken',

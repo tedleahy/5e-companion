@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { hitPoints } from '@/characters/display';
 import { PrimaryButton, SecondaryButton } from '@/components/buttons';
 import { CharacterToken } from '@/components/character-token';
+import { Heading } from '@/components/heading';
 import { HitPoints } from '@/components/hit-points';
 import { LevelBlock } from '@/components/level-block';
 import { Paper } from '@/components/paper';
@@ -38,6 +39,17 @@ const ENTRIES: Entry[] = [
                     </Text>
                 </Paper>
             </View>
+        ),
+    },
+    {
+        name: 'Heading',
+        path: 'src/components/heading.tsx',
+        description:
+            'Text that screen readers treat as a heading, at level 1, 2 or 3. It sets no style of its own. On the web the level picks h1 to h3.',
+        demo: () => (
+            <Heading level={3} style={[typography.namePhone, styles.body]}>
+                A level 3 heading
+            </Heading>
         ),
     },
     {
@@ -258,15 +270,15 @@ export function ComponentLibrary() {
                     contentContainerStyle={[styles.content, isPhone && styles.contentPhone]}
                 >
                     <View style={styles.header}>
-                        <Text
-                            role="heading"
+                        <Heading
+                            level={1}
                             style={[
                                 isPhone ? typography.titlePhone : typography.titleDesktop,
                                 styles.onPlate,
                             ]}
                         >
                             Component library
-                        </Text>
+                        </Heading>
                     </View>
                     {ENTRIES.map((entry) => (
                         <Section key={entry.name} entry={entry} isPhone={isPhone} />
@@ -286,12 +298,12 @@ export function ComponentLibrary() {
 function Section({ entry, isPhone }: { entry: Entry; isPhone: boolean }) {
     return (
         <View style={styles.section}>
-            <Text
-                role="heading"
+            <Heading
+                level={2}
                 style={[isPhone ? typography.namePhone : typography.nameDesktop, styles.name]}
             >
                 {entry.name}
-            </Text>
+            </Heading>
             <Text style={[typography.subtitle, styles.path]}>{entry.path}</Text>
             {entry.description && (
                 <Text style={[typography.subtitle, styles.body]}>{entry.description}</Text>

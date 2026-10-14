@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { Heading } from '@/components/heading';
 import { colors, offsetShadow, typography } from '@/theme';
 
 import { ContentColumn } from './content-column';
@@ -15,9 +16,9 @@ import { SearchControls, type SearchState } from './search-controls';
 export function Header({ searchState }: { searchState?: SearchState }) {
     return (
         <View style={styles.plate}>
-            <Text role="heading" style={[typography.titlePhone, styles.title]}>
+            <Heading level={1} style={[typography.titlePhone, styles.title]}>
                 Characters
-            </Text>
+            </Heading>
             {searchState && (
                 <SearchControls {...searchState} onPlate style={styles.searchControls} />
             )}
@@ -30,9 +31,9 @@ export function WidePlate() {
     return (
         <View style={styles.widePlate}>
             <ContentColumn>
-                <Text role="heading" style={[typography.titleDesktop, styles.title]}>
+                <Heading level={1} style={[typography.titleDesktop, styles.title]}>
                     Characters
-                </Text>
+                </Heading>
             </ContentColumn>
         </View>
     );

@@ -4,6 +4,7 @@ import type { CharacterSummary } from '@/api/characters';
 import { hitPoints, subtitle } from '@/characters/display';
 import { SecondaryButton } from '@/components/buttons';
 import { CharacterToken } from '@/components/character-token';
+import { Heading } from '@/components/heading';
 import { HitPoints } from '@/components/hit-points';
 import { LevelBlock } from '@/components/level-block';
 import { colors, offsetShadow } from '@/theme';
@@ -42,7 +43,11 @@ export function CharacterRow({ character, onOpen }: CharacterRowProps) {
                 <CharacterToken name={character.name} size={scale.tokenSize} />
             </View>
             <View style={styles.identity}>
-                <Text style={[scale.name, styles.name]}>{character.name}</Text>
+                {/* The row isn't a link as phone and tablet cards are, so its name is a heading to
+                    give a screen reader a way to step from character to character. */}
+                <Heading level={2} style={[scale.name, styles.name]}>
+                    {character.name}
+                </Heading>
                 <Text style={[scale.subtitle, styles.subtitle]}>{subtitle(character)}</Text>
             </View>
             <View style={styles.levelColumn}>

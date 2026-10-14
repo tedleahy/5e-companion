@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 
 import { SecondaryButton } from '@/components/buttons';
+import { Heading } from '@/components/heading';
 import { Spinner } from '@/components/spinner';
 import { WarningIcon } from '@/components/warning-icon';
 import { useAnnouncement } from '@/hooks/use-announcement';
@@ -175,12 +176,12 @@ function MessageHeading({ children }: { children: ReactNode }) {
     const { wide } = useCardScale();
 
     return (
-        <Text
-            role="heading"
+        <Heading
+            level={2}
             style={[wide ? styles.wideHeading : styles.heading, styles.headingSpacing]}
         >
             {children}
-        </Text>
+        </Heading>
     );
 }
 

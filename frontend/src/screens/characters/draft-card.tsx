@@ -4,6 +4,7 @@ import type { Draft } from '@/api/characters';
 import { draftCopy } from '@/characters/display';
 import { SecondaryButton } from '@/components/buttons';
 import { CharacterToken } from '@/components/character-token';
+import { Heading } from '@/components/heading';
 import { colors } from '@/theme';
 
 import { useCardScale } from './card-scale';
@@ -36,7 +37,10 @@ export function DraftCard({ draft, onResume }: DraftCardProps) {
         <View style={[styles.card, scale.wide && styles.wideCard]}>
             {scale.wide ? <View style={styles.wideTokenColumn}>{token}</View> : token}
             <View style={styles.text}>
-                <Text style={[scale.name, styles.title]}>{title}</Text>
+                {/* Under the tray's heading, so a screen reader can step from draft to draft. */}
+                <Heading level={3} style={[scale.name, styles.title]}>
+                    {title}
+                </Heading>
                 <Text style={[scale.subtitle, styles.detail]}>{detail}</Text>
             </View>
             <SecondaryButton

@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import type { Draft } from '@/api/characters';
+import { Heading } from '@/components/heading';
 import { colors, typography } from '@/theme';
 
 import { useCardScale } from './card-scale';
@@ -26,9 +27,9 @@ export function DraftTray({ drafts, alone = false, style }: DraftTrayProps) {
 
     return (
         <View style={[styles.tray, wide && styles.wideTray, style]}>
-            <Text role="heading" style={[typography.smallLabel, styles.heading]}>
+            <Heading level={2} style={[typography.smallLabel, styles.heading]}>
                 Waiting to be finished
-            </Text>
+            </Heading>
             <View style={[styles.drafts, !alone && styles.draftsAboveRule]}>
                 {drafts.map((draft) => (
                     <DraftCard key={draft.id} draft={draft} />
