@@ -11,7 +11,7 @@ afterEach(() => {
 
 describe('PrintPressable', () => {
     it('sinks onto its shadow while pressed', async () => {
-        await render(<PrintPressable depth={4} role="button" accessibilityLabel="Sort" />);
+        await render(<PrintPressable depth={4} role="button" aria-label="Sort" />);
         const button = screen.getByRole('button', { name: 'Sort' });
 
         expect(button).toHaveStyle({ boxShadow: offsetShadow(4, 'accent') });
@@ -36,7 +36,7 @@ describe('PrintPressable', () => {
             <PrintPressable
                 depth={3}
                 role="button"
-                accessibilityLabel="Resume"
+                aria-label="Resume"
                 onPressIn={onPressIn}
                 onPressOut={onPressOut}
             />,
@@ -59,7 +59,7 @@ describe('PrintPressable', () => {
                 depth={3}
                 hitSlop={4}
                 role="button"
-                accessibilityLabel="Resume"
+                aria-label="Resume"
                 style={{ borderWidth: 2 }}
             />,
         );
@@ -72,9 +72,7 @@ describe('PrintPressable', () => {
     });
 
     it('leaves hit slop to Pressable on native', async () => {
-        await render(
-            <PrintPressable depth={3} hitSlop={4} role="button" accessibilityLabel="Resume" />,
-        );
+        await render(<PrintPressable depth={3} hitSlop={4} role="button" aria-label="Resume" />);
 
         expect(screen.queryByTestId('hit-area', { includeHiddenElements: true })).toBeNull();
 
@@ -83,12 +81,7 @@ describe('PrintPressable', () => {
 
     it('casts its shadow in the given ink', async () => {
         await render(
-            <PrintPressable
-                depth={5}
-                shadowToken="structural"
-                role="button"
-                accessibilityLabel="Create"
-            />,
+            <PrintPressable depth={5} shadowToken="structural" role="button" aria-label="Create" />,
         );
 
         expect(screen.getByRole('button', { name: 'Create' })).toHaveStyle({

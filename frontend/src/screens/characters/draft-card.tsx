@@ -45,7 +45,7 @@ export function DraftCard({ draft, onResume }: DraftCardProps) {
             </View>
             <SecondaryButton
                 label={resumeLabel}
-                accessibilityLabel={resumeAccessibilityLabel}
+                aria-label={resumeAccessibilityLabel}
                 size="small"
                 onPress={onResume}
             />

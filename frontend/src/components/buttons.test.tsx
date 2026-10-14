@@ -30,7 +30,7 @@ describe('SecondaryButton', () => {
         await render(
             <SecondaryButton
                 label="Resume"
-                accessibilityLabel="Resume Kethra Ironsong's level-up"
+                aria-label="Resume Kethra Ironsong's level-up"
                 size="small"
             />,
         );
@@ -44,7 +44,7 @@ describe('SecondaryButton', () => {
         await render(
             <SecondaryButton
                 label="Open sheet"
-                accessibilityLabel="Open Thorn Grimsby's sheet"
+                aria-label="Open Thorn Grimsby's sheet"
                 role="link"
                 size="medium"
             />,

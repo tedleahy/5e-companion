@@ -58,7 +58,7 @@ export function SearchField({
                 onBlur={() => setFocused(false)}
                 placeholder="Find a character"
                 placeholderTextColor={colors.dim}
-                accessibilityLabel="Find a character"
+                aria-label="Find a character"
                 autoCorrect={false}
                 returnKeyType="search"
                 style={[typography.input, styles.input, searching && styles.inputBesideSpinner]}

@@ -7,7 +7,7 @@ import { PrintPressable } from './print-pressable';
 type ButtonProps = {
     label: string;
     onPress?: () => void;
-    accessibilityLabel?: string;
+    'aria-label'?: string;
     onPlate?: boolean;
     style?: StyleProp<ViewStyle>;
 };
@@ -25,7 +25,8 @@ type PrimaryButtonProps = ButtonProps & {
  * @param props.style - Additional styles for the button surface.
  * @param props.onPress - Runs the action when pressed. Leave unset until the action exists; the
  *   button still looks and responds as enabled.
- * @param props.accessibilityLabel - The action name announced by screen readers when it differs from the visible label.
+ * @param props['aria-label'] - The action name announced by screen readers when it differs from
+ *   the visible label.
  * @param props.onPlate - Whether the button sits on the structural plate and needs a light focus ring.
  */
 export function PrimaryButton({ label, size = 'large', style, ...props }: PrimaryButtonProps) {
@@ -45,7 +46,9 @@ export function PrimaryButton({ label, size = 'large', style, ...props }: Primar
         >
             <Text
                 style={[
-                    size === 'large' ? typography.buttonPrimary : typography.buttonPrimaryCompact,
+                    size === 'large'
+                        ? typography.buttonPrimaryLarge
+                        : typography.buttonPrimaryMedium,
                     styles.primaryText,
                 ]}
             >
@@ -66,7 +69,7 @@ const SECONDARY_SIZES: Record<
     small: {
         depth: 3,
         box: { paddingVertical: 8, paddingHorizontal: 12 },
-        text: typography.buttonSecondaryCompact,
+        text: typography.buttonSecondarySmall,
         hitSlop: 4,
     },
     medium: {
@@ -97,7 +100,8 @@ type SecondaryButtonProps = ButtonProps & {
  * @param props.style - Additional styles for the button surface.
  * @param props.onPress - Runs the action when pressed. Leave unset until the action exists; the
  *   button still looks and responds as enabled.
- * @param props.accessibilityLabel - The action name announced by screen readers when it differs from the visible label.
+ * @param props['aria-label'] - The action name announced by screen readers when it differs from
+ *   the visible label.
  * @param props.onPlate - Whether the button sits on the structural plate and needs a light focus ring.
  * @param props.role - The accessible role, using link when the action opens another screen.
  */

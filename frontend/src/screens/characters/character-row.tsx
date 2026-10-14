@@ -58,7 +58,7 @@ export function CharacterRow({ character, onOpen }: CharacterRowProps) {
             </View>
             <SecondaryButton
                 label="Open sheet"
-                accessibilityLabel={`Open ${character.name}'s sheet`}
+                aria-label={`Open ${character.name}'s sheet`}
                 size="medium"
                 role="link"
                 onPress={onOpen}

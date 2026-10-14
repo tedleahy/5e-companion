@@ -40,7 +40,6 @@ export const typography = {
     /** A line saying what is happening, such as "Loading characters…". */
     status: { fontFamily: fonts.medium, fontSize: 13 },
     statusDesktop: { fontFamily: fonts.medium, fontSize: 14 },
-    columnHeader: { fontFamily: fonts.bold, fontSize: 11.5 },
     mark: { fontFamily: fonts.semiBold, fontSize: 11 },
     ringLabel: { fontFamily: fonts.bold, fontSize: 8 },
     initialPhone: { fontFamily: fonts.bold, fontSize: 20 },
@@ -62,14 +61,11 @@ export const typography = {
         lineHeight: 13,
         textTransform: 'uppercase',
     },
-    /** A large primary button. */
-    buttonPrimary: { fontFamily: fonts.bold, fontSize: 15 },
-    /** A medium primary button. */
-    buttonPrimaryCompact: { fontFamily: fonts.bold, fontSize: 14 },
+    buttonPrimaryLarge: { fontFamily: fonts.bold, fontSize: 15 },
+    buttonPrimaryMedium: { fontFamily: fonts.bold, fontSize: 14 },
     /** Large and medium secondary buttons. */
     buttonSecondary: { fontFamily: fonts.bold, fontSize: 13 },
-    /** A small secondary button. */
-    buttonSecondaryCompact: { fontFamily: fonts.bold, fontSize: 12.5 },
+    buttonSecondarySmall: { fontFamily: fonts.bold, fontSize: 12.5 },
 } satisfies Record<string, TextStyle>;
 
 /** How far an offset shadow sits below and to the right of its surface, in points. */

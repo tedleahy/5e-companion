@@ -24,11 +24,7 @@ export function LevelBlock({ level, large = false }: LevelBlockProps) {
     const isWeb = Platform.OS === 'web';
 
     return (
-        <View
-            accessible={!isWeb}
-            accessibilityLabel={isWeb ? undefined : label}
-            style={styles.block}
-        >
+        <View accessible={!isWeb} aria-label={isWeb ? undefined : label} style={styles.block}>
             <Text
                 aria-hidden={isWeb}
                 style={[large ? typography.smallLabelDesktop : typography.smallLabel, styles.label]}

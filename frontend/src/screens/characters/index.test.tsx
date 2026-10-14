@@ -437,7 +437,10 @@ describe('Characters on tabletLandscape', () => {
         setWindowWidth(WIDTHS.tabletLandscape);
     });
 
-    /** The character name at the start of each native link's summary, in screen order. */
+    /**
+     * The character name at the start of each native link's summary, in screen order. Pressable
+     * hands its aria-label to the native view as accessibilityLabel.
+     */
     function linkNames(): string[] {
         return screen
             .getAllByRole('link')

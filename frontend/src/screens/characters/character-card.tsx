@@ -43,7 +43,7 @@ export function CharacterCard({ character, onPress, style }: CharacterCardProps)
         <PrintPressable
             depth={5}
             role="link"
-            accessibilityLabel={label}
+            aria-label={label}
             onPress={onPress}
             style={[styles.card, scale.wide && styles.wideCard, style]}
         >

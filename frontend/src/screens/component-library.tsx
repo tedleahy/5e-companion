@@ -197,7 +197,7 @@ const ENTRIES: Entry[] = [
                         <PrintPressable
                             depth={depth}
                             role="button"
-                            accessibilityLabel={`Depth ${depth}`}
+                            aria-label={`Depth ${depth}`}
                             style={styles.pressableDemo}
                         >
                             <Text style={[typography.buttonSecondary, styles.structural]}>
@@ -211,7 +211,7 @@ const ENTRIES: Entry[] = [
                         depth={5}
                         shadowToken="structural"
                         role="button"
-                        accessibilityLabel="Structural shadow"
+                        aria-label="Structural shadow"
                         style={styles.pressableDemo}
                     >
                         <Text style={[typography.buttonSecondary, styles.structural]}>
@@ -250,7 +250,7 @@ const ENTRIES: Entry[] = [
                     <Variant label="Medium, as a link">
                         <SecondaryButton
                             label="Open sheet"
-                            accessibilityLabel="Open Thorn Grimsby's sheet"
+                            aria-label="Open Thorn Grimsby's sheet"
                             role="link"
                             size="medium"
                         />
