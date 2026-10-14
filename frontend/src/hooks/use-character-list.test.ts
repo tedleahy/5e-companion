@@ -134,6 +134,15 @@ describe('useCharacterList', () => {
         expect(lastRequest().url.searchParams.get('q')).toBe('ves');
     });
 
+    it('clamps a search that skipped the search field to the API limit', async () => {
+        const { rerender } = await renderCharacterList();
+
+        await rerender({ search: `${'a'.repeat(99)}🇬🇧 and more`, sort: 'level' });
+        await advance(SEARCH_DEBOUNCE_MS);
+
+        expect(lastRequest().url.searchParams.get('q')).toBe('a'.repeat(99));
+    });
+
     it('sends no q for a search of only whitespace', async () => {
         await renderCharacterList({ search: '   ', sort: 'level' });
         await advance(SEARCH_DEBOUNCE_MS);

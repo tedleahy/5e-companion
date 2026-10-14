@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { CHARACTER_SEARCH_MAX_LENGTH } from '@/api/characters';
+import { clampCharacterSearch } from '@/api/characters';
 import { SearchIcon } from '@/components/search-icon';
 import { Spinner } from '@/components/spinner';
 import { VisuallyHidden } from '@/components/visually-hidden';
@@ -82,11 +82,10 @@ export function SearchField({
 /** Keeps whitespace as typed unless the trimmed search exceeds the API's code-point limit. */
 function limitSearch(text: string): string {
     // TextInput's maxLength counts UTF-16 code units, which would reject valid emoji searches
-    // before Rails's character limit. Trimming first also keeps surrounding spaces out of the count.
-    const characters = Array.from(text.trim());
-    return characters.length > CHARACTER_SEARCH_MAX_LENGTH
-        ? characters.slice(0, CHARACTER_SEARCH_MAX_LENGTH).join('')
-        : text;
+    // before Rails's character limit, and it would count surrounding spaces too. The hook clamps
+    // the same way, so the field shows exactly what gets searched for.
+    const clamped = clampCharacterSearch(text);
+    return clamped === text.trim() ? text : clamped;
 }
 
 /** What screen readers hear while a search loads. */

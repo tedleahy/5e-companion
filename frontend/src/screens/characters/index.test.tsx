@@ -282,6 +282,12 @@ describe('Characters', () => {
             query: '🐈'.repeat(100),
         },
         {
+            label: 'a flag that the limit would split',
+            typed: `${'a'.repeat(99)}🇬🇧`,
+            field: 'a'.repeat(99),
+            query: 'a'.repeat(99),
+        },
+        {
             label: 'surrounding spaces',
             typed: `  ${'a'.repeat(100)}  `,
             field: `  ${'a'.repeat(100)}  `,

@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import {
     characterListQueryKey,
+    clampCharacterSearch,
     fetchCharacterList,
     type CharacterList,
     type CharacterSort,
@@ -28,14 +29,15 @@ export type CharacterListResult = UseQueryResult<CharacterList> & {
 };
 
 /**
- * The player's characters and drafts. The search is trimmed and debounced, and a blank search asks
- * for everything. The previous list stays in `data` while the next one loads.
+ * The player's characters and drafts. The search is trimmed, clamped to the API's length limit and
+ * debounced, and a blank search asks for everything. The previous list stays in `data` while the next one loads.
  *
  * @param search - The search field's text, as typed. Each change restarts the debounce.
  * @param sort - The order the API returns the characters in.
  */
 export function useCharacterList(search: string, sort: CharacterSort): CharacterListResult {
-    const q = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS) || undefined;
+    // Clamped here as well as in the search field, so no caller can send a search the API rejects.
+    const q = useDebouncedValue(clampCharacterSearch(search), SEARCH_DEBOUNCE_MS) || undefined;
 
     const query = useQuery({
         queryKey: characterListQueryKey({ q, sort }),

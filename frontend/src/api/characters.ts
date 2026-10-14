@@ -1,3 +1,5 @@
+import { splitGraphemes } from 'unicode-segmenter/grapheme';
+
 import { apiFetch } from './client';
 
 /** `level` puts the highest total level first. Both sorts then order by name. */
@@ -5,6 +7,30 @@ export type CharacterSort = 'level' | 'name';
 
 /** The API's maximum trimmed name-search length, counted in Unicode code points. */
 export const CHARACTER_SEARCH_MAX_LENGTH = 100;
+
+/**
+ * Trims a search and shortens it to `CHARACTER_SEARCH_MAX_LENGTH`, which a longer search would
+ * fail with a 400. Whole graphemes are dropped from the end, so a flag, a joined emoji or an
+ * accented letter is never cut in half.
+ *
+ * @param search - The search as typed, surrounding whitespace and all.
+ */
+export function clampCharacterSearch(search: string): string {
+    const trimmed = search.trim();
+    // The API counts code points, which is what Array.from splits a string into.
+    if (Array.from(trimmed).length <= CHARACTER_SEARCH_MAX_LENGTH) return trimmed;
+
+    let clamped = '';
+    let codePoints = 0;
+    for (const grapheme of splitGraphemes(trimmed)) {
+        codePoints += Array.from(grapheme).length;
+        if (codePoints > CHARACTER_SEARCH_MAX_LENGTH) break;
+        clamped += grapheme;
+    }
+
+    // The cut can land just after a space, which the API would trim anyway.
+    return clamped.trimEnd();
+}
 
 export type CharacterClassSummary = {
     name: string;
