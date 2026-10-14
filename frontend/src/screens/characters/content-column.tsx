@@ -12,7 +12,7 @@ type ContentColumnProps = {
 };
 
 /**
- * Centres its children in the column the wide layouts share, `min(1020, width - 48)` wide, so the
+ * Centers its children in the column the wide layouts share, `min(1020, width - 48)` wide, so the
  * plate, the toolbar and the list line up without measuring the window.
  */
 export function ContentColumn({ children, style }: ContentColumnProps) {

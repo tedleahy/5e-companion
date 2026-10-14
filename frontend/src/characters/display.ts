@@ -4,10 +4,12 @@ import type { CharacterSummary, CreationDraft, Draft, LevelUpDraft } from '@/api
 
 /** The meter and text a hit point component renders, including the unavailable state. */
 export type HitPointDisplay = {
-    meter: { filled: number; hurt: boolean } | null; // Null when current or max hit points are missing, or the max is zero
+    /** Null when the current or maximum hit points are missing, or the maximum is zero. */
+    meter: { filled: number; hurt: boolean } | null;
     line: {
         current: string | null;
-        rest: string; // Text following the current, or the complete fallback when current is null
+        /** The text after the current value, or the whole fallback line when current is null. */
+        rest: string;
     };
 };
 
@@ -21,7 +23,8 @@ export type DraftCopy = {
 /** Shared progress and next-step sentences prepared for either draft kind. */
 type DraftSentences = {
     progress: string;
-    nextSentence: string; // Empty when the next step has no approved phrase
+    /** Empty when the next step has no approved phrase. */
+    nextSentence: string;
 };
 
 /** Formats ancestry, ordered classes and subclasses, leaving out missing parts. */
@@ -39,26 +42,29 @@ export function subtitle(character: CharacterSummary): string {
 
     if (!summary) return 'Race and class not set';
 
-    const text = race ? summary : capitalise(summary);
+    const text = race ? summary : capitalize(summary);
     return subclasses.length ? `${text}, ${subclasses.join(', ')}` : text;
 }
 
 /**
- * Uppercases the first grapheme (normal char or unicode char) without changing the rest of the text.
+ * Uppercases the first grapheme cluster without changing the rest of the text. Splitting by
+ * grapheme keeps an accented letter or a joined emoji whole.
  */
-function capitalise(text: string): string {
-    const firstChar = splitGraphemes(text).next().value ?? '';
+function capitalize(text: string): string {
+    const firstGrapheme = splitGraphemes(text).next().value ?? '';
     // Slice by the original length because uppercasing can expand a grapheme, such as ß to SS.
-    return firstChar.toUpperCase() + text.slice(firstChar.length);
+    return firstGrapheme.toUpperCase() + text.slice(firstGrapheme.length);
 }
+
 /**
- * Returns the the uppercased first character in a name, allowing for unicode chars.
+ * The first grapheme cluster of a name, uppercased, for a character token. Splitting by grapheme
+ * keeps an accented letter or a joined emoji whole.
  *
  * @param name - The character or draft name, or null for an empty token.
  */
 export function initial(name: string | null): string {
-    const firstChar = splitGraphemes(name?.trim() ?? '').next().value ?? '';
-    return firstChar.toUpperCase();
+    const firstGrapheme = splitGraphemes(name?.trim() ?? '').next().value ?? '';
+    return firstGrapheme.toUpperCase();
 }
 
 /**
@@ -166,7 +172,7 @@ function creationDraftCopy(
     const confirmation = 'Nothing is added to your list until you confirm.';
     const sentences = compact
         ? [`Creation, ${progress}`, confirmation]
-        : [capitalise(progress), nextSentence, confirmation];
+        : [capitalize(progress), nextSentence, confirmation];
 
     return {
         title: creationDraftTitle(draft.name, compact),
@@ -206,8 +212,8 @@ function levelUpDraftCopy(
     const confirmation = 'Nothing changes on the sheet until you confirm.';
     const levels = `level ${draft.from_level} to ${draft.to_level}`;
     const sentences = compact
-        ? [`${capitalise(levels)}, ${progress}`, confirmation]
-        : [capitalise(progress), nextSentence, confirmation];
+        ? [`${capitalize(levels)}, ${progress}`, confirmation]
+        : [capitalize(progress), nextSentence, confirmation];
 
     return {
         title: compact ? draft.character_name : `${draft.character_name}, ${levels}`,

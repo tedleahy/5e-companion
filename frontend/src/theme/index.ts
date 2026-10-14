@@ -9,13 +9,13 @@ import { deriveColors, duskBlueDustyRose, type Colors } from './colors';
 
 export type { Colors };
 
-/** Colour tokens for the current palette. */
+/** Color tokens for the current palette. */
 export const colors = deriveColors(duskBlueDustyRose);
 
 /**
  * Space Grotesk faces, loaded in the root layout. Pick a face by family
  * rather than setting `fontWeight`: Android selects faces by family name and
- * will not synthesise a weight. 700 is the heaviest face there is.
+ * will not synthesize a weight. 700 is the heaviest face there is.
  */
 export const fonts = {
     regular: 'SpaceGrotesk_400Regular',
@@ -76,7 +76,7 @@ export const typography = {
 export type ShadowDepth = 3 | 4 | 5;
 
 /**
- * A hard print shadow, offset `depth` points down and right with no blur, in the colour token
+ * A hard print shadow, offset `depth` points down and right with no blur, in the color token
  * `token`. The result is a `boxShadow` style string.
  */
 export function offsetShadow(depth: ShadowDepth, token: keyof Colors): string {

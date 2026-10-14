@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
     },
-    // Lets the loading spinner centre itself in the space the list will fill.
+    // Lets the loading spinner center itself in the space the list will fill.
     grow: {
         flexGrow: 1,
     },

@@ -233,7 +233,7 @@ describe('subtitle', () => {
         expect(subtitle(value)).toBe('SSorcerer');
     });
 
-    it('capitalises a multiclass summary with no ancestry and preserves class order', () => {
+    it('capitalizes a multiclass summary with no ancestry and preserves class order', () => {
         const value = character({
             ancestry: { race_name: null, subrace_name: null },
             classes: [

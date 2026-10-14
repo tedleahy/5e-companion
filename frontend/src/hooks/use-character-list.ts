@@ -30,7 +30,8 @@ export type CharacterListResult = UseQueryResult<CharacterList> & {
 
 /**
  * The player's characters and drafts. The search is trimmed, clamped to the API's length limit and
- * debounced, and a blank search asks for everything. The previous list stays in `data` while the next one loads.
+ * debounced, and a blank search asks for everything. The previous list stays in `data` while the
+ * next one loads.
  *
  * @param search - The search field's text, as typed. Each change restarts the debounce.
  * @param sort - The order the API returns the characters in.
@@ -41,11 +42,7 @@ export function useCharacterList(search: string, sort: CharacterSort): Character
 
     const query = useQuery({
         queryKey: characterListQueryKey({ q, sort }),
-        queryFn:
-            /**
-             * @param context.signal - Cancels the list request when TanStack Query discards this search or sort.
-             */
-            ({ signal }) => fetchCharacterList({ q, sort }, signal),
+        queryFn: ({ signal }) => fetchCharacterList({ q, sort }, signal),
         placeholderData: keepPreviousData,
     });
 

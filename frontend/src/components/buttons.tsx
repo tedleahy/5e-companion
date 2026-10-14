@@ -89,7 +89,7 @@ type SecondaryButtonProps = ButtonProps & {
 };
 
 /**
- * A secondary action on a card-coloured face with a structural outline and an accent shadow.
+ * A secondary action on a card-colored face with a structural outline and an accent shadow.
  *
  * @param props - The button content, appearance, and forwarded press options.
  * @param props.label - The visible action label.

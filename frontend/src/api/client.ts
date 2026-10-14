@@ -32,6 +32,7 @@ export class MissingConfigError extends Error {
     }
 }
 
+/** Query string values by name. Undefined values are left out of the URL. */
 export type QueryParams = Record<string, string | number | undefined>;
 
 /** Options for `apiFetch`. */

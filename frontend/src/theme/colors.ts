@@ -1,5 +1,5 @@
 /**
- * Colour tokens, ported from `derive()` in `mockups/character-sheet.html`.
+ * Color tokens, ported from `derive()` in `mockups/character-sheet.html`.
  *
  * Five source inks are picked by hand and every other token is computed from
  * them, so a new palette only needs five values. Text tokens are
@@ -22,7 +22,7 @@ export type Inks = {
     overprint: string;
 };
 
-/** Every colour token: the five inks plus the tokens derived from them. */
+/** Every color token: the five inks plus the tokens derived from them. */
 export type Colors = Inks & {
     text: string;
     dim: string;
@@ -76,7 +76,7 @@ function rgbToHex(r: number, g: number, b: number): string {
     );
 }
 
-/** Mixes hex colour `a` toward `b` by `t`, from 0 (all `a`) to 1 (all `b`). */
+/** Mixes hex color `a` toward `b` by `t`, from 0 (all `a`) to 1 (all `b`). */
 function mix(a: string, b: string, t: number): string {
     const [ar, ag, ab] = hexToRgb(a);
     const [br, bg, bb] = hexToRgb(b);
@@ -105,7 +105,7 @@ function luminance(hex: string): number {
     return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
-/** WCAG contrast ratio between two opaque hex colours. */
+/** WCAG contrast ratio between two opaque hex colors. */
 export function contrast(x: string, y: string): number {
     const p = luminance(x) + 0.05;
     const q = luminance(y) + 0.05;
@@ -151,13 +151,13 @@ function onInk(bg: string, paper: string): string {
     return contrast(dark, bg) >= contrast(light, bg) ? dark : light;
 }
 
-/** Derives every colour token from the five source inks. */
+/** Derives every color token from the five source inks. */
 export function deriveColors({ paper, card, structural, accent, overprint }: Inks): Colors {
     let text = mix(structural, '#14110e', luminance(structural) > 0.2 ? 0.72 : 0.35);
     if (luminance(text) > 0.22) text = mix(text, '#14110e', 0.55);
     const onStructural = onInk(structural, paper);
     // A draft's tint is see-through and sits on paper, so text is checked
-    // against the tint over paper as well as over the card colour.
+    // against the tint over paper as well as over the card color.
     const draftSolid = mix(card, accent, 0.11);
     const draftOnPaper = mix(paper, accent, 0.11);
     const chipAlpha =
