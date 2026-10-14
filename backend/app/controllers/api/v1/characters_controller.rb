@@ -24,7 +24,7 @@ module Api
       # Checks whether the character-list query parameters are supported.
       # @param query [String, nil] - The optional name filter, or nil to list every character.
       # @param sort [String] - The requested sort order.
-      # @return [Boolean] whether both parameters are valid
+      # @return [Boolean] - Whether both parameters are valid.
       def valid_query?(query, sort)
         (query.nil? || query.is_a?(String)) &&
           sort.is_a?(String) &&

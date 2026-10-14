@@ -19,7 +19,7 @@ module Tailscale
   #   override, which wins over the running Tailscale's answer.
   # @param lookup [#call] - Asks Tailscale for the domain when there's no
   #   override. Tests pass their own, so they never run the tailscale command.
-  # @return [String, nil] the lowercase domain, or nil when it isn't set and
+  # @return [String, nil] - The lowercase domain, or nil when it isn't set and
   #   Tailscale isn't installed, running or using MagicDNS.
   def self.find_domain(env = ENV, lookup: method(:magic_dns_suffix))
     domain = blank_to_nil(env["TAILNET_DOMAIN"]) || lookup.call
@@ -28,7 +28,7 @@ module Tailscale
 
   # Asks the running Tailscale for its MagicDNS suffix.
   #
-  # @return [String, nil] the suffix, or nil when Tailscale can't say.
+  # @return [String, nil] - The suffix, or nil when Tailscale can't say.
   def self.magic_dns_suffix
     status = IO.popen([ "tailscale", "status", "--json" ], err: File::NULL, &:read)
     blank_to_nil(JSON.parse(status)["MagicDNSSuffix"]) if $?.success?
@@ -50,7 +50,7 @@ module Tailscale
   # optional port.
   #
   # @param domain [String, nil] - The tailnet's MagicDNS domain.
-  # @return [Regexp, nil] a pattern matching one machine name under the
+  # @return [Regexp, nil] - A pattern matching one machine name under the
   #   domain, such as laptop.tail1234.ts.net, or nil without a domain.
   def self.magic_dns_name(domain)
     /[a-z0-9-]+\.#{Regexp.escape(domain)}/i if domain

@@ -28,10 +28,13 @@
     TypeScript already has them. Document destructured props as `@param props.name`, on the
     function rather than on its props type, so each description lives in one place.
   - YARD: `@param sort [String] - The requested sort order.` Keep the type in brackets, since Ruby
-    has nowhere else to state it.
+    has nowhere else to state it. Write `@return` the same way:
+    `@return [Boolean] - Whether both parameters are valid.`
 
 ### Back-end rails code
 - Add YARD documentation, except for where the contract is already obvious from the code.
+- Don't add YARD documentation to `scope` declarations. YARD doesn't attach comments to them, so
+  the docs never appear.
 - Separate adjacent assertions in tests with newlines.
 
 ### Front-end Expo code
