@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Character list UI plan</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --paper: #17191d;
+      --sheet: #22252b;
+      --ink: #edf0f4;
+      --muted: #aab1bc;
+      --blue: #79adff;
+      --rose: #ee78a8;
+      --violet: #b89bdd;
+      --line: #40454f;
+      --code: #101216;
+      --code-ink: #e8ebf0;
+      --note: #202b3d;
+      --warn: #3a2e18;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 1px 1px, rgba(121, 173, 255, .13) 1px, transparent 1.2px) 0 0 / 18px 18px,
+        var(--paper);
+      color: var(--ink);
+      font: 16px/1.65 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    a { color: var(--blue); }
+    a:hover { color: var(--violet); }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    code {
+      padding: .12rem .32rem;
+      border-radius: 4px;
+      background: #30343c;
+      font-size: .92em;
+    }
+    pre {
+      overflow-x: auto;
+      margin: 1rem 0;
+      padding: 1rem 1.1rem;
+      border-radius: 7px;
+      background: var(--code);
+      color: var(--code-ink);
+      font-size: .88rem;
+      line-height: 1.55;
+    }
+    pre code { padding: 0; background: transparent; color: inherit; }
+
+    .page {
+      width: min(1120px, calc(100% - 32px));
+      margin: 30px auto 72px;
+    }
+    .hero {
+      padding: clamp(28px, 6vw, 68px);
+      border: 2px solid var(--blue);
+      background: var(--sheet);
+      box-shadow: 9px 9px 0 #a33f6a;
+    }
+    .eyebrow {
+      margin: 0 0 .45rem;
+      color: var(--rose);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3 { line-height: 1.18; }
+    h1 {
+      max-width: 16ch;
+      margin: 0;
+      font-size: clamp(2.2rem, 6vw, 4.6rem);
+      letter-spacing: -.055em;
+    }
+    .lede {
+      max-width: 70ch;
+      margin: 1.4rem 0 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+    .status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 1.35rem;
+    }
+    .status span {
+      padding: .28rem .65rem;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      font-size: .82rem;
+      font-weight: 700;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 245px minmax(0, 1fr);
+      gap: 34px;
+      margin-top: 42px;
+      align-items: start;
+    }
+    nav {
+      position: sticky;
+      top: 18px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: rgba(34, 37, 43, .95);
+      backdrop-filter: blur(10px);
+    }
+    nav h2 {
+      margin: 0 0 .75rem;
+      font-size: .84rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    nav ol {
+      margin: 0;
+      padding-left: 1.25rem;
+      font-size: .91rem;
+    }
+    nav li + li { margin-top: .38rem; }
+
+    main { min-width: 0; }
+    section {
+      margin-bottom: 38px;
+      padding: clamp(22px, 4vw, 38px);
+      border: 1px solid var(--line);
+      background: var(--sheet);
+    }
+    section > h2 {
+      margin: 0 0 .9rem;
+      font-size: clamp(1.5rem, 3vw, 2.05rem);
+      letter-spacing: -.025em;
+    }
+    section > h3 { margin-top: 1.8rem; }
+    .step-no {
+      display: inline-grid;
+      width: 2.1rem;
+      height: 2.1rem;
+      margin-right: .55rem;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #11151b;
+      font-size: 1rem;
+      vertical-align: .14em;
+    }
+    .outcome {
+      margin: 0 0 1.2rem;
+      padding-left: 1rem;
+      border-left: 4px solid var(--rose);
+      color: var(--muted);
+    }
+    .decision, .warning {
+      margin: 1.25rem 0;
+      padding: 1rem 1.1rem;
+      border-left: 5px solid var(--violet);
+      background: var(--note);
+    }
+    .warning { border-left-color: #e0a52f; background: var(--warn); }
+    .decision h3, .warning h3 {
+      margin: 0 0 .35rem;
+      font-size: 1rem;
+    }
+    .decision p:last-child, .warning p:last-child { margin-bottom: 0; }
+    ul, ol { padding-left: 1.35rem; }
+    li + li { margin-top: .38rem; }
+    .checks { list-style: none; padding-left: 0; }
+    .checks li { position: relative; padding-left: 1.7rem; }
+    .checks li::before {
+      content: "□";
+      position: absolute;
+      left: 0;
+      color: var(--blue);
+      font-weight: 800;
+    }
+    .checks li.done::before { content: "☑"; }
+
+    table {
+      width: 100%;
+      margin: 1rem 0;
+      border-collapse: collapse;
+      font-size: .92rem;
+    }
+    th, td {
+      padding: .7rem .75rem;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #2d3138; }
+    .compact td:first-child { white-space: nowrap; font-weight: 700; }
+    .small { color: var(--muted); font-size: .9rem; }
+    footer {
+      padding: 22px;
+      color: var(--muted);
+      text-align: center;
+      font-size: .85rem;
+    }
+
+    @media (max-width: 800px) {
+      .page { width: min(100% - 20px, 720px); margin-top: 10px; }
+      .layout { display: block; margin-top: 24px; }
+      nav { position: static; margin-bottom: 24px; }
+      section { margin-bottom: 20px; }
+      table { display: block; overflow-x: auto; }
+    }
+  </style>
+  <style>
+    .meta {
+      display: grid;
+      grid-template-columns: max-content minmax(0, 1fr);
+      gap: .35rem 1rem;
+      margin: 0 0 1.3rem;
+      padding: .85rem 1rem;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      font-size: .92rem;
+    }
+    .meta dt { color: var(--muted); font-weight: 700; }
+    .meta dd { margin: 0; }
+    .gate {
+      margin: 1.25rem 0;
+      padding: 1rem 1.1rem;
+      border-left: 5px solid var(--rose);
+      background: #33202a;
+    }
+    .gate h3 { margin: 0 0 .35rem; font-size: 1rem; }
+    .gate p:last-child { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <p class="eyebrow">5e Companion front end</p>
+      <h1>Character list UI plan</h1>
+      <p class="lede">
+        Build the <a href="../mockups/character-list.html">character list mockup</a> in the Expo app
+        against <code>GET /api/v1/characters</code>, at phone, tablet portrait, tablet landscape and
+        desktop widths. Each numbered step is sized for one agent to build and one person to review in a
+        single sitting. The steps run in order, and a step starts only once the one before it is approved.
+      </p>
+      <div class="status" aria-label="Plan assumptions">
+        <span>Expo SDK 57</span>
+        <span>React Native 0.86</span>
+        <span>Expo Router</span>
+        <span>TanStack Query</span>
+        <span>react-native-svg</span>
+        <span>Jest and Testing Library</span>
+        <span>Runs in Expo Go</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="Plan contents">
+        <h2>Contents</h2>
+        <ol start="0">
+          <li><a href="#ground">Ground rules and decisions</a></li>
+          <li><a href="#step-1">Mock up the missing states</a></li>
+          <li><a href="#step-2">Update the design system</a></li>
+          <li><a href="#step-3">Backend: CORS, Tailscale and seed casing</a></li>
+          <li><a href="#step-4">Data layer</a></li>
+          <li><a href="#step-5">Display helpers</a></li>
+          <li><a href="#step-6">Shared components</a></li>
+          <li><a href="#step-7">Phone layout and screenshots</a></li>
+          <li><a href="#step-8">Tablet and desktop layouts</a></li>
+          <li><a href="#step-9">Loading, empty and error states</a></li>
+        </ol>
+        <p class="small"><a href="#done">Definition of done</a></p>
+      </nav>
+
+      <main>
+        <section id="ground">
+          <h2><span class="step-no">0</span>Ground rules and decisions</h2>
+          <p class="outcome">Read this before any step. It applies to all of them.</p>
+
+          <h3>Current state</h3>
+          <ul>
+            <li><code>GET /api/v1/characters</code> is built and tested. Its contract is in the
+              <a href="character-list-api-plan.html#contract">API plan</a>: characters, then drafts as a
+              union of <code>creation</code> and <code>level_up</code>, with <code>q</code> and
+              <code>sort=level|name</code>.</li>
+            <li>The app loads Space Grotesk, derives colour tokens in <code>src/theme/colors.ts</code>, and
+              has <code>useBreakpoint()</code> returning <code>phone</code>, <code>tablet</code> (720 and
+              up) or <code>desktop</code> (1280 and up).</li>
+            <li><code>src/screens/characters.tsx</code> is a placeholder and <code>src/app/index.tsx</code>
+              routes to it.</li>
+            <li>The mockup draws phone (390), tablet portrait (820), tablet landscape (1180) and desktop
+              (1440). It has no loading, empty or error frames yet.</li>
+          </ul>
+
+          <h3>Rules for every step</h3>
+          <ul>
+            <li>Follow <code>AGENTS.md</code>. The rules that matter most here:
+              <ul>
+                <li>Build from React Native primitives styled with <code>@/theme</code>.</li>
+                <li>Never put a raw hex value in a style.</li>
+                <li>Pick font weight with <code>fontFamily</code>.</li>
+                <li>Use <code>useBreakpoint()</code> for layout that depends on window width.</li>
+                <li>Only routes go in <code>src/app/</code>.</li>
+                <li>Separate adjacent assertions in tests with blank lines.</li>
+              </ul>
+            </li>
+            <li>UI copy is American English and sentence case. This plan and the design system are
+              British English, because players never see them.</li>
+            <li>Run shell tools through <code>env mise exec --</code>. Finish every front-end step with
+              <code>npm run lint</code>, <code>npm run typecheck</code> and <code>npm test</code>, all
+              passing. Finish every backend step with <code>bin/rails test</code> and
+              <code>bin/rubocop</code>.</li>
+            <li>Keep each step inside its own scope. If a step needs something from a later one, stop and
+              say so rather than pulling that work forward.</li>
+            <li>Leave the step as a short series of conventional commits on
+              <code>feature/character-list-ui</code>, for example
+              <code>feat(frontend): …</code>. From step 7 on, the reviewer also gets screenshots of the
+              app next to the matching mockup frames.</li>
+          </ul>
+
+          <h3>Decisions already made</h3>
+          <table class="compact">
+            <tr><th>Topic</th><th>Decision</th></tr>
+            <tr><td>Source of truth</td><td>The mockup wins where it and <code>design-system.html</code>
+              disagree. The mockup is newer and matches the API. It has no armour class ring, no marks, no
+              filter chips and no desktop table. Every token is filled with structural ink, the draft tray
+              sits above the list, and Create is the system's rose primary: accent fill, <code>onAccent</code> text
+              and a 5px structural shadow, as on the sheet. Colour values still come from
+              <code>@/theme</code>. The mockup's grid dots and lines are a little fainter than the theme's
+              <code>dot</code> and <code>line</code> tokens; use the tokens.</td></tr>
+            <tr><td>Sort</td><td>One button. Each tap switches between <code>level</code> and
+              <code>name</code>, and the label reads "Sort: level" or "Sort: name". There is no menu.</td></tr>
+            <tr><td>Navigation</td><td>Card taps, Open sheet, Resume and Create character render with full
+              press and focus states but do nothing. Each takes an optional <code>onPress</code> prop that
+              the screen leaves unset, so a later plan only has to pass handlers. They are not styled as
+              disabled. Try again in the error state does work, because it stays on this screen. Card
+              taps and Open sheet are links, and a handler alone won't do for them: React Native Web
+              leaves Enter on the link role to the browser, which only acts on a real anchor, so a
+              keyboard can't open them. The navigation plan gives them an <code>href</code> instead,
+              for example through expo-router's <code>Link asChild</code>.</td></tr>
+            <tr><td>Fetching</td><td>TanStack Query v5, which is pure JavaScript and runs in Expo Go.
+              Search is sent as <code>q</code> after a 250&nbsp;ms debounce. Stale requests are cancelled
+              through the query's <code>AbortSignal</code>, and the previous list stays on screen while a
+              new search loads. The input limits the trimmed search to the API's 100 Unicode code
+              points, rather than 100 UTF-16 code units, so emoji count as the API counts them.</td></tr>
+            <tr><td>Auth</td><td>The development bearer token comes from <code>EXPO_PUBLIC_API_TOKEN</code>
+              in the git-ignored <code>frontend/.env</code>. There is no login screen. The token is in the
+              bundle, so it is for local development only.</td></tr>
+            <tr><td>Running on a phone</td><td>The app runs on this computer and is opened over
+              Tailscale, possibly from another network, both in Expo Go and in the phone's browser. Rails
+              listens on the Tailscale address, and development CORS and hosts allow Tailscale IPs and
+              <code>.ts.net</code> names. Nothing listens on the LAN. See steps 3 and 4.</td></tr>
+            <tr><td>Graphics</td><td><code>react-native-svg</code>, which Expo Go includes, draws the
+              paper grid, the search icon, the fade behind the sticky footer and the loading spinner. The
+              spinner is custom rather than <code>ActivityIndicator</code>, which draws a different native
+              spinner on each platform and takes only a colour. Offset shadows use the
+              <code>boxShadow</code> style string, which React Native 0.86 and react-native-web both
+              support. Do not add <code>expo-linear-gradient</code> or a shadow library.</td></tr>
+            <tr><td>Two columns</td><td>Tablet landscape lays cards out in two columns. Add a fourth
+              breakpoint at 1024 to <code>useBreakpoint()</code> rather than checking the width in the
+              screen.</td></tr>
+            <tr><td>Hit point meter</td><td>Ten segments. The filled count is the fraction times ten,
+              rounded to the nearest whole, then held between 1 and 9 while hit points are above 0 and below
+              the maximum. That rule reproduces every row in the mockup. The meter shows as hurt when
+              current times two is less than maximum. Temporary hit points only appear in the text line. At 0
+              the meter is empty. With no current or maximum, or a maximum of 0, there is no meter and the
+              line reads "Hit points not set". The dying, stable and dead states need death save data the
+              API does not return, so they are out of scope.</td></tr>
+            <tr><td>Draft copy</td><td>The API has no pronouns, so draft copy is neutral: "Nothing changes
+              on the sheet until you confirm" replaces "Her sheet is untouched". A creation draft with no
+              name shows "New character". On tablet and desktop, the Resume button reads "Resume level-up"
+              or "Resume creation"; on phone it reads "Resume". Step 1 settles the exact copy for creation
+              drafts.</td></tr>
+            <tr><td>Subtitle casing</td><td>The front end lowercases class names, which are common nouns,
+              and shows subclass names exactly as stored. Step 3 changes the seed data to sentence case,
+              because code cannot tell a proper noun from an ordinary word.</td></tr>
+            <tr><td>Incomplete characters</td><td>A subtitle leaves out a missing race or class, and
+              capitalises the class when the race is missing. With neither, it reads "Race and class not
+              set". A character with no classes has a total level of 0, and its level block shows a dash in
+              dim instead of the number.</td></tr>
+            <tr><td>List rendering</td><td>A <code>ScrollView</code> with mapped cards, not a
+              <code>FlatList</code>. A player has tens of characters at most, and the tray spanning both
+              landscape columns is simpler this way.</td></tr>
+          </table>
+
+          <h3>Out of scope</h3>
+          <ul>
+            <li>Any navigation, including the character sheet, draft flows, creation and login.</li>
+            <li>Zero hit point states, token colour, marks, the armour class ring and filter chips on the
+              list.</li>
+            <li>Pull to refresh, offline caching, hover states (deferred in the design system), and
+              refetching when the app returns to the foreground.</li>
+          </ul>
+        </section>
+
+        <section id="step-1">
+          <h2><span class="step-no">1</span>Mock up the missing states</h2>
+          <p class="outcome">Every state the screen can be in has an approved frame before code depends
+            on it.</p>
+          <dl class="meta">
+            <dt>Touches</dt><dd><code>mockups/character-list.html</code> only</dd>
+            <dt>Depends on</dt><dd>Nothing</dd>
+            <dt>Review focus</dt><dd>Screenshots of each new frame: does it look right, and is the copy
+              right?</dd>
+            <dt>Status</dt><dd>Done. Every frame approved on 25 September 2026.</dd>
+          </dl>
+
+          <h3>Make the frames screenshotable first</h3>
+          <p><code>mockups/shoot.sh</code> isolates frames by the <code>framewrap</code>,
+            <code>deskwrap</code>, <code>tpl-d-*</code> and <code>tpl-t-*</code> layout that
+            <code>character-sheet.html</code> uses. This mockup mounts three templates into slots instead,
+            so the script can only capture the whole page. Restructure the gallery to that same layout
+            without changing how the four existing frames look. Keep the ink mixer, and don't add any
+            screenshot code to the mockup.</p>
+
+          <h3>Frames to add</h3>
+          <p>Add each as a phone frame and a desktop frame. Tablet frames are only needed where the
+            tablet layout differs from both.</p>
+          <ul class="checks">
+            <li class="done"><strong>First load.</strong> Plate, search and sort in place, with no data yet. A spinner
+              centred in the space the list will fill, with "Loading characters&hellip;" under it. The
+              spinner is the list's only motion and holds still when reduced motion is on.</li>
+            <li class="done"><strong>Searching.</strong> The previous results stay on screen while a new search loads,
+              and a 16 point spinner turns at the right of the search field.</li>
+            <li class="done"><strong>No characters yet.</strong> No characters and no drafts. Create character is the
+              obvious next step.</li>
+            <li class="done"><strong>No characters, one creation draft.</strong> The tray alone.</li>
+            <li class="done"><strong>No search results.</strong> Nothing matches the search. Drafts ignore the search,
+              so the tray still shows. Include the searched text in the copy.</li>
+            <li class="done"><strong>Not signed in.</strong> The API returned 401. With no login screen yet, the copy
+              tells a developer to check <code>EXPO_PUBLIC_API_TOKEN</code>, and the frame should make it
+              obvious that this copy is temporary.</li>
+            <li class="done"><strong>Couldn't load.</strong> A network error or a 500, with a Try again button.</li>
+            <li class="done"><strong>Creation drafts in the tray.</strong> One named ("Nyra Ashfall") and one unnamed
+              ("New character"), each with progress and the next step. Settle the token letter for an
+              unnamed draft.</li>
+            <li class="done"><strong>Long content.</strong> A long name and a long multiclass subtitle, to settle
+              wrapping versus truncation, which the design system leaves open.</li>
+            <li class="done"><strong>Incomplete characters.</strong> No race, no classes, neither, hit points not set,
+              and 0 hit points, following the step 0 rules.</li>
+          </ul>
+
+          <h3>Copy fixes in existing frames</h3>
+          <ul class="checks">
+            <li class="done">Replace "Her sheet is untouched until you confirm" and "Nothing reaches her sheet until
+              you confirm" with neutral copy.</li>
+            <li class="done">List the <code>next_step</code> phrases the frames use. The seed and tests use
+              <code>ability_score_or_feat</code> ("an ability increase or a feat") and
+              <code>choose_class</code>.</li>
+          </ul>
+
+          <div class="gate">
+            <h3>Gate</h3>
+            <p>Steps 2, 5 and 9 depend on the approved frames and copy. Steps 3 and 4 do not, but they
+              still wait for this step's approval, because the steps run in order.</p>
+          </div>
+        </section>
+
+        <section id="step-2">
+          <h2><span class="step-no">2</span>Update the design system</h2>
+          <p class="outcome"><code>docs/design-system.html</code> describes the list that is about to be
+            built, so later screens copy the right thing.</p>
+          <dl class="meta">
+            <dt>Touches</dt><dd><code>docs/design-system.html</code> only</dd>
+            <dt>Depends on</dt><dd>Every character list frame, old and new, approved in step 1</dd>
+            <dt>Review focus</dt><dd>Does each rule match the mockup, and is anything the character sheet
+              still uses left intact?</dd>
+          </dl>
+          <p>Bump the version to v0.5. Where the list dropped a pattern that the character sheet mockup
+            still uses, keep the pattern and say it no longer appears on the list. Where no screen uses a
+            pattern any more, mark it "not in current designs" instead of deleting it, and list those
+            sections in the pull request so the reviewer can decide what to delete.</p>
+          <ul class="checks">
+            <li><strong>Typography.</strong> The small labels "Level" and "Waiting to be finished" are
+              uppercase and tracked .09em, which breaks the current rules that nothing but titles and names
+              is tracked and that all text is sentence case. Record the exception, and that copy is still
+              written in sentence case and uppercased by style. Drop the phone "6 saved" count, which the
+              mockup no longer shows.</li>
+            <li><strong>Header plate, search and sort.</strong> The search field and sort button now have
+              a 2px structural border and a sheet fill. Sort is outlined in structural ink with a 4px
+              accent shadow and switches between level and name on each tap. On tablet and desktop the
+              plate holds only the title, and search, sort and Create sit in a sticky bar under it.</li>
+            <li><strong>Character token.</strong> On the list the token is structural ink and carries no
+              level badge. Leave token colour as documented for the sheet.</li>
+            <li><strong>Level block.</strong> New component: a "Level" label over a 26px structural
+              number, or a dim dash when the character has no classes. It sits in its own column at the top
+              right of the phone card, beside the name and subtitle, and has its own column on
+              desktop.</li>
+            <li><strong>Character card.</strong> No stat stack. Document the phone, tablet and landscape
+              two-column grids.</li>
+            <li><strong>Desktop row.</strong> Replaces the desktop table: bordered, shadowed rows with
+              columns of 74, 1fr, 84, 240 and 128, and a named Open sheet link.</li>
+            <li><strong>Draft tray.</strong> It sits above the list, with the dashed rule under it.
+              Resume is outlined with a 3px accent shadow. Add the creation draft variant and the neutral
+              copy.</li>
+            <li><strong>Buttons and interaction states.</strong> Create character keeps the rose primary
+              look. Resume and Sort are outlined now, and sink onto their shadows when pressed instead of
+              showing the inset ring.</li>
+            <li><strong>Hit point meter.</strong> Record the rounding rule from step 0.</li>
+            <li><strong>List states.</strong> Add a section on the step 1 frames: loading, searching,
+              empty, no results, not signed in, couldn't load, and incomplete characters.</li>
+            <li><strong>Motion.</strong> Add the spinner as a third exception, next to the shrinking sheet
+              header and the dice roll: a structural arc on an <code>empty</code> track, one turn every
+              0.9 seconds, at 36, 44 and 16. It holds still when reduced motion is on.</li>
+          </ul>
+        </section>
+
+        <section id="step-3">
+          <h2><span class="step-no">3</span>Backend: CORS, Tailscale and seed casing</h2>
+          <p class="outcome">The web build can call the API from this computer and from a phone on the
+            tailnet, and the demo data reads the way the mockup does.</p>
+          <dl class="meta">
+            <dt>Touches</dt><dd><code>backend/</code> only</dd>
+            <dt>Depends on</dt><dd>Nothing in this plan</dd>
+            <dt>Review focus</dt><dd>That the CORS origins and extra hosts apply only in development, and
+              that nothing listens beyond localhost and the tailnet.</dd>
+          </dl>
+          <p>The app is run on this computer and opened on a phone over Tailscale, possibly from another
+            network, both in Expo Go and in the phone's browser. CORS only matters for the browser:
+            Expo Go's native <code>fetch</code> ignores it. The listening address and the host
+            allow-list matter for both.</p>
+          <ul class="checks">
+            <li>Uncomment <code>rack-cors</code> in the Gemfile. In
+              <code>config/initializers/cors.rb</code>, allow <code>GET</code> on
+              <code>/api/*</code> with the <code>Authorization</code> header, only in development, from
+              these origins on any port:
+              <ul>
+                <li><code>http://localhost</code> and <code>http://127.0.0.1</code>, for a browser on
+                  this computer.</li>
+                <li>Tailscale addresses, <code>100.64.0.0/10</code>, over <code>http</code>, for the
+                  phone's browser using the machine's IP. Check with <code>IPAddr</code>; don't write a
+                  regular expression for the range.</li>
+                <li>Tailscale MagicDNS names, any host ending in <code>.ts.net</code>, over
+                  <code>http</code> or <code>https</code>.</li>
+              </ul>
+              The API plan deferred CORS until a browser front end existed, and the Expo web build is one.
+              Add no production origin; that belongs with deployment. Anyone on the tailnet can load
+              the page, but the tailnet is only your own devices, and the known token was already
+              development-only.</li>
+            <li>In <code>config/environments/development.rb</code>, add
+              <code>config.hosts &lt;&lt; ".ts.net"</code>. Development already allows any IP address,
+              but it rejects MagicDNS names.</li>
+            <li><code>rails server</code> listens on 127.0.0.1 in development, so the phone cannot reach
+              it. Don't change the default to <code>0.0.0.0</code>, which would expose the demo token to
+              whatever Wi-Fi the computer is on. Document <code>bin/dev -b "$(tailscale ip -4)"</code>
+              in <code>backend/README.md</code> instead, which listens on the Tailscale address only.
+              A browser on the same computer can use that address too.</li>
+            <li>Add a request test. Origins on localhost, on a Tailscale IP and on a
+              <code>.ts.net</code> name get the CORS headers. A LAN address such as
+              <code>http://192.168.1.20:8081</code> and a public origin don't. The test environment will
+              need the same origins, or the test should set up the configuration itself; pick whichever
+              keeps production untouched.</li>
+            <li>Change the seed data to sentence case: "Life domain", "the Fiend", "Arcane trickster",
+              "Oath of devotion". Check that the seed test still passes and that reseeding updates
+              existing rows.</li>
+          </ul>
+        </section>
+
+        <section id="step-4">
+          <h2><span class="step-no">4</span>Data layer</h2>
+          <p class="outcome">A typed, tested <code>useCharacterList(search, sort)</code> hook. The screen
+            itself does not change yet.</p>
+          <dl class="meta">
+            <dt>Touches</dt><dd><code>frontend/src/api/</code>, <code>frontend/src/hooks/</code>, the root
+              layout, <code>.env.example</code>, the README and <code>package.json</code></dd>
+            <dt>Depends on</dt><dd>Nothing, although step 3 is needed to run it against the API in a
+              browser</dd>
+            <dt>Review focus</dt><dd>That the types match the API contract, and the error, cancellation and
+              debounce behaviour.</dd>
+          </dl>
+          <ul class="checks">
+            <li><code>npx expo install @tanstack/react-query react-native-svg</code>. The SVG package is
+              first used in step 6, but installing both now keeps dependency changes in one review.</li>
+            <li><code>src/api/client.ts</code>: <code>apiFetch&lt;T&gt;(path, { query, signal })</code>.
+              It builds the URL from <code>EXPO_PUBLIC_API_URL</code>, encoding query values, and sends
+              <code>Accept: application/json</code> and
+              <code>Authorization: Bearer ${EXPO_PUBLIC_API_TOKEN}</code>. A response that isn't 2xx
+              throws an <code>ApiError</code> carrying <code>status</code>, and <code>code</code> and
+              <code>message</code> from the API's <code>{ error: { code, message } }</code> body. Network
+              failures and aborts propagate unchanged.</li>
+            <li><code>src/api/characters.ts</code>:
+              <ul>
+                <li>The types <code>CharacterSummary</code>, <code>CreationDraft</code>,
+                  <code>LevelUpDraft</code>, <code>Draft</code>, <code>CharacterList</code> and
+                  <code>CharacterSort = 'level' | 'name'</code>, written to the contract in the API plan
+                  with nullable fields marked nullable.</li>
+                <li><code>fetchCharacterList({ q, sort }, signal)</code>.</li>
+                <li>A <code>characterListQueryKey</code> helper.</li>
+              </ul>
+              Add no runtime schema library.</li>
+            <li><code>src/api/query-client.ts</code>: a factory for a <code>QueryClient</code> that does
+              not retry a 4xx <code>ApiError</code> and retries anything else at most twice. Wrap the stack
+              in <code>QueryClientProvider</code> in <code>src/app/_layout.tsx</code>.</li>
+            <li><code>src/hooks/use-debounced-value.ts</code>: a generic debounce hook.</li>
+            <li><code>src/hooks/use-character-list.ts</code>: trims the search text, debounces it by
+              250&nbsp;ms, and sends a blank search as no <code>q</code>. Calls <code>useQuery</code> with
+              <code>placeholderData: keepPreviousData</code> and passes the query's signal to the fetch.
+              Returns the query result plus <code>isSearching</code>, which is true while placeholder data
+              shows and a fetch is running.</li>
+            <li>Add <code>EXPO_PUBLIC_API_TOKEN</code> to <code>.env.example</code>, with a comment that it
+              is the local demo token and that the bundle exposes it.</li>
+            <li>Add a "Running on your phone over Tailscale" section to <code>frontend/README.md</code>.
+              It should cover:
+              <ul>
+                <li>Start Rails on the Tailscale address, as in step 3.</li>
+                <li>Set <code>EXPO_PUBLIC_API_URL</code> to <code>http://&lt;Tailscale IP or MagicDNS
+                  name&gt;:3000</code>. The value is built into the bundle, and <code>localhost</code> on a
+                  phone means the phone itself.</li>
+                <li>Start Metro with
+                  <code>REACT_NATIVE_PACKAGER_HOSTNAME=&lt;same address&gt; npx expo start</code>. Expo Go
+                  otherwise gets the LAN IP, which doesn't work from another network.
+                  <code>--tunnel</code> isn't needed.</li>
+                <li>In the phone's browser, open the same address on Metro's port.</li>
+                <li>Use plain <code>http</code>. The tunnel is already encrypted. If the web build is
+                  opened over <code>https</code>, for example through <code>tailscale serve</code>, the API
+                  must be served over <code>https</code> too, or the browser blocks the requests as mixed
+                  content.</li>
+              </ul>
+              Replace the README's existing advice to use the LAN address.</li>
+            <li>Add a test helper outside <code>src/app/</code>, for example
+              <code>src/test-utils/render-with-query.tsx</code>. It gives each test a fresh client with
+              retries off.</li>
+          </ul>
+          <h3>Tests</h3>
+          <ul>
+            <li>The client builds the URL, encodes <code>q</code>, sends both headers, parses the API
+              error shape, and tolerates an error body that isn't JSON.</li>
+            <li>With fake timers, the hook sends one request after typing stops, not one per keystroke. It
+              sends <code>sort</code>, sends no <code>q</code> for whitespace, keeps the previous data while
+              a new search loads, and aborts a stale request.</li>
+            <li>The query client does not retry a 401.</li>
+          </ul>
+        </section>
+
+        <section id="step-5">
+          <h2><span class="step-no">5</span>Display helpers</h2>
+          <p class="outcome">Derived copy and hit point meter values come from pure, unit-tested
+            helpers. Static labels and values already supplied by the API, such as total level, do not
+            need their own functions.</p>
+          <dl class="meta">
+            <dt>Touches</dt><dd><code>frontend/src/characters/display.ts</code>, its test, and
+              <code>frontend/package.json</code> and its lockfile for grapheme segmentation</dd>
+            <dt>Depends on</dt><dd>Step 4 for the types, and copy approved in step 1</dd>
+            <dt>Review focus</dt><dd>Edge cases and copy. There is no UI in this step.</dd>
+            <dt>Status</dt><dd>Done. Display helpers and their tests are implemented; lint, typecheck
+              and the full test suite pass.</dd>
+          </dl>
+          <table class="compact">
+            <tr><th>Helper</th><th>Behaviour</th></tr>
+            <tr><td><code>initial(name)</code></td><td>First grapheme cluster, uppercased, so combining
+              accents and joined emoji stay together. Trim surrounding whitespace. A null, empty or
+              whitespace-only name returns an empty string, giving an unnamed draft an empty token.
+              Derive the initial from the actual name, never the fallback title "New character".
+              Use <code>unicode-segmenter/grapheme</code>, a small pure JavaScript dependency that works
+              in Expo Go, because Hermes lacks <code>Intl.Segmenter</code>. Use the same implementation
+              on web and native, without a global polyfill.</td></tr>
+            <tr><td><code>subtitle(character)</code></td><td>Uses the subrace name, else the race name.
+              Class names are lowercased. One class reads "Mountain dwarf fighter, Champion". More than one
+              reads "Rock gnome wizard 5 / rogue 2, Divination", with each subclass that is present joined
+              by ", " in class order. Missing parts are left out, and the first letter is capitalised if
+              the ancestry is missing. With no ancestry and no classes it returns "Race and class not
+              set".</td></tr>
+            <tr><td><code>hitPoints(hp)</code></td><td>Always returns display data with a
+              <code>meter</code> and a <code>line</code>. The available meter holds the filled segment
+              count and <code>hurt</code>; the line holds the bold current value and the rest
+              ("/72 hit points", then ", 5 temporary" when temporary is above 0). When unavailable,
+              the meter and bold current value are null and the rest reads "Hit points not set".
+              Clamp the meter, preserving the actual current value in the text, even above the maximum.
+              Follows the rules in step 0.</td></tr>
+            <tr><td><code>getNumberWord(n)</code>, private</td><td>Lowercase "zero" to "ten", then
+              digits. Only <code>draftCopy</code> uses it and handles sentence capitalisation.</td></tr>
+            <tr><td>Next-step lookup, private</td><td>A lookup table maps <code>choose_class</code>
+              to "choosing a class" and <code>ability_score_or_feat</code> to "an ability increase or a
+              feat". Any other value drops the Next up sentence rather than showing a raw key. No
+              exported <code>nextStepPhrase</code> function is needed.</td></tr>
+            <tr><td><code>draftCopy(draft, compact)</code></td><td>Title, detail and resume label for
+              either draft kind. <code>compact</code> selects the phone copy, which omits the next step.
+              Wide copy adds "new character" to a named creation title, but leaves an unnamed title as
+              "New character". Uses the approved copy from step 1; use "choice" when the total is one.</td></tr>
+          </table>
+          <h3>Tests</h3>
+          <p>One test for each row of the mockup, reproducing its subtitle, segment count, hurt state and
+            hit point line. Add edge cases: no classes, no ancestry, null and zero hit points, current
+            above the maximum, 1 hit point, the maximum minus one, an unknown <code>next_step</code>, an
+            unnamed creation draft. Cover combining accents and joined emoji, both sizes of draft copy,
+            zero, ten and larger choice counts, and the singular "choice".</p>
+        </section>
+
+        <section id="step-6">
+          <h2><span class="step-no">6</span>Shared components</h2>
+          <p class="outcome">The building blocks every layout uses, each with small tests. No screen uses
+            them yet.</p>
+          <dl class="meta">
+            <dt>Touches</dt><dd><code>frontend/src/components/</code> and
+              <code>frontend/src/theme/</code></dd>
+            <dt>Depends on</dt><dd>Steps 4 and 5</dd>
+            <dt>Review focus</dt><dd>That tokens are used everywhere, the press and focus behaviour, and
+              accessibility roles and labels.</dd>
+          </dl>
+          <ul class="checks">
+            <li><strong>Theme additions.</strong> Add typography tokens for the level number (26, bold,
+              -0.78), small label (11, bold, 0.99 tracking, uppercase), which the tray heading also uses, and the
+              button sizes 15, 14, 13 and 12.5. Add an <code>offsetShadow(depth, token)</code> helper that returns a
+              <code>boxShadow</code> string from a token. Convert letter spacing from em to points, as the
+              existing tokens already do.</li>
+            <li><strong><code>Paper</code>.</strong> Fills its parent with <code>colors.paper</code> and a
+              fixed SVG grid: structural dots on a 9 point pitch and accent lines on a 27 point pitch,
+              using the <code>dot</code> and <code>line</code> tokens. Children render above the
+              grid.</li>
+            <li><strong><code>SearchIcon</code>.</strong> The 16 by 16 glass from the mockup, stroke 1.8,
+              drawn at 15, in a <code>color</code> prop.</li>
+            <li><strong><code>CharacterToken</code>.</strong> <code>size</code> 56 or 64 and a
+              <code>draft</code> variant. The character token is filled with structural ink, has
+              <code>onStructural</code> text and a 4 point accent shadow. The draft token has a card fill, a 2
+              point structural ring, structural text and a shadow in <code>rule</code>. The initial is
+              hidden from screen readers.</li>
+            <li><strong><code>HitPoints</code>.</strong> The meter and its line together, so the meter
+              never shows without its line. It takes the result of <code>hitPoints()</code>. Segments are
+              13 tall with a gap of 2. The meter is hidden from screen readers, and the line is the
+              accessible text. When hurt, the bold number uses <code>accentText</code>.</li>
+            <li><strong><code>LevelBlock</code>.</strong> The "Level" label over the number, with a
+              <code>large</code> variant for desktop's 13 point label. A level of 0 shows a dash in
+              <code>dim</code>, labelled "Level not set" for screen readers.</li>
+            <li><strong><code>Spinner</code>.</strong> A react-native-svg arc in structural ink on a
+              <code>track</code>, rotated with Reanimated once every 0.9 seconds and still when
+              <code>useReducedMotion()</code> is true. Sizes 36, 44 and 16. Hidden from screen readers,
+              because the text beside it carries the meaning.</li>
+            <li><strong><code>PrintPressable</code>.</strong> Wraps <code>Pressable</code>. It takes a
+              shadow depth of 3, 4 or 5 and, while pressed, moves by that offset and drops the shadow.
+              While focused on web it shows a 2 point outline offset by 3, in structural ink or
+              <code>onStructural</code> on the plate. It passes <code>role</code> and
+              <code>accessibilityLabel</code> through.</li>
+            <li><strong>Buttons built on it.</strong> <code>PrimaryButton</code> (Create) and
+              <code>SecondaryButton</code> in three sizes for Sort, Resume and Open sheet, which takes the
+              link role. Each <code>onPress</code> is optional.</li>
+          </ul>
+          <h3>Tests</h3>
+          <p>The meter renders ten segments, the right number filled, and switches ink when hurt. Without
+            data there is no meter and the line reads "Hit points not set". <code>PrintPressable</code>
+            changes its transform on press-in and restores it on press-out. Buttons expose their role and
+            name. Snapshot tests are not wanted.</p>
+        </section>
+
+        <section id="step-7">
+          <h2><span class="step-no">7</span>Phone layout and screenshots</h2>
+          <p class="outcome">Below 720 points the real screen matches the phone frame, with live data,
+            working search and a working sort toggle.</p>
+          <dl class="meta">
+            <dt>Touches</dt><dd><code>frontend/src/screens/characters/</code> (replaces
+              <code>characters.tsx</code>), <code>frontend/scripts/shoot.sh</code> and
+              <code>.gitignore</code></dd>
+            <dt>Depends on</dt><dd>Steps 3 to 6</dd>
+            <dt>Review focus</dt><dd>Side-by-side screenshots with mockup frame 1, and the screen
+              tests.</dd>
+          </dl>
+          <h3>Screenshot script</h3>
+          <p><code>frontend/scripts/shoot.sh</code> exports the web build with
+            <code>npx expo export -p web</code> and serves <code>dist/</code> over localhost from under
+            <code>$HOME/.cache</code>, because the Chromium snap cannot read <code>/tmp</code>. It then
+            takes headless Chromium screenshots at 390×812, 820×1180, 1180×820 and 1440×900 at 2× scale,
+            into <code>frontend/shots/</code>, which is git-ignored. <code>EXPO_PUBLIC_*</code> overrides
+            pass through the environment, so a later step can capture the error states. The script expects
+            PostgreSQL, a seeded database and <code>bin/rails s</code> to be running already, and says so
+            if it cannot reach the API. Compare against <code>mockups/shoot.sh character-list</code>.</p>
+          <h3>Screen</h3>
+          <ul class="checks">
+            <li>Move the screen to <code>src/screens/characters/index.tsx</code>, so the route's import
+              is unchanged. Put its parts beside it: <code>header.tsx</code>,
+              <code>search-field.tsx</code>,
+              <code>character-card.tsx</code>, <code>draft-card.tsx</code>,
+              <code>draft-tray.tsx</code> and <code>create-footer.tsx</code>.</li>
+            <li><strong>Header plate.</strong> Structural fill, padding 20 18 16, a 5 point accent shadow,
+              the "Characters" heading, then the search row 13 below it. The search field is a
+              <code>TextInput</code> with no web outline of its own; the whole field shows the focus ring
+              instead. Its placeholder and accessible label are "Find a character".</li>
+            <li><strong>List.</strong> 12 point side padding and a gap of 14. The tray comes first, and
+              only when there are drafts. The cards follow in API order; the client does no sorting.</li>
+            <li><strong>Character card.</strong> Two columns, 56 and the rest. The level block sits at the
+              top right of the second column, beside the name and subtitle, and the hit points run full
+              width below. The whole card is one pressable with a link role, named by the character.</li>
+            <li><strong>Draft card.</strong> A 2 point dashed structural border, <code>draftFill</code>
+              fill and no shadow. The phone copy comes from <code>draftCopy</code>, and Resume sits on the
+              right.</li>
+            <li><strong>Create footer.</strong> Pinned to the bottom above the safe area, with the SVG fade
+              from transparent to paper at 45%, and a full-width Create character button. The list pads
+              its bottom so the last card can scroll clear of it.</li>
+            <li>Before step 9, a screen with no data yet or an error renders the plate and an empty list.
+              Don't design these states here.</li>
+          </ul>
+          <h3>Tests</h3>
+          <p>With a mocked <code>fetch</code>:</p>
+          <ul>
+            <li>It renders a card for each character with its name, subtitle and hit point line.</li>
+            <li>The tray appears only when there are drafts, and shows both draft kinds.</li>
+            <li>Tapping sort flips the label and requests <code>sort=name</code>.</li>
+            <li>Typing sends a debounced <code>q</code>.</li>
+            <li>Each card is reachable as a link named by the character.</li>
+          </ul>
+        </section>
+
+        <section id="step-8">
+          <h2><span class="step-no">8</span>Tablet and desktop layouts</h2>
+          <p class="outcome">The screen matches the tablet portrait, tablet landscape and desktop
+            frames.</p>
+          <dl class="meta">
+            <dt>Touches</dt><dd><code>frontend/src/screens/characters/</code>,
+              <code>use-breakpoint.ts</code> and <code>theme/index.ts</code></dd>
+            <dt>Depends on</dt><dd>Step 7</dd>
+            <dt>Review focus</dt><dd>Screenshots at 820, 1180 and 1440 next to the mockup, and the
+              breakpoint change.</dd>
+          </dl>
+          <ul class="checks">
+            <li>Add <code>breakpoints.tabletLandscape: 1024</code>, and have <code>Breakpoint</code> and
+              <code>breakpointForWidth</code> return <code>tabletLandscape</code>. Update the hook's tests and
+              check that nothing else relied on the three-value type.</li>
+            <li><strong>Plate and toolbar.</strong> From <code>tablet</code> up, the plate holds only the
+              title: 30 point, padding 26 then 24, with a 5 point accent shadow straight down. Below it,
+              a sticky toolbar on paper, using <code>stickyHeaderIndices</code>, holds the search field (at most
+              520 wide), the sort button, and Create character pushed to the right, above a 2 point
+              structural rule. The plate, the toolbar and the list share one measure,
+              <code>min(1020, width - 48)</code>, centred. The phone footer is hidden.</li>
+            <li><strong>Tablet.</strong> The phone card at a larger size: 64 token and 19 point name,
+              with columns 64 and the rest, a gap of 16 and padding 14 18.
+              <code>tabletLandscape</code> sets cards in two equal columns with a gap of 16, and the tray
+              spans both.</li>
+            <li><strong>Desktop.</strong> Rows with columns of 74, the rest, 84, 240 and 128, a gap of 22
+              and padding 16 22: token, name and subtitle, level block, hit points, then an Open sheet
+              link labelled "Open {name}'s sheet". The row itself isn't pressable. The draft card uses 74,
+              the rest, and auto.</li>
+            <li>From <code>tablet</code> up, drafts use the longer copy and the "Resume level-up" or
+              "Resume creation" label.</li>
+          </ul>
+          <h3>Tests</h3>
+          <p>Mock <code>useWindowDimensions</code> to render each breakpoint.</p>
+          <ul>
+            <li>On desktop, Open sheet links are named for each character.</li>
+            <li>From tablet up, Create character is in the toolbar, not the footer.</li>
+            <li>Resume labels follow the draft kind.</li>
+            <li>The breakpoint boundaries fall at 719/720, 1023/1024 and 1279/1280.</li>
+          </ul>
+        </section>
+
+        <section id="step-9">
+          <h2><span class="step-no">9</span>Loading, empty and error states</h2>
+          <p class="outcome">Every state from step 1 is built, at every breakpoint.</p>
+          <dl class="meta">
+            <dt>Touches</dt><dd><code>frontend/src/screens/characters/</code></dd>
+            <dt>Depends on</dt><dd>Steps 1, 2 and 8</dd>
+            <dt>Review focus</dt><dd>Screenshots of each state next to its frame, and which state is
+              chosen in each case.</dd>
+          </dl>
+          <table class="compact">
+            <tr><th>State</th><th>When</th></tr>
+            <tr><td>First load</td><td>Pending, with no data yet</td></tr>
+            <tr><td>Searching</td><td><code>isSearching</code>, with the previous list still showing and the
+              small spinner in the search field</td></tr>
+            <tr><td>No characters</td><td>Loaded, with no search, no characters and no drafts</td></tr>
+            <tr><td>Drafts only</td><td>Loaded, with no search, no characters and at least one draft</td></tr>
+            <tr><td>No results</td><td>Loaded, with a search and no characters. The tray still shows.</td></tr>
+            <tr><td>API settings missing</td><td>A <code>MissingConfigError</code>: <code>EXPO_PUBLIC_API_URL</code> or
+              <code>EXPO_PUBLIC_API_TOKEN</code> isn't set, so no request was sent. Not retried. Added after review.</td></tr>
+            <tr><td>Not signed in</td><td>An <code>ApiError</code> with status 401</td></tr>
+            <tr><td>Couldn't load</td><td>Any other error. Try again calls <code>refetch()</code>.</td></tr>
+          </table>
+          <p>Put the choice of state in one small pure function. Test that function for each row, and add
+            one render test per state. To screenshot the two error states, use
+            <code>EXPO_PUBLIC_API_TOKEN=wrong</code> for 401 and point <code>EXPO_PUBLIC_API_URL</code> at
+            a closed port for the other. Cover the empty and no-results states with tests; screenshot them
+            only if they are easy to reach.</p>
+        </section>
+
+        <section id="done">
+          <h2>Definition of done</h2>
+          <ul class="checks">
+            <li class="done">Step 1's frames are approved, and <code>mockups/shoot.sh character-list</code> produces
+              one image per frame.</li>
+            <li class="done">The design system is at v0.6 and describes the list as built.</li>
+            <li class="done">The Expo web build loads the seeded list with no CORS errors, both on this computer and
+              in the phone's browser over Tailscale. CORS and the extra hosts apply only in
+              development.</li>
+            <li class="done">The screen contains no hard-coded character or draft data.</li>
+            <li class="done">Screenshots at 390, 820, 1180 and 1440 match the mockup frames, differing only where this
+              plan decided otherwise: theme grid tokens and neutral draft copy.</li>
+            <li class="done">Search is debounced and cancels stale requests. Sort switches between level and name. Both
+              draft kinds show with the right copy and Resume label.</li>
+            <li class="done">Loading, searching, empty, drafts only, no results, not signed in and couldn't load all
+              render as mocked up.</li>
+            <li class="done">Card, Open sheet, Resume and Create character render with press and focus states, and each
+              has an unset <code>onPress</code> ready for the navigation plan.</li>
+            <li class="done">Every control is at least 44 by 44 or has a hit slop that makes it so, and has an
+              accessible role and name.</li>
+            <li class="done">It runs in Expo Go on a phone over Tailscale, on a network other than the computer's,
+              by following the README.</li>
+            <li class="done"><code>npm run lint</code>, <code>npm run typecheck</code>, <code>npm test</code> and
+              <code>backend/bin/ci</code> pass.</li>
+          </ul>
+          <p class="small">Assessed 12 October 2026 against the implementation, tests and saved app
+            screenshots beside the mockup frames. Frontend formatting, lint, type checking and all
+            223 tests pass. The developer confirmed both Tailscale phone checks passed, in the phone's
+            browser and in Expo Go on another network, by following the README.</p>
+          <p class="small"><code>backend/bin/ci</code> passes after updating Brakeman to 8.1.0, with
+            <code>--ensure-latest</code> retained. The scan reports no security warnings or errors.
+            All 86 Rails tests, seed checks, Ruby style and the gem audit pass.</p>
+          <p class="small">Review fixes verified 13 October 2026. Frontend formatting, lint, type
+            checking and all 240 tests pass. Browser checks confirm the 100-character Unicode search
+            limit, the full 44-point search target, and a persistent no-results announcement that
+            clears while a different search is pending. Native card labels include the subtitle,
+            level and hit points, with regression coverage for iOS and Android.</p>
+
+          <h3>Next plans</h3>
+          <ul>
+            <li>Navigation: the character sheet route, the draft resume routes, and create
+              character. Card taps and Open sheet get an <code>href</code>, so they render as real
+              anchors and open with Enter; see the navigation decision in step 0.</li>
+            <li>Real sign-in, replacing the development token and the temporary "Not signed in"
+              copy.</li>
+            <li>Zero hit point states on the list, once the API returns death saves.</li>
+            <li>Crossing the 720 breakpoint, for example by turning a large phone sideways, swaps the
+              phone layout for the wide one and rebuilds the screen. The search field loses focus, which
+              closes the keyboard mid-search, and the list scrolls back to the top. Restore focus to the
+              search field when it had it. The scroll position isn't worth keeping, because every card
+              changes size. Decide too whether a phone in landscape should get the tablet layout at
+              all: it is wide enough, but the sticky toolbar takes nearly a quarter of its height.</li>
+            <li>Try again loses keyboard focus on the web. The spinner replaces the notice while the
+              request runs, so the focused button goes and focus drops to the page. If the request
+              fails again, the new Try again isn't focused, and Enter does nothing until Tab reaches
+              it. Restore focus to Try again after a failed retry when it had focus, but not if the
+              player has moved on, for example to search. Fix it alongside the breakpoint focus loss
+              above, since both need focus kept across a remount.</li>
+          </ul>
+        </section>
+      </main>
+    </div>
+
+    <footer>
+      5e Companion. Character list front-end milestone.
+    </footer>
+  </div>
+</body>
+</html>

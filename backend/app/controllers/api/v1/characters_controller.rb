@@ -22,9 +22,9 @@ module Api
       private
 
       # Checks whether the character-list query parameters are supported.
-      # @param query [String, nil] the optional name filter
-      # @param sort [String] the requested sort order
-      # @return [Boolean] whether both parameters are valid
+      # @param query [String, nil] - The optional name filter, or nil to list every character.
+      # @param sort [String] - The requested sort order.
+      # @return [Boolean] - Whether both parameters are valid.
       def valid_query?(query, sort)
         (query.nil? || query.is_a?(String)) &&
           sort.is_a?(String) &&
@@ -41,6 +41,8 @@ module Api
         }, status: :bad_request
       end
 
+      # @param characters [ActiveRecord::Relation<Character>] - The user's characters after filtering.
+      # @param sort [String] - The requested order, either name or descending total level.
       def sort_characters(characters, sort)
         if sort == "name"
           characters.order(Arel.sql("LOWER(characters.name) ASC"), id: :asc)
@@ -56,6 +58,7 @@ module Api
         end
       end
 
+      # @param character [Character] - The character whose identity, classes, and hit points to serialize.
       def character_summary(character)
         {
           id: character.id.to_s,
@@ -80,6 +83,7 @@ module Api
         }
       end
 
+      # @param draft [CharacterDraft] - The unfinished creation or level-up whose progress to serialize.
       def draft_summary(draft)
         case draft.kind
         when "creation"
