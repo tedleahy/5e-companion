@@ -11,6 +11,8 @@ export type SearchState = {
     onSearchChange: (text: string) => void;
     /** Sends the search without waiting for typing to pause, for the keyboard's Search key. */
     onSearchSubmit: () => void;
+    /** Empties the search and sends it straight away, for the field's clear button. */
+    onSearchClear: () => void;
     sort: CharacterSort;
     onSortPress: () => void;
     searching?: boolean;
@@ -27,6 +29,7 @@ type SearchControlsProps = SearchState & {
  * @param props.search - The search text, as typed.
  * @param props.onSearchChange - Called with the new text on every keystroke.
  * @param props.onSearchSubmit - Called when the keyboard's Search key is pressed.
+ * @param props.onSearchClear - Called when the field's clear button is pressed.
  * @param props.sort - The current order, which the sort button names.
  * @param props.onSortPress - Called when the sort button is tapped, to switch to the other order.
  * @param props.searching - Whether a search is loading, which turns a spinner in the field.
@@ -38,6 +41,7 @@ export function SearchControls({
     search,
     onSearchChange,
     onSearchSubmit,
+    onSearchClear,
     sort,
     onSortPress,
     searching = false,
@@ -50,6 +54,7 @@ export function SearchControls({
                 value={search}
                 onChangeText={onSearchChange}
                 onSubmit={onSearchSubmit}
+                onClear={onSearchClear}
                 onPlate={onPlate}
                 searching={searching}
             />

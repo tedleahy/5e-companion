@@ -65,7 +65,12 @@ export function Characters() {
     const searchState: SearchState = {
         search,
         onSearchChange: setSearch,
-        onSearchSubmit: sendSearchNow,
+        onSearchSubmit: () => sendSearchNow(),
+        // The hook won't see the empty text until the next render, so it's passed in.
+        onSearchClear: () => {
+            setSearch('');
+            sendSearchNow('');
+        },
         sort,
         onSortPress: () => setSort((current) => (current === 'level' ? 'name' : 'level')),
         // While Try again runs, the first-load spinner already says something is loading.

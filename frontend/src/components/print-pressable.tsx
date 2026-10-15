@@ -4,13 +4,14 @@ import {
     Pressable,
     StyleSheet,
     View,
-    type FocusEvent,
     type PressableProps,
     type StyleProp,
     type ViewStyle,
 } from 'react-native';
 
 import { colors, offsetShadow, type Colors, type ShadowDepth } from '@/theme';
+
+import { isFocusVisible } from './focus-visible';
 
 type PrintPressableProps = Omit<PressableProps, 'style' | 'children' | 'hitSlop'> & {
     depth: ShadowDepth;
@@ -113,18 +114,6 @@ export function PrintPressable({
 function hitAreaInsets(hitSlop: number, borderWidth = 0): ViewStyle {
     const inset = -(hitSlop + borderWidth);
     return { top: inset, right: inset, bottom: inset, left: inset };
-}
-
-/**
- * Whether a focus should show the ring. Only on web, and only where the browser would show its
- * own focus indicator: a click focuses the element too, but shouldn't leave a ring behind.
- */
-function isFocusVisible(event: FocusEvent): boolean {
-    if (Platform.OS !== 'web') return false;
-
-    // On web, React Native Web hands over the DOM event, so the target is the element itself.
-    const target = event.currentTarget as unknown as Partial<Pick<Element, 'matches'>>;
-    return target.matches?.(':focus-visible') ?? true;
 }
 
 const styles = StyleSheet.create({

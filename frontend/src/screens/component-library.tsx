@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { hitPoints } from '@/characters/display';
 import { PrimaryButton, SecondaryButton } from '@/components/buttons';
 import { CharacterToken } from '@/components/character-token';
+import { ClearIcon } from '@/components/clear-icon';
 import { Heading } from '@/components/heading';
 import { HitPoints } from '@/components/hit-points';
 import { LevelBlock } from '@/components/level-block';
@@ -80,6 +81,18 @@ const ENTRIES: Entry[] = [
                 </Variant>
                 <Variant label="Structural">
                     <SearchIcon color={colors.structural} />
+                </Variant>
+            </Row>
+        ),
+    },
+    {
+        name: 'ClearIcon',
+        path: 'src/components/clear-icon.tsx',
+        description: "The × on the search field's clear button, in any ink.",
+        demo: () => (
+            <Row>
+                <Variant label="Structural">
+                    <ClearIcon color={colors.structural} />
                 </Variant>
             </Row>
         ),

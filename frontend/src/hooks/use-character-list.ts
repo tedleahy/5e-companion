@@ -26,8 +26,11 @@ export type CharacterListResult = UseQueryResult<CharacterList> & {
      * It lags behind the search text while typing pauses and while the next search loads.
      */
     shownSearch: string | undefined;
-    /** Sends the search as typed now, without waiting for typing to pause. */
-    sendSearchNow: () => void;
+    /**
+     * Sends a search now, without waiting for typing to pause: the search as typed, or `search`
+     * when the text has just changed in the same event, as when clearing the field.
+     */
+    sendSearchNow: (search?: string) => void;
 };
 
 /**
@@ -40,7 +43,7 @@ export type CharacterListResult = UseQueryResult<CharacterList> & {
  */
 export function useCharacterList(search: string, sort: CharacterSort): CharacterListResult {
     // Clamped here as well as in the search field, so no caller can send a search the API rejects.
-    const [debouncedSearch, sendSearchNow] = useDebouncedValue(
+    const [debouncedSearch, flushSearch] = useDebouncedValue(
         clampCharacterSearch(search),
         SEARCH_DEBOUNCE_MS,
     );
@@ -58,6 +61,8 @@ export function useCharacterList(search: string, sort: CharacterSort): Character
     if (query.isSuccess && !query.isPlaceholderData && shownQ !== q) setShownQ(q);
 
     const isSearching = query.isPlaceholderData && query.isFetching && shownQ !== q;
+
+    const sendSearchNow = (text: string = search) => flushSearch(clampCharacterSearch(text));
 
     return { ...query, isSearching, shownSearch: shownQ, sendSearchNow };
 }

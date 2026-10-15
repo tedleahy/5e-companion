@@ -44,6 +44,20 @@ describe('useDebouncedValue', () => {
         expect(result.current).toBe('abc');
     });
 
+    it('publishes a given value straight away when flushed with one', async () => {
+        const { result, rerender } = await renderHook(
+            (props: { value: string }) => useDebouncedValue(props.value, 250),
+            { initialProps: { value: 'abc' } },
+        );
+
+        await rerender({ value: 'abcd' });
+        await act(async () => {
+            result.current[1]('');
+        });
+
+        expect(result.current[0]).toBe('');
+    });
+
     it('publishes the latest value straight away when flushed', async () => {
         const { result, rerender } = await renderHook(
             (props: { value: string }) => useDebouncedValue(props.value, 250),

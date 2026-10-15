@@ -9,6 +9,7 @@ function searchState(): SearchState {
         search: '',
         onSearchChange: jest.fn(),
         onSearchSubmit: jest.fn(),
+        onSearchClear: jest.fn(),
         sort: 'level',
         onSortPress: jest.fn(),
     };
@@ -40,6 +41,15 @@ describe('Header', () => {
         await fireEvent.press(screen.getByRole('button', { name: 'Sort: level' }));
 
         expect(state.onSortPress).toHaveBeenCalledTimes(1);
+    });
+
+    it('offers to clear a search that has text', async () => {
+        const state = { ...searchState(), search: 'ves' };
+        await render(<Header searchState={state} />);
+
+        await fireEvent.press(screen.getByRole('button', { name: 'Clear search' }));
+
+        expect(state.onSearchClear).toHaveBeenCalledTimes(1);
     });
 });
 

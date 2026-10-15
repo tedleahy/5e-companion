@@ -136,6 +136,23 @@ describe('useCharacterList', () => {
         expect(lastRequest().url.searchParams.get('q')).toBe('ves');
     });
 
+    it('sends the search it is given without waiting, for text that has just changed', async () => {
+        const { result, rerender } = await renderCharacterList();
+        await lastRequest().respond(listOf('Kethra Ironsong', 'Vesper Quill'));
+
+        await rerender({ search: 'ves', sort: 'level' });
+        await advance(SEARCH_DEBOUNCE_MS);
+        await lastRequest().respond(listOf('Vesper Quill'));
+
+        await act(async () => {
+            result.current.sendSearchNow('');
+        });
+
+        expect(result.current.shownSearch).toBeUndefined();
+
+        expect(result.current.data).toEqual(listOf('Kethra Ironsong', 'Vesper Quill'));
+    });
+
     it('trims the search', async () => {
         const { rerender } = await renderCharacterList();
 

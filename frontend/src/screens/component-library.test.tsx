@@ -15,6 +15,7 @@ describe('ComponentLibrary', () => {
             'Heading',
             'VisuallyHidden',
             'SearchIcon',
+            'ClearIcon',
             'WarningIcon',
             'CharacterToken',
             'HitPoints',

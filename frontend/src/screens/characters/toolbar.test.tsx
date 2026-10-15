@@ -9,6 +9,7 @@ function searchState(): SearchState {
         search: '',
         onSearchChange: jest.fn(),
         onSearchSubmit: jest.fn(),
+        onSearchClear: jest.fn(),
         sort: 'name',
         onSortPress: jest.fn(),
     };

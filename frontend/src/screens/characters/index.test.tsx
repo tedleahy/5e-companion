@@ -552,6 +552,64 @@ describe('Characters while loading', () => {
 
         expect(screen.queryByText('Loading characters…')).toBeNull();
     });
+
+    it('keeps the clear button beside the spinner, so a slow search can be cleared', async () => {
+        await renderScreen();
+        hangRequests();
+
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), 'ves');
+        await advance(SEARCH_DEBOUNCE_MS);
+
+        expect(screen.getByText('Searching…')).toBeOnTheScreen();
+
+        expect(screen.getByRole('button', { name: 'Clear search' })).toBeOnTheScreen();
+    });
+});
+
+describe('Characters with a search to clear', () => {
+    it('shows no clear button while the field is empty', async () => {
+        await renderScreen();
+
+        expect(screen.queryByRole('button', { name: 'Clear search' })).toBeNull();
+    });
+
+    it('shows a clear button once the field holds text, even only spaces', async () => {
+        await renderScreen();
+
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), ' ');
+
+        expect(screen.getByRole('button', { name: 'Clear search' })).toBeOnTheScreen();
+    });
+
+    it('empties the field and sends the empty search without waiting', async () => {
+        await renderScreen();
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), 'ves');
+        await advance(SEARCH_DEBOUNCE_MS);
+
+        expect(lastRequest().searchParams.get('q')).toBe('ves');
+
+        await fireEvent.press(screen.getByRole('button', { name: 'Clear search' }));
+        await advance(0);
+
+        expect(screen.getByLabelText('Find a character')).toHaveDisplayValue('');
+
+        expect(screen.queryByRole('button', { name: 'Clear search' })).toBeNull();
+
+        expect(screen.getByText('Thorn Grimsby')).toBeOnTheScreen();
+
+        expect(screen.queryByText('Searching…')).toBeNull();
+    });
+
+    it('drops a search still waiting out the debounce', async () => {
+        await renderScreen();
+        const sent = requests.length;
+
+        await fireEvent.changeText(screen.getByLabelText('Find a character'), 'ves');
+        await fireEvent.press(screen.getByRole('button', { name: 'Clear search' }));
+        await advance(SEARCH_DEBOUNCE_MS);
+
+        expect(requests.slice(sent).filter((url) => url.searchParams.has('q'))).toHaveLength(0);
+    });
 });
 
 describe('Characters with nothing to show', () => {
