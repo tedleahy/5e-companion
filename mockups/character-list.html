@@ -156,6 +156,15 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .d .quiet{font-size:14px}
 .busy{flex:none;display:flex}
 .busy .spinner{width:16px;height:16px;stroke-width:6}
+/* Clear: a drawn x at the field's right end whenever it holds text. Its target runs the field's
+   full height and out to its border, so it is a 44 point square with the border, and its glyph
+   sits as far from the right edge as the glass does from the left. */
+.find .clear{all:unset;flex:none;display:grid;place-items:center;width:40px;align-self:stretch;
+  margin:-9px -12px -9px 0;cursor:pointer}
+.find .clear svg{width:14px;height:14px}
+/* Beside the spinner, the button's blank edge would leave a wide gap, so it tucks in until the
+   spinner and the x are 10 apart. The spinner takes no taps, so the targets can overlap. */
+.find .busy + .clear{margin-left:-11px}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .vitals-hp .hp:first-child{margin-top:0}
 .tray.alone{padding-bottom:0}
@@ -231,6 +240,8 @@ body{margin:0;background:#2b2e33;color:#e7e9ec;font-family:"Manrope",system-ui,s
 .riso .find label:focus-within{outline:2px solid var(--on-structural);outline-offset:3px}
 .riso .toolbar .find label:focus-within{outline-color:var(--structural)}
 .riso .find input:focus-visible{outline:none}
+.riso .find .clear{color:var(--structural)}
+.riso .find .clear:focus-visible{outline:2px solid var(--structural);outline-offset:-4px}
 .riso .row:active,.riso .newbtn:active{transform:translate(5px,5px);box-shadow:none}
 .riso :is(.go,.resume,.retry):active{transform:translate(3px,3px);box-shadow:none}
 .riso .sortbtn:active{transform:translate(4px,4px);box-shadow:none}
@@ -398,20 +409,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
       </div>
     </div>
   </article>
-  <article class="row">
-    <div class="tok">V</div>
-    <div class="who">
-      <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
-      <div class="idn">
-        <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
-        <p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p>
-      </div>
-      <div class="vitals-hp">
-        <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
-        <p class="hp"><b>12</b>/26 hit points</p>
-      </div>
-    </div>
-  </article>
+  <div data-part="card-vesper"></div>
   <article class="row">
     <div class="tok">B</div>
     <div class="who">
@@ -472,13 +470,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     <div class="vitals-hp"><div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>38</b>/52 hit points</p></div>
     <a class="go" href="#sheet" aria-label="Open Alarra Vane&rsquo;s sheet">Open sheet</a>
   </div>
-  <div class="drow">
-    <div class="tok">V</div>
-    <div><h3 class="name">Vesper Quill</h3><p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p></div>
-    <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
-    <div class="vitals-hp"><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points</p></div>
-    <a class="go" href="#sheet" aria-label="Open Vesper Quill&rsquo;s sheet">Open sheet</a>
-  </div>
+  <div data-part="drow-vesper"></div>
   <div class="drow">
     <div class="tok">B</div>
     <div><h3 class="name">Brenna Duskhollow</h3><p class="sub">Half-elf warlock, the Fiend</p></div>
@@ -502,6 +494,34 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   </div>
 </template>
 
+<!-- Vesper alone, for a search for "Ves" that has settled. The full list uses these too. -->
+<template id="tpl-part-card-vesper">
+  <article class="row">
+    <div class="tok">V</div>
+    <div class="who">
+      <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
+      <div class="idn">
+        <h3 class="name"><a class="rowlink" href="#sheet">Vesper Quill</a></h3>
+        <p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p>
+      </div>
+      <div class="vitals-hp">
+        <div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div>
+        <p class="hp"><b>12</b>/26 hit points</p>
+      </div>
+    </div>
+  </article>
+</template>
+
+<template id="tpl-part-drow-vesper">
+  <div class="drow">
+    <div class="tok">V</div>
+    <div><h3 class="name">Vesper Quill</h3><p class="sub">Rock gnome wizard 5 / rogue 2, Divination</p></div>
+    <div class="lvl"><span class="badgelab">Level</span><b>7</b></div>
+    <div class="vitals-hp"><div class="meter" data-hurt aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i><i data-e></i></div><p class="hp"><b>12</b>/26 hit points</p></div>
+    <a class="go" href="#sheet" aria-label="Open Vesper Quill&rsquo;s sheet">Open sheet</a>
+  </div>
+</template>
+
 <template id="tpl-part-plate-bare">
   <div class="top">
     <h2 class="title">Characters</h2>
@@ -516,11 +536,20 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
   </div>
 </template>
 
-<!-- The search field mid-search, and after a search that found nothing. -->
+<!-- The search field mid-search, settled, and after a search that found nothing. Clear shows
+     whenever the field holds text. -->
 <template id="tpl-part-find-ves">
   <div class="find">
     <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
-      <input value="Ves" placeholder="Find a character" aria-label="Find a character"><span class="busy" role="status"><svg class="spinner" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15"/><path d="M18 3a15 15 0 0 1 15 15"/></svg><span class="vh">Searching&hellip;</span></span></label>
+      <input value="Ves" placeholder="Find a character" aria-label="Find a character"><span class="busy" role="status"><svg class="spinner" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15"/><path d="M18 3a15 15 0 0 1 15 15"/></svg><span class="vh">Searching&hellip;</span></span><button class="clear" aria-label="Clear search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></label>
+    <button class="sortbtn">Sort: level</button>
+  </div>
+</template>
+
+<template id="tpl-part-find-ves-settled">
+  <div class="find">
+    <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
+      <input value="Ves" placeholder="Find a character" aria-label="Find a character"><button class="clear" aria-label="Clear search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></label>
     <button class="sortbtn">Sort: level</button>
   </div>
 </template>
@@ -528,7 +557,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
 <template id="tpl-part-find-zephyr">
   <div class="find">
     <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
-      <input value="Zephyr" placeholder="Find a character" aria-label="Find a character"></label>
+      <input value="Zephyr" placeholder="Find a character" aria-label="Find a character"><button class="clear" aria-label="Clear search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></label>
     <button class="sortbtn">Sort: level</button>
   </div>
 </template>
@@ -877,6 +906,36 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     <div class="dbody">
       <div data-part="tray-wide"></div>
       <div data-part="drows"></div>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-clear">
+  <div class="mat">
+    <div class="top">
+      <h2 class="title">Characters</h2>
+      <div data-part="find-ves-settled"></div>
+    </div>
+    <div class="rows">
+      <div data-part="tray"></div>
+      <div data-part="card-vesper"></div>
+    </div>
+    <div data-part="newwrap"></div>
+  </div>
+</template>
+
+<template id="tpl-d-clear">
+  <div class="mat d">
+    <div data-part="wide-plate"></div>
+    <div class="toolbar">
+      <div class="toolbar-inner">
+        <div data-part="find-ves-settled"></div>
+        <button class="newbtn dnew">Create character</button>
+      </div>
+    </div>
+    <div class="dbody">
+      <div data-part="tray-wide"></div>
+      <div data-part="drow-vesper"></div>
     </div>
   </div>
 </template>
@@ -1230,15 +1289,19 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
      note:'The same cards in two columns. The tray spans both.'},
 
     {section:'Loading and searching',
-     text:'The first load gets a spinner, the only motion on the list. Search, sort and Create work from the first frame.'},
+     text:'The first load gets a spinner, the only motion on the list. Search, sort and Create work from the first frame, and a search can be cleared with one tap.'},
     {id:'loading', label:'First load',
      note:'The plate, search, sort and Create are in place before any data arrives. A spinner sits in the middle of the space the list will fill, with a quiet line in dim under it. The spinner is a structural arc turning on a rose-tint track, once every 0.9 seconds, drawn with react-native-svg rather than the platform&rsquo;s ActivityIndicator. It is a new exception to the design system&rsquo;s motion rules, and with reduced motion it holds still. The tray arrives with the list, because both come from one request.'},
     {id:'d-loading', desktop:true, label:'First load',
      note:'The same, a size up, centred under the toolbar.'},
     {id:'searching', label:'Searching',
-     note:'The player has typed &ldquo;Ves&rdquo;. After the 250 ms debounce the request goes out and the previous results stay put. A 16 point version of the first-load spinner turns at the right of the field until the response lands, where the eye already is, so nothing below it shifts. It is a polite live region that reads &ldquo;Searching&hellip;&rdquo; to screen readers. On a fast connection it may never show, which is fine. Drafts ignore the search, so the tray stays.'},
+     note:'The player has typed &ldquo;Ves&rdquo;. After the 250 ms debounce the request goes out and the previous results stay put. A 16 point version of the first-load spinner turns at the right of the field until the response lands, where the eye already is, so nothing below it shifts. It is a polite live region that reads &ldquo;Searching&hellip;&rdquo; to screen readers. On a fast connection it may never show, which is fine. The clear button keeps the field&rsquo;s right end, so the spinner turns just inside it and a slow search can still be cleared. Drafts ignore the search, so the tray stays.'},
     {id:'d-searching', desktop:true, label:'Searching',
      note:'The same spinner, at the same size, at the right of the wider field.'},
+    {id:'clear', label:'Clearing a search',
+     note:'The search for &ldquo;Ves&rdquo; has settled on Vesper Quill. Whenever the field holds text, a clear button sits at its right end: a 14 point &times; in structural ink, drawn with react-native-svg like the glass, rather than iOS&rsquo;s own clear button, which Android lacks. Its target runs the field&rsquo;s full height and out to its border, a 44 point square, and screen readers call it &ldquo;Clear search&rdquo;. Tapping it empties the field and sends the empty search at once, skipping the debounce, so the full list comes back straight away, usually from the cache. Focus stays in the field, so the keyboard stays up for the next search. Nothing is announced: the list coming back is the result. It is not a printed surface, so it has no shadow and does not sink when pressed.'},
+    {id:'d-clear', desktop:true, label:'Clearing a search',
+     note:'The same button at the right of the wider field. On the web, Tab reaches it after the field, and its focus ring sits inside the field&rsquo;s border.'},
 
     {section:'Nothing to show',
      text:'An empty list is a dashed empty card, the system&rsquo;s mark for something not real yet. Search and sort only show when there are characters to find, so they drop out when the player has none.'},
@@ -1251,7 +1314,7 @@ a.go{display:inline-block;text-decoration:none;text-align:center}
     {id:'d-draft-only', desktop:true, label:'No characters, one creation draft',
      note:'The same on desktop: title, Create, and the tray.'},
     {id:'no-results', label:'No search results',
-     note:'Nothing matches &ldquo;Zephyr&rdquo;. The empty card quotes the search as typed and says search only looks at names, because a player who types &ldquo;dwarf&rdquo; would otherwise think something broke. The tray still shows, because drafts ignore the search.'},
+     note:'Nothing matches &ldquo;Zephyr&rdquo;. The empty card quotes the search as typed and says search only looks at names, because a player who types &ldquo;dwarf&rdquo; would otherwise think something broke. The tray still shows, because drafts ignore the search. The clear button in the field is the quickest way back to every character, as the card suggests.'},
     {id:'d-no-results', desktop:true, label:'No search results',
      note:'The empty card takes the list&rsquo;s place under the tray.'},
 

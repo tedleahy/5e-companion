@@ -204,6 +204,10 @@ td:has(> .sw){white-space:nowrap}
 .d .quiet{font-size:14px}
 .busy{flex:none;display:flex}
 .busy .spinner{width:16px;height:16px;stroke-width:6}
+.find .clear{all:unset;flex:none;display:grid;place-items:center;width:40px;align-self:stretch;
+  margin:-9px -12px -9px 0;cursor:pointer}
+.find .clear svg{width:14px;height:14px}
+.find .busy + .clear{margin-left:-11px}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .empty-card{padding:18px 18px 20px}
 .notice{display:flex;gap:11px;align-items:flex-start;padding:16px 16px 18px 14px}
@@ -287,6 +291,8 @@ td:has(> .sw){white-space:nowrap}
 .riso .find label:focus-within{outline:2px solid var(--on-structural);outline-offset:3px}
 .riso .dbar .find label:focus-within{outline-color:var(--structural)}
 .riso .find input:focus-visible{outline:none}
+.riso .find .clear{color:var(--structural)}
+.riso .find .clear:focus-visible{outline:2px solid var(--structural);outline-offset:-4px}
 .riso .row:active,.riso .newbtn:active{transform:translate(5px,5px);box-shadow:none}
 .riso :is(.go,.resume,.retry):active{transform:translate(3px,3px);box-shadow:none}
 .riso .sortbtn:active{transform:translate(4px,4px);box-shadow:none}
@@ -934,7 +940,8 @@ button.mark{font-family:inherit;cursor:pointer}
     <b>5e Companion</b>
     <h1>Design system, v0.6</h1>
     <p>Distilled from <code>character-list.html</code> and <code>character-sheet.html</code>. It records the "riso" direction: two-ink risograph printing on toned paper, with a third overprint colour where the inks would overlap. Everything on this page is rendered with the same CSS as the mockups, so the specimens are the source of truth, not the prose.</p>
-    <p style="margin-top:8px">v0.6, 3 October 2026: names that say what things are. Tokens are named for their role rather than a letter, buttons are primary, secondary or destructive in sizes, the tablet and desktop plate and toolbar replace the band and bar, the slate is the empty card, and the tray heading is a small label. Nothing changes how anything looks except the tray heading, which drops half a point to 11. See <a href="#decisions">decisions</a>.<br>
+    <p style="margin-top:8px">Updated 15 October 2026: a clear button in the search field. See <a href="#search">search and sort</a> and <a href="#decisions">decisions</a>.<br>
+    v0.6, 3 October 2026: names that say what things are. Tokens are named for their role rather than a letter, buttons are primary, secondary or destructive in sizes, the tablet and desktop plate and toolbar replace the band and bar, the slate is the empty card, and the tray heading is a small label. Nothing changes how anything looks except the tray heading, which drops half a point to 11. See <a href="#decisions">decisions</a>.<br>
     v0.5, 25 September 2026: the character list as redesigned and built. A level block, the desktop row, list states, tablet layouts, the meter&rsquo;s rounding rule, the loading spinner as a third motion exception, and no pronouns for characters. Search, sort, Resume and the draft tray change look. The armour ring, marks and level badge leave the list but stay for the sheet; filter chips and the desktop table are not in current designs. See <a href="#decisions">decisions</a>.<br>
     v0.4, 14 September 2026: the character sheet joins the document. New sections for the sheet's structure (header, tabs, blocks, detail screens, bottom sheets, editing), its controls, the pads and the roll sheet, and its value displays, plus two destructive buttons and the condition marks. The scrim and paper chip tokens, and corrections to the motion and semantics rules. See <a href="#decisions">decisions</a>.<br>
     Updated 13 and 14 September 2026: the hit area rule, repeated small primaries, selection and semantics, sentence case and person, American spelling in the app, and text colours checked against the draft tint over paper. See <a href="#decisions">decisions</a>.<br>
@@ -1248,7 +1255,7 @@ button.mark{font-family:inherit;cursor:pointer}
     <thead><tr><th>State</th><th>Rule</th><th>Selector</th></tr></thead>
     <tbody>
       <tr><td>Pressed</td><td>Anything with an offset shadow moves by the shadow&rsquo;s offset and the shadow disappears. That means 5px for cards and the primary button, 4px for the large secondary button (Sort), and 3px for small primaries and for medium and small secondary buttons: Resume, Try again and Open sheet. Anything without a shadow gets a 2px inset ring in its own text colour. On phone and tablet the whole character card presses.</td><td><code>:active</code></td></tr>
-      <tr><td>Focus</td><td>2px structural outline, 3px offset. Inside the plate the outline is on-structural, because structural on structural is invisible. The search field outlines the whole field, not the bare input, in on-structural on the phone plate and structural in the tablet and desktop toolbar.</td><td><code>:focus-visible</code>, <code>:focus-within</code> on the field</td></tr>
+      <tr><td>Focus</td><td>2px structural outline, 3px offset. Inside the plate the outline is on-structural, because structural on structural is invisible. The search field outlines the whole field, not the bare input, in on-structural on the phone plate and structural in the tablet and desktop toolbar. Its clear button draws its own structural outline inside the field&rsquo;s border, offset &minus;4.</td><td><code>:focus-visible</code>, <code>:focus-within</code> on the field</td></tr>
       <tr><td>Selected</td><td>Inversion. On paper, the control fills with structural and its text turns on-structural. On the plate, it becomes a card cutout with structural text, as the active chip already does.</td><td><code>[aria-pressed=true]</code> for toggles, <code>[aria-checked=true]</code> for single choices such as chips, <code>[aria-selected=true]</code> for tabs</td></tr>
       <tr><td>Disabled</td><td>No fill, no shadow, dim text and a 2px rule-coloured outline. Controls on the plate are hidden rather than disabled, because dim text cannot reach contrast on structural. The list hides controls that cannot work, such as search when there is nothing to search, rather than disabling them.</td><td><code>:disabled</code>, <code>[aria-disabled=true]</code></td></tr>
       <tr><td>Hover</td><td>Not defined yet. See deferred.</td><td></td></tr>
@@ -1339,7 +1346,7 @@ button.mark{font-family:inherit;cursor:pointer}
       <div class="plate">
         <div class="find" style="margin:0">
           <label><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>
-            <input value="Ves" aria-label="Find a character"><span class="busy" role="status"><svg class="spinner" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15"/><path d="M18 3a15 15 0 0 1 15 15"/></svg><span class="vh">Searching&hellip;</span></span></label>
+            <input value="Ves" aria-label="Find a character"><span class="busy" role="status"><svg class="spinner" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15"/><path d="M18 3a15 15 0 0 1 15 15"/></svg><span class="vh">Searching&hellip;</span></span><button class="clear" aria-label="Clear search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></label>
           <button class="sortbtn">Sort: name</button>
         </div>
       </div>
@@ -1348,11 +1355,13 @@ button.mark{font-family:inherit;cursor:pointer}
   <table>
     <thead><tr><th>Part</th><th>Spec</th></tr></thead>
     <tbody>
-      <tr><td>Field</td><td>Card fill, 2px structural border, 4px accent shadow, 9 12 padding and a 44 minimum height, the text field rule. At most 520 wide in the toolbar. Icon is 15px, 1.8 stroke, in dim. Text in <code>--text</code>, placeholder in dim.</td></tr>
+      <tr><td>Field</td><td>Card fill, 2px structural border, 4px accent shadow, 9 12 padding and a 44 minimum height, the text field rule. At most 520 wide in the toolbar. Icon is 15px, 1.8 stroke, in dim. Text in <code>--text</code>, placeholder in dim. The text stops short of the spinner and the clear button.</td></tr>
+      <tr><td>Clear</td><td>Whenever the field holds text, a 14px &times; in structural ink, 1.8 stroke, sits at its right end, drawn rather than the platform&rsquo;s own clear button, which only iOS has. Its target is the field&rsquo;s full height inside the border and as wide, reaching the border on native: a 44 square. Its glyph sits as far from the right edge as the icon does from the left. It is not a printed surface, so it has no shadow and does not sink when pressed. Screen readers call it &ldquo;Clear search&rdquo;.</td></tr>
+      <tr><td>Clear behaviour</td><td>Clearing empties the field and sends the empty search at once, skipping the debounce, so the full list comes back straight away, usually from the cache. Focus returns to the field, so the keyboard stays up. Nothing is announced, because the list coming back is the result.</td></tr>
       <tr><td>Sort</td><td>Card fill, 2px structural border, structural text at 13 / 700, 0 13 padding, 4px accent shadow. The label reads &ldquo;Sort: level&rdquo; or &ldquo;Sort: name&rdquo;.</td></tr>
       <tr><td>Sort behaviour</td><td>Each tap switches between level and name. There is no menu. Level puts the highest total level first, then sorts by name; name sorts A to Z.</td></tr>
       <tr><td>Search behaviour</td><td>Search matches names only. The input limits the trimmed search to 100 Unicode code points, as the API does. The request goes out 250 ms after typing stops, and the previous results stay on screen until the new ones land. Drafts ignore the search.</td></tr>
-      <tr><td>Searching</td><td>While a search is in flight, a 16px <a href="#list-states">spinner</a> turns at the right of the field, where the eye already is, so nothing below it moves. It is a polite live region that reads &ldquo;Searching&hellip;&rdquo;.</td></tr>
+      <tr><td>Searching</td><td>While a search is in flight, a 16px <a href="#list-states">spinner</a> turns at the right of the field, where the eye already is, so nothing below it moves. With text in the field it sits just inside the clear button, 10 from the &times;, so a slow search can still be cleared. It is a polite live region that reads &ldquo;Searching&hellip;&rdquo;.</td></tr>
     </tbody>
   </table>
 </section>
@@ -3098,6 +3107,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <li>The tray heading uses the small label style, 11 rather than 11.5, since the two differed by half a point.</li>
       </ul>
     </li>
+    <li><b>Clear button.</b> The no-results card tells players to clear the search, so the field gets a drawn &times; whenever it holds text. It is not iOS&rsquo;s native clear button, which Android lacks and which would clash with the system. The spinner sits just inside it. Clearing sends at once and keeps focus in the field. 15 October 2026.</li>
   </ul>
 </section>
 
