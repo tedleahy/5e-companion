@@ -976,12 +976,12 @@ button.mark{font-family:inherit;cursor:pointer}
   </div>
 </header>
 
-<div class="mixer" id="mixer">
+<div class="mixer is-closed" id="mixer">
   <div class="mixer-inner">
     <button class="mixer-navbtn js-gal-nav-toggle" type="button" id="gal-nav-toggle" aria-expanded="false" aria-controls="gal-nav">Contents</button>
     <div class="mixer-main">
-      <button class="mixer-toggle" type="button" id="mixer-toggle" aria-expanded="true" aria-controls="mixer-body">
-        <span class="mixer-toggle-action" id="mixer-action">Hide inks</span>
+      <button class="mixer-toggle" type="button" id="mixer-toggle" aria-expanded="false" aria-controls="mixer-body">
+        <span class="mixer-toggle-action" id="mixer-action">Show inks</span>
         <span class="mixer-now" id="mixer-now"></span>
         <span class="mixer-chevron" aria-hidden="true"></span>
       </button>
@@ -10574,7 +10574,6 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     if(!a || a.classList.contains('gal-sec-name')) return;
     if(!wideNav.matches) setNavOpen(false);
   });
-  if(!/[?&](desk|tab|frame)=/.test(location.search)) setNavOpen(wideNav.matches);
   var spyLinks = Array.prototype.map.call(navList.querySelectorAll('a[href^="#"]'), function(a){
     return {a: a, el: document.getElementById(a.hash.slice(1))};
   }).filter(function(t){ return t.el; });
@@ -11097,7 +11096,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   mixerToggle.addEventListener('click', function(){
     setMixerOpen(mixer.classList.contains('is-closed'));
   });
-  setMixerOpen(!window.matchMedia('(max-width: 720px)').matches);
+  setMixerOpen(false);
   window.addEventListener('resize', syncScrollPad);
   if(location.hash){
     var jump = document.getElementById(location.hash.slice(1));
