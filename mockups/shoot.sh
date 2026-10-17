@@ -96,9 +96,11 @@ w, h = re.findall(r'id=\"tpl-t-[\w-]+\" data-size=\"(\d+)x(\d+)\"', open('$SRC')
 print(w + ',' + h)"); q="tab=${i#t}" ;;
     *)  size=390,812;  q="frame=$i" ;;
   esac
+  # The gallery builds screens only near the viewport, and the helper picks a
+  # frame out by its position on the page, so ?all builds every screen first.
   chromium --headless=new --disable-gpu --hide-scrollbars \
     --force-device-scale-factor=2 --window-size=$size \
     --screenshot="$PWD/$out" --virtual-time-budget=5000 \
-    "http://localhost:8932/preview.html?$q${QUERY:+&$QUERY}" >/dev/null 2>&1
+    "http://localhost:8932/preview.html?all&$q${QUERY:+&$QUERY}" >/dev/null 2>&1
   echo "$out"
 done

@@ -10304,6 +10304,36 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   function slug(s){
     return s.toLowerCase().replace(/&[a-z]+;/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   }
+  // Each frame's screen is built only while it is near the viewport. Built all
+  // at once, the gallery is about 86,000 elements and hundreds of compositing
+  // layers, more memory than iPad Safari allows a tab. The label, note and
+  // device outline stay, sized to match, so the page keeps its length and the
+  // contents links still land. ?all builds every screen and keeps it, for find
+  // in page and the screenshot script.
+  var keepAll = /[?&]all\b/.test(location.search);
+  var hosts = [];
+  /**
+   * @param host - The empty element that holds the screen while it is built.
+   * @param make - Returns the screen's root element, cloned fresh on each call.
+   */
+  function lazy(host, make){
+    host._make = make;
+    hosts.push(host);
+  }
+  function build(host){
+    if(host._screen) return;
+    host._screen = host._make();
+    host.appendChild(host._screen);
+    if(host.classList.contains('stagebox')) fitStage(host);
+    wire(host._screen);
+  }
+  function unbuild(host){
+    if(!host._screen) return;
+    unwire(host._screen);
+    host.removeChild(host._screen);
+    host._screen = null;
+  }
+
   // Desktop and tablet frames are assembled from parts on a stage, 1440 by 900
   // unless the template sets data-size, which is scaled to the width its frame
   // gets. Tablet frames share a row, sized so both scale alike.
@@ -10327,8 +10357,26 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     note.innerHTML = f.note;
     var box = document.createElement('div');
     box.className = 'stagebox';
+    box.dataset.w = size[0];
+    box.dataset.h = size[1];
+    lazy(box, function(){ return buildStage(f, tpl, size); });
+    col.appendChild(label);
+    col.appendChild(note);
+    col.appendChild(box);
+    wrap.appendChild(col);
+    if(f.tablet && next && next.tablet) return;
+    var br = document.createElement('div');
+    br.className = 'frames-break';
+    wrap.appendChild(br);
+  }
+  /**
+   * @param f - The desktop or tablet frame being drawn.
+   * @param tpl - The template containing the frame content to clone.
+   * @param size - The stage's width and height in CSS pixels, before scaling.
+   */
+  function buildStage(f, tpl, size){
     var stage = document.createElement('div');
-    stage.className = 'stage riso live';
+    stage.className = 'stage riso';
     stage.dataset.w = size[0];
     stage.dataset.h = size[1];
     stage.style.width = size[0] + 'px';
@@ -10355,15 +10403,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       opener.setAttribute('aria-haspopup', 'dialog');
       opener.setAttribute('aria-expanded', 'true');
     }
-    box.appendChild(stage);
-    col.appendChild(label);
-    col.appendChild(note);
-    col.appendChild(box);
-    wrap.appendChild(col);
-    if(f.tablet && next && next.tablet) return;
-    var br = document.createElement('div');
-    br.className = 'frames-break';
-    wrap.appendChild(br);
+    return stage;
   }
   FRAMES.forEach(function(f, n){
     if(f.section){
@@ -10395,12 +10435,27 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     note.innerHTML = f.note;
     var phone = document.createElement('div');
     phone.className = 'phone';
+    // A roll that plays by itself gets a button to play it again. It belongs to
+    // the frame rather than the screen, so the note keeps its height while the
+    // screen comes and goes.
+    if(tpl.content.querySelector('.roll[data-mode=app]')){
+      var replay = document.createElement('button');
+      replay.type = 'button'; replay.className = 'resetbtn'; replay.style.margin = '8px 0 0'; replay.style.display = 'block';
+      replay.textContent = 'Replay the roll';
+      replay.addEventListener('click', function(){
+        var roll = phone.querySelector('.roll');
+        if(roll) rollDice(roll);
+      });
+      note.appendChild(replay);
+    }
     var screen = document.createElement('div');
     screen.className = 'phone-screen';
-    var scroll = document.createElement('div');
-    scroll.className = 'phone-scroll riso live';
-    scroll.appendChild(tpl.content.cloneNode(true));
-    screen.appendChild(scroll);
+    lazy(screen, function(){
+      var scroll = document.createElement('div');
+      scroll.className = 'phone-scroll riso';
+      scroll.appendChild(tpl.content.cloneNode(true));
+      return scroll;
+    });
     phone.appendChild(screen);
     col.appendChild(label);
     col.appendChild(note);
@@ -10555,35 +10610,33 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     requestAnimationFrame(function(){ spyTick = false; markHere(); });
   }, {passive: true});
 
-  var lives = document.querySelectorAll('.live');
   var picks = {paper:BASE.paper, card:BASE.card, structural:BASE.structural, accent:BASE.accent, overprint:BASE.overprint};
 
   /**
-   * @param t - The derived color tokens to apply as CSS variables to every live frame.
+   * @param t - The derived color tokens to set as CSS variables. They go on the
+   *   frames' container, so screens built later inherit them.
    */
   function apply(t){
-    lives.forEach(function(el){
-      el.style.setProperty('--paper', t.paper);
-      el.style.setProperty('--card', t.card);
-      el.style.setProperty('--structural', t.structural);
-      el.style.setProperty('--accent', t.accent);
-      el.style.setProperty('--overprint', t.overprint);
-      el.style.setProperty('--text', t.text);
-      el.style.setProperty('--dim', t.dim);
-      el.style.setProperty('--on-structural', t.onStructural);
-      el.style.setProperty('--on-accent', t.onAccent);
-      el.style.setProperty('--on-overprint', t.onOverprint);
-      el.style.setProperty('--accent-text', t.accentText);
-      el.style.setProperty('--dot', t.dot);
-      el.style.setProperty('--line', t.line);
-      el.style.setProperty('--track', t.track);
-      el.style.setProperty('--draft-fill', t.draftFill);
-      el.style.setProperty('--rule', t.rule);
-      el.style.setProperty('--chip-on-plate', t.chipOnPlate);
-      el.style.setProperty('--chip-on-paper', t.chipOnPaper);
-      el.style.setProperty('--scrim', t.scrim);
-      el.style.setProperty('--wash', t.wash);
-    });
+    wrap.style.setProperty('--paper', t.paper);
+    wrap.style.setProperty('--card', t.card);
+    wrap.style.setProperty('--structural', t.structural);
+    wrap.style.setProperty('--accent', t.accent);
+    wrap.style.setProperty('--overprint', t.overprint);
+    wrap.style.setProperty('--text', t.text);
+    wrap.style.setProperty('--dim', t.dim);
+    wrap.style.setProperty('--on-structural', t.onStructural);
+    wrap.style.setProperty('--on-accent', t.onAccent);
+    wrap.style.setProperty('--on-overprint', t.onOverprint);
+    wrap.style.setProperty('--accent-text', t.accentText);
+    wrap.style.setProperty('--dot', t.dot);
+    wrap.style.setProperty('--line', t.line);
+    wrap.style.setProperty('--track', t.track);
+    wrap.style.setProperty('--draft-fill', t.draftFill);
+    wrap.style.setProperty('--rule', t.rule);
+    wrap.style.setProperty('--chip-on-plate', t.chipOnPlate);
+    wrap.style.setProperty('--chip-on-paper', t.chipOnPaper);
+    wrap.style.setProperty('--scrim', t.scrim);
+    wrap.style.setProperty('--wash', t.wash);
   }
   function syncPickers(){
     ['paper','card','structural','accent','overprint'].forEach(function(key){
@@ -10606,8 +10659,11 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   }
   function paint(){ apply(derive(picks)); syncPickers(); paintTokPicks(); }
 
-  function paintTokPicks(){
-    document.querySelectorAll('.tokpick').forEach(function(pick){
+  /**
+   * @param root - Where to look for token pickers. Defaults to the whole page.
+   */
+  function paintTokPicks(root){
+    (root || document).querySelectorAll('.tokpick').forEach(function(pick){
       var color = pick.querySelector('input[type=color]');
       var tok = pick.querySelector('.tok');
       if(!color || !tok) return;
@@ -10634,9 +10690,27 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     paint();
   });
 
-  document.querySelectorAll('.tokpick').forEach(function(pick){
+  // Behaviour inside a screen is registered here and set up on each screen as
+  // it is built, because screens come and go as the page scrolls.
+  var wirings = [];
+  /**
+   * @param sel - Selects the elements, within one screen, that get the behaviour.
+   * @param fn - Sets up one matching element.
+   */
+  function onEach(sel, fn){ wirings.push([sel, fn]); }
+  /**
+   * @param root - The screen just built, a phone's scroll area or a desktop or tablet stage.
+   */
+  function wire(root){
+    wirings.forEach(function(w){ root.querySelectorAll(w[0]).forEach(function(el){ w[1](el); }); });
+    paintTokPicks(root);
+    scrollColumns(root);
+    if(document.fonts) document.fonts.ready.then(function(){ scrollColumns(root); });
+  }
+
+  onEach('.tokpick', function(pick){
     var color = pick.querySelector('input[type=color]');
-    if(color) color.addEventListener('input', paintTokPicks);
+    if(color) color.addEventListener('input', function(){ paintTokPicks(); });
   });
 
   var hitsBtn = document.getElementById('hits');
@@ -10670,7 +10744,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     groupItems(group).forEach(function(el){ el.setAttribute(attr, el === item ? 'true' : 'false'); el.tabIndex = el === item ? 0 : -1; });
     if(focus) item.focus();
   }
-  document.querySelectorAll('[role=tablist],[role=radiogroup]').forEach(function(group){
+  onEach('[role=tablist],[role=radiogroup]', function(group){
     group.addEventListener('click', function(e){
       var item = e.target.closest('[role=tab],[role=radio]');
       if(item && item.closest('[role=tablist],[role=radiogroup]') === group && !item.disabled) choose(group, item, false);
@@ -10686,7 +10760,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     });
   });
   // Elements drawn as buttons but not built from one answer Enter and Space.
-  document.querySelectorAll('[role=button]:not(button)').forEach(function(el){
+  onEach('[role=button]:not(button)', function(el){
     el.addEventListener('keydown', function(e){
       if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); el.click(); }
     });
@@ -10714,7 +10788,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     if(delta < 0 && on.length) on[on.length - 1].removeAttribute('data-on');
     syncPips(p);
   }
-  document.querySelectorAll('.pips').forEach(function(p){
+  onEach('.pips', function(p){
     p.addEventListener('click', function(e){
       var i = e.target.closest('i');
       if(i) stepPips(p, i.hasAttribute('data-on') ? -1 : 1);
@@ -10728,13 +10802,14 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     });
     syncPips(p);
   });
-  document.querySelectorAll('.condgrid button:not(.condcustom)').forEach(function(b){
+  onEach('.condgrid button:not(.condcustom)', function(b){
     b.addEventListener('click', function(){ b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'); });
   });
 
   // The roll sheet. Dice roll with a stepped jiggle, land with a stamp, and a tap
-  // skips ahead. Frames 57 and 58 play once when they come into view, landing on
-  // their drawn values; Replay and Re-roll roll for real.
+  // skips ahead. Frames 57 and 58 play when they come into view, landing on
+  // their drawn values, and again if the screen is rebuilt; Replay and Re-roll
+  // roll for real.
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var POSES = ['p1','p2','p3','p4','p5'];
   /**
@@ -10814,7 +10889,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       if(step >= 6) settle();
     }, 80);
   }
-  document.querySelectorAll('.roll').forEach(function(roll){
+  onEach('.roll', function(roll){
     updateRoll(roll);
     var sheet = roll.closest('.bsheet, .spanel');
     if(sheet) sheet.addEventListener('click', function(e){
@@ -10845,19 +10920,20 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       var played = false;
       function playOnce(){ if(!played && !/[?&]still\b/.test(location.search)){ played = true; rollDice(roll, finals); } }
       if('IntersectionObserver' in window){
-        var io = new IntersectionObserver(function(entries){ entries.forEach(function(en){ if(en.isIntersecting){ playOnce(); io.disconnect(); } }); }, {threshold: 0.4});
+        var io = roll._io = new IntersectionObserver(function(entries){ entries.forEach(function(en){ if(en.isIntersecting){ playOnce(); io.disconnect(); } }); }, {threshold: 0.4});
         io.observe(roll);
       } else { playOnce(); }
-      var note = roll.closest('.framewrap') && roll.closest('.framewrap').querySelector('.frame-note');
-      if(note){
-        var replay = document.createElement('button');
-        replay.type = 'button'; replay.className = 'resetbtn'; replay.style.margin = '8px 0 0'; replay.style.display = 'block';
-        replay.textContent = 'Replay the roll';
-        replay.addEventListener('click', function(){ rollDice(roll); });
-        note.appendChild(replay);
-      }
     }
   });
+  /**
+   * @param root - The screen about to be removed, whose rolls stop.
+   */
+  function unwire(root){
+    root.querySelectorAll('.roll').forEach(function(roll){
+      clearInterval(roll._timer);
+      if(roll._io) roll._io.disconnect();
+    });
+  }
 
   // Notes save as you type. A long note shows six lines until expanded or focused.
   /**
@@ -10880,7 +10956,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     show.hidden = !(full > cap + 1) || focused;
     show.textContent = open ? 'Show less' : 'Show all';
   }
-  document.querySelectorAll('.notearea').forEach(function(ta){
+  onEach('.notearea', function(ta){
     var wrap = ta.closest('.notewrap'), status = wrap.querySelector('.notestatus'), show = wrap.querySelector('.noteshow');
     ta.addEventListener('input', function(){
       sizeNote(ta); status.textContent = 'Saving';
@@ -10904,7 +10980,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       return el.tabIndex >= 0 && !el.disabled && !el.closest('[hidden],[inert]') && el.getClientRects().length;
     });
   }
-  document.querySelectorAll('.bsheet').forEach(function(sheet){
+  onEach('.bsheet', function(sheet){
     var screen = sheet.parentElement, scrim = screen.querySelector(':scope > .bscrim');
     var behind = Array.prototype.filter.call(screen.children, function(el){ return el !== sheet && el !== scrim; });
     var opener = screen.querySelector('[aria-haspopup="dialog"][aria-expanded="true"]');
@@ -10939,7 +11015,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   });
 
   // The third column's tabs switch its panels.
-  document.querySelectorAll('.dtabs').forEach(function(list){
+  onEach('.dtabs', function(list){
     var panels = list.closest('.dmain').querySelectorAll('.dcol [role=tabpanel]');
     function sync(){
       list.querySelectorAll('[role=tab]').forEach(function(t, i){ panels[i].hidden = t.getAttribute('aria-selected') !== 'true'; });
@@ -10960,7 +11036,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
   // Side panels are not modal. The opener keeps its pressed ring while one is
   // open, Close or Escape hides it and returns focus, and the opener reopens it.
-  document.querySelectorAll('.spanel').forEach(function(panel){
+  onEach('.spanel', function(panel){
     var desk = panel.closest('.desk'), opener = desk.dataset.opener && desk.querySelector(desk.dataset.opener);
     function setOpen(open){
       panel.hidden = !open;
@@ -10976,26 +11052,33 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     });
   });
 
-  // Stages scale to fit their frame. A column drawn scrolled puts its row at
-  // the top, once the fonts have settled the layout.
-  var stages = document.querySelectorAll('.stage');
-  function fitStages(){
-    stages.forEach(function(stage){
-      var box = stage.parentElement, scale = Math.min(1, box.clientWidth / +stage.dataset.w);
-      stage.style.transform = 'scale(' + scale + ')';
-      box.style.height = (+stage.dataset.h * scale) + 'px';
-    });
+  // Stages scale to fit their frame. The box takes the scaled height even while
+  // its stage is not built, so the page keeps its length.
+  /**
+   * @param box - The frame's stage box, which holds the stage while it is built.
+   */
+  function fitStage(box){
+    var scale = Math.min(1, box.clientWidth / +box.dataset.w);
+    box.style.height = (+box.dataset.h * scale) + 'px';
+    if(box._screen) box._screen.style.transform = 'scale(' + scale + ')';
   }
-  function scrollColumns(){
-    document.querySelectorAll('.dcol[data-scroll-to]').forEach(function(col){
+  function fitStages(){
+    document.querySelectorAll('.stagebox').forEach(function(box){ fitStage(box); });
+  }
+  // A column drawn scrolled puts its row at the top, once the fonts have
+  // settled the layout.
+  /**
+   * @param root - The screen whose columns to scroll.
+   */
+  function scrollColumns(root){
+    root.querySelectorAll('.dcol[data-scroll-to]').forEach(function(col){
       var row = col.querySelector(col.dataset.scrollTo);
       if(row) col.scrollTop = row.offsetTop - 17;
     });
   }
   fitStages();
-  scrollColumns();
   window.addEventListener('resize', fitStages);
-  if(document.fonts) document.fonts.ready.then(function(){ fitStages(); scrollColumns(); });
+  if(document.fonts) document.fonts.ready.then(fitStages);
 
   var mixer = document.getElementById('mixer');
   var mixerToggle = document.getElementById('mixer-toggle');
@@ -11021,6 +11104,22 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     if(jump) jump.scrollIntoView();
   }
   markHere();
+
+  // A screen is built once it comes within half a viewport height of the
+  // viewport and removed once it is more than one and a half away. The gap
+  // stops a screen near the edge being rebuilt over and over as the page
+  // scrolls back and forth.
+  if(keepAll || !('IntersectionObserver' in window)){
+    hosts.forEach(build);
+  } else {
+    var near = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if(en.isIntersecting) build(en.target); });
+    }, {rootMargin: '50% 0px'});
+    var far = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if(!en.isIntersecting) unbuild(en.target); });
+    }, {rootMargin: '150% 0px'});
+    hosts.forEach(function(host){ near.observe(host); far.observe(host); });
+  }
 
   paint();
 })();
