@@ -48,7 +48,8 @@
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "spell": "cspell lint --no-progress --no-cache",
-    "check:routes": "node scripts/check-routes.js"
+    "check:routes": "node scripts/check-routes.js",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run spell && npm run check:routes"
   },
   "private": true,
   "jest": {
