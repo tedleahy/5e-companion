@@ -158,10 +158,26 @@ const CSS_COLOR_NAMES = new Set([
 
 // Longer runs are listed first so a 6 or 8 digit hex is not accepted as a shorter one.
 const HEX_COLOR = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/;
-const RGB_COLOR =
-    /\brgba?\(\s*(?:\d+(?:\.\d+)?%?\s*,\s*){2}\d+(?:\.\d+)?%?(?:\s*,\s*(?:\d+(?:\.\d+)?|\.\d+)%?\s*)?\)/i;
-const HSL_COLOR =
-    /\bhsla?\(\s*\d+(?:\.\d+)?(?:deg|rad|grad|turn)?\s*,\s*\d+(?:\.\d+)?%\s*,\s*\d+(?:\.\d+)?%(?:\s*,\s*(?:\d+(?:\.\d+)?|\.\d+)%?\s*)?\)/i;
+
+// A sign and a leading-dot fraction (`.5`) are both valid channel values.
+const CSS_NUMBER = '[+-]?(?:\\d+(?:\\.\\d+)?|\\.\\d+)';
+// Legacy functions separate channels with commas. Modern ones use spaces, and alpha follows a slash.
+// Hue may be negative. Spaces before the closing parenthesis are valid in both forms, so a pattern
+// that requires one spelling lets the other render as a raw color.
+const HUE = `${CSS_NUMBER}\\s*(?:deg|rad|grad|turn)?`;
+const PERCENT = `${CSS_NUMBER}\\s*%`;
+const RGB_CHANNEL = `${CSS_NUMBER}\\s*%?`;
+const ALPHA = `${CSS_NUMBER}\\s*%?`;
+const CHANNEL_SEP = '(?:\\s*,\\s*|\\s+)';
+const ALPHA_SEP = '(?:\\s*,\\s*|\\s*/\\s*)';
+const RGB_COLOR = new RegExp(
+    `\\brgba?\\(\\s*${RGB_CHANNEL}${CHANNEL_SEP}${RGB_CHANNEL}${CHANNEL_SEP}${RGB_CHANNEL}(?:${ALPHA_SEP}${ALPHA})?\\s*\\)`,
+    'i',
+);
+const HSL_COLOR = new RegExp(
+    `\\bhsla?\\(\\s*${HUE}${CHANNEL_SEP}${PERCENT}${CHANNEL_SEP}${PERCENT}(?:${ALPHA_SEP}${ALPHA})?\\s*\\)`,
+    'i',
+);
 
 const COLOR_PROPS = new Set([
     'color',
@@ -297,8 +313,21 @@ function isStyleSheetCreate(node) {
 function propertyName(node) {
     if (!node) return null;
     if (node.type === 'Identifier') return node.name;
+    return staticText(node);
+}
+
+/**
+ * The string a literal or an expression-free template holds.
+ * A template with expressions is a runtime value, so this returns null.
+ */
+function staticText(node) {
+    if (!node) return null;
     if (node.type === 'Literal' && typeof node.value === 'string') return node.value;
-    return null;
+    if (node.type !== 'TemplateLiteral' || node.expressions.length > 0) return null;
+    // The first quasi is the whole template when it has no expressions.
+    // cspell:disable-next-line
+    const cooked = node.quasis[0]?.value.cooked;
+    return typeof cooked === 'string' ? cooked : null;
 }
 
 function jsxAttributeName(attribute) {
