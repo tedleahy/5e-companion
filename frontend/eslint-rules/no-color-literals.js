@@ -159,25 +159,9 @@ const CSS_COLOR_NAMES = new Set([
 // Longer runs are listed first so a 6 or 8 digit hex is not accepted as a shorter one.
 const HEX_COLOR = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/;
 
-// A sign and a leading-dot fraction (`.5`) are both valid channel values.
-const CSS_NUMBER = '[+-]?(?:\\d+(?:\\.\\d+)?|\\.\\d+)';
-// Legacy functions separate channels with commas. Modern ones use spaces, and alpha follows a slash.
-// Hue may be negative. Spaces before the closing parenthesis are valid in both forms, so a pattern
-// that requires one spelling lets the other render as a raw color.
-const HUE = `${CSS_NUMBER}\\s*(?:deg|rad|grad|turn)?`;
-const PERCENT = `${CSS_NUMBER}\\s*%`;
-const RGB_CHANNEL = `${CSS_NUMBER}\\s*%?`;
-const ALPHA = `${CSS_NUMBER}\\s*%?`;
-const CHANNEL_SEP = '(?:\\s*,\\s*|\\s+)';
-const ALPHA_SEP = '(?:\\s*,\\s*|\\s*/\\s*)';
-const RGB_COLOR = new RegExp(
-    `\\brgba?\\(\\s*${RGB_CHANNEL}${CHANNEL_SEP}${RGB_CHANNEL}${CHANNEL_SEP}${RGB_CHANNEL}(?:${ALPHA_SEP}${ALPHA})?\\s*\\)`,
-    'i',
-);
-const HSL_COLOR = new RegExp(
-    `\\bhsla?\\(\\s*${HUE}${CHANNEL_SEP}${PERCENT}${CHANNEL_SEP}${PERCENT}(?:${ALPHA_SEP}${ALPHA})?\\s*\\)`,
-    'i',
-);
+// Recognize the function name rather than validating CSS arguments. Numeric patterns miss
+// scientific notation, `none` channels, relative colors, and nested calculations on the web.
+const COLOR_FUNCTION = /\b(?:rgba?|hsla?)\(/i;
 
 const COLOR_PROPS = new Set([
     'color',
@@ -248,11 +232,7 @@ function hasExpressions(node) {
  */
 function hasColorFunction(value) {
     const withoutPaintUrls = value.replace(/url\(\s*#[^)]*\)/gi, '');
-    return (
-        HEX_COLOR.test(withoutPaintUrls) ||
-        RGB_COLOR.test(withoutPaintUrls) ||
-        HSL_COLOR.test(withoutPaintUrls)
-    );
+    return HEX_COLOR.test(withoutPaintUrls) || COLOR_FUNCTION.test(withoutPaintUrls);
 }
 
 function isCssColorName(value) {
