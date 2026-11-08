@@ -293,21 +293,8 @@ function isStyleSheetCreate(node) {
 function propertyName(node) {
     if (!node) return null;
     if (node.type === 'Identifier') return node.name;
-    return staticText(node);
-}
-
-/**
- * The string a literal or an expression-free template holds.
- * A template with expressions is a runtime value, so this returns null.
- */
-function staticText(node) {
-    if (!node) return null;
     if (node.type === 'Literal' && typeof node.value === 'string') return node.value;
-    if (node.type !== 'TemplateLiteral' || node.expressions.length > 0) return null;
-    // The first quasi is the whole template when it has no expressions.
-    // cspell:disable-next-line
-    const cooked = node.quasis[0]?.value.cooked;
-    return typeof cooked === 'string' ? cooked : null;
+    return null;
 }
 
 function jsxAttributeName(attribute) {

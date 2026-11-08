@@ -37,44 +37,24 @@ module.exports = {
                 }
             },
             MemberExpression(node) {
-                // A variable, or a template with expressions, is only known at runtime.
-                // An expression-free template is already the fontWeight key.
-                if (node.computed && staticText(node.property) === null) return;
+                // `style[weight]` uses a variable, so the member is not the fontWeight key.
+                if (node.computed && node.property.type !== 'Literal') return;
                 if (isFontWeight(node.property)) report(node.property);
             },
         };
     },
 };
 
-/**
- * Skips a computed key whose name is only known at runtime.
- * A literal, a bare identifier, or an expression-free template still counts.
- */
+/** Skips a computed key that is a variable. A literal or a bare fontWeight identifier still counts. */
 function isFontWeightKey(node) {
-    if (node.computed && staticText(node.key) === null) return false;
+    if (node.computed && node.key.type !== 'Literal') return false;
     return isFontWeight(node.key);
 }
 
-/**
- * An identifier, a quoted key, or an expression-free template.
- * A string that merely contains the word is none of these.
- */
+/** An identifier or a quoted key. A plain string that merely contains the word is neither. */
 function isFontWeight(node) {
     if (!node) return false;
     if (node.type === 'Identifier') return node.name === 'fontWeight';
-    return staticText(node) === 'fontWeight';
-}
-
-/**
- * The string a literal or an expression-free template holds.
- * A template with expressions is a runtime value, so this returns null.
- */
-function staticText(node) {
-    if (!node) return null;
-    if (node.type === 'Literal' && typeof node.value === 'string') return node.value;
-    if (node.type !== 'TemplateLiteral' || node.expressions.length > 0) return null;
-    // The first quasi is the whole template when it has no expressions.
-    // cspell:disable-next-line
-    const cooked = node.quasis[0]?.value.cooked;
-    return typeof cooked === 'string' ? cooked : null;
+    if (node.type === 'Literal') return node.value === 'fontWeight';
+    return false;
 }
