@@ -22,6 +22,20 @@ Every independently addressable catalog table has:
   Ordinary browse, search, and new selection omit retired rows. Existing
   references still resolve to them.
 
+Features, Traits, Spells, and Equipment also have:
+
+- `summary`: text, nullable; the short line the sheet shows under the name,
+  such as "Sleeps one" or "Advantage against poison, resistance to it"
+
+The source has no short lines. The SRD importer writes `summary` from a
+maintained summary manifest keyed by content type and external key, kept beside
+the correction manifest. The manifest starts with the entries the character
+sheet's fixtures need and grows over time; a row with no entry keeps a null
+summary, and the sheet shows no second line for it. Homebrew editors write the
+column directly. Lines that depend on the character, such as "Heal 1d10+8" or
+"Two 3rd-level slots", are not stored; the API's rule handlers write them when
+it builds the sheet.
+
 Catalog owner and parent foreign keys use `ON DELETE RESTRICT`. That includes
 `Features.class_id`, `Features.subclass_id`, `Features.parent_feature_id`,
 `Subclasses.class_id`, `Traits.parent_trait_id`, and `Subraces.race_id`.
@@ -143,6 +157,10 @@ Each present key is a player replacement. `armor_class` is an integer.
 Omit a key to derive that value. Per-class spellcasting overrides stay on
 CharacterClasses columns. Per-path spell overrides stay on CharacterSpells
 columns.
+
+Initiative is overridable in the sheet design but has no key yet. It gains an
+integer `initiative` key when its detail screen is built; until then it always
+derives.
 
 ### Origins
 
@@ -285,7 +303,9 @@ manual values, or in-play state.
 - `background_id`: references Backgrounds, nullable
 - `background_name`: text, nullable
 - `experience_points`: integer, nullable
-- `alignment`: text, nullable
+- `alignment`: text, nullable, with a check constraint allowing `lawful_good`,
+  `neutral_good`, `chaotic_good`, `lawful_neutral`, `neutral`,
+  `chaotic_neutral`, `lawful_evil`, `neutral_evil`, or `chaotic_evil`
 - `strength`: integer, nullable
 - `dexterity`: integer, nullable
 - `constitution`: integer, nullable
@@ -363,6 +383,11 @@ resources exceeding their maximum produce overridable warnings. The database
 still enforces structural rules such as foreign keys, non-null names, and
 object-versus-array JSONB checks. Rails validates the detailed JSON payloads.
 
+Warnings are worked out each time the sheet is read, with one check per warning
+code, and no table stores them, so fixing the cause clears the warning. Dismissing
+one arrives with sheet editing, as a stored entry on Characters holding the code,
+the target and the facts behind it, so the warning returns if the facts change.
+
 ## CharacterClasses
 
 - `character_id`: references Characters
@@ -420,6 +445,11 @@ skill and saving-throw bonuses from abilities, rank, and proficiency bonus.
 `rank_override` replaces the rank produced by advancement origins;
 `bonus_override` replaces the final bonus for house rules. A wholly manual row
 stores its chosen rank directly and normally leaves `rank_override` null.
+
+A `half` rank does not say which way it rounds: Remarkable Athlete rounds half
+proficiency up and Jack of All Trades rounds it down. The rule handler for the
+origin that grants the rank computes the bonus. The column stores only the
+rank, and so does the sheet response.
 
 For catalog-backed rows, the combination of `character_id` and
 `proficiency_id` must be unique. Postgres still permits multiple manual rows
@@ -484,6 +514,12 @@ presents this list as "Features & Traits" and the API should use that label;
 the table keeps the shorter name because `character_features_and_traits` buys
 nothing at the storage layer.
 
+SRD feature names carry prefixes and suffixes the sheet never shows, such as
+"Eldritch Invocation: Agonizing Blast", "Channel Divinity (2/rest)", and
+"Action Surge (1 use)". A character row's saved `name` is the clean form. Seeds
+write it by hand; advancement needs a rule for producing it, which belongs with
+the level-up flow.
+
 `position` is the player's order for the character's features and traits. The
 sheet sorts by it inside each origin group. It is not unique; ties sort by `id`.
 A new row takes one more than the character's current maximum, so features
@@ -511,6 +547,7 @@ transaction.
 - `spellcasting_ability_override`: text, nullable, with the same six-value check
 - `spell_save_dc_override`: integer, nullable
 - `spell_attack_bonus_override`: integer, nullable
+- `cast_at_level`: integer, nullable, with a check constraint from 1 to 9
 - `origins`: JSONB array, default `[]`
 - `state`: JSONB, default `{}`
 - `notes`: text, nullable
@@ -553,13 +590,29 @@ Use a player override first, then a rule-provided fixed value, then a value
 derived from the effective ability or class. If none is available, display the
 spell without invented casting statistics and ask for manual values.
 
+`cast_at_level` is the slot level a path always casts at, such as a 2nd-level
+Cure Wounds stored in a Ring of Spell Storing. Null means the character picks a
+slot when casting. A Pact Magic path also leaves it null, because its level
+derives from the warlock's level. Rails rejects a value below the spell's own
+level.
+
+A path through an item that holds another caster's spell, such as a Ring of
+Spell Storing, stores that caster's save DC and attack bonus in the
+rule-provided fixed-value columns. The modifier that the original caster's
+healing and damage add is not stored yet; it arrives with the ring's detail
+screen.
+
 Advancement updates `spellcasting_ability`, the two rule-provided fixed values,
-and roles during reconciliation. It preserves `prepared`, overrides, `state`,
-and `notes`.
+and roles during reconciliation. It preserves `prepared`, overrides,
+`cast_at_level`, `state`, and `notes`.
 A manually added path to a catalog spell retains `spell_id`, uses a generated
-access key and manual origin, and participates in display grouping. A wholly
-custom spell leaves `spell_id` null. Both keep their details in the same
-columns.
+access key and manual origin, and participates in display grouping.
+
+These columns hold no casting time, range, duration, or concentration. A spell
+from outside the SRD that needs them, such as Hex, is a homebrew Spells row in
+the player's own ContentSource, and its path references that row. A wholly
+custom path leaves `spell_id` null and is for a one-off with nothing beyond its
+name, level, and notes; the sheet shows it without a summary line.
 
 ## CharacterResources
 
@@ -1121,6 +1174,8 @@ In addition to the common catalog fields:
 - `school`: text
 - `is_ritual`: boolean, default false
 - `requires_concentration`: boolean, default false
+- `summary`: text, nullable; see Conventions
+- `attacks_after_casting`: boolean, default false
 - classes: many-to-many through ClassSpells
 - subclasses: many-to-many through SubclassSpells
 
@@ -1141,6 +1196,28 @@ In addition to the common catalog fields:
 These fields are sparse or do not need database filtering in the MVP. Rails
 validates the shapes the sheet and importer consume. Damage remains one nested
 object because the current source has at most one damage entry per spell.
+
+`attacks_after_casting` marks a levelled spell that keeps attacking after the
+turn it is cast, such as Spiritual Weapon, Flaming Sphere, Moonbeam, Heat Metal,
+and Arcane Sword. The sheet's attack table lists these beside weapons and
+damaging cantrips. The source data cannot pick them out, so the summary
+manifest sets the flag for imported spells and the homebrew editor offers it.
+
+The summary formula reads `dc`, `attack_type`, `damage`, and
+`heal_at_slot_level`, so the correction manifest fixes source entries that
+record them wrongly:
+
+- `aid`: `heal_at_slot_level` is a hit point maximum increase, not healing
+- `sanctuary`: add the Wisdom save its data omits
+- `spirit-guardians`: add the Wisdom save and the 3d8 damage at 3rd level,
+  scaling by 1d8 per slot level; the damage type depends on the caster, so a
+  rule handler chooses radiant or necrotic
+- `scorching-ray`: add the ranged spell attack
+- `flaming-sphere`: add the Dexterity save
+
+Some source spells record damage and a save without being attacks, such as
+Dream and Control Water. They need no correction, because the attack table
+reads `attacks_after_casting` rather than this data.
 
 ## Classes
 
@@ -1203,6 +1280,7 @@ In addition to the common catalog fields:
 - `source_position`: non-negative integer, nullable
 - `description`: text, nullable
   - join the source `desc` paragraphs with `\n\n`
+- `summary`: text, nullable; see Conventions
 
 ```sql
 CHECK (num_nonnulls(class_id, subclass_id) = 1)
@@ -1305,6 +1383,7 @@ In addition to the common catalog fields:
 - `parent_trait_id`: references Traits, nullable
 - `description`: text, nullable
   - join the source `desc` paragraphs with `\n\n`
+- `summary`: text, nullable; see Conventions
 - races: many-to-many through RaceTraits
 - subraces: many-to-many through SubraceTraits
 
@@ -1383,6 +1462,7 @@ In addition to the common catalog fields:
 - `is_magic`: boolean, not null, default false
 - `rarity`: text, nullable, with a check constraint allowing `common`,
   `uncommon`, `rare`, `very_rare`, `legendary`, `artifact`, or `varies`
+- `summary`: text, nullable; see Conventions
 - categories: many-to-many through EquipmentCategoryMembers
 
 Import both the equipment and magic-item files into this table. Set `is_magic`
@@ -1413,8 +1493,11 @@ Do not retain the derived `category_range` string. For this MVP, normalize
 weapon properties to embedded objects with a stable property key, name, and
 description enriched from the weapon-properties file. They support display and
 the sheet's known mechanics without a separate property catalog or join table.
-Rebuild them on import; property filtering is deferred. The source image path
-is display metadata, not the discarded record API URL.
+Rebuild them on import; property filtering is deferred. Drop the source's
+`monk` property: it tags the weapons a monk can use rather than describing how
+a weapon behaves, so it never belongs in a weapon's property list, even though
+the weapon-properties file has an entry for it. The source image path is
+display metadata, not the discarded record API URL.
 
 Preserve numeric weights, including fractions, and keep missing cost or weight
 distinct from zero. Source `quantity` describes the purchase bundle, not a
@@ -1688,6 +1771,17 @@ Replace imported JSONB data as a whole instead of merging arbitrary nested
 keys. Never match content by name and never update rows belonging to another
 ContentSource.
 
+Write every imported `name` in sentence case, keeping a maintained list of
+proper nouns such as Hadar and the language names. Capitalise the first word
+after a colon, and drop the full stops from abbreviations. ATTRIBUTION.md
+records this with the other SRD corrections. Character rows keep the names they
+saved.
+
+Write `summary` and `attacks_after_casting` from the summary manifest while
+upserting. A manifest entry whose row is absent from this revision is an import
+warning, not a failure, because a missing short line costs only a blank second
+line on the sheet.
+
 Import EquipmentCategories before Equipment to resolve primary categories,
 and populate category membership after both item collections have been
 upserted. Apply namespaced equipment keys consistently to catalog rows and
@@ -1731,8 +1825,8 @@ The following tables are deliberately omitted:
 - RaceLanguages and TraitProficiencies; fixed language and proficiency grants
   stay in the owning record's JSONB as content type and external key, matching
   the existing rule for grants
-- a favorites or quick-access table; the sheet has no pinning feature yet, so
-  neither spells nor actions carry a favorite flag
+- a favorites or quick-access table; the one planned pin, a spell pinned to
+  the attack table, arrives with sheet editing as a column on CharacterSpells
 
 Add narrower tables only when the application must query a rule independently
 or the JSONB interpreter becomes difficult to maintain. Guided creation alone

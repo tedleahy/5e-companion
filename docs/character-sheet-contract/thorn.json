@@ -1,0 +1,683 @@
+{
+  "id": "thorn",
+  "lock_version": 0,
+  "name": "Thorn Grimsby",
+  "token_ink": "#e0689c",
+  "rules_version": "2014",
+  "alignment": "lawful_neutral",
+  "ancestry": {
+    "race_name": "Dwarf",
+    "subrace_name": "Mountain dwarf"
+  },
+  "background_name": null,
+  "classes": [
+    {
+      "id": "thorn-fighter",
+      "name": "Fighter",
+      "level": 8,
+      "subclass_name": "Champion"
+    }
+  ],
+  "total_level": 8,
+  "proficiency_bonus": 3,
+  "hit_points": {
+    "current": 68,
+    "maximum": 72,
+    "temporary": 0
+  },
+  "death_saves": {
+    "successes": 0,
+    "failures": 0
+  },
+  "inspiration": false,
+  "armor_class": {
+    "value": 18,
+    "calculated": 18,
+    "override": null
+  },
+  "initiative": {
+    "value": 3,
+    "calculated": 3,
+    "override": null
+  },
+  "speed": {
+    "value": 25,
+    "calculated": 25,
+    "override": null
+  },
+  "abilities": [
+    {
+      "ability": "str",
+      "score": 18,
+      "modifier": 4
+    },
+    {
+      "ability": "dex",
+      "score": 12,
+      "modifier": 1
+    },
+    {
+      "ability": "con",
+      "score": 16,
+      "modifier": 3
+    },
+    {
+      "ability": "int",
+      "score": 10,
+      "modifier": 0
+    },
+    {
+      "ability": "wis",
+      "score": 13,
+      "modifier": 1
+    },
+    {
+      "ability": "cha",
+      "score": 8,
+      "modifier": -1
+    }
+  ],
+  "saving_throws": [
+    {
+      "ability": "str",
+      "proficient": true,
+      "bonus": {
+        "value": 7,
+        "calculated": 7,
+        "override": null
+      }
+    },
+    {
+      "ability": "dex",
+      "proficient": false,
+      "bonus": {
+        "value": 1,
+        "calculated": 1,
+        "override": null
+      }
+    },
+    {
+      "ability": "con",
+      "proficient": true,
+      "bonus": {
+        "value": 6,
+        "calculated": 6,
+        "override": null
+      }
+    },
+    {
+      "ability": "int",
+      "proficient": false,
+      "bonus": {
+        "value": 0,
+        "calculated": 0,
+        "override": null
+      }
+    },
+    {
+      "ability": "wis",
+      "proficient": false,
+      "bonus": {
+        "value": 1,
+        "calculated": 1,
+        "override": null
+      }
+    },
+    {
+      "ability": "cha",
+      "proficient": false,
+      "bonus": {
+        "value": -1,
+        "calculated": -1,
+        "override": null
+      }
+    }
+  ],
+  "skills": [
+    {
+      "key": "acrobatics",
+      "name": "Acrobatics",
+      "ability": "dex",
+      "rank": "half",
+      "rank_overridden": false,
+      "bonus": {
+        "value": 3,
+        "calculated": 3,
+        "override": null
+      }
+    },
+    {
+      "key": "animal_handling",
+      "name": "Animal handling",
+      "ability": "wis",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 1,
+        "calculated": 1,
+        "override": null
+      }
+    },
+    {
+      "key": "arcana",
+      "name": "Arcana",
+      "ability": "int",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 0,
+        "calculated": 0,
+        "override": null
+      }
+    },
+    {
+      "key": "athletics",
+      "name": "Athletics",
+      "ability": "str",
+      "rank": "proficient",
+      "rank_overridden": false,
+      "bonus": {
+        "value": 7,
+        "calculated": 7,
+        "override": null
+      }
+    },
+    {
+      "key": "deception",
+      "name": "Deception",
+      "ability": "cha",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": -1,
+        "calculated": -1,
+        "override": null
+      }
+    },
+    {
+      "key": "history",
+      "name": "History",
+      "ability": "int",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 0,
+        "calculated": 0,
+        "override": null
+      }
+    },
+    {
+      "key": "insight",
+      "name": "Insight",
+      "ability": "wis",
+      "rank": "proficient",
+      "rank_overridden": false,
+      "bonus": {
+        "value": 4,
+        "calculated": 4,
+        "override": null
+      }
+    },
+    {
+      "key": "intimidation",
+      "name": "Intimidation",
+      "ability": "cha",
+      "rank": "proficient",
+      "rank_overridden": false,
+      "bonus": {
+        "value": 2,
+        "calculated": 2,
+        "override": null
+      }
+    },
+    {
+      "key": "investigation",
+      "name": "Investigation",
+      "ability": "int",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 0,
+        "calculated": 0,
+        "override": null
+      }
+    },
+    {
+      "key": "medicine",
+      "name": "Medicine",
+      "ability": "wis",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 1,
+        "calculated": 1,
+        "override": null
+      }
+    },
+    {
+      "key": "nature",
+      "name": "Nature",
+      "ability": "int",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 0,
+        "calculated": 0,
+        "override": null
+      }
+    },
+    {
+      "key": "perception",
+      "name": "Perception",
+      "ability": "wis",
+      "rank": "proficient",
+      "rank_overridden": false,
+      "bonus": {
+        "value": 4,
+        "calculated": 4,
+        "override": null
+      }
+    },
+    {
+      "key": "performance",
+      "name": "Performance",
+      "ability": "cha",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": -1,
+        "calculated": -1,
+        "override": null
+      }
+    },
+    {
+      "key": "persuasion",
+      "name": "Persuasion",
+      "ability": "cha",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": -1,
+        "calculated": -1,
+        "override": null
+      }
+    },
+    {
+      "key": "religion",
+      "name": "Religion",
+      "ability": "int",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 0,
+        "calculated": 0,
+        "override": null
+      }
+    },
+    {
+      "key": "sleight_of_hand",
+      "name": "Sleight of hand",
+      "ability": "dex",
+      "rank": "half",
+      "rank_overridden": false,
+      "bonus": {
+        "value": 3,
+        "calculated": 3,
+        "override": null
+      }
+    },
+    {
+      "key": "stealth",
+      "name": "Stealth",
+      "ability": "dex",
+      "rank": "half",
+      "rank_overridden": false,
+      "bonus": {
+        "value": 3,
+        "calculated": 3,
+        "override": null
+      }
+    },
+    {
+      "key": "survival",
+      "name": "Survival",
+      "ability": "wis",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 1,
+        "calculated": 1,
+        "override": null
+      }
+    }
+  ],
+  "skills_note": "Remarkable athlete adds half proficiency, rounded up, to Strength, Dexterity and Constitution checks without proficiency, initiative included.",
+  "passives": {
+    "perception": 14,
+    "investigation": 10,
+    "insight": 14
+  },
+  "proficiencies": [
+    {
+      "id": "thorn-prof-all-armor",
+      "name": "All armor",
+      "category": "armor",
+      "rank": null
+    },
+    {
+      "id": "thorn-prof-shields",
+      "name": "Shields",
+      "category": "armor",
+      "rank": null
+    },
+    {
+      "id": "thorn-prof-simple-weapons",
+      "name": "Simple weapons",
+      "category": "weapon",
+      "rank": null
+    },
+    {
+      "id": "thorn-prof-martial-weapons",
+      "name": "Martial weapons",
+      "category": "weapon",
+      "rank": null
+    },
+    {
+      "id": "thorn-prof-smiths-tools",
+      "name": "Smith's tools",
+      "category": "tool",
+      "rank": "proficient"
+    },
+    {
+      "id": "thorn-prof-brewers-supplies",
+      "name": "Brewer's supplies",
+      "category": "tool",
+      "rank": "proficient"
+    }
+  ],
+  "languages": [
+    {
+      "id": "thorn-lang-common",
+      "name": "Common"
+    },
+    {
+      "id": "thorn-lang-dwarvish",
+      "name": "Dwarvish"
+    }
+  ],
+  "resources": [
+    {
+      "id": "thorn-res-second-wind",
+      "kind": "other",
+      "name": "Second wind",
+      "current": 1,
+      "maximum": 1,
+      "reset_on": "short_rest",
+      "slot_level": null,
+      "summary": "Heal 1d10+8, short rest"
+    },
+    {
+      "id": "thorn-res-action-surge",
+      "kind": "other",
+      "name": "Action surge",
+      "current": 1,
+      "maximum": 1,
+      "reset_on": "short_rest",
+      "slot_level": null,
+      "summary": "One extra action, short rest"
+    },
+    {
+      "id": "thorn-res-hit-dice",
+      "kind": "hit_dice",
+      "name": "Hit dice",
+      "current": 8,
+      "maximum": 8,
+      "reset_on": "long_rest",
+      "slot_level": null,
+      "summary": "d10, half recovered on a long rest"
+    }
+  ],
+  "attacks": [
+    {
+      "id": "thorn-atk-warhammer",
+      "name": "Warhammer",
+      "action_type": "action",
+      "reach": 5,
+      "range": null,
+      "attack_bonus": 7,
+      "save": null,
+      "damage": [
+        {
+          "dice": "1d8+6",
+          "type": "bludgeoning"
+        }
+      ],
+      "properties": ["Versatile (1d10)"],
+      "summary": null
+    },
+    {
+      "id": "thorn-atk-handaxe",
+      "name": "Handaxe",
+      "action_type": "action",
+      "reach": 5,
+      "range": {
+        "normal": 20,
+        "long": 60
+      },
+      "attack_bonus": 7,
+      "save": null,
+      "damage": [
+        {
+          "dice": "1d6+4",
+          "type": "slashing"
+        }
+      ],
+      "properties": ["Light", "Thrown"],
+      "summary": null
+    }
+  ],
+  "actions": [
+    {
+      "id": "thorn-act-attack",
+      "type": "action",
+      "kind": "attack",
+      "name": "Attack",
+      "summary": "Two attacks, plus a special attack",
+      "marks": []
+    },
+    {
+      "id": "thorn-act-action-surge",
+      "type": "action",
+      "kind": "feature",
+      "name": "Action surge",
+      "summary": "One extra action, 1 of 1 left",
+      "marks": []
+    },
+    {
+      "id": "thorn-act-common",
+      "type": "action",
+      "kind": "common_actions",
+      "name": "Common actions",
+      "summary": "Dash, Disengage, Dodge, Help, Hide, Ready, Search",
+      "marks": []
+    },
+    {
+      "id": "thorn-act-second-wind",
+      "type": "bonus_action",
+      "kind": "feature",
+      "name": "Second wind",
+      "summary": "Heal 1d10+8, 1 of 1 left",
+      "marks": []
+    },
+    {
+      "id": "thorn-act-opportunity",
+      "type": "reaction",
+      "kind": "opportunity_attack",
+      "name": "Opportunity attack",
+      "summary": "Warhammer, +7 to hit",
+      "marks": []
+    }
+  ],
+  "spellcasting": [],
+  "spells": [],
+  "feature_groups": [
+    {
+      "kind": "class",
+      "label": "Fighter 8",
+      "features": [
+        {
+          "id": "thorn-ft-dueling",
+          "name": "Fighting style: Dueling",
+          "summary": "+2 damage with a one-handed weapon",
+          "children": []
+        },
+        {
+          "id": "thorn-ft-second-wind",
+          "name": "Second wind",
+          "summary": "Heal 1d10+8, short rest",
+          "children": []
+        },
+        {
+          "id": "thorn-ft-action-surge",
+          "name": "Action surge",
+          "summary": "One extra action, short rest",
+          "children": []
+        },
+        {
+          "id": "thorn-ft-extra-attack",
+          "name": "Extra attack",
+          "summary": "Attack twice with the Attack action",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "subclass",
+      "label": "Champion",
+      "features": [
+        {
+          "id": "thorn-ft-improved-critical",
+          "name": "Improved critical",
+          "summary": "Critical hit on a 19 or 20",
+          "children": []
+        },
+        {
+          "id": "thorn-ft-remarkable-athlete",
+          "name": "Remarkable athlete",
+          "summary": "Half proficiency to Str, Dex and Con checks",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "race",
+      "label": "Mountain dwarf",
+      "features": [
+        {
+          "id": "thorn-ft-darkvision",
+          "name": "Darkvision",
+          "summary": "See 60 ft in dim light",
+          "children": []
+        },
+        {
+          "id": "thorn-ft-dwarven-resilience",
+          "name": "Dwarven resilience",
+          "summary": "Advantage against poison, resistance to it",
+          "children": []
+        }
+      ]
+    }
+  ],
+  "items": [
+    {
+      "id": "thorn-item-chain-mail",
+      "name": "Chain mail",
+      "quantity": 1,
+      "equipped": true,
+      "equipped_slot": "worn",
+      "attuned": false,
+      "container_id": null,
+      "is_container": false,
+      "summary": "Heavy armor, AC 16, Strength 13"
+    },
+    {
+      "id": "thorn-item-shield",
+      "name": "Shield",
+      "quantity": 1,
+      "equipped": true,
+      "equipped_slot": "in_hand",
+      "attuned": false,
+      "container_id": null,
+      "is_container": false,
+      "summary": "+2 AC"
+    },
+    {
+      "id": "thorn-item-warhammer",
+      "name": "Warhammer",
+      "quantity": 1,
+      "equipped": true,
+      "equipped_slot": "in_hand",
+      "attuned": false,
+      "container_id": null,
+      "is_container": false,
+      "summary": "1d8 bludgeoning, versatile 1d10"
+    },
+    {
+      "id": "thorn-item-handaxe",
+      "name": "Handaxe",
+      "quantity": 2,
+      "equipped": false,
+      "equipped_slot": null,
+      "attuned": false,
+      "container_id": null,
+      "is_container": false,
+      "summary": "1d6 slashing, light, thrown 20/60 ft"
+    },
+    {
+      "id": "thorn-item-explorers-pack",
+      "name": "Explorer's pack",
+      "quantity": 1,
+      "equipped": false,
+      "equipped_slot": null,
+      "attuned": false,
+      "container_id": null,
+      "is_container": false,
+      "summary": "Bedroll, rations, rope and the rest"
+    },
+    {
+      "id": "thorn-item-smiths-tools",
+      "name": "Smith's tools",
+      "quantity": 1,
+      "equipped": false,
+      "equipped_slot": null,
+      "attuned": false,
+      "container_id": null,
+      "is_container": false,
+      "summary": "Mend and make metal"
+    }
+  ],
+  "money": {
+    "copper": 18,
+    "silver": 25,
+    "electrum": 0,
+    "gold": 63,
+    "platinum": 2
+  },
+  "profile": {
+    "age": "73",
+    "height": "4 ft 6 in",
+    "appearance": "A beard braided with iron rings, one for each debt repaid",
+    "personality_traits": null,
+    "ideals": null,
+    "bonds": null,
+    "flaws": null,
+    "allies": null,
+    "enemies": null
+  },
+  "notes": null,
+  "concentration": null,
+  "conditions": [],
+  "exhaustion_level": 0,
+  "level_up_draft": null,
+  "warnings": []
+}

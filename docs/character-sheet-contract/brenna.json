@@ -1,0 +1,1145 @@
+{
+  "id": "brenna",
+  "lock_version": 0,
+  "name": "Brenna Duskhollow",
+  "token_ink": "#2560b0",
+  "rules_version": "2014",
+  "alignment": "chaotic_neutral",
+  "ancestry": {
+    "race_name": "Half-elf",
+    "subrace_name": null
+  },
+  "background_name": "Acolyte",
+  "classes": [
+    {
+      "id": "brenna-warlock",
+      "name": "Warlock",
+      "level": 6,
+      "subclass_name": "the Fiend"
+    }
+  ],
+  "total_level": 6,
+  "proficiency_bonus": 3,
+  "hit_points": {
+    "current": 31,
+    "maximum": 44,
+    "temporary": 5
+  },
+  "death_saves": {
+    "successes": 0,
+    "failures": 0
+  },
+  "inspiration": true,
+  "armor_class": {
+    "value": 13,
+    "calculated": 13,
+    "override": null
+  },
+  "initiative": {
+    "value": 2,
+    "calculated": 2,
+    "override": null
+  },
+  "speed": {
+    "value": 30,
+    "calculated": 30,
+    "override": null
+  },
+  "abilities": [
+    {
+      "ability": "str",
+      "score": 10,
+      "modifier": 0
+    },
+    {
+      "ability": "dex",
+      "score": 14,
+      "modifier": 2
+    },
+    {
+      "ability": "con",
+      "score": 14,
+      "modifier": 2
+    },
+    {
+      "ability": "int",
+      "score": 12,
+      "modifier": 1
+    },
+    {
+      "ability": "wis",
+      "score": 12,
+      "modifier": 1
+    },
+    {
+      "ability": "cha",
+      "score": 18,
+      "modifier": 4
+    }
+  ],
+  "saving_throws": [
+    {
+      "ability": "str",
+      "proficient": false,
+      "bonus": {
+        "value": 0,
+        "calculated": 0,
+        "override": null
+      }
+    },
+    {
+      "ability": "dex",
+      "proficient": false,
+      "bonus": {
+        "value": 2,
+        "calculated": 2,
+        "override": null
+      }
+    },
+    {
+      "ability": "con",
+      "proficient": false,
+      "bonus": {
+        "value": 2,
+        "calculated": 2,
+        "override": null
+      }
+    },
+    {
+      "ability": "int",
+      "proficient": false,
+      "bonus": {
+        "value": 1,
+        "calculated": 1,
+        "override": null
+      }
+    },
+    {
+      "ability": "wis",
+      "proficient": true,
+      "bonus": {
+        "value": 4,
+        "calculated": 4,
+        "override": null
+      }
+    },
+    {
+      "ability": "cha",
+      "proficient": true,
+      "bonus": {
+        "value": 7,
+        "calculated": 7,
+        "override": null
+      }
+    }
+  ],
+  "skills": [
+    {
+      "key": "acrobatics",
+      "name": "Acrobatics",
+      "ability": "dex",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 2,
+        "calculated": 2,
+        "override": null
+      }
+    },
+    {
+      "key": "animal_handling",
+      "name": "Animal handling",
+      "ability": "wis",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 1,
+        "calculated": 1,
+        "override": null
+      }
+    },
+    {
+      "key": "arcana",
+      "name": "Arcana",
+      "ability": "int",
+      "rank": "proficient",
+      "rank_overridden": false,
+      "bonus": {
+        "value": 4,
+        "calculated": 4,
+        "override": null
+      }
+    },
+    {
+      "key": "athletics",
+      "name": "Athletics",
+      "ability": "str",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 0,
+        "calculated": 0,
+        "override": null
+      }
+    },
+    {
+      "key": "deception",
+      "name": "Deception",
+      "ability": "cha",
+      "rank": "proficient",
+      "rank_overridden": false,
+      "bonus": {
+        "value": 7,
+        "calculated": 7,
+        "override": null
+      }
+    },
+    {
+      "key": "history",
+      "name": "History",
+      "ability": "int",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 1,
+        "calculated": 1,
+        "override": null
+      }
+    },
+    {
+      "key": "insight",
+      "name": "Insight",
+      "ability": "wis",
+      "rank": "proficient",
+      "rank_overridden": false,
+      "bonus": {
+        "value": 4,
+        "calculated": 4,
+        "override": null
+      }
+    },
+    {
+      "key": "intimidation",
+      "name": "Intimidation",
+      "ability": "cha",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 4,
+        "calculated": 4,
+        "override": null
+      }
+    },
+    {
+      "key": "investigation",
+      "name": "Investigation",
+      "ability": "int",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 1,
+        "calculated": 1,
+        "override": null
+      }
+    },
+    {
+      "key": "medicine",
+      "name": "Medicine",
+      "ability": "wis",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 1,
+        "calculated": 1,
+        "override": null
+      }
+    },
+    {
+      "key": "nature",
+      "name": "Nature",
+      "ability": "int",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 1,
+        "calculated": 1,
+        "override": null
+      }
+    },
+    {
+      "key": "perception",
+      "name": "Perception",
+      "ability": "wis",
+      "rank": "proficient",
+      "rank_overridden": false,
+      "bonus": {
+        "value": 4,
+        "calculated": 4,
+        "override": null
+      }
+    },
+    {
+      "key": "performance",
+      "name": "Performance",
+      "ability": "cha",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 4,
+        "calculated": 4,
+        "override": null
+      }
+    },
+    {
+      "key": "persuasion",
+      "name": "Persuasion",
+      "ability": "cha",
+      "rank": "proficient",
+      "rank_overridden": false,
+      "bonus": {
+        "value": 7,
+        "calculated": 7,
+        "override": null
+      }
+    },
+    {
+      "key": "religion",
+      "name": "Religion",
+      "ability": "int",
+      "rank": "proficient",
+      "rank_overridden": false,
+      "bonus": {
+        "value": 4,
+        "calculated": 4,
+        "override": null
+      }
+    },
+    {
+      "key": "sleight_of_hand",
+      "name": "Sleight of hand",
+      "ability": "dex",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 2,
+        "calculated": 2,
+        "override": null
+      }
+    },
+    {
+      "key": "stealth",
+      "name": "Stealth",
+      "ability": "dex",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 2,
+        "calculated": 2,
+        "override": null
+      }
+    },
+    {
+      "key": "survival",
+      "name": "Survival",
+      "ability": "wis",
+      "rank": null,
+      "rank_overridden": false,
+      "bonus": {
+        "value": 1,
+        "calculated": 1,
+        "override": null
+      }
+    }
+  ],
+  "skills_note": null,
+  "passives": {
+    "perception": 14,
+    "investigation": 11,
+    "insight": 14
+  },
+  "proficiencies": [
+    {
+      "id": "brenna-prof-light-armor",
+      "name": "Light armor",
+      "category": "armor",
+      "rank": null
+    },
+    {
+      "id": "brenna-prof-simple-weapons",
+      "name": "Simple weapons",
+      "category": "weapon",
+      "rank": null
+    }
+  ],
+  "languages": [
+    {
+      "id": "brenna-lang-common",
+      "name": "Common"
+    },
+    {
+      "id": "brenna-lang-elvish",
+      "name": "Elvish"
+    },
+    {
+      "id": "brenna-lang-celestial",
+      "name": "Celestial"
+    },
+    {
+      "id": "brenna-lang-infernal",
+      "name": "Infernal"
+    }
+  ],
+  "resources": [
+    {
+      "id": "brenna-res-pact",
+      "kind": "pact_magic",
+      "name": "Pact magic",
+      "current": 1,
+      "maximum": 2,
+      "reset_on": "short_rest",
+      "slot_level": 3,
+      "summary": "Two 3rd-level slots, short rest"
+    },
+    {
+      "id": "brenna-res-luck",
+      "kind": "other",
+      "name": "Dark One's own luck",
+      "current": 1,
+      "maximum": 1,
+      "reset_on": "long_rest",
+      "slot_level": null,
+      "summary": "Add 1d10, long rest"
+    },
+    {
+      "id": "brenna-res-hit-dice",
+      "kind": "hit_dice",
+      "name": "Hit dice",
+      "current": 4,
+      "maximum": 6,
+      "reset_on": "long_rest",
+      "slot_level": null,
+      "summary": "d8, half recovered on a long rest"
+    },
+    {
+      "id": "brenna-res-magic-initiate",
+      "kind": "other",
+      "name": "Magic initiate",
+      "current": 1,
+      "maximum": 1,
+      "reset_on": "long_rest",
+      "slot_level": null,
+      "summary": "Cure wounds once, long rest"
+    },
+    {
+      "id": "brenna-res-ring",
+      "kind": "other",
+      "name": "Ring of spell storing",
+      "current": 3,
+      "maximum": 5,
+      "reset_on": "manual",
+      "slot_level": null,
+      "summary": "Stored levels, refilled by hand"
+    }
+  ],
+  "attacks": [
+    {
+      "id": "brenna-atk-pact-blade",
+      "name": "Pact blade",
+      "action_type": "action",
+      "reach": 5,
+      "range": null,
+      "attack_bonus": 5,
+      "save": null,
+      "damage": [
+        {
+          "dice": "1d6+2",
+          "type": "slashing"
+        }
+      ],
+      "properties": ["Finesse"],
+      "summary": null
+    },
+    {
+      "id": "brenna-atk-dagger",
+      "name": "Dagger",
+      "action_type": "action",
+      "reach": 5,
+      "range": {
+        "normal": 20,
+        "long": 60
+      },
+      "attack_bonus": 5,
+      "save": null,
+      "damage": [
+        {
+          "dice": "1d4+2",
+          "type": "piercing"
+        }
+      ],
+      "properties": ["Finesse", "Light", "Thrown"],
+      "summary": null
+    },
+    {
+      "id": "brenna-atk-eldritch-blast",
+      "name": "Eldritch blast",
+      "action_type": "action",
+      "reach": null,
+      "range": {
+        "normal": 120,
+        "long": null
+      },
+      "attack_bonus": 7,
+      "save": null,
+      "damage": [
+        {
+          "dice": "1d10+4",
+          "type": "force"
+        }
+      ],
+      "properties": [],
+      "summary": "two beams, pushes 10 ft"
+    },
+    {
+      "id": "brenna-atk-chill-touch",
+      "name": "Chill touch",
+      "action_type": "action",
+      "reach": null,
+      "range": {
+        "normal": 120,
+        "long": null
+      },
+      "attack_bonus": 7,
+      "save": null,
+      "damage": [
+        {
+          "dice": "2d8",
+          "type": "necrotic"
+        }
+      ],
+      "properties": [],
+      "summary": "no healing for a turn"
+    },
+    {
+      "id": "brenna-atk-sacred-flame",
+      "name": "Sacred flame",
+      "action_type": "action",
+      "reach": null,
+      "range": {
+        "normal": 60,
+        "long": null
+      },
+      "attack_bonus": null,
+      "save": {
+        "ability": "dex",
+        "dc": 12
+      },
+      "damage": [
+        {
+          "dice": "2d8",
+          "type": "radiant"
+        }
+      ],
+      "properties": [],
+      "summary": "ignores cover, from the feat"
+    }
+  ],
+  "actions": [
+    {
+      "id": "brenna-act-cure-wounds",
+      "type": "action",
+      "kind": "spell",
+      "name": "Cure wounds",
+      "summary": "Touch, heals 1d8+1. Two ways to cast.",
+      "marks": [
+        {
+          "label": "2 paths",
+          "tone": "ok"
+        }
+      ]
+    },
+    {
+      "id": "brenna-act-cast",
+      "type": "action",
+      "kind": "cast_a_spell",
+      "name": "Cast a spell",
+      "summary": "Eight known, one slot left",
+      "marks": []
+    },
+    {
+      "id": "brenna-act-common",
+      "type": "action",
+      "kind": "common_actions",
+      "name": "Common actions",
+      "summary": "Dash, Disengage, Dodge, Help, Hide, Ready, Search",
+      "marks": []
+    },
+    {
+      "id": "brenna-act-hex",
+      "type": "bonus_action",
+      "kind": "spell",
+      "name": "Hex",
+      "summary": "Move the curse to a new target",
+      "marks": [
+        {
+          "label": "Active",
+          "tone": "conc"
+        }
+      ]
+    },
+    {
+      "id": "brenna-act-opportunity",
+      "type": "reaction",
+      "kind": "opportunity_attack",
+      "name": "Opportunity attack",
+      "summary": "Pact blade, +5 to hit",
+      "marks": []
+    },
+    {
+      "id": "brenna-act-devils-sight",
+      "type": "no_action",
+      "kind": "feature",
+      "name": "Devil's sight",
+      "summary": "See through magical darkness, 120 ft",
+      "marks": []
+    },
+    {
+      "id": "brenna-act-blessing",
+      "type": "no_action",
+      "kind": "feature",
+      "name": "Dark One's blessing",
+      "summary": "10 temporary hit points after dropping a foe",
+      "marks": []
+    }
+  ],
+  "spellcasting": [
+    {
+      "id": "brenna-cast-warlock",
+      "kind": "class",
+      "name": "Pact magic",
+      "detail": "Warlock 6",
+      "ability": "cha",
+      "save_dc": {
+        "value": 15,
+        "calculated": 15,
+        "override": null
+      },
+      "attack_bonus": {
+        "value": 7,
+        "calculated": 7,
+        "override": null
+      },
+      "preparation": null,
+      "resource_ids": ["brenna-res-pact"]
+    },
+    {
+      "id": "brenna-cast-magic-initiate",
+      "kind": "feature",
+      "name": "Magic initiate",
+      "detail": "Feat",
+      "ability": "wis",
+      "save_dc": {
+        "value": 12,
+        "calculated": 12,
+        "override": null
+      },
+      "attack_bonus": {
+        "value": 4,
+        "calculated": 4,
+        "override": null
+      },
+      "preparation": null,
+      "resource_ids": ["brenna-res-magic-initiate"]
+    }
+  ],
+  "spells": [
+    {
+      "name": "Chill touch",
+      "level": 0,
+      "summary": "Action, 120 ft, 2d8 necrotic",
+      "marks": [],
+      "paths": [
+        {
+          "id": "brenna-sp-chill-touch",
+          "casting_source_id": "brenna-cast-warlock",
+          "prepared": true,
+          "cast_at_level": null,
+          "uses_resource_id": null
+        }
+      ]
+    },
+    {
+      "name": "Eldritch blast",
+      "level": 0,
+      "summary": "Action, 120 ft, two beams, 1d10+4 force each",
+      "marks": [],
+      "paths": [
+        {
+          "id": "brenna-sp-eldritch-blast",
+          "casting_source_id": "brenna-cast-warlock",
+          "prepared": true,
+          "cast_at_level": null,
+          "uses_resource_id": null
+        }
+      ]
+    },
+    {
+      "name": "Guidance",
+      "level": 0,
+      "summary": "Action, touch, concentration",
+      "marks": [
+        {
+          "label": "Feat",
+          "tone": "ok"
+        }
+      ],
+      "paths": [
+        {
+          "id": "brenna-sp-guidance",
+          "casting_source_id": "brenna-cast-magic-initiate",
+          "prepared": true,
+          "cast_at_level": null,
+          "uses_resource_id": null
+        }
+      ]
+    },
+    {
+      "name": "Prestidigitation",
+      "level": 0,
+      "summary": "Action, 10 ft, 1 hour",
+      "marks": [],
+      "paths": [
+        {
+          "id": "brenna-sp-prestidigitation",
+          "casting_source_id": "brenna-cast-warlock",
+          "prepared": true,
+          "cast_at_level": null,
+          "uses_resource_id": null
+        }
+      ]
+    },
+    {
+      "name": "Sacred flame",
+      "level": 0,
+      "summary": "Action, 60 ft, Dex save 12, 2d8 radiant",
+      "marks": [
+        {
+          "label": "Feat",
+          "tone": "ok"
+        }
+      ],
+      "paths": [
+        {
+          "id": "brenna-sp-sacred-flame",
+          "casting_source_id": "brenna-cast-magic-initiate",
+          "prepared": true,
+          "cast_at_level": null,
+          "uses_resource_id": null
+        }
+      ]
+    },
+    {
+      "name": "Armor of Agathys",
+      "level": 1,
+      "summary": "Action, self, 1 hour",
+      "marks": [],
+      "paths": [
+        {
+          "id": "brenna-sp-armor-of-agathys",
+          "casting_source_id": "brenna-cast-warlock",
+          "prepared": true,
+          "cast_at_level": 3,
+          "uses_resource_id": null
+        }
+      ]
+    },
+    {
+      "name": "Charm person",
+      "level": 1,
+      "summary": "Action, 30 ft, Wis save 15",
+      "marks": [],
+      "paths": [
+        {
+          "id": "brenna-sp-charm-person",
+          "casting_source_id": "brenna-cast-warlock",
+          "prepared": true,
+          "cast_at_level": 3,
+          "uses_resource_id": null
+        }
+      ]
+    },
+    {
+      "name": "Cure wounds",
+      "level": 1,
+      "summary": "Action, touch. Cast at 1st by the feat, at 2nd from the ring.",
+      "marks": [
+        {
+          "label": "2 paths",
+          "tone": "ok"
+        }
+      ],
+      "paths": [
+        {
+          "id": "brenna-sp-cure-wounds-feat",
+          "casting_source_id": "brenna-cast-magic-initiate",
+          "prepared": true,
+          "cast_at_level": 1,
+          "uses_resource_id": "brenna-res-magic-initiate"
+        },
+        {
+          "id": "brenna-sp-cure-wounds-ring",
+          "casting_source_id": null,
+          "prepared": true,
+          "cast_at_level": 2,
+          "uses_resource_id": "brenna-res-ring"
+        }
+      ]
+    },
+    {
+      "name": "Hex",
+      "level": 1,
+      "summary": "Bonus action, 90 ft, concentration",
+      "marks": [
+        {
+          "label": "Active",
+          "tone": "conc"
+        }
+      ],
+      "paths": [
+        {
+          "id": "brenna-sp-hex",
+          "casting_source_id": "brenna-cast-warlock",
+          "prepared": true,
+          "cast_at_level": 3,
+          "uses_resource_id": null
+        }
+      ]
+    },
+    {
+      "name": "Invisibility",
+      "level": 2,
+      "summary": "Action, touch, concentration",
+      "marks": [],
+      "paths": [
+        {
+          "id": "brenna-sp-invisibility",
+          "casting_source_id": "brenna-cast-warlock",
+          "prepared": true,
+          "cast_at_level": 3,
+          "uses_resource_id": null
+        }
+      ]
+    },
+    {
+      "name": "Mirror image",
+      "level": 2,
+      "summary": "Action, self, 1 minute",
+      "marks": [],
+      "paths": [
+        {
+          "id": "brenna-sp-mirror-image",
+          "casting_source_id": "brenna-cast-warlock",
+          "prepared": true,
+          "cast_at_level": 3,
+          "uses_resource_id": null
+        }
+      ]
+    },
+    {
+      "name": "Scorching ray",
+      "level": 2,
+      "summary": "Action, 120 ft, four rays at 3rd, 2d6 fire each",
+      "marks": [],
+      "paths": [
+        {
+          "id": "brenna-sp-scorching-ray",
+          "casting_source_id": "brenna-cast-warlock",
+          "prepared": true,
+          "cast_at_level": 3,
+          "uses_resource_id": null
+        }
+      ]
+    },
+    {
+      "name": "Fireball",
+      "level": 3,
+      "summary": "Action, 150 ft, Dex save 15, 8d6 fire",
+      "marks": [],
+      "paths": [
+        {
+          "id": "brenna-sp-fireball",
+          "casting_source_id": "brenna-cast-warlock",
+          "prepared": true,
+          "cast_at_level": 3,
+          "uses_resource_id": null
+        }
+      ]
+    }
+  ],
+  "feature_groups": [
+    {
+      "kind": "class",
+      "label": "Warlock 6",
+      "features": [
+        {
+          "id": "brenna-ft-pact-magic",
+          "name": "Pact magic",
+          "summary": "Two 3rd-level slots, short rest",
+          "children": []
+        },
+        {
+          "id": "brenna-ft-invocations",
+          "name": "Eldritch invocations",
+          "summary": null,
+          "children": [
+            {
+              "id": "brenna-ft-agonizing-blast",
+              "name": "Agonizing blast"
+            },
+            {
+              "id": "brenna-ft-devils-sight",
+              "name": "Devil's sight"
+            },
+            {
+              "id": "brenna-ft-repelling-blast",
+              "name": "Repelling blast"
+            }
+          ]
+        },
+        {
+          "id": "brenna-ft-pact-of-the-blade",
+          "name": "Pact of the blade",
+          "summary": "Create a pact weapon in hand as an action",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "subclass",
+      "label": "The Fiend",
+      "features": [
+        {
+          "id": "brenna-ft-blessing",
+          "name": "Dark One's blessing",
+          "summary": "10 temporary hit points after dropping a foe",
+          "children": []
+        },
+        {
+          "id": "brenna-ft-luck",
+          "name": "Dark One's own luck",
+          "summary": "Add 1d10 to a check or save, long rest",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "race",
+      "label": "Half-elf",
+      "features": [
+        {
+          "id": "brenna-ft-darkvision",
+          "name": "Darkvision",
+          "summary": "See 60 ft in dim light",
+          "children": []
+        },
+        {
+          "id": "brenna-ft-fey-ancestry",
+          "name": "Fey ancestry",
+          "summary": "Advantage against charm, and magic can't cause sleep",
+          "children": []
+        },
+        {
+          "id": "brenna-ft-skill-versatility",
+          "name": "Skill versatility",
+          "summary": "Two extra skills",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "background",
+      "label": "Acolyte background",
+      "features": [
+        {
+          "id": "brenna-ft-shelter",
+          "name": "Shelter of the faithful",
+          "summary": "Care and healing at temples of the faith",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "label": "Feat, taken at level 4",
+      "features": [
+        {
+          "id": "brenna-ft-magic-initiate",
+          "name": "Magic initiate",
+          "summary": "Two cleric cantrips and cure wounds once a day",
+          "children": []
+        }
+      ]
+    }
+  ],
+  "items": [
+    {
+      "id": "brenna-item-leather-armor",
+      "name": "Leather armor",
+      "quantity": 1,
+      "equipped": true,
+      "equipped_slot": "worn",
+      "attuned": false,
+      "container_id": null,
+      "is_container": false,
+      "summary": "Light armor, AC 11 + Dex"
+    },
+    {
+      "id": "brenna-item-crystal",
+      "name": "Crystal",
+      "quantity": 1,
+      "equipped": true,
+      "equipped_slot": "in_hand",
+      "attuned": false,
+      "container_id": null,
+      "is_container": false,
+      "summary": "Arcane focus"
+    },
+    {
+      "id": "brenna-item-dagger",
+      "name": "Dagger",
+      "quantity": 2,
+      "equipped": true,
+      "equipped_slot": "belt",
+      "attuned": false,
+      "container_id": null,
+      "is_container": false,
+      "summary": "1d4 piercing, finesse, light, thrown 20/60 ft"
+    },
+    {
+      "id": "brenna-item-ring",
+      "name": "Ring of spell storing",
+      "quantity": 1,
+      "equipped": true,
+      "equipped_slot": "worn",
+      "attuned": true,
+      "container_id": null,
+      "is_container": false,
+      "summary": "Rare. 3 of 5 levels stored."
+    },
+    {
+      "id": "brenna-item-potion",
+      "name": "Potion of healing",
+      "quantity": 2,
+      "equipped": false,
+      "equipped_slot": null,
+      "attuned": false,
+      "container_id": null,
+      "is_container": false,
+      "summary": "Action, heals 2d4+2"
+    },
+    {
+      "id": "brenna-item-backpack",
+      "name": "Backpack",
+      "quantity": 1,
+      "equipped": false,
+      "equipped_slot": null,
+      "attuned": false,
+      "container_id": null,
+      "is_container": true,
+      "summary": "5 things inside"
+    },
+    {
+      "id": "brenna-item-bedroll",
+      "name": "Bedroll",
+      "quantity": 1,
+      "equipped": false,
+      "equipped_slot": null,
+      "attuned": false,
+      "container_id": "brenna-item-backpack",
+      "is_container": false,
+      "summary": "Sleeps one"
+    },
+    {
+      "id": "brenna-item-rations",
+      "name": "Rations",
+      "quantity": 5,
+      "equipped": false,
+      "equipped_slot": null,
+      "attuned": false,
+      "container_id": "brenna-item-backpack",
+      "is_container": false,
+      "summary": "Days of food"
+    },
+    {
+      "id": "brenna-item-rope",
+      "name": "Hempen rope",
+      "quantity": 1,
+      "equipped": false,
+      "equipped_slot": null,
+      "attuned": false,
+      "container_id": "brenna-item-backpack",
+      "is_container": false,
+      "summary": "50 ft"
+    },
+    {
+      "id": "brenna-item-waterskin",
+      "name": "Waterskin",
+      "quantity": 1,
+      "equipped": false,
+      "equipped_slot": null,
+      "attuned": false,
+      "container_id": "brenna-item-backpack",
+      "is_container": false,
+      "summary": "Full"
+    },
+    {
+      "id": "brenna-item-tinderbox",
+      "name": "Tinderbox",
+      "quantity": 1,
+      "equipped": false,
+      "equipped_slot": null,
+      "attuned": false,
+      "container_id": "brenna-item-backpack",
+      "is_container": false,
+      "summary": "Lights a torch as an action"
+    },
+    {
+      "id": "brenna-item-prayer-book",
+      "name": "Prayer book",
+      "quantity": 1,
+      "equipped": false,
+      "equipped_slot": null,
+      "attuned": false,
+      "container_id": null,
+      "is_container": false,
+      "summary": "From the Acolyte background"
+    }
+  ],
+  "money": {
+    "copper": 5,
+    "silver": 30,
+    "electrum": 0,
+    "gold": 112,
+    "platinum": 2
+  },
+  "profile": {
+    "age": "27",
+    "height": "5 ft 7 in",
+    "appearance": "Ash-gray hair, and a brand on her left palm that warms near fiends",
+    "personality_traits": "Quotes scripture at the worst moments, and means it less every year.",
+    "ideals": "Knowledge is owed to whoever will use it.",
+    "bonds": "The temple that raised her, and the thing that answered when the temple didn't.",
+    "flaws": "Trusts a bargain more than a friend.",
+    "allies": "Alarra Vane, who knows.",
+    "enemies": "Brother Tamsin, who suspects."
+  },
+  "notes": "Owes the Fiend one favor, unspecified.\nSunless Crown: the third door on the left is a mimic.\nSession 11: the ferryman takes silver, not gold.\nBrother Tamsin keeps a ledger of everyone who visits the shrine.\nSession 12: borrowed Alarra's ring of spell storing. Give it back.\nThe ogre chieftain wants the brand on her palm, not her.\nSession 13: the map in the chapel is upside down on purpose.",
+  "concentration": {
+    "effect_id": "brenna-effect-hex",
+    "name": "Hex",
+    "spell_path_id": "brenna-sp-hex"
+  },
+  "conditions": [],
+  "exhaustion_level": 0,
+  "level_up_draft": null,
+  "warnings": []
+}

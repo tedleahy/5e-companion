@@ -349,14 +349,18 @@ All dated 12 September 2026.
 - Names of features, feats, subclasses, invocations, spells and items are
   sentence case, keeping proper nouns: Dark One's own luck, Pact of the blade,
   Hunger of Hadar. 14 September 2026.
-- UI copy uses second person for the player and third person for the
-  character: "until you confirm", "when she drops a foe". Quoted rules text is
-  left as printed. Short action summaries stay as verb phrases, such as "Move
-  the curse to a new target". 14 September 2026.
-- Open: the imported catalog names things in title case, as the SRD prints
-  them, and automatic sentence casing cannot tell a proper noun like Hadar from
-  an ordinary word. Either catalog rows gain a stored display name, or the
-  importer applies a maintained list of proper nouns. Not decided.
+- UI copy uses second person for the player and no pronouns for the character,
+  because the data model stores none: "until you confirm", "after dropping a
+  foe". Text the player writes keeps what they wrote. Quoted rules text is left
+  as printed. Short action summaries stay as verb phrases, such as "Move the
+  curse to a new target". 14 September 2026, pronouns dropped 25 October 2026.
+- Remarkable athlete follows the SRD: half proficiency, rounded up, on
+  Strength, Dexterity and Constitution checks, initiative included. Hit dice
+  read "half recovered on a long rest" for everyone. 25 October 2026.
+- The SRD prints catalog names in title case, and automatic sentence casing
+  cannot tell a proper noun like Hadar from an ordinary word, so the importer
+  applies a maintained list of proper nouns. See Importing upstream changes in
+  data-model.md. 20 October 2026.
 - UI copy uses American spelling to match the catalog: armor class, color,
   gray, leveling. The plan, the review and the design system's prose stay in
   British English, because players never see them. The table is "the DM",
@@ -407,8 +411,10 @@ All dated 12 September 2026.
 - Spells group by level. Access paths merge under one name, with a source mark
   when the same spell arrives twice.
 - Origins appear as a dim "from" line in the detail view.
-- Warnings get a mark on the affected value and a dismissible strip under the
-  header.
+- Warnings get a mark on the affected value and a strip under the header, with
+  Fix or Open where the warning has one. The API works them out on every read
+  and stores none. Dismissing arrives with sheet editing, and a dismissed strip
+  comes back if the facts behind it change. 1 November 2026.
 - A find field in Spells and Gear only.
 - No weight or encumbrance. There is no column for it.
 - Draw a single-class character, with a multiclass header as a variant.
@@ -697,7 +703,8 @@ text colour.
 - Features and traits group by origin: class, subclass, race, background and
   feat.
 - The profile is labelled values for short fields and short paragraphs for
-  personality traits, ideals, bonds, flaws, and allies and enemies. Notes follow.
+  personality traits, ideals, bonds, flaws, allies and enemies, each under its
+  own heading and left out when empty. Notes follow.
 
 ### Editing a section
 
@@ -724,7 +731,7 @@ Drawn 12 September 2026 against the SRD data and the data model.
 - Rules text starts expanded on items, traits and skills, where the text is the
   content. It folds behind a disclosure when option cards carry the detail, as
   on spells and Channel Divinity.
-- Actions open the detail of their source. Mace opens the item, Healing word the
+- Actions open the detail of their source. Mace opens the item, Cure wounds the
   spell, Preserve Life the feature. Only common actions and manually added
   actions need screens of their own.
 - A detail links to related details: chain mail to armour class, darkvision to
@@ -946,8 +953,9 @@ All dated 14 September 2026.
   detail replaces the content, and Close or Escape returns focus to the opener.
   Its rose shadow falls left, as the bottom sheet's falls up.
 - **One counter per screen.** With Play and Spells both visible, the casting
-  cards drop their slot rows and sit side by side, and Magic initiate's use
-  moves into Resources.
+  cards drop their slot rows and Magic initiate's use, which Resources already
+  shows, and sit side by side. On a phone Play and Spells are separate tabs, so
+  both keep their counters.
 - **The pad takes typing.** The amount is a field and Enter applies it. The
   stepper and quick amounts stay.
 - Hints say click where the phone says tap.

@@ -1,0 +1,1518 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Character sheet build plan</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --paper: #17191d;
+      --sheet: #22252b;
+      --ink: #edf0f4;
+      --muted: #aab1bc;
+      --blue: #79adff;
+      --rose: #ee78a8;
+      --violet: #b89bdd;
+      --green: #7fcf9a;
+      --line: #40454f;
+      --code: #101216;
+      --code-ink: #e8ebf0;
+      --note: #202b3d;
+      --warn: #3a2e18;
+      --open: #3a1f2d;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 1px 1px, rgba(121, 173, 255, .13) 1px, transparent 1.2px) 0 0 / 18px 18px,
+        var(--paper);
+      color: var(--ink);
+      font: 16px/1.65 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    a { color: var(--blue); }
+    a:hover { color: var(--violet); }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    code {
+      padding: .12rem .32rem;
+      border-radius: 4px;
+      background: #30343c;
+      font-size: .92em;
+    }
+    pre {
+      overflow-x: auto;
+      margin: 1rem 0;
+      padding: 1rem 1.1rem;
+      border-radius: 7px;
+      background: var(--code);
+      color: var(--code-ink);
+      font-size: .86rem;
+      line-height: 1.55;
+    }
+    pre code { padding: 0; background: transparent; color: inherit; }
+
+    .page {
+      width: min(1160px, calc(100% - 32px));
+      margin: 30px auto 72px;
+    }
+    .hero {
+      padding: clamp(28px, 6vw, 68px);
+      border: 2px solid var(--blue);
+      background: var(--sheet);
+      box-shadow: 9px 9px 0 #a33f6a;
+    }
+    .eyebrow {
+      margin: 0 0 .45rem;
+      color: var(--rose);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, h4 { line-height: 1.18; }
+    h1 {
+      max-width: 18ch;
+      margin: 0;
+      font-size: clamp(2.2rem, 6vw, 4.4rem);
+      letter-spacing: -.055em;
+    }
+    .lede {
+      max-width: 72ch;
+      margin: 1.4rem 0 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+    .status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 1.35rem;
+    }
+    .status span {
+      padding: .28rem .65rem;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      font-size: .82rem;
+      font-weight: 700;
+    }
+    .status span.draft { border-color: var(--rose); color: var(--rose); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 250px minmax(0, 1fr);
+      gap: 34px;
+      margin-top: 42px;
+      align-items: start;
+    }
+    nav {
+      position: sticky;
+      top: 18px;
+      max-height: calc(100vh - 36px);
+      overflow-y: auto;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: rgba(34, 37, 43, .95);
+      backdrop-filter: blur(10px);
+    }
+    nav h2 {
+      margin: 0 0 .75rem;
+      font-size: .84rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    nav ol {
+      margin: 0;
+      padding-left: 1.25rem;
+      font-size: .91rem;
+    }
+    nav li + li { margin-top: .38rem; }
+    nav .part {
+      margin: 1rem 0 .4rem;
+      color: var(--muted);
+      font-size: .74rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    main { min-width: 0; }
+    section {
+      margin-bottom: 38px;
+      padding: clamp(22px, 4vw, 38px);
+      border: 1px solid var(--line);
+      background: var(--sheet);
+    }
+    section > h2 {
+      margin: 0 0 .9rem;
+      font-size: clamp(1.5rem, 3vw, 2.05rem);
+      letter-spacing: -.025em;
+    }
+    section > h3 { margin-top: 1.9rem; }
+    h4 { margin: 1.4rem 0 .4rem; font-size: 1rem; }
+    .step-no {
+      display: inline-grid;
+      min-width: 2.1rem;
+      height: 2.1rem;
+      margin-right: .55rem;
+      padding: 0 .45rem;
+      place-items: center;
+      border-radius: 1.05rem;
+      background: var(--blue);
+      color: #11151b;
+      font-size: 1rem;
+      vertical-align: .14em;
+    }
+    .outcome {
+      margin: 0 0 1.2rem;
+      padding-left: 1rem;
+      border-left: 4px solid var(--rose);
+      color: var(--muted);
+    }
+    .decision, .warning, .open {
+      margin: 1.25rem 0;
+      padding: 1rem 1.1rem;
+      border-left: 5px solid var(--violet);
+      background: var(--note);
+    }
+    .warning { border-left-color: #e0a52f; background: var(--warn); }
+    .open { border-left-color: var(--rose); background: var(--open); }
+    .decision h3, .warning h3, .open h3 {
+      margin: 0 0 .35rem;
+      font-size: 1rem;
+    }
+    .decision p:last-child, .warning p:last-child, .open p:last-child { margin-bottom: 0; }
+    ul, ol { padding-left: 1.35rem; }
+    li + li { margin-top: .38rem; }
+    .checks { list-style: none; padding-left: 0; }
+    .checks li { position: relative; padding-left: 1.7rem; }
+    .checks li::before {
+      content: "□";
+      position: absolute;
+      left: 0;
+      color: var(--blue);
+      font-weight: 800;
+    }
+
+    table {
+      width: 100%;
+      margin: 1rem 0;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+    th, td {
+      padding: .65rem .7rem;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #2d3138; }
+    .compact td:first-child { white-space: nowrap; font-weight: 700; }
+    .small { color: var(--muted); font-size: .9rem; }
+
+    .meta {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      gap: .3rem 1rem;
+      margin: 0 0 1.2rem;
+      font-size: .92rem;
+    }
+    .meta dt { color: var(--muted); font-weight: 700; }
+    .meta dd { margin: 0; }
+
+    .tag {
+      display: inline-block;
+      padding: .05rem .5rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: .78rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .tag.grok { border-color: var(--green); color: var(--green); }
+    .tag.strong { border-color: var(--violet); color: var(--violet); }
+    .tag.you { border-color: var(--rose); color: var(--rose); }
+    .tag.par { border-color: var(--blue); color: var(--blue); }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin: 1.2rem 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: flow;
+    }
+    .flow li {
+      margin: 0;
+      padding: .75rem .8rem;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      font-size: .88rem;
+      counter-increment: flow;
+    }
+    .flow li::before {
+      content: counter(flow);
+      display: block;
+      color: var(--rose);
+      font-weight: 800;
+    }
+    .flow li b { display: block; }
+
+    .streams {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 1.2rem 0;
+    }
+    .streams > div {
+      padding: .9rem 1rem;
+      border: 1px solid var(--line);
+      background: var(--paper);
+    }
+    .streams h4 { margin-top: 0; }
+    .streams ul { margin: 0; padding: 0; list-style: none; font-size: .9rem; }
+    .join {
+      margin: .6rem 0 1.2rem;
+      padding: .7rem 1rem;
+      border: 1px dashed var(--line);
+      color: var(--muted);
+      font-size: .9rem;
+      text-align: center;
+    }
+
+    footer {
+      padding: 22px;
+      color: var(--muted);
+      text-align: center;
+      font-size: .85rem;
+    }
+
+    @media (max-width: 860px) {
+      .page { width: min(100% - 20px, 760px); margin-top: 10px; }
+      .layout { display: block; margin-top: 24px; }
+      nav { position: static; max-height: none; margin-bottom: 24px; }
+      section { margin-bottom: 20px; }
+      table { display: block; overflow-x: auto; }
+      .streams { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <p class="eyebrow">5e Companion</p>
+      <h1>Character sheet build plan</h1>
+      <p class="lede">
+        How the <a href="../mockups/character-sheet.html">character sheet mockup</a> gets built, by
+        agents, in six milestones that each end with something usable in the app. This draft holds the
+        milestone map, the agent workflow and its review tooling, and milestone 1's API contract with
+        its fixtures. Each later milestone gets its own detailed steps when it starts.
+      </p>
+      <div class="status" aria-label="Plan status and assumptions">
+        <span class="draft">Draft for review, 20 October 2026</span>
+        <span>Expo SDK 57</span>
+        <span>Rails API</span>
+        <span>TanStack Query</span>
+        <span>Runs in Expo Go</span>
+        <span>Built by agents, approved per step</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="Plan contents">
+        <h2>Contents</h2>
+        <p class="part">Every milestone</p>
+        <ol>
+          <li><a href="#ground">Ground rules</a></li>
+          <li><a href="#decisions">Decisions</a></li>
+          <li><a href="#map">Milestone map</a></li>
+          <li><a href="#workflow">Agent workflow</a></li>
+          <li><a href="#templates">Templates</a></li>
+        </ol>
+        <p class="part">Milestone 0</p>
+        <ol start="6">
+          <li><a href="#m0">Review tooling</a></li>
+        </ol>
+        <p class="part">Milestone 1</p>
+        <ol start="7">
+          <li><a href="#m1">Scope</a></li>
+          <li><a href="#contract">The contract</a></li>
+          <li><a href="#fixtures">Fixtures</a></li>
+          <li><a href="#rules">Rules the fixtures follow</a></li>
+          <li><a href="#differences">Corrections to the mockup</a></li>
+          <li><a href="#gaps">Data model gaps</a></li>
+          <li><a href="#m1-steps">Steps</a></li>
+          <li><a href="#m1-done">Definition of done</a></li>
+        </ol>
+        <p class="part">Before starting</p>
+        <ol start="15">
+          <li><a href="#open">Open questions</a></li>
+        </ol>
+      </nav>
+
+      <main>
+
+        <!-- ============================================================ GROUND RULES -->
+        <section id="ground">
+          <h2>Ground rules</h2>
+          <p class="outcome">These apply to every step in every milestone. Each step brief repeats the ones
+            that matter for it, because an implementer may not read this page.</p>
+
+          <h3>Current state, 20 October 2026</h3>
+          <ul>
+            <li>The character list is built and merged. <code>GET /api/v1/characters</code> is the only
+              endpoint.</li>
+            <li>The backend has five of the data model's eleven character tables, several of them with fewer
+              columns than <a href="data-model.md">data-model.md</a> lists, and no catalog tables. Nothing
+              from <code>srd-json-files</code> is imported, and nothing derives sheet values yet.</li>
+            <li>The mockup has 58 phone frames, numbered in the order of
+              <a href="character-sheet-plan.md">character-sheet-plan.md</a>'s list, plus desktop and tablet
+              frames counted separately as <code>d1</code>, <code>t1</code> and so on. It has no loading,
+              error or not-found frames for the sheet.</li>
+            <li>The design system took in the sheet's components in v0.4. Its frames are the reference
+              for every primitive.</li>
+          </ul>
+
+          <h3>Rules for every step</h3>
+          <ul>
+            <li>Follow <code>AGENTS.md</code>. The front-end rules that come up most: React Native
+              primitives styled with <code>@/theme</code>, no raw hex in styles, weight through
+              <code>fontFamily</code>, <code>useBreakpoint()</code> for width-dependent layout, nothing but
+              routes in <code>src/app/</code>, JSDoc and YARD as AGENTS.md describes, blank lines between
+              adjacent test assertions.</li>
+            <li>UI copy is American English, sentence case, second person for the player and third person
+              for the character, with no pronouns for the character because the data model stores none.
+              This plan and the design system stay in British English.</li>
+            <li>Run tools through <code>env mise exec --</code>. Finish with <code>bin/check-step</code>
+              once milestone 0 has built it. Until then, the front-end checks AGENTS.md lists and
+              <code>backend/bin/ci</code>.</li>
+            <li>Stay inside the step's allowed paths. If the step needs something from a later step, stop
+              and say so in the handoff brief instead of building it.</li>
+            <li>Brief writers and implementers commit to their own step branch, as conventional commits, because the brief asks
+              them to. Nobody commits to the milestone branch or <code>main</code>
+              except by merging an approved step.</li>
+          </ul>
+
+          <h3>Branches</h3>
+          <ul>
+            <li>Each milestone has a branch off <code>main</code>, such as
+              <code>feature/sheet-m1</code>.</li>
+            <li>Each step has a branch off the milestone branch, such as
+              <code>sheet-m1/f4-play-tab</code>, in its own worktree, with a pull request back into the
+              milestone branch.</li>
+            <li>An approved step merges into the milestone branch. Steps that were built in parallel
+              rebase onto it before their own review if the branch moved.</li>
+            <li>The milestone branch merges into <code>main</code> once its definition
+              of done is met.</li>
+          </ul>
+        </section>
+
+        <!-- ============================================================ DECISIONS -->
+        <section id="decisions">
+          <h2>Decisions</h2>
+          <p class="outcome">Settled in conversation on 19, 20, 24, 25, 29 and 30 October and 1, 5 and 8 November 2026.</p>
+
+          <table class="compact">
+            <tr><th>Topic</th><th>Decision</th></tr>
+            <tr><td>Shape of the work</td><td>Milestones as vertical slices, each ending with something
+              usable in the app. Each milestone gets detailed steps when it starts. Every step is sized for
+              one agent to build and one person to review in a sitting.</td></tr>
+            <tr><td>Contract first</td><td>Milestone 1 starts from a written response shape with fixtures.
+              Frontend agents build against the fixtures while backend agents make the endpoint return
+              them, so the two streams run in parallel.</td></tr>
+            <tr><td>Golden fixtures</td><td>The fixtures are the contract's test on both sides. The Rails
+              request test asserts the endpoint returns each fixture for the matching seeded character,
+              after normalising ids. Jest builds the screens from the same files.</td></tr>
+            <tr><td>Catalog scope</td><td>Milestone 1 imports only what the read-only sheet reads. See
+              <a href="#m1">scope</a> for the list, which grew while writing the fixtures.</td></tr>
+            <tr><td>Rules text</td><td>Long catalog text stays out of the sheet response. Detail screens
+              fetch it from catalog endpoints in milestone 4, cached once per catalog row. This keeps the
+              fixtures reviewable and the mutation responses small.</td></tr>
+            <tr><td>Name casing</td><td>The importer writes every catalog name in sentence case, keeping a
+              maintained list of proper nouns such as Hadar and the language names. The first word after a
+              colon is capitalised, and abbreviations drop their full stops. The change is recorded in
+              ATTRIBUTION.md with the other SRD corrections. Character rows keep their own saved names,
+              so the seeds are fixed too.</td></tr>
+            <tr><td>Wide layouts</td><td>Milestone 2, straight after the read-only phone sheet, so the
+              detail presentation in milestone 3 is designed for the push and the side panel at
+              once.</td></tr>
+            <tr><td>Agents</td><td>A short Opus 5.5 session writes each step's brief and exits. GPT-6.1 Sol
+              writes each step's tests first and reviews every step, comparing screenshots with their frames
+              on UI steps. Grok 4.7 implements well-specified
+              steps and Opus 5.5 takes judgment-heavy ones, so no model reviews code it wrote and no
+              implementer writes its own tests. <code>bin/step-next --run</code> starts each agent from step
+              0.3 on, and you approve every step. See
+              <a href="#workflow">agent workflow</a>.</td></tr>
+            <tr><td>Subscription limits</td><td>The workflow is written for the £20 Claude, ChatGPT and
+              Cursor plans, on 5 November 2026. Claude sessions stay short, B5 and B6 are split, stopping
+              at a limit is routine, a timer retries after one, and milestone 0 measures usage before milestone 1
+              commits to it. The
+              screenshot comparison stays, because images cost few tokens, but as part of the review rather
+              than a separate run. See <a href="#limits">working within the
+              limits</a>.</td></tr>
+            <tr><td>Fixture characters</td><td>Brenna, Alarra, Thorn and Vesper. Vesper is the only way to
+              cover the two-class plate, and step 1.0 writes her fixture. The development seeds gain the
+              same four full sheets. Mudge joins with death saves in milestone 5.</td></tr>
+            <tr><td>Sparse sheets</td><td>Mudge and Kethra keep their list seeds, with no ability scores,
+              spells or items, and open as a sparse sheet: what's stored, and a dash for every value that
+              can't be worked out. A character made in a hurry looks the same, so the frame is needed
+              anyway. Orik belongs to the other user and stays the 404 case.</td></tr>
+            <tr><td>Display lines</td><td>The API sends facts plus the short lines that need rules
+              knowledge to write: every <code>summary</code>, <code>label</code>, <code>detail</code> and
+              <code>marks</code> field. The app formats everything else. Without this, the app would need
+              to know that Eldritch blast has two beams at level 6 or that Preserve life heals 35.</td></tr>
+            <tr><td>A lean contract</td><td>Milestone 1's response carries only what the read-only phone
+              sheet shows. Later milestones add fields and never rename or remove one, so the fixtures grow
+              but stay valid.</td></tr>
+            <tr><td>Features and traits in milestone 1</td><td>The catalog scope answer on 19 October
+              deferred these. They can't wait: character rows reference them, and the rule handlers and
+              summaries are keyed on them. Backgrounds, conditions and monsters still wait.</td></tr>
+            <tr><td>Selection and order rules</td><td>Which weapons and spells reach the attack table,
+              which rows reach Actions, and how spells are ordered and summarised, as written under
+              <a href="#rules">rules the fixtures follow</a>. The mockup is hand-picked in places, so the
+              backend needs a rule it can apply to any character.</td></tr>
+            <tr><td>Levelled spells in the attack table</td><td>Only the few that keep attacking after the
+              turn they're cast, such as Spiritual weapon and Flaming sphere. Every damaging levelled spell
+              would turn a high-level caster's attack table into a second spell list: the SRD has 46, 31 of
+              them on the wizard list. Fireball and the rest stay on the Spells tab, and their summaries
+              gain the damage dice so the read-only sheet shows it somewhere.</td></tr>
+            <tr><td>Pinning to the attack table</td><td>Once editing exists, the player can pin any spell
+              to the attack table, so a blaster can keep Fireball there. It needs a column and a control, so
+              it waits for <a href="#map">milestone 6</a>.</td></tr>
+            <tr><td>Mockup corrections</td><td>The mockup was corrected on 25 October to match the
+              fixtures, so the two agree. Three went differently from the first draft: hit dice say "half
+              recovered" for everyone, allies and enemies are two headings, and only Alarra has an armour
+              class override. See <a href="#differences">corrections</a>.</td></tr>
+            <tr><td>Remarkable athlete</td><td>As the SRD has it: half proficiency, rounded up, on
+              Strength, Dexterity and Constitution checks, initiative included. Thorn's initiative is
+              +3.</td></tr>
+            <tr><td>Data model gaps</td><td>Settled on 29 October as written under
+              <a href="#gaps">data model gaps</a>, including where summaries live.</td></tr>
+            <tr><td>Plate marks</td><td>No resource marks on the plate. Its marks are concentration,
+              inspiration and conditions; resources live in Play's Resources block.</td></tr>
+            <tr><td>Resources everywhere</td><td>Every resource shows in Play's Resources block on every
+              layout, Magic initiate's use included. On a phone the Spells tab's casting card keeps its own
+              counter too, because the two tabs are never on screen together.</td></tr>
+            <tr><td>Alarra's background</td><td>Acolyte. Her Character tab gains the Acolyte background
+              group, and her Insight, Religion, Celestial and Infernal rows carry its origin.</td></tr>
+            <tr><td>Alignment</td><td>The nine snake_case keys in the contract, with a check constraint on
+              <code>Characters.alignment</code>.</td></tr>
+            <tr><td>Skills note</td><td>A nullable <code>skills_note</code> display line, written by the
+              handler that grants half ranks, so Remarkable athlete and Jack of all trades each explain
+              themselves under the skills.</td></tr>
+            <tr><td>Pronouns</td><td>Display copy has none, because the data model stores none. Text the
+              player writes, such as appearance and notes, keeps whatever the player wrote. A pronoun
+              choice could arrive with basic details in milestone 6 if it's ever wanted. Every mockup
+              frame follows this since 1 November, not only milestone 1's.</td></tr>
+            <tr><td>Alarra's hit dice line</td><td>"d8, half recovered on a long rest" wraps to two lines
+              beside her seven pips at 390 wide. That's accepted, so it isn't a difference to
+              fix.</td></tr>
+            <tr><td>Warning strips</td><td>The API works warnings out on every read, with one check per
+              code, and stores none, so fixing the cause clears the strip. Each has a <code>lead</code> and
+              a <code>detail</code>, and <code>target_id</code> lets the app mark the affected row. The app
+              picks the button from the code: Fix for <code>resource_over_maximum</code>, Open for
+              <code>unresolved_reference</code>, none for the rest. Milestone 1 sends only
+              <code>missing_ability_scores</code>, which Mudge's and Kethra's seeds produce, and shows no
+              buttons. Each other code arrives with the milestone that can cause it. Dismissing arrives
+              with writes, stored on the character under the code, the target and the facts behind it, so
+              the strip comes back if the facts change.</td></tr>
+          </table>
+        </section>
+
+        <!-- ============================================================ MAP -->
+        <section id="map">
+          <h2>Milestone map</h2>
+          <p class="outcome">Scope only. Frame numbers are the mockup's phone frames; each milestone also
+            covers the desktop and tablet pairs of its frames once milestone 2 exists.</p>
+
+          <table>
+            <tr><th>Milestone</th><th>What you can do at the end</th><th>Backend</th><th>Frontend</th><th>Frames</th></tr>
+            <tr>
+              <td><b>0. Review tooling</b></td>
+              <td>Nothing new in the app. Every later step arrives checked, reviewed and screenshotted
+                before you see it.</td>
+              <td>Scope check, <code>bin/check-step</code> and <code>bin/step-next</code>.</td>
+              <td>Spelling and style lint rules, the comparison page, accessibility and hit-area checks.</td>
+              <td>None</td>
+            </tr>
+            <tr>
+              <td><b>1. Read-only sheet on a phone</b></td>
+              <td>Tap a character in the list and read their whole sheet, every tab, from real data.</td>
+              <td>The character tables brought up to the data model, the catalog tables the sheet reads,
+                the SRD importer, the derivation and rule handlers, <code>GET /characters/:id</code>, full
+                seeds.</td>
+              <td>The route, loading and error states, the plate in both sizes with a snap between them,
+                tabs, and every block read-only.</td>
+              <td>1, 2, 3, 7, 8, 10, 14, 15, the two-class variant from 6, frame 6's warning strips on the
+                component library only, and four new frames: three states and the sparse sheet</td>
+            </tr>
+            <tr>
+              <td><b>2. Wide layouts</b></td>
+              <td>The same sheet on a tablet or desktop, in two or three columns.</td>
+              <td>None expected.</td>
+              <td>The one-row and two-row plates, the strip, the column layouts. No detail panel yet.</td>
+              <td>The <code>d</code> and <code>t</code> pairs of milestone 1's frames</td>
+            </tr>
+            <tr>
+              <td><b>3. Live play</b></td>
+              <td>Run a session from the sheet: take damage and heal, spend pips, set conditions and
+                inspiration, rest, change money, write notes.</td>
+              <td>The write endpoints, <code>lock_version</code> on every write, rest handlers, writes that
+                return the updated sheet.</td>
+              <td>The static bottom sheet, the hit point pad, the status sheet, the rest screen, the money
+                pad, notes that save as you type, the roll sheet without its animation, and the
+                presentation that opens a pad as a sheet on phones and a side panel on wide screens.</td>
+              <td>5, 12, 13, 27, 47, 48, 56, 57</td>
+            </tr>
+            <tr>
+              <td><b>4. Detail screens</b></td>
+              <td>Open anything on the sheet to see its numbers, rules text and controls. Prepare spells.
+                Set and clear overrides.</td>
+              <td>Catalog read endpoints with rules text, override writes, item management, preparation.</td>
+              <td>The full-screen push and side panel, every detail shape, the prepare screen.</td>
+              <td>4, 9, 11, 17 to 26, 31, 34, 36, 37</td>
+            </tr>
+            <tr>
+              <td><b>5. Edge states and motion</b></td>
+              <td>Dying, death saves, concentration saves and replacement, wild shape, and the two
+                animations.</td>
+              <td>Death save and concentration rules, Wild Shape state.</td>
+              <td>The zero hit point and form-swap plates, the header shrink animation, the dice
+                animation.</td>
+              <td>The wild shape and zero hit point variants from 6, 35, 49 to 55, 58, and the motion in 2 and
+                56 to 58</td>
+            </tr>
+            <tr>
+              <td><b>6. Editing</b></td>
+              <td>Change persistent facts: abilities, lists, adding and removing anything, basic details,
+                deleting a character.</td>
+              <td>Catalog search, add and remove with grant suppressions, reordering, pinning a spell
+                to the attack table, basic details, delete.</td>
+              <td>Section editing, list editing, every Add screen, the sheet menu, basic details, delete.</td>
+              <td>16, 28 to 30, 32, 33, 38 to 46</td>
+            </tr>
+          </table>
+          <p class="small">Outside every milestone, as the sheet plan already defers them: the level-up wizard
+            beyond its entry card, edit conflicts, hover, dark mode, and switching characters from inside
+            the sheet.</p>
+        </section>
+
+        <!-- ============================================================ WORKFLOW -->
+        <section id="workflow">
+          <h2>Agent workflow</h2>
+          <p class="outcome">The loop each step goes through before it reaches you, and who does what.
+            The point is that only judgment calls are left by the time you review.</p>
+
+          <h3>Roles</h3>
+          <table class="compact">
+            <tr><th>Role</th><th>Model</th><th>Does</th><th>Doesn't</th></tr>
+            <tr><td>Brief writer</td><td>Opus 5.5, a fresh session per step</td><td>Compiles the step's
+              brief from this plan, commits it to the step branch and exits.</td><td>Stay open between
+              steps, start other agents or re-review diffs.</td></tr>
+            <tr><td>Test writer</td><td>GPT-6.1 Sol</td><td>Writes the step's failing tests
+              before implementation: golden fixture tests, rule tables, and component tests that query by
+              accessible role and name.</td><td>Write implementation code or commit. The script commits its tests.</td></tr>
+            <tr><td>Implementer</td><td>Grok 4.7 by default, Opus 5.5 where a step says so, in its own
+              session</td>
+              <td>Builds the step in its own worktree until the tests and checks pass, commits to the step
+              branch, writes the handoff brief.</td><td>Edit the tests it was given without saying so in the
+              handoff, or leave its allowed paths.</td></tr>
+            <tr><td>Reviewer</td><td>GPT-6.1 Sol</td><td>Reviews the diff against the brief, AGENTS.md
+              and the review checklist, reproduces what it can, and labels each finding. On UI steps, it
+              also compares each screenshot with its frame and lists the differences.</td><td>Fix anything,
+              since it stays read-only, or judge whether a difference is acceptable. That's yours.</td></tr>
+            <tr><td>Diagnosis</td><td>Opus 5.5, only when the timer stops on a stuck step</td><td>Reads the
+              step's agent output and branch, and writes down what went wrong and what it
+              recommends.</td><td>Change any code or restart anything. What happens next is yours.</td></tr>
+            <tr><td>You</td><td></td><td>Answer the questions the loop raises, decide which differences from the frames matter, review the
+              step, approve or send it back.</td><td></td></tr>
+          </table>
+
+          <h3>A step's lifecycle</h3>
+          <ol class="flow">
+            <li><b>Brief</b>A short Opus 5.5 session writes the step's brief from the template and exits.</li>
+            <li><b>Tests first</b>The test writer writes failing tests. The script confirms they fail and commits
+              them.</li>
+            <li><b>Build</b>The implementer works until the tests and <code>bin/check-step</code>
+              pass.</li>
+            <li><b>Checks</b><code>bin/step-next</code> reruns <code>bin/check-step</code> and retakes the
+              screenshots.</li>
+            <li><b>Review</b>A fresh reviewer per round, with the screenshots on UI steps. Must-fix findings go
+              back to step 3.</li>
+            <li><b>Handoff</b>The brief, the review log, the comparison page and your questions.</li>
+            <li><b>You</b>Approve and merge, or send back with notes.</li>
+          </ol>
+
+          <h3>Rules for the loop</h3>
+          <ul>
+            <li><b>Tests come from Sol, never the implementer.</b> An implementer writing its own tests
+              tends to make them match its bugs. The test writer locks the expected behaviour first. Sol
+              also reviews the step, so you're the only second opinion on its tests. Your review starts
+              with them, and they say what the step is meant to do in fewer lines than the code.</li>
+            <li><b>Briefs are self-contained.</b> A brief carries only what the step needs: the frames,
+              the design system sections, the fixture paths, the allowed paths, the decisions that apply,
+              and known pitfalls. Less to read makes a cheaper model more accurate and costs fewer
+              tokens.</li>
+            <li><b>Scope is enforced mechanically.</b> <code>bin/check-step</code> fails when
+              <code>git diff --name-only</code> against the milestone branch leaves the brief's allowed
+              paths. Shared files, such as the theme, the component index and the routes, change only in
+              steps that list them.</li>
+            <li><b>Findings carry a severity.</b> <code>must-fix</code> goes back to the implementer.
+              <code>should-fix</code> and <code>nit</code> are batched into the handoff for you to decide.
+              <code>question</code> goes straight to you. Every finding needs a concrete failure scenario,
+              and the reviewer reproduces it where it can. Differences from the frames are listed separately
+              with no severity, and the latest round's list comes to you.</li>
+            <li><b>Two rounds, then escalate.</b> If the second review still has must-fix findings, or the
+              implementer reports it's stuck, the step goes to Opus 5.5, not a third Grok
+              round. A step Opus 5.5 is already implementing comes to you instead. The log records every
+              escalation, which shows where Grok is worth using.</li>
+            <li><b>Nothing takes an agent's word for it.</b> <code>bin/step-next</code> reruns the checks
+              rather than accepting a "done", and offers no review until they pass. The Claude Code Stop
+              hook from step 0.2a only binds agents running in Claude Code, so for Grok and Sol this run is
+              the gate.</li>
+            <li><b>A script takes the screenshots, not an agent.</b> Before each review round,
+              <code>bin/step-next</code> retakes them from the committed branch, so a review never sees stale
+              shots or the wrong state. Every round reads them, because nobody knows which round is the last.
+              An implementer can run the script while building, but the retake replaces its shots. A step
+              with no frames in <code>frames.json</code> skips this.</li>
+            <li><b>At most two steps wait for you.</b> No new implementer starts while two steps sit in your
+              queue, even when the plan allows parallel work. Otherwise output piles up and branches go
+              stale.</li>
+            <li><b>State lives in files.</b> Briefs, review rounds and the log live under
+              <code>docs/sheet-build/</code> on the step branch, so a fresh session can pick up where the
+              last one stopped.</li>
+            <li><b>Your misses feed the loop.</b> Every finding you make that the reviewer missed goes in
+              the log, and becomes a line on the review checklist, a known pitfall in later briefs, or a
+              lint rule. Something you've flagged twice is never left to review a third time.</li>
+          </ul>
+
+          <h3>Choosing the implementer</h3>
+          <p>Each step below carries a suggested implementer. <span class="tag grok">Grok 4.7</span> where
+            the target is checkable: a primitive with a frame, a tab that renders a fixture, a migration
+            from a written spec, an endpoint that must equal a golden file.
+            <span class="tag strong">Opus 5.5</span> where the step is mostly judgment: rules derivation,
+            web and native accessibility, layout plumbing, and later the optimistic updates.
+            <span class="tag you">You</span> marks a step that needs your decisions more than code.
+            <span class="tag par">Parallel</span> marks steps that can run at the same time, within the
+            queue limit.</p>
+          <div class="decision">
+            <h3>Try it on milestone 0 first</h3>
+            <p>Milestone 0 is well specified and low risk. Run it with Grok implementing, and track rounds,
+              escalations, your review time and usage per step in the log. Then decide whether Grok is
+              worth it for milestone 1's frontend steps, and whether any subscription needs upgrading.</p>
+          </div>
+
+          <h3 id="limits">Working within the limits</h3>
+          <p>Every limit figure we could find is approximate, and many come from third-party guides. Go by
+            <code>/usage</code> in Claude Code, Codex's usage settings and the Spending tab of Cursor's dashboard.</p>
+          <ul>
+            <li><b>Claude sessions stay short.</b> A long session rereads its whole context on every call,
+              and Claude is likely the tightest limit. This plan's own thread averaged about 165,000 tokens
+              a call. So no Opus session outlives its brief or its step.</li>
+            <li><b>Stopping is routine.</b> A limit can cut an agent off without warning, so implementers
+              commit each time another test passes. The next session reads the last commit and anything
+              uncommitted, then keeps or discards that work, and the log records the stop. Tests and reviews
+              never fall to the step's implementer to save waiting.</li>
+            <li><b>Stops don't count as rounds.</b> Rounds are counted from finished review files, so a review
+              cut off partway runs again without counting, and so does a resumed implementer session. A
+              usage limit can't trigger an escalation by accident.</li>
+            <li><b>If Codex runs out.</b> On a Grok step, you can have Opus 5.5 write the tests or do the
+              review so the work keeps moving, and the log notes the switch. On an Opus 5.5 step, tests and
+              reviews wait for Sol.</li>
+            <li><b>Usage is measured on milestone 0.</b> The script records each run's token counts where the
+              tool reports them. When a step reaches you, read the percentage used of each subscription's
+              5-hour window and weekly limit, or Cursor's models pool, and add it to the step's log. A
+              milestone 1 step that wouldn't fit in one window on those numbers gets split
+              before it starts.</li>
+            <li><b>Grok 4.7 draws from Cursor's own models pool.</b> Cursor's docs confirm this, so it doesn't
+              use the third-party allowance. Pro is a legacy plan with a monthly pool, while the newer
+              plans have a weekly one. Cursor publishes no size for either, so milestone 0 measures it.
+              Before step 0.1, check which you have on the Spending tab of Cursor's dashboard, check whether
+              extra usage bills automatically once the pool runs out, and set a spending limit.</li>
+            <li><b>If Grok runs out.</b> A monthly pool could mean weeks of waiting. Either Opus 5.5 takes the
+              remaining Grok steps from the existing tests and work so far, or you pay for extra Cursor
+              usage, whichever milestone 0's numbers make cheaper. Sol's reviews stay independent either
+              way.</li>
+            <li><b>A timer runs the loop.</b> From step 0.3 on, <code>bin/step-next --run</code> starts agents
+              through <code>claude -p</code>, <code>codex exec</code> and <code>cursor-agent -p</code>, and a
+              timer calls it every 30 to 60 minutes. It uses no model of its own, and it notifies you when
+              a step is waiting on you or stuck. If it's stuck, one short Opus 5.5 session diagnoses it, which
+              costs far less than an Opus orchestrator because it only runs on steps that fail. If Claude is
+              at a limit too, you get the notification without the diagnosis. Switching a step's model after a
+              long stop stays your call.
+              Before step 0.3, check that each provider's terms allow unattended use. Where they don't, that
+              agent runs by hand.</li>
+          </ul>
+          <div class="decision">
+            <h3>If Claude is what runs out</h3>
+            <p>Move to the £100 Claude plan for the month you build milestone 1. Third-party guides put it
+              at about five times Pro's usage per 5-hour window, though the weekly limit still applies and
+              we couldn't find how much it grows. Opus 5.5 can then write the tests on steps Grok
+              implements, which takes load off Codex.</p>
+            <p>Short sessions, the split steps, frequent commits and the usage log all stay. Upgrading Claude
+              doesn't help if Codex or Cursor runs out first.</p>
+          </div>
+        </section>
+
+        <!-- ============================================================ TEMPLATES -->
+        <section id="templates">
+          <h2>Templates</h2>
+          <p class="outcome">Step 0.2a copies these into <code>docs/sheet-build/</code>. Change them there
+            once the loop shows what's missing.</p>
+
+          <h3>Step brief</h3>
+<pre><code># Step &lt;id&gt;: &lt;title&gt;
+
+Milestone branch: feature/sheet-m&lt;n&gt;     Step branch: sheet-m&lt;n&gt;/&lt;id&gt;-&lt;slug&gt;
+Implementer: &lt;model&gt;     Depends on: &lt;steps, all merged&gt;
+
+## Read first
+- AGENTS.md, all of it.
+- docs/character-sheet-build-plan.html#ground (rules for every step).
+
+## Outcome
+&lt;One paragraph: what exists when this step is done.&gt;
+
+## Inputs
+- Frames: &lt;phone numbers, d and t numbers&gt;, rendered with ./mockups/shoot.sh character-sheet &lt;frames&gt;
+- Design system: &lt;sections of docs/design-system.html&gt;
+- Fixtures: &lt;paths&gt;
+- Decisions that apply: &lt;copied from the plan, not linked&gt;
+
+## Tests already written
+&lt;Paths. They fail now and must pass. Don't edit them; if one is wrong, say so in the handoff.&gt;
+
+## Allowed paths
+```allowed
+frontend/src/screens/character-sheet/play/**
+frontend/src/screens/character-sheet/play.test.tsx
+docs/sheet-build/**
+```
+
+## Out of scope
+&lt;What a neighbouring step owns.&gt;
+
+## Known pitfalls
+&lt;From the review checklist and the log: findings that keep coming back.&gt;
+
+## Finish
+Commit each time another test passes, so a usage limit costs little. Run bin/check-step &lt;id&gt;.
+Commit to the step branch as conventional commits.
+Write docs/sheet-build/handoffs/&lt;id&gt;.md from the handoff template.</code></pre>
+
+          <h3>Reviewer prompt</h3>
+<pre><code>You are reviewing step &lt;id&gt; of the character sheet build. You don't edit files.
+
+Read: the brief (docs/sheet-build/briefs/&lt;id&gt;.md), AGENTS.md, the review
+checklist (docs/sheet-build/review-checklist.md), and the diff:
+git diff feature/sheet-m&lt;n&gt;...sheet-m&lt;n&gt;/&lt;id&gt;-&lt;slug&gt;
+
+Earlier rounds: &lt;paste each earlier round's findings and the implementer's
+responses, including anything still disputed&gt;.
+
+Report only problems you can tie to a concrete failure: inputs or state, then
+the wrong output, crash, inaccessible control or broken rule. Reproduce it where
+you can (run the test, the app, or the endpoint) and say whether you did.
+
+Label each finding:
+- must-fix: wrong behaviour, a failing rule from AGENTS.md or the brief, a
+  missing state, an accessibility failure.
+- should-fix: works, but will cost later (duplication, a leaky abstraction).
+- nit: style the linters don't catch.
+- question: needs the person who owns the plan to decide.
+
+Also check: did the step stay inside its allowed paths, did it edit any test it
+was given, and does the handoff brief match the diff?
+
+If docs/sheet-build/comparison/&lt;id&gt;/ exists, check that its commit matches the
+branch head, then compare each app screenshot with its frame. List every
+difference under "Differences from the frames" with the frame number, and give
+them no severity. The person who owns the plan decides which ones matter.
+
+End with the whole round as your final message. It's saved for you to
+docs/sheet-build/reviews/&lt;id&gt;-round-&lt;r&gt;.md.</code></pre>
+
+          <h3>Handoff brief</h3>
+<pre><code># Handoff: step &lt;id&gt;
+
+## What changed
+&lt;A few lines. Not a file list.&gt;
+
+## Decisions the plan didn't cover
+&lt;Each with the option taken and why. These are what the reviewer and you look at first.&gt;
+
+## Departures from the mockup or the plan
+&lt;Each with a frame number and a reason.&gt;
+
+## Least confident about
+&lt;Where to look hardest.&gt;
+
+## Tests I changed
+&lt;None, or each with the reason.&gt;
+
+## Checks
+&lt;bin/check-step output summary&gt;      Comparison page: docs/sheet-build/comparison/&lt;id&gt;/
+
+## Questions for you
+&lt;From the reviewer and from me.&gt;</code></pre>
+
+          <h3>Log entry</h3>
+<pre><code>## &lt;id&gt; &lt;title&gt;       approved &lt;date&gt;
+Implementer: grok-4.7, escalated to opus-5.5 after round 2 (layout plumbing)
+Test writer: gpt-6.1-sol     Reviewer: gpt-6.1-sol
+Rounds: 3     Must-fix found by the loop: 4     Your review: 25 min
+Limit stops: 1, Codex window during round 2, resumed from the last commit
+Usage when it reached you, milestone 0 only: Claude 12% window, 2% week; Codex 40% window, 6% week; Cursor 3%
+Agent tokens, where reported: opus-5.5 310k; gpt-6.1-sol 900k; grok-4.7 1.4M
+Missed by the loop: tab bar announced twice on web -&gt; added to the checklist</code></pre>
+
+          <h3>Review checklist, seeded from the character list</h3>
+          <p>Each line is a finding from the list's review that a reviewer has to look for because no check
+            catches it yet.</p>
+          <ul>
+            <li>Headings have levels on the web, and the web gets the same accessible names as
+              native.</li>
+            <li>Every control has a role, a name, and the state the sheet plan's ARIA decisions give it:
+              tabs with <code>aria-selected</code>, single choices as radios, toggles with
+              <code>aria-pressed</code>, disclosures with <code>aria-expanded</code>, pip rows as one
+              adjustable control.</li>
+            <li>Every control answers across at least 44 by 44, with neighbouring areas meeting at the
+              midpoint.</li>
+            <li>Focus survives a remount: a breakpoint change or a retry doesn't drop keyboard focus.</li>
+            <li>Offline, a missing <code>EXPO_PUBLIC_</code> setting and a 401 each show their own message,
+              not a generic failure.</li>
+            <li>Limits are counted the way the API counts them, in code points, not UTF-16 units.</li>
+            <li>UI copy uses curly quotes where it quotes, American spelling, sentence case and no
+              pronouns.</li>
+            <li>No number on screen is calculated in the app when the API sends it.</li>
+          </ul>
+        </section>
+
+        <!-- ============================================================ M0 -->
+        <section id="m0">
+          <h2><span class="step-no">0</span>Milestone 0: review tooling</h2>
+          <p class="outcome">Build the checks before the code they check. Each step here is small, and the
+            whole milestone doubles as the trial run for the agent workflow.</p>
+
+          <h3>0.1 Spelling and style rules <span class="tag grok">Grok 4.7</span></h3>
+          <ul>
+            <li>cspell on the frontend and the backend's user-facing strings, with an en-US dictionary, a
+              project word list for game terms, and a flagged list of British spellings
+              (<code>colour</code>, <code>armour</code>, <code>levelling</code>, <code>grey</code> and so
+              on) that fails in code and copy. Plans and the design system are excluded.</li>
+            <li>ESLint: no colour literals in styles, no <code>fontWeight</code> anywhere.</li>
+            <li>A script that fails when <code>src/app/</code> holds anything but routes.</li>
+            <li><code>npm run check</code> runs format check, lint, typecheck, tests, spelling and the routes
+              check.</li>
+            <li>Each rule has a test that proves it fails on a bad example.</li>
+          </ul>
+
+          <h3>0.2a One entry point, scope and the Stop hook <span class="tag grok">Grok 4.7</span></h3>
+          <ul>
+            <li><code>bin/check-step &lt;id&gt;</code> at the repository root runs <code>npm run
+              check</code>, <code>backend/bin/ci</code> when the diff touches <code>backend/</code>, and the
+              scope check against the brief's <code>allowed</code> block. <code>--quick</code> skips the
+              slow parts for use while iterating.</li>
+            <li>A Claude Code Stop hook in the committed <code>.claude/settings.json</code> runs
+              <code>bin/check-step --quick</code>, but only in a worktree that holds a
+              <code>.sheet-step</code> marker file, so ordinary sessions aren't affected. It blocks each stop
+              only once, so a check that keeps failing can't keep an unattended agent running.</li>
+            <li><code>docs/sheet-build/</code> with the templates above, a <code>log/</code> folder with one
+              file per step, so step branches don't conflict over a shared log, and the review
+              checklist.</li>
+          </ul>
+
+          <h3>0.2b The next-step script <span class="tag grok">Grok 4.7</span></h3>
+          <ul>
+            <li><code>bin/step-next &lt;id&gt;</code> reads the step's files and branch, reruns
+              <code>bin/check-step</code> when a review would come next, and prints the next agent, its model
+              and its prompt filled in from the templates. After a second round with must-fix findings, it
+              offers the escalation.</li>
+            <li>Once the test writer has finished, it confirms the new tests fail, then commits them. That
+              commit marks where the tests were finished, and it flags any later edit to those files.</li>
+            <li>The reviewer runs as <code>codex exec -s read-only -o &lt;file&gt;</code>, so Sol stays read-only
+              and the review file appears only if the round finished. The script commits that file.</li>
+          </ul>
+
+          <h3>0.2c Unattended running <span class="tag strong">Opus 5.5</span></h3>
+          <p>This goes to Opus 5.5 because it runs unattended, and a bug here could waste a lot of usage. Steps
+            up to and including this one run by hand.</p>
+          <ul>
+            <li>Before building it, run one small prompt through each of the three tools from a timer. On 8
+              November, <code>cursor-agent models</code> reported that authentication was required from an
+              agent's shell, even though <code>cursor-agent status</code> said it was logged in.</li>
+            <li><code>bin/step-next --run</code> also starts the next agent, confined to the step's worktree,
+              one at a time, and a timer calls it. It runs <code>bin/setup</code> in each new worktree, and
+              every agent run has a time limit.</li>
+            <li>It stops at an approval, a question or a full queue, and notifies you. An attempt that exits at
+              once costs nothing, usually because a limit is still in force, so it's retried on the next
+              tick. An attempt that runs and ends with no new commit counts as failed, and three of those on
+              a step stop the timer. So does a day with no progress, which usually means a weekly or monthly
+              limit.</li>
+            <li>Each agent's output goes in the git-ignored <code>docs/sheet-build/runs/&lt;id&gt;/</code>. When
+              failed attempts stop the timer, <code>--run</code> starts one Opus 5.5 session, which reads that
+              output and the branch and writes <code>docs/sheet-build/diagnoses/&lt;id&gt;.md</code>.</li>
+          </ul>
+
+          <h3>0.3 The comparison page <span class="tag grok">Grok 4.7</span></h3>
+          <ul>
+            <li>A script that pairs app screenshots with mockup frames from a mapping file,
+              <code>docs/sheet-build/frames.json</code>: route, fixture or seeded character, viewport, and
+              the frame it should match.</li>
+            <li>It renders both sides with the existing <code>shoot.sh</code> scripts and writes one dark
+              page: each pair side by side at the same scale, with a toggle that overlays them and an
+              opacity slider.</li>
+            <li><code>bin/step-next</code> runs it before each review round on a step with frames. The page
+              and its images go in the git-ignored <code>docs/sheet-build/comparison/&lt;id&gt;/</code>, marked
+              with the commit they came from. A step's handoff links the page.</li>
+            <li>A trial of who reads the images: make a copy of the character list's screenshots with
+              a missing element, wrong copy and wrong spacing added, and run Sol and Grok on it. Log what
+              each one catches. Sol does it as part of the review. Grok would be a separate run, if Cursor
+              passes it images at all. If neither catches enough, you're left with the comparison page and
+              no agent reads the images.</li>
+          </ul>
+
+          <h3>0.4 Accessibility and hit-area checks <span class="tag strong">Opus 5.5</span></h3>
+          <ul>
+            <li>A script that loads routes from the web build in headless Chromium over DevTools, injects
+              axe-core (a JavaScript-only dev dependency), and fails on violations.</li>
+            <li>A hit-area check over the same pages: every element with an interactive role answers across
+              44 by 44, or carries a declared hit slop that makes it so, and no two areas overlap.</li>
+            <li>Confirm first how hit slop reaches the DOM on the web. If react-native-web drops it, the
+              shared pressable exposes it as a data attribute for the check to read. This is why the step
+              goes to Opus 5.5.</li>
+          </ul>
+
+          <h3>Done when</h3>
+          <ul class="checks">
+            <li>Each check fails on a seeded bad example and passes on the current
+              <code>main</code>, or the step lists every existing violation it
+              found.</li>
+            <li>The comparison page works for the character list against its mockup.</li>
+            <li>The log has an entry for each step, with its usage.</li>
+            <li><code>bin/step-next --run</code> has resumed a step after its agent was killed partway, and
+              stopped on a step made to keep failing.</li>
+            <li>You've decided on Grok for milestone 1, on who reads the screenshots, and on whether to
+              upgrade a subscription.</li>
+          </ul>
+        </section>
+
+        <!-- ============================================================ M1 SCOPE -->
+        <section id="m1">
+          <h2><span class="step-no">1</span>Milestone 1: scope</h2>
+          <p class="outcome">Tap a character in the list and their sheet opens on a phone, every tab
+            filled from <code>GET /api/v1/characters/:id</code>, read-only.</p>
+
+          <h3>In</h3>
+          <ul>
+            <li>The route <code>src/app/characters/[id].tsx</code>. Card taps and Open sheet on the list get
+              an <code>href</code>, as the list plan's navigation decision asks, and the sheet's back button
+              returns to the list.</li>
+            <li>Loading, couldn't load and not found, and the sparse sheet, as four new frames drawn
+              first.</li>
+            <li>The tall plate and the compact plate, switching at a scroll threshold without animation.
+              Milestone 5 adds the continuous shrink.</li>
+            <li>The attached tab bar. Spells is absent for a character without spellcasting.</li>
+            <li>Every block on Play, Stats, Spells, Gear and Character, read-only: resources with pips,
+              attacks, actions, casting cards, the slot grid, spells by level, abilities, saves, skills with
+              rank shapes, passives, proficiencies and languages, money, items grouped with containers
+              expanded in place, feature groups, the profile, notes with Show all, and the level-up
+              card.</li>
+            <li>Override badges and marks, displayed, and the missing ability scores strip with no
+              button.</li>
+            <li>Every pressable renders its press and focus states with no handler, as the list did, ready for
+              later milestones.</li>
+            <li>On screens wider than a phone, the phone layout in a centred column until milestone 2.</li>
+          </ul>
+
+          <h3>Out</h3>
+          <ul>
+            <li>Anything that writes, including spending a pip, dismissing a warning and typing in
+              notes.</li>
+            <li>Detail screens, bottom sheets, the rest screen and the level-up wizard.</li>
+            <li>Tablet and desktop layouts.</li>
+            <li>Wild shape and zero hit point plates.</li>
+          </ul>
+
+          <h3>Backend</h3>
+          <ul>
+            <li><b>Character tables.</b> Bring Characters, CharacterClasses, CharacterResources,
+              CharacterFeatures and CharacterEffects up to <a href="data-model.md">data-model.md</a>, and add
+              CharacterProficiencies, CharacterLanguages, CharacterSpells, CharacterItems and
+              CharacterActions. CharacterGrantSuppressions waits for milestone 6.</li>
+            <li><b>Catalog.</b> ContentSources with a private homebrew source per user, then Classes,
+              Subclasses, Features, Races, Subraces, Traits, RaceTraits, SubraceTraits, Spells, ClassSpells,
+              SubclassSpells, Equipment, EquipmentCategories, EquipmentCategoryMembers, Proficiencies and
+              Languages. Backgrounds, Conditions and Monsters wait for the milestones that need them.</li>
+            <li><b>Importer.</b> The SRD importer for those tables, with the correction manifest, sentence
+              casing and the proper-noun list.</li>
+            <li><b>Derivation.</b> Ability modifiers, proficiency bonus, saves, skills, passives, armour
+              class, initiative, speed, casting statistics and resource maximums, then the rule handlers and
+              summaries the fixtures need.</li>
+            <li><b>Endpoint.</b> <code>GET /api/v1/characters/:id</code>: 200 with the sheet, 404 with
+              <code>{"error":{"code":"not_found"}}</code> for a missing character or one that belongs to
+              someone else, so the response never reveals that it exists. Authentication as the list
+              does it.</li>
+            <li><b>Seeds.</b> Brenna, Alarra, Thorn and Vesper as full sheets matching the fixtures, with Hex
+              and Armor of Agathys in the demo user's homebrew source. Mudge, Kethra and Orik stay as they
+              are, and the list's tests keep passing.</li>
+          </ul>
+        </section>
+
+        <!-- ============================================================ CONTRACT -->
+        <section id="contract">
+          <h2>The contract</h2>
+          <p class="outcome">The draft types are in
+            <a href="character-sheet-contract/character-sheet.ts"><code>character-sheet-contract/character-sheet.ts</code></a>,
+            with a JSDoc line on every field. This section explains the shape; the file is the
+            reference.</p>
+
+          <h3>Principles</h3>
+          <ul>
+            <li>Conventions match the list: snake_case keys, ids as strings, every key present, null for
+              none.</li>
+            <li>Lists arrive in display order. The app groups, but never sorts.</li>
+            <li>Facts plus display lines, as decided above. A display line is written for the place it
+              appears, so the same fact can have two lines, such as a resource's summary on Play and a
+              casting card's row built by the app.</li>
+            <li>A value the player can replace is a <code>DerivedValue</code>: <code>value</code>,
+              <code>calculated</code> and <code>override</code>. The override badge shows whenever
+              <code>override</code> isn't null.</li>
+            <li>Lean for milestone 1, additive afterwards.</li>
+          </ul>
+
+          <h3>Top-level fields</h3>
+          <table class="compact">
+            <tr><th>Fields</th><th>Feeds</th></tr>
+            <tr><td><code>name</code>, <code>token_ink</code>, <code>ancestry</code>, <code>classes</code>,
+              <code>total_level</code></td><td>The plate's token and subtitle, built with the list's
+              existing display helpers.</td></tr>
+            <tr><td><code>hit_points</code>, <code>death_saves</code>, <code>armor_class</code>,
+              <code>initiative</code>, <code>speed</code>, <code>proficiency_bonus</code></td><td>The vitals
+              cutout and the stat rail. Its third tile is the first casting card's save DC, or the
+              proficiency bonus for a character with no spellcasting.</td></tr>
+            <tr><td><code>concentration</code>, <code>inspiration</code>, <code>conditions</code>,
+              <code>exhaustion_level</code></td><td>The plate's marks.</td></tr>
+            <tr><td><code>resources</code>, <code>attacks</code>, <code>actions</code></td><td>Play.</td></tr>
+            <tr><td><code>abilities</code>, <code>saving_throws</code>, <code>skills</code>,
+              <code>skills_note</code>, <code>passives</code>, <code>proficiencies</code>, <code>languages</code></td><td>Stats.</td></tr>
+            <tr><td><code>spellcasting</code>, <code>spells</code></td><td>Spells, and whether the tab
+              exists.</td></tr>
+            <tr><td><code>items</code>, <code>money</code></td><td>Gear. The app groups items into
+              equipped, attuned (whatever is attuned, even if worn), carried, and each container's
+              contents.</td></tr>
+            <tr><td><code>feature_groups</code>, <code>profile</code>, <code>notes</code>,
+              <code>level_up_draft</code></td><td>Character.</td></tr>
+            <tr><td><code>warnings</code></td><td>Strips under the plate, worked out on every read.
+              Empty in all four fixtures.</td></tr>
+            <tr><td><code>lock_version</code></td><td>Unused until milestone 3 sends it back with every
+              write.</td></tr>
+          </table>
+
+          <h3>The golden test</h3>
+          <p>The Rails request test fetches each seeded character and compares the body with its fixture
+            after normalising both:</p>
+          <ul>
+            <li>Every string under a key named <code>id</code>, ending in <code>_id</code>, or inside an
+              array under a key ending in <code>_ids</code>, becomes a placeholder numbered by first
+              appearance. Fixture ids can stay readable, like <code>brenna-res-pact</code>, and references
+              still have to point at the right thing.</li>
+            <li><code>lock_version</code> only has to be a non-negative integer.</li>
+            <li>Everything else, order included, must match exactly.</li>
+          </ul>
+          <p>Jest uses the same files, without normalising, to render each tab. Step 1.1 moves the fixtures
+            to <code>contracts/character-sheet/</code> so both sides read one copy.</p>
+        </section>
+
+        <!-- ============================================================ FIXTURES -->
+        <section id="fixtures">
+          <h2>Fixtures</h2>
+          <p class="outcome">Four characters, chosen so that between them every milestone 1 block has
+            something to show. The first three typecheck against the draft types. Step 1.0 writes the
+            fourth.</p>
+
+          <table>
+            <tr><th>Fixture</th><th>Character</th><th>What it covers</th></tr>
+            <tr>
+              <td><a href="character-sheet-contract/brenna.json"><code>brenna.json</code></a></td>
+              <td>Brenna Duskhollow, half-elf warlock 6, the Fiend</td>
+              <td>A pact caster with two casting cards, one from a feat. A spell with two paths, one through
+                an item with its own uses. Two homebrew spells. Concentration, inspiration and temporary hit
+                points. A manual attack action. An attuned item, a container with five things inside, a
+                manual resource, invocations as children, and a feat group.</td>
+            </tr>
+            <tr>
+              <td><a href="character-sheet-contract/alarra.json"><code>alarra.json</code></a></td>
+              <td>Alarra Vane, human cleric 7, Life domain</td>
+              <td>A preparing caster at 11 of 11 with 7 domain spells. Spell slots at four levels for the
+                slot grid. An armour class override of 19 over a calculated 18, and a Medicine override of
+                +9 over +7. Channel marks on actions. The Acolyte background.</td>
+            </tr>
+            <tr>
+              <td><a href="character-sheet-contract/thorn.json"><code>thorn.json</code></a></td>
+              <td>Thorn Grimsby, mountain dwarf fighter 8, Champion</td>
+              <td>No spellcasting, so four tabs and a proficiency tile on the rail. Extra attack, half ranks,
+                tool proficiencies with a rank, and a subrace.</td>
+            </tr>
+            <tr>
+              <td><code>vesper.json</code>, from step 1.0</td>
+              <td>Vesper Quill, rock gnome wizard 5 and rogue 2, Divination</td>
+              <td>Two classes on the plate and on the casting card. Spell slots from the wizard levels alone,
+                since rogue 2 doesn't cast. Two classes' feature groups, expertise ranks, Portent as a class
+                resource and Cunning action as a bonus action. Her armour class is derived, and frame 6's
+                two-class plate changes to match her numbers wherever they differ.</td>
+            </tr>
+          </table>
+
+          <p>Since the <a href="#differences">corrections</a> of 25 and 30 October, every fixture matches
+            its frames: abilities, saves, skills, passives, hit points, armour class, save DCs, attack
+            bonuses, damage, pips, coins, item and feature lines and profile text.</p>
+          <p>Alarra is the one character with an armour class override, 19 over a calculated 18, so the
+            fixtures show the badge once. Brenna's and Thorn's armour class is derived. Their current
+            seeds carry overrides equal to the calculated value, which step B4 removes.</p>
+
+          <div class="warning">
+            <h3>Hex and Armor of Agathys aren't SRD 5.1</h3>
+            <p>Neither is Hunger of Hadar, which the warning variant names. The fixtures treat Brenna's two
+              as spells in the demo user's homebrew source, which the data model already supports, so the
+              seeds have to create that source and the two spell rows. See <a href="#gaps">data model
+              gaps</a> for why they can't be custom spell rows.</p>
+          </div>
+        </section>
+
+        <!-- ============================================================ RULES -->
+        <section id="rules">
+          <h2>Rules the fixtures follow</h2>
+          <p class="outcome">The mockup was drawn by hand, so some blocks have no rule behind them. The
+            backend needs one it can apply to any character. Agreed on 24 October; changing one changes the
+            fixtures.</p>
+
+          <table class="compact">
+            <tr><th>Topic</th><th>Rule</th></tr>
+            <tr><td>Attack table</td><td>Manual attack actions first, because the player added them on
+              purpose. Then every weapon the character has outside a container, equipped first, in item
+              order. Then cantrips that make an attack roll or force a save and deal damage. Then levelled
+              spells that keep attacking after the turn they're cast, by level and then name: Spiritual
+              weapon, Flaming sphere, Moonbeam, Heat metal and Arcane sword in the SRD. The summary
+              manifest flags these with <code>attacks_after_casting</code> on Spells, because the SRD
+              data can't pick them out. A spell needs a path that
+              can cast it now, prepared or always prepared. Its damage is at the level that path casts it:
+              a fixed level, the Pact magic level, or else the spell's own level. A row cast above the
+              spell's own level says so in its summary, such as <code>at 3rd</code>. Every other levelled
+              spell stays on the Spells tab.</td></tr>
+            <tr><td>Actions</td><td>Grouped as action, bonus action, reaction and no action needed. Within
+              Action: the Attack row when the character makes more than one attack per Attack action, then
+              spells, then Cast a spell when the character has a levelled spell, then features, then Common
+              actions. A spell gets a row only when one of its paths has its own uses, like Brenna's Cure
+              wounds, or when it's the spell being concentrated on and its rules give it a recurring action,
+              like Hex. Features get a row when the summary manifest gives them an action type.
+              Opportunity attack names the first melee attack.</td></tr>
+            <tr><td>Attack lines</td><td>The app writes the line under an attack's name: what the attack
+              takes when it isn't an action, then the thrown range if there is one, such as <code>20/60 ft
+              thrown</code>, or else the melee reach, such as <code>Melee, 5 ft</code>, or the range. Then
+              the properties that change the roll, such as finesse and versatile, and then the API's
+              <code>summary</code>. Light and thrown don't show, because the range already says
+              thrown.</td></tr>
+            <tr><td>Spell order</td><td>By level, then always-prepared spells, then by name.</td></tr>
+            <tr><td>Spell summary</td><td>Casting time and range, then the first of: concentration, the
+              save with its DC, the healing dice, the duration unless instantaneous. A spell that deals
+              damage skips the duration and ends with its damage dice and type, at the level the attack
+              table rule gives, such as <code>Action, 150 ft, Dex save 15, 8d6 fire</code>. Beam and ray
+              handlers write the damage part themselves, such as <code>two beams, 1d10+4 force
+              each</code>. Damage another attack carries, such as Hex's, isn't the spell's own and stays
+              out. A spell with several paths at different levels says which path casts at which
+              level.</td></tr>
+            <tr><td>Resource order</td><td>Slots or Pact magic, then class and subclass feature resources in
+              feature order, then hit dice, then everything else in the order it was added.</td></tr>
+            <tr><td>Feature groups</td><td>Class, subclass, race with its subrace, background, each feat
+              with the level it was taken at, then anything added by hand.</td></tr>
+            <tr><td>Item lines</td><td>Weapons: damage, then properties, such as <code>1d4 piercing,
+              finesse, light, thrown 20/60 ft</code>. Armour: category, AC and any Strength minimum, such as
+              <code>Heavy armor, AC 16, Strength 13</code>. Shields: <code>+2 AC</code>. Containers: how
+              many things are inside. Everything else: the summary manifest, or the grant it came with, such
+              as <code>From the Acolyte background</code>.</td></tr>
+            <tr><td>Hit dice</td><td><code>reset_on</code> is <code>long_rest</code>, because a long rest
+              recovers half. Some current seeds say <code>short_rest</code>.</td></tr>
+            <tr><td>Summaries</td><td>Static lines come from a maintained manifest keyed by catalog type and
+              key, like the correction manifest. Lines that depend on the character, such as
+              <code>Heal 1d10+8</code> or <code>Two 3rd-level slots</code>, come from rule handlers.</td></tr>
+          </table>
+
+          <h3>Rule handlers the fixtures need</h3>
+          <p>Each is a small class keyed on a catalog feature or spell, with its own test table:</p>
+          <ul>
+            <li>Brenna: Agonizing blast (Charisma to Eldritch blast damage), Repelling blast (the push note),
+              Eldritch blast beams by level, Scorching ray rays by slot level, Pact magic slots, Dark One's
+              blessing and Dark One's own luck.</li>
+            <li>Alarra: Channel divinity uses, Preserve life's pool, Destroy undead's CR, Disciple of life on
+              healing dice, Turn undead's save, and Spirit guardians' damage type, which is radiant unless
+              the caster is evil.</li>
+            <li>Thorn: Dueling, Extra attack, Remarkable athlete, Second wind's healing and Action surge
+              uses.</li>
+            <li>Everyone: cantrip damage by character level and spell damage by slot level, which the SRD
+              data already holds, with the spellcasting modifier in place of the data's <code>MOD</code>.</li>
+          </ul>
+        </section>
+
+        <!-- ============================================================ DIFFERENCES -->
+        <section id="differences">
+          <h2>Corrections to the mockup</h2>
+          <p class="outcome">Made on 25 October, rows 16 to 19 on 30 October and row 20 on 1 November, so
+            each fixture and its frames agree. The mockup changed
+            in every copy of a frame, phone, desktop and tablet. Where a row says the fixture changed, the
+            mockup's version won.</p>
+
+          <table>
+            <tr><th>#</th><th>Where</th><th>Change</th><th>Why</th></tr>
+            <tr><td>1</td><td>Brenna's attacks</td><td>A Dagger row: 20/60 ft thrown, finesse, +5, 1d4+2
+              piercing</td><td>The attack rule lists every weapon outside a container, and her daggers are
+              on her belt.</td></tr>
+            <tr><td>2</td><td>Alarra's Actions</td><td>The Bonus action group is gone, with Healing word
+              and Spiritual weapon</td><td>Neither has its own uses or is being concentrated on. Spiritual
+              weapon's attack is in the attack table.</td></tr>
+            <tr><td>3</td><td>Thorn's skills</td><td>Half on Acrobatics, Sleight of hand and Stealth at +3.
+              Animal handling and Medicine +1 with no rank. The Stats note now states the SRD
+              rule.</td><td>Remarkable athlete rounds up and covers only Strength, Dexterity and
+              Constitution checks.</td></tr>
+            <tr><td>4</td><td>Thorn's initiative</td><td>+1 became +3</td><td>Initiative is a Dexterity
+              check.</td></tr>
+            <tr><td>5</td><td>Item lines on Gear</td><td>Weapons give damage then properties, armour gives
+              category, AC and Strength, and shields give <code>+2 AC</code>. Thorn's handaxe and warhammer
+              lose "martial melee"; the handaxe is simple anyway.</td><td>One formula.</td></tr>
+            <tr><td>6</td><td>Brenna's spell order</td><td>By name within a level</td><td>The spell order
+              rule.</td></tr>
+            <tr><td>7</td><td>Spell summaries</td><td>Revivify loses "300 gp diamond", Armor of Agathys
+              loses "15 temporary hit points", and Prestidigitation's "up to 1 hour" became "1
+              hour"</td><td>The spell summary formula. Homebrew rows have no structured temporary hit
+              points.</td></tr>
+            <tr><td>8</td><td>Damaging spells' summaries</td><td>Damage dice added, such as Fireball's
+              "Dex save 15, 8d6 fire". Chill touch drops "1 round".</td><td>So the read-only sheet shows
+              the damage somewhere.</td></tr>
+            <tr><td>9</td><td>Feature lines and the level-up note</td><td>"after dropping a foe", "in
+              hand", "can't cause sleep", "the faith", "Healing another also heals", "Nothing on the
+              sheet"</td><td>No pronouns in display copy.</td></tr>
+            <tr><td>10</td><td>Hit dice</td><td>"half recovered on a long rest" for everyone. The
+              fixtures changed.</td><td>One line per fact. At 390 wide, Alarra's line wraps to two lines
+              beside her seven pips.</td></tr>
+            <tr><td>11</td><td>Brenna's darkvision</td><td>"See 60 ft in dim light"</td><td>One manifest
+              line per trait.</td></tr>
+            <tr><td>12</td><td>Brenna's Magic initiate card</td><td>"Feat"</td><td>A manual feat has no
+              stored class list.</td></tr>
+            <tr><td>13</td><td>Brenna's Magic initiate resource</td><td>The fixture changed to "Cure
+              wounds once, long rest"</td><td>Every resource line ends with its rest.</td></tr>
+            <tr><td>14</td><td>Allies and enemies</td><td>Two headings. Brother Tamsin became Brenna's
+              enemy, and Alarra gained one: "The Duskhollow pact's patron, who wants the ring back." The
+              fixtures changed.</td><td>The model has two fields, and a heading with no text doesn't
+              show.</td></tr>
+            <tr><td>15</td><td>Armour class overrides</td><td>No mockup change. The plan names Alarra as
+              the one override, and Brenna's and Thorn's seeds lose theirs.</td><td>An override equal to
+              the calculated value would show a badge that says nothing.</td></tr>
+            <tr><td>16</td><td>Alarra's and Thorn's plates</td><td>"Channel divinity 1 of 2" and "Second
+              wind ready" are gone</td><td>No resource marks on the plate.</td></tr>
+            <tr><td>17</td><td>Brenna's phone Play</td><td>Magic initiate joins Resources</td><td>Every
+              resource shows in Resources on every layout.</td></tr>
+            <tr><td>18</td><td>Brenna's resource order, every layout</td><td>Pact magic, Dark One's own
+              luck, Hit dice, Magic initiate, Ring of spell storing. The fixture changed too.</td><td>The
+              resource order rule puts the feat, taken at level 4, before the ring she borrowed in session
+              12. The desktop had Magic initiate second.</td></tr>
+            <tr><td>19</td><td>Alarra's Character tab</td><td>An Acolyte background group with Shelter of
+              the faithful, and Human's extra language reads Dwarvish. The fixture changed too.</td><td>She
+              has the Acolyte background, and the proficiency editing frame already gave Celestial and
+              Infernal to it.</td></tr>
+            <tr><td>20</td><td>Every later frame</td><td>Character pronouns gone from the rest, spell,
+              item, feature, concentration and editing frames: "Kept Hex" and "Lost Hex", "After waking",
+              "How it's cast", "Brenna reaches the maximum of 44", and so on. Appearance, bonds, flaws,
+              notes and the typed text of a custom feature keep theirs, as the player wrote them.</td>
+              <td>The pronoun decision covers every screen, so later milestones start from frames that
+              already follow it.</td></tr>
+          </table>
+        </section>
+
+        <!-- ============================================================ GAPS -->
+        <section id="gaps">
+          <h2>Data model gaps</h2>
+          <p class="outcome">Things the mockup shows that data-model.md can't store or derive yet. Decided on
+            29 October, and data-model.md describes each decision as of 30 October. Each lands in the step
+            in the last column.</p>
+
+          <table>
+            <tr><th>#</th><th>Gap</th><th>Decision</th><th>Lands in</th></tr>
+            <tr><td>1</td><td>A custom CharacterSpells row has no columns for casting time, range, duration or
+              concentration, so a custom Hex couldn't say "Bonus action, 90 ft, concentration".</td>
+              <td>Spells outside the SRD are homebrew catalog rows in the player's own source. Only one-off
+              spells with no details stay as custom character rows.</td><td>1.B2, 1.B4</td></tr>
+            <tr><td>2</td><td>A path can't store the slot level it always casts at, such as the 2nd-level
+              Cure wounds stored in Brenna's ring. Pact magic's level derives; a ring's doesn't.</td>
+              <td>A nullable <code>cast_at_level</code> on CharacterSpells.</td><td>1.B1</td></tr>
+            <tr><td>3</td><td>A ring path needs the original caster's numbers. The model stores a fixed save DC
+              and attack bonus, but not the modifier that healing and damage add.</td><td>Leave it for
+              milestone 4, where the ring's detail needs it. The fixture shows no healing for the ring
+              path.</td><td>Milestone 4</td></tr>
+            <tr><td>4</td><td><code>overrides</code> has keys for armour class and speed, but the sheet plan
+              says initiative is overridable too.</td><td>Add <code>initiative</code> to
+              <code>overrides</code> when milestone 4 builds its detail. The contract already sends it as a
+              <code>DerivedValue</code>.</td><td>Milestone 4</td></tr>
+            <tr><td>5</td><td>A <code>half</code> rank can't say whether it rounds up, as Remarkable athlete
+              does, or down, as Jack of all trades does.</td><td>The rule handler that grants the rank
+              computes the bonus. The contract shows only the rank.</td><td>1.B5a</td></tr>
+            <tr><td>6</td><td>The catalog has no short lines, so nothing can produce "Sleeps one" or
+              "Advantage against poison, resistance to it".</td><td>A maintained summary manifest, applied by
+              the importer into a nullable <code>summary</code> column on Features, Traits, Spells and
+              Equipment, with rule handlers for lines that depend on the character. Milestone 1 writes only
+              the entries the fixtures need, and the rest fill in over time. A row with no summary shows no
+              second line.</td><td>1.B2, 1.B3, 1.B6a to 1.B6c</td></tr>
+            <tr><td>7</td><td>No pronouns.</td><td>Neutral display copy, decided on 25 October.</td><td>None</td></tr>
+            <tr><td>8</td><td>SRD feature names carry prefixes and suffixes that the sheet never shows:
+              "Eldritch Invocation: Agonizing Blast", "Channel Divinity (2/rest)", "Action Surge (1
+              use)".</td><td>Character rows keep their saved names, as the model intends. The seeds write
+              clean names by hand. Advancement needs a rule for writing them, which belongs with the
+              level-up wizard.</td><td>None in milestone 1</td></tr>
+            <tr><td>9</td><td>The SRD tags several weapons with a <code>monk</code> property, which isn't a
+              property.</td><td>The importer drops it from the embedded properties.</td><td>1.B3</td></tr>
+            <tr><td>10</td><td>Aid's <code>heal_at_slot_level</code> is a hit point maximum increase, not
+              healing. Sanctuary and Spirit guardians force saves their data doesn't record, and Spirit
+              guardians has no damage either. Scorching ray has no attack roll and Flaming sphere no save.
+              Some spells record damage and a save that aren't an attack, such as Dream and Control
+              water.</td><td>Correction manifest entries, so the spell summary formula reads the right
+              thing. The attack table reads the summary manifest's flag, not this data.</td><td>1.B3</td></tr>
+          </table>
+        </section>
+
+        <!-- ============================================================ M1 STEPS -->
+        <section id="m1-steps">
+          <h2>Milestone 1 steps</h2>
+          <p class="outcome">An outline. Each step gets its brief when it starts, written from this list and
+            the sections above. After 1.0 and 1.1, the backend and frontend run as two streams that meet in
+            1.9.</p>
+
+          <h3>1.0 The missing frames and Vesper <span class="tag strong">Opus 5.5</span></h3>
+          <p>Draw loading, couldn't load, not found and the sparse sheet in
+            <code>mockups/character-sheet.html</code>, the sparse one from Kethra's seed, with a strip
+            reading "<b>No ability scores yet.</b> Anything that needs them shows a dash until they're
+            entered." Write
+            <code>vesper.json</code> by the <a href="#rules">rules</a>, typecheck it, and correct frame 6's
+            two-class plate to it. Her tabs get no frames of their own: the golden test checks her data,
+            and her tabs use the same blocks as the other three. The
+            <a href="#differences">corrections</a> are already made. Touches the mockup, the contract
+            folder and the sheet plan only.</p>
+
+          <h3>1.1 Approve the contract <span class="tag you">You</span></h3>
+          <p>Read the contract and fixtures once more, then move the types to
+            <code>frontend/src/api/character-sheet.ts</code> and the fixtures to
+            <code>contracts/character-sheet/</code>. Add the id normaliser on the Rails side and a fixture
+            loader on the Jest side. Nothing else starts until this merges.</p>
+
+          <div class="streams">
+            <div>
+              <h4>Backend stream</h4>
+              <ul>
+                <li><b>B1 Character tables.</b> Migrations and models for the character tables listed in
+                  scope, with validations for every JSONB payload they write, and
+                  <code>cast_at_level</code> on CharacterSpells. <span class="tag grok">Grok
+                  4.7</span></li>
+                <li><b>B2 Catalog tables.</b> ContentSources, the homebrew source per user, and the catalog
+                  tables in scope, with a nullable <code>summary</code> on Features, Traits, Spells and
+                  Equipment, and <code>attacks_after_casting</code> on Spells. <span class="tag grok">Grok 4.7</span></li>
+                <li><b>B3 SRD importer.</b> Those tables, the correction manifest, sentence casing with the
+                  proper-noun list, dropping the <code>monk</code> property, the summary manifest's first
+                  entries, and the ATTRIBUTION.md note.
+                  <span class="tag grok">Grok 4.7</span>, escalate early</li>
+                <li><b>B4 Seeds.</b> Brenna, Alarra, Thorn and Vesper in full, the homebrew spells, casing
+                  fixes, Brenna's, Thorn's and Vesper's armour class overrides removed, Alarra's Acolyte background with its
+                  origins, and the list's tests still passing. <span class="tag grok">Grok 4.7</span></li>
+                <li><b>B5a Abilities and proficiency.</b> Modifiers, proficiency, saves, skills and
+                  passives, each with a rule table test. A value that can't be worked out is null.
+                  <span class="tag strong">Opus 5.5</span></li>
+                <li><b>B5b Armour class, initiative and speed.</b> Each with a rule table test.
+                  <code>Character#effective_armor_class</code> falls back to the calculated value once
+                  there's no override. <span class="tag strong">Opus 5.5</span></li>
+                <li><b>B5c Casting and resources.</b> Casting statistics and resource maximums, each with a
+                  rule table test. <span class="tag strong">Opus 5.5</span></li>
+                <li><b>B6a Attacks and actions.</b> The attack table and action rows. Each of B6a to B6c
+                  builds the handlers listed in <a href="#rules">rules</a> that it's the first to need.
+                  <span class="tag strong">Opus 5.5</span></li>
+                <li><b>B6b Spell summaries.</b> The spell lines, with damage by level and the spellcasting
+                  modifier. <span class="tag strong">Opus 5.5</span></li>
+                <li><b>B6c Feature and item lines.</b> Those lines and the warning checks, with only
+                  <code>missing_ability_scores</code> for now. <span class="tag strong">Opus 5.5</span></li>
+                <li><b>B7 Endpoint.</b> The show action, the 404, the serializer, the golden test against all four fixtures,
+                  and a request test that Kethra's sheet has null scores and the one warning. <span class="tag grok">Grok 4.7</span></li>
+              </ul>
+            </div>
+            <div>
+              <h4>Frontend stream, on fixtures</h4>
+              <ul>
+                <li><b>F1 Data and navigation.</b> The fetch and query hook, a development fixture mode so
+                  screens work before the endpoint exists, the route, the list's hrefs, and the three state
+                  screens. <span class="tag grok">Grok 4.7</span></li>
+                <li><b>F2 Plate and tabs.</b> The tall and compact plates, the vitals cutout, the armour ring
+                  with its override badge, the rail tiles, marks, and the tab bar with icons, each on
+                  <code>/component-library</code> in every state. <span class="tag strong">Opus 5.5</span></li>
+                <li><b>F3 Blocks and rows.</b> The block card, pip row, attack row, action row, rank shape,
+                  skill row, coin tile, item row with container nesting, labelled values and the warning
+                  strip, each on <code>/component-library</code>. The strip's button is optional, and its
+                  stories draw frame 6's two strips with their buttons. <span class="tag grok">Grok
+                  4.7</span></li>
+                <li><b>F4 Sheet shell.</b> The screen: plate, tabs, scrolling, the compact snap, four tabs
+                  without spells, and the centred column on wide screens. <span class="tag strong">Opus 5.5</span></li>
+                <li><b>F5 to F9 Tabs.</b> Play, Stats, Spells, Gear and Character, one step each, built from
+                  F2 and F3 only. <span class="tag grok">Grok 4.7</span> <span class="tag par">Parallel</span></li>
+              </ul>
+            </div>
+          </div>
+          <p class="join">Both streams meet in 1.9.</p>
+
+          <h3>1.9 Integration <span class="tag strong">Opus 5.5</span></h3>
+          <p>Switch from fixtures to the endpoint, take the comparison page against the seeded API for every
+            frame in scope, and run the sheet in Expo Go on a phone and in the phone's browser over
+            Tailscale, as the list's README describes.</p>
+
+          <div class="decision">
+            <h3>Why F2 and F3 come before the tabs</h3>
+            <p>If agents build tabs in parallel before the primitives exist, each invents its own stat tile
+              and pip row, and review time goes on merging them. The tab steps' allowed paths exclude
+              <code>src/components/</code>, so a tab that needs a new primitive stops and asks.</p>
+          </div>
+        </section>
+
+        <!-- ============================================================ M1 DONE -->
+        <section id="m1-done">
+          <h2>Milestone 1 definition of done</h2>
+          <ul class="checks">
+            <li>Tapping a card or Open sheet on the list opens that character's sheet, by mouse, touch and
+              keyboard, and back returns to the list.</li>
+            <li>The endpoint returns each fixture for its seeded character, after normalising ids, and 404
+              for another user's character.</li>
+            <li>Every tab renders each fixture as the mockup frames draw it at 390 wide. The comparison page shows every pair.</li>
+            <li>The compact plate replaces the tall one past the threshold and back again.</li>
+            <li>Thorn's sheet has four tabs and a proficiency tile.</li>
+            <li>Loading, couldn't load, not found and Kethra's sparse sheet, with its strip, match their
+              frames.</li>
+            <li>The accessibility and hit-area checks pass on every tab of every fixture.</li>
+            <li>The app calculates nothing the API sends. The screens contain no character data of their
+              own.</li>
+            <li>It runs in Expo Go and the phone's browser over Tailscale by following the README.</li>
+            <li><code>bin/check-step</code> passes on the milestone branch, and the log has an entry for
+              every step.</li>
+          </ul>
+        </section>
+
+        <!-- ============================================================ OPEN -->
+        <section id="open">
+          <h2>Open questions</h2>
+          <p class="outcome">None open. The last was settled on 1 November and is under
+            <a href="#decisions">decisions</a>. A question found while building goes here, with a
+            recommendation, before the step that meets it starts.</p>
+        </section>
+
+      </main>
+    </div>
+
+    <footer>5e Companion. Character sheet build plan, draft of 8 November 2026.</footer>
+  </div>
+</body>
+</html>
