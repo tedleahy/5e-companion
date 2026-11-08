@@ -392,6 +392,12 @@
               <code>backend/bin/ci</code>.</li>
             <li>Stay inside the step's allowed paths. If the step needs something from a later step, stop
               and say so in the handoff brief instead of building it.</li>
+            <li>Write the least code that meets the brief and passes its tests. Handle only what the app can
+              produce or someone could plausibly write. Add no option, abstraction, guard or fallback that
+              nothing in the brief needs.</li>
+            <li>Test writers write one test per behaviour the brief names. Skip variations of the same
+              behaviour and inputs the app can't produce.</li>
+            <li>When fixing a review finding, prefer a fix that replaces code over one that adds to it.</li>
             <li>Brief writers and implementers commit to their own step branch, as conventional commits, because the brief asks
               them to. Nobody commits to the milestone branch or <code>main</code>
               except by merging an approved step.</li>
@@ -769,6 +775,7 @@
 
 Milestone branch: feature/sheet-m&lt;n&gt;     Step branch: sheet-m&lt;n&gt;/&lt;id&gt;-&lt;slug&gt;
 Implementer: &lt;model&gt;     Depends on: &lt;steps, all merged&gt;
+Expected size: about &lt;n&gt; lines of code, not counting tests
 
 ## Read first
 - AGENTS.md, all of it.
@@ -795,6 +802,9 @@ docs/sheet-build/**
 
 ## Out of scope
 &lt;What a neighbouring step owns.&gt;
+
+## Deliberately not handled
+&lt;Inputs and cases this step won't handle, so nobody builds or reviews them.&gt;
 
 ## Known pitfalls
 &lt;From the review checklist and the log: findings that keep coming back.&gt;
@@ -826,6 +836,13 @@ Label each finding:
 - nit: style the linters don't catch.
 - question: needs the person who owns the plan to decide.
 
+Flag code that could be deleted with the brief and tests still satisfied. This
+needs no failure to report, and the handoff's "Code nothing asked for" section
+is the place to start. A whole function, option, file or dependency is must-fix
+in round 1. Anything smaller, and anything in a later round, is should-fix.
+
+Don't report anything the brief lists as deliberately not handled.
+
 Also check: did the step stay inside its allowed paths, did it edit any test it
 was given, and does the handoff brief match the diff?
 
@@ -848,6 +865,10 @@ docs/sheet-build/reviews/&lt;id&gt;-round-&lt;r&gt;.md.</code></pre>
 
 ## Departures from the mockup or the plan
 &lt;Each with a frame number and a reason.&gt;
+
+## Code nothing asked for
+&lt;Anything no test or brief line requires, with the reason, or "None". If the step is
+more than 50% over the brief's expected size, say why here too.&gt;
 
 ## Least confident about
 &lt;Where to look hardest.&gt;
@@ -916,8 +937,9 @@ Missed by the loop: tab bar announced twice on web -&gt; added to the checklist<
           <ul>
             <li><code>bin/check-step &lt;id&gt;</code> at the repository root runs <code>npm run
               check</code>, <code>backend/bin/ci</code> when the diff touches <code>backend/</code>, and the
-              scope check against the brief's <code>allowed</code> block. <code>--quick</code> skips the
-              slow parts for use while iterating.</li>
+              scope check against the brief's <code>allowed</code> block. It prints the diff's size against
+              the milestone branch, not counting tests, beside the brief's expected size. <code>--quick</code>
+              skips the slow parts for use while iterating.</li>
             <li>A Claude Code Stop hook in the committed <code>.claude/settings.json</code> runs
               <code>bin/check-step --quick</code>, but only in a worktree that holds a
               <code>.sheet-step</code> marker file, so ordinary sessions aren't affected. It blocks each stop
