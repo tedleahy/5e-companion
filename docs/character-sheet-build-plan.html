@@ -729,12 +729,12 @@
               milestone 1 step that wouldn't fit in one window on those numbers gets split
               before it starts.</li>
             <li><b>Grok 4.7 draws from Cursor's own models pool.</b> Cursor's docs confirm this, so it doesn't
-              use the third-party allowance. Pro is a legacy plan with a monthly pool, while the newer
-              plans have a weekly one. Cursor publishes no size for either, so milestone 0 measures it.
-              Before step 0.1, check which you have on the Spending tab of Cursor's dashboard, check whether
-              extra usage bills automatically once the pool runs out, and set a spending limit.</li>
+              use the third-party allowance. The pool on your plan is monthly, and extra usage doesn't bill
+              automatically, so running out stops Grok rather than charging you. Cursor publishes no size
+              for the pool, so milestone 0 measures it. Its four Grok steps are the basis for projecting
+              milestone 1's twelve.</li>
             <li><b>If Grok runs out.</b> A monthly pool could mean weeks of waiting. Either Opus 5.5 takes the
-              remaining Grok steps from the existing tests and work so far, or you pay for extra Cursor
+              remaining Grok steps from the existing tests and work so far, or you turn on extra Cursor
               usage, whichever milestone 0's numbers make cheaper. Sol's reviews stay independent either
               way.</li>
             <li><b>A timer runs the loop.</b> From step 0.3 on, <code>bin/step-next --run</code> starts agents
