@@ -1070,6 +1070,10 @@ button.mark{font-family:inherit;cursor:pointer}
         <div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="6" aria-valuenow="4" aria-valuetext="4 of 6 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div>
       </div>
       <div class="res">
+        <div class="resl"><b>Magic initiate</b><span>Cure wounds once, long rest</span></div>
+        <div class="pips" role="spinbutton" tabindex="0" aria-label="Magic initiate" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div>
+      </div>
+      <div class="res">
         <div class="resl"><b>Ring of spell storing</b><span>Stored levels, refilled by hand</span></div>
         <div class="pips wide" role="spinbutton" tabindex="0" aria-label="Ring of spell storing" aria-valuemin="0" aria-valuemax="5" aria-valuenow="3" aria-valuetext="3 of 5 left"><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div>
       </div>
@@ -1082,6 +1086,11 @@ button.mark{font-family:inherit;cursor:pointer}
         <div><b>Pact blade</b><small>Melee, 5 ft, finesse</small></div>
         <div class="hit">+5</div>
         <div class="dmg">1d6+2<em>slashing</em></div>
+      </div>
+      <div class="atk">
+        <div><b>Dagger</b><small>20/60 ft thrown, finesse</small></div>
+        <div class="hit">+5</div>
+        <div class="dmg">1d4+2<em>piercing</em></div>
       </div>
       <div class="atk">
         <div><b>Eldritch blast</b><small>120 ft, two beams, pushes 10 ft</small></div>
@@ -1112,7 +1121,7 @@ button.mark{font-family:inherit;cursor:pointer}
       <button class="act"><div class="actl"><b>Opportunity attack</b><span>Pact blade, +5 to hit</span></div><i class="chev"></i></button>
       <p class="grp">No action needed</p>
       <button class="act"><div class="actl"><b>Devil's sight</b><span>See through magical darkness, 120 ft</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Dark One's blessing</b><span>10 temporary hit points when she drops a foe</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Dark One's blessing</b><span>10 temporary hit points after dropping a foe</span></div><i class="chev"></i></button>
     </section>
 
   </div>
@@ -1157,6 +1166,10 @@ button.mark{font-family:inherit;cursor:pointer}
         <div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="6" aria-valuenow="4" aria-valuetext="4 of 6 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div>
       </div>
       <div class="res">
+        <div class="resl"><b>Magic initiate</b><span>Cure wounds once, long rest</span></div>
+        <div class="pips" role="spinbutton" tabindex="0" aria-label="Magic initiate" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div>
+      </div>
+      <div class="res">
         <div class="resl"><b>Ring of spell storing</b><span>Stored levels, refilled by hand</span></div>
         <div class="pips wide" role="spinbutton" tabindex="0" aria-label="Ring of spell storing" aria-valuemin="0" aria-valuemax="5" aria-valuenow="3" aria-valuetext="3 of 5 left"><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div>
       </div>
@@ -1169,6 +1182,11 @@ button.mark{font-family:inherit;cursor:pointer}
         <div><b>Pact blade</b><small>Melee, 5 ft, finesse</small></div>
         <div class="hit">+5</div>
         <div class="dmg">1d6+2<em>slashing</em></div>
+      </div>
+      <div class="atk">
+        <div><b>Dagger</b><small>20/60 ft thrown, finesse</small></div>
+        <div class="hit">+5</div>
+        <div class="dmg">1d4+2<em>piercing</em></div>
       </div>
       <div class="atk">
         <div><b>Eldritch blast</b><small>120 ft, two beams, pushes 10 ft</small></div>
@@ -1199,7 +1217,7 @@ button.mark{font-family:inherit;cursor:pointer}
       <button class="act"><div class="actl"><b>Opportunity attack</b><span>Pact blade, +5 to hit</span></div><i class="chev"></i></button>
       <p class="grp">No action needed</p>
       <button class="act"><div class="actl"><b>Devil's sight</b><span>See through magical darkness, 120 ft</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Dark One's blessing</b><span>10 temporary hit points when she drops a foe</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Dark One's blessing</b><span>10 temporary hit points after dropping a foe</span></div><i class="chev"></i></button>
     </section>
   </div>
 </div>
@@ -1241,7 +1259,7 @@ button.mark{font-family:inherit;cursor:pointer}
     </div>
 
     <div class="cast">
-      <div class="casttop"><b>Magic initiate</b><span>Cleric spells, feat</span></div>
+      <div class="casttop"><b>Magic initiate</b><span>Feat</span></div>
       <div class="caststats">
         <div><b>Wis</b><em>Ability</em></div>
         <div><b>12</b><em>Save DC</em></div>
@@ -1258,31 +1276,31 @@ button.mark{font-family:inherit;cursor:pointer}
 
     <section class="block">
       <h3 class="bhead">Cantrips <span>At will</span></h3>
-      <button class="act"><div class="actl"><b>Eldritch blast</b><span>Action, 120 ft, two beams</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Chill touch</b><span>Action, 120 ft, 1 round</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Prestidigitation</b><span>Action, 10 ft, up to 1 hour</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Sacred flame</b><span>Action, 60 ft, Dex save 12</span></div><span class="mark">Feat</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Chill touch</b><span>Action, 120 ft, 2d8 necrotic</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Eldritch blast</b><span>Action, 120 ft, two beams, 1d10+4 force each</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Guidance</b><span>Action, touch, concentration</span></div><span class="mark">Feat</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Prestidigitation</b><span>Action, 10 ft, 1 hour</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Sacred flame</b><span>Action, 60 ft, Dex save 12, 2d8 radiant</span></div><span class="mark">Feat</span><i class="chev"></i></button>
     </section>
 
     <section class="block">
       <h3 class="bhead">1st level <span>Cast at 3rd</span></h3>
-      <button class="act"><div class="actl"><b>Armor of Agathys</b><span>Action, self, 1 hour. 15 temporary hit points.</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Hex</b><span>Bonus action, 90 ft, concentration</span></div><span class="mark" data-t="conc">Active</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Armor of Agathys</b><span>Action, self, 1 hour</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Charm person</b><span>Action, 30 ft, Wis save 15</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Cure wounds</b><span>Action, touch. Cast at 1st by the feat, at 2nd from the ring.</span></div><span class="mark">2 paths</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Hex</b><span>Bonus action, 90 ft, concentration</span></div><span class="mark" data-t="conc">Active</span><i class="chev"></i></button>
     </section>
 
     <section class="block">
       <h3 class="bhead">2nd level <span>Cast at 3rd</span></h3>
       <button class="act"><div class="actl"><b>Invisibility</b><span>Action, touch, concentration</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Mirror image</b><span>Action, self, 1 minute</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Scorching ray</b><span>Action, 120 ft, four rays at 3rd</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Scorching ray</b><span>Action, 120 ft, four rays at 3rd, 2d6 fire each</span></div><i class="chev"></i></button>
     </section>
 
     <section class="block">
       <h3 class="bhead">3rd level</h3>
-      <button class="act"><div class="actl"><b>Fireball</b><span>Action, 150 ft, Dex save 15</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Fireball</b><span>Action, 150 ft, Dex save 15, 8d6 fire</span></div><i class="chev"></i></button>
     </section>
 
     <button class="addrow" data-k="add-spell"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a spell</button>
@@ -1334,7 +1352,7 @@ button.mark{font-family:inherit;cursor:pointer}
       </div>
       <button class="castbtn small" style="margin-top:11px">Cast, spends 2 levels</button>
       <div class="pathnote notewrap"><span>Note on this way to cast</span><textarea class="notearea" aria-label="Note on casting cure wounds from the ring" placeholder="Tap to add a note">Ring is Alarra's. Give it back after Sunless Crown.</textarea><div class="notefoot"><p class="notestatus" aria-live="polite">Saved</p><button class="noteshow" hidden>Show all</button></div></div>
-      <p class="origin">From Ring of spell storing, one of her attuned items.</p>
+      <p class="origin">From Ring of spell storing, an attuned item.</p>
       <button class="dangerbtn small">Remove this way to cast</button>
     </div>
 
@@ -1563,16 +1581,16 @@ button.mark{font-family:inherit;cursor:pointer}
         <div class="pips" role="spinbutton" tabindex="0" aria-label="Pact magic" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="1 of 2 left"><i data-on></i><i></i></div>
       </div>
       <div class="res">
-        <div class="resl"><b>Magic initiate</b><span>Cure wounds once, long rest</span></div>
-        <div class="pips" role="spinbutton" tabindex="0" aria-label="Magic initiate" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div>
-      </div>
-      <div class="res">
         <div class="resl"><b>Dark One's own luck</b><span>Add 1d10, long rest</span></div>
         <div class="pips" role="spinbutton" tabindex="0" aria-label="Dark One&#x27;s own luck" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div>
       </div>
       <div class="res">
         <div class="resl"><b>Hit dice</b><span>d8, half recovered on a long rest</span></div>
         <div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="6" aria-valuenow="4" aria-valuetext="4 of 6 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div>
+      </div>
+      <div class="res">
+        <div class="resl"><b>Magic initiate</b><span>Cure wounds once, long rest</span></div>
+        <div class="pips" role="spinbutton" tabindex="0" aria-label="Magic initiate" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div>
       </div>
       <div class="res">
         <div class="resl"><b>Ring of spell storing</b><span>Stored levels, refilled by hand</span></div>
@@ -1587,6 +1605,11 @@ button.mark{font-family:inherit;cursor:pointer}
         <div><b>Pact blade</b><small>Melee, 5 ft, finesse</small></div>
         <div class="hit">+5</div>
         <div class="dmg">1d6+2<em>slashing</em></div>
+      </div>
+      <div class="atk">
+        <div><b>Dagger</b><small>20/60 ft thrown, finesse</small></div>
+        <div class="hit">+5</div>
+        <div class="dmg">1d4+2<em>piercing</em></div>
       </div>
       <div class="atk">
         <div><b>Eldritch blast</b><small>120 ft, two beams, pushes 10 ft</small></div>
@@ -1617,7 +1640,7 @@ button.mark{font-family:inherit;cursor:pointer}
       <button class="act"><div class="actl"><b>Opportunity attack</b><span>Pact blade, +5 to hit</span></div><i class="chev"></i></button>
       <p class="grp">No action needed</p>
       <button class="act"><div class="actl"><b>Devil's sight</b><span>See through magical darkness, 120 ft</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Dark One's blessing</b><span>10 temporary hit points when she drops a foe</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Dark One's blessing</b><span>10 temporary hit points after dropping a foe</span></div><i class="chev"></i></button>
     </section>
   </div>
 </template>
@@ -1648,31 +1671,31 @@ button.mark{font-family:inherit;cursor:pointer}
 
     <section class="block">
       <h3 class="bhead">Cantrips <span>At will</span></h3>
-      <button class="act"><div class="actl"><b>Eldritch blast</b><span>Action, 120 ft, two beams</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Chill touch</b><span>Action, 120 ft, 1 round</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Prestidigitation</b><span>Action, 10 ft, up to 1 hour</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Sacred flame</b><span>Action, 60 ft, Dex save 12</span></div><span class="mark">Feat</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Chill touch</b><span>Action, 120 ft, 2d8 necrotic</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Eldritch blast</b><span>Action, 120 ft, two beams, 1d10+4 force each</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Guidance</b><span>Action, touch, concentration</span></div><span class="mark">Feat</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Prestidigitation</b><span>Action, 10 ft, 1 hour</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Sacred flame</b><span>Action, 60 ft, Dex save 12, 2d8 radiant</span></div><span class="mark">Feat</span><i class="chev"></i></button>
     </section>
 
     <section class="block" data-k="lvl1">
       <h3 class="bhead">1st level <span>Cast at 3rd</span></h3>
-      <button class="act"><div class="actl"><b>Armor of Agathys</b><span>Action, self, 1 hour. 15 temporary hit points.</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Hex</b><span>Bonus action, 90 ft, concentration</span></div><span class="mark" data-t="conc">Active</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Armor of Agathys</b><span>Action, self, 1 hour</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Charm person</b><span>Action, 30 ft, Wis save 15</span></div><i class="chev"></i></button>
       <button class="act" data-k="cure"><div class="actl"><b>Cure wounds</b><span>Action, touch. Cast at 1st by the feat, at 2nd from the ring.</span></div><span class="mark">2 paths</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Hex</b><span>Bonus action, 90 ft, concentration</span></div><span class="mark" data-t="conc">Active</span><i class="chev"></i></button>
     </section>
 
     <section class="block">
       <h3 class="bhead">2nd level <span>Cast at 3rd</span></h3>
       <button class="act"><div class="actl"><b>Invisibility</b><span>Action, touch, concentration</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Mirror image</b><span>Action, self, 1 minute</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Scorching ray</b><span>Action, 120 ft, four rays at 3rd</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Scorching ray</b><span>Action, 120 ft, four rays at 3rd, 2d6 fire each</span></div><i class="chev"></i></button>
     </section>
 
     <section class="block">
       <h3 class="bhead">3rd level</h3>
-      <button class="act"><div class="actl"><b>Fireball</b><span>Action, 150 ft, Dex save 15</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Fireball</b><span>Action, 150 ft, Dex save 15, 8d6 fire</span></div><i class="chev"></i></button>
     </section>
 
     <button class="addrow" data-k="add-spell"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a spell</button>
@@ -1776,7 +1799,7 @@ button.mark{font-family:inherit;cursor:pointer}
       <h3 class="bhead">Equipped <button class="editbtn">Edit</button></h3>
       <button class="act"><div class="actl"><b>Leather armor</b><span>Light armor, AC 11 + Dex</span></div><span class="mark">Worn</span><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Crystal</b><span>Arcane focus</span></div><span class="mark">In hand</span><i class="chev"></i></button>
-      <button class="act" data-k="dagger"><div class="actl"><b>Dagger <small class="qty">&times;2</small></b><span>Finesse, thrown 20/60 ft, 1d4 piercing</span></div><span class="mark">Belt</span><i class="chev"></i></button>
+      <button class="act" data-k="dagger"><div class="actl"><b>Dagger <small class="qty">&times;2</small></b><span>1d4 piercing, finesse, light, thrown 20/60 ft</span></div><span class="mark">Belt</span><i class="chev"></i></button>
     </section>
 
     <section class="block">
@@ -1804,7 +1827,7 @@ button.mark{font-family:inherit;cursor:pointer}
   <div class="body pad-bottom">
     <div class="cast">
       <div class="casttop"><b>Warlock 6</b><span>Level up when your table does</span></div>
-      <p class="padnote" style="margin-top:6px">Nothing on her sheet changes until you confirm the level-up.</p>
+      <p class="padnote" style="margin-top:6px">Nothing on the sheet changes until you confirm the level-up.</p>
       <button class="gobtn" style="width:100%;margin-top:12px">Level up to 7</button>
     </div>
 
@@ -1813,16 +1836,16 @@ button.mark{font-family:inherit;cursor:pointer}
       <p class="grp">Warlock 6</p>
       <button class="act"><div class="actl"><b>Pact magic</b><span>Two 3rd-level slots, short rest</span></div><i class="chev"></i></button>
       <button class="act" data-k="invocations"><div class="actl"><b>Eldritch invocations</b><span>Agonizing blast, Devil&rsquo;s sight, Repelling blast</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Pact of the blade</b><span>Create a weapon in her hand as an action</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Pact of the blade</b><span>Create a pact weapon in hand as an action</span></div><i class="chev"></i></button>
       <p class="grp">The Fiend</p>
-      <button class="act"><div class="actl"><b>Dark One&rsquo;s blessing</b><span>10 temporary hit points when she drops a foe</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Dark One&rsquo;s blessing</b><span>10 temporary hit points after dropping a foe</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Dark One&rsquo;s own luck</b><span>Add 1d10 to a check or save, long rest</span></div><i class="chev"></i></button>
       <p class="grp">Half-elf</p>
-      <button class="act" data-k="darkvision"><div class="actl"><b>Darkvision</b><span>60 ft</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Fey ancestry</b><span>Advantage against charm, and magic can&rsquo;t sleep her</span></div><i class="chev"></i></button>
+      <button class="act" data-k="darkvision"><div class="actl"><b>Darkvision</b><span>See 60 ft in dim light</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Fey ancestry</b><span>Advantage against charm, and magic can&rsquo;t cause sleep</span></div><i class="chev"></i></button>
       <button class="act" data-k="versatility"><div class="actl"><b>Skill versatility</b><span>Two extra skills</span></div><i class="chev"></i></button>
       <p class="grp">Acolyte background</p>
-      <button class="act"><div class="actl"><b>Shelter of the faithful</b><span>Care and healing at temples of her faith</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Shelter of the faithful</b><span>Care and healing at temples of the faith</span></div><i class="chev"></i></button>
       <p class="grp">Feat, taken at level 4</p>
       <button class="act"><div class="actl"><b>Magic initiate</b><span>Two cleric cantrips and cure wounds once a day</span></div><i class="chev"></i></button>
       <button class="addrow" data-k="add-feature"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a feature</button>
@@ -1840,7 +1863,8 @@ button.mark{font-family:inherit;cursor:pointer}
       <div class="para"><h4>Ideals</h4><p>Knowledge is owed to whoever will use it.</p></div>
       <div class="para"><h4>Bonds</h4><p>The temple that raised her, and the thing that answered when the temple didn&rsquo;t.</p></div>
       <div class="para"><h4>Flaws</h4><p>Trusts a bargain more than a friend.</p></div>
-      <div class="para"><h4>Allies and enemies</h4><p>Alarra Vane, who knows. Brother Tamsin, who suspects.</p></div>
+      <div class="para"><h4>Allies</h4><p>Alarra Vane, who knows.</p></div>
+      <div class="para"><h4>Enemies</h4><p>Brother Tamsin, who suspects.</p></div>
     </section>
 
     <section class="block">
@@ -2020,7 +2044,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
           </div>
           <button class="castbtn small" style="margin-top:11px">Cast, spends 2 levels</button>
           <div class="pathnote notewrap"><span>Note on this way to cast</span><textarea class="notearea" aria-label="Note on casting cure wounds from the ring" placeholder="Click to add a note">Ring is Alarra's. Give it back after Sunless Crown.</textarea><div class="notefoot"><p class="notestatus" aria-live="polite">Saved</p><button class="noteshow" hidden>Show all</button></div></div>
-          <p class="origin">From Ring of spell storing, one of her attuned items.</p>
+          <p class="origin">From Ring of spell storing, an attuned item.</p>
           <button class="dangerbtn small">Remove this way to cast</button>
         </div>
 
@@ -2084,7 +2108,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
           </div>
           <button class="castbtn small" style="margin-top:11px">Cast, spends 2 levels</button>
           <div class="pathnote notewrap"><span>Note on this way to cast</span><textarea class="notearea" aria-label="Note on casting cure wounds from the ring" placeholder="Click to add a note">Ring is Alarra's. Give it back after Sunless Crown.</textarea><div class="notefoot"><p class="notestatus" aria-live="polite">Saved</p><button class="noteshow" hidden>Show all</button></div></div>
-          <p class="origin">From Ring of spell storing, one of her attuned items.</p>
+          <p class="origin">From Ring of spell storing, an attuned item.</p>
           <button class="dangerbtn small">Remove this way to cast</button>
         </div>
 
@@ -2392,7 +2416,6 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <button class="tile"><b>15</b><em>Spell save</em></button>
     </div>
     <div class="hmarks">
-      <span class="mark">Channel divinity 1 of 2</span>
       <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
       <button class="restbtn">Rest</button>
     </div>
@@ -2416,7 +2439,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <div class="slotg"><em>4th</em><div class="pips" role="spinbutton" tabindex="0" aria-label="4th level slots" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div></div>
       </div>
       <div class="res"><div class="resl"><b>Channel divinity</b><span>Two uses, short rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Channel divinity" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="1 of 2 left"><i data-on></i><i></i></div></div>
-      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="7" aria-valuenow="5" aria-valuetext="5 of 7 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half recovered on a long rest</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="7" aria-valuenow="5" aria-valuetext="5 of 7 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div></div>
     </section>
 
     <section class="block">
@@ -2446,9 +2469,6 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <button class="act"><div class="actl"><b>Preserve life</b><span>Heal 35 hit points, split within 30 ft</span></div><span class="mark">Channel</span><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Turn undead</b><span>Wis save 15, destroys CR 1/2 and below</span></div><span class="mark">Channel</span><i class="chev"></i></button>
       <button class="act" data-k="common"><div class="actl"><b>Common actions</b><span>Dash, Disengage, Dodge, Help, Hide, Ready, Search</span></div><i class="chev"></i></button>
-      <p class="grp">Bonus action</p>
-      <button class="act"><div class="actl"><b>Healing word</b><span>60 ft, heals 1d4+7</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Spiritual weapon</b><span>Move it 20 ft and attack, +7</span></div><i class="chev"></i></button>
       <p class="grp">Reaction</p>
       <button class="act"><div class="actl"><b>Opportunity attack</b><span>Mace, +5 to hit</span></div><i class="chev"></i></button>
       <p class="grp">No action needed</p>
@@ -2504,7 +2524,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
     <section class="block">
       <h3 class="bhead">Cantrips <span>At will</span></h3>
-      <button class="act"><div class="actl"><b>Sacred flame</b><span>Action, 60 ft, Dex save 15</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Sacred flame</b><span>Action, 60 ft, Dex save 15, 2d8 radiant</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Guidance</b><span>Action, touch, concentration</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Spare the dying</b><span>Action, touch</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Thaumaturgy</b><span>Action, 30 ft, 1 minute</span></div><i class="chev"></i></button>
@@ -2531,10 +2551,10 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <section class="block">
       <h3 class="bhead">3rd level <span>2 slots left</span></h3>
       <button class="act"><div class="actl"><b>Beacon of hope</b><span>Action, 30 ft, concentration</span></div><span class="mark">Domain</span><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Revivify</b><span>Action, touch, 300 gp diamond</span></div><span class="mark">Domain</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Revivify</b><span>Action, touch</span></div><span class="mark">Domain</span><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Dispel magic</b><span>Action, 120 ft</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Mass healing word</b><span>Bonus action, 60 ft, heals 1d4+9</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Spirit guardians</b><span>Action, self, concentration</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Spirit guardians</b><span>Action, self, concentration, 3d8 radiant</span></div><i class="chev"></i></button>
     </section>
 
     <section class="block">
@@ -2653,7 +2673,6 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <button class="tile"><b>15</b><em>Spell save</em></button>
     </div>
     <div class="hmarks">
-      <span class="mark">Channel divinity 1 of 2</span>
       <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
       <button class="restbtn">Rest</button>
     </div>
@@ -2777,7 +2796,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <h3 class="bhead">How 18 is calculated</h3>
       <div class="calc"><div><b>Chain mail</b><span>Equipped. Heavy armor, so Dexterity adds nothing.</span></div><strong>16</strong></div>
       <div class="calc"><div><b>Shield</b><span>Equipped</span></div><strong>+2</strong></div>
-      <div class="calc total"><div><b>Calculated</b><span>Follows her gear if it changes</span></div><strong>18</strong></div>
+      <div class="calc total"><div><b>Calculated</b><span>Follows the gear if it changes</span></div><strong>18</strong></div>
     </section>
   </div>
 </div>
@@ -2795,7 +2814,6 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <h2 class="sname">Alarra Vane</h2>
     <p class="ssub">Human cleric 7, Life domain</p>
     <div class="hmarks">
-      <span class="mark">Channel divinity 1 of 2</span>
       <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
     </div>
   </div>
@@ -2847,7 +2865,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <div class="slotg"><em>4th</em><div class="pips" role="spinbutton" tabindex="0" aria-label="4th level slots" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div></div>
       </div>
       <div class="res"><div class="resl"><b>Channel divinity</b><span>Two uses, short rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Channel divinity" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="1 of 2 left"><i data-on></i><i></i></div></div>
-      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="7" aria-valuenow="5" aria-valuetext="5 of 7 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half recovered on a long rest</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="7" aria-valuenow="5" aria-valuetext="5 of 7 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div></div>
     </section>
 
     <section class="block">
@@ -2877,9 +2895,6 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <button class="act"><div class="actl"><b>Preserve life</b><span>Heal 35 hit points, split within 30 ft</span></div><span class="mark">Channel</span><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Turn undead</b><span>Wis save 15, destroys CR 1/2 and below</span></div><span class="mark">Channel</span><i class="chev"></i></button>
       <button class="act" data-k="common"><div class="actl"><b>Common actions</b><span>Dash, Disengage, Dodge, Help, Hide, Ready, Search</span></div><i class="chev"></i></button>
-      <p class="grp">Bonus action</p>
-      <button class="act"><div class="actl"><b>Healing word</b><span>60 ft, heals 1d4+7</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Spiritual weapon</b><span>Move it 20 ft and attack, +7</span></div><i class="chev"></i></button>
       <p class="grp">Reaction</p>
       <button class="act"><div class="actl"><b>Opportunity attack</b><span>Mace, +5 to hit</span></div><i class="chev"></i></button>
       <p class="grp">No action needed</p>
@@ -2908,7 +2923,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
     <section class="block">
       <h3 class="bhead">Cantrips <span>At will</span></h3>
-      <button class="act"><div class="actl"><b>Sacred flame</b><span>Action, 60 ft, Dex save 15</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Sacred flame</b><span>Action, 60 ft, Dex save 15, 2d8 radiant</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Guidance</b><span>Action, touch, concentration</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Spare the dying</b><span>Action, touch</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Thaumaturgy</b><span>Action, 30 ft, 1 minute</span></div><i class="chev"></i></button>
@@ -2935,10 +2950,10 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <section class="block">
       <h3 class="bhead">3rd level <span>2 slots left</span></h3>
       <button class="act"><div class="actl"><b>Beacon of hope</b><span>Action, 30 ft, concentration</span></div><span class="mark">Domain</span><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Revivify</b><span>Action, touch, 300 gp diamond</span></div><span class="mark">Domain</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Revivify</b><span>Action, touch</span></div><span class="mark">Domain</span><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Dispel magic</b><span>Action, 120 ft</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Mass healing word</b><span>Bonus action, 60 ft, heals 1d4+9</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Spirit guardians</b><span>Action, self, concentration</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Spirit guardians</b><span>Action, self, concentration, 3d8 radiant</span></div><i class="chev"></i></button>
     </section>
 
     <section class="block">
@@ -3048,9 +3063,9 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
     <section class="block">
       <h3 class="bhead">Equipped <button class="editbtn">Edit</button></h3>
-      <button class="act" data-k="armour"><div class="actl"><b>Chain mail</b><span>Heavy armor, AC 16. Strength 13.</span></div><span class="mark">Worn</span><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Shield</b><span>+2 AC while worn</span></div><span class="mark">In hand</span><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Mace</b><span>Melee, 1d6 bludgeoning</span></div><span class="mark">Belt</span><i class="chev"></i></button>
+      <button class="act" data-k="armour"><div class="actl"><b>Chain mail</b><span>Heavy armor, AC 16, Strength 13</span></div><span class="mark">Worn</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Shield</b><span>+2 AC</span></div><span class="mark">In hand</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Mace</b><span>1d6 bludgeoning</span></div><span class="mark">Belt</span><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Amulet</b><span>Holy symbol</span></div><span class="mark">Worn</span><i class="chev"></i></button>
     </section>
 
@@ -3074,7 +3089,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="body pad-bottom">
     <div class="cast">
       <div class="casttop"><b>Cleric 7</b><span>Level up when your table does</span></div>
-      <p class="padnote" style="margin-top:6px">Nothing on her sheet changes until you confirm the level-up.</p>
+      <p class="padnote" style="margin-top:6px">Nothing on the sheet changes until you confirm the level-up.</p>
       <button class="gobtn" style="width:100%;margin-top:12px">Level up to 8</button>
     </div>
 
@@ -3087,9 +3102,11 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <p class="grp">Life domain</p>
       <button class="act"><div class="actl"><b>Disciple of life</b><span>Healing spells restore 2 + the spell&rsquo;s level more</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Preserve life</b><span>Heal 35 hit points, split within 30 ft</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Blessed healer</b><span>When she heals another, she heals 2 + the spell&rsquo;s level</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Blessed healer</b><span>Healing another also heals 2 + the spell&rsquo;s level</span></div><i class="chev"></i></button>
       <p class="grp">Human</p>
-      <button class="act"><div class="actl"><b>Languages</b><span>Common and one extra, Celestial here</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Languages</b><span>Common and one extra, Dwarvish here</span></div><i class="chev"></i></button>
+      <p class="grp">Acolyte background</p>
+      <button class="act"><div class="actl"><b>Shelter of the faithful</b><span>Care and healing at temples of the faith</span></div><i class="chev"></i></button>
     </section>
 
     <section class="block">
@@ -3104,7 +3121,8 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <div class="para"><h4>Ideals</h4><p>The wounded come first.</p></div>
       <div class="para"><h4>Bonds</h4><p>The shrine that sent her after Brenna, and Brenna anyway.</p></div>
       <div class="para"><h4>Flaws</h4><p>Will spend a slot on a stranger before she spends one on herself.</p></div>
-      <div class="para"><h4>Allies and enemies</h4><p>Brenna Duskhollow, who has the ring. Brother Tamsin, who still writes.</p></div>
+      <div class="para"><h4>Allies</h4><p>Brenna Duskhollow, who has the ring. Brother Tamsin, who still writes.</p></div>
+      <div class="para"><h4>Enemies</h4><p>The Duskhollow pact&rsquo;s patron, who wants the ring back.</p></div>
     </section>
 
     <section class="block">
@@ -3216,7 +3234,7 @@ The diamond is for Revivify. Do not spend it.</textarea><div class="notefoot"><p
       <h3 class="bhead">How 18 is calculated</h3>
       <div class="calc"><div><b>Chain mail</b><span>Equipped. Heavy armor, so Dexterity adds nothing.</span></div><strong>16</strong></div>
       <div class="calc"><div><b>Shield</b><span>Equipped</span></div><strong>+2</strong></div>
-      <div class="calc total"><div><b>Calculated</b><span>Follows her gear if it changes</span></div><strong>18</strong></div>
+      <div class="calc total"><div><b>Calculated</b><span>Follows the gear if it changes</span></div><strong>18</strong></div>
     </section>
   </div>
 </template>
@@ -3418,15 +3436,15 @@ The diamond is for Revivify. Do not spend it.</textarea><div class="notefoot"><p
         <b>2</b>
         <button class="step" aria-label="One more">+</button>
       </div>
-      <p class="padnote">2d8 + 4, because each die adds her Constitution modifier. The average, 13, would take her to 44.</p>
+      <p class="padnote">2d8 + 4, because each die adds the Constitution modifier. The average, 13, would reach 44.</p>
       <div class="pair"><button class="gobtn" aria-haspopup="dialog" aria-expanded="false">Roll 2d8 + 4</button><button class="gobtn" aria-haspopup="dialog" aria-expanded="false">I rolled</button></div>
     </section>
 
     <section class="block">
       <h3 class="bhead">What changes</h3>
-      <div class="change"><div><b>Pact magic</b><span>The 3rd-level slot she spent</span></div><strong><em class="was">1</em> &rarr; 2</strong></div>
+      <div class="change"><div><b>Pact magic</b><span>The 3rd-level slot spent</span></div><strong><em class="was">1</em> &rarr; 2</strong></div>
       <div class="change"><div><b>Hit points</b><span>Whatever the hit dice roll</span></div><strong><em class="was">31</em> &rarr; 44</strong></div>
-      <div class="change"><div><b>Hit dice</b><span>The 2 she spends</span></div><strong><em class="was">4</em> &rarr; 2</strong></div>
+      <div class="change"><div><b>Hit dice</b><span>2 spent to heal</span></div><strong><em class="was">4</em> &rarr; 2</strong></div>
       <p class="grp" style="margin-top:12px">Not on a short rest</p>
       <div class="change"><div><b>Hex</b><span>Concentration, 8 hours at 3rd level. An hour&rsquo;s rest doesn&rsquo;t reach it.</span></div><span class="mark" data-t="conc">Active</span></div>
       <div class="change"><div><b>Dark One&rsquo;s own luck</b><span>Long rest only, and still unspent</span></div><strong>1</strong></div>
@@ -3468,7 +3486,7 @@ The diamond is for Revivify. Do not spend it.</textarea><div class="notefoot"><p
     </section>
 
     <section class="block">
-      <h3 class="bhead">After she wakes</h3>
+      <h3 class="bhead">After waking</h3>
       <div class="res"><div class="resl"><b>Prepared spells</b><span>A cleric can change them after a long rest. 11 of 11 now.</span></div><button class="gobtn">Change</button></div>
     </section>
   </div>
@@ -3516,7 +3534,7 @@ The diamond is for Revivify. Do not spend it.</textarea><div class="notefoot"><p
       <h3 class="bhead">Equipped <button class="editbtn">Edit</button></h3>
       <button class="act"><div class="actl"><b>Leather armor</b><span>Light armor, AC 11 + Dex</span></div><span class="mark">Worn</span><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Crystal</b><span>Arcane focus</span></div><span class="mark">In hand</span><i class="chev"></i></button>
-      <button class="act" data-k="dagger"><div class="actl"><b>Dagger <small class="qty">&times;2</small></b><span>Finesse, thrown 20/60 ft, 1d4 piercing</span></div><span class="mark">Belt</span><i class="chev"></i></button>
+      <button class="act" data-k="dagger"><div class="actl"><b>Dagger <small class="qty">&times;2</small></b><span>1d4 piercing, finesse, light, thrown 20/60 ft</span></div><span class="mark">Belt</span><i class="chev"></i></button>
     </section>
 
     <section class="block">
@@ -3564,7 +3582,7 @@ The diamond is for Revivify. Do not spend it.</textarea><div class="notefoot"><p
   <div class="body pad-bottom">
     <div class="cast">
       <div class="casttop"><b>Warlock 6</b><span>Level up when your table does</span></div>
-      <p class="padnote" style="margin-top:6px">Nothing on her sheet changes until you confirm the level-up.</p>
+      <p class="padnote" style="margin-top:6px">Nothing on the sheet changes until you confirm the level-up.</p>
       <button class="gobtn" style="width:100%;margin-top:12px">Level up to 7</button>
     </div>
 
@@ -3573,16 +3591,16 @@ The diamond is for Revivify. Do not spend it.</textarea><div class="notefoot"><p
       <p class="grp">Warlock 6</p>
       <button class="act"><div class="actl"><b>Pact magic</b><span>Two 3rd-level slots, short rest</span></div><i class="chev"></i></button>
       <button class="act" data-k="invocations"><div class="actl"><b>Eldritch invocations</b><span>Agonizing blast, Devil&rsquo;s sight, Repelling blast</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Pact of the blade</b><span>Create a weapon in her hand as an action</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Pact of the blade</b><span>Create a pact weapon in hand as an action</span></div><i class="chev"></i></button>
       <p class="grp">The Fiend</p>
-      <button class="act"><div class="actl"><b>Dark One&rsquo;s blessing</b><span>10 temporary hit points when she drops a foe</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Dark One&rsquo;s blessing</b><span>10 temporary hit points after dropping a foe</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Dark One&rsquo;s own luck</b><span>Add 1d10 to a check or save, long rest</span></div><i class="chev"></i></button>
       <p class="grp">Half-elf</p>
-      <button class="act" data-k="darkvision"><div class="actl"><b>Darkvision</b><span>60 ft</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Fey ancestry</b><span>Advantage against charm, and magic can&rsquo;t sleep her</span></div><i class="chev"></i></button>
+      <button class="act" data-k="darkvision"><div class="actl"><b>Darkvision</b><span>See 60 ft in dim light</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Fey ancestry</b><span>Advantage against charm, and magic can&rsquo;t cause sleep</span></div><i class="chev"></i></button>
       <button class="act" data-k="versatility"><div class="actl"><b>Skill versatility</b><span>Two extra skills</span></div><i class="chev"></i></button>
       <p class="grp">Acolyte background</p>
-      <button class="act"><div class="actl"><b>Shelter of the faithful</b><span>Care and healing at temples of her faith</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Shelter of the faithful</b><span>Care and healing at temples of the faith</span></div><i class="chev"></i></button>
       <p class="grp">Feat, taken at level 4</p>
       <button class="act"><div class="actl"><b>Magic initiate</b><span>Two cleric cantrips and cure wounds once a day</span></div><i class="chev"></i></button>
       <button class="addrow" data-k="add-feature"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add a feature</button>
@@ -3600,7 +3618,8 @@ The diamond is for Revivify. Do not spend it.</textarea><div class="notefoot"><p
       <div class="para"><h4>Ideals</h4><p>Knowledge is owed to whoever will use it.</p></div>
       <div class="para"><h4>Bonds</h4><p>The temple that raised her, and the thing that answered when the temple didn&rsquo;t.</p></div>
       <div class="para"><h4>Flaws</h4><p>Trusts a bargain more than a friend.</p></div>
-      <div class="para"><h4>Allies and enemies</h4><p>Alarra Vane, who knows. Brother Tamsin, who suspects.</p></div>
+      <div class="para"><h4>Allies</h4><p>Alarra Vane, who knows.</p></div>
+      <div class="para"><h4>Enemies</h4><p>Brother Tamsin, who suspects.</p></div>
     </section>
 
     <section class="block">
@@ -3645,7 +3664,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <div class="editrow"><span class="lbl">Intelligence</span><button class="step" aria-label="Lower Intelligence">&minus;</button><span class="num">10</span><button class="step" aria-label="Raise Intelligence">+</button><span class="mod">+0</span></div>
       <div class="editrow"><span class="lbl">Wisdom</span><button class="step" aria-label="Lower Wisdom">&minus;</button><span class="num">18</span><button class="step" aria-label="Raise Wisdom">+</button><span class="mod">+4</span></div>
       <div class="editrow"><span class="lbl">Charisma</span><button class="step" aria-label="Lower Charisma">&minus;</button><span class="num">12</span><button class="step" aria-label="Raise Charisma">+</button><span class="mod">+1</span></div>
-      <p class="padnote"><b>Constitution 16</b> raises her maximum hit points from 52 to 59, and her Constitution saves and concentration checks by 1.</p>
+      <p class="padnote"><b>Constitution 16</b> raises maximum hit points from 52 to 59, and Constitution saves and concentration checks by 1.</p>
     </section>
 
     <section class="block">
@@ -3689,15 +3708,15 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <b>2</b>
         <button class="step" aria-label="One more">+</button>
       </div>
-      <p class="padnote">2d8 + 4, because each die adds her Constitution modifier. The average, 13, would take her to 44.</p>
+      <p class="padnote">2d8 + 4, because each die adds the Constitution modifier. The average, 13, would reach 44.</p>
       <div class="pair"><button class="gobtn" aria-haspopup="dialog" aria-expanded="false">Roll 2d8 + 4</button><button class="gobtn" aria-haspopup="dialog" aria-expanded="false">I rolled</button></div>
     </section>
 
     <section class="block">
       <h3 class="bhead">What changes</h3>
-      <div class="change"><div><b>Pact magic</b><span>The 3rd-level slot she spent</span></div><strong><em class="was">1</em> &rarr; 2</strong></div>
+      <div class="change"><div><b>Pact magic</b><span>The 3rd-level slot spent</span></div><strong><em class="was">1</em> &rarr; 2</strong></div>
       <div class="change"><div><b>Hit points</b><span>Whatever the hit dice roll</span></div><strong><em class="was">31</em> &rarr; 44</strong></div>
-      <div class="change"><div><b>Hit dice</b><span>The 2 she spends</span></div><strong><em class="was">4</em> &rarr; 2</strong></div>
+      <div class="change"><div><b>Hit dice</b><span>2 spent to heal</span></div><strong><em class="was">4</em> &rarr; 2</strong></div>
       <p class="grp" style="margin-top:12px">Not on a short rest</p>
       <div class="change"><div><b>Hex</b><span>Concentration, 8 hours at 3rd level. An hour&rsquo;s rest doesn&rsquo;t reach it.</span></div><span class="mark" data-t="conc">Active</span></div>
       <div class="change"><div><b>Dark One&rsquo;s own luck</b><span>Long rest only, and still unspent</span></div><strong>1</strong></div>
@@ -3730,7 +3749,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     </section>
 
     <section class="block">
-      <h3 class="bhead">After she wakes</h3>
+      <h3 class="bhead">After waking</h3>
       <div class="res"><div class="resl"><b>Prepared spells</b><span>A cleric can change them after a long rest. 11 of 11 now.</span></div><button class="gobtn" data-k="prep">Change</button></div>
     </section>
   </div>
@@ -3748,7 +3767,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <div class="editrow"><span class="lbl">Intelligence</span><button class="step" aria-label="Lower Intelligence">&minus;</button><span class="num">10</span><button class="step" aria-label="Raise Intelligence">+</button><span class="mod">+0</span></div>
       <div class="editrow"><span class="lbl">Wisdom</span><button class="step" aria-label="Lower Wisdom">&minus;</button><span class="num">18</span><button class="step" aria-label="Raise Wisdom">+</button><span class="mod">+4</span></div>
       <div class="editrow"><span class="lbl">Charisma</span><button class="step" aria-label="Lower Charisma">&minus;</button><span class="num">12</span><button class="step" aria-label="Raise Charisma">+</button><span class="mod">+1</span></div>
-      <p class="padnote"><b>Constitution 16</b> raises her maximum hit points from 52 to 59, and her Constitution saves and concentration checks by 1.</p>
+      <p class="padnote"><b>Constitution 16</b> raises maximum hit points from 52 to 59, and Constitution saves and concentration checks by 1.</p>
     </section>
 
     <section class="block">
@@ -4009,7 +4028,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
     <section class="block">
       <h3 class="bhead">On Brenna</h3>
-      <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Equipped</b><span>Both on her belt</span></div></label>
+      <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Equipped</b><span>Both on the belt</span></div></label>
       <div class="editrow"><span class="lbl">How many</span><button class="step" aria-label="One less">&minus;</button><span class="num">2</span><button class="step" aria-label="One more">+</button><span class="mod"></span></div>
       <div class="res"><div class="resl"><b>Belt</b><span>Where they are now</span></div><button class="gobtn">Move</button></div>
     </section>
@@ -4043,7 +4062,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <section class="block">
       <h3 class="bhead">How many <span>2 in the stack</span></h3>
       <div class="editrow"><span class="lbl">Moving</span><button class="step" aria-label="One less">&minus;</button><span class="num">1</span><button class="step" aria-label="One more">+</button><span class="mod"></span></div>
-      <p class="padnote">Moving one of two splits the stack. The other dagger stays on her belt.</p>
+      <p class="padnote">Moving one of two splits the stack. The other dagger stays on the belt.</p>
     </section>
 
     <section class="block">
@@ -4074,19 +4093,19 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <div><b>13</b><em>Strength needed</em></div>
         <div><b>Stealth</b><em>Disadvantage</em></div>
       </div>
-      <button class="act"><div class="actl"><b>Feeds armor class</b><span>Calculated 18 with her shield. Shown as 19, set by you.</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Feeds armor class</b><span>Calculated 18 with the shield. Shown as 19, set by you.</span></div><i class="chev"></i></button>
     </div>
 
     <section class="block">
       <h3 class="bhead">On Alarra</h3>
-      <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Equipped</b><span>On her body</span></div></label>
-      <p class="padnote">Taking it off drops the calculated armor class from 18 to 12. Her armor class stays 19 while it is set by you.</p>
+      <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Equipped</b><span>Worn</span></div></label>
+      <p class="padnote">Taking it off drops the calculated armor class from 18 to 12. Armor class stays 19 while it is set by you.</p>
       <div class="res"><div class="resl"><b>Worn</b><span>Equipped armor</span></div><button class="gobtn">Move</button></div>
     </section>
 
     <section class="block">
       <dl class="kv">
-        <dt>Strength</dt><dd>Needs 13. Alarra has 14, so her speed is unaffected.</dd>
+        <dt>Strength</dt><dd>Needs 13. Alarra has 14, so speed is unaffected.</dd>
         <dt>Stealth</dt><dd>Disadvantage on Dexterity (Stealth) checks while worn</dd>
         <dt>Cost</dt><dd>75 gp</dd>
       </dl>
@@ -4111,13 +4130,13 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <section class="block">
       <h3 class="bhead">On Brenna</h3>
       <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Attuned</b><span>1 of 3 attuned items</span></div></label>
-      <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Equipped</b><span>Worn on her left hand</span></div></label>
+      <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Equipped</b><span>Worn on the left hand</span></div></label>
       <div class="res"><div class="resl"><b>Worn</b><span>Equipped jewelry</span></div><button class="gobtn">Move</button></div>
     </section>
 
     <section class="block">
       <h3 class="bhead">Stored levels <span>Tracked by Brenna</span></h3>
-      <div class="res"><div class="resl"><b>3 of 5 levels</b><span>The maximum is hers to set. The catalog holds this item as text.</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Ring of spell storing levels" aria-valuemin="0" aria-valuemax="5" aria-valuenow="3" aria-valuetext="3 of 5 left"><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>3 of 5 levels</b><span>You set the maximum. The catalog holds this item as text.</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Ring of spell storing levels" aria-valuemin="0" aria-valuemax="5" aria-valuenow="3" aria-valuetext="3 of 5 left"><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div></div>
       <button class="act"><div class="actl"><b>Cure wounds</b><span>2nd level, stored by Alarra Vane. Cast it from here.</span></div><i class="chev"></i></button>
     </section>
 
@@ -4128,7 +4147,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <p>This ring stores spells cast into it, holding them until the attuned wearer uses them. The ring can store up to 5 levels worth of spells at a time.</p>
         <p>While wearing this ring, you can cast any spell stored in it. The spell uses the slot level, spell save DC, spell attack bonus, and spellcasting ability of the original caster, but is otherwise treated as if you cast the spell. The spell cast from the ring is no longer stored in it, freeing up space.</p>
       </div>
-      <p class="origin">Added by hand. Alarra lent it to her in session 12.</p>
+      <p class="origin">Added by hand. Lent by Alarra in session 12.</p>
     </section>
 
     <button class="dangerbtn">Remove ring</button>
@@ -4182,7 +4201,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
   <div class="body pad-bottom">
     <div class="cast">
-      <div class="casttop"><b>What she sees</b></div>
+      <div class="casttop"><b>What Brenna sees</b></div>
       <div class="caststats">
         <div><b>60 ft</b><em>Dim as bright</em></div>
         <div><b>60 ft</b><em>Dark as dim</em></div>
@@ -4196,7 +4215,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <div class="rules">
         <p>You have superior vision in dark and dim conditions. You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light. You cannot discern color in darkness, only shades of gray.</p>
       </div>
-      <p class="origin">From Half-elf, her race.</p>
+      <p class="origin">From the Half-elf race.</p>
     </section>
   </div>
 </template>
@@ -4249,7 +4268,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
   <div class="body pad-bottom">
     <section class="block">
-      <div class="res"><div class="resl"><b>3 known</b><span>A fourth at warlock 7. She can swap one each time she gains a level.</span></div><button class="gobtn">Level up</button></div>
+      <div class="res"><div class="resl"><b>3 known</b><span>A fourth at warlock 7. One can be swapped at each new level.</span></div><button class="gobtn">Level up</button></div>
     </section>
 
     <section class="block">
@@ -4260,7 +4279,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <p>You can see normally in darkness, both magical and nonmagical, to a distance of 120 feet.</p></div>
       <div class="para"><h4>Repelling blast <span class="mark" style="margin-left:6px">Changes eldritch blast</span></h4>
         <p>When you hit a creature with eldritch blast, you can push the creature up to 10 feet away from you in a straight line.</p></div>
-      <p class="origin">Chosen at warlock 2 and 5. The +4 and the push already show in her attack.</p>
+      <p class="origin">Chosen at warlock 2 and 5. The +4 and the push already show in the attack.</p>
     </section>
 
     <button class="disclose" aria-expanded="false">Rules text<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
@@ -4305,7 +4324,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <h3 class="bhead">How +7 is calculated</h3>
       <div class="calc"><div><b>Wisdom</b><span>Score 18</span></div><strong>+4</strong></div>
       <div class="calc"><div><b>Proficiency bonus</b><span>Proficient, from the Cleric class</span></div><strong>+3</strong></div>
-      <div class="calc total"><div><b>Calculated</b><span>Follows her Wisdom and level</span></div><strong>+7</strong></div>
+      <div class="calc total"><div><b>Calculated</b><span>Follows Wisdom and level</span></div><strong>+7</strong></div>
     </section>
 
     <section class="block">
@@ -4333,12 +4352,12 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <h3 class="bhead">Actions in combat <span>SRD 5.1</span></h3>
       <div class="para" style="margin-top:0;padding-top:0;border-top:0"><h4>Attack</h4><p>One melee or ranged attack. Grappling and shoving are special attacks made with this action.</p></div>
       <div class="para"><h4>Cast a spell</h4><p>A spell with a casting time of one action.</p></div>
-      <div class="para"><h4>Dash</h4><p>Extra movement equal to her speed, so 60 ft this turn.</p></div>
-      <div class="para"><h4>Disengage</h4><p>Her movement doesn&rsquo;t provoke opportunity attacks for the rest of the turn.</p></div>
-      <div class="para"><h4>Dodge</h4><p>Attacks against her have disadvantage and she has advantage on Dexterity saves until her next turn.</p></div>
+      <div class="para"><h4>Dash</h4><p>Extra movement equal to speed, so 60 ft this turn.</p></div>
+      <div class="para"><h4>Disengage</h4><p>Movement doesn&rsquo;t provoke opportunity attacks for the rest of the turn.</p></div>
+      <div class="para"><h4>Dodge</h4><p>Until the next turn, attacks against this character have disadvantage and Dexterity saves have advantage.</p></div>
       <div class="para"><h4>Help</h4><p>An ally gets advantage on their next check for the task, or their next attack against a nearby foe.</p></div>
       <div class="para"><h4>Hide</h4><p>A Dexterity (Stealth) check, following the rules for hiding.</p></div>
-      <div class="para"><h4>Ready</h4><p>Choose a trigger and an action, then take it as a reaction before her next turn.</p></div>
+      <div class="para"><h4>Ready</h4><p>Choose a trigger and an action, then take it as a reaction before the next turn.</p></div>
       <div class="para"><h4>Search</h4><p>A Wisdom (Perception) or Intelligence (Investigation) check, as the DM decides.</p></div>
       <div class="para"><h4>Use an object</h4><p>For an object that needs a whole action, or more than one object in a turn.</p></div>
     </section>
@@ -4757,7 +4776,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
     <section class="block">
       <h3 class="bhead">On Brenna</h3>
-      <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Equipped</b><span>Both on her belt</span></div></label>
+      <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Equipped</b><span>Both on the belt</span></div></label>
       <div class="editrow"><span class="lbl">How many</span><button class="step" aria-label="One less">&minus;</button><span class="num">2</span><button class="step" aria-label="One more">+</button><span class="mod"></span></div>
       <div class="res"><div class="resl"><b>Belt</b><span>Where they are now</span></div><button class="gobtn">Move</button></div>
     </section>
@@ -4798,7 +4817,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <section class="block">
       <h3 class="bhead">How many <span>2 in the stack</span></h3>
       <div class="editrow"><span class="lbl">Moving</span><button class="step" aria-label="One less">&minus;</button><span class="num">1</span><button class="step" aria-label="One more">+</button><span class="mod"></span></div>
-      <p class="padnote">Moving one of two splits the stack. The other dagger stays on her belt.</p>
+      <p class="padnote">Moving one of two splits the stack. The other dagger stays on the belt.</p>
     </section>
 
     <section class="block">
@@ -4835,19 +4854,19 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <div><b>13</b><em>Strength needed</em></div>
         <div><b>Stealth</b><em>Disadvantage</em></div>
       </div>
-      <button class="act"><div class="actl"><b>Feeds armor class</b><span>Calculated 18 with her shield. Shown as 19, set by you.</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Feeds armor class</b><span>Calculated 18 with the shield. Shown as 19, set by you.</span></div><i class="chev"></i></button>
     </div>
 
     <section class="block">
       <h3 class="bhead">On Alarra</h3>
-      <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Equipped</b><span>On her body</span></div></label>
-      <p class="padnote">Taking it off drops the calculated armor class from 18 to 12. Her armor class stays 19 while it is set by you.</p>
+      <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Equipped</b><span>Worn</span></div></label>
+      <p class="padnote">Taking it off drops the calculated armor class from 18 to 12. Armor class stays 19 while it is set by you.</p>
       <div class="res"><div class="resl"><b>Worn</b><span>Equipped armor</span></div><button class="gobtn">Move</button></div>
     </section>
 
     <section class="block">
       <dl class="kv">
-        <dt>Strength</dt><dd>Needs 13. Alarra has 14, so her speed is unaffected.</dd>
+        <dt>Strength</dt><dd>Needs 13. Alarra has 14, so speed is unaffected.</dd>
         <dt>Stealth</dt><dd>Disadvantage on Dexterity (Stealth) checks while worn</dd>
         <dt>Cost</dt><dd>75 gp</dd>
       </dl>
@@ -4879,13 +4898,13 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <section class="block">
       <h3 class="bhead">On Brenna</h3>
       <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Attuned</b><span>1 of 3 attuned items</span></div></label>
-      <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Equipped</b><span>Worn on her left hand</span></div></label>
+      <label class="prep"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span><div class="actl"><b>Equipped</b><span>Worn on the left hand</span></div></label>
       <div class="res"><div class="resl"><b>Worn</b><span>Equipped jewelry</span></div><button class="gobtn">Move</button></div>
     </section>
 
     <section class="block">
       <h3 class="bhead">Stored levels <span>Tracked by Brenna</span></h3>
-      <div class="res"><div class="resl"><b>3 of 5 levels</b><span>The maximum is hers to set. The catalog holds this item as text.</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Ring of spell storing levels" aria-valuemin="0" aria-valuemax="5" aria-valuenow="3" aria-valuetext="3 of 5 left"><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>3 of 5 levels</b><span>You set the maximum. The catalog holds this item as text.</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Ring of spell storing levels" aria-valuemin="0" aria-valuemax="5" aria-valuenow="3" aria-valuetext="3 of 5 left"><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div></div>
       <button class="act"><div class="actl"><b>Cure wounds</b><span>2nd level, stored by Alarra Vane. Cast it from here.</span></div><i class="chev"></i></button>
     </section>
 
@@ -4896,7 +4915,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <p>This ring stores spells cast into it, holding them until the attuned wearer uses them. The ring can store up to 5 levels worth of spells at a time.</p>
         <p>While wearing this ring, you can cast any spell stored in it. The spell uses the slot level, spell save DC, spell attack bonus, and spellcasting ability of the original caster, but is otherwise treated as if you cast the spell. The spell cast from the ring is no longer stored in it, freeing up space.</p>
       </div>
-      <p class="origin">Added by hand. Alarra lent it to her in session 12.</p>
+      <p class="origin">Added by hand. Lent by Alarra in session 12.</p>
     </section>
 
     <button class="dangerbtn">Remove ring</button>
@@ -4964,7 +4983,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
   <div class="body pad-bottom">
     <div class="cast">
-      <div class="casttop"><b>What she sees</b></div>
+      <div class="casttop"><b>What Brenna sees</b></div>
       <div class="caststats">
         <div><b>60 ft</b><em>Dim as bright</em></div>
         <div><b>60 ft</b><em>Dark as dim</em></div>
@@ -4978,7 +4997,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <div class="rules">
         <p>You have superior vision in dark and dim conditions. You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light. You cannot discern color in darkness, only shades of gray.</p>
       </div>
-      <p class="origin">From Half-elf, her race.</p>
+      <p class="origin">From the Half-elf race.</p>
     </section>
   </div>
 </div>
@@ -5043,7 +5062,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
   <div class="body pad-bottom">
     <section class="block">
-      <div class="res"><div class="resl"><b>3 known</b><span>A fourth at warlock 7. She can swap one each time she gains a level.</span></div><button class="gobtn">Level up</button></div>
+      <div class="res"><div class="resl"><b>3 known</b><span>A fourth at warlock 7. One can be swapped at each new level.</span></div><button class="gobtn">Level up</button></div>
     </section>
 
     <section class="block">
@@ -5054,7 +5073,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <p>You can see normally in darkness, both magical and nonmagical, to a distance of 120 feet.</p></div>
       <div class="para"><h4>Repelling blast <span class="mark" style="margin-left:6px">Changes eldritch blast</span></h4>
         <p>When you hit a creature with eldritch blast, you can push the creature up to 10 feet away from you in a straight line.</p></div>
-      <p class="origin">Chosen at warlock 2 and 5. The +4 and the push already show in her attack.</p>
+      <p class="origin">Chosen at warlock 2 and 5. The +4 and the push already show in the attack.</p>
     </section>
 
     <button class="disclose" aria-expanded="false">Rules text<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
@@ -5105,7 +5124,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <h3 class="bhead">How +7 is calculated</h3>
       <div class="calc"><div><b>Wisdom</b><span>Score 18</span></div><strong>+4</strong></div>
       <div class="calc"><div><b>Proficiency bonus</b><span>Proficient, from the Cleric class</span></div><strong>+3</strong></div>
-      <div class="calc total"><div><b>Calculated</b><span>Follows her Wisdom and level</span></div><strong>+7</strong></div>
+      <div class="calc total"><div><b>Calculated</b><span>Follows Wisdom and level</span></div><strong>+7</strong></div>
     </section>
 
     <section class="block">
@@ -5139,12 +5158,12 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <h3 class="bhead">Actions in combat <span>SRD 5.1</span></h3>
       <div class="para" style="margin-top:0;padding-top:0;border-top:0"><h4>Attack</h4><p>One melee or ranged attack. Grappling and shoving are special attacks made with this action.</p></div>
       <div class="para"><h4>Cast a spell</h4><p>A spell with a casting time of one action.</p></div>
-      <div class="para"><h4>Dash</h4><p>Extra movement equal to her speed, so 60 ft this turn.</p></div>
-      <div class="para"><h4>Disengage</h4><p>Her movement doesn&rsquo;t provoke opportunity attacks for the rest of the turn.</p></div>
-      <div class="para"><h4>Dodge</h4><p>Attacks against her have disadvantage and she has advantage on Dexterity saves until her next turn.</p></div>
+      <div class="para"><h4>Dash</h4><p>Extra movement equal to speed, so 60 ft this turn.</p></div>
+      <div class="para"><h4>Disengage</h4><p>Movement doesn&rsquo;t provoke opportunity attacks for the rest of the turn.</p></div>
+      <div class="para"><h4>Dodge</h4><p>Until the next turn, attacks against this character have disadvantage and Dexterity saves have advantage.</p></div>
       <div class="para"><h4>Help</h4><p>An ally gets advantage on their next check for the task, or their next attack against a nearby foe.</p></div>
       <div class="para"><h4>Hide</h4><p>A Dexterity (Stealth) check, following the rules for hiding.</p></div>
-      <div class="para"><h4>Ready</h4><p>Choose a trigger and an action, then take it as a reaction before her next turn.</p></div>
+      <div class="para"><h4>Ready</h4><p>Choose a trigger and an action, then take it as a reaction before the next turn.</p></div>
       <div class="para"><h4>Search</h4><p>A Wisdom (Perception) or Intelligence (Investigation) check, as the DM decides.</p></div>
       <div class="para"><h4>Use an object</h4><p>For an object that needs a whole action, or more than one object in a turn.</p></div>
     </section>
@@ -5177,12 +5196,12 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <button class="step" aria-label="One more">+</button>
       </div>
       <div class="quick"><button>1</button><button>5</button><button>10</button><button>50</button></div>
-      <p class="padnote"><b>112</b> gold becomes <b>97</b>. Her other coins stay as they are.</p>
+      <p class="padnote"><b>112</b> gold becomes <b>97</b>. The other coins stay as they are.</p>
       <button class="castbtn" style="margin-top:11px">Spend 15 gold</button>
     </div>
 
     <section class="block">
-      <h3 class="bhead">All her coins</h3>
+      <h3 class="bhead">All coins</h3>
       <div class="coins">
         <button class="coin" data-k="copper"><b>5</b><em>Copper</em></button>
         <button class="coin" data-k="silver"><b>30</b><em>Silver</em></button>
@@ -5411,7 +5430,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
   <div class="body pad-bottom">
     <section class="block">
-      <h3 class="bhead">It came from her background</h3>
+      <h3 class="bhead">It came from Brenna&rsquo;s background</h3>
       <p class="padnote" style="margin-top:0">The Acolyte background gave Brenna this book. Level-ups won&rsquo;t give it back. A level-up review can restore it.</p>
     </section>
 
@@ -5461,7 +5480,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <h3 class="bhead">How +7 is calculated</h3>
       <div class="calc"><div><b>Wisdom</b><span>Score 18</span></div><strong>+4</strong></div>
       <div class="calc"><div><b>Proficiency bonus</b><span>Proficient, from the Cleric class</span></div><strong>+3</strong></div>
-      <div class="calc total"><div><b>Calculated</b><span>Follows her Wisdom and level</span></div><strong>+7</strong></div>
+      <div class="calc total"><div><b>Calculated</b><span>Follows Wisdom and level</span></div><strong>+7</strong></div>
     </section>
 
     <section class="block">
@@ -5579,7 +5598,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
     <section class="block">
       <h3 class="bhead">What it does <button class="editbtn">Edit</button></h3>
-      <div class="rules"><p>When a creature she can see within 60 ft damages her, it makes a Dexterity save or takes 2d10 fire damage, half as much on a success. Once per long rest.</p></div>
+      <div class="rules"><p>When a creature in sight within 60 ft deals damage, it makes a Dexterity save or takes 2d10 fire damage, half as much on a success. Once per long rest.</p></div>
       <p class="origin">Added by hand after session 9. The Fiend&rsquo;s gift, ruled by the DM.</p>
     </section>
 
@@ -5615,7 +5634,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <button class="step" aria-label="One more">+</button>
       </div>
       <div class="quick"><button>1</button><button>5</button><button>10</button><button>50</button></div>
-      <p class="padnote"><b>112</b> gold becomes <b>97</b>. Her other coins stay as they are.</p>
+      <p class="padnote"><b>112</b> gold becomes <b>97</b>. The other coins stay as they are.</p>
       <p class="keyhint">Type an amount. <kbd>Enter</kbd> applies it and <kbd>Esc</kbd> closes the panel.</p>
       <button class="castbtn" style="margin-top:11px">Spend 15 gold</button>
     </div>
@@ -5641,7 +5660,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <h3 class="bhead">Equipped <button class="editbtn" disabled>Edit</button></h3>
       <button class="act"><div class="actl"><b>Leather armor</b><span>Light armor, AC 11 + Dex</span></div><span class="mark">Worn</span><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Crystal</b><span>Arcane focus</span></div><span class="mark">In hand</span><i class="chev"></i></button>
-      <button class="act" data-k="dagger"><div class="actl"><b>Dagger <small class="qty">&times;2</small></b><span>Finesse, thrown 20/60 ft, 1d4 piercing</span></div><span class="mark">Belt</span><i class="chev"></i></button>
+      <button class="act" data-k="dagger"><div class="actl"><b>Dagger <small class="qty">&times;2</small></b><span>1d4 piercing, finesse, light, thrown 20/60 ft</span></div><span class="mark">Belt</span><i class="chev"></i></button>
     </section>
 
     <section class="block">
@@ -5808,7 +5827,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
   <div class="body pad-bottom">
     <section class="block">
-      <h3 class="bhead">It came from her background</h3>
+      <h3 class="bhead">It came from Brenna&rsquo;s background</h3>
       <p class="padnote" style="margin-top:0">The Acolyte background gave Brenna this book. Level-ups won&rsquo;t give it back. A level-up review can restore it.</p>
     </section>
 
@@ -5852,7 +5871,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <h3 class="bhead">How +7 is calculated</h3>
       <div class="calc"><div><b>Wisdom</b><span>Score 18</span></div><strong>+4</strong></div>
       <div class="calc"><div><b>Proficiency bonus</b><span>Proficient, from the Cleric class</span></div><strong>+3</strong></div>
-      <div class="calc total"><div><b>Calculated</b><span>Follows her Wisdom and level</span></div><strong>+7</strong></div>
+      <div class="calc total"><div><b>Calculated</b><span>Follows Wisdom and level</span></div><strong>+7</strong></div>
     </section>
 
     <section class="block">
@@ -5952,7 +5971,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
     <section class="block">
       <h3 class="bhead">What it does <button class="editbtn">Edit</button></h3>
-      <div class="rules"><p>When a creature she can see within 60 ft damages her, it makes a Dexterity save or takes 2d10 fire damage, half as much on a success. Once per long rest.</p></div>
+      <div class="rules"><p>When a creature in sight within 60 ft deals damage, it makes a Dexterity save or takes 2d10 fire damage, half as much on a success. Once per long rest.</p></div>
       <p class="origin">Added by hand after session 9. The Fiend&rsquo;s gift, ruled by the DM.</p>
     </section>
 
@@ -5968,16 +5987,16 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <div class="pips" role="spinbutton" tabindex="0" aria-label="Pact magic" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="1 of 2 left"><i data-on></i><i></i></div>
       </div>
       <div class="res">
-        <div class="resl"><b>Magic initiate</b><span>Cure wounds once, long rest</span></div>
-        <div class="pips" role="spinbutton" tabindex="0" aria-label="Magic initiate" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div>
-      </div>
-      <div class="res">
         <div class="resl"><b>Dark One's own luck</b><span>Add 1d10, long rest</span></div>
         <div class="pips" role="spinbutton" tabindex="0" aria-label="Dark One&#x27;s own luck" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div>
       </div>
       <div class="res">
         <div class="resl"><b>Hit dice</b><span>d8, half recovered on a long rest</span></div>
         <div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="6" aria-valuenow="4" aria-valuetext="4 of 6 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i></i><i></i></div>
+      </div>
+      <div class="res">
+        <div class="resl"><b>Magic initiate</b><span>Cure wounds once, long rest</span></div>
+        <div class="pips" role="spinbutton" tabindex="0" aria-label="Magic initiate" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div>
       </div>
       <div class="res">
         <div class="resl"><b>Ring of spell storing</b><span>Stored levels, refilled by hand</span></div>
@@ -5992,6 +6011,11 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <div><b>Pact blade</b><small>Melee, 5 ft, finesse</small></div>
         <div class="hit">+5</div>
         <div class="dmg">1d6+2<em>slashing</em></div>
+      </div>
+      <div class="atk">
+        <div><b>Dagger</b><small>20/60 ft thrown, finesse</small></div>
+        <div class="hit">+5</div>
+        <div class="dmg">1d4+2<em>piercing</em></div>
       </div>
       <div class="atk">
         <div><b>Eldritch blast</b><small>120 ft, two beams, pushes 10 ft</small></div>
@@ -6023,7 +6047,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <button class="act" data-k="hellfire"><div class="actl"><b>Hellfire rebuke</b><span>Dex save 15, 2d10 fire. Once per long rest.</span></div><span class="mark">Added</span><i class="chev"></i></button>
       <p class="grp">No action needed</p>
       <button class="act"><div class="actl"><b>Devil's sight</b><span>See through magical darkness, 120 ft</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Dark One's blessing</b><span>10 temporary hit points when she drops a foe</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Dark One's blessing</b><span>10 temporary hit points after dropping a foe</span></div><i class="chev"></i></button>
     </section>
   </div>
 </template>
@@ -6064,7 +6088,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <div class="slotg"><em>4th</em><div class="pips" role="spinbutton" tabindex="0" aria-label="4th level slots" aria-valuemin="0" aria-valuemax="2" aria-valuenow="2" aria-valuetext="2 of 2 left"><i data-on></i><i data-on></i></div></div>
       </div>
       <div class="res"><div class="resl"><b>Wild shape</b><span>Two uses, short rest. Beasts of CR 1</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Wild shape" aria-valuemin="0" aria-valuemax="2" aria-valuenow="2" aria-valuetext="2 of 2 left"><i data-on></i><i data-on></i></div></div>
-      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="8" aria-valuenow="5" aria-valuetext="5 of 8 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half recovered on a long rest</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="8" aria-valuenow="5" aria-valuetext="5 of 8 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i></i><i></i><i></i></div></div>
     </section>
 
     <section class="block">
@@ -6251,7 +6275,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <button class="act" data-k="wildshape"><div class="actl"><b>Wild shape</b><span>Two uses, beasts of CR 1</span></div><i class="chev"></i></button>
       <p class="grp">Circle of the Land</p>
       <button class="act"><div class="actl"><b>Natural recovery</b><span>Regain slots on a short rest, once a day</span></div><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Land&rsquo;s stride</b><span>Nonmagical plants don&rsquo;t slow him</span></div><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Land&rsquo;s stride</b><span>Nonmagical plants don&rsquo;t slow movement</span></div><i class="chev"></i></button>
       <p class="grp">Human</p>
       <button class="act"><div class="actl"><b>Languages</b><span>Common and one extra, Elvish here</span></div><i class="chev"></i></button>
     </section>
@@ -6706,13 +6730,13 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
     <div class="warn" role="note">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg>
-      <div><b>Identify isn&rsquo;t on the cleric list.</b> It can still be added, and it uses her cleric numbers.</div>
+      <div><b>Identify isn&rsquo;t on the cleric list.</b> It can still be added, and it uses Alarra&rsquo;s cleric numbers.</div>
     </div>
 
     <div class="pathcard">
-      <div class="pathtop"><b>How she casts it</b><span>Suggested</span></div>
+      <div class="pathtop"><b>How it&rsquo;s cast</b><span>Suggested</span></div>
       <div class="pathstats"><span>Cleric casting</span><span>Wisdom, DC <b>15</b></span><span>Prepared</span></div>
-      <p class="padnote" style="margin-top:0">Prepared, she can also cast it as a ritual without a slot. It lists under 1st level with an Added by hand mark.</p>
+      <p class="padnote" style="margin-top:0">Prepared, it can also be cast as a ritual without a slot. It lists under 1st level with an Added by hand mark.</p>
       <button class="disclose" style="margin-top:12px" aria-expanded="false">Casts it differently<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
     </div>
   </div>
@@ -6741,8 +6765,8 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     </section>
 
     <section class="block">
-      <h3 class="bhead">How she casts it <span>Changed from the suggestion</span></h3>
-      <label class="prep"><input type="radio" name="add-spell-path-kind"><span class="box round"></span><div class="actl"><b>Her warlock casting</b><span>Known, spends a Pact magic slot</span></div><span class="mark">Suggested</span></label>
+      <h3 class="bhead">How it&rsquo;s cast <span>Changed from the suggestion</span></h3>
+      <label class="prep"><input type="radio" name="add-spell-path-kind"><span class="box round"></span><div class="actl"><b>Warlock casting</b><span>Known, spends a Pact magic slot</span></div><span class="mark">Suggested</span></label>
       <label class="prep"><input type="radio" name="add-spell-path-kind" checked><span class="box round"></span><div class="actl"><b>Its own ability</b><span>For a boon, an item or a trait</span></div></label>
       <label class="prep"><input type="radio" name="add-spell-path-kind"><span class="box round"></span><div class="actl"><b>Fixed numbers</b><span>A save DC and attack set by the source</span></div></label>
       <p class="grp" style="margin-top:12px">Ability</p>
@@ -7138,13 +7162,13 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
     <div class="warn" role="note">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2.2 14.4 13.6H1.6z"/><path d="M8 6.4v3.4M8 11.1v1.1"/></svg>
-      <div><b>Identify isn&rsquo;t on the cleric list.</b> It can still be added, and it uses her cleric numbers.</div>
+      <div><b>Identify isn&rsquo;t on the cleric list.</b> It can still be added, and it uses Alarra&rsquo;s cleric numbers.</div>
     </div>
 
     <div class="pathcard">
-      <div class="pathtop"><b>How she casts it</b><span>Suggested</span></div>
+      <div class="pathtop"><b>How it&rsquo;s cast</b><span>Suggested</span></div>
       <div class="pathstats"><span>Cleric casting</span><span>Wisdom, DC <b>15</b></span><span>Prepared</span></div>
-      <p class="padnote" style="margin-top:0">Prepared, she can also cast it as a ritual without a slot. It lists under 1st level with an Added by hand mark.</p>
+      <p class="padnote" style="margin-top:0">Prepared, it can also be cast as a ritual without a slot. It lists under 1st level with an Added by hand mark.</p>
       <button class="disclose" style="margin-top:12px" aria-expanded="false">Casts it differently<i class="chev" style="margin-left:auto;transform:rotate(135deg);margin-top:-3px"></i></button>
     </div>
   </div>
@@ -7179,8 +7203,8 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     </section>
 
     <section class="block">
-      <h3 class="bhead">How she casts it <span>Changed from the suggestion</span></h3>
-      <label class="prep"><input type="radio" name="path"><span class="box round"></span><div class="actl"><b>Her warlock casting</b><span>Known, spends a Pact magic slot</span></div><span class="mark">Suggested</span></label>
+      <h3 class="bhead">How it&rsquo;s cast <span>Changed from the suggestion</span></h3>
+      <label class="prep"><input type="radio" name="path"><span class="box round"></span><div class="actl"><b>Warlock casting</b><span>Known, spends a Pact magic slot</span></div><span class="mark">Suggested</span></label>
       <label class="prep"><input type="radio" name="path" checked><span class="box round"></span><div class="actl"><b>Its own ability</b><span>For a boon, an item or a trait</span></div></label>
       <label class="prep"><input type="radio" name="path"><span class="box round"></span><div class="actl"><b>Fixed numbers</b><span>A save DC and attack set by the source</span></div></label>
       <p class="grp" style="margin-top:12px">Ability</p>
@@ -7354,7 +7378,6 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <h2 class="sname">Thorn Grimsby</h2>
     <p class="ssub">Mountain dwarf fighter 8, Champion</p>
     <div class="hmarks">
-      <span class="mark">Second wind ready</span>
       <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
     </div>
   </div>
@@ -7366,7 +7389,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   </div>
   <div class="rail">
     <div class="ac" role="button" tabindex="0" aria-label="Armor class 18"><span>18<em>AC</em></span></div>
-    <button class="tile"><b>+1</b><em>Initiative</em></button>
+    <button class="tile"><b>+3</b><em>Initiative</em></button>
     <button class="tile"><b>25</b><em>Speed</em></button>
     <button class="tile"><b>+3</b><em>Proficiency</em></button>
   </div>
@@ -7395,7 +7418,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <h3 class="bhead">Resources <span>Click a box to spend</span></h3>
       <div class="res"><div class="resl"><b>Second wind</b><span>Heal 1d10+8, short rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Second wind" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div></div>
       <div class="res"><div class="resl"><b>Action surge</b><span>One extra action, short rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Action surge" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div></div>
-      <div class="res"><div class="resl"><b>Hit dice</b><span>d10, half back on a long rest</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="8" aria-valuenow="8" aria-valuetext="8 of 8 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i></div></div>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d10, half recovered on a long rest</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="8" aria-valuenow="8" aria-valuetext="8 of 8 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i></div></div>
     </section>
 
     <section class="block">
@@ -7459,8 +7482,8 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <span><i class="rank" data-r="prof"></i>Proficient</span><span><i class="rank" data-r="exp"></i>Expertise</span>
       </p>
       <div class="skills">
-        <button class="skill"><i class="rank" data-r="half"></i><span class="lbl">Acrobatics</span><b>+2</b></button>
-        <button class="skill"><i class="rank" data-r="half"></i><span class="lbl">Animal handling</span><b>+2</b></button>
+        <button class="skill"><i class="rank" data-r="half"></i><span class="lbl">Acrobatics</span><b>+3</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Animal handling</span><b>+1</b></button>
         <button class="skill"><i class="rank"></i><span class="lbl">Arcana</span><b>+0</b></button>
         <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Athletics</span><b>+7</b></button>
         <button class="skill"><i class="rank"></i><span class="lbl">Deception</span><b>&minus;1</b></button>
@@ -7468,17 +7491,17 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Insight</span><b>+4</b></button>
         <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Intimidation</span><b>+2</b></button>
         <button class="skill"><i class="rank"></i><span class="lbl">Investigation</span><b>+0</b></button>
-        <button class="skill"><i class="rank" data-r="half"></i><span class="lbl">Medicine</span><b>+2</b></button>
+        <button class="skill"><i class="rank"></i><span class="lbl">Medicine</span><b>+1</b></button>
         <button class="skill"><i class="rank"></i><span class="lbl">Nature</span><b>+0</b></button>
         <button class="skill"><i class="rank" data-r="prof"></i><span class="lbl">Perception</span><b>+4</b></button>
         <button class="skill"><i class="rank"></i><span class="lbl">Performance</span><b>&minus;1</b></button>
         <button class="skill"><i class="rank"></i><span class="lbl">Persuasion</span><b>&minus;1</b></button>
         <button class="skill"><i class="rank"></i><span class="lbl">Religion</span><b>+0</b></button>
-        <button class="skill"><i class="rank" data-r="half"></i><span class="lbl">Sleight of hand</span><b>+2</b></button>
-        <button class="skill"><i class="rank" data-r="half"></i><span class="lbl">Stealth</span><b>+2</b></button>
+        <button class="skill"><i class="rank" data-r="half"></i><span class="lbl">Sleight of hand</span><b>+3</b></button>
+        <button class="skill"><i class="rank" data-r="half"></i><span class="lbl">Stealth</span><b>+3</b></button>
         <button class="skill"><i class="rank"></i><span class="lbl">Survival</span><b>+1</b></button>
       </div>
-      <p class="padnote">Remarkable Athlete adds half proficiency to the Strength, Dexterity and Constitution skills he isn&rsquo;t already proficient in.</p>
+      <p class="padnote">Remarkable athlete adds half proficiency, rounded up, to Strength, Dexterity and Constitution checks without proficiency, initiative included.</p>
     </section>
 
     <section class="block">
@@ -7516,14 +7539,14 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
 
     <section class="block">
       <h3 class="bhead">Equipped <button class="editbtn">Edit</button></h3>
-      <button class="act"><div class="actl"><b>Chain mail</b><span>Heavy armor, AC 16</span></div><span class="mark">Worn</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Chain mail</b><span>Heavy armor, AC 16, Strength 13</span></div><span class="mark">Worn</span><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Shield</b><span>+2 AC</span></div><span class="mark">In hand</span><i class="chev"></i></button>
-      <button class="act"><div class="actl"><b>Warhammer</b><span>Martial melee, versatile 1d10</span></div><span class="mark">In hand</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Warhammer</b><span>1d8 bludgeoning, versatile 1d10</span></div><span class="mark">In hand</span><i class="chev"></i></button>
     </section>
 
     <section class="block">
       <h3 class="bhead">Carried <button class="editbtn">Edit</button></h3>
-      <button class="act"><div class="actl"><b>Handaxe</b><span>Two, martial melee, thrown</span></div><span class="mark">2</span><i class="chev"></i></button>
+      <button class="act"><div class="actl"><b>Handaxe</b><span>1d6 slashing, light, thrown 20/60 ft</span></div><span class="mark">2</span><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Explorer&rsquo;s pack</b><span>Bedroll, rations, rope and the rest</span></div><i class="chev"></i></button>
       <button class="act"><div class="actl"><b>Smith&rsquo;s tools</b><span>Mend and make metal</span></div><i class="chev"></i></button>
     </section>
@@ -7587,7 +7610,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <section class="block">
       <h3 class="bhead">Results <span>3 in your sources</span></h3>
       <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add &ldquo;resilience&rdquo; as a custom feature</button>
-      <p class="grp" style="margin-top:12px">Her class and race</p>
+      <p class="grp" style="margin-top:12px">Brenna&rsquo;s class and race</p>
       <label class="prep"><input type="radio" name="feat" checked><span class="box round"></span><div class="actl"><b>Fiendish resilience</b><span>The Fiend, warlock 10</span></div><span class="mark">Level 10</span></label>
       <p class="grp" style="margin-top:12px">Everything else</p>
       <label class="prep"><input type="radio" name="feat"><span class="box round"></span><div class="actl"><b>Draconic resilience</b><span>Draconic bloodline sorcerer, level 1</span></div><span class="mark">Another class</span></label>
@@ -7706,12 +7729,11 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     </div>
     <div class="rail">
       <div class="ac" role="button" tabindex="0" aria-label="Armor class 18"><span>18<em>AC</em></span></div>
-      <button class="tile"><b>+1</b><em>Initiative</em></button>
+      <button class="tile"><b>+3</b><em>Initiative</em></button>
       <button class="tile"><b>25</b><em>Speed</em></button>
       <button class="tile"><b>+3</b><em>Proficiency</em></button>
     </div>
     <div class="hmarks">
-      <span class="mark">Second wind ready</span>
       <button class="addmark" aria-label="Open status: inspiration, conditions and exhaustion" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Condition</button>
       <button class="restbtn">Rest</button>
     </div>
@@ -7728,7 +7750,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
       <div class="res"><div class="resl"><b>Second wind</b><span>Heal 1d10+8, short rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Second wind" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div></div>
       <div class="res"><div class="resl"><b>Action surge</b><span>One extra action, short rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Action surge" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1" aria-valuetext="1 of 1 left"><i data-on></i></div></div>
-      <div class="res"><div class="resl"><b>Hit dice</b><span>d10, half back on a long rest</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="8" aria-valuenow="8" aria-valuetext="8 of 8 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i></div></div>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d10, half recovered on a long rest</span></div><div class="pips wide" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="8" aria-valuenow="8" aria-valuetext="8 of 8 left"><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i><i data-on></i></div></div>
     </section>
   </div>
 
@@ -7770,7 +7792,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     <section class="block">
       <h3 class="bhead">Results <span>3 in your sources</span></h3>
       <button class="addrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add &ldquo;resilience&rdquo; as a custom feature</button>
-      <p class="grp" style="margin-top:12px">Her class and race</p>
+      <p class="grp" style="margin-top:12px">Brenna&rsquo;s class and race</p>
       <label class="prep"><input type="radio" name="feat" checked><span class="box round"></span><div class="actl"><b>Fiendish resilience</b><span>The Fiend, warlock 10</span></div><span class="mark">Level 10</span></label>
       <p class="grp" style="margin-top:12px">Everything else</p>
       <label class="prep"><input type="radio" name="feat"><span class="box round"></span><div class="actl"><b>Draconic resilience</b><span>Draconic bloodline sorcerer, level 1</span></div><span class="mark">Another class</span></label>
@@ -8118,7 +8140,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="body pad-bottom">
     <section class="block">
       <h3 class="bhead">Resources <span>Click a box to spend</span></h3>
-      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" aria-valuetext="1 of 4 left"><i data-on></i><i></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half recovered on a long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" aria-valuetext="1 of 4 left"><i data-on></i><i></i><i></i><i></i></div></div>
       <div class="res"><div class="resl"><b>Spell slots</b><span>1st level, long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Spell slots" aria-valuemin="0" aria-valuemax="3" aria-valuenow="3" aria-valuetext="3 of 3 left"><i data-on></i><i data-on></i><i data-on></i></div></div>
     </section>
 
@@ -8365,7 +8387,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="body pad-bottom">
     <section class="block">
       <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
-      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" aria-valuetext="1 of 4 left"><i data-on></i><i></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half recovered on a long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" aria-valuetext="1 of 4 left"><i data-on></i><i></i><i></i><i></i></div></div>
       <div class="res"><div class="resl"><b>Spell slots</b><span>1st level, long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Spell slots" aria-valuemin="0" aria-valuemax="3" aria-valuenow="3" aria-valuetext="3 of 3 left"><i data-on></i><i data-on></i><i data-on></i></div></div>
     </section>
   </div>
@@ -8612,10 +8634,10 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <div class="casttop"><b>Concentration save</b><span>Hex</span></div>
         <div class="bigval">
           <div class="bignum">10</div>
-          <p><b>DC 10.</b> She took 7 damage, and half of it is under 10. Her Constitution save is +2.</p>
+          <p><b>DC 10.</b> Brenna took 7 damage, and half of it is under 10. The Constitution save is +2.</p>
         </div>
         <button class="gobtn" style="width:100%;margin-top:14px">Roll d20 + 2</button>
-        <div class="pair"><button class="gobtn">She kept it</button><button class="dangerbtn">She lost it</button></div>
+        <div class="pair"><button class="gobtn">Kept Hex</button><button class="dangerbtn">Lost Hex</button></div>
         <p class="padnote">Losing it ends Hex on the ogre chieftain.</p>
       </div>
     <button class="menuitem close">Close</button>
@@ -8814,10 +8836,10 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       <div class="casttop"><b>Concentration save</b><span>Hex</span></div>
       <div class="bigval">
         <div class="bignum">10</div>
-        <p><b>DC 10.</b> She took 7 damage, and half of it is under 10. Her Constitution save is +2.</p>
+        <p><b>DC 10.</b> Brenna took 7 damage, and half of it is under 10. The Constitution save is +2.</p>
       </div>
       <button class="gobtn" style="width:100%;margin-top:14px">Roll d20 + 2</button>
-      <div class="pair"><button class="gobtn">She kept it</button><button class="dangerbtn">She lost it</button></div>
+      <div class="pair"><button class="gobtn">Kept Hex</button><button class="dangerbtn">Lost Hex</button></div>
       <p class="padnote">Losing it ends Hex on the ogre chieftain.</p>
     </div>
   </div>
@@ -9024,7 +9046,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="body pad-bottom">
     <section class="block">
       <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
-      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" aria-valuetext="1 of 4 left"><i data-on></i><i></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half recovered on a long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" aria-valuetext="1 of 4 left"><i data-on></i><i></i><i></i><i></i></div></div>
       <div class="res"><div class="resl"><b>Spell slots</b><span>1st level, long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Spell slots" aria-valuemin="0" aria-valuemax="3" aria-valuenow="3" aria-valuetext="3 of 3 left"><i data-on></i><i data-on></i><i data-on></i></div></div>
     </section>
   </div>
@@ -9086,7 +9108,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="body pad-bottom">
     <section class="block">
       <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
-      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" aria-valuetext="1 of 4 left"><i data-on></i><i></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half recovered on a long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" aria-valuetext="1 of 4 left"><i data-on></i><i></i><i></i><i></i></div></div>
       <div class="res"><div class="resl"><b>Spell slots</b><span>1st level, long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Spell slots" aria-valuemin="0" aria-valuemax="3" aria-valuenow="3" aria-valuetext="3 of 3 left"><i data-on></i><i data-on></i><i data-on></i></div></div>
     </section>
   </div>
@@ -9140,7 +9162,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="body pad-bottom">
     <section class="block">
       <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
-      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" aria-valuetext="1 of 4 left"><i data-on></i><i></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half recovered on a long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" aria-valuetext="1 of 4 left"><i data-on></i><i></i><i></i><i></i></div></div>
       <div class="res"><div class="resl"><b>Spell slots</b><span>1st level, long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Spell slots" aria-valuemin="0" aria-valuemax="3" aria-valuenow="3" aria-valuetext="3 of 3 left"><i data-on></i><i data-on></i><i data-on></i></div></div>
     </section>
   </div>
@@ -9394,7 +9416,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     </section>
     <section class="block">
       <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
-      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" aria-valuetext="1 of 4 left"><i data-on></i><i></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half recovered on a long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" aria-valuetext="1 of 4 left"><i data-on></i><i></i><i></i><i></i></div></div>
       <div class="res"><div class="resl"><b>Spell slots</b><span>1st level, long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Spell slots" aria-valuemin="0" aria-valuemax="3" aria-valuenow="3" aria-valuetext="3 of 3 left"><i data-on></i><i data-on></i><i data-on></i></div></div>
     </section>
   </div>
@@ -9446,15 +9468,15 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <b>2</b>
         <button class="step" aria-label="One more">+</button>
       </div>
-      <p class="padnote">2d8 + 4, because each die adds her Constitution modifier. The average, 13, would take her to 44.</p>
+      <p class="padnote">2d8 + 4, because each die adds the Constitution modifier. The average, 13, would reach 44.</p>
       <div class="pair"><button class="gobtn" aria-haspopup="dialog" aria-expanded="false">Roll 2d8 + 4</button><button class="gobtn" aria-haspopup="dialog" aria-expanded="true">I rolled</button></div>
     </section>
 
     <section class="block">
       <h3 class="bhead">What changes</h3>
-      <div class="change"><div><b>Pact magic</b><span>The 3rd-level slot she spent</span></div><strong><em class="was">1</em> &rarr; 2</strong></div>
+      <div class="change"><div><b>Pact magic</b><span>The 3rd-level slot spent</span></div><strong><em class="was">1</em> &rarr; 2</strong></div>
       <div class="change"><div><b>Hit points</b><span>Whatever the hit dice roll</span></div><strong><em class="was">31</em> &rarr; 44</strong></div>
-      <div class="change"><div><b>Hit dice</b><span>The 2 she spends</span></div><strong><em class="was">4</em> &rarr; 2</strong></div>
+      <div class="change"><div><b>Hit dice</b><span>2 spent to heal</span></div><strong><em class="was">4</em> &rarr; 2</strong></div>
       <p class="grp" style="margin-top:12px">Not on a short rest</p>
       <div class="change"><div><b>Hex</b><span>Concentration, 8 hours at 3rd level. An hour&rsquo;s rest doesn&rsquo;t reach it.</span></div><span class="mark" data-t="conc">Active</span></div>
       <div class="change"><div><b>Dark One&rsquo;s own luck</b><span>Long rest only, and still unspent</span></div><strong>1</strong></div>
@@ -9466,7 +9488,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="bscrim" aria-hidden="true"></div>
   <div class="bsheet" role="dialog" aria-modal="true" aria-label="Spend hit dice">
     <p class="bsheet-title">Spend 2 hit dice, rolled at the table</p>
-    <div class="roll" data-mode="table" data-kind="heal" data-sides="8" data-mod="4" data-current="31" data-max="44" data-name="Brenna" data-poss="her">
+    <div class="roll" data-mode="table" data-kind="heal" data-sides="8" data-mod="4" data-current="31" data-max="44" data-name="Brenna">
       <div class="dicerow"><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="First d8, 5"><b>5</b><em>d8</em></button></div><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" data-empty aria-pressed="true" aria-label="Second d8, not entered"><b>?</b><em>d8</em></button></div><span class="dieplus">+4</span></div>
       <p class="dicemath" aria-live="polite">5 + ? + 4</p>
       <div class="rollafter">
@@ -9506,15 +9528,15 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
         <b>2</b>
         <button class="step" aria-label="One more">+</button>
       </div>
-      <p class="padnote">2d8 + 4, because each die adds her Constitution modifier. The average, 13, would take her to 44.</p>
+      <p class="padnote">2d8 + 4, because each die adds the Constitution modifier. The average, 13, would reach 44.</p>
       <div class="pair"><button class="gobtn" aria-haspopup="dialog" aria-expanded="true">Roll 2d8 + 4</button><button class="gobtn" aria-haspopup="dialog" aria-expanded="false">I rolled</button></div>
     </section>
 
     <section class="block">
       <h3 class="bhead">What changes</h3>
-      <div class="change"><div><b>Pact magic</b><span>The 3rd-level slot she spent</span></div><strong><em class="was">1</em> &rarr; 2</strong></div>
+      <div class="change"><div><b>Pact magic</b><span>The 3rd-level slot spent</span></div><strong><em class="was">1</em> &rarr; 2</strong></div>
       <div class="change"><div><b>Hit points</b><span>Whatever the hit dice roll</span></div><strong><em class="was">31</em> &rarr; 44</strong></div>
-      <div class="change"><div><b>Hit dice</b><span>The 2 she spends</span></div><strong><em class="was">4</em> &rarr; 2</strong></div>
+      <div class="change"><div><b>Hit dice</b><span>2 spent to heal</span></div><strong><em class="was">4</em> &rarr; 2</strong></div>
       <p class="grp" style="margin-top:12px">Not on a short rest</p>
       <div class="change"><div><b>Hex</b><span>Concentration, 8 hours at 3rd level. An hour&rsquo;s rest doesn&rsquo;t reach it.</span></div><span class="mark" data-t="conc">Active</span></div>
       <div class="change"><div><b>Dark One&rsquo;s own luck</b><span>Long rest only, and still unspent</span></div><strong>1</strong></div>
@@ -9526,12 +9548,12 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="bscrim" aria-hidden="true"></div>
   <div class="bsheet" role="dialog" aria-modal="true" aria-label="Spend hit dice">
     <p class="bsheet-title">Spend 2 hit dice, rolled in the app</p>
-    <div class="roll" data-mode="app" data-kind="heal" data-sides="8" data-mod="4" data-final="6,5" data-current="31" data-max="44" data-name="Brenna" data-poss="her">
+    <div class="roll" data-mode="app" data-kind="heal" data-sides="8" data-mod="4" data-final="6,5" data-current="31" data-max="44" data-name="Brenna">
       <div class="dicerow"><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="First d8, 6"><b>6</b><em>d8</em></button></div><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="Second d8, 5"><b>5</b><em>d8</em></button></div><span class="dieplus">+4</span></div>
       <p class="dicemath" aria-live="polite">6 + 5 + 4 = <b>15</b></p>
       <div class="rollafter">
         <div class="facegrid" role="group" aria-label="What the die shows"><button>1</button><button>2</button><button>3</button><button>4</button><button>5</button><button>6</button><button>7</button><button>8</button></div>
-        <p class="padnote rollnote"><b>13 hit points restored.</b> Brenna reaches her maximum of 44, so 2 are lost.</p>
+        <p class="padnote rollnote"><b>13 hit points restored.</b> Brenna reaches the maximum of 44, so 2 are lost.</p>
         <p class="padnote rollhint">Tap a die to change it.</p>
         <button class="castbtn rollconfirm">Restore 13 hit points</button>
       </div>
@@ -9579,7 +9601,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   <div class="body pad-bottom">
     <section class="block">
       <h3 class="bhead">Resources <span>Tap a box to spend</span></h3>
-      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half back on a long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" aria-valuetext="1 of 4 left"><i data-on></i><i></i><i></i><i></i></div></div>
+      <div class="res"><div class="resl"><b>Hit dice</b><span>d8, half recovered on a long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Hit dice" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" aria-valuetext="1 of 4 left"><i data-on></i><i></i><i></i><i></i></div></div>
       <div class="res"><div class="resl"><b>Spell slots</b><span>1st level, long rest</span></div><div class="pips" role="spinbutton" tabindex="0" aria-label="Spell slots" aria-valuemin="0" aria-valuemax="3" aria-valuenow="3" aria-valuetext="3 of 3 left"><i data-on></i><i data-on></i><i data-on></i></div></div>
     </section>
   </div>
@@ -9620,7 +9642,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   </div>
 
   <div class="body pad-bottom">
-    <div class="roll" data-mode="table" data-kind="heal" data-sides="8" data-mod="4" data-current="31" data-max="44" data-name="Brenna" data-poss="her">
+    <div class="roll" data-mode="table" data-kind="heal" data-sides="8" data-mod="4" data-current="31" data-max="44" data-name="Brenna">
       <div class="dicerow"><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="First d8, 5"><b>5</b><em>d8</em></button></div><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" data-empty aria-pressed="true" aria-label="Second d8, not entered"><b>?</b><em>d8</em></button></div><span class="dieplus">+4</span></div>
       <p class="dicemath" aria-live="polite">5 + ? + 4</p>
       <div class="rollafter">
@@ -9683,12 +9705,12 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
   </div>
 
   <div class="body pad-bottom">
-    <div class="roll" data-mode="app" data-kind="heal" data-sides="8" data-mod="4" data-final="6,5" data-current="31" data-max="44" data-name="Brenna" data-poss="her">
+    <div class="roll" data-mode="app" data-kind="heal" data-sides="8" data-mod="4" data-final="6,5" data-current="31" data-max="44" data-name="Brenna">
       <div class="dicerow"><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="First d8, 6"><b>6</b><em>d8</em></button></div><div class="diewrap"><span class="dieshadow" aria-hidden="true"></span><button class="die" aria-pressed="false" aria-label="Second d8, 5"><b>5</b><em>d8</em></button></div><span class="dieplus">+4</span></div>
       <p class="dicemath" aria-live="polite">6 + 5 + 4 = <b>15</b></p>
       <div class="rollafter">
         <div class="facegrid" role="group" aria-label="What the die shows"><button>1</button><button>2</button><button>3</button><button>4</button><button>5</button><button>6</button><button>7</button><button>8</button></div>
-        <p class="padnote rollnote"><b>13 hit points restored.</b> Brenna reaches her maximum of 44, so 2 are lost.</p>
+        <p class="padnote rollnote"><b>13 hit points restored.</b> Brenna reaches the maximum of 44, so 2 are lost.</p>
         <p class="padnote rollhint">Tap a die to change it.</p>
         <button class="castbtn rollconfirm">Restore 13 hit points</button>
       </div>
@@ -9808,7 +9830,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
     {id:'play', label:'Play tab',
      note:'The default screen. The tabs hang off the bottom of the header plate and stick to the top as you scroll, so they never leave the screen. Below them are resources, attacks and actions.'},
     {id:'d-play', desktop:true, label:'Play, spells and stats side by side',
-     note:'The plate runs the full width in one row and stays tall, so there is no compact header on desktop. The strip hanging off it heads each column. Play and Stats are always on screen, and Spells, Gear and Character share the third column as tabs, with Spells first for a caster. Each column scrolls on its own. Because Play and Spells are usually both in view, each counter appears once: the casting cards drop their slot rows, and Magic initiate&rsquo;s use moves into Resources.'},
+     note:'The plate runs the full width in one row and stays tall, so there is no compact header on desktop. The strip hanging off it heads each column. Play and Stats are always on screen, and Spells, Gear and Character share the third column as tabs, with Spells first for a caster. Each column scrolls on its own. Because Play and Spells are usually both in view, each counter appears once: the casting cards drop their slot rows and Magic initiate&rsquo;s use, which Resources already shows.'},
     {id:'t-landscape', tablet:true, label:'Two columns, landscape at 1180 by 820',
      note:'Three columns would leave cards narrower than on phone, so a tablet gets two. Play stays on the left, and Stats, Spells, Gear and Character share the right column as tabs in the phone&rsquo;s order, with Spells open by default for a caster. The plate wraps into two rows: name and marks with the rail, Rest and the menu, then the vitals across the full width. Hints say tap, because a tablet is a touch screen. Cards are about 540 wide here, so the casting cards still share a row.'},
     {id:'t-portrait', tablet:true, label:'Two columns, portrait at 820 by 1180',
@@ -10839,7 +10861,7 @@ Session 13: the map in the chapel is upside down on purpose.</textarea><div clas
       var total = vals.reduce(function(a, b){ return a + b; }, 0) + mod, room = max - cur, restored = Math.min(total, room);
       math.innerHTML = parts + ' = <b>' + total + '</b>';
       note.innerHTML = total > room
-        ? '<b>' + restored + ' hit points restored.</b> ' + name + ' reaches ' + ds.poss + ' maximum of ' + max + ', so ' + (total - room) + ' ' + (total - room === 1 ? 'is' : 'are') + ' lost.'
+        ? '<b>' + restored + ' hit points restored.</b> ' + name + ' reaches the maximum of ' + max + ', so ' + (total - room) + ' ' + (total - room === 1 ? 'is' : 'are') + ' lost.'
         : '<b>' + restored + ' hit points restored.</b> ' + name + ' goes from ' + cur + ' to ' + (cur + restored) + '.';
       btn.disabled = false; btn.textContent = 'Restore ' + restored + ' hit points';
     } else if(ds.kind === 'deathsave'){
