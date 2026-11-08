@@ -819,8 +819,9 @@ the wrong output, crash, inaccessible control or broken rule. Reproduce it where
 you can (run the test, the app, or the endpoint) and say whether you did.
 
 Label each finding:
-- must-fix: wrong behaviour, a failing rule from AGENTS.md or the brief, a
-  missing state, an accessibility failure.
+- must-fix: wrong behaviour, a missing state, an accessibility failure, or a
+  broken rule from AGENTS.md or the brief, in code someone could plausibly
+  write. List rarer cases as should-fix.
 - should-fix: works, but will cost later (duplication, a leaky abstraction).
 - nit: style the linters don't catch.
 - question: needs the person who owns the plan to decide.
