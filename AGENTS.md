@@ -2,7 +2,8 @@
 
 ## General rules
 
-- Don't commit any changes unless explicitly asked to.
+- Agents may commit to their own step branch without asking. Never commit directly to `main` or a
+  milestone branch: those change only by merging approved work.
 - Always use single quotes instead of curly apostrophes in code.
 - Always use a dark theme when creating HTML plans or code reviews.
 - Keep private helper functions close to their callers if they occur in the same file.
