@@ -29,6 +29,7 @@
     "@testing-library/react-native": "^14.0.1",
     "@types/jest": "29.5.14",
     "@types/react": "~19.2.2",
+    "cspell": "^10.4.1",
     "eslint": "^9.39.5",
     "eslint-config-expo": "~57.0.2",
     "jest": "~29.7.0",
@@ -45,7 +46,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "spell": "cspell lint --no-progress --no-cache"
   },
   "private": true,
   "jest": {
