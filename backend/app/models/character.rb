@@ -1,4 +1,4 @@
-# A confirmed player character: identity, token ink colour, ancestry, and hit
+# A confirmed player character: identity, token ink color, ancestry, and hit
 # points. Unfinished creation and level-up flows live in CharacterDraft, never
 # here. Owns its classes, resources, features, and effects.
 class Character < ApplicationRecord
