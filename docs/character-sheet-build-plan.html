@@ -409,7 +409,8 @@
               <code>feature/sheet-m1</code>.</li>
             <li>Each step has a branch off the milestone branch, such as
               <code>sheet-m1/f4-play-tab</code>, in its own worktree, with a pull request back into the
-              milestone branch.</li>
+              milestone branch on GitHub. The branch is pushed once you approve the step, and the pull
+              request is merged with a merge commit.</li>
             <li>An approved step merges into the milestone branch. Steps that were built in parallel
               rebase onto it before their own review if the branch moved.</li>
             <li>The milestone branch merges into <code>main</code> once its definition
@@ -949,6 +950,9 @@ Missed by the loop: tab bar announced twice on web -&gt; added to the checklist<
             <li><code>docs/sheet-build/</code> with the templates above, a <code>log/</code> folder with one
               file per step, so step branches don't conflict over a shared log, and the review
               checklist.</li>
+            <li>The spelling tests run cspell once over a folder of example files, rather than once per
+              case. They take 72 seconds now, and every check run pays that. Tests come from Sol, so the
+              tests stage rewrites them.</li>
           </ul>
 
           <h3>0.2b The next-step script <span class="tag grok">Grok 4.7</span></h3>
@@ -968,6 +972,9 @@ Missed by the loop: tab bar announced twice on web -&gt; added to the checklist<
               no local record, so Grok's tokens come from the agent's JSON output if it reports them, and
               otherwise from Cursor's usage export, matched to the step's run times. Steps before this
               script get the same lines filled in by hand.</li>
+            <li><code>bin/step-next &lt;id&gt; --close</code> does what <code>docs/sheet-build/chain.md</code>
+              lists under "Closing a step": the log entry, the push, the pull request and its merge, and
+              removing the worktree and branch.</li>
           </ul>
 
           <h3>0.2c Unattended running <span class="tag strong">Opus 5.5</span></h3>
