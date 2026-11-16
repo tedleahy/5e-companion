@@ -729,11 +729,13 @@
             <li><b>If Codex runs out.</b> On a Grok step, you can have Opus 5.5 write the tests or do the
               review so the work keeps moving, and the log notes the switch. On an Opus 5.5 step, tests and
               reviews wait for Sol.</li>
-            <li><b>Usage is measured on milestone 0.</b> The script records each run's token counts where the
-              tool reports them. When a step reaches you, read the percentage used of each subscription's
-              5-hour window and weekly limit, or Cursor's models pool, and add it to the step's log. A
-              milestone 1 step that wouldn't fit in one window on those numbers gets split
-              before it starts.</li>
+            <li><b>Usage is measured on milestone 0.</b> <code>bin/step-next</code> writes each step's usage
+              into its log entry: every agent's tokens, and Codex's 5-hour and weekly percentages when the
+              step reaches you. Codex records those percentages in its session files. Claude Code and Cursor
+              don't, so for them the log has token counts only. Two readings by hand turn those counts into
+              percentages: Claude's <code>/usage</code> before and after one Opus 5.5 step, and Cursor's
+              pool percentage at the end of the milestone. A milestone 1 step that wouldn't fit in one
+              window on those numbers gets split before it starts.</li>
             <li><b>Grok 4.7 draws from Cursor's own models pool.</b> Cursor's docs confirm this, so it doesn't
               use the third-party allowance. The pool on your plan is monthly, and extra usage doesn't bill
               automatically, so running out stops Grok rather than charging you. Cursor publishes no size
@@ -888,8 +890,8 @@ Implementer: grok-4.7, escalated to opus-5.5 after round 2 (layout plumbing)
 Test writer: gpt-6.1-sol     Reviewer: gpt-6.1-sol
 Rounds: 3     Must-fix found by the loop: 4     Your review: 25 min
 Limit stops: 1, Codex window during round 2, resumed from the last commit
-Usage when it reached you, milestone 0 only: Claude 12% window, 2% week; Codex 40% window, 6% week; Cursor 3%
-Agent tokens, where reported: opus-5.5 310k; gpt-6.1-sol 900k; grok-4.7 1.4M
+Codex usage when it reached you: 40% window, 6% week
+Agent tokens: opus-5.5 310k; gpt-6.1-sol 900k; grok-4.7 1.4M
 Missed by the loop: tab bar announced twice on web -&gt; added to the checklist</code></pre>
 
           <h3>Review checklist, seeded from the character list</h3>
@@ -959,6 +961,13 @@ Missed by the loop: tab bar announced twice on web -&gt; added to the checklist<
               commit marks where the tests were finished, and it flags any later edit to those files.</li>
             <li>The reviewer runs as <code>codex exec -s read-only -o &lt;file&gt;</code>, so Sol stays read-only
               and the review file appears only if the round finished. The script commits that file.</li>
+            <li>It writes the usage lines of the step's log entry. Codex's session files under
+              <code>~/.codex/sessions</code> give Sol's tokens and its 5-hour and weekly percentages.
+              Claude Code's transcripts under <code>~/.claude/projects</code> give Opus 5.5's tokens. A
+              message's usage repeats on several lines there, so it counts each message ID once. Cursor keeps
+              no local record, so Grok's tokens come from the agent's JSON output if it reports them, and
+              otherwise from Cursor's usage export, matched to the step's run times. Steps before this
+              script get the same lines filled in by hand.</li>
           </ul>
 
           <h3>0.2c Unattended running <span class="tag strong">Opus 5.5</span></h3>
